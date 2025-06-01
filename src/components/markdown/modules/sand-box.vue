@@ -50,8 +50,8 @@ const themeStore = useThemeStore();
 const { darkMode } = storeToRefs(themeStore);
 
 const { importMap: builtinImportMap } = useVueImportMap({
-  runtimeDev: "/local/vue.runtime.esm-browser.js",
-  runtimeProd: "/local/vue.runtime.esm-browser.prod.js",
+  runtimeDev: "/markdown-preview-demo/local/vue.runtime.esm-browser.js",
+  runtimeProd: "/markdown-preview-demo/local/vue.runtime.esm-browser.prod.js",
 });
 
 watch(()=>props.code,val=>{
