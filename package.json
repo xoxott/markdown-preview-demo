@@ -1,20 +1,20 @@
 {
-  "name": "soybean-admin",
+  "name": "markdown-preview-demo",
   "type": "module",
   "version": "1.3.13",
   "description": "A fresh and elegant admin template, based on Vue3、Vite6、TypeScript、NaiveUI and UnoCSS. 一个基于Vue3、Vite6、TypeScript、NaiveUI and UnoCSS的清新优雅的中后台模版。",
   "author": {
-    "name": "Soybean",
-    "email": "soybeanjs@outlook.com",
-    "url": "https://github.com/soybeanjs"
+    "name": "yangtao",
+    "email": "212920320@qq.com",
+    "url": "https://xoxott.github.io"
   },
   "license": "MIT",
-  "homepage": "https://github.com/soybeanjs/soybean-admin",
+  "homepage": "https://xoxott.github.io/markdown-preview-demo",
   "repository": {
-    "url": "https://github.com/soybeanjs/soybean-admin.git"
+    "url": "https://xoxott.github.io/markdown-preview-demo.git"
   },
   "bugs": {
-    "url": "https://github.com/soybeanjs/soybean-admin/issues"
+    "url": "https://xoxott.github.io/markdown-preview-demo/issues"
   },
   "keywords": [
     "Vue3 admin ",
@@ -38,6 +38,7 @@
     "commit:zh": "sa git-commit -l=zh-cn",
     "dev": "vite --mode test",
     "dev:prod": "vite --mode prod",
+    "deploy": "gh-pages -d dist",
     "gen-route": "sa gen-route",
     "lint": "eslint . --fix",
     "prepare": "simple-git-hooks",
@@ -102,6 +103,7 @@
     "consola": "3.4.2",
     "eslint": "9.26.0",
     "eslint-plugin-vue": "10.1.0",
+    "gh-pages": "^6.3.0",
     "kolorist": "1.8.0",
     "sass": "1.88.0",
     "simple-git-hooks": "2.13.0",
@@ -120,5 +122,5 @@
     "commit-msg": "pnpm sa git-commit-verify",
     "pre-commit": "pnpm typecheck && pnpm lint && git diff --exit-code"
   },
-  "website": "https://admin.soybeanjs.cn"
+  "website": "https://github.com/xoxott/markdown-preview-demo"
 }
