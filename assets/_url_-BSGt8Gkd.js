@@ -1,0 +1,1 @@
+import{d as o,i as a,j as s,a as t,o as n,b as l}from"./index-C86yfZIf.js";const r={class:"h-full"},c=["src"],m=o({name:"iframe-page",__name:"[url]",props:{url:{}},setup(i){return a(()=>{console.log("mounted")}),s(()=>{console.log("activated")}),(e,d)=>(n(),t("div",r,[l("iframe",{id:"iframePage",class:"size-full",src:e.url},null,8,c)]))}});export{m as default};
