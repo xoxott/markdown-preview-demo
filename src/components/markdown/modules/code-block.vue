@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, useAttrs } from 'vue';
+import { computed, ref, useAttrs } from 'vue';
+import { storeToRefs } from 'pinia';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
 import { useThemeStore } from '@/store/modules/theme/index.js';
 import { useCodeTools } from '../hook/useToolbar';
 import ToolBar from './tool-bar.vue';
 import SandBox from './sand-box.vue';
-import type { CodeType } from './sand-box.vue';
-import { storeToRefs } from 'pinia';
 const themeStore = useThemeStore();
 const { darkMode } = storeToRefs(themeStore);
 defineOptions({
@@ -39,6 +38,7 @@ const runCodeLangs = ['vue', 'javascript'];
         :copy-feedback="copyFeedback"
         :lang-name="language || 'text'"
         :theme="darkMode ? 'dark' : 'light'"
+        :is-svg="false"
         @copy="() => copyCode(props.meta.content)"
         @run="showSandBox = true"
       />

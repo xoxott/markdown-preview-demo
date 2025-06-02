@@ -9,7 +9,7 @@ interface SVGInfo {
 }
 export function useCodeTools() {
   const copyFeedback = ref(false);
-  const copyCode = async (content: string, errorMessage?: Ref<string | null>) => {
+  const copyCode = async (content: string, errorMessage?: Ref<string | null> | null | undefined) => {
     if (!isSupported && errorMessage) {
       errorMessage.value = '当前浏览器不支持剪贴板功能';
       return;

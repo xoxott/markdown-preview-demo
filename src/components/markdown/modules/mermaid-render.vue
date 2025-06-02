@@ -3,7 +3,7 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useThemeStore } from '@/store/modules/theme';
 import { useMermaid } from '../hook/useMermaid';
-import { debounce } from '../utils/index';
+import { debounce } from '../utils';
 import { useCodeTools, useSvgTools } from '../hook/useToolbar';
 import ToolBar from './tool-bar.vue';
 interface Props {

@@ -18,13 +18,14 @@ interface Props {
   showCode?: boolean;
   copyFeedback: boolean;
   langName: string;
-  errorMessage?: string;
+  errorMessage?: string | null | undefined;
   theme: 'dark' | 'light';
   isSvg: boolean;
 }
+type direction = 'in' | 'out' | 'reset';
 type EmitEvents = {
   (e: 'toggleCode'): void;
-  (e: 'zoom', key: string): void;
+  (e: 'zoom', key: direction): void;
   (e: 'download'): void;
   (e: 'copy'): void;
   (e: 'retry'): void;

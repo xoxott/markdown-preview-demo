@@ -24,12 +24,13 @@ const content = ref(`# 📝 Markdown 编辑器演示
 支持流程图、时序图、状态图等，基于 Mermaid 渲染：
 
 \`\`\`mermaid
-graph TD
-  A[开始] --> B{条件判断}
-  B -- 是 --> C[执行操作A]
-  B -- 否 --> D[执行操作B]
-  C --> E[结束]
-  D --> E
+sequenceDiagram
+  participant 用户
+  participant 系统
+  用户->>系统: 登录请求
+  系统-->>用户: 返回Token
+  用户->>系统: 获取用户信息
+  系统-->>用户: 返回用户数据
 \`\`\`
 
 ---
@@ -120,7 +121,7 @@ const clickHandle = () => {
     currentText => {
       content.value = currentText;
     },
-    20
+    100
   );
 };
 const editorStyle = computed(() => ({

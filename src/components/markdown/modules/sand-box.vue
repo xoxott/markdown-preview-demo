@@ -1,34 +1,15 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, shallowRef, nextTick, watchEffect, computed } from "vue";
-import {
-  PlayerPlay,
-  Code,
-  FileText,
-  Terminal,
-  AlertTriangle,
-  InfoCircle,
-  Circle,
-  Bug,
-} from "@vicons/tabler";
-import {
-  NDrawer,
-  NDrawerContent,
-  NButton,
-  NRadioGroup,
-  NRadio,
-  NCard,
-  NAlert,
-  NSpace,
-  NIcon,
-} from "naive-ui";
-import { useRunJSCode } from "../hook/useRunJSCode";
-import { useStore, Sandbox, useVueImportMap } from "@vue/repl";
-import { storeToRefs } from "pinia";
-import { useThemeStore } from "@/store/modules/theme";
-import Monaco from "@/components/monaco/index.vue";
-import "@vue/repl/style.css";
+import { ref, watch, watchEffect } from 'vue';
+import { Sandbox, useStore, useVueImportMap } from '@vue/repl';
+import { storeToRefs } from 'pinia';
+import { NAlert, NButton, NCard, NDrawer, NDrawerContent, NIcon, NRadio, NRadioGroup, NSpace } from 'naive-ui';
+import { Bug, PlayerPlay } from '@vicons/tabler';
+import { useThemeStore } from '@/store/modules/theme';
+import Monaco from '@/components/monaco/index.vue';
+import { useRunJSCode } from '../hook/useRunJSCode';
+import '@vue/repl/style.css';
 defineOptions({
-  name: "SandBox",
+  name: 'SandBox'
 });
 
 interface Props {
@@ -36,13 +17,13 @@ interface Props {
   mode: string;
 }
 const props = defineProps<Props>();
-const emit = defineEmits(["close"]);
+const emit = defineEmits(['close']);
 const show = defineModel<boolean>();
 const showVueRepl = ref(false);
 const mode = ref<string>(props.mode);
 const code = ref(props.code);
-const result = ref("");
-const error = ref("");
+const result = ref('');
+const error = ref('');
 const duration = ref<number | null>(null);
 const logs = ref<string[]>([]);
 const loading = ref(false);
@@ -50,23 +31,26 @@ const themeStore = useThemeStore();
 const { darkMode } = storeToRefs(themeStore);
 
 const { importMap: builtinImportMap } = useVueImportMap({
-  runtimeDev: "/markdown-preview-demo/local/vue.runtime.esm-browser.js",
-  runtimeProd: "/markdown-preview-demo/local/vue.runtime.esm-browser.prod.js",
+  runtimeDev: '/markdown-preview-demo/local/vue.runtime.esm-browser.js',
+  runtimeProd: '/markdown-preview-demo/local/vue.runtime.esm-browser.prod.js'
 });
 
-watch(()=>props.code,val=>{
-  code.value = val;
-})
+watch(
+  () => props.code,
+  val => {
+    code.value = val;
+  }
+);
 
 /** 获取store */
 const store = useStore(
   {
     resourceLinks: ref({
-      esModuleShims: "local/es-module-shims.wasm.js",
+      esModuleShims: 'local/es-module-shims.wasm.js'
     }),
     builtinImportMap,
     showOutput: ref(true),
-    outputMode: ref("preview"),
+    outputMode: ref('preview')
   },
   location.hash
 );
@@ -74,40 +58,37 @@ const store = useStore(
 const setCode = (code: string) => {
   store.setFiles(
     {
-      "App.vue": code,
+      'App.vue': code
     },
-    "App.vue"
+    'App.vue'
   );
 };
 
-watchEffect(() => history.replaceState({}, "", store.serialize()));
+watchEffect(() => history.replaceState({}, '', store.serialize()));
 /** 运行 */
 const runCode = async () => {
   loading.value = true;
-  error.value = "";
-  result.value = "";
+  error.value = '';
+  result.value = '';
   duration.value = null;
   logs.value = [];
   showVueRepl.value = false;
-  if (mode.value === "vue") {
+  if (mode.value === 'vue') {
     setCode(code.value);
     showVueRepl.value = true;
     loading.value = false;
     return;
   }
-  const { run, result: res, error: err, duration: time, logs: logOutput } = useRunJSCode(
-    code.value
-  );
+  const { run, result: res, error: err, duration: time, logs: logOutput } = useRunJSCode(code.value);
   await run();
-  error.value = err.value || "";
+  error.value = err.value || '';
   duration.value = time.value;
-  result.value = res.value?.join(" ");
+  result.value = res.value?.join(' ');
   logs.value = logOutput.value;
   loading.value = false;
 };
-const resetStyle = `margin: 0; padding: 0; font-size: none;margin-bottom:0`;
-watch(show, (val) => {
-  if (!val) emit("close");
+watch(show, val => {
+  if (!val) emit('close');
 });
 </script>
 
@@ -152,11 +133,11 @@ watch(show, (val) => {
         </NCard>
 
         <NCard title="代码预览" size="small" bordered>
-          <Monaco filename="App.vue" :mode="mode" v-model="code" :theme="darkMode ? 'dark' : 'light'" />
+          <Monaco v-model="code" filename="App.vue" :mode="mode" :theme="darkMode ? 'dark' : 'light'" />
         </NCard>
 
         <NSpace>
-          <NButton type="primary" @click="runCode" :loading="loading">
+          <NButton type="primary" :loading="loading" @click="runCode">
             <template #icon>
               <PlayerPlay />
             </template>
@@ -165,23 +146,15 @@ watch(show, (val) => {
         </NSpace>
 
         <template v-if="mode === 'javascript'">
-          <NAlert v-if="duration" type="info" title="耗时">
-            {{ duration.toFixed(2) }} ms
-          </NAlert>
+          <NAlert v-if="duration" type="info" title="耗时">{{ duration.toFixed(2) }} ms</NAlert>
 
           <NAlert v-if="logs.length" type="warning" title="控制台输出" show-icon>
             <div class="whitespace-pre-wrap text-sm">
-              {{ logs.join("\n") }}
+              {{ logs.join('\n') }}
             </div>
           </NAlert>
 
-          <NAlert
-            v-if="result && !error"
-            type="success"
-            title="输出结果"
-            class="whitespace-pre-wrap text-sm"
-            show-icon
-          >
+          <NAlert v-if="result && !error" type="success" title="输出结果" class="whitespace-pre-wrap text-sm" show-icon>
             {{ result }}
           </NAlert>
 
@@ -189,16 +162,19 @@ watch(show, (val) => {
             {{ error }}
           </NAlert>
         </template>
-        <div
-          v-if="showVueRepl"
-          class="vue-repl-container border rounded-lg overflow-hidden shadow-sm"
-        >
-          <Sandbox :show="showVueRepl" :store="store" class="rounded-lg shadow border" :theme="darkMode ? 'dark' : 'light'" />
+        <div v-if="showVueRepl" class="vue-repl-container overflow-hidden border rounded-lg shadow-sm">
+          <Sandbox
+            :show="showVueRepl"
+            :store="store"
+            class="border rounded-lg shadow"
+            :theme="darkMode ? 'dark' : 'light'"
+          />
         </div>
       </div>
     </NDrawerContent>
   </NDrawer>
 </template>
+
 <style scoped>
 .vue-repl-wrapper {
   max-height: 500px;
