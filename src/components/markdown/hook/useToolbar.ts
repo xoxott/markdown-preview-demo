@@ -9,7 +9,7 @@ interface SVGInfo {
 }
 export function useCodeTools() {
   const copyFeedback = ref(false);
-  const copyCode = async (content: string, errorMessage?: Ref<string>) => {
+  const copyCode = async (content: string, errorMessage?: Ref<string | null>) => {
     if (!isSupported && errorMessage) {
       errorMessage.value = '当前浏览器不支持剪贴板功能';
       return;
@@ -26,12 +26,16 @@ export function useCodeTools() {
   };
 }
 
-export function useMermaidTools(containerRef: Ref<HTMLElement | undefined>, svgValue: Ref<SVGInfo>) {
+export function useSvgTools(
+  containerRef: Ref<HTMLElement | undefined> | undefined,
+  svgValue: Ref<SVGInfo | SVGElement | null>
+) {
   const scale = ref(1);
+  // 拖拽
   const position = ref({ x: 0, y: 0 });
   const isDragging = ref(false);
   const startPos = ref({ x: 0, y: 0 });
-
+  // 缩放
   const MAX_SCALE = 3;
   const MIN_SCALE = 0.5;
 
@@ -46,7 +50,8 @@ export function useMermaidTools(containerRef: Ref<HTMLElement | undefined>, svgV
       position.value = { x: 0, y: 0 };
       return;
     }
-
+    scale.value = newScale;
+    if (!containerRef || !containerRef.value) return;
     if (containerRef.value) {
       const rect = containerRef.value.getBoundingClientRect();
       const centerX = rect.width / 2;
@@ -57,12 +62,10 @@ export function useMermaidTools(containerRef: Ref<HTMLElement | undefined>, svgV
         y: (position.value.y - centerY) * (newScale / oldScale) + centerY
       };
     }
-
-    scale.value = newScale;
   };
 
   const boundary = computed(() => {
-    if (!containerRef.value) return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+    if (!containerRef || !containerRef.value) return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
     const rect = containerRef.value.getBoundingClientRect();
     const scaledWidth = rect.width * scale.value;
     const scaledHeight = rect.height * scale.value;
@@ -111,11 +114,17 @@ export function useMermaidTools(containerRef: Ref<HTMLElement | undefined>, svgV
   };
   const downloadSVG = () => {
     if (!svgValue.value) return;
-    const blob = new Blob([svgValue.value.content], { type: 'image/svg+xml' });
+    let svgContent: string = '';
+    if ('content' in svgValue.value) {
+      svgContent = svgValue.value.content;
+    } else if (svgValue.value instanceof SVGElement) {
+      svgContent = new XMLSerializer().serializeToString(svgValue.value);
+    }
+    const blob = new Blob([svgContent], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `diagram-${uuid()}.svg`;
+    a.download = `${uuid()}.svg`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

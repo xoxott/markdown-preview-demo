@@ -33,6 +33,7 @@ declare module 'vue' {
     Markdown: typeof import('./../components/markdown/index.vue')['default']
     MenuToggler: typeof import('./../components/common/menu-toggler.vue')['default']
     MermaidRender: typeof import('./../components/markdown/modules/mermaid-render.vue')['default']
+    MindmapRender: typeof import('./../components/markdown/modules/mindmap-render.vue')['default']
     Monaco: typeof import('./../components/monaco/index.vue')['default']
     NAlert: typeof import('naive-ui')['NAlert']
     NBreadcrumb: typeof import('naive-ui')['NBreadcrumb']

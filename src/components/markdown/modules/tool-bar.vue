@@ -1,57 +1,54 @@
 <script setup lang="ts">
 import {
-  LayoutBoard,
-  Code,
-  ZoomIn,
-  ZoomOut,
-  Refresh,
-  Download,
-  Copy,
   Check,
-  RotateClockwise2,
+  Code,
+  Copy,
+  Download,
+  LayoutBoard,
   PlayerPlay,
-} from "@vicons/tabler";
+  Refresh,
+  RotateClockwise2,
+  ZoomIn,
+  ZoomOut
+} from '@vicons/tabler';
 defineOptions({
-  name: "ToolBar",
+  name: 'ToolBar'
 });
 interface Props {
   showCode?: boolean;
   copyFeedback: boolean;
   langName: string;
   errorMessage?: string;
-  theme: "dark" | "light";
+  theme: 'dark' | 'light';
+  isSvg: boolean;
 }
 type EmitEvents = {
-  (e: "toggleCode"): void;
-  (e: "zoom", key: string): void;
-  (e: "download"): void;
-  (e: "copy"): void;
-  (e: "retry"): void;
-  (e: "run"): void;
+  (e: 'toggleCode'): void;
+  (e: 'zoom', key: string): void;
+  (e: 'download'): void;
+  (e: 'copy'): void;
+  (e: 'retry'): void;
+  (e: 'run'): void;
 };
 const emit = defineEmits<EmitEvents>();
 const props = defineProps<Props>();
-const isDark = false;
 </script>
 
 <template>
   <div class="controls">
-    <NTag 
-     size="small"
-     type="default" 
-     :bordered="false"
-     :theme-overrides="{ color: props.theme === 'dark' ? '#27272a' : '#f4f4f5',
-     textColor: props.theme === 'dark' ? '#e4e4e7' : '#71717a'
-    }"
- >
-  {{ props.langName }}
-</NTag>
+    <NTag
+      size="small"
+      type="default"
+      :bordered="false"
+      :theme-overrides="{
+        color: props.theme === 'dark' ? '#27272a' : '#f4f4f5',
+        textColor: props.theme === 'dark' ? '#e4e4e7' : '#71717a'
+      }"
+    >
+      {{ props.langName }}
+    </NTag>
     <div class="item-center flex gap-0.5rem">
-      <NButton
-        v-if="props.langName === 'mermaid'"
-        size="small"
-        @click="emit('toggleCode')"
-      >
+      <NButton v-if="props.isSvg" size="small" @click="emit('toggleCode')">
         <NIcon v-if="props.showCode">
           <LayoutBoard />
         </NIcon>
@@ -59,9 +56,7 @@ const isDark = false;
           <Code />
         </NIcon>
       </NButton>
-      <template
-        v-if="!props.showCode && !props.errorMessage && props.langName === 'mermaid'"
-      >
+      <template v-if="!props.showCode && !props.errorMessage && props.isSvg">
         <NButton size="small" title="放大" @click="emit('zoom', 'in')">
           <NIcon><ZoomIn /></NIcon>
         </NButton>
@@ -97,7 +92,7 @@ const isDark = false;
       >
         <NIcon><PlayerPlay /></NIcon>
       </NButton>
-      <NButton v-if="props.errorMessage" size="small" @click="emit('retry')" title="重试">
+      <NButton v-if="props.errorMessage" size="small" title="重试" @click="emit('retry')">
         <NIcon>
           <RotateClockwise2 />
         </NIcon>

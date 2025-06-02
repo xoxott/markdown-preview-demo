@@ -1,24 +1,13 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue';
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { storeToRefs } from 'pinia';
+import { NCard } from 'naive-ui';
 import * as echarts from 'echarts/core';
-import {
-  NCard
-} from "naive-ui";
-import {
-  BarChart,
-  LineChart,
-  PieChart
-} from 'echarts/charts';
-import {
-  GridComponent,
-  TooltipComponent,
-  LegendComponent,
-  TitleComponent
-} from 'echarts/components';
+import { BarChart, LineChart, PieChart } from 'echarts/charts';
+import { GridComponent, LegendComponent, TitleComponent, TooltipComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
-import { storeToRefs } from "pinia";
-import { useThemeStore } from "@/store/modules/theme";
 import type { EChartsOption } from 'echarts';
+import { useThemeStore } from '@/store/modules/theme';
 
 echarts.use([
   BarChart,
@@ -63,13 +52,13 @@ const renderChart = async () => {
       chartInstance.dispose();
     }
 
-    chartInstance = echarts.init(chartRef.value,darkMode.value ? 'dark' : 'light');
+    chartInstance = echarts.init(chartRef.value, darkMode.value ? 'dark' : 'light');
     chartInstance.setOption(option);
 
     // 监听容器大小变化自动 resize
     window.addEventListener('resize', resizeChart);
   } catch (err) {
-    errorMessage.value = 'ECharts 配置解析失败: ' + (err as Error).message;
+    errorMessage.value = `ECharts 配置解析失败: ${(err as Error).message}`;
   }
 };
 
@@ -82,7 +71,7 @@ const resizeChart = () => {
 
 watch(() => props.meta.content, renderChart, { immediate: true });
 
-watch(()=>darkMode.value, renderChart);
+watch(() => darkMode.value, renderChart);
 
 onMounted(() => {
   renderChart();
@@ -98,12 +87,12 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <NCard :bordered="true" class="mt-4">
+  <NCard :bordered="true" class="mb-2 mt-4">
+    <div ref="chartRef" class="h-auto min-h-[300px] w-full transition-all duration-300 ease-in-out" />
     <div
-      ref="chartRef"
-      class="w-full h-auto min-h-[300px] transition-all duration-300 ease-in-out"
-    />
-    <div v-if="errorMessage" class="absolute inset-0 flex items-center justify-center bg-red-50 text-red-600 font-mono p-4 rounded-md border border-red-200">
+      v-if="errorMessage"
+      class="absolute inset-0 flex items-center justify-center border border-red-200 rounded-md bg-red-50 p-4 text-red-600 font-mono"
+    >
       {{ errorMessage }}
     </div>
   </NCard>

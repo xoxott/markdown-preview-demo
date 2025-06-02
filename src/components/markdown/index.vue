@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { nextTick, VNode } from "vue";
-import { ref, watch,computed } from "vue";
-import "highlight.js/styles/github-dark.css";
-import MarkdownIt from "markdown-it";
-import mermaidRender from "./modules/mermaid-render.vue";
-import echartsRender from "./modules/echarts-render.vue";
-import codeBlock from "./modules/code-block.vue";
-import markdwonVuePlugn from "./plugins/markdown-render-vnode";
+import type { VNode } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
+import 'highlight.js/styles/github-dark.css';
+import { storeToRefs } from 'pinia';
 import { useThemeVars } from 'naive-ui';
-import { useThemeStore } from "@/store/modules/theme";
-import { storeToRefs } from "pinia";
+import MarkdownIt from 'markdown-it';
+import { useThemeStore } from '@/store/modules/theme';
+import mermaidRender from './modules/mermaid-render.vue';
+import mindmapRender from './modules/mindmap-render.vue';
+import echartsRender from './modules/echarts-render.vue';
+import codeBlock from './modules/code-block.vue';
+import markdwonVuePlugn from './plugins/markdown-render-vnode';
 import '@primer/css/markdown/index.scss';
 import '@primer/css/core/index.scss';
 const themeVars = useThemeVars();
@@ -24,21 +25,24 @@ const md = new MarkdownIt({
   html: true,
   linkify: true,
   typographer: true,
-  breaks: true,
+  breaks: true
 });
 
 md.use(markdwonVuePlugn, {
   component: {
     codeBlock: (meta: any) => {
-      if (meta.langName === "mermaid") {
+      if (meta.langName === 'mermaid') {
         return mermaidRender;
       }
-      if (meta.langName === "echarts") {
+      if (meta.langName === 'markmap') {
+        return mindmapRender;
+      }
+      if (meta.langName === 'echarts') {
         return echartsRender;
       }
       return codeBlock;
-    },
-  },
+    }
+  }
 });
 
 const vnodes = ref<VNode[]>([]);
@@ -46,21 +50,20 @@ watch(
   () => props.content,
   () => {
     const tokens = md.parse(props.content, {});
-    vnodes.value = (md.renderer.render(tokens, md.options, {}) as unknown) as VNode[];
+    vnodes.value = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
   },
   { immediate: true }
 );
 const cssVars = computed(() => ({
-  '--markdown-text-color': themeVars.value.textColorBase,
-}))
+  '--markdown-text-color': themeVars.value.textColorBase
+}));
 </script>
 
 <template>
-  <div :style="cssVars" :class="['markdown-container', darkMode ? 'color-mode-dark' : 'color-mode-light']"
-  >
-  <article class="markdown-body">
-    <component :is="vnode" v-for="(vnode, index) in vnodes" :key="index" />
-  </article>
+  <div :style="cssVars" class="markdown-container" :class="[darkMode ? 'color-mode-dark' : 'color-mode-light']">
+    <article class="markdown-body">
+      <component :is="vnode" v-for="(vnode, index) in vnodes" :key="index" />
+    </article>
   </div>
 </template>
 

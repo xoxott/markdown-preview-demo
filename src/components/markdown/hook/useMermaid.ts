@@ -1,4 +1,5 @@
-import { computed, nextTick, Ref, ref } from 'vue';
+import type { Ref } from 'vue';
+import { computed, ref } from 'vue';
 import type { MermaidConfig } from 'mermaid';
 import mermaid from 'mermaid';
 import { v4 as uuid } from 'uuid';
@@ -7,16 +8,7 @@ interface SVGInfo {
   content: string;
 }
 
-/** 防抖 */
-export function debounce<T extends (...args: any[]) => void>(fn: T, delay = 300): T {
-  let timer: ReturnType<typeof setTimeout> | null = null;
-  return function (this: any, ...args: any[]) {
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => fn.apply(this, args), delay);
-  } as T;
-}
-
-export const useMermaid = (content: Ref<string>,darkMode: boolean) => {
+export const useMermaid = (content: Ref<string>, darkMode: boolean) => {
   const errorMessage = ref<string | null>(null);
   const svgValue = ref<SVGInfo>({
     content: '',
@@ -71,16 +63,16 @@ export const useMermaid = (content: Ref<string>,darkMode: boolean) => {
   };
   /** 清理错误 */
   const cleanErrorSVG = (svg: string): string => {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(svg, 'image/svg+xml');
-  const texts = doc.querySelectorAll('text');
-  texts.forEach(el => {
-    if (el.textContent?.includes('Syntax error') || el.textContent?.includes('mermaid version')) {
-      el.remove();
-    }
-  });
-  return new XMLSerializer().serializeToString(doc);
-};
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(svg, 'image/svg+xml');
+    const texts = doc.querySelectorAll('text');
+    texts.forEach(el => {
+      if (el.textContent?.includes('Syntax error') || el.textContent?.includes('mermaid version')) {
+        el.remove();
+      }
+    });
+    return new XMLSerializer().serializeToString(doc);
+  };
 
   /** 渲染mermaid */
   const renderDiagram = async () => {
