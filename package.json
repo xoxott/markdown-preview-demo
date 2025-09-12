@@ -17,14 +17,14 @@
     "url": "https://xoxott.github.io/markdown-preview-demo/issues"
   },
   "keywords": [
-    "Vue3 admin ",
-    "vue-admin-template",
     "Vite6",
     "TypeScript",
     "naive-ui",
     "naive-ui-admin",
-    "ant-design-vue v4",
-    "UnoCSS"
+    "UnoCSS",
+    "markdown",
+    "markdown-it-plugin",
+    "markdown-render-vnode"
   ],
   "engines": {
     "node": ">=18.20.0",
@@ -36,9 +36,9 @@
     "cleanup": "sa cleanup",
     "commit": "sa git-commit",
     "commit:zh": "sa git-commit -l=zh-cn",
+    "deploy": "gh-pages -d dist",
     "dev": "vite --mode test",
     "dev:prod": "vite --mode prod",
-    "deploy": "gh-pages -d dist",
     "gen-route": "sa gen-route",
     "lint": "eslint . --fix",
     "prepare": "simple-git-hooks",
