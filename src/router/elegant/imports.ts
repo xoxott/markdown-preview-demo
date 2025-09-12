@@ -23,4 +23,5 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   chat: () => import("@/views/chat/index.vue"),
   home: () => import("@/views/home/index.vue"),
   markdownedit: () => import("@/views/markdownEdit/index.vue"),
+  upload: () => import("@/views/upload/index.vue"),
 };

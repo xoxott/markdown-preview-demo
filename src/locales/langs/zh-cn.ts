@@ -164,7 +164,8 @@ const local: App.I18n.Schema = {
     'iframe-page': '外链页面',
     home: '首页',
     chat: "会话",
-    markdownedit: "markdown编辑"
+    markdownedit: "markdown编辑",
+    upload:"上传"
   },
   page: {
     login: {

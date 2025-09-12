@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { VNode } from 'vue';
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, createVNode, defineAsyncComponent, Fragment,Comment, ref, Text,watch } from 'vue';
 import 'highlight.js/styles/github-dark.css';
 import { storeToRefs } from 'pinia';
 import { useThemeVars } from 'naive-ui';
@@ -13,6 +13,8 @@ import codeBlock from './modules/code-block.vue';
 import markdwonVuePlugn from './plugins/markdown-render-vnode';
 import '@primer/css/markdown/index.scss';
 import '@primer/css/core/index.scss';
+import createMarkdownPlugin from './plugins/lib/UniversalMarkdownPlugin';
+import { FrameworkType } from './plugins/lib/FrameworkAdapter';
 const themeVars = useThemeVars();
 const themeStore = useThemeStore();
 const { darkMode } = storeToRefs(themeStore);
@@ -27,6 +29,34 @@ const md = new MarkdownIt({
   typographer: true,
   breaks: true
 });
+
+// const vueMarkdownPlugin = createMarkdownPlugin({
+//   framework:FrameworkType.VUE,
+//   frameworkLib:{
+//     createVNode,
+//     Fragment,
+//     Text,
+//     Comment,
+//     defineAsyncComponent
+//   },
+//   components:{
+//     codeBlock:(meta:any)=>{
+//       if (meta.langName === 'mermaid') {
+//         return mermaidRender;
+//       }
+//       if (meta.langName === 'markmap') {
+//         return mindmapRender;
+//       }
+//       if (meta.langName === 'echarts') {
+//         return echartsRender;
+//       }
+//       return codeBlock;
+//     }
+//   },
+//   safeMode:true,
+//   langPrefix: 'language-'
+// })
+// md.use(vueMarkdownPlugin)
 
 md.use(markdwonVuePlugn, {
   component: {

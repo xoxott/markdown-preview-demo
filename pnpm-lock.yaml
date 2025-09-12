@@ -35,12 +35,15 @@ importers:
       '@shikijs/monaco':
         specifier: ^3.4.2
         version: 3.4.2
+      '@vicons/ionicons5':
+        specifier: ^0.13.0
+        version: 0.13.0
       '@vicons/tabler':
         specifier: ^0.13.0
         version: 0.13.0
       '@vue/repl':
-        specifier: github:xoxott/repl#swich-npm-registry
-        version: git+https://git@github.com:xoxott/repl.git#f7a0d5eecd1830e0be47bd81847594d166736eb1
+        specifier: git+https://github.com/xoxott/repl.git#swich-npm-registry
+        version: https://codeload.github.com/xoxott/repl/tar.gz/f7a0d5eecd1830e0be47bd81847594d166736eb1
       '@vueuse/core':
         specifier: 13.1.0
         version: 13.1.0(vue@3.5.13(typescript@5.8.3))
@@ -101,6 +104,9 @@ importers:
       shiki:
         specifier: ^3.4.2
         version: 3.4.2
+      spark-md5:
+        specifier: ^3.0.2
+        version: 3.0.2
       tailwind-merge:
         specifier: 3.2.0
         version: 3.2.0
@@ -1467,6 +1473,9 @@ packages:
     peerDependencies:
       vite: ^2.9.0 || ^3.0.0-0 || ^4.0.0 || ^5.0.0-0 || ^6.0.0-0
 
+  '@vicons/ionicons5@0.13.0':
+    resolution: {integrity: sha512-zvZKBPjEXKN7AXNo2Na2uy+nvuv6SP4KAMQxpKL2vfHMj0fSvuw7JZcOPCjQC3e7ayssKnaoFVAhbYcW6v41qQ==}
+
   '@vicons/tabler@0.13.0':
     resolution: {integrity: sha512-AykuhiqjszkIoAL/7knIFm6RDOBS1ZmQdJfQ+RNLEah0fVsxykUFCfMBSNZh8lOzC85EtdD1k5g/sv5GYk0Ohg==}
 
@@ -1555,8 +1564,8 @@ packages:
   '@vue/reactivity@3.5.13':
     resolution: {integrity: sha512-NaCwtw8o48B9I6L1zl2p41OHo/2Z4wqYGGIK1Khu5T7yxrn+ATOixn/Udn2m+6kZKB/J7cuT9DbWWhRxqixACg==}
 
-  '@vue/repl@git+https://git@github.com:xoxott/repl.git#f7a0d5eecd1830e0be47bd81847594d166736eb1':
-    resolution: {commit: f7a0d5eecd1830e0be47bd81847594d166736eb1, repo: git@github.com:xoxott/repl.git, type: git}
+  '@vue/repl@https://codeload.github.com/xoxott/repl/tar.gz/f7a0d5eecd1830e0be47bd81847594d166736eb1':
+    resolution: {tarball: https://codeload.github.com/xoxott/repl/tar.gz/f7a0d5eecd1830e0be47bd81847594d166736eb1}
     version: 4.5.1
 
   '@vue/runtime-core@3.5.13':
@@ -4403,6 +4412,9 @@ packages:
   space-separated-tokens@2.0.2:
     resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
 
+  spark-md5@3.0.2:
+    resolution: {integrity: sha512-wcFzz9cDfbuqe0FZzfi2or1sgyIrsDwmPwfZC4hiNidPdPINjeUwNfv5kldczoEAcjl9Y1L3SM7Uz2PUEQzxQw==}
+
   spdx-correct@3.2.0:
     resolution: {integrity: sha512-kN9dJbvnySHULIluDHy32WHRUu3Og7B9sbY7tsFLctQkIqnMh3hErYgdMjTYuqmcXX+lK5T1lnUt3G7zNswmZA==}
 
@@ -6242,6 +6254,8 @@ snapshots:
     transitivePeerDependencies:
       - vue
 
+  '@vicons/ionicons5@0.13.0': {}
+
   '@vicons/tabler@0.13.0': {}
 
   '@vitejs/plugin-vue-jsx@4.1.2(vite@6.3.5(@types/node@22.15.17)(jiti@2.4.2)(sass@1.88.0)(tsx@4.19.4)(yaml@2.7.1))(vue@3.5.13(typescript@5.8.3))':
@@ -6388,7 +6402,7 @@ snapshots:
     dependencies:
       '@vue/shared': 3.5.13
 
-  '@vue/repl@git+https://git@github.com:xoxott/repl.git#f7a0d5eecd1830e0be47bd81847594d166736eb1': {}
+  '@vue/repl@https://codeload.github.com/xoxott/repl/tar.gz/f7a0d5eecd1830e0be47bd81847594d166736eb1': {}
 
   '@vue/runtime-core@3.5.13':
     dependencies:
@@ -9682,6 +9696,8 @@ snapshots:
   source-map@0.6.1: {}
 
   space-separated-tokens@2.0.2: {}
+
+  spark-md5@3.0.2: {}
 
   spdx-correct@3.2.0:
     dependencies:

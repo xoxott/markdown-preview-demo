@@ -96,5 +96,15 @@ export const generatedRoutes: GeneratedRoute[] = [
       icon: 'mdi:markdown',
       order: 2
     }
+  },
+  {
+    name: 'upload',
+    path: '/upload',
+    component: 'layout.base$view.upload',
+    meta: {
+      title: 'upload',
+      i18nKey: 'route.upload',
+      icon: 'mdi:upload'
+    }
   }
 ];

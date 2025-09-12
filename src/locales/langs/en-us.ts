@@ -164,7 +164,8 @@ const local: App.I18n.Schema = {
     'iframe-page': 'Iframe',
     home: 'Home',
     chat: "Chat",
-    markdownedit: "MarkdownEdit"
+    markdownedit: "MarkdownEdit",
+    upload:"Upload"
   },
   page: {
     login: {
