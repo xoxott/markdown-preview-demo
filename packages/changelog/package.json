@@ -1,0 +1,23 @@
+{
+  "name": "changelog",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "generate changelog form git tags and commits for github",
+  "author": "",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "docs:html": "typedoc",
+    "docs:md": "typedoc --plugin typedoc-plugin-markdown --out docs-md"
+  },
+  "dependencies": {
+    "cli-progress": "^3.12.0",
+    "semver": "^7.7.2"
+  },
+  "devDependencies": {
+    "@types/cli-progress": "^3.11.6",
+    "@types/semver": "^7.7.1",
+    "typedoc": "^0.28.12",
+    "typedoc-plugin-markdown": "^4.8.1"
+  }
+}

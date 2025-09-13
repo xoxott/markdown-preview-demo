@@ -1,0 +1,13 @@
+{
+  "entryPoints": ["src/index.ts"], // 入口文件，可以写多个
+  "out": "docs", // 输出目录（默认 HTML），也可以是 ./docs/api
+  "plugin": ["typedoc-plugin-markdown"], // 启用 markdown 插件
+  "readme": "none", // 是否包含 README.md (none 表示不生成)
+  "includeVersion": true, // 在文档中显示 package.json 版本
+  "excludeExternals": true, // 排除外部依赖
+  "excludePrivate": true, // 排除 private 成员
+  "excludeProtected": true, // 排除 protected 成员
+  "categorizeByGroup": true, // 是否根据 @category 分组
+  "gitRevision": "main", // 文档中链接到 GitHub 对应分支
+  "githubPages": true // 生成可直接托管到 GitHub Pages 的文档
+}

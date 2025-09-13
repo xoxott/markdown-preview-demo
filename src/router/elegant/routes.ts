@@ -98,6 +98,15 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
+    name: 'screenshot',
+    path: '/screenshot',
+    component: 'layout.base$view.screenshot',
+    meta: {
+      title: 'screenshot',
+      i18nKey: 'route.screenshot'
+    }
+  },
+  {
     name: 'upload',
     path: '/upload',
     component: 'layout.base$view.upload',

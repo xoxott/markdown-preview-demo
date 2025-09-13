@@ -1,4 +1,5 @@
 import process from 'node:process';
+// 导入 c12 提供的 loadConfig 函数，用于加载配置文件
 import { loadConfig } from 'c12';
 import type { CliOption } from '../types';
 

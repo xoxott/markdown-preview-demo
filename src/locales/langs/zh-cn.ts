@@ -165,7 +165,9 @@ const local: App.I18n.Schema = {
     home: '首页',
     chat: "会话",
     markdownedit: "markdown编辑",
-    upload:"上传"
+    upload:"上传",
+    mobile: "Mobile",
+    screenshot: "Screenshot"
   },
   page: {
     login: {
