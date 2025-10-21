@@ -114,6 +114,7 @@ export interface UploadConfig {
 
   enableNetworkAdaptation: boolean; // 网络自适应
   enableSmartRetry: boolean;// 智能重试
+  
   compressionQuality: number;
   previewMaxWidth: number;
   previewMaxHeight: number;
@@ -150,6 +151,8 @@ export interface UploadStats {
   uploadedSize: number;
   averageSpeed: number; // KB/s
   estimatedTime: number; // seconds
+  instantSpeed:number;
+  networkQuality:string;
 }
 
 /** 上传响应接口 */

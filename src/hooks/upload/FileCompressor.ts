@@ -1,5 +1,5 @@
 /** 文件压缩器 */
-class FileCompressor {
+export default class FileCompressor {
   static async compressImage(file: File, quality = 0.8, maxWidth = 1920, maxHeight = 1080): Promise<File> {
     return new Promise((resolve) => {
       const canvas = document.createElement('canvas');
