@@ -6,22 +6,32 @@
  * @FilePath: \markdown-preview-demo\src\hooks\upload\ChunkUploadManager.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
-import { UploadFileInfo } from "naive-ui";
-import { calculateFileMD5, delay, formatFileSize, formatSpeed, formatTime } from "./utils";
-import { ChunkInfo, ChunkStatus, ChunkUploadResponse, FileTask, FileUploadOptions, MergeResponse, UploadCallbacks, UploadConfig, UploadStats, UploadStatus } from "./type";
+import { computed, ref, watch } from "vue";
 import CacheManager from "./CacheManager";
+import { CONSTANTS } from "./constants";
+import EnhancedSpeedCalculator from "./EnhancedSpeedCalculator";
+import FileCompressor from "./FileCompressor";
 import FileValidator from "./FileValidator";
 import NetworkAdapter from "./NetworkAdapter";
-import TaskQueueManager from "./TaskQueueManager";
+import PreviewGenerator from './PreviewGenerator';
 import RetryStrategyManager from "./RetryStrategyManager";
-import { computed, ref, watch } from "vue";
-import EnhancedSpeedCalculator from "./EnhancedSpeedCalculator";
-import { CONSTANTS } from "./constants";
-import SmartChunkCalculator from "./SmartChunkCalculator";
 import Semaphore from "./Semaphore";
-import FileCompressor from "./FileCompressor";
+import SmartChunkCalculator from "./SmartChunkCalculator";
+import TaskQueueManager from "./TaskQueueManager";
+import { 
+    ChunkInfo,
+    ChunkStatus, 
+    ChunkUploadResponse,
+    FileTask, 
+    FileUploadOptions, 
+    MergeResponse, 
+    UploadCallbacks, 
+    UploadConfig, 
+    UploadStats, 
+    UploadStatus 
+  } from "./type";
 import UploadWorkerManager from "./UploadWorkerManager";
-import PreviewGenerator from './PreviewGenerator'
+import { calculateFileMD5, delay } from "./utils";
 
 // ==================== 主类：分片上传管理器 ====================
 export class ChunkUploadManager {
@@ -79,12 +89,12 @@ export class ChunkUploadManager {
       maxConcurrentChunks: CONSTANTS.CONCURRENT.DEFAULT_CHUNKS, // 切块最大数量
 
       // 分片配置
-      chunkSize: 2 * 1024 * 1024,
-      minChunkSize: 512 * 1024,
-      maxChunkSize: 20 * 1024 * 1024,
+      chunkSize: CONSTANTS.UPLOAD.CHUNK_SIZE,
+      minChunkSize: CONSTANTS.UPLOAD.MIN_CHUNK_SIZE,
+      maxChunkSize: CONSTANTS.UPLOAD.MAX_CHUNK_SIZE,
       
       // 重试配置
-      maxRetries: 3,
+      maxRetries: CONSTANTS.RETRY.MAX_RETRIES,
       retryDelay: CONSTANTS.RETRY.BASE_DELAY,
       retryBackoff: CONSTANTS.RETRY.BACKOFF_MULTIPLIER,
 
@@ -93,13 +103,13 @@ export class ChunkUploadManager {
       checkFileUrl: '',
 
       headers: {},  //请求头配置
-      timeout: 60000, // 超时时间
+      timeout: CONSTANTS.UPLOAD.TIMEOUT, // 超时时间
       customParams: {}, // 自定参数
 
       // 文件限制
-      maxFileSize: 50 * 1024 * 1024 * 1024,
-      maxFiles: 500,
-      accept: ['.jpg', '.png', '.pdf', 'image/*', 'video/*'],
+      maxFileSize:CONSTANTS.UPLOAD.MAX_FILESIZE,
+      maxFiles: CONSTANTS.UPLOAD.MAX_FILES,
+      // accept: ['.jpg', '.png', '.pdf', 'image/*', 'video/*'],
 
       // 功能开关
       enableResume: false,  // 断点续传
@@ -112,12 +122,12 @@ export class ChunkUploadManager {
       enableSmartRetry: true,  // 智能重试
 
       // 图片压缩配置
-      enableCompression: false, // 图片压缩
-      compressionQuality: 0.8, // 压缩质量 80%
+      enableCompression: CONSTANTS.COMPRESSION.ENABLE_COMPRESSION, // 图片压缩
+      compressionQuality: CONSTANTS.COMPRESSION.COMPRESSION_QUALITY,  // 压缩质量 80%
 
-      enablePreview: true,  // 预览图
-      previewMaxWidth: 200, // 预览图宽度 200px
-      previewMaxHeight: 200, // 预览图高度 200px
+      enablePreview: CONSTANTS.PREVIEW.ENABLE_PREVIEW,  // 预览图
+      previewMaxWidth: CONSTANTS.PREVIEW.PREVIEW_MAX_WIDTH, // 预览图宽度 200px
+      previewMaxHeight: CONSTANTS.PREVIEW.PREVIEW_MAX_HEIGHT, // 预览图高度 200px
       ...config
     };
   }
@@ -734,7 +744,8 @@ export class ChunkUploadManager {
       error: undefined
     };
   }
-
+  
+  // 创建分片请求参数
   private buildChunkFormData(task: FileTask, chunk: ChunkInfo): FormData {
     const formData = new FormData();
     formData.append('file', chunk.blob);
@@ -780,6 +791,7 @@ export class ChunkUploadManager {
     return this.buildMergeResponse(task, res.data);
   }
 
+  // 创建合片请求参数
   private buildMergeRequest(task: FileTask) {
     return {
       upload_id: task.id,
@@ -831,6 +843,11 @@ export class ChunkUploadManager {
   }
 
   // ==================== 控制方法 ====================
+
+  /**
+   * 暂停上传
+   * @returns this
+   */
   public pause(): this {
     this.isPaused.value = true;
     this.activeUploads.value.forEach(task => {
@@ -842,7 +859,10 @@ export class ChunkUploadManager {
     });
     return this;
   }
-
+  /**
+   * 继续上传
+   * @returns this
+   */
   public resume(): this {
     this.isPaused.value = false;
     this.activeUploads.value.forEach(task => {
@@ -1055,6 +1075,11 @@ export class ChunkUploadManager {
   }
 
   // ==================== 查询方法 ====================
+   /**
+   *  更新配置
+   * @param UploadConfig - 配置信息
+   * @returns this
+   */
   public updateConfig(newConfig: Partial<UploadConfig>): this {
     this.config = { ...this.config, ...newConfig };
 
@@ -1064,7 +1089,12 @@ export class ChunkUploadManager {
 
     return this;
   }
-
+   
+   /**
+   *  获取任务
+   * @param taskId - 任务ID
+   * @returns this
+   */
   public getTask(taskId: string): FileTask | undefined {
     return (
       this.uploadQueue.value.find(t => t.id === taskId) ||
@@ -1072,7 +1102,11 @@ export class ChunkUploadManager {
       this.completedUploads.value.find(t => t.id === taskId)
     );
   }
-
+  
+   /**
+   *  获取详情状态
+   * @returns this
+   */
   public getDetailedStats(): UploadStats & {
     successRate: number;
     averageFileSize: number;
@@ -1098,7 +1132,11 @@ export class ChunkUploadManager {
       cacheHitRate: 0
     };
   }
-
+  
+  /**
+   *  销毁任务
+   * @returns this
+   */
   public destroy(): void {
     this.cancel();
     this.workerManager?.terminate();
@@ -1114,97 +1152,3 @@ export class ChunkUploadManager {
   }
 }
 
-// ==================== Vue Hook ====================
-export function useChunkUpload(config: Partial<UploadConfig> = {}) {
-  const uploader = new ChunkUploadManager(config);
-
-  const uploadQueue = uploader.uploadQueue;
-  const activeUploads = uploader.activeUploads;
-  const completedUploads = uploader.completedUploads;
-  const totalProgress = uploader.totalProgress;
-  const uploadSpeed = uploader.uploadSpeed;
-  const isUploading = uploader.isUploading;
-  const isPaused = uploader.isPaused;
-  const uploadStats = uploader.uploadStats;
-  const networkQuality = uploader.networkQuality;
-
-  const createNaiveFileList = (): UploadFileInfo[] => {
-    const allTasks = [
-      ...uploadQueue.value,
-      ...Array.from(activeUploads.value.values()),
-      ...completedUploads.value
-    ];
-
-    return allTasks.map((task): UploadFileInfo => ({
-      id: task.id,
-      name: task.file.name,
-      status: convertToNaiveStatus(task.status),
-      percentage: task.progress,
-      file: task.file,
-      thumbnailUrl: task.options.metadata?.preview,
-      url: task.result?.fileUrl,
-      type: task.file.type,
-      fullPath: task.file.webkitRelativePath || task.file.name
-    }));
-  };
-
-  const convertToNaiveStatus = (status: UploadStatus): UploadFileInfo['status'] => {
-    const statusMap: Record<UploadStatus, UploadFileInfo['status']> = {
-      [UploadStatus.PENDING]: 'pending',
-      [UploadStatus.UPLOADING]: 'uploading',
-      [UploadStatus.SUCCESS]: 'finished',
-      [UploadStatus.ERROR]: 'error',
-      [UploadStatus.PAUSED]: 'pending',
-      [UploadStatus.CANCELLED]: 'removed',
-    };
-    return statusMap[status];
-  };
-
-  const addFiles = (files: File[] | FileList | File, options?: FileUploadOptions) => 
-    uploader.addFiles(files, options);
-
-  const start = () => uploader.start();
-  const pause = () => uploader.pause();
-  const resume = () => uploader.resume();
-  const cancel = () => uploader.cancel();
-  const retryFailed = () => uploader.retryFailed();
-  const retrySingleFile = (taskId: string)=>uploader.retrySingleFile(taskId)
-  const removeFile = (taskId: string) => uploader.removeFile(taskId);
-  const clear = () => uploader.clear();
-  const getTask = (taskId: string) => uploader.getTask(taskId);
-  const getDetailedStats = () => uploader.getDetailedStats();
-  const updateConfig = (newConfig: Partial<UploadConfig>) => uploader.updateConfig(newConfig);
-  const destroy = () => uploader.destroy();
- 
-
-  return {
-    uploadQueue,
-    activeUploads,
-    completedUploads,
-    totalProgress,
-    uploadSpeed,
-    isUploading,
-    isPaused,
-    uploadStats,
-    networkQuality,
-    uploader,
-    addFiles,
-    start,
-    pause,
-    resume,
-    cancel,
-    retryFailed,
-    removeFile,
-    clear,
-    getTask,
-    getDetailedStats,
-    updateConfig,
-    destroy,
-    createNaiveFileList,
-    convertToNaiveStatus,
-    formatFileSize,
-    formatSpeed,
-    formatTime,
-    retrySingleFile 
-  };
-}

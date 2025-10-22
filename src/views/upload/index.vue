@@ -495,7 +495,7 @@ import {
   SpeedometerOutline,
   WifiOutline,
 } from '@vicons/ionicons5';
-import { useChunkUpload } from '@/hooks/upload/ChunkUploadManager';
+import { useChunkUpload } from '@/hooks/upload/useChunkUpload';
 import { UploadStatus } from '@/hooks/upload/type';
 
 const message = useMessage();

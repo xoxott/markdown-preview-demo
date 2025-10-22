@@ -23,7 +23,9 @@ export default class FileValidator {
   /**
    * @param config - 上传配置对象，用于控制文件大小、类型和数量限制
    */
-  constructor(private config: UploadConfig) {}
+  constructor(private config: UploadConfig) {
+       console.log('实例化');
+  }
 
   /**
    * 批量验证文件列表
@@ -44,6 +46,7 @@ export default class FileValidator {
         console.warn(`文件 ${file.name} 验证失败: ${error}`);
       } else {
         valid.push(file);
+        console.log(valid.length,'添加进校验通过的数组');
       }
     }
 
@@ -61,7 +64,7 @@ export default class FileValidator {
     if (file.size === 0) {
       return '文件为空';
     }
-
+   console.log('配置的最大数量:',this.config.maxFiles,'当前数量',currentCount);
     if (this.config.maxFileSize && file.size > this.config.maxFileSize) {
       return `文件大小超限: ${formatFileSize(file.size)} > ${formatFileSize(this.config.maxFileSize)}`;
     }
