@@ -297,7 +297,7 @@ export class ChunkUploadManager {
     return this;
   }
 
-   private async addFilesWithWorker(files: File[], options: FileUploadOptions): Promise<void> {
+  private async addFilesWithWorker(files: File[], options: FileUploadOptions): Promise<void> {
     try {
       // 使用 Worker 批量处理文件信息
       const results = await this.workerManager!.batchProcess(files, {
@@ -350,10 +350,11 @@ export class ChunkUploadManager {
     }
   }
 
-   private async addFilesInMainThread(files: File[], options: FileUploadOptions): Promise<void> {
+  private async addFilesInMainThread(files: File[], options: FileUploadOptions): Promise<void> {
     for (const file of files) {
       if (this.taskQueueManager.isDuplicate(file, this.getAllTasks())) {
         console.warn(`文件已存在: ${file.name}`);
+        // throw new Error(`文件已存在: ${file.name}`)
         continue;
       }
 
@@ -854,6 +855,10 @@ export class ChunkUploadManager {
     return this;
   }
 
+  /**
+   * 取消上传
+   * @returns this
+   */
   public cancel(): this {
     this.abortController.abort();
     this.abortController = new AbortController();
@@ -874,7 +879,7 @@ export class ChunkUploadManager {
     return this;
   }
 
-    /**
+  /**
    * 重试单个失败的文件
    * @param taskId - 任务ID
    * @returns this
@@ -990,6 +995,11 @@ export class ChunkUploadManager {
     return this;
   }
 
+   /**
+   * 根据任务ID移除文件
+   * @param taskId - 任务ID
+   * @returns this
+   */
   public removeFile(taskId: string): this {
     const queueIndex = this.uploadQueue.value.findIndex(t => t.id === taskId);
     if (queueIndex > -1) {
@@ -1014,6 +1024,10 @@ export class ChunkUploadManager {
     return this;
   }
 
+   /**
+   * 清空所有文件
+   * @returns this
+   */
   public clear(): this {
     this.cancel();
     this.completedUploads.value = [];
@@ -1154,13 +1168,14 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
   const resume = () => uploader.resume();
   const cancel = () => uploader.cancel();
   const retryFailed = () => uploader.retryFailed();
+  const retrySingleFile = (taskId: string)=>uploader.retrySingleFile(taskId)
   const removeFile = (taskId: string) => uploader.removeFile(taskId);
   const clear = () => uploader.clear();
   const getTask = (taskId: string) => uploader.getTask(taskId);
   const getDetailedStats = () => uploader.getDetailedStats();
   const updateConfig = (newConfig: Partial<UploadConfig>) => uploader.updateConfig(newConfig);
   const destroy = () => uploader.destroy();
-  const retrySingleFile = (taskId: string)=>uploader.retrySingleFile(taskId)
+ 
 
   return {
     uploadQueue,

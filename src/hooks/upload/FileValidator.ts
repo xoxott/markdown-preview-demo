@@ -11,9 +11,28 @@ import { UploadConfig } from "./type";
 import { formatFileSize } from "./utils";
 
 // ==================== 工具类：文件验证器 ====================
+
+/**
+ * 文件验证器，用于在上传前对文件进行合法性检查。
+ * 支持验证：
+ *  - 文件大小
+ *  - 文件类型
+ *  - 文件数量限制
+ */
 export default class FileValidator {
+  /**
+   * @param config - 上传配置对象，用于控制文件大小、类型和数量限制
+   */
   constructor(private config: UploadConfig) {}
 
+  /**
+   * 批量验证文件列表
+   * 
+   * @param files - 待验证的文件数组
+   * @returns 对象包含两个字段：
+   *  - valid: 验证通过的文件数组
+   *  - errors: 验证失败的文件及失败原因
+   */
   validate(files: File[]): { valid: File[]; errors: Array<{ file: File; reason: string }> } {
     const valid: File[] = [];
     const errors: Array<{ file: File; reason: string }> = [];
@@ -31,6 +50,13 @@ export default class FileValidator {
     return { valid, errors };
   }
 
+  /**
+   * 验证单个文件是否合法
+   * 
+   * @param file - 待验证的文件对象
+   * @param currentCount - 当前已验证通过的文件数量（用于判断最大文件数量限制）
+   * @returns 错误原因字符串，如果合法则返回 null
+   */
   private validateSingleFile(file: File, currentCount: number): string | null {
     if (file.size === 0) {
       return '文件为空';
@@ -51,6 +77,15 @@ export default class FileValidator {
     return null;
   }
 
+  /**
+   * 判断文件类型是否被允许
+   * 
+   * 支持根据文件扩展名或 MIME 类型进行验证。
+   * 如果配置中未指定 accept 列表，则默认允许所有类型。
+   * 
+   * @param file - 待验证的文件对象
+   * @returns 是否被允许上传（true/false）
+   */
   private isAcceptedType(file: File): boolean {
     if (!this.config.accept?.length) return true;
 
