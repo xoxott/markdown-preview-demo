@@ -1,18 +1,18 @@
 <template>
-  <div class="upload-container">
+  <div class="flex flex-col w-full h-full gap-4">
     <!-- 头部标题 -->
-    <div class="header">
-      <h2>
-        <n-icon :component="CloudUploadOutline" :size="28" />
+    <div class="flex justify-between items-center">
+      <h2 class="flex items-center gap-3 m-0 text-xl font-semibold text-gray-800">
+        <n-icon :component="CloudUploadOutline" :size="22" />
         文件上传管理
       </h2>
       <n-space>
-        <n-button @click="showSettings = true" quaternary circle>
+        <n-button size="small" @click="showSettings = true" quaternary circle>
           <template #icon>
             <n-icon :component="SettingsOutline" />
           </template>
         </n-button>
-        <n-button @click="clear" quaternary circle type="error" v-if="uploadStats.total > 0">
+        <n-button  size="small" @click="clear" quaternary circle type="error" v-if="uploadStats.total > 0">
           <template #icon>
             <n-icon :component="TrashOutline" />
           </template>
@@ -20,126 +20,124 @@
       </n-space>
     </div>
  
-    <div class="flex gap-6">
-    <!-- 上传区域 -->
-    <div class="upload-area" @dragover.prevent @drop.prevent="handleDrop">
-      <div class="upload-zone">
-        <n-icon :component="CloudUploadOutline" :size="48" color="#18a058" />
-        <p class="upload-hint">拖拽文件到此处或点击选择</p>
-        <input
-          type="file"
-          multiple
-          @change="handleFileSelect"
-          ref="fileInputRef"
-          class="file-input"
-        />
-      </div>
-      <n-space vertical>
-        <n-space>
-          <n-button 
-            type="primary" 
-            @click="handleStartUpload" 
-            :disabled="uploadQueue.length === 0"
-            :loading="isUploading"
-          >
-            <template #icon>
-              <n-icon :component="PlayOutline" />
-            </template>
-            开始上传
-          </n-button>
-          <n-button @click="pause" :disabled="!isUploading || isPaused">
-            <template #icon>
-              <n-icon :component="PauseOutline" />
-            </template>
-            暂停
-          </n-button>
-          <n-button @click="resume" :disabled="!isPaused">
-            <template #icon>
-              <n-icon :component="PlayOutline" />
-            </template>
-            恢复
-          </n-button>
-          <n-button 
-            @click="retryFailed" 
-            :disabled="failedCount === 0"
-            type="warning"
-          >
-            <template #icon>
-              <n-icon :component="RefreshOutline" />
-            </template>
-            重试失败 ({{ failedCount }})
-          </n-button>
-        </n-space>
-        <div class="upload-tips">
-          <n-text depth="3" style="font-size: 12px;">
-            支持格式: {{ acceptText }} | 最大: {{ maxSizeText }}
-          </n-text>
+    <div class="flex flex-col xl:flex-row gap-4 w-full">
+      <!-- 上传区域 -->
+      <div
+        class="flex flex-col md:flex-row gap-4 p-6 bg-white rounded-lg shadow transition-all duration-300  flex-1"
+        @dragover.prevent
+        @drop.prevent="handleDrop"
+      >
+        <div
+          class="flex-1 relative flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer transition-all duration-300 hover:border-green-400 hover:bg-green-50"
+        >
+          <n-icon :component="CloudUploadOutline" :size="56" color="#18a058" />
+          <p class="mt-3 text-gray-500 text-sm">拖拽文件到此处或点击选择</p>
+          <input
+            type="file"
+            multiple
+            @change="handleFileSelect"
+            ref="fileInputRef"
+            class="absolute inset-0 opacity-0 cursor-pointer"
+          />
         </div>
-      </n-space>
-    </div>
 
-    <!-- 统计信息 -->
-    <div class="stats-card">
-      <div class="stats-header">
-        <h3>上传统计</h3>
-        <n-space>
-          <n-tag :bordered="false" type="info">
-            <template #icon>
-              <n-icon :component="DocumentsOutline" />
-            </template>
-            总计: {{ uploadStats.total }}
-          </n-tag>
-          <n-tag :bordered="false" type="warning">
-            <template #icon>
-              <n-icon :component="TimeOutline" />
-            </template>
-            待上传: {{ uploadStats.pending }}
-          </n-tag>
-          <n-tag :bordered="false" type="primary">
-            <template #icon>
-              <n-icon :component="ArrowUpOutline" />
-            </template>
-            上传中: {{ uploadStats.active }}
-          </n-tag>
-          <n-tag :bordered="false" type="success">
-            <template #icon>
-              <n-icon :component="CheckmarkCircleOutline" />
-            </template>
-            已完成: {{ uploadStats.completed }}
-          </n-tag>
-          <n-tag :bordered="false" type="error" v-if="uploadStats.failed > 0">
-            <template #icon>
-              <n-icon :component="CloseCircleOutline" />
-            </template>
-            失败: {{ uploadStats.failed }}
-          </n-tag>
-        </n-space>
+        <div class="flex flex-col justify-between gap-4 md:w-[260px]">
+          <div class="flex flex-wrap gap-2">
+             <n-button size="small" @click="retryFailed" :disabled="failedCount === 0" type="warning" class="flex-1">
+              <template #icon>
+                <n-icon :component="RefreshOutline" />
+              </template>
+              重试失败 ({{ failedCount }})
+            </n-button>
+        
+            <n-button size="small" @click="pause" :disabled="!isUploading || isPaused" class="flex-1">
+              <template #icon>
+                <n-icon :component="PauseOutline" />
+              </template>
+              暂停
+            </n-button>
+
+            <n-button size="small" @click="resume" :disabled="!isPaused" class="flex-1">
+              <template #icon>
+                <n-icon :component="PlayOutline" />
+              </template>
+              恢复
+            </n-button>
+
+              <n-button type="primary" @click="handleStartUpload" :disabled="uploadQueue.length === 0" :loading="isUploading" size="small" class="flex-1">
+              <template #icon>
+                <n-icon :component="PlayOutline" />
+              </template>
+              开始上传
+            </n-button>
+          </div>
+
+          <div class="text-gray-400 text-xs text-center">
+            支持格式: {{ acceptText }} | 最大: {{ maxSizeText }}
+          </div>
+        </div>
       </div>
-      
-      <n-progress
-        type="line"
-        :percentage="totalProgress"
-        :status="getProgressStatus()"
-        :height="12"
-        :border-radius="6"
-        :fill-border-radius="6"
-      />
-      
-      <div class="upload-info">
-        <n-space>
-          <div class="info-item">
+
+      <!-- 上传统计 -->
+     <div class="bg-white rounded-lg shadow p-6 flex-1 min-w-[300px] transition-all duration-300 ">
+        <div class="flex items-start justify-between mb-4 gap-4">
+          <h3 class="text-lg font-medium text-gray-700">上传统计</h3>
+
+          <div class="flex flex-wrap gap-2">
+            <n-tag :bordered="false" type="info" class="flex items-center">
+              <template #icon><n-icon :component="DocumentsOutline" /></template>
+              总计: {{ uploadStats.total }}
+            </n-tag>
+
+            <n-tag :bordered="false" type="warning" class="flex items-center">
+              <template #icon><n-icon :component="TimeOutline" /></template>
+              待上传: {{ uploadStats.pending }}
+            </n-tag>
+
+            <n-tag :bordered="false" type="primary" class="flex items-center">
+              <template #icon><n-icon :component="ArrowUpOutline" /></template>
+              上传中: {{ uploadStats.active }}
+            </n-tag>
+
+            <n-tag :bordered="false" type="success" class="flex items-center">
+              <template #icon><n-icon :component="CheckmarkCircleOutline" /></template>
+              已完成: {{ uploadStats.completed }}
+            </n-tag>
+
+            <n-tag v-if="uploadStats.failed > 0" :bordered="false" type="error" class="flex items-center">
+              <template #icon><n-icon :component="CloseCircleOutline" /></template>
+              失败: {{ uploadStats.failed }}
+            </n-tag>
+          </div>
+        </div>
+
+        <!-- 全局进度 -->
+        <div class="mb-4">
+          <n-progress
+            type="line"
+            :percentage="totalProgress"
+            :status="getProgressStatus()"
+            :height="12"
+            :border-radius="6"
+            :fill-border-radius="6"
+          />
+        </div>
+
+        <!-- 详细 info（三列自适应） -->
+        <div class="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm text-gray-600 items-center">
+          <div class="flex items-center gap-2">
             <n-icon :component="SpeedometerOutline" />
             <span>{{ formatSpeed(uploadSpeed) }}</span>
           </div>
-          <n-divider vertical />
-          <div class="info-item">
+
+          <div class="flex items-center gap-2">
             <n-icon :component="TimeOutline" />
             <span>{{ formatTime(uploadStats.estimatedTime) }}</span>
           </div>
-          <n-divider vertical />
-          <div class="info-item">
+
+          <div class="flex items-center gap-2">
             <n-icon :component="WifiOutline" />
-            <n-tag 
+            <n-tag
               :type="networkQuality === 'good' ? 'success' : networkQuality === 'fair' ? 'warning' : 'error'"
               size="small"
               :bordered="false"
@@ -147,280 +145,304 @@
               {{ networkQualityText }}
             </n-tag>
           </div>
-        </n-space>
+        </div>
       </div>
     </div>
 
-    </div>
-
-
-    <!-- 待上传队列 -->
-    <n-collapse-transition :show="uploadQueue.length > 0">
-      <div class="file-section">
-        <div class="section-header">
-          <h3>
-            <n-icon :component="FolderOpenOutline" />
+      <!-- 待上传队列 -->
+      <n-collapse-transition :show="uploadQueue.length > 0">
+        <div class="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800 m-0">
+            <n-icon :component="FolderOpenOutline" size="20" />
             待上传队列
           </h3>
-          <n-tag :bordered="false" round>{{ uploadQueue.length }}</n-tag>
-        </div>
-        <n-list hoverable clickable>
-          <n-list-item v-for="task in uploadQueue" :key="task.id">
-            <template #prefix>
-              <n-avatar 
-                :style="{ background: getFileColor(task.file.type) }"
-                :size="40"
-              >
-                <n-icon :component="getFileIcon(task.file.type)" :size="20" />
-              </n-avatar>
-            </template>
-            <div class="file-item">
-              <div class="file-info">
-                <n-ellipsis class="file-name" :line-clamp="1">
-                  {{ task.file.name }}
-                </n-ellipsis>
-                <n-text depth="3" class="file-meta">
-                  {{ formatFileSize(task.file.size) }} · 
-                  {{ task.file.type || '未知类型' }}
-                </n-text>
-              </div>
-              <n-tag 
-                :type="getStatusType(task.status)" 
-                :bordered="false"
-                size="small"
-              >
-                {{ getStatusText(task.status) }}
-              </n-tag>
-            </div>
-            <template #suffix>
-              <n-button
-                size="small"
-                @click="removeFile(task.id)"
-                quaternary
-                circle
-              >
-                <template #icon>
-                  <n-icon :component="CloseOutline" />
-                </template>
-              </n-button>
-            </template>
-          </n-list-item>
-        </n-list>
-      </div>
-    </n-collapse-transition>
-
-    <!-- 上传中 -->
-    <n-collapse-transition :show="activeUploads.size > 0">
-      <div class="file-section">
-        <div class="section-header">
-          <h3>
-            <n-icon :component="CloudUploadOutline" />
-            上传中
-          </h3>
-          <n-tag type="primary" :bordered="false" round>
-            {{ activeUploads.size }}
+          <n-tag :bordered="false" round size="small" type="info">
+            {{ uploadQueue.length }}
           </n-tag>
         </div>
-        <n-list hoverable>
-          <n-list-item
-            v-for="task in Array.from(activeUploads.values())"
-            :key="task.id"
-          >
-            <template #prefix>
-              <n-avatar 
-                :style="{ background: getFileColor(task.file.type) }"
-                :size="40"
-              >
-                <n-icon :component="getFileIcon(task.file.type)" :size="20" />
-              </n-avatar>
-            </template>
-            <div class="file-item uploading">
-              <div class="file-info">
-                <n-ellipsis class="file-name" :line-clamp="1">
-                  {{ task.file.name }}
-                </n-ellipsis>
-                <div class="progress-wrapper">
-                  <n-progress
-                    type="line"
-                    :percentage="task.progress"
-                    :show-indicator="false"
-                    :height="6"
-                  />
-                  <n-text depth="3" class="progress-text">
-                    {{ task.progress }}% · {{ formatSpeed(task.speed) }}
+
+        <!-- List: 使用 Naive UI 的滚动条 -->
+        <n-scrollbar class="max-h-72 transition-all duration-300">
+          <n-list hoverable clickable>
+            <n-list-item
+              v-for="task in uploadQueue"
+              :key="task.id"
+              class="transition-colors duration-200 !rounded-none"
+            >
+              <template #prefix>
+                <n-avatar
+                  :style="{ background: getFileColor(task.file.type) }"
+                  :size="32"
+                  class="flex items-center justify-center flex-shrink-0"
+                >
+                  <n-icon :component="getFileIcon(task.file.type)" :size="16" />
+                </n-avatar>
+              </template>
+
+              <div class="flex justify-between items-center w-full">
+                <div class="flex flex-col min-w-0 mr-3">
+                  <n-ellipsis class="text-sm font-medium text-gray-800 leading-tight truncate" :line-clamp="1">
+                    {{ task.file.name }}
+                  </n-ellipsis>
+                  <n-text depth="3" class="text-xs text-gray-500 mt-0.5">
+                    {{ formatFileSize(task.file.size) }} · {{ task.file.type || '未知类型' }}
                   </n-text>
                 </div>
-              </div>
-            </div>
-          </n-list-item>
-        </n-list>
-      </div>
-    </n-collapse-transition>
-
-    <!-- 已完成 -->
-    <n-collapse-transition :show="completedUploads.length > 0">
-      <div class="file-section">
-        <div class="section-header">
-          <h3>
-            <n-icon :component="CheckmarkDoneOutline" />
-            已完成
-          </h3>
-          <n-tag :bordered="false" round>{{ completedUploads.length }}</n-tag>
-        </div>
-        <n-list hoverable>
-          <n-list-item v-for="task in completedUploads" :key="task.id">
-            <template #prefix>
-              <n-avatar 
-                :style="{ 
-                  background: task.status === UploadStatus.SUCCESS 
-                    ? '#18a05880' 
-                    : '#d0305080' 
-                }"
-                :size="40"
-              >
-                <n-icon 
-                  :component="task.status === UploadStatus.SUCCESS 
-                    ? CheckmarkCircleOutline 
-                    : CloseCircleOutline
-                  "
-                  :size="24"
-                  :color="task.status === UploadStatus.SUCCESS ? '#18a058' : '#d03050'"
-                />
-              </n-avatar>
-            </template>
-            <div class="file-item">
-              <div class="file-info">
-                <n-ellipsis class="file-name" :line-clamp="1">
-                  {{ task.file.name }}
-                </n-ellipsis>
-                <div class="file-meta-row">
-                  <n-text depth="3" class="file-meta">
-                    {{ formatFileSize(task.file.size) }}
-                  </n-text>
-                  <n-tag 
-                    :type="getStatusType(task.status)" 
-                    :bordered="false"
-                    size="small"
-                  >
+                <div class="flex items-center gap-2 flex-shrink-0">
+                  <n-tag :type="getStatusType(task.status)" :bordered="false" size="small">
                     {{ getStatusText(task.status) }}
                   </n-tag>
+                  <n-button
+                    size="tiny"
+                    quaternary
+                    circle
+                    @click="removeFile(task.id)"
+                  >
+                    <template #icon>
+                      <n-icon :component="CloseOutline" />
+                    </template>
+                  </n-button>
                 </div>
-                <n-text 
-                  v-if="task.error" 
-                  type="error" 
-                  class="error-message"
-                  depth="3"
-                >
-                  {{ task.error.message }}
-                </n-text>
               </div>
-            </div>
-            <template #suffix>
-              <n-space :size="8">
-                <n-button
-                  v-if="task.status === UploadStatus.ERROR"
-                  size="small"
-                  @click="handleRetrySingle(task.id)"
-                  type="warning"
-                  secondary
-                >
-                  <template #icon>
-                    <n-icon :component="RefreshOutline" />
-                  </template>
-                  重试
-                </n-button>
-                <n-button
-                  v-if="task.status === UploadStatus.SUCCESS && task.result?.fileUrl"
-                  size="small"
-                  @click="handleViewFile(task.result.fileUrl)"
-                  type="primary"
-                  secondary
-                >
-                  <template #icon>
-                    <n-icon :component="EyeOutline" />
-                  </template>
-                  查看
-                </n-button>
-                <n-button
-                  size="small"
-                  @click="removeFile(task.id)"
-                  secondary
-                  type="error"
-                >
-                  <template #icon>
-                    <n-icon :component="TrashOutline" />
-                  </template>
-                  删除
-                </n-button>
-              </n-space>
-            </template>
-          </n-list-item>
-        </n-list>
-      </div>
-    </n-collapse-transition>
+            </n-list-item>
+          </n-list>
+        </n-scrollbar>
+        </div>
+      </n-collapse-transition>
 
-    <!-- 设置抽屉 -->
-    <n-drawer v-model:show="showSettings" :width="400" placement="right">
-      <n-drawer-content title="上传设置" closable>
-        <n-form label-placement="left" label-width="120">
-          <n-form-item label="最大并发文件">
-            <n-input-number 
-              v-model:value="settings.maxConcurrentFiles" 
-              :min="1" 
-              :max="10"
-              @update:value="handleSettingChange"
-            />
-          </n-form-item>
-          <n-form-item label="最大并发切片">
-            <n-input-number 
-              v-model:value="settings.maxConcurrentChunks" 
-              :min="1" 
-              :max="20"
-              @update:value="handleSettingChange"
-            />
-          </n-form-item>
-          <n-form-item label="分片大小">
-            <n-select 
-              v-model:value="settings.chunkSize" 
-              :options="chunkSizeOptions"
-              @update:value="handleSettingChange"
-            />
-          </n-form-item>
-          <n-form-item label="最大重试次数">
-            <n-input-number 
-              v-model:value="settings.maxRetries" 
-              :min="0" 
-              :max="10"
-              @update:value="handleSettingChange"
-            />
-          </n-form-item>
-          <n-form-item label="网络自适应">
-            <n-switch 
-              v-model:value="settings.enableNetworkAdaptation"
-              @update:value="handleSettingChange"
-            />
-          </n-form-item>
-          <n-form-item label="智能重试">
-            <n-switch 
-              v-model:value="settings.enableSmartRetry"
-              @update:value="handleSettingChange"
-            />
-          </n-form-item>
-          <n-form-item label="秒传检测">
-            <n-switch 
-              v-model:value="settings.enableDeduplication"
-              @update:value="handleSettingChange"
-            />
-          </n-form-item>
-          <n-form-item label="使用 Worker">
-            <n-switch 
-              v-model:value="settings.useWorker"
-              @update:value="handleSettingChange"
-            />
-          </n-form-item>
-        </n-form>
-      </n-drawer-content>
-    </n-drawer>
+      <!-- 上传中 -->
+      <n-collapse-transition :show="activeUploads.size > 0">
+        <div class="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100">
+          <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+           <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800 m-0">
+              <n-icon :component="CloudUploadOutline" class="text-primary-500" />
+              上传中
+            </h3>
+            <n-tag type="primary" :bordered="false" round>
+              {{ activeUploads.size }}
+            </n-tag>
+          </div>
+
+          <n-list hoverable>
+            <n-list-item
+              v-for="task in Array.from(activeUploads.values())"
+              :key="task.id"
+               class="transition-colors duration-200 !rounded-none"
+            >
+              <template #prefix>
+                <n-avatar
+                  :style="{ background: getFileColor(task.file.type) }"
+                  :size="32"
+                  class="flex items-center justify-center flex-shrink-0"
+                >
+                  <n-icon :component="getFileIcon(task.file.type)" :size="16" />
+                </n-avatar>
+              </template>
+
+              <div class="flex justify-between items-center w-full">
+                <div class="flex flex-col min-w-0 mr-3">
+                  <n-ellipsis class="text-sm font-medium text-gray-800 leading-tight truncate" :line-clamp="1">
+                    {{ task.file.name }}
+                  </n-ellipsis>
+
+                  <div class="flex flex-col gap-6 mt-2">
+                    <n-progress
+                      type="line"
+                      :percentage="task.progress"
+                      :show-indicator="false"
+                      :height="6"
+                    />
+                    <n-text depth="3" class="text-xs text-gray-500 mt-0.5">
+                      {{ task.progress }}% · {{ formatSpeed(task.speed) }}
+                    </n-text>
+                  </div>
+                </div>
+              </div>
+            </n-list-item>
+          </n-list>
+        </div>
+      </n-collapse-transition>
+
+      <!-- 已完成 -->
+      <n-collapse-transition :show="completedUploads.length > 0">
+        <div class="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100">
+          <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+            <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800 m-0">
+              <n-icon :component="CheckmarkDoneOutline" class="text-green-500" />
+              已完成
+            </h3>
+            <n-tag :bordered="false" round size="small" type="info">{{ completedUploads.length }}</n-tag>
+          </div>
+        <div class="max-h-72 overflow-y-auto divide-y divide-gray-100 transition-all duration-300">
+          <n-list hoverable clickable>
+            <n-list-item
+              v-for="task in completedUploads"
+              :key="task.id"
+               class="transition-colors duration-200 !rounded-none"
+            >
+              <template #prefix>
+                <n-avatar
+                  :style="{
+                    background: task.status === UploadStatus.SUCCESS
+                      ? '#18a05880'
+                      : '#d0305080'
+                  }"
+                 :size="32"
+                 class="flex items-center flex-shrink-0"
+                >
+                  <n-icon
+                    :component="
+                      task.status === UploadStatus.SUCCESS
+                        ? CheckmarkCircleOutline
+                        : CloseCircleOutline
+                    "
+                    :size="16"
+                    :color="task.status === UploadStatus.SUCCESS ? '#18a058' : '#d03050'"
+                  />
+                </n-avatar>
+              </template>
+
+              <div class="flex justify-between items-center w-full">
+                <div class="flex gap-2 items-center min-w-0 mr-3">
+                  <n-ellipsis class="text-sm font-medium text-gray-800 leading-tight truncate" :line-clamp="1">
+                    {{ task.file.name }}
+                  </n-ellipsis>
+
+                  <div class="flex items-center justify-between gap-2">
+                    <n-text depth="3" class="text-xs text-gray-500 mt-0.5">
+                      {{ formatFileSize(task.file.size) }}
+                    </n-text>
+                    <n-tag
+                      :type="getStatusType(task.status)"
+                      :bordered="false"
+                      size="small"
+                    >
+                      {{ getStatusText(task.status) }}
+                    </n-tag>
+                  </div>
+
+                  <n-ellipsis class="text-sm font-medium text-gray-800 leading-tight truncate" :line-clamp="1">
+                      <n-text
+                        v-if="task.error"
+                        type="error"
+                        depth="3"
+                      >
+                        {{ task.error.message }}
+                      </n-text>
+                  </n-ellipsis>
+                </div>
+              </div>
+
+              <template #suffix>
+                <div div class="flex items-center gap-2 ml-2">
+                  <n-button
+                    v-if="task.status === UploadStatus.ERROR"
+                    @click="handleRetrySingle(task.id)"
+                    type="warning"
+                    size="tiny"
+                    quaternary
+                    circle
+                  >
+                    <template #icon>
+                      <n-icon :component="RefreshOutline" />
+                    </template>
+                  </n-button>
+
+                  <n-button
+                    v-if="task.status === UploadStatus.SUCCESS && task.result?.fileUrl"
+                    @click="handleViewFile(task.result.fileUrl)"
+                    type="primary"
+                    size="tiny"
+                    quaternary
+                    circle
+                  >
+                    <template #icon>
+                      <n-icon :component="EyeOutline" />
+                    </template>
+                  </n-button>
+
+                  <n-button
+                    @click="removeFile(task.id)"
+                    size="tiny"
+                    quaternary
+                    circle
+                  >
+                    <template #icon>
+                      <n-icon :component="TrashOutline" />
+                    </template>
+                  </n-button>
+                </div>
+              </template>
+            </n-list-item>
+          </n-list>
+        </div>
+        </div>
+      </n-collapse-transition>
+      
+      <!-- 设置抽屉 -->
+      <n-drawer v-model:show="showSettings" :width="400" placement="right">
+        <n-drawer-content title="上传设置" closable>
+          <n-form label-placement="left" label-width="120">
+            <n-form-item label="最大并发文件">
+              <n-input-number 
+                v-model:value="settings.maxConcurrentFiles" 
+                :min="1" 
+                :max="10"
+                @update:value="handleSettingChange"
+              />
+            </n-form-item>
+            <n-form-item label="最大并发切片">
+              <n-input-number 
+                v-model:value="settings.maxConcurrentChunks" 
+                :min="1" 
+                :max="20"
+                @update:value="handleSettingChange"
+              />
+            </n-form-item>
+            <n-form-item label="分片大小">
+              <n-select 
+                v-model:value="settings.chunkSize" 
+                :options="chunkSizeOptions"
+                @update:value="handleSettingChange"
+              />
+            </n-form-item>
+            <n-form-item label="最大重试次数">
+              <n-input-number 
+                v-model:value="settings.maxRetries" 
+                :min="0" 
+                :max="10"
+                @update:value="handleSettingChange"
+              />
+            </n-form-item>
+            <n-form-item label="网络自适应">
+              <n-switch 
+                v-model:value="settings.enableNetworkAdaptation"
+                @update:value="handleSettingChange"
+              />
+            </n-form-item>
+            <n-form-item label="智能重试">
+              <n-switch 
+                v-model:value="settings.enableSmartRetry"
+                @update:value="handleSettingChange"
+              />
+            </n-form-item>
+            <n-form-item label="秒传检测">
+              <n-switch 
+                v-model:value="settings.enableDeduplication"
+                @update:value="handleSettingChange"
+              />
+            </n-form-item>
+            <n-form-item label="使用 Worker">
+              <n-switch 
+                v-model:value="settings.useWorker"
+                @update:value="handleSettingChange"
+              />
+            </n-form-item>
+          </n-form>
+        </n-drawer-content>
+      </n-drawer>
   </div>
 </template>
 
@@ -658,191 +680,9 @@ const getStatusText = (status: UploadStatus): string => {
 };
 
 // 获取进度条状态
-const getProgressStatus = () => {
-  if (uploadStats.value.failed > 0) return 'exception';
+const getProgressStatus = (): 'default' | 'success' | 'error' => {
+  if (uploadStats.value.failed > 0) return 'error';
   if (uploadStats.value.completed === uploadStats.value.total) return 'success';
   return 'default';
 };
 </script>
-
-<style scoped lang="scss">
-.upload-container {
-  width: 100%;
-  height: 100%;
-  padding: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  
-  h2 {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 0;
-    font-size: 24px;
-    font-weight: 600;
-    color: #333;
-  }
-}
-
-.upload-area {
-  margin-bottom: 24px;
-  padding: 32px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  display: flex;
-  gap: 24px;
-  align-items: center;
-  
-  .upload-zone {
-    flex: 1;
-    position: relative;
-    padding: 48px 32px;
-    border: 2px dashed #d9d9d9;
-    border-radius: 12px;
-    text-align: center;
-    transition: all 0.3s;
-    cursor: pointer;
-    
-    &:hover {
-      border-color: #18a058;
-      background: #f0fdf4;
-    }
-    
-    .upload-hint {
-      margin: 16px 0 0;
-      font-size: 16px;
-      color: #666;
-    }
-    
-    .file-input {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-    }
-  }
-  
-  .upload-tips {
-    margin-top: 8px;
-  }
-}
-
-.stats-card {
-  margin-bottom: 24px;
-  padding: 24px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  
-  .stats-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    
-    h3 {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 600;
-    }
-  }
-  
-  .upload-info {
-    margin-top: 16px;
-    
-    .info-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      color: #666;
-    }
-  }
-}
-
-.file-section {
-  margin-bottom: 24px;
-  padding: 24px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-    
-    h3 {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin: 0;
-      font-size: 16px;
-      font-weight: 600;
-    }
-  }
-}
-
-.file-item {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  min-width: 0;
-  
-  &.uploading {
-    .file-info {
-      flex: 1;
-    }
-  }
-}
-
-.file-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 0;
-}
-
-.file-name {
-  font-weight: 500;
-  font-size: 14px;
-  color: #333;
-}
-
-.file-meta {
-  font-size: 12px;
-}
-
-.file-meta-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.progress-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.progress-text {
-  font-size: 12px;
-}
-
-.error-message {
-  font-size: 12px;
-  margin-top: 4px;
-}
-</style>
