@@ -14,7 +14,7 @@ const content = ref(README);
  * @param onUpdate 每次更新调用的回调，传入当前累积的文本
  * @param delay 每个字符之间的延迟（毫秒）
  */
-async function typewriterEffect(fullText: string, onUpdate: (current: string) => void, delay = 100) {
+async function typewriterEffect(fullText: string, onUpdate: (current: string) => void, delay = 10) {
   let currentText = '';
   for (let i = 0; i < fullText.length; i++) {
     currentText += fullText[i];
@@ -30,7 +30,7 @@ const clickHandle = () => {
     currentText => {
       content.value = currentText;
     },
-    100
+    80
   );
 };
 const editorStyle = computed(() => ({

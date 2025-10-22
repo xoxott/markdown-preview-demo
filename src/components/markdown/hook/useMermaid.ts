@@ -14,7 +14,7 @@ export const useMermaid = (content: Ref<string>, darkMode: boolean) => {
     content: '',
     viewBox: '0 0 100 100'
   });
-  const svgAspectRatio = ref(1);
+  const svgAspectRatio = ref(0.8);
   /** Mermaid 配置项 */
   const mermaidConfig: MermaidConfig = {
     startOnLoad: false,
@@ -34,7 +34,7 @@ export const useMermaid = (content: Ref<string>, darkMode: boolean) => {
       htmlLabels: true
     },
     sequence: {
-      diagramMarginX: 50,
+      diagramMarginX: 30,
       diagramMarginY: 10
     }
   };
@@ -89,7 +89,7 @@ export const useMermaid = (content: Ref<string>, darkMode: boolean) => {
     // 基于宽高比的动态高度
     paddingBottom: `${svgAspectRatio.value * 100}%`,
     // 限制最大高度
-    maxHeight: `${(1 / svgAspectRatio.value) * 300}px`
+    maxHeight: `${(1 / svgAspectRatio.value) * 100}px`
   }));
   return {
     initMermaid,
