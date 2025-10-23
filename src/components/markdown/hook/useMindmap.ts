@@ -24,7 +24,8 @@ export const useMindmap = (content: Ref<string>, svgRef: Ref<SVGElement | null>)
   const renderMindmap = async () => {
     try {
       errorMessage.value = null;
-      const { root } = transformer.transform(content.value, { sanitize: false });
+      //  { sanitize: false }
+      const { root } = transformer.transform(content.value);
       await nextTick();
       const el = svgRef.value;
       if (!el) throw new Error('SVG 元素未挂载');
@@ -34,7 +35,7 @@ export const useMindmap = (content: Ref<string>, svgRef: Ref<SVGElement | null>)
         {
           autoFit: true,
           paddingX: 20,
-          paddingY: 20
+          // paddingY: 20
         },
         root
       );

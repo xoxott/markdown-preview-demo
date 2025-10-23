@@ -84,7 +84,7 @@ export async function callOllamaStream(
             }
           }
         }
-      } catch (e) {
+      } catch (e:any) {
         if (e.name !== 'AbortError') {
           throw e;
         }
@@ -95,7 +95,7 @@ export async function callOllamaStream(
     };
 
     await processChunk();
-  } catch (error) {
+  } catch (error:any) {
     if (error.name === 'AbortError') {
       throw new Error('请求超时');
     }
