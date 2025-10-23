@@ -98,6 +98,7 @@
     "@types/markdown-it": "^14.1.2",
     "@types/node": "22.15.17",
     "@types/nprogress": "0.2.3",
+    "@types/spark-md5": "^3.0.5",
     "@unocss/eslint-config": "66.1.1",
     "@unocss/preset-icons": "66.1.1",
     "@unocss/preset-uno": "66.1.1",

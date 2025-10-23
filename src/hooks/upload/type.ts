@@ -88,7 +88,7 @@ export interface UploadConfig {
   uploadChunkUrl: string;
   mergeChunksUrl: string;
   checkFileUrl?: string; // 秒传检查
-  cancelUploadUrl?: string;
+  cancelUploadUrl?: string; //取消上传
 
   // 请求配置
   headers: Record<string, string>;
@@ -100,7 +100,7 @@ export interface UploadConfig {
   // 文件过滤
   accept?: string[];
   maxFileSize?: number; // bytes
-  maxFiles?: number;
+  maxFiles?: number; //最大文件数
 
   // 功能开关
   enableResume: boolean; // 断点续传
@@ -114,9 +114,10 @@ export interface UploadConfig {
 
   enableNetworkAdaptation: boolean; // 网络自适应
   enableSmartRetry: boolean;// 智能重试
-  compressionQuality: number;
-  previewMaxWidth: number;
-  previewMaxHeight: number;
+  
+  compressionQuality: number; // 压缩百分比
+  previewMaxWidth: number;  // 预览宽度
+  previewMaxHeight: number; // 预览高度
 }
 
 /** 回调函数类型 */
@@ -150,6 +151,8 @@ export interface UploadStats {
   uploadedSize: number;
   averageSpeed: number; // KB/s
   estimatedTime: number; // seconds
+  instantSpeed:number;
+  networkQuality:string;
 }
 
 /** 上传响应接口 */

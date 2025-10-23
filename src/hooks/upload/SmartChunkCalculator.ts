@@ -1,6 +1,29 @@
 import type { UploadConfig } from './type'
-/** 智能分片计算器 */
+
+/**
+ * 智能分片计算器
+ * 
+ * 根据文件大小、网络速度和上传配置，动态计算最优的分片大小。
+ * 目标是保证每个分片上传时间合理，同时满足最小/最大分片限制。
+ */
 export default class SmartChunkCalculator {
+  /**
+   * 计算最优分片大小
+   * 
+   * @param fileSize - 文件总大小（字节）
+   * @param networkSpeed - 网络速度（KB/s）
+   * @param config - 上传配置，包括 minChunkSize、maxChunkSize 和默认 chunkSize
+   * @returns 分片大小（字节）
+   * 
+   * @example
+   * ```ts
+   * const chunkSize = SmartChunkCalculator.calculateOptimalChunkSize(
+   *   file.size,
+   *   currentNetworkSpeed,
+   *   uploadConfig
+   * );
+   * ```
+   */
   static calculateOptimalChunkSize(fileSize: number, networkSpeed: number, config: UploadConfig): number {
     const { minChunkSize, maxChunkSize, chunkSize } = config;
 

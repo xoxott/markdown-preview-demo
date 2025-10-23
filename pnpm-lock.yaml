@@ -153,6 +153,9 @@ importers:
       '@types/nprogress':
         specifier: 0.2.3
         version: 0.2.3
+      '@types/spark-md5':
+        specifier: ^3.0.5
+        version: 3.0.5
       '@unocss/eslint-config':
         specifier: 66.1.1
         version: 66.1.1(eslint@9.26.0(jiti@2.4.2))(typescript@6.0.0-dev.20251023)
@@ -1383,6 +1386,9 @@ packages:
 
   '@types/sortablejs@1.15.8':
     resolution: {integrity: sha512-b79830lW+RZfwaztgs1aVPgbasJ8e7AXtZYHTELNXZPsERt4ymJdjV4OccDbHQAvHrCcFpbF78jkm0R6h/pZVg==}
+
+  '@types/spark-md5@3.0.5':
+    resolution: {integrity: sha512-lWf05dnD42DLVKQJZrDHtWFidcLrHuip01CtnC2/S6AMhX4t9ZlEUj4iuRlAnts0PQk7KESOqKxeGE/b6sIPGg==}
 
   '@types/svgo@2.6.4':
     resolution: {integrity: sha512-l4cmyPEckf8moNYHdJ+4wkHvFxjyW6ulm9l4YGaOxeyBWPhBOT0gvni1InpFPdzx1dKf/2s62qGITwxNWnPQng==}
@@ -6135,6 +6141,8 @@ snapshots:
   '@types/semver@7.7.1': {}
 
   '@types/sortablejs@1.15.8': {}
+
+  '@types/spark-md5@3.0.5': {}
 
   '@types/svgo@2.6.4':
     dependencies:

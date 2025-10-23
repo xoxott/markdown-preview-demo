@@ -1,3 +1,11 @@
+/*
+ * @Author: yangtao 212920320@qq.com
+ * @Date: 2025-10-11 10:36:56
+ * @LastEditors: yangtao 212920320@qq.com
+ * @LastEditTime: 2025-10-17 11:10:38
+ * @FilePath: \markdown-preview-demo\src\service\api\auth.ts
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import { request } from '../request';
 
 /**
@@ -35,14 +43,4 @@ export function fetchRefreshToken(refreshToken: string) {
       refreshToken
     }
   });
-}
-
-/**
- * return custom backend error
- *
- * @param code error code
- * @param msg error message
- */
-export function fetchCustomBackendError(code: string, msg: string) {
-  return request({ url: '/auth/error', params: { code, msg } });
 }
