@@ -1,6 +1,6 @@
 const local: App.I18n.Schema = {
   system: {
-    title: 'Soybean 管理系统',
+    title: '管理工具',
     updateTitle: '系统版本更新通知',
     updateContent: '检测到系统有新版本发布，是否立即刷新页面？',
     updateConfirm: '立即刷新',
@@ -165,9 +165,9 @@ const local: App.I18n.Schema = {
     home: '首页',
     chat: "会话",
     markdownedit: "markdown编辑",
-    upload:"上传",
-    mobile: "Mobile",
-    screenshot: "Screenshot"
+    upload: "上传",
+    screenshot: "Screenshot",
+    utils: "工具"
   },
   page: {
     login: {

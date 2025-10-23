@@ -1,13 +1,61 @@
 {
-  "entryPoints": ["src/index.ts"], // 入口文件，可以写多个
-  "out": "docs", // 输出目录（默认 HTML），也可以是 ./docs/api
-  "plugin": ["typedoc-plugin-markdown"], // 启用 markdown 插件
-  "readme": "none", // 是否包含 README.md (none 表示不生成)
-  "includeVersion": true, // 在文档中显示 package.json 版本
-  "excludeExternals": true, // 排除外部依赖
-  "excludePrivate": true, // 排除 private 成员
-  "excludeProtected": true, // 排除 protected 成员
-  "categorizeByGroup": true, // 是否根据 @category 分组
-  "gitRevision": "main", // 文档中链接到 GitHub 对应分支
-  "githubPages": true // 生成可直接托管到 GitHub Pages 的文档
+  "$schema": "https://typedoc.org/schema.json",
+  "plugin": ["typedoc-plugin-markdown"],
+  "out": "docs",
+  "entryPoints": ["src/**/*.ts"],
+  "entryPointStrategy": "expand",
+  "exclude": ["**/*.test.ts", "**/*.spec.ts", "**/*.d.ts"],
+  // "readme": "README.md",
+  "readme": "none",
+  "excludePrivate": false,
+  "excludeProtected": false,
+  "excludeExternals": true,
+  "categorizeByGroup": true,
+  "sort": ["source-order"],
+  "useCodeBlocks": true,
+  "cleanOutputDir": true,
+  // 表格格式配置
+  "parametersFormat": "table",
+  "propertiesFormat": "table",
+  "enumMembersFormat": "table",
+  "typeDeclarationFormat": "table",
+  "indexFormat": "table",
+  // 关键配置：输出策略 members
+  "outputFileStrategy": "modules",
+  // 将所有内容生成到单个文件中
+  // "flattenOutputFiles": true,
+  // "outputFileStrategy": "members",
+  "membersWithOwnFile": ["Class", "Interface", "Enum"],
+  // 入口文件名
+  "entryFileName": "README",
+  "modulesFileName": "modules",
+  // 隐藏标题
+  "hidePageTitle": true,
+  "hidePageHeader": false,
+  // 面包屑导航
+  "hideBreadcrumbs": false,
+  "treatWarningsAsErrors": false,
+  "useHTMLAnchors": true,
+  // 内部链接处理
+  // "internalModule": "single-page",
+  // "excludeNotExported": false,
+
+  // 链接配置
+  // "linkTemplate": "#{anchor}",
+
+  // "categoryOrder": ["Classes", "Interfaces", "Functions", "Variables", "Enums", "Other"],
+  // "githubPages": false,
+  // "hideGenerator": true,
+  "publicPath": "#",
+  // "customFooterHtml": "",
+  "navigationLinks": {
+    "Home": "/",
+    "API": "/docs"
+  },
+  "validation": {
+    "notExported": false,
+    "invalidLink": false,
+    "notDocumented": false
+  },
+  "skipErrorChecking": true
 }

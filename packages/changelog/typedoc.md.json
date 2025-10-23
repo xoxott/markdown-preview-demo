@@ -1,0 +1,22 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "plugin": ["typedoc-plugin-markdown"],
+  "out": "docs-md",
+  "entryPoints": ["src/index.ts"],
+  "entryPointStrategy": "expand",
+  "readme": "README.md",
+  "excludePrivate": false,
+  "excludeProtected": false,
+  "excludeExternals": true,
+  "categorizeByGroup": true,
+  "sort": ["source-order"],
+  "useCodeBlocks": true,
+  "cleanOutputDir": true,
+  "parametersFormat": "list",
+  "propertiesFormat": "list",
+  "enumMembersFormat": "list",
+  "typeDeclarationFormat": "list",
+  "outputFileStrategy": "modules",
+  "entryFileName": "README",
+  "modulesFileName": "modules"
+}

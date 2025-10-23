@@ -1,0 +1,18 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "out": "docs-html",
+  "entryPoints": ["src/index.ts"],
+  "entryPointStrategy": "expand",
+  "readme": "README.md",
+  "excludePrivate": false,
+  "excludeProtected": false,
+  "excludeExternals": true,
+  "categorizeByGroup": true,
+  "sort": ["source-order"],
+  "cleanOutputDir": true,
+  "theme": "default",
+  "searchInComments": true,
+  "includeVersion": true,
+  "disableSources": false,
+  "sourceLinkTemplate": "https://github.com/yourname/yourrepo/blob/{gitRevision}/{path}#L{line}"
+}

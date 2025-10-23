@@ -3,7 +3,6 @@ import { createOptions } from './options';
 import { getCurrentGitBranch, getFromToTags, getGitCommits, getGitCommitsAndResolvedAuthors } from './git';
 import { generateMarkdown, isVersionInMarkdown, writeMarkdown } from './markdown';
 import type { ChangelogOption } from './types';
-
 /**
  * 根据两个 Git 标签（或提交区间）生成对应的 changelog Markdown 文本
  *
@@ -87,7 +86,7 @@ export async function getTotalChangelogMarkdown(options?: Partial<ChangelogOptio
  *
  * @param options changelog 配置项（部分字段可覆盖默认配置）
  *
- * @description
+ * 
  * - 如果目标 changelog 文件中已存在该版本的内容，且未开启 `regenerate`，则不会重复生成。
  * - 否则会写入或覆盖 changelog。
  */
@@ -109,7 +108,7 @@ export async function generateChangelog(options?: Partial<ChangelogOption>) {
  * @param options changelog 配置项（部分字段可覆盖默认配置）
  * @param showProgress 是否显示进度条（默认显示）
  *
- * @description
+ * 
  * - 会生成包含所有版本记录的完整 changelog
  * - 结果会写入指定的输出文件（默认是 `CHANGELOG.md`）
  * - 与 `generateChangelog` 不同的是，该函数会强制覆盖写入所有版本内容

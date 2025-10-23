@@ -166,8 +166,8 @@ const local: App.I18n.Schema = {
     chat: "Chat",
     markdownedit: "MarkdownEdit",
     upload: "Upload",
-    mobile: "Mobile",
-    screenshot: "Screenshot"
+    screenshot: "Screenshot",
+    utils: "Utils"
   },
   page: {
     login: {

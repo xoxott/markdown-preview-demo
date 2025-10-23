@@ -71,6 +71,7 @@
     "highlight.js": "^11.11.1",
     "json5": "2.2.3",
     "markdown-it": "^14.1.0",
+    "markdown-it-multimd-table": "^4.2.3",
     "markmap-lib": "^0.18.11",
     "markmap-view": "^0.18.10",
     "mermaid": "^11.6.0",

@@ -7,8 +7,11 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "docs:html": "typedoc",
-    "docs:md": "typedoc --plugin typedoc-plugin-markdown --out docs-md"
+    "docs:all": "npm run docs:clean && npm run docs:html && npm run docs:md && npm run docs:table",
+    "docs:clean": "rimraf docs-html docs-md docs",
+    "docs:html": "typedoc --options typedoc.json",
+    "docs:md": "typedoc --options typedoc.md.json",
+    "docs:table": "typedoc --options typedoc.json"
   },
   "dependencies": {
     "cli-progress": "^3.12.0",

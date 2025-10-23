@@ -291,8 +291,8 @@ const content = computed(()=> README)
 
 <style scoped>
 .upload-container {
-  padding: 20px;
-  max-width: 800px;
+  /* padding: 20px;
+  max-width: 800px; */
   margin: 0 auto;
 }
 
