@@ -2,6 +2,7 @@ import { UploadFileInfo } from "naive-ui";
 import { FileUploadOptions, UploadConfig, UploadStatus } from "./type";
 import { formatFileSize, formatSpeed, formatTime } from "./utils";
 import { ChunkUploadManager } from "./ChunkUploadManager";
+import { ArchiveOutline, DocumentOutline, DocumentTextOutline, ImageOutline, MusicalNoteOutline, VideocamOutline } from "@vicons/ionicons5";
 
 export function useChunkUpload(config: Partial<UploadConfig> = {}) {
   const uploader = new ChunkUploadManager(config);
@@ -64,6 +65,58 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
   const updateConfig = (newConfig: Partial<UploadConfig>) => uploader.updateConfig(newConfig);
   const destroy = () => uploader.destroy();
  
+  // 获取进度条状态
+  const getProgressStatus = (): 'default' | 'success' | 'error' => {
+    if (uploadStats.value.failed > 0) return 'error';
+    if (uploadStats.value.completed === uploadStats.value.total) return 'success';
+    return 'default';
+  };
+
+  // 获取状态文本
+  const getStatusText = (status: UploadStatus): string => {
+    const textMap: Record<UploadStatus, string> = {
+      [UploadStatus.PENDING]: '等待中',
+      [UploadStatus.UPLOADING]: '上传中',
+      [UploadStatus.SUCCESS]: '成功',
+      [UploadStatus.ERROR]: '失败',
+      [UploadStatus.PAUSED]: '已暂停',
+      [UploadStatus.CANCELLED]: '已取消',
+    };
+    return textMap[status];
+  };
+
+  // 获取状态类型
+  const getStatusType = (status: UploadStatus): 'default' | 'success' | 'warning' | 'error' | 'info' => {
+    const typeMap: Record<UploadStatus, 'default' | 'success' | 'warning' | 'error' | 'info'> = {
+      [UploadStatus.PENDING]: 'default',
+      [UploadStatus.UPLOADING]: 'info',
+      [UploadStatus.SUCCESS]: 'success',
+      [UploadStatus.ERROR]: 'error',
+      [UploadStatus.PAUSED]: 'warning',
+      [UploadStatus.CANCELLED]: 'default',
+    };
+    return typeMap[status];
+  };
+
+  // 获取文件图标
+  const getFileIcon = (mimeType: string) => {
+    if (mimeType.startsWith('image/')) return ImageOutline;
+    if (mimeType.startsWith('video/')) return VideocamOutline;
+    if (mimeType.startsWith('audio/')) return MusicalNoteOutline;
+    if (mimeType.includes('pdf')) return DocumentTextOutline;
+    if (mimeType.includes('zip') || mimeType.includes('rar')) return ArchiveOutline;
+    return DocumentOutline;
+  };
+
+  // 获取文件颜色
+  const getFileColor = (mimeType: string) => {
+    if (mimeType.startsWith('image/')) return '#18a058';
+    if (mimeType.startsWith('video/')) return '#2080f0';
+    if (mimeType.startsWith('audio/')) return '#f0a020';
+    if (mimeType.includes('pdf')) return '#d03050';
+    if (mimeType.includes('zip') || mimeType.includes('rar')) return '#7c3aed';
+    return '#666';
+  };
 
   return {
     uploadQueue,
@@ -93,6 +146,11 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
     formatFileSize,
     formatSpeed,
     formatTime,
-    retrySingleFile 
+    retrySingleFile,
+    getProgressStatus,
+    getStatusText,
+    getStatusType,
+    getFileIcon,
+    getFileColor 
   };
 }

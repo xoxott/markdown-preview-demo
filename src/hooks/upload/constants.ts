@@ -57,11 +57,11 @@ export const CONSTANTS = {
     /** 中等网络下最大并发分片数 */
     FAIR_NETWORK: 4,
     /** 好网络下最大并发分片数 */
-    GOOD_NETWORK: 6,
-    /** 默认同时上传文件数 */
-    DEFAULT_FILES: 3,
-    /** 默认同时上传分片数 */
-    DEFAULT_CHUNKS: 6,
+    GOOD_NETWORK: 10,
+    /** 默认同时上传文件数,并发数量 */
+    DEFAULT_FILES: 10,
+    /** 默认同时上传分片数，并发切块 */
+    DEFAULT_CHUNKS: 10,
   },
 
   /** 可重试的错误关键字，用于判断是否需要自动重试 */
@@ -86,9 +86,9 @@ export const CONSTANTS = {
     /** 最大分块大小 */
     MAX_CHUNK_SIZE:20 * 1024 * 1024,
     /** 最大文件 */
-    MAX_FILESIZE:50 * 1024 * 1024,
+    MAX_FILESIZE:50 * 1024 * 1024 * 1024,
     /** 最大文件数量 */
-    MAX_FILES:3
+    MAX_FILES:100
   },
 
   /** 压缩相关配置 */

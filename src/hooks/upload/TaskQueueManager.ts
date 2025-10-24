@@ -9,7 +9,7 @@
 
 import SmartChunkCalculator from "./SmartChunkCalculator";
 import { FileTask, FileUploadOptions, UploadConfig, UploadStatus } from "./type";
-import { generateId } from "./utils";
+import { generateId,generateUUID } from "./utils";
 
 // ==================== 工具类：任务队列管理器 ====================
 /**
@@ -80,7 +80,8 @@ export default class TaskQueueManager {
     preview?: string
   ): FileTask {
     return {
-      id: generateId(),
+      // id: generateId(),
+      id:generateUUID(),
       file: processedFile,
       originalFile: file !== processedFile ? file : undefined,
       status: UploadStatus.PENDING,
@@ -96,6 +97,7 @@ export default class TaskQueueManager {
       resumeTime: 0,
       result: null,
       error: null,
+      fileMD5:'',
       options: {
         maxRetries: config.maxRetries,
         chunkSize: SmartChunkCalculator.calculateOptimalChunkSize(

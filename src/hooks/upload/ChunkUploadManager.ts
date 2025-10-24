@@ -18,20 +18,25 @@ import RetryStrategyManager from "./RetryStrategyManager";
 import Semaphore from "./Semaphore";
 import SmartChunkCalculator from "./SmartChunkCalculator";
 import TaskQueueManager from "./TaskQueueManager";
-import { 
-    ChunkInfo,
-    ChunkStatus, 
-    ChunkUploadResponse,
-    FileTask, 
-    FileUploadOptions, 
-    MergeResponse, 
-    UploadCallbacks, 
-    UploadConfig, 
-    UploadStats, 
-    UploadStatus 
-  } from "./type";
+import {
+  CheckFileTransformer,
+  ChunkInfo,
+  ChunkStatus,
+  ChunkUploadResponse,
+  ChunkUploadTransformer,
+  ExtendedUploadConfig,
+  FileTask,
+  FileUploadOptions,
+  MergeChunksTransformer,
+  MergeResponse,
+  UploadCallbacks,
+  UploadConfig,
+  UploadStats,
+  UploadStatus
+} from "./type";
 import UploadWorkerManager from "./UploadWorkerManager";
 import { calculateFileMD5, delay } from "./utils";
+import { defaultCheckFileTransformer, defaultChunkUploadTransformer, defaultMergeChunksTransformer } from "./defaultChunkUploadTransformer";
 
 // ==================== 主类：分片上传管理器 ====================
 export class ChunkUploadManager {
@@ -71,7 +76,7 @@ export class ChunkUploadManager {
     this.fileValidator = new FileValidator(this.config);
     this.taskQueueManager = new TaskQueueManager();
     this.retryStrategy = new RetryStrategyManager(this.config);
-    
+
     // 初始化 Worker
     if (this.config.useWorker) {
       this.workerManager = new UploadWorkerManager();
@@ -81,10 +86,11 @@ export class ChunkUploadManager {
     this.setupNetworkMonitoring();
   }
 
+
   // ==================== 配置管理 ====================
-  private mergeConfig(config: Partial<UploadConfig>): UploadConfig {
+  private mergeConfig(config: Partial<ExtendedUploadConfig>): ExtendedUploadConfig {
     return {
-       // 并发控制
+      // 并发控制
       maxConcurrentFiles: CONSTANTS.CONCURRENT.DEFAULT_FILES, // 文件最大数量
       maxConcurrentChunks: CONSTANTS.CONCURRENT.DEFAULT_CHUNKS, // 切块最大数量
 
@@ -92,7 +98,7 @@ export class ChunkUploadManager {
       chunkSize: CONSTANTS.UPLOAD.CHUNK_SIZE,
       minChunkSize: CONSTANTS.UPLOAD.MIN_CHUNK_SIZE,
       maxChunkSize: CONSTANTS.UPLOAD.MAX_CHUNK_SIZE,
-      
+
       // 重试配置
       maxRetries: CONSTANTS.RETRY.MAX_RETRIES,
       retryDelay: CONSTANTS.RETRY.BASE_DELAY,
@@ -107,15 +113,15 @@ export class ChunkUploadManager {
       customParams: {}, // 自定参数
 
       // 文件限制
-      maxFileSize:CONSTANTS.UPLOAD.MAX_FILESIZE,
+      maxFileSize: CONSTANTS.UPLOAD.MAX_FILESIZE,
       maxFiles: CONSTANTS.UPLOAD.MAX_FILES,
       // accept: ['.jpg', '.png', '.pdf', 'image/*', 'video/*'],
 
       // 功能开关
       enableResume: false,  // 断点续传
-      enableDeduplication: true, // 秒传
-  
-     
+      enableDeduplication: false, // 秒传
+
+
       useWorker: false,  // Web Worker
       enableCache: true, // 缓存
       enableNetworkAdaptation: true, // 网络自适应
@@ -128,8 +134,57 @@ export class ChunkUploadManager {
       enablePreview: CONSTANTS.PREVIEW.ENABLE_PREVIEW,  // 预览图
       previewMaxWidth: CONSTANTS.PREVIEW.PREVIEW_MAX_WIDTH, // 预览图宽度 200px
       previewMaxHeight: CONSTANTS.PREVIEW.PREVIEW_MAX_HEIGHT, // 预览图高度 200px
+      // 默认的请求参数转换器
+      chunkUploadTransformer: defaultChunkUploadTransformer,
+      mergeChunksTransformer: defaultMergeChunksTransformer,
+      checkFileTransformer: defaultCheckFileTransformer,
       ...config
     };
+  }
+
+  // ==================== 新增:动态设置请求转换器的方法 ====================
+  /**
+   * 设置分块上传参数转换器
+   */
+  public setChunkUploadTransformer(transformer: ChunkUploadTransformer): this {
+    this.config.chunkUploadTransformer = transformer;
+    return this;
+  }
+
+  /**
+   * 设置合并分块参数转换器
+   */
+  public setMergeChunksTransformer(transformer: MergeChunksTransformer): this {
+    this.config.mergeChunksTransformer = transformer;
+    return this;
+  }
+
+  /**
+   * 设置秒传检查参数转换器
+   */
+  public setCheckFileTransformer(transformer: CheckFileTransformer): this {
+    this.config.checkFileTransformer = transformer;
+    return this;
+  }
+
+  /**
+   * 批量设置所有转换器
+   */
+  public setTransformers(transformers: {
+    chunkUpload?: ChunkUploadTransformer;
+    mergeChunks?: MergeChunksTransformer;
+    checkFile?: CheckFileTransformer;
+  }): this {
+    if (transformers.chunkUpload) {
+      this.config.chunkUploadTransformer = transformers.chunkUpload;
+    }
+    if (transformers.mergeChunks) {
+      this.config.mergeChunksTransformer = transformers.mergeChunks;
+    }
+    if (transformers.checkFile) {
+      this.config.checkFileTransformer = transformers.checkFile;
+    }
+    return this;
   }
 
   // ==================== 监听器设置 ====================
@@ -161,10 +216,10 @@ export class ChunkUploadManager {
 
   private adjustPerformance(): void {
     if (!this.config.enableNetworkAdaptation) return;
-    
+
     const now = Date.now();
     if (now - this.adaptiveConfig.lastAdjustTime < this.adaptiveConfig.adjustInterval) return;
-    
+
     this.adaptiveConfig.lastAdjustTime = now;
     const speed = this.uploadSpeed.value;
     const activeCount = this.activeUploads.value.size;
@@ -334,7 +389,7 @@ export class ChunkUploadManager {
 
         const processedFile = await this.processFile(file);
         const preview = await this.generatePreview(processedFile);
-        
+
         const task = this.taskQueueManager.createTask(
           file,
           processedFile,
@@ -370,7 +425,7 @@ export class ChunkUploadManager {
 
       const processedFile = await this.processFile(file);
       const preview = await this.generatePreview(processedFile);
-      
+
       const task = this.taskQueueManager.createTask(
         file,
         processedFile,
@@ -396,7 +451,7 @@ export class ChunkUploadManager {
       return file;
     }
     try {
-      return await FileCompressor.compressImage(file, this.config.compressionQuality,this.config.previewMaxWidth,this.config.previewMaxHeight);
+      return await FileCompressor.compressImage(file, this.config.compressionQuality, this.config.previewMaxWidth, this.config.previewMaxHeight);
     } catch (error) {
       console.warn('文件压缩失败:', error);
       return file;
@@ -478,7 +533,7 @@ export class ChunkUploadManager {
         return;
       }
 
-      this.calculateChunks(task);
+      await this.calculateChunks(task);
       await this.uploadChunks(task);
       const mergeResult = await this.mergeChunks(task);
 
@@ -494,55 +549,37 @@ export class ChunkUploadManager {
   }
 
   private async checkDeduplication(task: FileTask): Promise<boolean> {
+     if (!this.config.enableDeduplication || !this.config.checkFileUrl) {
+      return false;
+    }
     const cacheKey = `file_${task.file.name}_${task.file.size}_${task.file.lastModified}`;
-    
     if (this.config.enableCache && this.cacheManager.get(cacheKey) === 'uploaded') {
       return true;
     }
-
-    if (!this.config.enableDeduplication || !this.config.checkFileUrl) {
-      return false;
-    }
-
     try {
-      const md5 = await calculateFileMD5(task.file);
+      const requestData = this.config.checkFileTransformer!({
+        task,
+        customParams: this.config.customParams
+      });
+      // const md5 = await calculateFileMD5(task.file);
+      const isFormData = requestData instanceof FormData;
+      const headers = {
+        ...this.config.headers,
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' })
+      };
       const response = await fetch(this.config.checkFileUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...this.config.headers
-        },
-        body: JSON.stringify({
-          fileName: task.file.name,
-          fileSize: task.file.size,
-          fileMD5: md5,
-          ...this.config.customParams
-        }),
+        headers,
+        body: isFormData ? requestData : JSON.stringify(requestData),
         signal: this.abortController.signal
       });
-
       if (!response.ok) return false;
 
       const result = await response.json();
-      if (result.exists && result.fileInfo) {
-        task.result = {
-          success: true,
-          fileUrl: result.fileInfo.url || '',
-          fileId: result.fileInfo.id || task.id,
-          fileName: result.fileInfo.name || task.file.name,
-          fileSize: result.fileInfo.size || task.file.size,
-          thumbnail: result.fileInfo.thumbnail,
-          doc_id: result.fileInfo.doc_id,
-          error: undefined
-        };
-        
         if (this.config.enableCache) {
           this.cacheManager.set(cacheKey, 'uploaded');
         }
-        return true;
-      }
-
-      return false;
+       return result?.exists === true;
     } catch (error) {
       console.warn('秒传检查失败:', error);
       return false;
@@ -582,26 +619,26 @@ export class ChunkUploadManager {
   }
 
   // ==================== 切片处理 ====================
-  private calculateChunks(task: FileTask): void {
+  private async calculateChunks(task: FileTask): Promise<void> {
     const chunkSize = this.config.enableNetworkAdaptation
       ? SmartChunkCalculator.calculateOptimalChunkSize(
-          task.file.size,
-          this.speedCalculator.getAverageSpeed(),
-          this.config
-        )
+        task.file.size,
+        this.speedCalculator.getAverageSpeed(),
+        this.config
+      )
       : (task.options.chunkSize || this.config.chunkSize);
 
-      const totalChunks = Math.ceil(task.file.size / chunkSize);
-      task.chunks = [];
-      task.totalChunks = totalChunks;
-      task.uploadedChunks = 0;
-     // 使用 Worker 生成切片（如果启用且文件较大）
-     if (this.config.useWorker && this.workerManager && task.file.size > 10 * 1024 * 1024) {
-      this.calculateChunksWithWorker(task, chunkSize, totalChunks);
+    const totalChunks = Math.ceil(task.file.size / chunkSize);
+    task.chunks = [];
+    task.totalChunks = totalChunks;
+    task.uploadedChunks = 0;
+    // 使用 Worker 生成切片（如果启用且文件较大）
+    if (this.config.useWorker && this.workerManager && task.file.size > 10 * 1024 * 1024) {
+       await this.calculateChunksWithWorker(task, chunkSize, totalChunks);
     } else {
-      this.calculateChunksInMainThread(task, chunkSize, totalChunks);
+       await this.calculateChunksInMainThread(task, chunkSize, totalChunks);
     }
-  
+
   }
 
   private async calculateChunksWithWorker(task: FileTask, chunkSize: number, totalChunks: number): Promise<void> {
@@ -621,13 +658,16 @@ export class ChunkUploadManager {
       console.warn('Worker 切片失败，回退到主线程:', error);
       this.calculateChunksInMainThread(task, chunkSize, totalChunks);
     }
-   }
+  }
 
-  private calculateChunksInMainThread(task: FileTask, chunkSize: number, totalChunks: number): void {
+  private async calculateChunksInMainThread(task: FileTask, chunkSize: number, totalChunks: number): Promise<void> {
     for (let i = 0; i < totalChunks; i++) {
       const start = i * chunkSize;
       const end = Math.min(start + chunkSize, task.file.size);
-
+       if (!task.fileMD5) {
+          const fileMd5 = await calculateFileMD5(task.file);
+          task.fileMD5 = fileMd5;
+       }
       task.chunks.push({
         index: i,
         start,
@@ -647,30 +687,27 @@ export class ChunkUploadManager {
   private async uploadChunks(task: FileTask): Promise<void> {
     const maxConcurrent = this.networkAdapter.getConcurrentChunks(this.networkQuality.value);
     const semaphore = new Semaphore(maxConcurrent);
-
     const uploadPromises = task.chunks.map(async (chunk, index) => {
       if (index > 2) await delay(index * 50);
-
       await semaphore.acquire();
       try {
         await this.uploadSingleChunk(task, chunk);
         task.uploadedChunks++;
-        
+
         task.progress = Math.round((task.uploadedChunks / task.totalChunks) * CONSTANTS.PROGRESS.CHUNK_WEIGHT);
-        
+
         const uploadTime = Date.now() - (task.startTime || 0);
         if (uploadTime > 0) {
           const uploadedSize = task.uploadedChunks * (task.options.chunkSize || this.config.chunkSize);
           task.speed = (uploadedSize / uploadTime) * 1000 / 1024;
         }
-
         await this.callbacks.onFileProgress?.(task);
         this.updateTotalProgress();
-      } finally {
+      } 
+      finally {
         semaphore.release();
       }
     });
-
     await Promise.all(uploadPromises);
   }
 
@@ -722,111 +759,72 @@ export class ChunkUploadManager {
   }
 
   private async performChunkUpload(task: FileTask, chunk: ChunkInfo): Promise<ChunkUploadResponse> {
-    const formData = this.buildChunkFormData(task, chunk);
-
-    const response = await fetch(this.config.uploadChunkUrl, {
-      method: 'POST',
-      headers: this.config.headers,
-      body: formData,
-      signal: this.abortController.signal
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    const startTime = performance.now();
+    try {
+      const requestData = this.config.chunkUploadTransformer!({
+        task,
+        chunk,
+        customParams: this.config.customParams
+      });
+    
+      // 判断是FormData还是普通对象
+      const isFormData = requestData instanceof FormData;
+      const headers = {
+        ...this.config.headers,
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' })
+      };
+      const response = await fetch(this.config.uploadChunkUrl, {
+        method: 'POST',
+        headers,
+        body: isFormData ? requestData : JSON.stringify(requestData),
+        signal: this.abortController.signal
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      const result: ChunkUploadResponse = await response.json();
+      chunk.uploadTime = performance.now() - startTime;
+      return result;
+    } catch (error: any) {
+      chunk.error = error.message;
+      throw error;
     }
-
-    const res = await response.json();
-    return {
-      success: true,
-      chunkIndex: chunk.index,
-      etag: res.data?.etag,
-      uploadId: task.id,
-      error: undefined
-    };
-  }
-  
-  // 创建分片请求参数
-  private buildChunkFormData(task: FileTask, chunk: ChunkInfo): FormData {
-    const formData = new FormData();
-    formData.append('file', chunk.blob);
-    formData.append('chunk_number', chunk.index.toString());
-    formData.append('upload_id', task.id);
-    formData.append('total_chunks', task.totalChunks.toString());
-    formData.append('chunk_size', chunk.size.toString());
-    formData.append('file_name', task.file.name);
-    formData.append('file_size', task.file.size.toString());
-
-    Object.entries({ ...this.config.customParams, ...task.options.customParams }).forEach(([key, value]) => {
-      formData.append(key, String(value));
-    });
-
-    return formData;
   }
 
   // ==================== 切片合并 ====================
   private async mergeChunks(task: FileTask): Promise<MergeResponse> {
-    task.progress = CONSTANTS.PROGRESS.MERGE_START;
-    await this.callbacks.onFileProgress?.(task);
+    try {
+      task.progress = CONSTANTS.PROGRESS.MERGE_START;
+      await this.callbacks.onFileProgress?.(task);
+      // 使用配置的转换器生成请求参数
+      const requestData = this.config.mergeChunksTransformer!({
+        task,
+        customParams: this.config.customParams
+      });
+      // 判断是FormData还是普通对象
+      const isFormData = requestData instanceof FormData;
+      const headers = {
+        ...this.config.headers,
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' })
+      };
 
-    const requestData = this.buildMergeRequest(task);
-
-    const response = await fetch(this.config.mergeChunksUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...this.config.headers
-      },
-      body: JSON.stringify(requestData),
-      signal: this.abortController.signal
-    });
-
-    if (!response.ok) {
-      throw new Error(`合并切片失败: HTTP ${response.status}`);
+      const response = await fetch(this.config.mergeChunksUrl, {
+        method: 'POST',
+        headers,
+        body: isFormData ? requestData : JSON.stringify(requestData),
+        signal: this.abortController.signal
+      });
+      if (!response.ok) {
+        throw new Error(`合并分块失败: ${response.status} ${response.statusText}`);
+      }
+      task.progress = CONSTANTS.PROGRESS.MERGE_END;
+      await this.callbacks.onFileProgress?.(task);
+      const result: MergeResponse = await response.json();
+      return result;
+    } catch (error: any) {
+      throw new Error(`合并失败: ${error.message}`);
     }
 
-    task.progress = CONSTANTS.PROGRESS.MERGE_END;
-    await this.callbacks.onFileProgress?.(task);
-
-    const res = await response.json();
-    return this.buildMergeResponse(task, res.data);
-  }
-
-  // 创建合片请求参数
-  private buildMergeRequest(task: FileTask) {
-    return {
-      upload_id: task.id,
-      filename: task.file.name,
-      folder: task.file.webkitRelativePath || '',
-      total_chunks: task.totalChunks,
-      file_size: task.file.size,
-      file_type: task.file.type,
-      last_modified: task.file.lastModified,
-      chunks: task.chunks
-        .filter(chunk => chunk.result?.etag)
-        .map(chunk => ({
-          index: chunk.index,
-          size: chunk.size,
-          etag: chunk.result?.etag
-        })),
-      ...this.config.customParams,
-      ...task.options.customParams
-    };
-  }
-
-  private buildMergeResponse(task: FileTask, data: any): MergeResponse {
-    return {
-      success: true,
-      fileUrl: data.file_path,
-      fileId: task.id,
-      fileName: data.filename || task.file.name,
-      fileSize: task.file.size,
-      thumbnail: data.thumbnail,
-      doc_id: data.doc_id,
-      mimeType: task.file.type,
-      originalFile: task.originalFile,
-      uploadTime: task.endTime ? task.endTime - (task.startTime || 0) : 0,
-      error: undefined
-    };
   }
 
   // ==================== 进度管理 ====================
@@ -916,7 +914,7 @@ export class ChunkUploadManager {
     }
 
     const task = this.completedUploads.value[taskIndex];
-    
+
     // 重置任务状态
     this.resetTaskForRetry(task);
 
@@ -935,10 +933,10 @@ export class ChunkUploadManager {
     return this;
   }
 
-   /**
-   * 重置任务状态用于重试
-   * @param task - 文件任务
-   */
+  /**
+  * 重置任务状态用于重试
+  * @param task - 文件任务
+  */
   private resetTaskForRetry(task: FileTask): void {
     // 重置基本状态
     this.retryStrategy.resetTask(task);
@@ -972,10 +970,10 @@ export class ChunkUploadManager {
   }
 
 
- /**
-   * 重试所有失败的文件
-   * @returns this
-   */
+  /**
+    * 重试所有失败的文件
+    * @returns this
+    */
   public retryFailed(): this {
     const failedTasks = this.completedUploads.value.filter(
       t => t.status === UploadStatus.ERROR
@@ -1015,11 +1013,11 @@ export class ChunkUploadManager {
     return this;
   }
 
-   /**
-   * 根据任务ID移除文件
-   * @param taskId - 任务ID
-   * @returns this
-   */
+  /**
+  * 根据任务ID移除文件
+  * @param taskId - 任务ID
+  * @returns this
+  */
   public removeFile(taskId: string): this {
     const queueIndex = this.uploadQueue.value.findIndex(t => t.id === taskId);
     if (queueIndex > -1) {
@@ -1044,10 +1042,10 @@ export class ChunkUploadManager {
     return this;
   }
 
-   /**
-   * 清空所有文件
-   * @returns this
-   */
+  /**
+  * 清空所有文件
+  * @returns this
+  */
   public clear(): this {
     this.cancel();
     this.completedUploads.value = [];
@@ -1075,26 +1073,27 @@ export class ChunkUploadManager {
   }
 
   // ==================== 查询方法 ====================
-   /**
-   *  更新配置
-   * @param UploadConfig - 配置信息
-   * @returns this
-   */
+  /**
+  *  更新配置
+  * @param UploadConfig - 配置信息
+  * @returns this
+  */
   public updateConfig(newConfig: Partial<UploadConfig>): this {
     this.config = { ...this.config, ...newConfig };
 
+    console.log('更新后的配置信息', this.config);
     if ('enableNetworkAdaptation' in newConfig) {
       this.setupNetworkMonitoring();
     }
 
     return this;
   }
-   
-   /**
-   *  获取任务
-   * @param taskId - 任务ID
-   * @returns this
-   */
+
+  /**
+  *  获取任务
+  * @param taskId - 任务ID
+  * @returns this
+  */
   public getTask(taskId: string): FileTask | undefined {
     return (
       this.uploadQueue.value.find(t => t.id === taskId) ||
@@ -1102,11 +1101,11 @@ export class ChunkUploadManager {
       this.completedUploads.value.find(t => t.id === taskId)
     );
   }
-  
-   /**
-   *  获取详情状态
-   * @returns this
-   */
+
+  /**
+  *  获取详情状态
+  * @returns this
+  */
   public getDetailedStats(): UploadStats & {
     successRate: number;
     averageFileSize: number;
@@ -1132,7 +1131,7 @@ export class ChunkUploadManager {
       cacheHitRate: 0
     };
   }
-  
+
   /**
    *  销毁任务
    * @returns this

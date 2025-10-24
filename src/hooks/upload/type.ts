@@ -19,6 +19,37 @@ export enum ChunkStatus {
   RETRYING = 'retrying'
 }
 
+/**
+ * 分块上传请求参数转换器
+ */
+export interface ChunkUploadTransformer {
+  (params: {
+    task:FileTask,
+    chunk:ChunkInfo,
+    customParams?: Record<string, any>;
+  }): FormData | Record<string, any>;
+}
+
+/**
+ * 合并分块请求参数转换器
+ */
+export interface MergeChunksTransformer {
+  (params: {
+     task:FileTask,
+     customParams?: Record<string, any>;
+  }): FormData | Record<string, any>;
+}
+
+/**
+ * 秒传检查请求参数转换器
+ */
+export interface CheckFileTransformer {
+  (params: {
+    task:FileTask,
+    customParams?: Record<string, any>;
+  }): FormData | Record<string, any>;
+}
+
 /** 切片信息接口 */
 export interface ChunkInfo {
   index: number;
@@ -32,6 +63,14 @@ export interface ChunkInfo {
   error?: Error;
   etag?: string;
   result?: any;
+}
+
+// ==================== 扩展配置接口 ====================
+export interface ExtendedUploadConfig extends UploadConfig {
+  // 请求参数转换器
+  chunkUploadTransformer?: ChunkUploadTransformer;
+  mergeChunksTransformer?: MergeChunksTransformer;
+  checkFileTransformer?: CheckFileTransformer;
 }
 
 /** 文件任务接口 */
@@ -53,6 +92,7 @@ export interface FileTask {
   result: any;
   error: Error | null;
   options: FileUploadOptions;
+  fileMD5:string;
   // Naive UI 兼容
   naiveFile?: UploadFileInfo;
 }
@@ -70,6 +110,10 @@ export interface FileUploadOptions {
 
 /** 上传配置接口 */
 export interface UploadConfig {
+  // 请求参数转换器
+  chunkUploadTransformer?: ChunkUploadTransformer;
+  mergeChunksTransformer?: MergeChunksTransformer;
+  checkFileTransformer?: CheckFileTransformer;
   // 并发控制
   maxConcurrentFiles: number;
   maxConcurrentChunks: number;
