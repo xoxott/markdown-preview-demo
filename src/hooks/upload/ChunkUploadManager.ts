@@ -50,11 +50,11 @@ export class ChunkUploadManager {
   private workerManager?: UploadWorkerManager;
 
   // 响应式状态
-  public readonly uploadQueue = ref<FileTask[]>([]);
-  public readonly activeUploads = ref<Map<string, FileTask>>(new Map());
-  public readonly completedUploads = ref<FileTask[]>([]);
+  public readonly uploadQueue = ref<FileTask[]>([]);// 待上传队列
+  public readonly activeUploads = ref<Map<string, FileTask>>(new Map()); // 上传中的
+  public readonly completedUploads = ref<FileTask[]>([]); // 已完成的
   public readonly totalProgress = ref(0);
-  public readonly uploadSpeed = ref(0);
+  public readonly uploadSpeed = ref(0); 
   public readonly isUploading = ref(false);
   public readonly isPaused = ref(false);
   public readonly networkQuality = ref<'good' | 'fair' | 'poor'>('good');
@@ -68,6 +68,15 @@ export class ChunkUploadManager {
     lastAdjustTime: 0,
     adjustInterval: CONSTANTS.NETWORK.ADJUST_INTERVAL,
   };
+
+  // 🔧 新增：为每个任务维护独立的 AbortController
+  private taskAbortControllers = new Map<string, AbortController>();
+
+   // 🔧 新增：为每个分片维护 AbortController
+  private chunkAbortControllers = new Map<string, AbortController>();
+
+   // 🔧 新增：暂停的任务列表
+  private pausedTasks = new Set<string>();
 
   constructor(config: Partial<UploadConfig> = {}) {
     this.config = this.mergeConfig(config);
@@ -213,7 +222,8 @@ export class ChunkUploadManager {
     connection?.addEventListener('change', updateNetworkInfo);
     updateNetworkInfo();
   }
-
+  
+  // 网络自适应
   private adjustPerformance(): void {
     if (!this.config.enableNetworkAdaptation) return;
 
@@ -347,6 +357,12 @@ export class ChunkUploadManager {
   }
 
   // ==================== 文件管理 ====================
+    /**
+   * 添加文件到上传队列
+   * @param files - 要上传的文件列表
+   * @param options - 上传选项
+   * @returns Promise<FileTask[]>
+   */
   public async addFiles(files: File[] | FileList | File, options: FileUploadOptions = {}): Promise<this> {
     const fileArray = this.normalizeFiles(files);
     const { valid: validFiles } = this.fileValidator.validate(fileArray);
@@ -361,7 +377,8 @@ export class ChunkUploadManager {
     this.taskQueueManager.sort(this.uploadQueue.value);
     return this;
   }
-
+   
+  /** 通过worker添加文件 */
   private async addFilesWithWorker(files: File[], options: FileUploadOptions): Promise<void> {
     try {
       // 使用 Worker 批量处理文件信息
@@ -414,7 +431,8 @@ export class ChunkUploadManager {
       await this.addFilesInMainThread(files, options);
     }
   }
-
+  
+  /** 主线程添加文件 */
   private async addFilesInMainThread(files: File[], options: FileUploadOptions): Promise<void> {
     for (const file of files) {
       if (this.taskQueueManager.isDuplicate(file, this.getAllTasks())) {
@@ -438,14 +456,16 @@ export class ChunkUploadManager {
       this.uploadQueue.value.push(task);
     }
   }
-
+  
+  /** 文件归一化 */
   private normalizeFiles(files: File[] | FileList | File): File[] {
     if (files instanceof File) return [files];
     if (files instanceof FileList) return Array.from(files);
     if (Array.isArray(files)) return files;
     throw new Error('不支持的文件类型');
   }
-
+  
+  /** 文件压缩 */
   private async processFile(file: File): Promise<File> {
     if (!this.config.enableCompression || !file.type.startsWith('image/')) {
       return file;
@@ -547,7 +567,7 @@ export class ChunkUploadManager {
       this.updateTotalProgress();
     }
   }
-
+  /** 检查秒传 */
   private async checkDeduplication(task: FileTask): Promise<boolean> {
      if (!this.config.enableDeduplication || !this.config.checkFileUrl) {
       return false;
@@ -691,6 +711,15 @@ export class ChunkUploadManager {
       if (index > 2) await delay(index * 50);
       await semaphore.acquire();
       try {
+       
+        if (task.status === UploadStatus.PAUSED) {
+          console.log(`⏸️ 任务 ${task.file.name} 已暂停，停止上传分片 ${chunk.index}`);
+          return;
+        }
+        if (task.status === UploadStatus.CANCELLED) {
+          console.log(`❌ 任务 ${task.file.name} 已取消，停止上传分片 ${chunk.index}`);
+          return;
+      }
         await this.uploadSingleChunk(task, chunk);
         task.uploadedChunks++;
 
@@ -843,33 +872,100 @@ export class ChunkUploadManager {
   // ==================== 控制方法 ====================
 
   /**
-   * 暂停上传
+   * 暂停所有上传
    * @returns this
    */
-  public pause(): this {
+  public pauseAll(): this {
+    console.log('🔧 暂停所有上传');
     this.isPaused.value = true;
-    this.activeUploads.value.forEach(task => {
-      if (task.status === UploadStatus.UPLOADING) {
-        task.status = UploadStatus.PAUSED;
-        task.pausedTime = Date.now();
-        this.callbacks.onFilePause?.(task);
-      }
-    });
+    // 1. 中止所有网络请求
+      this.taskAbortControllers.forEach((controller, taskId) => {
+        console.log(`🔧 中止任务 ${taskId} 的网络请求`);
+        controller.abort();
+      });
+      this.taskAbortControllers.clear();
+      // 2. 将所有活跃任务标记为暂停
+      this.activeUploads.value.forEach(task => {
+        if (task.status === UploadStatus.UPLOADING) {
+          task.status = UploadStatus.PAUSED;
+          task.pausedTime = Date.now();
+          this.callbacks.onFilePause?.(task);
+          // 保存断点信息
+          if (this.config.enableResume && this.config.enableCache) {
+           this.cacheManager.set(task.id,task)
+          }
+          // 添加到已完成列表
+          if (!this.completedUploads.value.some(t => t.id === task.id)) {
+            this.completedUploads.value.push(task);
+          }
+        }
+      });
+      // 3. 将队列中的任务标记为暂停
+        this.uploadQueue.value.forEach(task => {
+          task.status = UploadStatus.PAUSED;
+          if (!this.completedUploads.value.some(t => t.id === task.id)) {
+            this.completedUploads.value.push(task);
+          }
+        });
+        // 4. 清空活跃列表和队列
+        this.activeUploads.value.clear();
+        this.uploadQueue.value = [];
+        this.isUploading.value = false;
+
+        this.updateTotalProgress();
+        console.log('✅ 所有上传已暂停');
     return this;
   }
   /**
-   * 继续上传
+   * 继续所有上传
    * @returns this
    */
-  public resume(): this {
+  public resumeAll(): this {
+     console.log('🔧 继续所有上传');
     this.isPaused.value = false;
-    this.activeUploads.value.forEach(task => {
-      if (task.status === UploadStatus.PAUSED) {
-        task.status = UploadStatus.UPLOADING;
-        task.resumeTime = Date.now();
-        this.callbacks.onFileResume?.(task);
+     // 1. 找出所有暂停的任务
+    const pausedTasks = this.completedUploads.value.filter(
+      t => t.status === UploadStatus.PAUSED
+    );
+
+    if (pausedTasks.length === 0) {
+      console.log('⚠️ 没有暂停的任务');
+      return this;
+    }
+    // 2. 重置任务状态并添加到队列
+    pausedTasks.forEach(task => {
+      task.status = UploadStatus.PENDING;
+      
+      // 创建新的 AbortController
+      this.taskAbortControllers.set(task.id, new AbortController());
+      
+      // 添加到队列
+      if (!this.uploadQueue.value.some(t => t.id === task.id)) {
+        this.uploadQueue.value.push(task);
       }
+      
+      this.callbacks.onFileResume?.(task);
     });
+
+    // 3. 从完成列表中移除这些任务
+    this.completedUploads.value = this.completedUploads.value.filter(
+      t => t.status !== UploadStatus.PENDING
+    );
+
+      // 4. 排序队列
+    this.taskQueueManager.sort(this.uploadQueue.value);
+
+    // 5. 启动上传
+    this.processQueue();
+
+    console.log(`✅ ${pausedTasks.length} 个任务已继续上传`);
+    // this.activeUploads.value.forEach(task => {
+    //   if (task.status === UploadStatus.PAUSED) {
+    //     task.status = UploadStatus.UPLOADING;
+    //     task.resumeTime = Date.now();
+    //     this.callbacks.onFileResume?.(task);
+    //   }
+    // });
     return this;
   }
 

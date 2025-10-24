@@ -41,14 +41,14 @@
               重试失败 ({{ failedCount }})
             </n-button>
 
-            <n-button size="small" @click="pause" :disabled="!isUploading || isPaused" class="flex-1">
+            <n-button size="small" @click="pauseAll" :disabled="!isUploading || isPaused" class="flex-1">
               <template #icon>
                 <n-icon :component="PauseOutline" />
               </template>
               暂停
             </n-button>
 
-            <n-button size="small" @click="resume" :disabled="!isPaused" class="flex-1">
+            <n-button size="small" @click="resumeAll" :disabled="!isPaused" class="flex-1">
               <template #icon>
                 <n-icon :component="PlayOutline" />
               </template>
@@ -292,8 +292,8 @@ const token = `WGz4LlZ0W8P3+HOaQlLRkcdCuTsJGVrvvTZfdJYY3otxprBxscciMf+yoDBGJ+9f1
 const {
   addFiles,
   start,
-  pause,
-  resume,
+  pauseAll,
+  resumeAll,
   uploadQueue,
   activeUploads,
   completedUploads,

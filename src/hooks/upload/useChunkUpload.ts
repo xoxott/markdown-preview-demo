@@ -53,8 +53,8 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
     uploader.addFiles(files, options);
 
   const start = () => uploader.start();
-  const pause = () => uploader.pause();
-  const resume = () => uploader.resume();
+  const pauseAll = () => uploader.pauseAll();
+  const resumeAll = () => uploader.resumeAll();
   const cancel = () => uploader.cancel();
   const retryFailed = () => uploader.retryFailed();
   const retrySingleFile = (taskId: string)=>uploader.retrySingleFile(taskId)
@@ -131,8 +131,8 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
     uploader,
     addFiles,
     start,
-    pause,
-    resume,
+    pauseAll,
+    resumeAll,
     cancel,
     retryFailed,
     removeFile,
