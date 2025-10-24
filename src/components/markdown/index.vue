@@ -5,6 +5,7 @@ import 'highlight.js/styles/github-dark.css';
 import { storeToRefs } from 'pinia';
 import { useThemeVars } from 'naive-ui';
 import MarkdownIt from 'markdown-it';
+import markdownItMultimdTable from 'markdown-it-multimd-table';
 import { useThemeStore } from '@/store/modules/theme';
 import mermaidRender from './modules/mermaid-render.vue';
 import mindmapRender from './modules/mindmap-render.vue';
@@ -13,6 +14,7 @@ import codeBlock from './modules/code-block.vue';
 import markdwonVuePlugn from './plugins/markdown-render-vnode';
 import '@primer/css/markdown/index.scss';
 import '@primer/css/core/index.scss';
+import 'github-markdown-css/github-markdown.css';
 import createMarkdownPlugin from './plugins/lib/UniversalMarkdownPlugin';
 import { FrameworkType } from './plugins/lib/FrameworkAdapter';
 const themeVars = useThemeVars();
@@ -73,7 +75,7 @@ md.use(markdwonVuePlugn, {
       return codeBlock;
     }
   }
-});
+}).use(markdownItMultimdTable);
 
 const vnodes = ref<VNode[]>([]);
 watch(
@@ -100,5 +102,16 @@ const cssVars = computed(() => ({
 <style>
 .markdown-container {
   color: var(--markdown-text-color);
+}
+
+.markdown-body table {
+  display: block;         /* 关键：让 table 当块级元素 */
+  width: 100%;
+  overflow-x: auto;       /* 出滚动条 */
+  -webkit-overflow-scrolling: touch;
+}
+.markdown-body table td,
+.markdown-body table th {
+  white-space: nowrap;    /* 不换行，保持一行 */
 }
 </style>

@@ -58,7 +58,7 @@ type PartitionFilter<T> = (i: T, idx: number, arr: readonly T[]) => any;
  *   i => i < 5,
  *   i => i < 10
  * );
- *  small = [1], medium = [5], large = [10, 20]
+ *  //small = [1], medium = [5], large = [10, 20]
  * ```
  */
 export function partition<T>(array: readonly T[], f1: PartitionFilter<T>): [T[], T[]];
@@ -124,7 +124,7 @@ export function partition<T>(array: readonly T[], ...filters: PartitionFilter<T>
  * ```ts
  * const arr = [{type: 'a'}, {type: 'b'}, {type: 'a'}];
  * const grouped = groupBy(arr, 'type');
- *  结果： { a: [{type:'a'}, {type:'a'}], b: [{type:'b'}] }
+ *  // { a: [{type:'a'}, {type:'a'}], b: [{type:'b'}] }
  * ```
  */
 export function groupBy<T>(items: T[], key: string, groups: Record<string, T[]> = {}) {

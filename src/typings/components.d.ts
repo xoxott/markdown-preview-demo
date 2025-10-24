@@ -14,6 +14,7 @@ declare module 'vue' {
     CodeBlock: typeof import('./../components/markdown/modules/code-block.vue')['default']
     CountTo: typeof import('./../components/custom/count-to.vue')['default']
     DarkModeContainer: typeof import('./../components/common/dark-mode-container.vue')['default']
+    Docviewer: typeof import('./../components/docviewer/index.vue')['default']
     EchartsRender: typeof import('./../components/markdown/modules/echarts-render.vue')['default']
     ExceptionBase: typeof import('./../components/common/exception-base.vue')['default']
     FullScreen: typeof import('./../components/common/full-screen.vue')['default']

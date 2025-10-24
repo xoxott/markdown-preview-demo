@@ -15,39 +15,19 @@ import { request } from '../request';
  * @param password Password
  */
 export function fetchLogin(userName: string, password: string) {
-  // return request<Api.Auth.LoginToken>({
-  //   url: '/auth/login',
-  //   method: 'post',
-  //   data: {
-  //     userName,
-  //     password
-  //   }
-  // });
-  return {
+  return request<Api.Auth.LoginToken>({
+    url: '/auth/login',
+    method: 'post',
     data: {
-      token:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjpbeyJ1c2VyTmFtZSI6IlNveWJlYW4ifV0sImlhdCI6MTY5ODQ4NDg2MywiZXhwIjoxNzMwMDQ0Nzk5LCJhdWQiOiJzb3liZWFuLWFkbWluIiwiaXNzIjoiU295YmVhbiIsInN1YiI6IlNveWJlYW4ifQ._w5wmPm6HVJc5fzkSrd_j-92d5PBRzWUfnrTF1bAmfk',
-      refreshToken:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjpbeyJ1c2VyTmFtZSI6IlNveWJlYW4ifV0sImlhdCI6MTY5ODQ4NDg4MSwiZXhwIjoxNzYxNTgwNzk5LCJhdWQiOiJzb3liZWFuLWFkbWluIiwiaXNzIjoiU295YmVhbiIsInN1YiI6IlNveWJlYW4ifQ.7dmgo1syEwEV4vaBf9k2oaxU6IZVgD2Ls7JK1p27STE'
-    },
-    code: '0000',
-    msg: '请求成功'
-  };
+      userName,
+      password
+    }
+  });
 }
 
 /** Get user info */
 export function fetchGetUserInfo() {
-  // return request<Api.Auth.UserInfo>({ url: '/auth/getUserInfo' });
-  return {
-    data: {
-      userId: '0',
-      userName: 'Soybean',
-      roles: ['R_SUPER'],
-      buttons: ['B_CODE1', 'B_CODE2', 'B_CODE3']
-    },
-    code: '0000',
-    msg: '请求成功'
-  };
+  return request<Api.Auth.UserInfo>({ url: '/auth/getUserInfo' });
 }
 
 /**

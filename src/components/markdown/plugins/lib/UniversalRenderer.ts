@@ -34,7 +34,7 @@ export class UniversalRenderer {
         token.meta.attrs = {};
       }
 
-      token.attrs?.forEach(([name, val]) => {
+      token.attrs?.forEach(([name, val]:any) => {
         token.meta.attrs[name] = val;
       });
     }

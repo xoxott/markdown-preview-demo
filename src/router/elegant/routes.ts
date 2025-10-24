@@ -98,15 +98,6 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
-    name: 'screenshot',
-    path: '/screenshot',
-    component: 'layout.base$view.screenshot',
-    meta: {
-      title: 'screenshot',
-      i18nKey: 'route.screenshot'
-    }
-  },
-  {
     name: 'upload',
     path: '/upload',
     component: 'layout.base$view.upload',
@@ -114,6 +105,24 @@ export const generatedRoutes: GeneratedRoute[] = [
       title: 'upload',
       i18nKey: 'route.upload',
       icon: 'mdi:upload'
+    }
+  },
+  {
+    name: 'utils',
+    path: '/utils',
+    component: 'layout.base$view.utils',
+    meta: {
+      title: 'utils',
+      i18nKey: 'route.utils'
+    }
+  },
+  {
+    name: 'screenshot',
+    path: '/screenshot',
+    component: 'layout.base$view.screenshot',
+    meta: {
+      title: 'screenshot',
+      i18nKey: 'route.screenshot'
     }
   }
 ];

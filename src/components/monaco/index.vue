@@ -2,7 +2,7 @@
 import { onMounted, onBeforeUnmount, shallowRef, watch, computed, ref } from "vue";
 import * as monaco from "monaco-editor-core";
 import { getOrCreateModel } from "./utils";
-import { registerHighlighter } from "./highlight.ts";
+import { registerHighlighter } from "./highlight";
 
 const modelValue = defineModel<string>({ default: "" });
 const props = withDefaults(

@@ -193,7 +193,7 @@ function processToken(token: Token, env?: Record<string, any>) {
   }
   // 安全模式处理
   if (env?.safeMode) {
-    token.attrs?.forEach(([name, val]) => {
+    token.attrs?.forEach(([name, val]:any) => {
       // eslint-disable-next-line no-param-reassign
       name = name.toLowerCase();
       if (sensitiveAttrReg.test(name) && sensitiveUrlReg.test(val)) {
@@ -217,7 +217,7 @@ function processToken(token: Token, env?: Record<string, any>) {
       }
 
       // 转换属性数组为对象
-      token.attrs?.forEach(([name, val]) => {
+      token.attrs?.forEach(([name, val]:any) => {
         token.meta.attrs[name] = val;
       });
     }
@@ -421,7 +421,7 @@ function renderAttrs(this: Renderer, token: Token) {
   const result: any = {};
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
-  token.attrs.forEach(token => {
+  token.attrs.forEach((token:any) => {
     if (validateAttrName(token[0])) {
       result[token[0]] = token[1];
     }
