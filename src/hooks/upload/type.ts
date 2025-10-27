@@ -221,3 +221,35 @@ export interface MergeResponse {
   originalFile?: File;
   uploadTime: number;
 }
+
+
+// types/upload.types.ts
+export interface IUploadController {
+  pause(taskId: string): void;
+  resume(taskId: string): void;
+  cancel(taskId: string): void;
+  pauseAll(): void;
+  resumeAll(): void;
+  cancelAll(): void;
+}
+
+export interface IProgressManager {
+  updateFileProgress(taskId: string, progress: number): void;
+  updateChunkProgress(taskId: string, chunkIndex: number, progress: number): void;
+  updateTotalProgress(): void;
+  getProgress(taskId: string): number;
+  getTotalProgress(): number;
+}
+
+export interface IFileProcessor {
+  processFile(file: File, options: FileUploadOptions): Promise<FileTask>;
+  validateFile(file: File): Promise<boolean>;
+  compressFile(file: File): Promise<File>;
+  generatePreview(file: File): Promise<string | undefined>;
+}
+
+export interface IChunkManager {
+  createChunks(task: FileTask, chunkSize: number): Promise<ChunkInfo[]>;
+  uploadChunk(task: FileTask, chunk: ChunkInfo,abortSignal:AbortSignal): Promise<ChunkUploadResponse>;
+  mergeChunks(task: FileTask,abortSignal:AbortSignal): Promise<MergeResponse>;
+}

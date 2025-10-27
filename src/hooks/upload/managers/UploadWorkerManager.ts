@@ -1,4 +1,4 @@
-import { calculateFileMD5 } from './utils';
+import { calculateFileMD5 } from '../utils';
 
 // ==================== 类型定义 ====================
 interface WorkerMessage {

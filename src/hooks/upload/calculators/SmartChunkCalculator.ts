@@ -1,4 +1,4 @@
-import type { UploadConfig } from './type'
+import type { UploadConfig } from '../type'
 
 /**
  * 智能分片计算器

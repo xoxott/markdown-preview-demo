@@ -7,17 +7,17 @@
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import { computed, ref, watch } from "vue";
-import CacheManager from "./CacheManager";
+import CacheManager from "./managers/CacheManager";
 import { CONSTANTS } from "./constants";
-import EnhancedSpeedCalculator from "./EnhancedSpeedCalculator";
+import EnhancedSpeedCalculator from "./calculators/EnhancedSpeedCalculator";
 import FileCompressor from "./FileCompressor";
 import FileValidator from "./FileValidator";
 import NetworkAdapter from "./NetworkAdapter";
 import PreviewGenerator from './PreviewGenerator';
-import RetryStrategyManager from "./RetryStrategyManager";
+import RetryStrategyManager from "./managers/RetryStrategyManager";
 import Semaphore from "./Semaphore";
-import SmartChunkCalculator from "./SmartChunkCalculator";
-import TaskQueueManager from "./TaskQueueManager";
+import SmartChunkCalculator from "./calculators/SmartChunkCalculator";
+import TaskQueueManager from "./managers/TaskQueueManager";
 import {
   CheckFileTransformer,
   ChunkInfo,
@@ -34,13 +34,28 @@ import {
   UploadStats,
   UploadStatus
 } from "./type";
-import UploadWorkerManager from "./UploadWorkerManager";
+import UploadWorkerManager from "./managers/UploadWorkerManager";
 import { calculateFileMD5, delay } from "./utils";
-import { defaultCheckFileTransformer, defaultChunkUploadTransformer, defaultMergeChunksTransformer } from "./defaultChunkUploadTransformer";
+import { defaultCheckFileTransformer, defaultChunkUploadTransformer, defaultMergeChunksTransformer } from "./transformers/defaultChunkUploadTransformer";
+import { CallbackManager } from "./managers/CallbackManager";
+import { UploadController } from "./controllers/UploadController";
+import { ProgressManager } from "./managers/ProgressManager";
+import { ChunkUploadTask } from "./tasks/ChunkUploadTask";
+import { ChunkManager } from "./managers/ChunkManager";
 
 // ==================== 主类：分片上传管理器 ====================
 export class ChunkUploadManager {
+
   private config: UploadConfig;
+
+   // 管理器
+  private callbackManager: CallbackManager;
+  private uploadController: UploadController;
+  private progressManager: ProgressManager;
+  private chunkManager: ChunkManager;
+
+
+
   private callbacks: UploadCallbacks = {};
   private cacheManager: CacheManager;
   private networkAdapter: NetworkAdapter;
@@ -53,14 +68,22 @@ export class ChunkUploadManager {
   public readonly uploadQueue = ref<FileTask[]>([]);// 待上传队列
   public readonly activeUploads = ref<Map<string, FileTask>>(new Map()); // 上传中的
   public readonly completedUploads = ref<FileTask[]>([]); // 已完成的
-  public readonly totalProgress = ref(0);
-  public readonly uploadSpeed = ref(0); 
   public readonly isUploading = ref(false);
-  public readonly isPaused = ref(false);
-  public readonly networkQuality = ref<'good' | 'fair' | 'poor'>('good');
+  
+  // 计算属性
+  public readonly totalProgress = computed(() => this.progressManager.totalProgress.value);
+  public readonly uploadSpeed = computed(() => this.progressManager.uploadSpeed.value);
+  public readonly networkQuality = computed(() => this.progressManager.networkQuality.value);
+  public readonly isPaused = computed(() => this.uploadController.isPaused.value);
 
   // 计算属性
-  public readonly uploadStats = computed<UploadStats>(() => this.calculateStats());
+  public readonly uploadStats = computed(() => 
+    this.progressManager.calculateStats(
+      this.uploadQueue.value,
+      this.activeUploads.value,
+      this.completedUploads.value
+    )
+  );
 
   private speedCalculator = new EnhancedSpeedCalculator();
   private abortController = new AbortController();
@@ -69,20 +92,16 @@ export class ChunkUploadManager {
     adjustInterval: CONSTANTS.NETWORK.ADJUST_INTERVAL,
   };
 
-  // 🔧 新增：为每个任务维护独立的 AbortController
-  private taskAbortControllers = new Map<string, AbortController>();
-
-   // 🔧 新增：为每个分片维护 AbortController
-  private chunkAbortControllers = new Map<string, AbortController>();
-
-   // 🔧 新增：暂停的任务列表
-  private pausedTasks = new Set<string>();
 
   constructor(config: Partial<UploadConfig> = {}) {
-    this.config = this.mergeConfig(config);
-    this.cacheManager = new CacheManager();
-    this.networkAdapter = new NetworkAdapter(this.config);
-    this.fileValidator = new FileValidator(this.config);
+    this.config = this.mergeConfig(config); // 配置信息
+    this.cacheManager = new CacheManager(); // 缓存
+    this.callbackManager = new CallbackManager();
+
+
+    this.uploadController = new UploadController(); // 上传控制
+    this.networkAdapter = new NetworkAdapter(this.config); // 网络适配
+    this.fileValidator = new FileValidator(this.config); // 文件校验
     this.taskQueueManager = new TaskQueueManager();
     this.retryStrategy = new RetryStrategyManager(this.config);
 
@@ -223,7 +242,9 @@ export class ChunkUploadManager {
     updateNetworkInfo();
   }
   
-  // 网络自适应
+  /**
+   * 网络自适应性能调整
+   */
   private adjustPerformance(): void {
     if (!this.config.enableNetworkAdaptation) return;
 
@@ -233,13 +254,17 @@ export class ChunkUploadManager {
     this.adaptiveConfig.lastAdjustTime = now;
     const speed = this.uploadSpeed.value;
     const activeCount = this.activeUploads.value.size;
-
+    // 根据网络速度动态调整并发数
     if (speed < 50 && activeCount > 1) {
+       // 网速慢，减少并发
       this.config.maxConcurrentFiles = Math.max(1, this.config.maxConcurrentFiles - 1);
       this.config.maxConcurrentChunks = Math.max(2, this.config.maxConcurrentChunks - 1);
+      console.log(`📉 网络速度慢，调整并发数: 文件=${this.config.maxConcurrentFiles}, 分片=${this.config.maxConcurrentChunks}`);
     } else if (speed > 500 && activeCount === this.config.maxConcurrentFiles) {
+        // 网速快，增加并发
       this.config.maxConcurrentFiles = Math.min(6, this.config.maxConcurrentFiles + 1);
       this.config.maxConcurrentChunks = Math.min(12, this.config.maxConcurrentChunks + 1);
+       console.log(`📈 网络速度快，调整并发数: 文件=${this.config.maxConcurrentFiles}, 分片=${this.config.maxConcurrentChunks}`);
     }
   }
 
@@ -285,76 +310,7 @@ export class ChunkUploadManager {
     ];
   }
 
-  // ==================== 链式回调 ====================
-  public onFileStart(callback: UploadCallbacks['onFileStart']): this {
-    this.callbacks.onFileStart = callback;
-    return this;
-  }
 
-  public onFileProgress(callback: UploadCallbacks['onFileProgress']): this {
-    this.callbacks.onFileProgress = callback;
-    return this;
-  }
-
-  public onFileSuccess(callback: UploadCallbacks['onFileSuccess']): this {
-    this.callbacks.onFileSuccess = callback;
-    return this;
-  }
-
-  public onFileError(callback: UploadCallbacks['onFileError']): this {
-    this.callbacks.onFileError = callback;
-    return this;
-  }
-
-  public onFilePause(callback: UploadCallbacks['onFilePause']): this {
-    this.callbacks.onFilePause = callback;
-    return this;
-  }
-
-  public onFileResume(callback: UploadCallbacks['onFileResume']): this {
-    this.callbacks.onFileResume = callback;
-    return this;
-  }
-
-  public onFileCancel(callback: UploadCallbacks['onFileCancel']): this {
-    this.callbacks.onFileCancel = callback;
-    return this;
-  }
-
-  public onTotalProgress(callback: UploadCallbacks['onTotalProgress']): this {
-    this.callbacks.onTotalProgress = callback;
-    return this;
-  }
-
-  public onAllComplete(callback: UploadCallbacks['onAllComplete']): this {
-    this.callbacks.onAllComplete = callback;
-    return this;
-  }
-
-  public onAllError(callback: UploadCallbacks['onAllError']): this {
-    this.callbacks.onAllError = callback;
-    return this;
-  }
-
-  public onSpeedChange(callback: UploadCallbacks['onSpeedChange']): this {
-    this.callbacks.onSpeedChange = callback;
-    return this;
-  }
-
-  public onQueueChange(callback: UploadCallbacks['onQueueChange']): this {
-    this.callbacks.onQueueChange = callback;
-    return this;
-  }
-
-  public onChunkSuccess(callback: UploadCallbacks['onChunkSuccess']): this {
-    this.callbacks.onChunkSuccess = callback;
-    return this;
-  }
-
-  public onChunkError(callback: UploadCallbacks['onChunkError']): this {
-    this.callbacks.onChunkError = callback;
-    return this;
-  }
 
   // ==================== 文件管理 ====================
     /**
@@ -492,8 +448,8 @@ export class ChunkUploadManager {
 
   // ==================== 上传流程 ====================
   public async start(): Promise<this> {
-    if (this.uploadQueue.value.length === 0) {
-      this.callbacks.onAllComplete?.([]);
+    if (this.uploadQueue.value.length === 0 && this.activeUploads.value.size === 0) { // 没有上传中的执行回调所有上传完毕的回调
+      await this.callbackManager.emit('onAllComplete', []);
       return this;
     }
 
@@ -502,44 +458,83 @@ export class ChunkUploadManager {
 
     try {
       await this.processQueue();
-      this.handleUploadComplete();
+      await this.handleUploadComplete();
     } catch (error) {
       this.callbacks.onAllError?.(error as Error);
     } finally {
       this.isUploading.value = false;
-      this.isPaused.value = false;
     }
     return this;
   }
 
   private async processQueue(): Promise<void> {
-    const promises: Promise<void>[] = [];
-
-    while (this.uploadQueue.value.length > 0 || this.activeUploads.value.size > 0) {
-      if (this.isPaused.value || this.abortController.signal.aborted) {
-        await Promise.allSettled(promises);
+     const uploadTasks: ChunkUploadTask[] = [];
+     while (this.uploadQueue.value.length > 0 || this.activeUploads.value.size > 0) {
+       // 检查是否暂停
+      if (this.uploadController.isPaused.value) {
+         // 等待所有活跃任务完成或暂停
+        await Promise.allSettled(uploadTasks.map(t => t.wait()));
         return;
       }
-
+      // 启动新任务
       while (
         this.uploadQueue.value.length > 0 &&
-        this.activeUploads.value.size < this.config.maxConcurrentFiles
+        this.activeUploads.value.size < this.config.maxConcurrentFiles &&
+        !this.uploadController.isPaused.value
       ) {
         const task = this.uploadQueue.value.shift()!;
-        const promise = this.uploadFile(task);
-        this.activeUploads.value.set(task.id, task);
-        promises.push(promise);
-      }
+           // 创建 AbortController
+        const abortController = this.uploadController.createAbortController(task.id);
+       // 创建上传任务，注入智能分片配置
+        const uploadTask = new ChunkUploadTask(
+          task,
+          {
+            ...this.config,
+            // 添加智能分片配置
+            getOptimalChunkSize: (fileSize: number) => {
+              if (this.config.enableNetworkAdaptation) {
+                return SmartChunkCalculator.calculateOptimalChunkSize(
+                  fileSize,
+                  this.speedCalculator.getAverageSpeed(),
+                  this.config
+                );
+              }
+              return task.options.chunkSize || this.config.chunkSize;
+            },
+            // 添加 Worker 管理器
+            workerManager: this.workerManager,
+            // 添加网络适配器
+            getNetworkConfig: () => this.networkAdapter.getAdaptiveConfig()
+          },
+          this.chunkManager,
+          this.cacheManager,
+          this.retryStrategy,
+          this.callbackManager,
+          this.progressManager,
+          this.uploadController
+         );
 
+         this.activeUploads.value.set(task.id, task);
+          uploadTasks.push(uploadTask);
+          // 开始上传
+          uploadTask.start().then(() => {
+          this.activeUploads.value.delete(task.id);
+          this.completedUploads.value.push(task);
+          this.uploadController.cleanupTask(task.id);
+        });
+    
+      }
+       // 等待至少一个任务完成
       if (this.activeUploads.value.size > 0) {
-        await Promise.race(promises.filter(Boolean));
+        await Promise.race(uploadTasks.filter(t => !t.isCompleted()).map(t => t.wait()));
       }
-
       await delay(CONSTANTS.NETWORK.POLL_INTERVAL);
     }
-
-    await Promise.allSettled(promises);
+    // 等待所有任务完成
+     await Promise.allSettled(uploadTasks.map(t => t.wait()));
   }
+
+
 
   private async uploadFile(task: FileTask): Promise<void> {
     try {
@@ -626,15 +621,17 @@ export class ChunkUploadManager {
     this.callbacks.onFileError?.(task, error);
   }
 
-  private handleUploadComplete(): void {
+  private async handleUploadComplete(): Promise<void> {
     const completedTasks = this.completedUploads.value;
     const successTasks = completedTasks.filter(t => t.status === UploadStatus.SUCCESS);
     const errorTasks = completedTasks.filter(t => t.status === UploadStatus.ERROR);
-
     if (errorTasks.length > 0) {
-      this.callbacks.onAllError?.(new Error(`${errorTasks.length}/${completedTasks.length} 个文件上传失败`));
+      await this.callbackManager.emit(
+        'onAllError',
+        new Error(`${errorTasks.length}/${completedTasks.length} 个文件上传失败`)
+      );
     } else {
-      this.callbacks.onAllComplete?.(successTasks);
+      await this.callbackManager.emit('onAllComplete', successTasks);
     }
   }
 
@@ -1244,6 +1241,78 @@ export class ChunkUploadManager {
         this.networkAdapter.adaptToConnection(connection);
       });
     }
+  }
+
+
+    // ==================== 链式回调 ====================
+  public onFileStart(callback: UploadCallbacks['onFileStart']): this {
+    this.callbacks.onFileStart = callback;
+    return this;
+  }
+
+  public onFileProgress(callback: UploadCallbacks['onFileProgress']): this {
+    this.callbacks.onFileProgress = callback;
+    return this;
+  }
+
+  public onFileSuccess(callback: UploadCallbacks['onFileSuccess']): this {
+    this.callbacks.onFileSuccess = callback;
+    return this;
+  }
+
+  public onFileError(callback: UploadCallbacks['onFileError']): this {
+    this.callbacks.onFileError = callback;
+    return this;
+  }
+
+  public onFilePause(callback: UploadCallbacks['onFilePause']): this {
+    this.callbacks.onFilePause = callback;
+    return this;
+  }
+
+  public onFileResume(callback: UploadCallbacks['onFileResume']): this {
+    this.callbacks.onFileResume = callback;
+    return this;
+  }
+
+  public onFileCancel(callback: UploadCallbacks['onFileCancel']): this {
+    this.callbacks.onFileCancel = callback;
+    return this;
+  }
+
+  public onTotalProgress(callback: UploadCallbacks['onTotalProgress']): this {
+    this.callbacks.onTotalProgress = callback;
+    return this;
+  }
+
+  public onAllComplete(callback: UploadCallbacks['onAllComplete']): this {
+    this.callbacks.onAllComplete = callback;
+    return this;
+  }
+
+  public onAllError(callback: UploadCallbacks['onAllError']): this {
+    this.callbacks.onAllError = callback;
+    return this;
+  }
+
+  public onSpeedChange(callback: UploadCallbacks['onSpeedChange']): this {
+    this.callbacks.onSpeedChange = callback;
+    return this;
+  }
+
+  public onQueueChange(callback: UploadCallbacks['onQueueChange']): this {
+    this.callbacks.onQueueChange = callback;
+    return this;
+  }
+
+  public onChunkSuccess(callback: UploadCallbacks['onChunkSuccess']): this {
+    this.callbacks.onChunkSuccess = callback;
+    return this;
+  }
+
+  public onChunkError(callback: UploadCallbacks['onChunkError']): this {
+    this.callbacks.onChunkError = callback;
+    return this;
   }
 }
 

@@ -1,6 +1,6 @@
   // ==================== 默认的请求参数转换器 ====================
 
-import { CheckFileTransformer, ChunkUploadTransformer, MergeChunksTransformer } from "./type";
+import { CheckFileTransformer, ChunkUploadTransformer, MergeChunksTransformer } from "../type";
 
   /**
  * 默认分块上传参数转换器
