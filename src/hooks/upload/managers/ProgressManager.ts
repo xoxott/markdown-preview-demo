@@ -16,6 +16,7 @@ export class ProgressManager {
   updateFileProgress(task: FileTask): void {
     if (task.totalChunks > 0) {
       task.progress = Math.round((task.uploadedChunks / task.totalChunks) * 100);
+      task.speed = this.uploadSpeed.value;
     }
   }
 

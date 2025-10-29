@@ -7,9 +7,11 @@
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 
-import SmartChunkCalculator from "./SmartChunkCalculator";
-import { FileTask, FileUploadOptions, UploadConfig, UploadStatus } from "./type";
-import { generateId,generateUUID } from "./utils";
+import SmartChunkCalculator from "../calculators/SmartChunkCalculator";
+import { FileTask, FileUploadOptions, UploadConfig, UploadStatus } from "../type";
+import { generateUUID } from "../utils";
+
+
 
 // ==================== 工具类：任务队列管理器 ====================
 /**
@@ -81,7 +83,7 @@ export default class TaskQueueManager {
   ): FileTask {
     return {
       // id: generateId(),
-      id:generateUUID(),
+      id: generateUUID(),
       file: processedFile,
       originalFile: file !== processedFile ? file : undefined,
       status: UploadStatus.PENDING,
@@ -95,6 +97,7 @@ export default class TaskQueueManager {
       endTime: null,
       pausedTime: 0,
       resumeTime: 0,
+      uploadedSize:0,
       result: null,
       error: null,
       fileMD5:'',

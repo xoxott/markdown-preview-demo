@@ -48,6 +48,8 @@ export const CONSTANTS = {
     MERGE_START: 92,
     /** 文件合并结束进度（百分比） */
     MERGE_END: 95,
+    /** 文件合并进度（百分比） */
+    COMPLETE:100
   },
 
   /** 并发控制相关 */

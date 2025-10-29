@@ -34,7 +34,8 @@ export class ChunkManager implements IChunkManager {
         uploadTime: 0,
         etag: undefined,
         result: undefined,
-        error: undefined
+        error: undefined,
+        hash: undefined
       });
     }
 

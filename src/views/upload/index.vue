@@ -179,7 +179,6 @@
         :task="task"
         :show-actions="true"
         @retry="handleRetrySingle(task.id)"
-        @view="handleViewFile(task.url!)"
       />
     </upload-list-section>
 

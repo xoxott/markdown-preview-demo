@@ -60,7 +60,6 @@ export class UploadController implements IUploadController {
 
   pauseAll(): void {
     this.isPaused.value = true;
-    
     // 暂停所有活跃任务
     this.taskAbortControllers.forEach((_, taskId) => {
       this.pause(taskId);
