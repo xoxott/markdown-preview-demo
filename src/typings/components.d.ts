@@ -12,6 +12,7 @@ declare module 'vue' {
     BetterScroll: typeof import('./../components/custom/better-scroll.vue')['default']
     ButtonIcon: typeof import('./../components/custom/button-icon.vue')['default']
     CodeBlock: typeof import('./../components/markdown/modules/code-block.vue')['default']
+    CountdownTimer: typeof import('./../components/custom/countdown-timer.vue')['default']
     CountTo: typeof import('./../components/custom/count-to.vue')['default']
     DarkModeContainer: typeof import('./../components/common/dark-mode-container.vue')['default']
     Docviewer: typeof import('./../components/docviewer/index.vue')['default']

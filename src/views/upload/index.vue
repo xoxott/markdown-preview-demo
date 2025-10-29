@@ -116,9 +116,10 @@
             <span>{{ formatSpeed(uploadSpeed) }}</span>
           </div>
 
+          <!-- 🔥 使用平滑的时间显示 -->
           <div class="flex items-center gap-2">
             <n-icon :component="TimeOutline" />
-            <span>{{ formatTime(uploadStats.estimatedTime) }}</span>
+            <span class="smooth-time">{{ formatTime(displayEstimatedTime) }}</span>
           </div>
 
           <div class="flex items-center gap-2">
@@ -221,7 +222,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue';
+import { ref, computed, reactive, watch, onBeforeUnmount } from 'vue';
 import {
   NButton,
   NSpace,
@@ -259,7 +260,6 @@ import { UploadStatus } from '@/hooks/upload/type';
 import { CONSTANTS } from '@/hooks/upload/constants';
 import UploadFileItem from './components/UploadFileItem.vue';
 import UploadListSection from './components/UploadListSection.vue';
-
 
 const message = useMessage();
 
@@ -342,6 +342,59 @@ const {
 
 const fileInputRef = ref<HTMLInputElement>();
 
+// 🔥 添加平滑时间显示
+const displayEstimatedTime = ref(0);
+let localTime = 0;
+let lastUpdateTime = 0;
+let timeCountdownTimer: number | null = null;
+
+// 启动倒计时
+const startTimeCountdown = (initialTime: number) => {
+  if (timeCountdownTimer) {
+    clearInterval(timeCountdownTimer);
+  }
+  
+  localTime = initialTime;
+  displayEstimatedTime.value = localTime;
+  lastUpdateTime = Date.now();
+  
+  timeCountdownTimer = window.setInterval(() => {
+    const now = Date.now();
+    const elapsed = (now - lastUpdateTime) / 1000;
+    
+    localTime = Math.max(0, localTime - elapsed);
+    displayEstimatedTime.value = Math.round(localTime);
+    lastUpdateTime = now;
+    
+    if (localTime <= 0 && timeCountdownTimer) {
+      clearInterval(timeCountdownTimer);
+      timeCountdownTimer = null;
+    }
+  }, 1000);
+};
+
+// 监听后端时间变化
+watch(
+  () => uploadStats.value.estimatedTime,
+  (newTime) => {
+    // 🔥 只在变化超过 5 秒或首次时才更新
+    const diff = Math.abs(newTime - localTime);
+    
+    if (diff > 5 || timeCountdownTimer === null) {
+      console.log(`🕐 剩余时间同步: ${localTime.toFixed(0)}s -> ${newTime}s`);
+      startTimeCountdown(newTime);
+    }
+  },
+  { immediate: true }
+);
+
+// 清理定时器
+onBeforeUnmount(() => {
+  if (timeCountdownTimer) {
+    clearInterval(timeCountdownTimer);
+  }
+});
+
 // 计算失败的任务数量
 const failedCount = computed(() => {
   return completedUploads.value.filter(t => t.status === UploadStatus.ERROR).length;
@@ -407,14 +460,17 @@ const handleRetrySingle = (taskId: string) => {
   }
 };
 
-// 查看文件
-const handleViewFile = (url: string) => {
-  window.open(url, '_blank');
-};
-
 // 设置变更
 const handleSettingChange = () => {
   updateConfig(settings);
   message.success('设置已更新');
 };
 </script>
+
+<style scoped>
+/* 🔥 添加平滑过渡效果 */
+.smooth-time {
+  transition: opacity 0.3s ease;
+  font-variant-numeric: tabular-nums; /* 等宽数字，避免跳动 */
+}
+</style>

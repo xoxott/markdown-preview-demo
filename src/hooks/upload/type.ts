@@ -52,6 +52,7 @@ export interface CheckFileTransformer {
 
 /** 切片信息接口 */
 export interface ChunkInfo {
+  hash: any;
   index: number;
   start: number;
   end: number;
@@ -75,6 +76,7 @@ export interface ExtendedUploadConfig extends UploadConfig {
 
 /** 文件任务接口 */
 export interface FileTask {
+  uploadedSize: any;
   id: string;
   file: File;
   originalFile: File | undefined;
