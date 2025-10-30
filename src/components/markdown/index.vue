@@ -1,22 +1,20 @@
 <script setup lang="ts">
-import type { VNode } from 'vue';
-import { computed, createVNode, defineAsyncComponent, Fragment,Comment, ref, Text,watch } from 'vue';
+import { useThemeStore } from '@/store/modules/theme';
+import '@primer/css/core/index.scss';
+import '@primer/css/markdown/index.scss';
+import 'github-markdown-css/github-markdown.css';
 import 'highlight.js/styles/github-dark.css';
-import { storeToRefs } from 'pinia';
-import { useThemeVars } from 'naive-ui';
 import MarkdownIt from 'markdown-it';
 import markdownItMultimdTable from 'markdown-it-multimd-table';
-import { useThemeStore } from '@/store/modules/theme';
+import { useThemeVars } from 'naive-ui';
+import { storeToRefs } from 'pinia';
+import type { VNode } from 'vue';
+import { computed, ref, watch } from 'vue';
+import codeBlock from './modules/code-block.vue';
+import echartsRender from './modules/echarts-render.vue';
 import mermaidRender from './modules/mermaid-render.vue';
 import mindmapRender from './modules/mindmap-render.vue';
-import echartsRender from './modules/echarts-render.vue';
-import codeBlock from './modules/code-block.vue';
 import markdwonVuePlugn from './plugins/markdown-render-vnode';
-import '@primer/css/markdown/index.scss';
-import '@primer/css/core/index.scss';
-import 'github-markdown-css/github-markdown.css';
-import createMarkdownPlugin from './plugins/lib/UniversalMarkdownPlugin';
-import { FrameworkType } from './plugins/lib/FrameworkAdapter';
 const themeVars = useThemeVars();
 const themeStore = useThemeStore();
 const { darkMode } = storeToRefs(themeStore);
@@ -32,36 +30,8 @@ const md = new MarkdownIt({
   breaks: true
 });
 
-// const vueMarkdownPlugin = createMarkdownPlugin({
-//   framework:FrameworkType.VUE,
-//   frameworkLib:{
-//     createVNode,
-//     Fragment,
-//     Text,
-//     Comment,
-//     defineAsyncComponent
-//   },
-//   components:{
-//     codeBlock:(meta:any)=>{
-//       if (meta.langName === 'mermaid') {
-//         return mermaidRender;
-//       }
-//       if (meta.langName === 'markmap') {
-//         return mindmapRender;
-//       }
-//       if (meta.langName === 'echarts') {
-//         return echartsRender;
-//       }
-//       return codeBlock;
-//     }
-//   },
-//   safeMode:true,
-//   langPrefix: 'language-'
-// })
-// md.use(vueMarkdownPlugin)
-
 md.use(markdwonVuePlugn, {
-  component: {
+  components: {
     codeBlock: (meta: any) => {
       if (meta.langName === 'mermaid') {
         return mermaidRender;

@@ -1,10 +1,9 @@
-/* eslint-disable max-params */
-/* eslint-disable no-plusplus */
 import type { Component, VNode } from 'vue';
 import { Comment, Fragment, Text, createVNode, defineAsyncComponent } from 'vue';
-import type { Renderer, Token } from 'markdown-it';
 import type MarkdownIt from 'markdown-it';
 import { v4 as uuid } from 'uuid';
+import { Renderer, Token } from './type';
+
 
 interface CodeBlockMeta {
   langName: string;
@@ -295,13 +294,13 @@ defaultRules.fence = (tokens: Token[], idx: number, options: any, _: any, slf: R
     );
   };
   // 自定义组件
-  const customComponent = defaultRules.options.component?.codeBlock?.(meta);
+  const customComponent = defaultRules.options.components?.codeBlock?.(meta);
   if (customComponent) {
     try {
-      let component: Component | Promise<Component> | null = null;
+      let components: Component | Promise<Component> | null = null;
       // Promise（动态导入）
       if (customComponent instanceof Promise) {
-        component = defineAsyncComponent({
+        components = defineAsyncComponent({
           loader: () => customComponent.then(m => m.default || m),
           loadingComponent: createVNode('div', { class: 'loading' }, 'Loading...'),
           delay: 500,
@@ -311,16 +310,16 @@ defaultRules.fence = (tokens: Token[], idx: number, options: any, _: any, slf: R
         });
         // 返回的是组件工厂函数
       } else if (typeof customComponent === 'function') {
-        component = customComponent(meta);
+        components = customComponent(meta);
         // 组件选项/构造函数
       } else if (isComponentOptions(customComponent)) {
-        component = customComponent;
+        components = customComponent;
       }
       // 确保 component 已初始化
-      if (!component) {
+      if (!components) {
         throw new Error('Invalid component type');
       }
-      return createVNode(component, {
+      return createVNode(components, {
         key: `${langName}-${uuid}`,
         meta,
         class: 'code-block-transition',
