@@ -1,4 +1,3 @@
-/* eslint-disable no-multi-assign */
 import type { VNode } from 'vue';
 import { computed, createApp, defineComponent, h, nextTick, ref } from 'vue';
 import {
@@ -9,18 +8,11 @@ import {
   NDrawerContent,
   NMessageProvider,
   NNotificationProvider,
+  NScrollbar,
   NSpace
 } from 'naive-ui';
-import MarkdownIt from 'markdown-it';
 import type { DrawerInstance, DrawerOptions } from '@/typings/drawer';
-import { useModalProvider } from './useModalProvider';
-const { theme, themeOverrides, locale, dateLocale } = useModalProvider();
 
-const md = MarkdownIt({
-  html: true, // 允许HTML标签（注意：这可能会带来XSS风险，请确保内容安全）
-  linkify: true, // 自动将URL转换为链接
-  typographer: true // 启用一些语言相关的替换和文本格式
-});
 const DrawerContainer = defineComponent({
   name: 'DrawerContainer',
   props: {
@@ -30,7 +22,7 @@ const DrawerContainer = defineComponent({
     }
   },
   setup(props, { expose }) {
-    const visible = ref(true);
+    const visible = ref(false); // 初始设置为 false，等待 DOM 挂载后再显示
     const loading = ref(false);
     const disabled = ref(false);
 
@@ -40,19 +32,23 @@ const DrawerContainer = defineComponent({
     // 处理关闭
     const handleClose = () => {
       visible.value = false;
-      props.options.onClose?.();
+      // 不在这里调用 onClose，等待动画结束后在 onAfterLeave 中调用
     };
 
     // 处理确认
     const handleConfirm = async () => {
-      if (!props.options.onConfirm) return;
+      if (!props.options.onConfirm) {
+        handleClose();
+        return;
+      }
+      
       loading.value = disabled.value = true;
       try {
         await props.options.onConfirm();
         handleClose();
       } catch (error) {
         console.error('Drawer confirm error:', error);
-        // 可以在这里添加错误提示
+        // 确认失败时不关闭抽屉，继续显示
       } finally {
         loading.value = disabled.value = false;
       }
@@ -73,15 +69,27 @@ const DrawerContainer = defineComponent({
     // 处理自定义按钮点击
     const handleButtonClick = async (button: any) => {
       if (!button.onClick) return;
+      
+      const shouldClose = button.closeOnClick ?? false;
+      
       try {
         await button.onClick();
+        if (shouldClose) {
+          handleClose();
+        }
       } catch (error) {
         console.error('Drawer button click error:', error);
       }
     };
 
+    // 显示抽屉（用于触发打开动画）
+    const show = () => {
+      visible.value = true;
+    };
+
     // 暴露方法给父组件
     expose({
+      show,
       handleClose,
       handleConfirm,
       handleCancel,
@@ -104,13 +112,27 @@ const DrawerContainer = defineComponent({
 
     // 渲染内容
     const renderContent = (): VNode | null => {
+      let content: VNode | null = null;
+
       if (typeof options.content === 'string') {
-        return h('div', { innerHTML: md.render(options.content) });
+        content = h('div', options.content);
+      } else if (typeof options.content === 'function') {
+        content = h(options.content);
+      } else if (options.content) {
+        content = h(options.content);
       }
-      if (options.content) {
-        return h(options.content);
-      }
-      return null;
+
+      if (!content) return null;
+
+      // 使用 NScrollbar 包裹内容
+      return h(
+        NScrollbar,
+        {
+          style: { maxHeight: '100%' },
+          xScrollable: options.xScrollable ?? false
+        },
+        () => content
+      );
     };
 
     // 渲染标题 - 支持字符串、VNode、JSX和函数
@@ -133,7 +155,7 @@ const DrawerContainer = defineComponent({
 
       const buttons: VNode[] = [];
 
-      // 自定义按钮
+      // 自定义按钮（在左侧）
       options.customButtons?.forEach((button, index) => {
         buttons.push(
           h(
@@ -142,7 +164,7 @@ const DrawerContainer = defineComponent({
               key: `custom-${index}`,
               type: button.type || 'default',
               loading: button.loading,
-              disabled: button.disabled,
+              disabled: button.disabled || this.disabled,
               size: button.size || 'small',
               onClick: () => this.handleButtonClick(button)
             },
@@ -150,9 +172,13 @@ const DrawerContainer = defineComponent({
           )
         );
       });
+
       // 取消按钮
-      if (options.cancelButton) {
-        const cancelConfig = options.cancelButton || { text: '取消' };
+      if (options.cancelButton !== false) {
+        const cancelConfig = typeof options.cancelButton === 'object' 
+          ? options.cancelButton 
+          : { text: '取消' };
+        
         buttons.push(
           h(
             NButton,
@@ -160,7 +186,7 @@ const DrawerContainer = defineComponent({
               key: 'cancel',
               type: cancelConfig.type || 'default',
               loading: cancelConfig.loading,
-              disabled: cancelConfig.disabled,
+              disabled: cancelConfig.disabled || this.disabled,
               size: cancelConfig.size || 'small',
               onClick: this.handleCancel
             },
@@ -168,9 +194,13 @@ const DrawerContainer = defineComponent({
           )
         );
       }
+
       // 确认按钮
-      if (options.confirmButton) {
-        const confirmConfig = options.confirmButton || { text: '确定' };
+      if (options.confirmButton !== false) {
+        const confirmConfig = typeof options.confirmButton === 'object'
+          ? options.confirmButton
+          : { text: '确定' };
+        
         buttons.push(
           h(
             NButton,
@@ -189,27 +219,35 @@ const DrawerContainer = defineComponent({
 
       return h(NSpace, { justify: 'end' }, () => buttons);
     };
-    const renderDrawer = (): VNode =>
-      h(
+
+    const renderDrawer = (): VNode => {
+      const titleContent = renderTitle();
+      const isStringTitle = typeof titleContent === 'string';
+
+      return h(
         NDrawer,
         {
           show: this.visible,
+          width: options.width || 400,
           height: options.height,
           placement: options.placement || 'right',
           maskClosable: options.maskClosable ?? true,
           closeOnEsc: options.closeOnEsc ?? true,
           autoFocus: options.autoFocus ?? true,
-          defaultWidth: options.width || 400,
           showMask: options.showMask ?? true,
           trapFocus: options.trapFocus ?? true,
-          resizable: options.resizable ?? true,
+          resizable: options.resizable ?? false,
           onUpdateShow: (show: boolean) => {
             if (!show) {
               this.handleClose();
             }
           },
           onAfterEnter: options.onAfterEnter,
-          onAfterLeave: options.onAfterLeave,
+          onAfterLeave: () => {
+            // 动画结束后调用 onClose 和 onAfterLeave
+            options.onClose?.();
+            options.onAfterLeave?.();
+          },
           onMaskClick: options.onMaskClick
         },
         () =>
@@ -217,26 +255,25 @@ const DrawerContainer = defineComponent({
             NDrawerContent,
             {
               closable: options.closable ?? true,
+              title: isStringTitle ? (titleContent as string) : undefined,
               bodyStyle: options.bodyStyle,
               headerStyle: options.headerStyle,
               footerStyle: options.footerStyle
             },
             {
               default: renderContent,
-              footer: renderFooter,
-              header: renderTitle() ? renderTitle : undefined
+              footer: this.showFooter ? renderFooter : undefined,
+              // 如果标题不是字符串，使用 header 插槽
+              header: !isStringTitle && titleContent ? () => titleContent : undefined
             }
           )
       );
+    };
 
     const renderWithProviders = (): VNode =>
       h(
         NConfigProvider,
         {
-          theme: theme.value,
-          themeOverrides: themeOverrides.value,
-          locale: locale.value,
-          dateLocale: dateLocale.value
         },
         {
           default: () =>
@@ -268,17 +305,39 @@ const DrawerContainer = defineComponent({
   }
 });
 
+// 全局主题配置存储
+let globalThemeConfig: {
+  theme?: any;
+  themeOverrides?: any;
+} = {};
+
+/**
+ * 设置全局主题配置
+ * 应在应用初始化时调用，通常在 main.ts 或 App.vue 中
+ */
+export function setDrawerTheme(config: {
+  theme?: any;
+  themeOverrides?: any;
+}) {
+  globalThemeConfig = config;
+}
+
 // 抽屉管理器（单例模式）
 class DrawerManager {
   private instances: Set<DrawerInstance> = new Set();
 
   // 创建抽屉实例
-  createDrawer(options: DrawerOptions): DrawerInstance {
+  async createDrawer(options: DrawerOptions): Promise<DrawerInstance> {
     const container = document.createElement('div');
     document.body.appendChild(container);
 
-    const app = createApp(DrawerContainer, { options });
+    const app = createApp(DrawerContainer, { 
+      options,
+      themeOverrides: globalThemeConfig.themeOverrides,
+      theme: globalThemeConfig.theme
+    });
     const instance = app.mount(container) as any;
+
     const drawerInstance: DrawerInstance = {
       close: () => {
         instance.handleClose();
@@ -286,6 +345,7 @@ class DrawerManager {
 
       destroy: () => {
         this.instances.delete(drawerInstance);
+        // 等待关闭动画完成后再销毁
         setTimeout(() => {
           try {
             app.unmount();
@@ -295,7 +355,7 @@ class DrawerManager {
           } catch (error) {
             console.error('Error destroying drawer:', error);
           }
-        }, 300); // 等待动画完成
+        }, 300);
       },
 
       updateOptions: (newOptions: Partial<DrawerOptions>) => {
@@ -303,14 +363,22 @@ class DrawerManager {
       }
     };
 
-    // 监听关闭事件，自动销毁
+    // 重写 onClose，在关闭时自动销毁实例
     const originalOnClose = options.onClose;
     options.onClose = () => {
       originalOnClose?.();
-      drawerInstance.destroy();
+      // 延迟销毁，确保动画完成
+      setTimeout(() => {
+        drawerInstance.destroy();
+      }, 300);
     };
 
     this.instances.add(drawerInstance);
+
+    // 等待 DOM 挂载后再显示，触发打开动画
+    await nextTick();
+    instance.show();
+
     return drawerInstance;
   }
 
@@ -324,19 +392,25 @@ class DrawerManager {
     this.instances.forEach(instance => instance.destroy());
     this.instances.clear();
   }
+
+  // 获取当前打开的抽屉数量
+  get count() {
+    return this.instances.size;
+  }
 }
 
 // 全局抽屉管理器实例
 const drawerManager = new DrawerManager();
 
 // 导出创建抽屉的函数
-export function createDrawer(options: DrawerOptions): DrawerInstance {
+export function createDrawer(options: DrawerOptions): Promise<DrawerInstance> {
   return drawerManager.createDrawer(options);
 }
 
 // 导出管理器方法
 export const closeAllDrawers = () => drawerManager.closeAll();
 export const destroyAllDrawers = () => drawerManager.destroyAll();
+export const getDrawerCount = () => drawerManager.count;
 
 // 便捷方法
 export const useDrawer = () => {
@@ -346,10 +420,10 @@ export const useDrawer = () => {
 
   const confirm = (options: Omit<DrawerOptions, 'showFooter'>) => {
     return createDrawer({
-      cancelButton: { text: '取消', type: 'default' },
-      confirmButton: { text: '确定', type: 'info' },
       ...options,
-      showFooter: true
+      showFooter: true,
+      cancelButton: options.cancelButton ?? { text: '取消', type: 'default' },
+      confirmButton: options.confirmButton ?? { text: '确定', type: 'primary' }
     });
   };
 
@@ -357,6 +431,7 @@ export const useDrawer = () => {
     return createDrawer({
       ...options,
       showFooter: true,
+      cancelButton: false,
       confirmButton: { text: '知道了', type: 'info' }
     });
   };
@@ -365,6 +440,7 @@ export const useDrawer = () => {
     return createDrawer({
       ...options,
       showFooter: true,
+      cancelButton: false,
       confirmButton: { text: '确定', type: 'success' }
     });
   };
@@ -373,6 +449,7 @@ export const useDrawer = () => {
     return createDrawer({
       ...options,
       showFooter: true,
+      cancelButton: false,
       confirmButton: { text: '确定', type: 'warning' }
     });
   };
@@ -381,6 +458,7 @@ export const useDrawer = () => {
     return createDrawer({
       ...options,
       showFooter: true,
+      cancelButton: false,
       confirmButton: { text: '确定', type: 'error' }
     });
   };
@@ -393,6 +471,7 @@ export const useDrawer = () => {
     warning,
     error,
     closeAll: closeAllDrawers,
-    destroyAll: destroyAllDrawers
+    destroyAll: destroyAllDrawers,
+    getCount: getDrawerCount
   };
 };

@@ -52,7 +52,7 @@
 
             <!-- 已完成：查看按钮 -->
             <n-button 
-              v-if="task.status === UploadStatus.SUCCESS && task.url"
+              v-if="task.status === UploadStatus.SUCCESS && task.options?.metadata?.preview"
               size="tiny" 
               quaternary 
               circle 

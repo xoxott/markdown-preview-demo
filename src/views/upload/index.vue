@@ -28,7 +28,7 @@
           class="flex-1 relative flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-center cursor-pointer transition-all duration-300 hover:border-green-400 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-gray-700">
           <n-icon :component="CloudUploadOutline" :size="56" color="#18a058" />
           <p class="mt-3 text-gray-500 dark:text-gray-400 text-sm">拖拽文件到此处或点击选择</p>
-          <input type="file" multiple @change="handleFileSelect" ref="fileInputRef"
+          <input type="file" :disabled="isUploading || isPaused" multiple @change="handleFileSelect" ref="fileInputRef"
             class="absolute inset-0 opacity-0 cursor-pointer" />
         </div>
 
@@ -48,14 +48,14 @@
               暂停
             </n-button>
 
-            <n-button size="small" @click="resumeAll" :disabled="!isPaused" class="flex-1">
+            <n-button size="small" @click="resumeAll" :disabled="!isPaused || isUploading" class="flex-1">
               <template #icon>
                 <n-icon :component="PlayOutline" />
               </template>
               恢复
             </n-button>
 
-            <n-button type="primary" @click="handleStartUpload" :disabled="uploadQueue.length === 0"
+            <n-button type="primary" @click="handleStartUpload" :disabled="uploadQueue.length === 0 || isUploading || isPaused"
               :loading="isUploading" size="small" class="flex-1">
               <template #icon>
                 <n-icon :component="PlayOutline" />
@@ -180,6 +180,7 @@
         :task="task"
         :show-actions="true"
         @retry="handleRetrySingle(task.id)"
+        @view="handleView(task)"
       />
     </upload-list-section>
 
@@ -256,10 +257,13 @@ import {
   WifiOutline,
 } from '@vicons/ionicons5';
 import { useChunkUpload } from '@/hooks/upload/useChunkUpload';
-import { UploadStatus } from '@/hooks/upload/type';
+import { FileTask, UploadStatus } from '@/hooks/upload/type';
 import { CONSTANTS } from '@/hooks/upload/constants';
 import UploadFileItem from './components/UploadFileItem.vue';
 import UploadListSection from './components/UploadListSection.vue';
+import { useDrawer } from '@/hooks/customer/useDrawer/index';
+
+const drawer = useDrawer();
 
 const message = useMessage();
 
@@ -413,7 +417,7 @@ const acceptText = computed(() => {
 
 // 最大文件大小文本
 const maxSizeText = computed(() => {
-  return formatFileSize(50 * 1024 * 1024 * 1024);
+  return formatFileSize(CONSTANTS.UPLOAD.MAX_FILESIZE);
 });
 
 // 处理文件选择
@@ -459,6 +463,16 @@ const handleRetrySingle = (taskId: string) => {
     message.error(`重试失败: ${error}`);
   }
 };
+
+// 文件预览
+const handleView = (task:FileTask)=>{
+   console.log(task,'任务信息');
+   drawer.open({
+    title:'文件预览',
+    content: JSON.stringify(task,null,2),
+    width:600
+   })
+}
 
 // 设置变更
 const handleSettingChange = () => {

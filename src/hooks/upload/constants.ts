@@ -88,9 +88,9 @@ export const CONSTANTS = {
     /** 最大分块大小 */
     MAX_CHUNK_SIZE:20 * 1024 * 1024,
     /** 最大文件 */
-    MAX_FILESIZE:50 * 1024 * 1024 * 1024,
+    MAX_FILESIZE:1 * 1024 * 1024 * 1024,
     /** 最大文件数量 */
-    MAX_FILES:100
+    MAX_FILES:3
   },
 
   /** 压缩相关配置 */

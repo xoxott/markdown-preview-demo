@@ -1,63 +1,92 @@
-/*
- * @Author: yangtao 212920320@qq.com
- * @Date: 2025-07-08 14:03:06
- * @LastEditors: yangtao 212920320@qq.com
- * @LastEditTime: 2025-07-11 16:28:11
- * @FilePath: \umi-enterprise-saas-web\src\typings\drawer.d.ts
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
-import type { CSSProperties, Component, VNode } from 'vue';
+import type { Component, VNode } from 'vue';
+import type { ButtonProps } from 'naive-ui';
 
-export type DrawerPlacement = 'top' | 'right' | 'bottom' | 'left';
-
+// 按钮配置
 export interface DrawerButtonConfig {
   text: string;
   type?: 'default' | 'primary' | 'info' | 'success' | 'warning' | 'error';
   loading?: boolean;
   disabled?: boolean;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'tiny' | 'small' | 'medium' | 'large';
+  closeOnClick?: boolean; // 点击后是否关闭抽屉
   onClick?: () => void | Promise<void>;
 }
 
+// 抽屉配置选项
 export interface DrawerOptions {
-  trapFocus?: boolean;
-  onMaskClick?: ((e: MouseEvent) => void) | undefined;
-  showMask?: boolean | 'transparent';
-  // 基础配置
-  title?: string | VNode | (() => VNode) | Component;
-  content?: string | VNode | Component;
-  width?: string | number;
-  height?: string | number;
-  placement?: DrawerPlacement;
-  resizable?: boolean;
-
-  // 行为配置
-  closable?: boolean;
-  maskClosable?: boolean;
-  closeOnEsc?: boolean;
-  autoFocus?: boolean;
-
-  // 样式配置
-  bodyStyle?: CSSProperties;
-  headerStyle?: CSSProperties;
-  footerStyle?: CSSProperties;
-
-  // 按钮配置
+  // 标题 - 支持字符串、组件、VNode 或渲染函数
+  title?: string | Component | VNode | (() => VNode);
+  
+  // 内容 - 支持字符串、组件、VNode 或渲染函数
+  content?: string | Component | VNode | (() => VNode);
+  
+  // 宽度（左右布局时使用）
+  width?: number | string;
+  
+  // 高度（上下布局时使用）
+  height?: number | string;
+  
+  // 抽屉位置
+  placement?: 'top' | 'right' | 'bottom' | 'left';
+  
+  // 是否显示底部按钮
   showFooter?: boolean;
-  confirmButton?: DrawerButtonConfig;
-  cancelButton?: DrawerButtonConfig;
+  
+  // 确认按钮配置（false 表示不显示）
+  confirmButton?: DrawerButtonConfig | false;
+  
+  // 取消按钮配置（false 表示不显示）
+  cancelButton?: DrawerButtonConfig | false;
+  
+  // 自定义按钮列表
   customButtons?: DrawerButtonConfig[];
-
-  // 事件回调
+  
+  // 是否显示遮罩层
+  showMask?: boolean;
+  
+  // 点击遮罩层是否关闭
+  maskClosable?: boolean;
+  
+  // 按 ESC 键是否关闭
+  closeOnEsc?: boolean;
+  
+  // 是否显示关闭图标
+  closable?: boolean;
+  
+  // 是否自动聚焦
+  autoFocus?: boolean;
+  
+  // 是否锁定焦点
+  trapFocus?: boolean;
+  
+  // 是否可调整大小
+  resizable?: boolean;
+  
+  // 是否启用横向滚动
+  xScrollable?: boolean;
+  
+  // 样式配置
+  bodyStyle?: string | Record<string, string>;
+  headerStyle?: string | Record<string, string>;
+  footerStyle?: string | Record<string, string>;
+  
+  // 生命周期钩子
   onConfirm?: () => void | Promise<void>;
   onCancel?: () => void | Promise<void>;
   onClose?: () => void;
   onAfterEnter?: () => void;
   onAfterLeave?: () => void;
+  onMaskClick?: () => void;
 }
 
+// 抽屉实例
 export interface DrawerInstance {
+  // 关闭抽屉
   close: () => void;
+  
+  // 销毁抽屉实例
   destroy: () => void;
+  
+  // 更新配置
   updateOptions: (options: Partial<DrawerOptions>) => void;
 }
