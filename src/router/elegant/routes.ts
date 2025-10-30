@@ -98,6 +98,15 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
+    name: 'mobile',
+    path: '/mobile',
+    component: 'layout.base$view.mobile',
+    meta: {
+      title: 'mobile',
+      i18nKey: 'route.mobile'
+    }
+  },
+  {
     name: 'upload',
     path: '/upload',
     component: 'layout.base$view.upload',
@@ -114,15 +123,6 @@ export const generatedRoutes: GeneratedRoute[] = [
     meta: {
       title: 'utils',
       i18nKey: 'route.utils'
-    }
-  },
-  {
-    name: 'screenshot',
-    path: '/screenshot',
-    component: 'layout.base$view.screenshot',
-    meta: {
-      title: 'screenshot',
-      i18nKey: 'route.screenshot'
     }
   }
 ];

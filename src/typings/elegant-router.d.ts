@@ -25,9 +25,9 @@ declare module "@elegant-router/types" {
     "iframe-page": "/iframe-page/:url";
     "login": "/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?";
     "markdownedit": "/markdownedit";
+    "mobile": "/mobile";
     "upload": "/upload";
     "utils": "/utils";
-    "screenshot":"/screenshot"
   };
 
   /**
@@ -67,9 +67,9 @@ declare module "@elegant-router/types" {
     | "iframe-page"
     | "login"
     | "markdownedit"
+    | "mobile"
     | "upload"
     | "utils"
-    | "screenshot"
   >;
 
   /**
@@ -94,9 +94,9 @@ declare module "@elegant-router/types" {
     | "chat"
     | "home"
     | "markdownedit"
+    | "mobile"
     | "upload"
     | "utils"
-    | "screenshot"
   >;
 
   /**

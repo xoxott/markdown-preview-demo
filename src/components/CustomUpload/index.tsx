@@ -15,6 +15,7 @@ export interface CustomUploadFileInfo extends UploadFileInfo {
   error?: Error
   retryCount?: number
   abortController?: AbortController
+  batchId: string | null
 }
 
 export interface UploadOptions {
@@ -117,7 +118,7 @@ export default defineComponent({
       required: false
     },
     customRequest: {
-      type: Function as PropType<(options: UploadCustomRequestOptions) => void>,
+      type: Function as PropType<(options: UploadCustomRequestOptions) => Promise<void> | void>,
       required: false
     },
     onPreview: {
@@ -273,7 +274,9 @@ export default defineComponent({
         file: file,
         thumbnailUrl,
         type: file.type,
-        fullPath: (file as any).webkitRelativePath || file.name
+        fullPath: (file as any).webkitRelativePath || file.name,
+        batchId: null,
+        url: undefined
       } as CustomUploadFileInfo
     }
 
@@ -281,7 +284,6 @@ export default defineComponent({
       validate: async (file: File) => {
         if (!isFileAccepted(file)) return false
         if (!isFileSizeValid(file)) return false
-
         if (props.beforeUpload) {
           const fileInfo = await createUploadFileInfo(file)
           const result = await props.beforeUpload({
@@ -290,7 +292,6 @@ export default defineComponent({
           })
           return result !== false
         }
-
         return true
       },
       getErrorMessage: (file: File) => {
@@ -327,8 +328,21 @@ export default defineComponent({
       fileInfo.status = 'uploading'
       fileInfo.abortController = new AbortController()
 
+      const uploadFileInfo: Required<UploadFileInfo> = {
+        id: fileInfo.id,
+        name: fileInfo.name,
+        percentage: fileInfo.percentage || 0,
+        status: fileInfo.status as UploadFileInfo['status'],
+        url: fileInfo.url || null,
+        file: fileInfo.file,
+        thumbnailUrl: fileInfo.thumbnailUrl || null,
+        type: fileInfo.type || null,
+        fullPath: fileInfo.fullPath || fileInfo.name,
+        batchId: fileInfo.batchId
+      }
+
       const requestOptions: UploadCustomRequestOptions = {
-        file: fileInfo,
+        file: uploadFileInfo,
         action: '',
         withCredentials: false,
         data: {},
@@ -337,12 +351,12 @@ export default defineComponent({
           fileInfo.status = 'finished'
           fileInfo.percentage = 100
           emit('success', fileInfo)
-          processUploadQueue()
+          processUploadQueue()  
         },
-        onError: (error: Error) => {
-          fileInfo.status = 'error'
-          fileInfo.error = error
-          emit('error', { file: fileInfo, error })
+        onError: () => {
+           fileInfo.status = 'error'
+           fileInfo.error = new Error('上传失败')
+           emit('error', { file: fileInfo, error: fileInfo.error })
           
           // 重试逻辑
           if ((fileInfo.retryCount || 0) < props.maxRetries) {
@@ -361,7 +375,21 @@ export default defineComponent({
       try {
         await props.customRequest(requestOptions)
       } catch (error) {
-        requestOptions.onError!(error as Error)
+          if (requestOptions.onError) {
+              requestOptions.onError()
+          } else {
+            // 直接处理错误
+            fileInfo.status = 'error'
+            fileInfo.error = error as Error
+            emit('error', { file: fileInfo, error: error as Error })
+            
+            if ((fileInfo.retryCount || 0) < props.maxRetries) {
+              fileInfo.retryCount = (fileInfo.retryCount || 0) + 1
+              retryUpload(fileInfo)
+            }
+            
+            processUploadQueue()
+          }
       }
     }
 
@@ -399,7 +427,6 @@ export default defineComponent({
 
     const handleFiles = async (files: File[]) => {
       if (props.disabled || files.length === 0) return
-
       // 检查文件数量限制
       const currentCount = fileList.value.filter(f => f.status !== 'removed').length
       const remainingSlots = props.max === Infinity ? files.length : Math.max(0, props.max - currentCount)
@@ -666,6 +693,7 @@ export default defineComponent({
             multiple={props.multiple}
             accept={props.accept}
             webkitdirectory={props.directory}
+            {...(props.directory ? { webkitdirectory: true } as any : {})}
             class="hidden"
             onChange={handleFileChange}
             disabled={props.disabled || !canAddMore.value}
