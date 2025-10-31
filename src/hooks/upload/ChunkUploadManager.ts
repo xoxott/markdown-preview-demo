@@ -299,9 +299,9 @@ export class ChunkUploadManager {
 
   // ==================== 文件管理 ====================
 
-   /**
-   * 添加文件到上传队列（增强版）
-   */
+  /**
+  * 添加文件到上传队列（增强版）
+  */
   public async addFiles(files: File[] | FileList | File, options: FileUploadOptions = {}): Promise<this> {
     // 如果正在添加文件，取消之前的操作
     if (this.isAddingFiles.value && this.addFilesAbortController) {
@@ -316,13 +316,13 @@ export class ChunkUploadManager {
         }
       }
     }
-    
+
     this.isAddingFiles.value = true;
     this.addFilesAbortController = new AbortController();
-    
+
     // 保存Promise引用
     this.addFilesPromise = this.doAddFiles(files, options, this.addFilesAbortController.signal);
-    
+
     try {
       await this.addFilesPromise;
     } finally {
@@ -330,7 +330,7 @@ export class ChunkUploadManager {
       this.addFilesAbortController = undefined;
       this.addFilesPromise = undefined;
     }
-    
+
     return this;
   }
 
@@ -338,32 +338,32 @@ export class ChunkUploadManager {
    * 实际执行文件添加
    */
   private async doAddFiles(
-    files: File[] | FileList | File, 
+    files: File[] | FileList | File,
     options: FileUploadOptions,
     signal?: AbortSignal
   ): Promise<void> {
     const fileArray = this.normalizeFiles(files);
     const existingCount = this.uploadQueue.value.length + this.activeUploads.value.size;
-    
+
     // 文件验证
     const { valid: validFiles } = this.fileValidator.validate(fileArray, existingCount);
-    
+
     if (validFiles.length === 0) {
       console.log('⚠️ 没有有效文件');
       return;
     }
-    
+
     console.log(`📁 开始处理 ${validFiles.length} 个文件...`);
-    
+
     try {
       await this.batchAddFiles(validFiles, options, signal);
-      
+
       // 检查是否被中断
       if (signal?.aborted) {
         console.log('⚠️ 文件添加被中断');
         return;
       }
-      
+
       // 排序
       this.taskQueueManager.sort(this.uploadQueue.value);
       console.log(`✅ 文件处理完成，共 ${validFiles.length} 个文件`);
@@ -855,7 +855,7 @@ export class ChunkUploadManager {
   // ==================== 控制方法 ====================
 
   /**
-   * 暂停单个任务
+   * 暂停单个任务（保存进度）
    */
   public pause(taskId: string): this {
     const task = this.getTask(taskId);
@@ -863,22 +863,26 @@ export class ChunkUploadManager {
       console.warn(`⚠️ 未找到任务: ${taskId}`);
       return this;
     }
-
     console.log(`⏸️ 暂停任务: ${task.file.name}`);
     this.uploadController.pause(taskId);
-
     // 更新任务状态(如果任务正在上传中)
     if (task.status === UploadStatus.UPLOADING) {
       task.status = UploadStatus.PAUSED;
       task.pausedTime = Date.now();
+
+      // 保存任务进度到缓存
+      if (this.config.enableResume && this.config.enableCache) {
+        this.saveTaskProgress(task);
+        console.log(`💾 已保存任务进度: ${task.file.name} (${task.uploadedChunks}/${task.totalChunks})`);
+      }
+
       this.callbackManager.emit('onFilePause', task);
     }
-
     return this;
   }
 
   /**
-   * 恢复单个任务
+   * 恢复单个任务（恢复进度）
    */
   public resume(taskId: string): this {
     const task = this.getTask(taskId);
@@ -886,57 +890,53 @@ export class ChunkUploadManager {
       console.warn(`⚠️ 未找到任务: ${taskId}`);
       return this;
     }
-
     if (task.status !== UploadStatus.PAUSED) {
       console.warn(`⚠️ 任务 ${task.file.name} 不是暂停状态,无法恢复`);
       return this;
     }
-
     console.log(`▶️ 恢复任务: ${task.file.name}`);
 
+    // 恢复缓存的进度信息
+    if (this.config.enableResume && this.config.enableCache) {
+      this.restoreTaskProgress(task);
+      console.log(`📂 恢复任务进度: ${task.file.name} (${task.uploadedChunks}/${task.totalChunks})`);
+    }
     // 恢复控制器状态
     this.uploadController.resume(taskId);
-
     // 更新任务状态
     task.status = UploadStatus.PENDING;
     const pauseDuration = task.pausedTime ? Date.now() - task.pausedTime : 0;
     task.pausedTime = 0;
-
     console.log(`ℹ️ 任务 ${task.file.name} 已暂停 ${(pauseDuration / 1000).toFixed(2)}s`);
-
     // 从完成列表移除
     this.completedUploads.value = this.completedUploads.value.filter(t => t.id !== taskId);
-
     // 添加到队列(如果不在队列中)
     if (!this.uploadQueue.value.some(t => t.id === taskId) &&
       !this.activeUploads.value.has(taskId)) {
       this.uploadQueue.value.unshift(task);
     }
-
     this.callbackManager.emit('onFileResume', task);
-
     // 如果当前没有在上传,启动上传
     if (!this.isUploading.value) {
       this.start();
     }
-
     return this;
   }
 
-   /**
-   * 暂停所有上传（等待文件添加完成）
-   */
+  /**
+  * 暂停所有上传（等待文件添加完成）
+  */
   public async pauseAll(): Promise<this> {
     console.log('⏸️ 准备暂停所有上传');
-    
+
     // 如果正在添加文件，先中断添加操作
     if (this.isAddingFiles.value) {
       console.log('⚠️ 正在添加文件，先中断添加操作');
-      
+
       if (this.addFilesAbortController) {
         this.addFilesAbortController.abort();
       }
-      
+
       // 等待添加操作完成或被取消
       if (this.addFilesPromise) {
         try {
@@ -949,13 +949,13 @@ export class ChunkUploadManager {
         }
       }
     }
-    
+
     // 设置全局暂停标志
     this.uploadController.pauseAll();
-    
+
     // 批量处理暂停操作
     await this.batchPauseTasks();
-    
+
     console.log(`✅ 所有上传已暂停`);
     return this;
   }
@@ -967,47 +967,47 @@ export class ChunkUploadManager {
   private async batchPauseTasks(): Promise<void> {
     const tasksToUpdate: FileTask[] = [];
     const tasksToSave: FileTask[] = [];
-    
+
     // 收集所有需要暂停的任务
     const allTasks = [
       ...Array.from(this.activeUploads.value.values()),
       ...this.uploadQueue.value
     ];
-    
+
     // 批量更新状态
     const updates: Array<() => void> = [];
-    
+
     allTasks.forEach(task => {
       if (task.status === UploadStatus.UPLOADING || task.status === UploadStatus.PENDING) {
         updates.push(() => {
           task.status = UploadStatus.PAUSED;
           task.pausedTime = Date.now();
           tasksToUpdate.push(task);
-          
+
           if (this.config.enableResume && this.config.enableCache) {
             tasksToSave.push(task);
           }
         });
       }
     });
-    
+
     // 批量执行更新
     const BATCH_SIZE = 50;
     for (let i = 0; i < updates.length; i += BATCH_SIZE) {
       const batch = updates.slice(i, i + BATCH_SIZE);
       batch.forEach(update => update());
-      
+
       // 让出主线程
       if (i + BATCH_SIZE < updates.length) {
         await this.yieldToMain(0);
       }
     }
-    
+
     // 异步保存进度
     if (tasksToSave.length > 0) {
       this.batchSaveTaskProgress(tasksToSave).catch(console.error);
     }
-    
+
     // 异步触发回调
     if (tasksToUpdate.length > 0) {
       this.batchEmitCallbacks('onFilePause', tasksToUpdate).catch(console.error);
@@ -1018,14 +1018,14 @@ export class ChunkUploadManager {
    * 批量触发回调（修复类型）
    */
   private async batchEmitCallbacks<K extends keyof UploadCallbacks>(
-    event: K, 
+    event: K,
     tasks: FileTask[]
   ): Promise<void> {
     const BATCH_SIZE = 20;
-    
+
     for (let i = 0; i < tasks.length; i += BATCH_SIZE) {
       const batch = tasks.slice(i, i + BATCH_SIZE);
-      
+
       await new Promise<void>(resolve => {
         const emitBatch = () => {
           batch.forEach(task => {
@@ -1055,7 +1055,7 @@ export class ChunkUploadManager {
           });
           resolve();
         };
-        
+
         if ('requestIdleCallback' in window) {
           requestIdleCallback(emitBatch);
         } else {
@@ -1070,7 +1070,7 @@ export class ChunkUploadManager {
    */
   private async batchSaveTaskProgress(tasks: FileTask[]): Promise<void> {
     const BATCH_SIZE = 10;
-    
+
     for (let i = 0; i < tasks.length; i += BATCH_SIZE) {
       const batch = tasks.slice(i, i + BATCH_SIZE);
       await new Promise<void>(resolve => {
@@ -1078,7 +1078,7 @@ export class ChunkUploadManager {
           batch.forEach(task => this.saveTaskProgress(task));
           resolve();
         };
-        
+
         if ('requestIdleCallback' in window) {
           requestIdleCallback(saveBatch);
         } else {
@@ -1095,19 +1095,19 @@ export class ChunkUploadManager {
     console.log('▶️ 恢复所有上传');
     // 收集所有暂停的任务（从各个列表）
     const allPausedTasks: FileTask[] = [];
-    
+
     // 从已完成列表中找暂停的任务
     const pausedInCompleted = this.completedUploads.value.filter(
       t => t.status === UploadStatus.PAUSED
     );
     allPausedTasks.push(...pausedInCompleted);
-    
+
     // 从队列中找暂停的任务
     const pausedInQueue = this.uploadQueue.value.filter(
       t => t.status === UploadStatus.PAUSED
     );
     allPausedTasks.push(...pausedInQueue);
-    
+
     // 从活跃任务中找暂停的任务（理论上不应该有，但为了保险）
     this.activeUploads.value.forEach(task => {
       if (task.status === UploadStatus.PAUSED) {
@@ -1156,21 +1156,21 @@ export class ChunkUploadManager {
     return this;
   }
 
-   /**
-   * 批量恢复任务进度（异步）
-   */
+  /**
+  * 批量恢复任务进度（异步）
+  */
   private async batchRestoreTaskProgress(tasks: FileTask[]): Promise<void> {
     const BATCH_SIZE = 10;
-    
+
     for (let i = 0; i < tasks.length; i += BATCH_SIZE) {
       const batch = tasks.slice(i, i + BATCH_SIZE);
-      
+
       await new Promise<void>(resolve => {
         const restoreBatch = () => {
           batch.forEach(task => this.restoreTaskProgress(task));
           resolve();
         };
-        
+
         if ('requestIdleCallback' in window) {
           requestIdleCallback(restoreBatch);
         } else {
@@ -1192,7 +1192,7 @@ export class ChunkUploadManager {
     // 确保恢复的任务都在队列中
     const queueTaskIds = new Set(this.uploadQueue.value.map(t => t.id));
     const activeTaskIds = new Set(this.activeUploads.value.keys());
-    
+
     restoredTasks.forEach(task => {
       if (!queueTaskIds.has(task.id) && !activeTaskIds.has(task.id)) {
         this.uploadQueue.value.push(task);
@@ -1224,16 +1224,16 @@ export class ChunkUploadManager {
     return this;
   }
 
- /**
-   * 取消所有任务（包括正在添加的文件）
-   */
+  /**
+    * 取消所有任务（包括正在添加的文件）
+    */
   public async cancelAll(): Promise<this> {
     console.log('🛑 取消所有上传');
-    
+
     // 如果正在添加文件，先取消添加
     if (this.isAddingFiles.value && this.addFilesAbortController) {
       this.addFilesAbortController.abort();
-      
+
       // 等待添加操作结束
       if (this.addFilesPromise) {
         try {
@@ -1246,40 +1246,40 @@ export class ChunkUploadManager {
         }
       }
     }
-    
+
     // 取消所有上传
     this.uploadController.cancelAll();
-    
+
     // 批量更新任务状态
     const allTasks = this.getAllTasks();
     const updates: Array<() => void> = [];
-    
+
     allTasks.forEach(task => {
       updates.push(() => {
         task.status = UploadStatus.CANCELLED;
         task.endTime = Date.now();
       });
     });
-    
+
     // 批量执行
     const BATCH_SIZE = 100;
     for (let i = 0; i < updates.length; i += BATCH_SIZE) {
       const batch = updates.slice(i, i + BATCH_SIZE);
       batch.forEach(update => update());
-      
+
       if (i + BATCH_SIZE < updates.length) {
         await this.yieldToMain(0);
       }
     }
-    
+
     // 清空队列
     this.uploadQueue.value = [];
     this.activeUploads.value.clear();
     this.isUploading.value = false;
-    
+
     // 异步触发回调
     this.batchEmitCallbacks('onFileCancel', allTasks).catch(console.error);
-    
+
     console.log('✅ 所有任务已取消');
     return this;
   }
