@@ -22,15 +22,39 @@
 
     <div class="flex flex-col xl:flex-row gap-4 w-full">
       <!-- 上传区域 -->
-      <div class="flex flex-col md:flex-row gap-4 p-6 bg-white dark:bg-gray-800 rounded-lg shadow transition-all duration-300 flex-1"
-        @dragover.prevent @drop.prevent="handleDrop">
-        <div
-          class="flex-1 relative flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-center cursor-pointer transition-all duration-300 hover:border-green-400 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-gray-700">
-          <n-icon :component="CloudUploadOutline" :size="56" color="#18a058" />
-          <p class="mt-3 text-gray-500 dark:text-gray-400 text-sm">拖拽文件到此处或点击选择</p>
-          <input type="file" :disabled="isUploading || isPaused" multiple @change="handleFileSelect" ref="fileInputRef"
-            class="absolute inset-0 opacity-0 cursor-pointer" />
-        </div>
+      <div class="flex flex-col md:flex-row gap-4 p-6 bg-white dark:bg-gray-800 rounded-lg shadow transition-all duration-300 flex-1">
+         <custom-upload
+          ref="customUploadRef"
+          :abstract="true"
+          :multiple="true"
+          :directory-dnd="true"
+          :max="Infinity"
+          :max-size="CONSTANTS.UPLOAD.MAX_FILESIZE"
+          :disabled="isUploading || isPaused"
+          :batch-size="100"
+          :processing-timeout="20"
+          @change="handleFilesChange"
+          @error="handleUploadError"
+          @exceed="handleExceed"
+          class="flex-1"
+        >
+          <template #default="{ isDragOver, isProcessing, fileCount }">
+            <div class="flex flex-col items-center justify-center py-8 px-4 text-center">
+              <n-icon 
+                :component="CloudUploadOutline" 
+                :size="56" 
+                :color="isDragOver ? '#18a058' : undefined"
+                class="transition-all duration-300"
+              />
+              <p class="mt-3 text-gray-500 dark:text-gray-400 text-sm">
+                {{ isProcessing ? '处理中...' : '拖拽文件到此处或点击选择' }}
+              </p>
+              <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">
+                支持格式: {{ acceptText }} | 最大: {{ maxSizeText }}
+              </p>
+            </div>
+          </template>
+        </custom-upload>
 
         <div class="flex flex-col justify-between gap-4 md:w-[260px]">
           <div class="flex flex-wrap gap-2">
@@ -225,18 +249,6 @@
 <script setup lang="ts">
 import { ref, computed, reactive, watch, onBeforeUnmount } from 'vue';
 import {
-  NButton,
-  NSpace,
-  NTag,
-  NProgress,
-  NIcon,
-  NDrawer,
-  NDrawerContent,
-  NForm,
-  NFormItem,
-  NInputNumber,
-  NSelect,
-  NSwitch,
   useMessage,
 } from 'naive-ui';
 import {
@@ -262,7 +274,7 @@ import { CONSTANTS } from '@/hooks/upload/constants';
 import UploadFileItem from './components/UploadFileItem.vue';
 import UploadListSection from './components/UploadListSection.vue';
 import { useDrawer } from '@/hooks/customer/useDrawer/index';
-
+import customUpload, { CustomUploadFileInfo } from '@/components/customUpload';
 const drawer = useDrawer();
 
 const message = useMessage();
@@ -421,12 +433,11 @@ const maxSizeText = computed(() => {
 });
 
 // 处理文件选择
-const handleFileSelect = async (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  const files = input.files;
+const handleFilesChange = async (files: CustomUploadFileInfo[]) => {
   if (!files || files.length === 0) return;
   try {
-    await addFiles(files);
+    const fileList = files.map(f => f.file);
+    await addFiles(fileList);
     if (fileInputRef.value) {
       fileInputRef.value.value = '';
     }
@@ -435,22 +446,19 @@ const handleFileSelect = async (event: Event) => {
   }
 };
 
-// 处理拖拽
-const handleDrop = async (event: DragEvent) => {
-  const files = event.dataTransfer?.files;
-  if (!files || files.length === 0) return;
-  try {
-    await addFiles(files);
-    message.success(`已添加 ${files.length} 个文件`);
-  } catch (error) {
-    message.error(`添加文件失败: ${error}`);
-  }
+// 处理文件错误
+const handleUploadError = (error: { file: File; message: string }) => {
+  message.error(error.message);
+};
+
+// 处理文件超出限制
+const handleExceed = (data: { files: File[]; max: number }) => {
+  message.warning(`文件数量超出限制，最多允许 ${data.max} 个文件`);
 };
 
 // 开始上传
 const handleStartUpload = async () => {
   await start();
-  message.success('开始上传');
 };
 
 // 重试单个文件

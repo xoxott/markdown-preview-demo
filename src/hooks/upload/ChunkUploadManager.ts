@@ -2,7 +2,7 @@
  * @Author: yangtao 212920320@qq.com
  * @Date: 2025-10-11 10:36:56
  * @LastEditors: yangtao 212920320@qq.com
- * @LastEditTime: 2025-10-29 14:20:00
+ * @LastEditTime: 2025-10-31 15:55:41
  * @FilePath: \markdown-preview-demo\src\hooks\upload\ChunkUploadManager.ts
  * @Description: 分片上传管理器 - 优化版
  */
@@ -36,6 +36,7 @@ import {
   FileTask,
   FileUploadOptions,
   MergeChunksTransformer,
+  UploadCallbacks,
   UploadConfig,
   UploadStatus
 } from "./type";
@@ -63,6 +64,10 @@ export class ChunkUploadManager {
   public readonly activeUploads = ref<Map<string, FileTask>>(new Map()); // 上传中的任务
   public readonly completedUploads = ref<FileTask[]>([]);   // 已完成的任务
   public readonly isUploading = ref(false);                 // 是否正在上传
+  private isAddingFiles = ref(false); // 添加文件处理中标志
+  private addFilesPromise?: Promise<void>; // 新增：追踪添加文件的Promise
+
+  private addFilesAbortController?: AbortController; // 用于取消文件添加
 
   // 计算属性
   public readonly totalProgress = computed(() => this.progressManager.totalProgress.value);
@@ -149,7 +154,7 @@ export class ChunkUploadManager {
       // 功能开关
       enableResume: true,              // 断点续传
       enableDeduplication: false,      // 秒传
-      useWorker: false,                // Web Worker
+      useWorker: true,                // Web Worker
       enableCache: true,               // 缓存
       enableNetworkAdaptation: true,   // 网络自适应
       enableSmartRetry: true,          // 智能重试
@@ -294,107 +299,398 @@ export class ChunkUploadManager {
 
   // ==================== 文件管理 ====================
 
-  /**
-   * 添加文件到上传队列
+   /**
+   * 添加文件到上传队列（增强版）
    */
   public async addFiles(files: File[] | FileList | File, options: FileUploadOptions = {}): Promise<this> {
-    const fileArray = this.normalizeFiles(files);
-    const existingCount = this.uploadQueue.value.length + this.activeUploads.value.size;
-    const { valid: validFiles } = this.fileValidator.validate(fileArray,existingCount);
-    // Worker批量处理或主线程处理
-    if (this.config.useWorker && this.workerManager && validFiles.length > 5) {
-      await this.addFilesWithWorker(validFiles, options);
-    } else {
-      await this.addFilesInMainThread(validFiles, options);
+    // 如果正在添加文件，取消之前的操作
+    if (this.isAddingFiles.value && this.addFilesAbortController) {
+      console.log('⚠️ 正在添加文件，取消之前的操作');
+      this.addFilesAbortController.abort();
+      // 等待之前的操作完成
+      if (this.addFilesPromise) {
+        try {
+          await this.addFilesPromise;
+        } catch (e) {
+          // 忽略取消错误
+        }
+      }
     }
-
-    this.taskQueueManager.sort(this.uploadQueue.value);
+    
+    this.isAddingFiles.value = true;
+    this.addFilesAbortController = new AbortController();
+    
+    // 保存Promise引用
+    this.addFilesPromise = this.doAddFiles(files, options, this.addFilesAbortController.signal);
+    
+    try {
+      await this.addFilesPromise;
+    } finally {
+      this.isAddingFiles.value = false;
+      this.addFilesAbortController = undefined;
+      this.addFilesPromise = undefined;
+    }
+    
     return this;
   }
 
-  private async addFilesWithWorker(files: File[], options: FileUploadOptions): Promise<void> {
+  /**
+   * 实际执行文件添加
+   */
+  private async doAddFiles(
+    files: File[] | FileList | File, 
+    options: FileUploadOptions,
+    signal?: AbortSignal
+  ): Promise<void> {
+    const fileArray = this.normalizeFiles(files);
+    const existingCount = this.uploadQueue.value.length + this.activeUploads.value.size;
+    
+    // 文件验证
+    const { valid: validFiles } = this.fileValidator.validate(fileArray, existingCount);
+    
+    if (validFiles.length === 0) {
+      console.log('⚠️ 没有有效文件');
+      return;
+    }
+    
+    console.log(`📁 开始处理 ${validFiles.length} 个文件...`);
+    
     try {
-      const results = await this.workerManager!.batchProcess(files, {
-        calculateMD5: this.config.enableDeduplication,
-        generateChunks: false,
-        onProgress: (progress) => {
-          console.log(`📦 文件预处理进度: ${progress}%`);
-        }
-      });
-
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const processResult = results[i];
-
-        if (processResult.error) {
-          console.warn(`⚠️ 文件处理失败: ${file.name}`, processResult.error);
-          continue;
-        }
-
-        if (this.taskQueueManager.isDuplicate(file, this.getAllTasks())) {
-          console.warn(`⚠️ 文件已存在: ${file.name}`);
-          continue;
-        }
-
-        const processedFile = await this.processFile(file);
-        const preview = await this.generatePreview(processedFile);
-
-        const task = this.taskQueueManager.createTask(
-          file,
-          processedFile,
-          options,
-          this.config,
-          this.speedCalculator.getAverageSpeed(),
-          preview
-        );
-
-        if (processResult.md5) {
-          task.options.metadata = {
-            ...task.options.metadata,
-            md5: processResult.md5
-          };
-        }
-
-        this.uploadQueue.value.push(task);
+      await this.batchAddFiles(validFiles, options, signal);
+      
+      // 检查是否被中断
+      if (signal?.aborted) {
+        console.log('⚠️ 文件添加被中断');
+        return;
       }
+      
+      // 排序
+      this.taskQueueManager.sort(this.uploadQueue.value);
+      console.log(`✅ 文件处理完成，共 ${validFiles.length} 个文件`);
     } catch (error) {
-      console.warn('⚠️ Worker批量处理失败,回退到主线程:', error);
-      await this.addFilesInMainThread(files, options);
+      if (signal?.aborted) {
+        console.log('⚠️ 文件添加被取消');
+      } else {
+        console.error('❌ 文件添加失败:', error);
+        throw error;
+      }
     }
   }
 
-  private async addFilesInMainThread(files: File[], options: FileUploadOptions): Promise<void> {
-    for (const file of files) {
-      if (this.taskQueueManager.isDuplicate(file, this.getAllTasks())) {
+  /**
+   * 创建单个任务（优化版）
+   */
+  private async createSingleTask(
+    file: File,
+    options: FileUploadOptions
+  ): Promise<FileTask | null> {
+    try {
+      // 延迟处理大文件的压缩和预览
+      const processedFile = await this.processFileOptimized(file);
+
+      // 创建基础任务（不生成预览）
+      const task = this.taskQueueManager.createTask(
+        file,
+        processedFile,
+        options,
+        this.config,
+        this.speedCalculator.getAverageSpeed()
+      );
+
+      // 异步生成预览（不阻塞）
+      if (this.config.enablePreview) {
+        this.generatePreviewAsync(processedFile).then(preview => {
+          if (preview) {
+            // task.options.metadata.preview = preview;
+          }
+        }).catch(() => {
+          // 忽略预览生成错误
+        });
+      }
+
+      return task;
+    } catch (error) {
+      console.error(`创建任务失败: ${file.name}`, error);
+      return null;
+    }
+  }
+
+  /**
+  * 批量添加文件（分批异步处理）
+  */
+  private async batchAddFiles(
+    files: File[],
+    options: FileUploadOptions,
+    signal?: AbortSignal
+  ): Promise<void> {
+    const BATCH_SIZE = 10; // 每批处理文件数
+    const BATCH_DELAY = 10; // 批次间延迟(ms)
+    const USE_WORKER_THRESHOLD = 20; // 使用 Worker 的文件数阈值
+
+    // 决定是否使用 Worker
+    const useWorker = this.config.useWorker &&
+      this.workerManager &&
+      files.length > USE_WORKER_THRESHOLD;
+
+    if (useWorker) {
+      // 大批量文件使用 Worker 处理
+      await this.batchAddFilesWithWorker(files, options, signal);
+    } else {
+      // 小批量文件使用主线程分批处理
+      await this.batchAddFilesInMainThread(files, options, signal, BATCH_SIZE, BATCH_DELAY);
+    }
+  }
+
+  /**
+  * 在主线程批量添加文件（优化版）
+  */
+  private async batchAddFilesInMainThread(
+    files: File[],
+    options: FileUploadOptions,
+    signal?: AbortSignal,
+    batchSize: number = 10,
+    batchDelay: number = 10
+  ): Promise<void> {
+    const pendingTasks: FileTask[] = [];
+    const startTime = Date.now();
+
+    for (let i = 0; i < files.length; i += batchSize) {
+      // 检查是否被取消
+      if (signal?.aborted) {
+        console.log('⚠️ 文件添加被取消');
+        break;
+      }
+
+      const batch = files.slice(i, i + batchSize);
+      const batchTasks: FileTask[] = [];
+
+      // 使用 Promise.all 并行处理批次内的文件
+      await Promise.all(
+        batch.map(async (file) => {
+          if (signal?.aborted) return;
+
+          // 快速检查重复（不进行深度比较）
+          if (this.isFileDuplicate(file)) {
+            console.warn(`⚠️ 文件已存在: ${file.name}`);
+            return;
+          }
+
+          try {
+            const task = await this.createSingleTask(file, options);
+            if (task) {
+              batchTasks.push(task);
+            }
+          } catch (error) {
+            console.error(`处理文件失败: ${file.name}`, error);
+          }
+        })
+      );
+
+      pendingTasks.push(...batchTasks);
+
+      // 定期批量更新队列（减少响应式更新频率）
+      if (pendingTasks.length >= 50 || i + batchSize >= files.length) {
+        this.uploadQueue.value.push(...pendingTasks);
+        pendingTasks.length = 0;
+
+        // 显示进度
+        const processed = Math.min(i + batchSize, files.length);
+        console.log(`📊 已处理 ${processed}/${files.length} 个文件`);
+      }
+
+      // 让出主线程，避免阻塞
+      if (i + batchSize < files.length) {
+        await this.yieldToMain(batchDelay);
+      }
+    }
+
+    // 添加剩余任务
+    if (pendingTasks.length > 0) {
+      this.uploadQueue.value.push(...pendingTasks);
+    }
+
+    const elapsed = Date.now() - startTime;
+    console.log(`⏱️ 文件处理耗时: ${(elapsed / 1000).toFixed(2)}s`);
+  }
+
+
+  /**
+  * 异步生成预览（不阻塞主流程）
+  */
+  private async generatePreviewAsync(file: File): Promise<string | undefined> {
+    if (!this.config.enablePreview || !PreviewGenerator.canGeneratePreview(file)) {
+      return undefined;
+    }
+    return new Promise((resolve) => {
+      const generatePreview = async () => {
+        try {
+          if (file.type.startsWith('image/')) {
+            const preview = await PreviewGenerator.generateImagePreview(file);
+            resolve(preview);
+          } else if (file.type.startsWith('video/')) {
+            const preview = await PreviewGenerator.generateVideoPreview(file);
+            resolve(preview);
+          } else {
+            resolve(undefined);
+          }
+        } catch (error) {
+          console.warn('⚠️ 生成预览失败:', error);
+          resolve(undefined);
+        }
+      };
+
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(generatePreview);
+      } else {
+        setTimeout(generatePreview, 100);
+      }
+    });
+  }
+
+  /**
+   * 让出主线程控制权
+   */
+  private yieldToMain(delay: number = 0): Promise<void> {
+    return new Promise(resolve => {
+      if ('requestIdleCallback' in window && delay === 0) {
+        requestIdleCallback(() => resolve());
+      } else {
+        setTimeout(resolve, delay);
+      }
+    });
+  }
+
+  /**
+  * 使用 Worker 批量添加文件（优化版）
+  */
+  private async batchAddFilesWithWorker(
+    files: File[],
+    options: FileUploadOptions,
+    signal?: AbortSignal
+  ): Promise<void> {
+    const CHUNK_SIZE = 50; // Worker 每批处理数量
+    const pendingTasks: FileTask[] = [];
+
+    try {
+      for (let i = 0; i < files.length; i += CHUNK_SIZE) {
+        // 检查是否被取消
+        if (signal?.aborted) {
+          console.log('⚠️ 文件添加被取消');
+          break;
+        }
+
+        const batch = files.slice(i, i + CHUNK_SIZE);
+        const batchResults = await this.workerManager!.batchProcess(batch, {
+          calculateMD5: this.config.enableDeduplication,
+          generateChunks: false,
+          onProgress: (progress) => {
+            // 静默处理，避免频繁更新UI
+            if (progress % 20 === 0) {
+              console.log(`📦 批次 ${Math.floor(i / CHUNK_SIZE) + 1} 处理进度: ${progress}%`);
+            }
+          }
+        });
+
+        // 批量创建任务
+        const batchTasks = await this.createTasksBatch(batch, batchResults, options, signal);
+        pendingTasks.push(...batchTasks);
+
+        // 定期批量更新队列（减少响应式更新）
+        if (pendingTasks.length >= 100 || i + CHUNK_SIZE >= files.length) {
+          this.uploadQueue.value.push(...pendingTasks);
+          pendingTasks.length = 0;
+        }
+
+        // 让出主线程
+        await this.yieldToMain();
+      }
+
+      // 添加剩余任务
+      if (pendingTasks.length > 0) {
+        this.uploadQueue.value.push(...pendingTasks);
+      }
+    } catch (error) {
+      console.error('⚠️ Worker 批处理失败:', error);
+      // 回退到主线程处理剩余文件
+      const remainingFiles = files.slice(pendingTasks.length);
+      if (remainingFiles.length > 0) {
+        await this.batchAddFilesInMainThread(remainingFiles, options, signal, 10, 10);
+      }
+    }
+  }
+
+  /**
+  * 批量创建任务
+  */
+  private async createTasksBatch(
+    files: File[],
+    workerResults: any[],
+    options: FileUploadOptions,
+    signal?: AbortSignal
+  ): Promise<FileTask[]> {
+    const tasks: FileTask[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      if (signal?.aborted) break;
+
+      const file = files[i];
+      const processResult = workerResults[i];
+
+      if (processResult.error) {
+        console.warn(`⚠️ 文件处理失败: ${file.name}`, processResult.error);
+        continue;
+      }
+
+      if (this.isFileDuplicate(file)) {
         console.warn(`⚠️ 文件已存在: ${file.name}`);
         continue;
       }
 
-      const processedFile = await this.processFile(file);
-      const preview = await this.generatePreview(processedFile);
-
+      const processedFile = await this.processFileOptimized(file);
       const task = this.taskQueueManager.createTask(
         file,
         processedFile,
         options,
         this.config,
         this.speedCalculator.getAverageSpeed(),
-        preview
+        undefined
       );
 
-      this.uploadQueue.value.push(task);
+      if (processResult.md5) {
+        task.options.metadata = {
+          ...task.options.metadata,
+          md5: processResult.md5
+        };
+      }
+
+      tasks.push(task);
     }
+
+    return tasks;
   }
 
-  private normalizeFiles(files: File[] | FileList | File): File[] {
-    if (files instanceof File) return [files];
-    if (files instanceof FileList) return Array.from(files);
-    if (Array.isArray(files)) return files;
-    throw new Error('不支持的文件类型');
+  /**
+  * 快速检查文件是否重复
+  */
+  private isFileDuplicate(file: File): boolean {
+    // 使用文件名+大小+修改时间的组合快速判断
+    const fileKey = `${file.name}_${file.size}_${file.lastModified}`;
+    return this.getAllTasks().some(task => {
+      const taskKey = `${task.file.name}_${task.file.size}_${task.file.lastModified}`;
+      return taskKey === fileKey;
+    });
   }
 
-  private async processFile(file: File): Promise<File> {
-    if (!this.config.enableCompression || !file.type.startsWith('image/')) {
+  /**
+  * 优化的文件处理（延迟压缩）
+  */
+  private async processFileOptimized(file: File): Promise<File> {
+    // 小于 1MB 或非图片直接返回
+    if (file.size < 1024 * 1024 || !file.type.startsWith('image/')) {
+      return file;
+    }
+    // 大于 10MB 的图片才压缩
+    if (!this.config.enableCompression || file.size < 10 * 1024 * 1024) {
       return file;
     }
     try {
@@ -410,22 +706,11 @@ export class ChunkUploadManager {
     }
   }
 
-  private async generatePreview(file: File): Promise<string | undefined> {
-    if (!this.config.enablePreview || !PreviewGenerator.canGeneratePreview(file)) {
-      return undefined;
-    }
-    try {
-      if (file.type.startsWith('image/')) {
-        return await PreviewGenerator.generateImagePreview(file);
-      }
-      if (file.type.startsWith('video/')) {
-        return await PreviewGenerator.generateVideoPreview(file);
-      }
-      return undefined;
-    } catch (error) {
-      console.warn('⚠️ 生成预览失败:', error);
-      return undefined;
-    }
+  private normalizeFiles(files: File[] | FileList | File): File[] {
+    if (files instanceof File) return [files];
+    if (files instanceof FileList) return Array.from(files);
+    if (Array.isArray(files)) return files;
+    throw new Error('不支持的文件类型');
   }
 
   // ==================== 上传流程 ====================
@@ -638,95 +923,283 @@ export class ChunkUploadManager {
     return this;
   }
 
-  /**
-   * 暂停所有上传
+   /**
+   * 暂停所有上传（等待文件添加完成）
    */
-  public pauseAll(): this {
-    console.log('⏸️ 暂停所有上传');
-
-    // 设置全局暂停标志
-    this.uploadController.pauseAll();
-
-    // 暂停所有活跃任务
-    this.activeUploads.value.forEach(task => {
-      if (task.status === UploadStatus.UPLOADING) {
-        task.status = UploadStatus.PAUSED;
-        task.pausedTime = Date.now();
-        this.callbackManager.emit('onFilePause', task);
-
-        // 保存断点信息
-        if (this.config.enableResume && this.config.enableCache) {
-          this.saveTaskProgress(task);
+  public async pauseAll(): Promise<this> {
+    console.log('⏸️ 准备暂停所有上传');
+    
+    // 如果正在添加文件，先中断添加操作
+    if (this.isAddingFiles.value) {
+      console.log('⚠️ 正在添加文件，先中断添加操作');
+      
+      if (this.addFilesAbortController) {
+        this.addFilesAbortController.abort();
+      }
+      
+      // 等待添加操作完成或被取消
+      if (this.addFilesPromise) {
+        try {
+          await Promise.race([
+            this.addFilesPromise,
+            new Promise(resolve => setTimeout(resolve, 1000)) // 最多等待1秒
+          ]);
+        } catch (e) {
+          // 忽略错误
         }
       }
-    });
-
-    // 暂停队列中的任务
-    this.uploadQueue.value.forEach(task => {
-      if (task.status !== UploadStatus.PAUSED) {
-        task.status = UploadStatus.PAUSED;
-        task.pausedTime = Date.now();
-      }
-    });
-
-    console.log(`✅ 已暂停 ${this.activeUploads.value.size + this.uploadQueue.value.length} 个任务`);
+    }
+    
+    // 设置全局暂停标志
+    this.uploadController.pauseAll();
+    
+    // 批量处理暂停操作
+    await this.batchPauseTasks();
+    
+    console.log(`✅ 所有上传已暂停`);
     return this;
   }
 
+
   /**
-   * 恢复所有上传
+   * 批量暂停任务
+   */
+  private async batchPauseTasks(): Promise<void> {
+    const tasksToUpdate: FileTask[] = [];
+    const tasksToSave: FileTask[] = [];
+    
+    // 收集所有需要暂停的任务
+    const allTasks = [
+      ...Array.from(this.activeUploads.value.values()),
+      ...this.uploadQueue.value
+    ];
+    
+    // 批量更新状态
+    const updates: Array<() => void> = [];
+    
+    allTasks.forEach(task => {
+      if (task.status === UploadStatus.UPLOADING || task.status === UploadStatus.PENDING) {
+        updates.push(() => {
+          task.status = UploadStatus.PAUSED;
+          task.pausedTime = Date.now();
+          tasksToUpdate.push(task);
+          
+          if (this.config.enableResume && this.config.enableCache) {
+            tasksToSave.push(task);
+          }
+        });
+      }
+    });
+    
+    // 批量执行更新
+    const BATCH_SIZE = 50;
+    for (let i = 0; i < updates.length; i += BATCH_SIZE) {
+      const batch = updates.slice(i, i + BATCH_SIZE);
+      batch.forEach(update => update());
+      
+      // 让出主线程
+      if (i + BATCH_SIZE < updates.length) {
+        await this.yieldToMain(0);
+      }
+    }
+    
+    // 异步保存进度
+    if (tasksToSave.length > 0) {
+      this.batchSaveTaskProgress(tasksToSave).catch(console.error);
+    }
+    
+    // 异步触发回调
+    if (tasksToUpdate.length > 0) {
+      this.batchEmitCallbacks('onFilePause', tasksToUpdate).catch(console.error);
+    }
+  }
+
+  /**
+   * 批量触发回调（修复类型）
+   */
+  private async batchEmitCallbacks<K extends keyof UploadCallbacks>(
+    event: K, 
+    tasks: FileTask[]
+  ): Promise<void> {
+    const BATCH_SIZE = 20;
+    
+    for (let i = 0; i < tasks.length; i += BATCH_SIZE) {
+      const batch = tasks.slice(i, i + BATCH_SIZE);
+      
+      await new Promise<void>(resolve => {
+        const emitBatch = () => {
+          batch.forEach(task => {
+            // 根据不同的事件类型调用对应的方法
+            switch (event) {
+              case 'onFilePause':
+                this.callbackManager.emit('onFilePause', task);
+                break;
+              case 'onFileResume':
+                this.callbackManager.emit('onFileResume', task);
+                break;
+              case 'onFileCancel':
+                this.callbackManager.emit('onFileCancel', task);
+                break;
+              case 'onFileStart':
+                this.callbackManager.emit('onFileStart', task);
+                break;
+              case 'onFileSuccess':
+                this.callbackManager.emit('onFileSuccess', task);
+                break;
+              case 'onFileError':
+                this.callbackManager.emit('onFileError', task, task.error || new Error('Unknown error'));
+                break;
+              default:
+                console.warn(`Unknown event: ${event}`);
+            }
+          });
+          resolve();
+        };
+        
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(emitBatch);
+        } else {
+          setTimeout(emitBatch, 0);
+        }
+      });
+    }
+  }
+
+  /**
+   * 批量保存任务进度（异步）
+   */
+  private async batchSaveTaskProgress(tasks: FileTask[]): Promise<void> {
+    const BATCH_SIZE = 10;
+    
+    for (let i = 0; i < tasks.length; i += BATCH_SIZE) {
+      const batch = tasks.slice(i, i + BATCH_SIZE);
+      await new Promise<void>(resolve => {
+        const saveBatch = () => {
+          batch.forEach(task => this.saveTaskProgress(task));
+          resolve();
+        };
+        
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(saveBatch);
+        } else {
+          setTimeout(saveBatch, 0);
+        }
+      });
+    }
+  }
+
+  /**
+   * 恢复所有上传（优化版）
    */
   public resumeAll(): this {
     console.log('▶️ 恢复所有上传');
-
-    // 找出所有暂停的任务
-    const pausedTasks = this.completedUploads.value.filter(
+    // 收集所有暂停的任务（从各个列表）
+    const allPausedTasks: FileTask[] = [];
+    
+    // 从已完成列表中找暂停的任务
+    const pausedInCompleted = this.completedUploads.value.filter(
       t => t.status === UploadStatus.PAUSED
     );
-
-    if (pausedTasks.length === 0) {
+    allPausedTasks.push(...pausedInCompleted);
+    
+    // 从队列中找暂停的任务
+    const pausedInQueue = this.uploadQueue.value.filter(
+      t => t.status === UploadStatus.PAUSED
+    );
+    allPausedTasks.push(...pausedInQueue);
+    
+    // 从活跃任务中找暂停的任务（理论上不应该有，但为了保险）
+    this.activeUploads.value.forEach(task => {
+      if (task.status === UploadStatus.PAUSED) {
+        allPausedTasks.push(task);
+      }
+    });
+    if (allPausedTasks.length === 0) {
       console.log('⚠️ 没有暂停的任务');
       return this;
     }
-
-    // 恢复所有暂停的任务
-    pausedTasks.forEach(task => {
+    console.log(`📋 找到 ${allPausedTasks.length} 个暂停的任务`);
+    // 批量恢复任务进度
+    const tasksToRestore: FileTask[] = [];
+    if (this.config.enableResume && this.config.enableCache) {
+      allPausedTasks.forEach(task => {
+        tasksToRestore.push(task);
+      });
+    }
+    // 异步恢复进度（不阻塞主线程）
+    if (tasksToRestore.length > 0) {
+      this.batchRestoreTaskProgress(tasksToRestore);
+    }
+    // 批量更新任务状态
+    const updatedTasks: FileTask[] = [];
+    allPausedTasks.forEach(task => {
       task.status = UploadStatus.PENDING;
       task.pausedTime = 0;
-
-      // 尝试从缓存恢复进度
-      if (this.config.enableResume && this.config.enableCache) {
-        this.restoreTaskProgress(task);
-      }
-
       this.uploadController.resume(task.id);
-
-      // 添加到队列
-      if (!this.uploadQueue.value.some(t => t.id === task.id)) {
-        this.uploadQueue.value.push(task);
-      }
-
-      this.callbackManager.emit('onFileResume', task);
+      updatedTasks.push(task);
     });
-
-    // 从完成列表中移除
-    this.completedUploads.value = this.completedUploads.value.filter(
-      t => t.status !== UploadStatus.PENDING
-    );
-
-    // 排序队列
-    this.taskQueueManager.sort(this.uploadQueue.value);
-
+    // 重新组织任务队列
+    this.reorganizeTasks(updatedTasks);
     // 恢复总控制器状态
     this.uploadController.resumeAll();
-
+    // 异步触发回调
+    Promise.resolve().then(() => {
+      updatedTasks.forEach(task => {
+        this.callbackManager.emit('onFileResume', task);
+      });
+    });
     // 启动上传
     if (!this.isUploading.value) {
       this.start();
     }
-
-    console.log(`✅ 已恢复 ${pausedTasks.length} 个任务`);
+    console.log(`✅ 已恢复 ${updatedTasks.length} 个任务`);
     return this;
+  }
+
+   /**
+   * 批量恢复任务进度（异步）
+   */
+  private async batchRestoreTaskProgress(tasks: FileTask[]): Promise<void> {
+    const BATCH_SIZE = 10;
+    
+    for (let i = 0; i < tasks.length; i += BATCH_SIZE) {
+      const batch = tasks.slice(i, i + BATCH_SIZE);
+      
+      await new Promise<void>(resolve => {
+        const restoreBatch = () => {
+          batch.forEach(task => this.restoreTaskProgress(task));
+          resolve();
+        };
+        
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(restoreBatch);
+        } else {
+          setTimeout(restoreBatch, 0);
+        }
+      });
+    }
+  }
+
+  /**
+   * 重新组织任务队列
+   */
+  private reorganizeTasks(restoredTasks: FileTask[]): void {
+    // 清理已完成列表中的待恢复任务
+    const completedTaskIds = new Set(restoredTasks.map(t => t.id));
+    this.completedUploads.value = this.completedUploads.value.filter(
+      t => !completedTaskIds.has(t.id) || t.status !== UploadStatus.PENDING
+    );
+    // 确保恢复的任务都在队列中
+    const queueTaskIds = new Set(this.uploadQueue.value.map(t => t.id));
+    const activeTaskIds = new Set(this.activeUploads.value.keys());
+    
+    restoredTasks.forEach(task => {
+      if (!queueTaskIds.has(task.id) && !activeTaskIds.has(task.id)) {
+        this.uploadQueue.value.push(task);
+      }
+    });
+    // 排序队列
+    this.taskQueueManager.sort(this.uploadQueue.value);
   }
 
   /**
@@ -751,24 +1224,63 @@ export class ChunkUploadManager {
     return this;
   }
 
-  /**
-   * 取消所有任务
+ /**
+   * 取消所有任务（包括正在添加的文件）
    */
-  public cancelAll(): this {
+  public async cancelAll(): Promise<this> {
     console.log('🛑 取消所有上传');
-
+    
+    // 如果正在添加文件，先取消添加
+    if (this.isAddingFiles.value && this.addFilesAbortController) {
+      this.addFilesAbortController.abort();
+      
+      // 等待添加操作结束
+      if (this.addFilesPromise) {
+        try {
+          await Promise.race([
+            this.addFilesPromise,
+            new Promise(resolve => setTimeout(resolve, 500))
+          ]);
+        } catch (e) {
+          // 忽略错误
+        }
+      }
+    }
+    
+    // 取消所有上传
     this.uploadController.cancelAll();
-
-    this.getAllTasks().forEach(task => {
-      task.status = UploadStatus.CANCELLED;
-      task.endTime = Date.now();
-      this.callbackManager.emit('onFileCancel', task);
+    
+    // 批量更新任务状态
+    const allTasks = this.getAllTasks();
+    const updates: Array<() => void> = [];
+    
+    allTasks.forEach(task => {
+      updates.push(() => {
+        task.status = UploadStatus.CANCELLED;
+        task.endTime = Date.now();
+      });
     });
-
+    
+    // 批量执行
+    const BATCH_SIZE = 100;
+    for (let i = 0; i < updates.length; i += BATCH_SIZE) {
+      const batch = updates.slice(i, i + BATCH_SIZE);
+      batch.forEach(update => update());
+      
+      if (i + BATCH_SIZE < updates.length) {
+        await this.yieldToMain(0);
+      }
+    }
+    
+    // 清空队列
     this.uploadQueue.value = [];
     this.activeUploads.value.clear();
     this.isUploading.value = false;
-
+    
+    // 异步触发回调
+    this.batchEmitCallbacks('onFileCancel', allTasks).catch(console.error);
+    
+    console.log('✅ 所有任务已取消');
     return this;
   }
 

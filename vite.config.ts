@@ -26,7 +26,9 @@ export default defineConfig(configEnv => {
       preprocessorOptions: {
         scss: {
           api: 'modern-compiler',
-          additionalData: `@use "@/styles/scss/global.scss" as *;`
+          additionalData: `@use "@/styles/scss/global.scss" as *;`,
+          quietDeps: true, // 忽略依赖包的警告
+          silenceDeprecations: ['global-builtin','import'], // 忽略特定的弃用警告
         }
       }
     },

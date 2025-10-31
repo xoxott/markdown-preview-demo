@@ -25,11 +25,12 @@ export class TimeEstimator {
    */
   update(remainingSize: number, averageSpeed: number): number {
     // 边界情况处理
-    if (remainingSize <= 0) {
+    if (!Number.isFinite(remainingSize) || remainingSize <= 0) {
       return 0;
     }
-    
-    if (averageSpeed <= 0) {
+
+
+    if (!Number.isFinite(averageSpeed) || averageSpeed <= 0) {
       return this.lastEstimatedTime > 0 ? this.lastEstimatedTime : 0;
     }
     

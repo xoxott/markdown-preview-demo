@@ -4,7 +4,7 @@ import SparkMD5 from 'spark-md5';
 // ==================== 常量定义 ====================
 const CONSTANTS = {
   CHUNK_SIZE: 2 * 1024 * 1024, // 2MB per chunk for MD5 calculation
-  SIZE_UNITS: ['B', 'KB', 'MB', 'GB', 'TB', 'PB'] as const,
+  SIZE_UNITS: ['B', 'KB', 'MB', 'GB', 'TB', 'PB','EB', 'ZB', 'YB'] as const,
   SIZE_MULTIPLIER: 1024,
   TIME_UNITS: {
     MINUTE: 60,
@@ -99,11 +99,22 @@ export function parseSize(size: string | number): number {
 export function formatFileSize(bytes: number, decimals: number = 2): string {
   if (bytes === 0) return '0 B';
   if (bytes < 0) return 'Invalid';
+  if (!Number.isFinite(bytes)) return 'Invalid';
 
   const k = CONSTANTS.SIZE_MULTIPLIER;
   const dm = Math.max(0, decimals);
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  const size = bytes / Math.pow(k, i);
+
+  const i = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(k)),
+    CONSTANTS.SIZE_UNITS.length - 1 // 防止数组越界
+  );
+
+  const safeIndex = Math.max(0, i);
+
+  const size = bytes / Math.pow(k, safeIndex);
+   if (!Number.isFinite(size)) {
+    return `${bytes} B`;
+  }
   
   return `${size.toFixed(dm)} ${CONSTANTS.SIZE_UNITS[i]}`;
 }
@@ -117,16 +128,30 @@ export function formatFileSizes(bytesArray: number[], decimals: number = 2): str
 
 // ==================== 速度格式化 ====================
 /**
- * 格式化速度
+ * 格式化速度（增强版）
  * @param bytesPerSecond - 每秒字节数
  * @param decimals - 小数位数
  * @returns 格式化后的速度字符串
  */
 export function formatSpeed(bytesPerSecond: number, decimals: number = 2): string {
-  if (bytesPerSecond === 0) return '0 B/s';
-  if (bytesPerSecond < 0) return 'Invalid';
+  // 边界检查
+  if (!Number.isFinite(bytesPerSecond) || bytesPerSecond < 0) {
+    return '0 B/s';
+  }
   
-  return `${formatFileSize(bytesPerSecond, decimals)}/s`;
+  if (bytesPerSecond === 0) return '0 B/s';
+  
+  try {
+    const formatted = formatFileSize(bytesPerSecond, decimals);
+    // 再次检查格式化结果
+    if (formatted === 'Invalid') {
+      return '0 B/s';
+    }
+    return `${formatted}/s`;
+  } catch (error) {
+    console.error('格式化速度失败:', error);
+    return '0 B/s';
+  }
 }
 
 /**

@@ -50,8 +50,7 @@ export default class FileProcessor {
       status: 'pending',
       percentage: 0,
       file,
-      fullPath: relativePath,
-      batchId: null
+      fullPath: relativePath
     }
   }
 

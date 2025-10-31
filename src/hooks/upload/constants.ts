@@ -2,7 +2,7 @@
  * @Author: yangtao 212920320@qq.com
  * @Date: 2025-10-21 14:05:26
  * @LastEditors: yangtao 212920320@qq.com
- * @LastEditTime: 2025-10-21 14:06:31
+ * @LastEditTime: 2025-10-31 15:56:01
  * @FilePath: \markdown-preview-demo\src\hooks\upload\constants.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -90,7 +90,7 @@ export const CONSTANTS = {
     /** 最大文件 */
     MAX_FILESIZE:1 * 1024 * 1024 * 1024,
     /** 最大文件数量 */
-    MAX_FILES:3
+    MAX_FILES: 1000
   },
 
   /** 压缩相关配置 */

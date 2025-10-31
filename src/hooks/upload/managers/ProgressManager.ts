@@ -9,7 +9,7 @@ import { TimeEstimator } from './TimeEstimator';
 export class ProgressManager {
   private speedCalculator: EnhancedSpeedCalculator;
   private timeEstimator: TimeEstimator;  // 🔥 新增时间估算器
-  
+
   public readonly totalProgress = ref(0);
   public readonly uploadSpeed = ref(0);
   public readonly networkQuality = ref<'good' | 'fair' | 'poor'>('good');
@@ -27,10 +27,10 @@ export class ProgressManager {
       // 计算进度
       const uploadProgress = (task.uploadedChunks / task.totalChunks) * 100;
       task.progress = Math.round(uploadProgress);
-      
+
       // 更新速度
       task.speed = this.uploadSpeed.value;
-      
+
       // 更新已上传大小
       if (task.chunks) {
         task.uploadedSize = task.chunks
@@ -45,7 +45,11 @@ export class ProgressManager {
    */
   updateChunkProgress(chunk: ChunkInfo, size: number, uploadTime: number): void {
     this.speedCalculator.addData(size, uploadTime);
-    this.uploadSpeed.value = this.speedCalculator.getSpeed();
+    // 添加数据点
+    const speed = this.speedCalculator.getSpeed();
+    // 获取速度（bytes/s）
+    this.uploadSpeed.value = Number.isFinite(speed) ? speed : 0;
+
     this.updateNetworkQuality();
   }
 
@@ -89,7 +93,7 @@ export class ProgressManager {
       (sum, task) => sum + (task.file.size * task.progress) / 100,
       0
     );
-    
+
     // 🔥 使用时间估算器计算剩余时间
     const remainingSize = totalSize - uploadedSize;
     const averageSpeed = this.speedCalculator.getAverageSpeed();
@@ -143,7 +147,7 @@ export class ProgressManager {
   getAverageSpeed(): number {
     return this.speedCalculator.getAverageSpeed();
   }
-  
+
   /**
    * 获取时间变化趋势
    */

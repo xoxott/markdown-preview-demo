@@ -1,7 +1,7 @@
 interface DragDropHandler {
   onDragOver: (event: DragEvent) => void
   onDragLeave: (event: DragEvent) => void
-  onDrop: (event: DragEvent) => void
+  onDrop: (event: DragEvent) => Promise<void>
 }
 /**
  * 通用文件拖拽处理类
