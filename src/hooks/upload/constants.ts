@@ -90,7 +90,7 @@ export const CONSTANTS = {
     /** 最大文件 */
     MAX_FILESIZE:1 * 1024 * 1024 * 1024,
     /** 最大文件数量 */
-    MAX_FILES: 1000
+    MAX_FILES: 3000
   },
 
   /** 压缩相关配置 */

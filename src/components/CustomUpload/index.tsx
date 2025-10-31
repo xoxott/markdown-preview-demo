@@ -296,7 +296,7 @@ export default defineComponent({
                 fileCount: processedFileCount.value,
                 maxFiles: props.max
               }) || (
-                <div class="py-8 px-4 text-center">
+                <div class="py-4 px-4 text-center">
                   <NIcon size={48} depth={3} class="mb-3">
                     <CloudUploadOutline />
                   </NIcon>

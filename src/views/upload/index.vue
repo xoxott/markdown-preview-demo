@@ -28,6 +28,7 @@
           :abstract="true"
           :multiple="true"
           :directory-dnd="true"
+          :directory="true"
           :max="Infinity"
           :max-size="CONSTANTS.UPLOAD.MAX_FILESIZE"
           :disabled="isUploading || isPaused"
@@ -39,7 +40,7 @@
           class="flex-1"
         >
           <template #default="{ isDragOver, isProcessing, fileCount }">
-            <div class="flex flex-col items-center justify-center py-8 px-4 text-center">
+            <div class="flex flex-col items-center justify-center py-4 px-4 text-center" >
               <n-icon 
                 :component="CloudUploadOutline" 
                 :size="56" 
