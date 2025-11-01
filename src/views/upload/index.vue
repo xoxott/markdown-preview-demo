@@ -143,31 +143,34 @@
         </div>
       </div>
     </div>
-
-    <!-- 待上传队列 -->
-    <upload-list-section  v-if="uploadQueue.length > 0" title="待上传队列" :icon="FolderOpenOutline"
-      :count="uploadQueue.length" tag-type="info" :items="uploadQueue" >
-      <template #item="{ item: task,index }">
-        <upload-file-item :index="index" :key="task.id" :task="task" :show-actions="true" @remove="removeFile(task.id)" />
-      </template>
-    </upload-list-section>
-
-    <!-- 上传中 -->
-    <upload-list-section  v-if="activeUploads.size > 0" title="上传中" :icon="CloudUploadOutline"
-      :count="activeUploads.size" tag-type="primary" :items="Array.from(activeUploads.values())">
-      <template #item="{ item: task,index }">
-        <upload-file-item :index="index" :key="task.id" :task="task" :show-progress="true" />
-      </template>
-    </upload-list-section>
-
-    <!-- 已完成 -->
-    <upload-list-section v-if="completedUploads.length > 0" title="已完成" :icon="CheckmarkDoneOutline"
-      :count="completedUploads.length" :items="completedUploads" tag-type="success">
-      <template #item="{ item: task, index }">
-        <upload-file-item :task="task" :index="index" :show-actions="true" @retry="handleRetrySingle(task.id)"
-          @view="handleView(task)" />
-      </template>
-    </upload-list-section>
+    
+    <!-- 列表区域 -->
+    <div class="flex flex-col gap-4 flex-1">
+      <!-- 待上传队列 -->
+      <upload-list-section  v-if="uploadQueue.length > 0" title="待上传队列" :icon="FolderOpenOutline"
+        :count="uploadQueue.length" tag-type="info" :items="uploadQueue" >
+        <template #item="{ item: task,index }">
+          <upload-file-item :index="index" :key="task.id" :task="task" :show-actions="true" @remove="removeFile(task.id)" />
+        </template>
+      </upload-list-section>
+  
+      <!-- 上传中 -->
+      <upload-list-section  v-if="activeUploads.size > 0" title="上传中" :icon="CloudUploadOutline"
+        :count="activeUploads.size" tag-type="primary" :items="Array.from(activeUploads.values())">
+        <template #item="{ item: task,index }">
+          <upload-file-item :index="index" :key="task.id" :task="task" :show-progress="true" />
+        </template>
+      </upload-list-section>
+  
+      <!-- 已完成 -->
+      <upload-list-section v-if="completedUploads.length > 0" title="已完成" :icon="CheckmarkDoneOutline"
+        :count="completedUploads.length" :items="completedUploads" tag-type="success">
+        <template #item="{ item: task, index }">
+          <upload-file-item :task="task" :index="index" :show-actions="true" @retry="handleRetrySingle(task.id)"
+            @view="handleView(task)" />
+        </template>
+      </upload-list-section>
+    </div>
 
     <!-- 设置抽屉 -->
     <n-drawer v-model:show="showSettings" :width="400" placement="right">

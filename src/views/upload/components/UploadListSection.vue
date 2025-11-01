@@ -67,7 +67,6 @@ import {
 } from 'naive-ui';
 import { ChevronDownOutline } from '@vicons/ionicons5';
 import type { Component } from 'vue';
-import { useThemeVars } from 'naive-ui'
 
 interface Props {
   title: string;
@@ -86,7 +85,6 @@ const props = withDefaults(defineProps<Props>(), {
   maxHeight: '400px',
   itemSize: 48
 });
-const themeVars = useThemeVars();
 const itemsWithIndex = computed(() =>
   props.items.map((item, i) => ({ ...item, _index: i }))
 );
