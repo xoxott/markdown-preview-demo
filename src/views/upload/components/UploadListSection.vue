@@ -14,11 +14,12 @@
           {{ count }}
         </n-tag>
         <n-icon 
-          :component="ChevronDownOutline" 
           :size="20" 
-          class="transition-transform duration-300 ease-in-out"
-          :style="{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }"
-        />
+           class="transition-transform duration-300 ease-in-out text-gray-300 dark:text-gray-500 group-hover:text-primary "
+          :style="{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)'}"
+        >
+       <ChevronDownOutline/>
+      </n-icon>
       </div>
     </div>
 
@@ -27,14 +28,14 @@
       ref="contentRef"
       class="overflow-hidden transition-all duration-300 ease-in-out"
       :style="{ 
-        maxHeight: isCollapsed ? '0px' : maxHeight,
-        opacity: isCollapsed ? 0 : 1
+        maxHeight: !isCollapsed ? '0px' : maxHeight,
+        opacity: !isCollapsed ? 0 : 1
       }"
     >
       <div :style="{ height: maxHeight, overflow: 'hidden' }">
         <n-virtual-list
           v-if="items.length > 0"
-          v-show="!isCollapsed"
+           v-show="isCollapsed"
           :items="itemsWithIndex"
           :item-size="itemSize"
           :item-resizable="false"
@@ -66,6 +67,7 @@ import {
 } from 'naive-ui';
 import { ChevronDownOutline } from '@vicons/ionicons5';
 import type { Component } from 'vue';
+import { useThemeVars } from 'naive-ui'
 
 interface Props {
   title: string;
@@ -82,12 +84,13 @@ const props = withDefaults(defineProps<Props>(), {
   tagType: 'info',
   defaultCollapsed: false,
   maxHeight: '400px',
-  itemSize: 68
+  itemSize: 48
 });
-
+const themeVars = useThemeVars();
 const itemsWithIndex = computed(() =>
   props.items.map((item, i) => ({ ...item, _index: i }))
 );
+
 
 const isCollapsed = ref(props.defaultCollapsed);
 const contentRef = ref<HTMLElement>();

@@ -145,7 +145,7 @@
     </div>
 
     <!-- 待上传队列 -->
-    <upload-list-section v-if="uploadQueue.length > 0" title="待上传队列" :icon="FolderOpenOutline"
+    <upload-list-section  v-if="uploadQueue.length > 0" title="待上传队列" :icon="FolderOpenOutline"
       :count="uploadQueue.length" tag-type="info" :items="uploadQueue" >
       <template #item="{ item: task,index }">
         <upload-file-item :index="index" :key="task.id" :task="task" :show-actions="true" @remove="removeFile(task.id)" />
@@ -153,7 +153,7 @@
     </upload-list-section>
 
     <!-- 上传中 -->
-    <upload-list-section v-if="activeUploads.size > 0" title="上传中" :icon="CloudUploadOutline"
+    <upload-list-section  v-if="activeUploads.size > 0" title="上传中" :icon="CloudUploadOutline"
       :count="activeUploads.size" tag-type="primary" :items="Array.from(activeUploads.values())">
       <template #item="{ item: task,index }">
         <upload-file-item :index="index" :key="task.id" :task="task" :show-progress="true" />

@@ -252,7 +252,7 @@ const handleRetry = () => emit('retry');
 <style scoped>
 .file-item {
   /* 固定最小高度，确保虚拟列表正确计算 */
-  min-height: 68px;
+  min-height: 48px;
   box-sizing: border-box;
 }
 
