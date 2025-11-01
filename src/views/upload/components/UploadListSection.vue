@@ -93,7 +93,14 @@ const itemsWithIndex = computed(() =>
 const isCollapsed = ref(props.defaultCollapsed);
 const contentRef = ref<HTMLElement>();
 
+const computedHeight = computed(() => {
+  const realHeight = props.items.length * props.itemSize; // 16px padding
+  const max = parseInt(props.maxHeight)
+  return `${Math.min(realHeight, max)}px`
+})
+
 const toggleCollapse = () => {
+   if (props.items.length === 0) return
   isCollapsed.value = !isCollapsed.value;
 };
 

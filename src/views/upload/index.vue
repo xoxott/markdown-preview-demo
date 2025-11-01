@@ -24,8 +24,8 @@
       <!-- 上传区域 -->
       <div
         class="flex flex-col md:flex-row gap-4 p-6 bg-white dark:bg-gray-800 rounded-lg shadow transition-all duration-300 flex-1">
-        <custom-upload ref="customUploadRef" :abstract="true" :multiple="true" :directory-dnd="true" :directory="true"
-          :max="Infinity" :max-size="CONSTANTS.UPLOAD.MAX_FILESIZE" :disabled="isUploading || isPaused"
+        <custom-upload ref="customUploadRef" :abstract="true" :multiple="true" :directory-dnd="true" 
+          :max="CONSTANTS.UPLOAD.MAX_FILES" :max-size="CONSTANTS.UPLOAD.MAX_FILESIZE" :disabled="isUploading || isPaused"
           :batch-size="100" :processing-timeout="20" @change="handleFilesChange" @error="handleUploadError"
           @exceed="handleExceed" class="flex-1">
           <template #default="{ isDragOver, isProcessing, fileCount }">
@@ -143,19 +143,19 @@
         </div>
       </div>
     </div>
-    
+
     <!-- 列表区域 -->
     <div class="flex flex-col gap-4 flex-1">
       <!-- 待上传队列 -->
       <upload-list-section  v-if="uploadQueue.length > 0" title="待上传队列" :icon="FolderOpenOutline"
-        :count="uploadQueue.length" tag-type="info" :items="uploadQueue" >
+        :count="uploadQueue.length" tag-type="info" :items="uploadQueue" default-collapsed max-height="250px">
         <template #item="{ item: task,index }">
           <upload-file-item :index="index" :key="task.id" :task="task" :show-actions="true" @remove="removeFile(task.id)" />
         </template>
       </upload-list-section>
   
       <!-- 上传中 -->
-      <upload-list-section  v-if="activeUploads.size > 0" title="上传中" :icon="CloudUploadOutline"
+      <upload-list-section max-height="380px"  v-if="activeUploads.size > 0" title="上传中" :icon="CloudUploadOutline"
         :count="activeUploads.size" tag-type="primary" :items="Array.from(activeUploads.values())">
         <template #item="{ item: task,index }">
           <upload-file-item :index="index" :key="task.id" :task="task" :show-progress="true" />
@@ -163,7 +163,7 @@
       </upload-list-section>
   
       <!-- 已完成 -->
-      <upload-list-section v-if="completedUploads.length > 0" title="已完成" :icon="CheckmarkDoneOutline"
+      <upload-list-section v-if="completedUploads.length > 0" title="已完成" max-height="250px" :icon="CheckmarkDoneOutline"
         :count="completedUploads.length" :items="completedUploads" tag-type="success">
         <template #item="{ item: task, index }">
           <upload-file-item :task="task" :index="index" :show-actions="true" @retry="handleRetrySingle(task.id)"
