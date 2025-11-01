@@ -22,31 +22,16 @@
 
     <div class="flex flex-col xl:flex-row gap-4 w-full">
       <!-- 上传区域 -->
-      <div class="flex flex-col md:flex-row gap-4 p-6 bg-white dark:bg-gray-800 rounded-lg shadow transition-all duration-300 flex-1">
-         <custom-upload
-          ref="customUploadRef"
-          :abstract="true"
-          :multiple="true"
-          :directory-dnd="true"
-          :directory="true"
-          :max="Infinity"
-          :max-size="CONSTANTS.UPLOAD.MAX_FILESIZE"
-          :disabled="isUploading || isPaused"
-          :batch-size="100"
-          :processing-timeout="20"
-          @change="handleFilesChange"
-          @error="handleUploadError"
-          @exceed="handleExceed"
-          class="flex-1"
-        >
+      <div
+        class="flex flex-col md:flex-row gap-4 p-6 bg-white dark:bg-gray-800 rounded-lg shadow transition-all duration-300 flex-1">
+        <custom-upload ref="customUploadRef" :abstract="true" :multiple="true" :directory-dnd="true" :directory="true"
+          :max="Infinity" :max-size="CONSTANTS.UPLOAD.MAX_FILESIZE" :disabled="isUploading || isPaused"
+          :batch-size="100" :processing-timeout="20" @change="handleFilesChange" @error="handleUploadError"
+          @exceed="handleExceed" class="flex-1">
           <template #default="{ isDragOver, isProcessing, fileCount }">
-            <div class="flex flex-col items-center justify-center py-4 px-4 text-center" >
-              <n-icon 
-                :component="CloudUploadOutline" 
-                :size="56" 
-                :color="isDragOver ? '#18a058' : undefined"
-                class="transition-all duration-300"
-              />
+            <div class="flex flex-col items-center justify-center py-4 px-4 text-center">
+              <n-icon :component="CloudUploadOutline" :size="56" :color="isDragOver ? '#18a058' : undefined"
+                class="transition-all duration-300" />
               <p class="mt-3 text-gray-500 dark:text-gray-400 text-sm">
                 {{ isProcessing ? '处理中...' : '拖拽文件到此处或点击选择' }}
               </p>
@@ -80,8 +65,9 @@
               恢复
             </n-button>
 
-            <n-button type="primary" @click="handleStartUpload" :disabled="uploadQueue.length === 0 || isUploading || isPaused"
-              :loading="isUploading" size="small" class="flex-1">
+            <n-button type="primary" @click="handleStartUpload"
+              :disabled="uploadQueue.length === 0 || isUploading || isPaused" :loading="isUploading" size="small"
+              class="flex-1">
               <template #icon>
                 <n-icon :component="PlayOutline" />
               </template>
@@ -159,54 +145,28 @@
     </div>
 
     <!-- 待上传队列 -->
-    <upload-list-section
-      v-if="uploadQueue.length > 0"
-      title="待上传队列"
-      :icon="FolderOpenOutline"
-      :count="uploadQueue.length"
-      tag-type="info"
-    >
-      <upload-file-item
-        v-for="task in uploadQueue"
-        :key="task.id"
-        :task="task"
-        :show-actions="true"
-        @remove="removeFile(task.id)"
-      />
+    <upload-list-section v-if="uploadQueue.length > 0" title="待上传队列" :icon="FolderOpenOutline"
+      :count="uploadQueue.length" tag-type="info" :items="uploadQueue" >
+      <template #item="{ item: task,index }">
+        <upload-file-item :index="index" :key="task.id" :task="task" :show-actions="true" @remove="removeFile(task.id)" />
+      </template>
     </upload-list-section>
 
     <!-- 上传中 -->
-    <upload-list-section
-      v-if="activeUploads.size > 0"
-      title="上传中"
-      :icon="CloudUploadOutline"
-      :count="activeUploads.size"
-      tag-type="primary"
-    >
-      <upload-file-item
-        v-for="task in Array.from(activeUploads.values())"
-        :key="task.id"
-        :task="task"
-        :show-progress="true"
-      />
+    <upload-list-section v-if="activeUploads.size > 0" title="上传中" :icon="CloudUploadOutline"
+      :count="activeUploads.size" tag-type="primary" :items="Array.from(activeUploads.values())">
+      <template #item="{ item: task,index }">
+        <upload-file-item :index="index" :key="task.id" :task="task" :show-progress="true" />
+      </template>
     </upload-list-section>
 
     <!-- 已完成 -->
-    <upload-list-section
-      v-if="completedUploads.length > 0"
-      title="已完成"
-      :icon="CheckmarkDoneOutline"
-      :count="completedUploads.length"
-      tag-type="success"
-    >
-      <upload-file-item
-        v-for="task in completedUploads"
-        :key="task.id"
-        :task="task"
-        :show-actions="true"
-        @retry="handleRetrySingle(task.id)"
-        @view="handleView(task)"
-      />
+    <upload-list-section v-if="completedUploads.length > 0" title="已完成" :icon="CheckmarkDoneOutline"
+      :count="completedUploads.length" :items="completedUploads" tag-type="success">
+      <template #item="{ item: task, index }">
+        <upload-file-item :task="task" :index="index" :show-actions="true" @retry="handleRetrySingle(task.id)"
+          @view="handleView(task)" />
+      </template>
     </upload-list-section>
 
     <!-- 设置抽屉 -->
@@ -370,19 +330,19 @@ const startTimeCountdown = (initialTime: number) => {
   if (timeCountdownTimer) {
     clearInterval(timeCountdownTimer);
   }
-  
+
   localTime = initialTime;
   displayEstimatedTime.value = localTime;
   lastUpdateTime = Date.now();
-  
+
   timeCountdownTimer = window.setInterval(() => {
     const now = Date.now();
     const elapsed = (now - lastUpdateTime) / 1000;
-    
+
     localTime = Math.max(0, localTime - elapsed);
     displayEstimatedTime.value = Math.round(localTime);
     lastUpdateTime = now;
-    
+
     if (localTime <= 0 && timeCountdownTimer) {
       clearInterval(timeCountdownTimer);
       timeCountdownTimer = null;
@@ -396,7 +356,7 @@ watch(
   (newTime) => {
     // 🔥 只在变化超过 5 秒或首次时才更新
     const diff = Math.abs(newTime - localTime);
-    
+
     if (diff > 5 || timeCountdownTimer === null) {
       console.log(`🕐 剩余时间同步: ${localTime.toFixed(0)}s -> ${newTime}s`);
       startTimeCountdown(newTime);
@@ -474,13 +434,13 @@ const handleRetrySingle = (taskId: string) => {
 };
 
 // 文件预览
-const handleView = (task:FileTask)=>{
-   console.log(task,'任务信息');
-   drawer.open({
-    title:'文件预览',
-    content: JSON.stringify(task,null,2),
-    width:600
-   })
+const handleView = (task: FileTask) => {
+  console.log(task, '任务信息');
+  drawer.open({
+    title: '文件预览',
+    content: JSON.stringify(task, null, 2),
+    width: 600
+  })
 }
 
 // 设置变更
@@ -494,6 +454,7 @@ const handleSettingChange = () => {
 /* 🔥 添加平滑过渡效果 */
 .smooth-time {
   transition: opacity 0.3s ease;
-  font-variant-numeric: tabular-nums; /* 等宽数字，避免跳动 */
+  font-variant-numeric: tabular-nums;
+  /* 等宽数字，避免跳动 */
 }
 </style>
