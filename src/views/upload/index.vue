@@ -2,10 +2,10 @@
   <div class="flex flex-col w-full h-full gap-4">
     <!-- 头部标题 -->
     <div class="flex justify-between items-center">
-      <h2 class="flex items-center gap-3 m-0 text-xl font-semibold dark:text-gray-100 text-gray-800">
+      <n-h3 class="flex items-center gap-3 m-0 font-semibold">
         <n-icon :component="CloudUploadOutline" :size="22" />
         文件上传管理
-      </h2>
+      </n-h3>
       <n-space>
         <n-button size="small" @click="showSettings = true" quaternary circle>
           <template #icon>
@@ -24,19 +24,16 @@
       <!-- 上传区域 -->
       <div
         class="flex flex-col md:flex-row gap-4 p-6 bg-white dark:bg-gray-800 rounded-lg shadow transition-all duration-300 flex-1">
-        <custom-upload ref="customUploadRef" :abstract="true" :multiple="true" :directory-dnd="true" 
-          :max="CONSTANTS.UPLOAD.MAX_FILES" :max-size="CONSTANTS.UPLOAD.MAX_FILESIZE" :disabled="isUploading || isPaused"
-          :batch-size="100" :processing-timeout="20" @change="handleFilesChange" @error="handleUploadError"
-          @exceed="handleExceed" class="flex-1">
+        <custom-upload ref="customUploadRef" :abstract="true" :multiple="true" :directory-dnd="true"
+          :max="CONSTANTS.UPLOAD.MAX_FILES" :max-size="CONSTANTS.UPLOAD.MAX_FILESIZE"
+          :disabled="isUploading || isPaused" :batch-size="100" :processing-timeout="20" @change="handleFilesChange"
+          @error="handleUploadError" @exceed="handleExceed" class="flex-1">
           <template #default="{ isDragOver, isProcessing, fileCount }">
             <div class="flex flex-col items-center justify-center py-4 px-4 text-center">
-              <n-icon :component="CloudUploadOutline" :size="56" :color="isDragOver ? '#18a058' : undefined"
-                class="transition-all duration-300" />
+              <n-icon :component="CloudUploadOutline" :size="56" :color="isDragOver
+                ? themeVars.primaryColor : themeVars.primaryColorHover" class="transition-all duration-300" />
               <p class="mt-3 text-gray-500 dark:text-gray-400 text-sm">
                 {{ isProcessing ? '处理中...' : '拖拽文件到此处或点击选择' }}
-              </p>
-              <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">
-                支持格式: {{ acceptText }} | 最大: {{ maxSizeText }}
               </p>
             </div>
           </template>
@@ -84,7 +81,7 @@
       <!-- 上传统计 -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex-1 min-w-[300px] transition-all duration-300">
         <div class="flex items-start justify-between mb-4 gap-4">
-          <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200">上传统计</h3>
+          <h3 class="text-lg font-medium text-gray-600 dark:text-gray-200">上传统计</h3>
 
           <div class="flex flex-wrap gap-2">
             <n-tag :bordered="false" type="info" class="flex items-center">
@@ -147,24 +144,25 @@
     <!-- 列表区域 -->
     <div class="flex flex-col gap-4 flex-1">
       <!-- 待上传队列 -->
-      <upload-list-section  v-if="uploadQueue.length > 0" title="待上传队列" :icon="FolderOpenOutline"
+      <upload-list-section v-if="uploadQueue.length > 0" title="待上传队列" :icon="FolderOpenOutline"
         :count="uploadQueue.length" tag-type="info" :items="uploadQueue" default-collapsed max-height="250px">
-        <template #item="{ item: task,index }">
-          <upload-file-item :index="index" :key="task.id" :task="task" :show-actions="true" @remove="removeFile(task.id)" />
+        <template #item="{ item: task, index }">
+          <upload-file-item :index="index" :key="task.id" :task="task" :show-actions="true"
+            @remove="removeFile(task.id)" />
         </template>
       </upload-list-section>
-  
+
       <!-- 上传中 -->
-      <upload-list-section max-height="380px"  v-if="activeUploads.size > 0" title="上传中" :icon="CloudUploadOutline"
+      <upload-list-section max-height="380px" v-if="activeUploads.size > 0" title="上传中" :icon="CloudUploadOutline"
         :count="activeUploads.size" tag-type="primary" :items="Array.from(activeUploads.values())">
-        <template #item="{ item: task,index }">
+        <template #item="{ item: task, index }">
           <upload-file-item :index="index" :key="task.id" :task="task" :show-progress="true" />
         </template>
       </upload-list-section>
-  
+
       <!-- 已完成 -->
-      <upload-list-section v-if="completedUploads.length > 0" title="已完成" max-height="250px" :icon="CheckmarkDoneOutline"
-        :count="completedUploads.length" :items="completedUploads" tag-type="success">
+      <upload-list-section v-if="completedUploads.length > 0" title="已完成" max-height="250px"
+        :icon="CheckmarkDoneOutline" :count="completedUploads.length" :items="completedUploads" tag-type="success">
         <template #item="{ item: task, index }">
           <upload-file-item :task="task" :index="index" :show-actions="true" @retry="handleRetrySingle(task.id)"
             @view="handleView(task)" />
@@ -214,6 +212,7 @@
 import { ref, computed, reactive, watch, onBeforeUnmount } from 'vue';
 import {
   useMessage,
+  useThemeVars,
 } from 'naive-ui';
 import {
   CloudUploadOutline,
@@ -238,9 +237,9 @@ import { CONSTANTS } from '@/hooks/upload/constants';
 import UploadFileItem from './components/UploadFileItem.vue';
 import UploadListSection from './components/UploadListSection.vue';
 import { useDrawer } from '@/hooks/customer/useDrawer/index';
-import customUpload, { CustomUploadFileInfo } from '@/components/customUpload';
+import CustomUpload, { CustomUploadFileInfo } from '@/components/CustomUpload';
 const drawer = useDrawer();
-
+const themeVars = useThemeVars();
 const message = useMessage();
 
 // 设置状态

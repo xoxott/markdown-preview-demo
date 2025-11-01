@@ -284,12 +284,12 @@ export default defineComponent({
                 fileCount: processedFileCount.value,
                 maxFiles: props.max
               }) || (
-                <div class="py-8 px-6 text-center">
+                <div class="py-4 px-6 text-center">
                   <div
                     class="inline-flex items-center justify-center mb-4 transition-all duration-300"
                     style={getIconStyle()}
                   >
-                    <NIcon size={56}>
+                    <NIcon size={48}>
                       <CloudUploadOutline />
                     </NIcon>
                   </div>

@@ -5,7 +5,7 @@
       class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
       @click="toggleCollapse"
     >
-      <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800 dark:text-gray-100 m-0">
+      <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-600 dark:text-gray-300 m-0">
         <n-icon :component="icon" :size="20" />
         {{ title }}
       </h3>
