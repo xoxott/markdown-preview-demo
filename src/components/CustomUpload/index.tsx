@@ -8,7 +8,7 @@ export interface CustomUploadFileInfo {
   id: string
   file: File
   name: string
-  fullPath?: string | null;
+  fullPath?: string | null
   size: number
   type: string
   status: 'pending' | 'uploading' | 'finished' | 'error' | 'removed'
@@ -18,62 +18,31 @@ export interface CustomUploadFileInfo {
 export default defineComponent({
   name: 'CustomUpload',
   props: {
-    multiple: {
-      type: Boolean,
-      default: false
-    },
-    accept: {
-      type: String,
-      default: ''
-    },
-    directory: {
-      type: Boolean,
-      default: false
-    },
-    directoryDnd: {
-      type: Boolean,
-      default: false
-    },
-    abstract: {
-      type: Boolean,
-      default: false
-    },
-    max: {
-      type: Number,
-      default: Infinity
-    },
-    maxSize: {
-      type: Number,
-      default: Infinity
-    },
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    batchSize: {
-      type: Number,
-      default: 100
-    },
-    processingTimeout: {
-      type: Number,
-      default: 20
-    },
-    concurrentLimit: {
-      type: Number,
-      default: 5
-    }
+    multiple: { type: Boolean, default: false },
+    accept: { type: String, default: '' },
+    directory: { type: Boolean, default: false },
+    directoryDnd: { type: Boolean, default: false },
+    abstract: { type: Boolean, default: false },
+    max: { type: Number, default: Infinity },
+    maxSize: { type: Number, default: Infinity },
+    disabled: { type: Boolean, default: false },
+    batchSize: { type: Number, default: 100 },
+    processingTimeout: { type: Number, default: 20 },
+    concurrentLimit: { type: Number, default: 5 }
   },
 
   emits: ['change', 'error', 'exceed'],
 
   setup(props, { slots, emit, expose }) {
+    // 状态管理
     const fileInputRef = ref<HTMLInputElement>()
     const isDragOver = ref(false)
+    const isHovering = ref(false)
     const isProcessing = ref(false)
     const processedFileCount = ref(0)
     const themeVars = useThemeVars()
 
-    // 创建文件处理器
+    // 处理器初始化
     const fileProcessor = new FileProcessor({
       batchSize: props.batchSize,
       idleTimeout: props.processingTimeout,
@@ -86,62 +55,65 @@ export default defineComponent({
     )
 
     // 计算属性
-    const acceptedExtensions = computed(() => {
-      if (!props.accept) return []
-      return props.accept.split(',').map(ext => ext.trim().toLowerCase())
-    })
+    const acceptedExtensions = computed(() => 
+      props.accept ? props.accept.split(',').map(ext => ext.trim().toLowerCase()) : []
+    )
 
-    const canAddMore = computed(() => {
-      return props.max === Infinity || processedFileCount.value < props.max
-    })
+    const canAddMore = computed(() => 
+      props.max === Infinity || processedFileCount.value < props.max
+    )
 
-    // 文件验证器
-    const fileValidator = {
-      validate: (file: File) => {
-        // 检查文件类型
-        if (acceptedExtensions.value.length > 0) {
-          const fileName = file.name.toLowerCase()
-          const fileExt = '.' + fileName.split('.').pop()
-          const isAccepted = acceptedExtensions.value.some(ext => {
-            const normalizedExt = ext.startsWith('.') ? ext : '.' + ext
-            return fileExt === normalizedExt.toLowerCase()
-          })
-          if (!isAccepted) {
-            emit('error', {
-              file,
-              message: `文件类型不支持: ${file.name}`
-            })
-            return false
-          }
-        }
+    const isDisabledOrFull = computed(() => 
+      props.disabled || !canAddMore.value
+    )
 
-        // 检查文件大小
-        if (props.maxSize !== Infinity && file.size > props.maxSize) {
-          const formatSize = (size: number) => {
-            if (size < 1024) return `${size} B`
-            if (size < 1024 * 1024) return `${(size / 1024).toFixed(2)} KB`
-            return `${(size / (1024 * 1024)).toFixed(2)} MB`
-          }
-          emit('error', {
-            file,
-            message: `文件大小超出限制: ${file.name} (${formatSize(file.size)} / ${formatSize(props.maxSize)})`
-          })
-          return false
-        }
-
-        return true
-      },
-
-      getErrorMessage: (file: File) => {
-        return `文件验证失败: ${file.name}`
-      }
+    // 工具函数
+    const formatSize = (size: number) => {
+      if (size < 1024) return `${size} B`
+      if (size < 1024 * 1024) return `${(size / 1024).toFixed(2)} KB`
+      return `${(size / (1024 * 1024)).toFixed(2)} MB`
     }
 
-    // 批量处理文件（优化核心）
+    const normalizeExtension = (ext: string) => 
+      ext.startsWith('.') ? ext : '.' + ext
+
+    // 文件验证
+    const validateFile = (file: File): boolean => {
+      const fileName = file.name.toLowerCase()
+      const fileExt = '.' + fileName.split('.').pop()
+
+      // 类型验证
+      if (acceptedExtensions.value.length > 0) {
+        const isAccepted = acceptedExtensions.value.some(ext =>
+          fileExt === normalizeExtension(ext).toLowerCase()
+        )
+        if (!isAccepted) {
+          emit('error', { file, message: `文件类型不支持: ${file.name}` })
+          return false
+        }
+      }
+
+      // 大小验证
+      if (props.maxSize !== Infinity && file.size > props.maxSize) {
+        emit('error', {
+          file,
+          message: `文件大小超出限制: ${file.name} (${formatSize(file.size)} / ${formatSize(props.maxSize)})`
+        })
+        return false
+      }
+
+      return true
+    }
+
+    const fileValidator = {
+      validate: validateFile,
+      getErrorMessage: (file: File) => `文件验证失败: ${file.name}`
+    }
+
+    // 文件处理
     const handleFiles = async (files: File[]) => {
       if (props.disabled || files.length === 0) return
 
-      // 检查文件数量限制
       const remainingSlots = props.max === Infinity
         ? files.length
         : Math.max(0, props.max - processedFileCount.value)
@@ -153,38 +125,27 @@ export default defineComponent({
 
       const filesToProcess = files.slice(0, remainingSlots)
       if (filesToProcess.length < files.length) {
-        emit('exceed', {
-          files: files.slice(remainingSlots),
-          max: props.max
-        })
+        emit('exceed', { files: files.slice(remainingSlots), max: props.max })
       }
 
       isProcessing.value = true
       const processedFiles: CustomUploadFileInfo[] = []
 
       try {
-        // 使用 FileProcessor 批量处理，防止卡顿
-        await fileProcessor.processFiles(
-          filesToProcess,
-          fileValidator,
-          (uploadInfo) => {
-            const fileInfo: CustomUploadFileInfo = {
-              id: uploadInfo.id,
-              name: uploadInfo.name,
-              file: uploadInfo.file!,
-              fullPath: uploadInfo.fullPath,
-              size: uploadInfo.file!.size,
-              type: uploadInfo.file!.type,
-              status: 'pending',
-              percentage: 0
-            }
+        await fileProcessor.processFiles(filesToProcess, fileValidator, (uploadInfo) => {
+          processedFiles.push({
+            id: uploadInfo.id,
+            name: uploadInfo.name,
+            file: uploadInfo.file!,
+            fullPath: uploadInfo.fullPath,
+            size: uploadInfo.file!.size,
+            type: uploadInfo.file!.type,
+            status: 'pending',
+            percentage: 0
+          })
+          processedFileCount.value++
+        })
 
-            processedFiles.push(fileInfo)
-            processedFileCount.value++
-          }
-        )
-
-        // 批量触发 change 事件
         if (processedFiles.length > 0) {
           emit('change', processedFiles)
         }
@@ -193,30 +154,27 @@ export default defineComponent({
       }
     }
 
-    // 触发文件选择
+    // 事件处理
     const triggerFileSelect = (event?: Event) => {
-      if (props.disabled || !canAddMore.value) return
+      if (isDisabledOrFull.value) return
       event?.preventDefault()
       event?.stopPropagation()
       fileInputRef.value?.click()
     }
 
-    // 文件选择变化
     const handleFileChange = (event: Event) => {
       const input = event.target as HTMLInputElement
-      const files = input.files
-      if (!files || files.length === 0) return
-      handleFiles(Array.from(files))
-      input.value = ''
+      if (input.files?.length) {
+        handleFiles(Array.from(input.files))
+        input.value = ''
+      }
     }
 
     // 拖拽处理
-    const dragHandler = dragDropProcessor.createHandler((files) => {
-      handleFiles(files)
-    })
+    const dragHandler = dragDropProcessor.createHandler(handleFiles)
 
     const handleDragOver = (event: DragEvent) => {
-      if (props.disabled || !canAddMore.value) return
+      if (isDisabledOrFull.value) return
       event.preventDefault()
       event.stopPropagation()
       dragHandler.onDragOver(event)
@@ -232,23 +190,64 @@ export default defineComponent({
     }
 
     const handleDrop = async (event: DragEvent) => {
-      if (props.disabled || !canAddMore.value) return
+      if (isDisabledOrFull.value) return
       event.preventDefault()
       event.stopPropagation()
       isDragOver.value = false
       await dragHandler.onDrop(event)
     }
 
-    // 重置
+    const handleMouseEnter = () => {
+      if (!isDisabledOrFull.value) {
+        isHovering.value = true
+      }
+    }
+
+    const handleMouseLeave = () => {
+      isHovering.value = false
+    }
+
+    // 公开方法
     const reset = () => {
       processedFileCount.value = 0
     }
 
-    expose({
-      triggerFileSelect,
-      reset
+    expose({ triggerFileSelect, reset })
+
+    // 样式计算
+    const getDragAreaStyle = () => ({
+      borderColor: isDragOver.value
+        ? themeVars.value.primaryColor
+        : isHovering.value && !isDisabledOrFull.value
+          ? themeVars.value.primaryColorHover
+          : isDisabledOrFull.value
+            ? themeVars.value.borderColor
+            : themeVars.value.dividerColor,
+      backgroundColor: isDragOver.value
+        ? `${themeVars.value.primaryColor}12`
+        : isHovering.value && !isDisabledOrFull.value
+          ? `${themeVars.value.primaryColor}08`
+          : isDisabledOrFull.value
+            ? themeVars.value.actionColor
+            : 'transparent',
+      opacity: isDisabledOrFull.value ? 0.6 : 1,
+      cursor: isDisabledOrFull.value ? 'not-allowed' : 'pointer'
     })
 
+    const getIconStyle = () => ({
+      transform: isDragOver.value
+        ? 'scale(1.1)'
+        : isHovering.value
+          ? 'scale(1.05)'
+          : 'scale(1)',
+      color: isDragOver.value
+        ? themeVars.value.primaryColor
+        : isHovering.value
+          ? themeVars.value.primaryColorHover
+          : themeVars.value.textColor3
+    })
+
+    // 渲染函数
     return () => {
       const fileInput = (
         <input
@@ -259,35 +258,24 @@ export default defineComponent({
           {...(props.directory ? { webkitdirectory: true } as any : {})}
           class="hidden"
           onChange={handleFileChange}
-          disabled={props.disabled || !canAddMore.value}
+          disabled={isDisabledOrFull.value}
         />
       )
-      
+
       if (props.abstract) {
         return (
           <div class="inline-block w-full">
             {fileInput}
-            {/* 使用 div 替代 NUploadDragger，手动应用样式 */}
             <div
-              class={[
-                'relative rounded-md border-2 border-dashed transition-all',
-                'hover:border-opacity-80',
-                isDragOver.value 
-                  ? 'border-primary bg-opacity-5' 
-                  : 'border-gray-300 dark:border-gray-600',
-                props.disabled || !canAddMore.value 
-                  ? 'opacity-50 cursor-not-allowed' 
-                  : 'cursor-pointer'
-              ].join(' ')}
-              style={{
-                borderColor: isDragOver.value ? themeVars.value.primaryColor : undefined,
-                backgroundColor: isDragOver.value ? themeVars.value.primaryColor + '0d' : undefined
-              }}
+              class="relative rounded-lg border-2 border-dashed transition-all duration-200 ease-in-out overflow-hidden"
+              style={getDragAreaStyle()}
               onClick={triggerFileSelect}
               onDrop={handleDrop}
               onDragover={handleDragOver}
               onDragleave={handleDragLeave}
               onDragenter={(e) => e.preventDefault()}
+              onMouseenter={handleMouseEnter}
+              onMouseleave={handleMouseLeave}
             >
               {slots.default?.({
                 isDragOver: isDragOver.value,
@@ -296,20 +284,64 @@ export default defineComponent({
                 fileCount: processedFileCount.value,
                 maxFiles: props.max
               }) || (
-                <div class="py-4 px-4 text-center">
-                  <NIcon size={48} depth={3} class="mb-3">
-                    <CloudUploadOutline />
-                  </NIcon>
-                  <NText class="block text-base">
-                    点击或者拖动文件到该区域来上传
+                <div class="py-8 px-6 text-center">
+                  <div
+                    class="inline-flex items-center justify-center mb-4 transition-all duration-300"
+                    style={getIconStyle()}
+                  >
+                    <NIcon size={56}>
+                      <CloudUploadOutline />
+                    </NIcon>
+                  </div>
+
+                  <NText
+                    class="block text-base font-medium mb-2"
+                    style={{ color: themeVars.value.textColor1 }}
+                  >
+                    {isDragOver.value ? '释放以上传文件' : '点击或拖拽文件到此区域'}
                   </NText>
-                  <NP depth={3} class="mt-2 text-sm">
-                    {processedFileCount.value} / {props.max === Infinity ? '无限制' : props.max}
-                  </NP>
+
+                  <NText
+                    depth={3}
+                    class="block text-sm mb-3"
+                    style={{ color: themeVars.value.textColor3 }}
+                  >
+                    {props.multiple ? '支持单个或批量上传' : '支持单个文件上传'}
+                  </NText>
+
+                  <div
+                    class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium"
+                    style={{
+                      backgroundColor: themeVars.value.buttonColor2,
+                      color: themeVars.value.textColor2
+                    }}
+                  >
+                    <span>已上传: </span>
+                    <span
+                      class="ml-1 font-semibold"
+                      style={{ color: themeVars.value.primaryColor }}
+                    >
+                      {processedFileCount.value}
+                    </span>
+                    <span class="mx-1">/</span>
+                    <span>{props.max === Infinity ? '∞' : props.max}</span>
+                  </div>
+
                   {isProcessing.value && (
-                    <div class="mt-4 flex items-center justify-center space-x-2">
-                      <div class="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                      <NText type="info">处理中...</NText>
+                    <div
+                      class="mt-5 flex items-center justify-center gap-2 px-4 py-2 rounded-lg"
+                      style={{
+                        backgroundColor: `${themeVars.value.primaryColor}10`,
+                        borderLeft: `3px solid ${themeVars.value.primaryColor}`
+                      }}
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin"
+                        style={{ borderColor: themeVars.value.primaryColor }}
+                      />
+                      <NText style={{ color: themeVars.value.primaryColor }}>
+                        正在处理文件...
+                      </NText>
                     </div>
                   )}
                 </div>
@@ -317,30 +349,52 @@ export default defineComponent({
             </div>
 
             {!canAddMore.value && props.max !== Infinity && (
-              <NText depth={3} class="block mt-2 text-xs text-center">
-                已达到最大文件数量限制 ({props.max})
-              </NText>
+              <div
+                class="mt-3 px-3 py-2 rounded-md text-xs text-center"
+                style={{
+                  backgroundColor: `${themeVars.value.warningColor}15`,
+                  color: themeVars.value.warningColor,
+                  border: `1px solid ${themeVars.value.warningColor}40`
+                }}
+              >
+                ⚠️ 已达到最大文件数量限制 ({props.max})
+              </div>
             )}
           </div>
         )
       }
-      
+
       return (
         <div class="inline-block">
           {fileInput}
           <NButton
             onClick={triggerFileSelect}
-            disabled={props.disabled || !canAddMore.value}
+            disabled={isDisabledOrFull.value}
             loading={isProcessing.value}
-            size="small"
+            size="medium"
+            secondary
+            style={{ borderRadius: themeVars.value.borderRadius }}
           >
-            {slots.default?.() || '选择文件'}
+            {slots.default?.() || (
+              <span class="flex items-center gap-2">
+                <NIcon size={18}>
+                  <CloudUploadOutline />
+                </NIcon>
+                <span>选择文件</span>
+              </span>
+            )}
           </NButton>
 
           {!canAddMore.value && props.max !== Infinity && (
-            <NText depth={3} class="block mt-2 text-xs">
-              已达到最大文件数量限制 ({props.max})
-            </NText>
+            <div
+              class="mt-2 px-2 py-1 rounded text-xs inline-block"
+              style={{
+                backgroundColor: `${themeVars.value.warningColor}15`,
+                color: themeVars.value.warningColor
+              }}
+            >
+              已达到限制 ({props.max})
+            </div>
           )}
         </div>
       )
