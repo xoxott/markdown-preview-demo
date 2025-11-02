@@ -2,13 +2,14 @@
  * @Author: yang 212920320@qq.com
  * @Date: 2025-11-02 16:56:55
  * @LastEditors: yang 212920320@qq.com
- * @LastEditTime: 2025-11-02 16:57:08
+ * @LastEditTime: 2025-11-02 20:09:21
  * @FilePath: \markdown-preview-demo\src\components\file-explorer\views\GridView.tsx
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import { defineComponent, computed, PropType } from 'vue'
 import { NIcon, NText, NTag } from 'naive-ui'
-import { formatFileSize } from '@/utils/fileHelpers'
+import { FileItem, ViewConfig } from '../types/file-explorer'
+import { formatFileSize, getFileColor } from '../utils/fileHelpers'
 
 export default defineComponent({
   name: 'GridView',
@@ -38,6 +39,8 @@ export default defineComponent({
       gap: `${gridConfig.value.gap}px`,
       padding: '20px'
     }))
+
+    console.log(props.files,'文件列表');
 
     return () => (
       <div style={gridStyle.value}>

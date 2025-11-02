@@ -2,17 +2,12 @@
  * @Author: yang 212920320@qq.com
  * @Date: 2025-11-02 16:54:00
  * @LastEditors: yang 212920320@qq.com
- * @LastEditTime: 2025-11-02 16:55:44
+ * @LastEditTime: 2025-11-02 20:01:22
  * @FilePath: \markdown-preview-demo\src\components\file-explorer\ViewContainer.tsx
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import { defineComponent, ref, computed, PropType } from 'vue'
 import { NCard } from 'naive-ui'
-// import GridView from './views/GridView'
-// import ListView from './views/ListView'
-// import TileView from './views/TileView'
-// import DetailView from './views/DetailView'
-// import ContentView from './views/ContentView'
 import { FileItem, ViewConfig } from './types/file-explorer'
 import SelectionRect from './interaction/SelectionRect'
 import GridView from './views/GridView'

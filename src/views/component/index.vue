@@ -2,7 +2,7 @@
  * @Author: yang 212920320@qq.com
  * @Date: 2025-11-01 21:48:56
  * @LastEditors: yang 212920320@qq.com
- * @LastEditTime: 2025-11-02 18:09:41
+ * @LastEditTime: 2025-11-02 20:10:12
  * @FilePath: \markdown-preview-demo\src\views\component\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -45,6 +45,8 @@
         </ContextMenu>
       </n-form-item>
     </n-form>
+
+    <ViewContainer :files="files" :view-config="viewConfig"/>
   </n-card>
 </template>
 
@@ -54,9 +56,36 @@ import countdownTimer from '@/components/custom/countdown-timer.vue'
 import editableText from '@/components/custom/editable-text.vue'
 import SelectionRect from '@/components/file-explorer/interaction/SelectionRect'
 import ContextMenu, { ContextMenuItem } from '@/components/file-explorer/interaction/ContextMenu'
+import ViewContainer from '@/components/file-explorer/ViewContainer'
 import { computed } from 'vue'
-import { CopyOutline, CreateOutline, CutOutline, DownloadOutline, InformationCircleOutline, OpenOutline, ShareSocialOutline, StarOutline, TrashOutline } from '@vicons/ionicons5'
+import {
+  CopyOutline,
+  CreateOutline,
+  CutOutline,
+  DownloadOutline,
+  InformationCircleOutline,
+  OpenOutline,
+  ShareSocialOutline,
+  StarOutline,
+  TrashOutline
+} from '@vicons/ionicons5'
+import { FileItem, ViewConfig } from '@/components/file-explorer/types/file-explorer'
 
+const viewConfig:ViewConfig = {
+  mode:'grid',
+  sortField:'name',
+  sortOrder:'desc',
+  // showHidden:true
+}
+
+const files:FileItem[] = [
+ {
+   id:'file-id',
+   name:'file-name',
+   type:'folder',
+   size:128
+ }
+]
 
 const fileMenuOptions = computed<ContextMenuItem[]>(() => {
   const isMultiple = true // 示例中假设为多选状态
