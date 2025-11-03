@@ -40,6 +40,7 @@ export interface FileItem {
   thumbnailUrl?: string
   /** 自定义元数据 */
   metadata?: Record<string, any>
+  color?:string
 }
 /**
  * 文件权限

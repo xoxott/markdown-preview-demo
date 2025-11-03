@@ -1,55 +1,70 @@
 import { defineComponent, PropType } from 'vue'
-import { NIcon, NText, NTag, NSpace } from 'naive-ui'
-import { formatDate, formatFileSize, getFileColor } from '../utils/fileHelpers'
+import FileIcon from '../items/FileIcon'
 import { FileItem } from '../types/file-explorer'
-
 export default defineComponent({
   name: 'TileView',
   props: {
-    files: Array as PropType<FileItem[]>,
-    selectedIds: Array as PropType<string[]>,
-    onFileClick: Function,
-    onFileDblClick: Function
+    items: {
+      type: Array as PropType<FileItem[]>,
+      required: true
+    },
+    selectedIds: {
+      type: Object as PropType<Set<string>>,
+      required: true
+    },
+    onSelect: {
+      type: Function as PropType<(id: string, multi: boolean) => void>,
+      required: true
+    },
+    onOpen: {
+      type: Function as PropType<(item: FileItem) => void>,
+      required: true
+    }
   },
-
   setup(props) {
+    const formatFileSize = (size?: number): string => {
+      if (size == null || size === 0) return ''
+      const units = ['B', 'KB', 'MB', 'GB', 'TB']
+      let num = size
+      let i = 0
+      while (num >= 1024 && i < units.length - 1) {
+        num /= 1024
+        i++
+      }
+      return `${num.toFixed(1)} ${units[i]}`
+    }
+
     return () => (
-      <div class="grid grid-cols-2 gap-4 p-4">
-        {props.files?.map((file) => {
-          const isSelected = props.selectedIds?.includes(file.id)
-          
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 p-4">
+        {props.items.map(item => {
+          const isSelected = props.selectedIds.has(item.id)
           return (
             <div
-              key={file.id}
-              data-selectable-id={file.id}
+              key={item.id}
               class={[
-                'file-tile-item',
-                'flex items-center gap-4 p-4 rounded-lg cursor-pointer',
-                'border-2 border-transparent transition-all',
-                'hover:shadow-md',
-                isSelected && 'selected'
+                'flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all hover:shadow-md border',
+                isSelected
+                  ? 'bg-blue-50 border-blue-300 shadow-md'
+                  : 'bg-white border-gray-200'
               ]}
-              onClick={(e: MouseEvent) => props.onFileClick?.(file.id, e)}
-              onDblclick={(e: MouseEvent) => props.onFileDblClick?.(file.id, e)}
+              onClick={(e: MouseEvent) =>
+                props.onSelect(item.id, e.ctrlKey || e.metaKey)
+              }
+              onDblclick={() => props.onOpen(item)}
             >
-              <NIcon size={48} color={getFileColor(file.type)}>
-                {/* Icon Component */}
-              </NIcon>
-              
+              {/* 图标 */}
+              <FileIcon item={item} size={40} />
+
+              {/* 文件信息 */}
               <div class="flex-1 min-w-0">
-                <NText class="block truncate font-medium">{file.name}</NText>
-                <NSpace size="small" class="mt-1">
-                  {file.size && (
-                    <NText depth={3} class="text-xs">
-                      {formatFileSize(file.size)}
-                    </NText>
-                  )}
-                  {file.dateModified && (
-                    <NText depth={3} class="text-xs">
-                      {formatDate(file.dateModified)}
-                    </NText>
-                  )}
-                </NSpace>
+                <div class="text-sm font-medium text-gray-900 truncate flex items-center gap-1">
+                  {item.name}
+                </div>
+                <div class="text-xs text-gray-500 mt-1">
+                  {item.type === 'folder'
+                    ? '文件夹'
+                    : formatFileSize(item.size)}
+                </div>
               </div>
             </div>
           )

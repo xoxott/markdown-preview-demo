@@ -1,55 +1,71 @@
-/*
- * @Author: yang 212920320@qq.com
- * @Date: 2025-11-02 16:57:20
- * @LastEditors: yang 212920320@qq.com
- * @LastEditTime: 2025-11-02 16:57:52
- * @FilePath: \markdown-preview-demo\src\components\file-explorer\views\ListView.tsx
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
 import { defineComponent, PropType } from 'vue'
-import { NIcon, NText, NTag } from 'naive-ui'
-import { FileItem, ViewConfig } from '../types/file-explorer'
-import { formatFileSize, getFileColor } from '../utils/fileHelpers'
+import { FileItem } from '../types/file-explorer'
+import FileIcon from '../items/FileIcon'
 
 export default defineComponent({
   name: 'ListView',
   props: {
-    files: Array as PropType<FileItem[]>,
-    viewConfig: Object as PropType<ViewConfig>,
-    selectedIds: Array as PropType<string[]>,
-    onFileClick: Function,
-    onFileDblClick: Function
+    items: {
+      type: Array as PropType<FileItem[]>,
+      required: true
+    },
+    selectedIds: {
+      type: Object as PropType<Set<string>>,
+      required: true
+    },
+    onSelect: {
+      type: Function as PropType<(id: string, multi: boolean) => void>,
+      required: true
+    },
+    onOpen: {
+      type: Function as PropType<(item: FileItem) => void>,
+      required: true
+    }
   },
-
   setup(props) {
+    // 文件大小格式化函数
+    const formatFileSize = (size?: number): string => {
+      if (size == null || size === 0) return ''
+      const units = ['B', 'KB', 'MB', 'GB', 'TB']
+      let i = 0
+      let num = size
+      while (num >= 1024 && i < units.length - 1) {
+        num /= 1024
+        i++
+      }
+      return `${num.toFixed(1)} ${units[i]}`
+    }
+
     return () => (
-      <div class="space-y-1 p-4">
-        {props.files?.map((file) => {
-          const isSelected = props.selectedIds?.includes(file.id)
-          
+      <div class="flex flex-col">
+        {props.items.map(item => {
+          const isSelected = props.selectedIds.has(item.id)
           return (
             <div
-              key={file.id}
-              data-selectable-id={file.id}
+              key={item.id}
               class={[
-                'file-list-item',
-                'flex items-center gap-4 p-3 rounded-lg cursor-pointer',
-                'border-2 border-transparent transition-all',
-                'hover:shadow-md',
-                isSelected && 'selected'
+                'group flex items-center gap-3 px-4 py-2 cursor-pointer transition-colors hover:bg-gray-50',
+                isSelected ? 'bg-blue-50 border-l-2 border-blue-500' : ''
               ]}
-              onClick={(e: MouseEvent) => props.onFileClick?.(file.id, e)}
-              onDblclick={(e: MouseEvent) => props.onFileDblClick?.(file.id, e)}
+              onClick={(e: MouseEvent) =>
+                props.onSelect(item.id, e.ctrlKey || e.metaKey)
+              }
+              onDblclick={() => props.onOpen(item)}
             >
-              <NIcon size={32} color={getFileColor(file.type)}>
-                {/* Icon Component */}
-              </NIcon>
-              
-              <NText class="flex-1">{file.name}</NText>
-              
-              {file.size && (
-                <NTag type="info">{formatFileSize(file.size)}</NTag>
-              )}
+              {/* 图标 */}
+              <FileIcon item={item} size={20} showThumbnail={false} />
+
+              {/* 文件名 */}
+              <div class="flex-1 text-sm text-gray-700 truncate">
+                {item.name}
+              </div>
+
+              {/* 文件大小 */}
+              {item.type === 'file' ? (
+                <div class="text-xs text-gray-500 flex-shrink-0 w-20 text-right">
+                  {formatFileSize(item.size)}
+                </div>
+              ) : null}
             </div>
           )
         })}

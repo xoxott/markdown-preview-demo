@@ -21,6 +21,7 @@ declare module 'vue' {
     EchartsRender: typeof import('./../components/markdown/modules/echarts-render.vue')['default']
     EditableText: typeof import('./../components/custom/editable-text.vue')['default']
     ExceptionBase: typeof import('./../components/common/exception-base.vue')['default']
+    FileIcon: typeof import('./../components/file-explorer/items/FileIcon.vue')['default']
     FullScreen: typeof import('./../components/common/full-screen.vue')['default']
     IconAntDesignEnterOutlined: typeof import('~icons/ant-design/enter-outlined')['default']
     IconAntDesignReloadOutlined: typeof import('~icons/ant-design/reload-outlined')['default']
