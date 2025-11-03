@@ -16,6 +16,8 @@ declare module 'vue' {
     CountTo: typeof import('./../components/custom/count-to.vue')['default']
     DarkModeContainer: typeof import('./../components/common/dark-mode-container.vue')['default']
     Docviewer: typeof import('./../components/docviewer/index.vue')['default']
+    DragPreview: typeof import('./../components/file-explorer/interaction/DragPreview.vue')['default']
+    DropZone: typeof import('./../components/file-explorer/interaction/DropZone.vue')['default']
     EchartsRender: typeof import('./../components/markdown/modules/echarts-render.vue')['default']
     EditableText: typeof import('./../components/custom/editable-text.vue')['default']
     ExceptionBase: typeof import('./../components/common/exception-base.vue')['default']

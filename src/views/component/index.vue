@@ -46,18 +46,44 @@
       </n-form-item>
     </n-form>
 
-    <ViewContainer :files="files" :view-config="viewConfig"/>
+    <!-- <ViewContainer :files="files" :view-config="viewConfig"/> -->
+    <!-- <div @dragover="handleDragMove" @dragend="endDrag">
+      <div v-for="file in files" :key="file.id" draggable="true" @dragstart="handleDragStart(file, $event)">
+        {{ file.name }}
+      </div>
+
+      <div class="flex gap-2">
+         <DropZone class="flex" v-for="folder in folders" :key="folder.id" :zone-id="folder.id" :target-path="folder.path || 'xxx'"
+        :is-over="getDropZoneState(folder.id)?.isOver" :can-drop="getDropZoneState(folder.id)?.canDrop" as-folder-zone
+        @drag-enter="enterDropZone(folder.id, folder.path || 'xxx')" @drag-leave="leaveDropZone(folder.id)"
+        @drop="handleDrop(folder.id)">
+        <div class="p-4 mt-4 border-2 rounded-lg"
+          :class="getDropZoneState(folder.id)?.isOver
+            ? getDropZoneState(folder.id)?.canDrop
+              ? 'border-green-500 bg-green-50'
+              : 'border-red-500 bg-red-50'
+            : 'border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-600'">
+          {{ folder.name }}
+        </div>
+      </DropZone>
+      </div>
+      <DragPreview :items="dragState.draggedItems" :is-dragging="isDragging" :drag-start-pos="dragState.dragStartPos"
+        :drag-current-pos="dragState.dragCurrentPos" :operation="dragOperation" />
+    </div> -->
+
+  <test/>
   </n-card>
 </template>
 
 <script lang="ts" setup>
-import customUpload from '@/components/CustomUpload'
+import customUpload from '@/components/custom-upload'
 import countdownTimer from '@/components/custom/countdown-timer.vue'
 import editableText from '@/components/custom/editable-text.vue'
 import SelectionRect from '@/components/file-explorer/interaction/SelectionRect'
 import ContextMenu, { ContextMenuItem } from '@/components/file-explorer/interaction/ContextMenu'
 import ViewContainer from '@/components/file-explorer/ViewContainer'
-import { computed } from 'vue'
+import test from './test.vue'
+import { computed, ref } from 'vue'
 import {
   CopyOutline,
   CreateOutline,
@@ -70,22 +96,91 @@ import {
   TrashOutline
 } from '@vicons/ionicons5'
 import { FileItem, ViewConfig } from '@/components/file-explorer/types/file-explorer'
+import { useFileDragDrop } from '@/components/file-explorer/hooks/useFileDragDrop'
+const files = ref<FileItem[]>([
+  {
+    id: 'file-id',
+    name: 'file-name',
+    type: 'folder',
+    size: 128
+  },
+  {
+    id: 'file-id-2',
+    name: 'file-name-2',
+    type: 'file',
+    size: 256
+  }
+])
 
-const viewConfig:ViewConfig = {
-  mode:'grid',
-  sortField:'name',
-  sortOrder:'desc',
+const folders = ref<FileItem[]>([
+  {
+    id: 'folder-1',
+    name: 'Documents',
+    type: 'folder',
+    path:'/Users/username/Documents'
+  },
+   {
+    id: 'folder-2',
+    name: 'Documents',
+    type: 'file',
+    path:'/Users/username/Documents'
+  }
+])
+
+
+const selectedFiles = ref<Set<string>>(new Set())
+const {
+  getDropZoneState,
+  enterDropZone,
+  leaveDropZone,
+  startDrag,
+  updateDragPosition,
+  updateDragOperation,
+  executeDrop,
+  endDrag,
+  dragState,
+  isDragging,
+  dragOperation
+} = useFileDragDrop({
+  onMove: async (items, targetPath) => {
+    // API 调用：移动文件
+    console.log(items, targetPath);
+  },
+  onCopy: async (items, targetPath) => {
+    // API 调用：复制文件
+    console.log(items, targetPath);
+  }
+})
+
+// 开始拖拽
+const handleDragStart = (file: FileItem, event: DragEvent) => {
+  const itemsToDrag = selectedFiles.value.has(file.id)
+    ? files.value.filter(f => selectedFiles.value.has(f.id))
+    : [file]
+
+  startDrag(itemsToDrag, event)
+}
+
+// 拖拽移动时更新位置和操作类型
+const handleDragMove = (event: DragEvent) => {
+  updateDragPosition(event)
+  updateDragOperation(event)
+}
+
+// 处理放置
+const handleDrop = async (zoneId: string) => {
+  await executeDrop(zoneId)
+  selectedFiles.value.clear()
+}
+
+const viewConfig: ViewConfig = {
+  mode: 'content',
+  sortField: 'name',
+  sortOrder: 'desc',
   // showHidden:true
 }
 
-const files:FileItem[] = [
- {
-   id:'file-id',
-   name:'file-name',
-   type:'folder',
-   size:128
- }
-]
+
 
 const fileMenuOptions = computed<ContextMenuItem[]>(() => {
   const isMultiple = true // 示例中假设为多选状态

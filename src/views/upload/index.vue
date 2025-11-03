@@ -237,7 +237,7 @@ import { CONSTANTS } from '@/hooks/upload/constants';
 import UploadFileItem from './components/UploadFileItem.vue';
 import UploadListSection from './components/UploadListSection.vue';
 import { useDrawer } from '@/hooks/customer/useDrawer/index';
-import CustomUpload, { CustomUploadFileInfo } from '@/components/CustomUpload';
+import CustomUpload, { CustomUploadFileInfo } from '@/components/custom-upload';
 const drawer = useDrawer();
 const themeVars = useThemeVars();
 const message = useMessage();
