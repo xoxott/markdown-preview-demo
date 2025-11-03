@@ -46,13 +46,10 @@
       </n-form-item>
     </n-form>
 
-    <ViewContainer 
-      :items="mockItems" 
-      viewMode="list" 
-      :selectedIds="selectedIds"
-     @select="handleSelect" 
-     @open="handleOpen" 
-     />
+    <SelectionRect>
+      <ViewContainer :items="sortedFiles" :viewMode="viewMode" :selectedIds="selectedIds" @select="handleSelect"
+        @open="handleOpen" :gridSize="gridSize" @sort="handleSort" :sort-field="sortField" :sort-order="sortOrder" />
+    </SelectionRect>
     <!-- <div @dragover="handleDragMove" @dragend="endDrag">
       <div v-for="file in files" :key="file.id" draggable="true" @dragstart="handleDragStart(file, $event)">
         {{ file.name }}
@@ -77,7 +74,7 @@
         :drag-current-pos="dragState.dragCurrentPos" :operation="dragOperation" />
     </div> -->
 
-  <!-- <test/> -->
+    <!-- <test/> -->
   </n-card>
 </template>
 
@@ -88,7 +85,6 @@ import editableText from '@/components/custom/editable-text.vue'
 import SelectionRect from '@/components/file-explorer/interaction/SelectionRect'
 import ContextMenu, { ContextMenuItem } from '@/components/file-explorer/interaction/ContextMenu'
 import ViewContainer from '@/components/file-explorer/container/ViewContainer'
-import test from './test.vue'
 import { computed, ref } from 'vue'
 import {
   CopyOutline,
@@ -101,31 +97,37 @@ import {
   StarOutline,
   TrashOutline
 } from '@vicons/ionicons5'
-import { FileItem, ViewConfig } from '@/components/file-explorer/types/file-explorer'
+import { FileItem, GridSize, SortField, SortOrder, ViewMode } from '@/components/file-explorer/types/file-explorer'
 import { useFileDragDrop } from '@/components/file-explorer/hooks/useFileDragDrop'
-const mockItems: FileItem[] = [
-  { id: '1', name: '项目文档', type: 'folder', size: 0,  modifiedAt: new Date(2025, 10, 1),createdAt: new Date(2025, 9, 1)},
+import { useFileSort } from '@/components/file-explorer/hooks/useFileSort'
+const gridSize = ref<GridSize>('small')
+const viewMode = ref<ViewMode>('tile')
+const mockItems = ref<FileItem[]>([
+  { id: '1', name: '项目文档', type: 'folder', size: 0, modifiedAt: new Date(2025, 10, 1), createdAt: new Date(2025, 9, 1) },
   { id: '2', name: '设计稿.fig', type: 'file', size: 2457600, extension: 'fig', modifiedAt: new Date(2025, 10, 2), createdAt: new Date(2025, 10, 2) },
   { id: '3', name: 'banner.png', type: 'file', size: 1024000, extension: 'png', modifiedAt: new Date(2025, 10, 3), createdAt: new Date(2025, 10, 3), thumbnailUrl: 'https://via.placeholder.com/150/3b82f6' },
   { id: '4', name: '代码库', type: 'folder', size: 0, modifiedAt: new Date(2025, 9, 15), createdAt: new Date(2025, 8, 1) },
-  { id: '5', name: 'presentation.pptx', type: 'file', size: 5242880, extension: 'pptx', modifiedAt: new Date(2025, 10, 1), createdAt: new Date(2025, 10, 1)},
+  { id: '5', name: 'presentation.pptx', type: 'file', size: 5242880, extension: 'pptx', modifiedAt: new Date(2025, 10, 1), createdAt: new Date(2025, 10, 1) },
   { id: '6', name: 'video-demo.mp4', type: 'file', size: 15728640, extension: 'mp4', modifiedAt: new Date(2025, 9, 28), createdAt: new Date(2025, 9, 28), thumbnailUrl: 'https://via.placeholder.com/150/ec4899' },
   { id: '7', name: 'music.mp3', type: 'file', size: 3145728, extension: 'mp3', modifiedAt: new Date(2025, 10, 2), createdAt: new Date(2025, 10, 2) },
   { id: '8', name: 'script.js', type: 'file', size: 8192, extension: 'js', modifiedAt: new Date(2025, 10, 3), createdAt: new Date(2025, 10, 3) },
-];
+]);
+const { setSorting, sortedFiles, sortOrder, sortField } = useFileSort(mockItems)
+
+
 
 const folders = ref<FileItem[]>([
   {
     id: 'folder-1',
     name: 'Documents',
     type: 'folder',
-    path:'/Users/username/Documents'
+    path: '/Users/username/Documents'
   },
-   {
+  {
     id: 'folder-2',
     name: 'Documents',
     type: 'file',
-    path:'/Users/username/Documents'
+    path: '/Users/username/Documents'
   }
 ])
 
@@ -175,15 +177,6 @@ const handleDrop = async (zoneId: string) => {
   await executeDrop(zoneId)
   selectedFiles.value.clear()
 }
-
-const viewConfig: ViewConfig = {
-  mode: 'content',
-  sortField: 'name',
-  sortOrder: 'desc',
-  // showHidden:true
-}
-
-
 
 const fileMenuOptions = computed<ContextMenuItem[]>(() => {
   const isMultiple = true // 示例中假设为多选状态
@@ -309,9 +302,14 @@ const handleChange = (files: File[]) => {
 
 const handleSelect = (key: string) => {
   console.log('选择的菜单项:', key)
+  // selectedIds.value.add(key)
 }
 
 const handleOpen = (file: FileItem) => {
   console.log('打开文件:', file)
+}
+
+const handleSort = (field: string) => {
+  setSorting(field as SortField)
 }
 </script>

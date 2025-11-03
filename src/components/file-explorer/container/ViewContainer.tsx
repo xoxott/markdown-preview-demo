@@ -2,14 +2,11 @@ import { defineComponent, PropType } from 'vue'
 import GridView from '../views/GridView'
 import TileView from '../views/TileView'
 import DetailView from '../views/DetailView'
-import { FileItem } from '../types/file-explorer'
+import { FileItem, GridSize, SortField, SortOrder, ViewMode } from '../types/file-explorer'
 import ListView from '../views/ListView'
 import ContentView from '../views/ContentView'
 
-type ViewMode = 'grid' | 'list' | 'tile' | 'detail' | 'content'
-type GridSize = 'small' | 'medium' | 'large' | 'extra-large'
-type SortField = 'name' | 'modified' | 'type' | 'size'
-type SortOrder = 'asc' | 'desc'
+
 
 
 export default defineComponent({

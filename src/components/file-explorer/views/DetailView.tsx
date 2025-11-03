@@ -1,12 +1,10 @@
 import { defineComponent, PropType } from 'vue'
-import { FileItem } from '../types/file-explorer'
-import { ChevronDown, ChevronUp } from '@vicons/tabler' 
+import { FileItem, SortField, SortOrder } from '../types/file-explorer'
+import { ChevronDown, ChevronUp } from '@vicons/tabler'
 import FileIcon from '../items/FileIcon'
 import { EllipsisVerticalOutline } from '@vicons/ionicons5'
 import { NIcon } from 'naive-ui'
 
-type SortField = 'name' | 'modified' | 'type' | 'size'
-type SortOrder = 'asc' | 'desc'
 
 export default defineComponent({
   name: 'DetailView',
@@ -49,7 +47,7 @@ export default defineComponent({
         >
           <div class="flex items-center gap-1">
             {label}
-            {props.sortField === field ? <SortIconComp/> : null}
+            {props.sortField === field ? <NIcon><SortIconComp /></NIcon> : null}
           </div>
         </th>
       )
@@ -60,12 +58,10 @@ export default defineComponent({
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50 sticky top-0 z-10">
             <tr>
-              <th class="px-4 py-3 w-8"></th>
               {SortHeader('name', '名称')}
-              {SortHeader('modified', '修改时间')}
+              {SortHeader('modifiedAt', '修改时间')}
               {SortHeader('type', '类型')}
               {SortHeader('size', '大小')}
-              <th class="px-4 py-3 w-8"></th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
@@ -83,15 +79,6 @@ export default defineComponent({
                   }
                   onDblclick={() => props.onOpen(item)}
                 >
-                  {/* 选择框 */}
-                  {/* <td class="px-4 py-3">
-                    {isSelected ? (
-                      <CheckSquare size={16} class="text-blue-600" />
-                    ) : (
-                      <Square size={16} class="text-gray-400" />
-                    )}
-                  </td> */}
-
                   {/* 名称 */}
                   <td class="px-4 py-3">
                     <div class="flex items-center gap-3">
@@ -115,13 +102,6 @@ export default defineComponent({
                   {/* 大小 */}
                   <td class="px-4 py-3 text-sm text-gray-500">
                     {item.type === 'file' ? formatFileSize(item.size) : '-'}
-                  </td>
-
-                  {/* 操作 */}
-                  <td class="px-4 py-3">
-                    <button class="p-1 hover:bg-gray-200 rounded transition-colors">
-                        <NIcon component={EllipsisVerticalOutline} size={16} class="text-gray-400" />
-                    </button>
                   </td>
                 </tr>
               )

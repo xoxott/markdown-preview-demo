@@ -6,10 +6,11 @@
  * @FilePath: \markdown-preview-demo\src\components\file-explorer\types\file-explorer.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
-export type ViewMode = 'grid' | 'list' | 'tile' | 'detail' | 'content'
 export type IconSize = 'extra-large' | 'large' | 'medium' | 'small'
-export type SortField = 'name' | 'size' | 'type' | 'modifiedAt' | 'createdAt'
 export type SortOrder = 'asc' | 'desc'
+export type ViewMode = 'grid' | 'list' | 'tile' | 'detail' | 'content'
+export type GridSize = 'small' | 'medium' | 'large' | 'extra-large'
+export type SortField = 'name' | 'modifiedAt' | 'type' | 'size' | 'createdAt'
 /**
  * 文件项接口
  */
@@ -40,7 +41,7 @@ export interface FileItem {
   thumbnailUrl?: string
   /** 自定义元数据 */
   metadata?: Record<string, any>
-  color?:string
+  color?: string
 }
 /**
  * 文件权限
@@ -287,15 +288,6 @@ export interface DragDropContext {
   progress?: TransferProgress
   /** 配置选项 */
   options: DragDropOptions
-}
-
-export interface ViewConfig {
-  mode: ViewMode
-  iconSize?: IconSize
-  sortField: SortField
-  sortOrder: SortOrder
-  showHidden?: boolean
-  gridColumns?: number
 }
 
 export interface SelectionState {

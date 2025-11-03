@@ -31,8 +31,8 @@ export function useFileSort(files: Ref<FileItem[]>) {
         case 'type':
           comparison = (a.type || '').localeCompare(b.type || '')
           break
-        case 'dateModified':
-          comparison = (a.dateModified?.getTime() || 0) - (b.dateModified?.getTime() || 0)
+        case 'modifiedAt':
+          comparison = (a.modifiedAt?.getTime() || 0) - (b.modifiedAt?.getTime() || 0)
           break
       }
 

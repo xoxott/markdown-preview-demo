@@ -57,7 +57,6 @@ export default defineComponent({
 
           {item.type === 'folder' && (
             <div
-              class="absolute inset-0 opacity-20 rounded pointer-events-none"
               style={{ background: color }}
             />
           )}
