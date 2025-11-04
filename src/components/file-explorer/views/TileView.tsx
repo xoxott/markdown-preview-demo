@@ -2,7 +2,7 @@ import { defineComponent, PropType } from 'vue'
 import FileIcon from '../items/FileIcon'
 import { FileItem } from '../types/file-explorer'
 import { formatFileSize } from '../utils/fileHelpers'
-import { NCard, NText, NThing, useThemeVars } from 'naive-ui'
+import { NText, useThemeVars } from 'naive-ui'
 
 export default defineComponent({
   name: 'TileView',
@@ -27,6 +27,20 @@ export default defineComponent({
   setup(props) {
     const themeVars = useThemeVars()
 
+    const handleMouseEnter = (e: MouseEvent, isSelected: boolean) => {
+      if (!isSelected) {
+        (e.currentTarget as HTMLElement).style.backgroundColor =
+          themeVars.value.hoverColor
+      }
+    }
+
+    const handleMouseLeave = (e: MouseEvent, isSelected: boolean) => {
+      if (!isSelected) {
+        (e.currentTarget as HTMLElement).style.backgroundColor =
+          themeVars.value.cardColor
+      }
+    }
+
     return () => (
       <div
         class="grid gap-1 p-4"
@@ -40,79 +54,56 @@ export default defineComponent({
           return (
             <div
               key={item.id}
-              class={[
-                'rounded-lg transition-colors duration-150 cursor-pointer select-none',
-                'hover:bg-opacity-80'
-              ]}
+              class="rounded-lg transition-colors duration-150 cursor-pointer select-none p-2"
               style={{
                 backgroundColor: isSelected
                   ? `${themeVars.value.primaryColorHover}20`
                   : themeVars.value.cardColor
               }}
-              onMouseenter={e => {
-                if (!isSelected)
-                  (e.currentTarget as HTMLElement).style.backgroundColor =
-                    themeVars.value.hoverColor
-              }}
-              onMouseleave={e => {
-                if (!isSelected)
-                  (e.currentTarget as HTMLElement).style.backgroundColor =
-                    themeVars.value.cardColor
-              }}
+              onMouseenter={e => handleMouseEnter(e, isSelected)}
+              onMouseleave={e => handleMouseLeave(e, isSelected)}
               onClick={(e: MouseEvent) =>
                 props.onSelect(item.id, e.ctrlKey || e.metaKey)
               }
               onDblclick={() => props.onOpen(item)}
             >
-              <NCard
-                size="small"
-                bordered={false}
-                contentStyle={{
-                  padding: '6px'
-                }}
-                style={{
-                  backgroundColor: 'transparent'
-                }}
-              >
-                <NThing>
-                  {{
-                    avatar: () => (
-                      <div class="flex items-start gap-2">
-                        <FileIcon item={item} size={48} />
-                        <div class="flex flex-col justify-start gap-1">
-                          <NText
-                            strong
-                            class="truncate"
-                            style={{
-                              color: isSelected
-                                ? themeVars.value.primaryColor
-                                : themeVars.value.textColorBase
-                            }}
-                          >
-                            {item.name}
-                          </NText>
+              <div class="flex items-start gap-2">
+                {/* 图标 */}
+                <FileIcon item={item} size={48} />
 
-                          {item.type === 'folder' || item.size ? (
-                            <NText
-                              depth={3}
-                              class="truncate text-xs"
-                              style={{
-                                color: isSelected
-                                  ? themeVars.value.primaryColor
-                                  : themeVars.value.textColor3
-                              }}
-                            >
-                              {item.type === 'folder'
-                                ? '文件夹'
-                                : formatFileSize(item.size) || ''}
-                            </NText>
-                          ) : null}
-                        </div>
-                      </div>
-                    )
-                  }}
-                </NThing>
-              </NCard>
+                {/* 文件信息 */}
+                <div class="flex flex-col justify-start gap-1 min-w-0 flex-1">
+                  {/* 文件名 */}
+                  <NText
+                    strong
+                    class="truncate"
+                    style={{
+                      color: isSelected
+                        ? themeVars.value.primaryColor
+                        : themeVars.value.textColorBase
+                    }}
+                  >
+                    {item.name}
+                  </NText>
+
+                  {/* 文件大小/类型 */}
+                  {(item.type === 'folder' || item.size) && (
+                    <NText
+                      depth={3}
+                      class="text-xs"
+                      style={{
+                        color: isSelected
+                          ? themeVars.value.primaryColor
+                          : themeVars.value.textColor3
+                      }}
+                    >
+                      {item.type === 'folder'
+                        ? '文件夹'
+                        : formatFileSize(item.size)}
+                    </NText>
+                  )}
+                </div>
+              </div>
             </div>
           )
         })}

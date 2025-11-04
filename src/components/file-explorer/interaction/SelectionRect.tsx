@@ -1,5 +1,6 @@
-import { defineComponent, ref, reactive, computed, PropType, CSSProperties } from 'vue'
+import { defineComponent, ref, computed, PropType, CSSProperties } from 'vue'
 import { useEventListener, useThrottleFn } from '@vueuse/core'
+import { useThemeVars } from 'naive-ui'
 
 interface Point {
   x: number
@@ -11,19 +12,6 @@ interface Rect {
   top: number
   width: number
   height: number
-}
-
-interface SelectionOptions {
-  /** 是否禁用圈选 */
-  disabled?: boolean
-  /** 触发圈选的最小拖动距离（px） */
-  threshold?: number
-  /** 是否自动滚动（当拖到边缘时） */
-  autoScroll?: boolean
-  /** 自动滚动速度 */
-  scrollSpeed?: number
-  /** 自动滚动触发边距（px） */
-  scrollEdge?: number
 }
 
 export default defineComponent({
@@ -50,6 +38,7 @@ export default defineComponent({
   },
 
   setup(props, { slots }) {
+    const themeVars = useThemeVars()
     const containerRef = ref<HTMLDivElement>()
     const isSelecting = ref(false)
     const isMouseDown = ref(false)
@@ -262,6 +251,72 @@ export default defineComponent({
       if (isSelecting.value) e.preventDefault()
     })
 
+    // 动态生成样式（响应主题变化）
+    const dynamicStyles = computed(() => {
+      const primaryColor = themeVars.value.primaryColor
+      const primaryColorHover = themeVars.value.primaryColorHover
+      
+      return `
+        .selection-container {
+          position: relative;
+          user-select: none;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+        }
+
+        .selection-rect {
+          position: absolute;
+          pointer-events: none;
+          z-index: 9999;
+          border: 2px solid ${primaryColor};
+          background: ${primaryColorHover}14;
+          border-radius: 4px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+          transition: none;
+        }
+
+        .selection-rect-border {
+          position: absolute;
+          inset: -1px;
+          border: 1px solid ${primaryColorHover}66;
+          border-radius: 4px;
+          animation: selection-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes selection-pulse {
+          0%, 100% {
+            opacity: 0.6;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(0.98);
+          }
+        }
+
+        /* 被圈选中的元素样式 */
+        .selection-active {
+          outline: 2px solid ${primaryColor} !important;
+          outline-offset: 2px;
+          background: ${primaryColorHover}0D !important;
+          box-shadow: 0 2px 12px ${primaryColorHover}33 !important;
+          z-index: 1;
+          position: relative;
+        }
+
+        /* 性能优化 */
+        .selection-container * {
+          pointer-events: auto;
+        }
+
+        .selection-rect,
+        .selection-rect * {
+          pointer-events: none !important;
+        }
+      `
+    })
+
     return () => (
       <div
         ref={containerRef}
@@ -286,83 +341,8 @@ export default defineComponent({
           </div>
         )}
 
-        {/* 注入样式 */}
-        <style>{`
-          .selection-container {
-            position: relative;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-          }
-
-          .selection-rect {
-            position: absolute;
-            pointer-events: none;
-            z-index: 9999;
-            border: 2px solid var(--n-color-primary, #18a058);
-            background: color-mix(in srgb, var(--n-color-primary, #18a058) 8%, transparent);
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            transition: none;
-          }
-
-          .selection-rect-border {
-            position: absolute;
-            inset: -1px;
-            border: 1px solid color-mix(in srgb, var(--n-color-primary, #18a058) 40%, transparent);
-            border-radius: 4px;
-            animation: selection-pulse 1.5s ease-in-out infinite;
-          }
-
-          @keyframes selection-pulse {
-            0%, 100% {
-              opacity: 0.6;
-              transform: scale(1);
-            }
-            50% {
-              opacity: 1;
-              transform: scale(0.98);
-            }
-          }
-
-          /* 被圈选中的元素样式 */
-          .selection-active {
-            outline: 2px solid var(--n-color-primary, #18a058) !important;
-            outline-offset: 2px;
-            background: color-mix(in srgb, var(--n-color-primary, #18a058) 5%, transparent) !important;
-            box-shadow: 0 2px 12px color-mix(in srgb, var(--n-color-primary, #18a058) 20%, transparent) !important;
-            z-index: 1;
-            position: relative;
-          }
-
-          /* 暗色主题适配 */
-          .n-config-provider[theme-mode="dark"] .selection-rect {
-            border-color: var(--n-color-primary, #63e2b7);
-            background: color-mix(in srgb, var(--n-color-primary, #63e2b7) 12%, transparent);
-            box-shadow: 0 2px 12px rgba(99, 226, 183, 0.15);
-          }
-
-          .n-config-provider[theme-mode="dark"] .selection-rect-border {
-            border-color: color-mix(in srgb, var(--n-color-primary, #63e2b7) 50%, transparent);
-          }
-
-          .n-config-provider[theme-mode="dark"] .selection-active {
-            outline-color: var(--n-color-primary, #63e2b7) !important;
-            background: color-mix(in srgb, var(--n-color-primary, #63e2b7) 8%, transparent) !important;
-            box-shadow: 0 2px 12px color-mix(in srgb, var(--n-color-primary, #63e2b7) 25%, transparent) !important;
-          }
-
-          /* 性能优化 */
-          .selection-container * {
-            pointer-events: auto;
-          }
-
-          .selection-rect,
-          .selection-rect * {
-            pointer-events: none !important;
-          }
-        `}</style>
+        {/* 动态注入样式 */}
+        <style>{dynamicStyles.value}</style>
       </div>
     )
   }

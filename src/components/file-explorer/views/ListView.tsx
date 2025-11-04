@@ -1,6 +1,7 @@
 import { defineComponent, PropType } from 'vue'
 import { FileItem } from '../types/file-explorer'
 import FileIcon from '../items/FileIcon'
+import { useThemeVars } from 'naive-ui'
 
 export default defineComponent({
   name: 'ListView',
@@ -23,6 +24,8 @@ export default defineComponent({
     }
   },
   setup(props) {
+    const themeVars = useThemeVars()
+
     // 文件大小格式化函数
     const formatFileSize = (size?: number): string => {
       if (size == null || size === 0) return ''
@@ -37,16 +40,38 @@ export default defineComponent({
     }
 
     return () => (
-      <div class="flex flex-col">
+      <div 
+        class="flex flex-col"
+        style={{
+          backgroundColor: themeVars.value.bodyColor
+        }}
+      >
         {props.items.map(item => {
           const isSelected = props.selectedIds.has(item.id)
           return (
             <div
               key={item.id}
-              class={[
-                'group flex items-center gap-3 px-4 py-2 cursor-pointer transition-colors hover:bg-gray-50',
-                isSelected ? 'bg-blue-50 border-l-2 border-blue-500' : ''
-              ]}
+              class="group flex items-center gap-3 px-4 py-2 cursor-pointer transition-colors select-none"
+              style={{
+                backgroundColor: isSelected
+                  ? `${themeVars.value.primaryColorHover}20`
+                  : themeVars.value.cardColor,
+                borderLeft: isSelected
+                  ? `2px solid ${themeVars.value.primaryColor}`
+                  : '2px solid transparent'
+              }}
+              onMouseenter={(e: MouseEvent) => {
+                if (!isSelected) {
+                  (e.currentTarget as HTMLElement).style.backgroundColor =
+                    themeVars.value.hoverColor
+                }
+              }}
+              onMouseleave={(e: MouseEvent) => {
+                if (!isSelected) {
+                  (e.currentTarget as HTMLElement).style.backgroundColor =
+                    themeVars.value.cardColor
+                }
+              }}
               onClick={(e: MouseEvent) =>
                 props.onSelect(item.id, e.ctrlKey || e.metaKey)
               }
@@ -56,16 +81,30 @@ export default defineComponent({
               <FileIcon item={item} size={20} showThumbnail={false} />
 
               {/* 文件名 */}
-              <div class="flex-1 text-sm text-gray-700 truncate">
+              <div 
+                class="flex-1 text-sm truncate"
+                style={{
+                  color: isSelected
+                    ? themeVars.value.primaryColor
+                    : themeVars.value.textColorBase
+                }}
+              >
                 {item.name}
               </div>
 
               {/* 文件大小 */}
-              {item.type === 'file' ? (
-                <div class="text-xs text-gray-500 flex-shrink-0 w-20 text-right">
+              {item.type === 'file' && (
+                <div 
+                  class="text-xs flex-shrink-0 w-20 text-right"
+                  style={{
+                    color: isSelected
+                      ? themeVars.value.primaryColor
+                      : themeVars.value.textColor3
+                  }}
+                >
                   {formatFileSize(item.size)}
                 </div>
-              ) : null}
+              )}
             </div>
           )
         })}

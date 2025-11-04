@@ -1,10 +1,8 @@
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, PropType, ref } from 'vue'
 import { FileItem, SortField, SortOrder } from '../types/file-explorer'
 import { ChevronDown, ChevronUp } from '@vicons/tabler'
 import FileIcon from '../items/FileIcon'
-import { EllipsisVerticalOutline } from '@vicons/ionicons5'
-import { NIcon } from 'naive-ui'
-
+import { NIcon, useThemeVars } from 'naive-ui'
 
 export default defineComponent({
   name: 'DetailView',
@@ -18,6 +16,9 @@ export default defineComponent({
     onSort: { type: Function as PropType<(field: SortField) => void>, required: true }
   },
   setup(props) {
+    const themeVars = useThemeVars()
+    const hoveredHeader = ref<SortField | null>(null)
+
     const formatFileSize = (size?: number): string => {
       if (!size) return ''
       const units = ['B', 'KB', 'MB', 'GB', 'TB']
@@ -40,23 +41,53 @@ export default defineComponent({
 
     const SortHeader = (field: SortField, label: string) => {
       const SortIconComp = getSortIcon()
+      const isActive = props.sortField === field
+      const isHovered = hoveredHeader.value === field
+
       return (
         <th
-          class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+          class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors select-none"
+          style={{
+            color: themeVars.value.textColor2,
+            backgroundColor: themeVars.value.tableHeaderColor
+          }}
+          onMouseenter={() => hoveredHeader.value = field}
+          onMouseleave={() => hoveredHeader.value = null}
           onClick={() => props.onSort(field)}
         >
           <div class="flex items-center gap-1">
-            {label}
-            {props.sortField === field ? <NIcon><SortIconComp /></NIcon> : null}
+            <span>{label}</span>
+            {/* 始终占位，通过 opacity 控制显示 */}
+            <NIcon
+              size={16}
+              style={{
+                color: isActive ? themeVars.value.primaryColor : themeVars.value.textColor3,
+                opacity: (isActive || isHovered) ? 1 : 0,
+                transition: 'opacity 0.15s ease'
+              }}
+            >
+              <SortIconComp />
+            </NIcon>
           </div>
         </th>
       )
     }
 
     return () => (
-      <div class="overflow-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50 sticky top-0 z-10">
+      <div 
+        class="overflow-auto"
+        style={{
+          backgroundColor: themeVars.value.bodyColor
+        }}
+      >
+        <table 
+          class="min-w-full"
+          style={{
+            borderCollapse: 'separate',
+            borderSpacing: 0
+          }}
+        >
+          <thead class="sticky top-0 z-10">
             <tr>
               {SortHeader('name', '名称')}
               {SortHeader('modifiedAt', '修改时间')}
@@ -64,16 +95,31 @@ export default defineComponent({
               {SortHeader('size', '大小')}
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody>
             {props.items.map(item => {
               const isSelected = props.selectedIds.has(item.id)
               return (
                 <tr
                   key={item.id}
-                  class={[
-                    'cursor-pointer transition-colors hover:bg-gray-50',
-                    isSelected ? 'bg-blue-50' : ''
-                  ]}
+                  class="cursor-pointer transition-colors select-none"
+                  style={{
+                    backgroundColor: isSelected
+                      ? `${themeVars.value.primaryColorHover}20`
+                      : themeVars.value.cardColor,
+                    borderBottom: `1px solid ${themeVars.value.dividerColor}`
+                  }}
+                  onMouseenter={(e: MouseEvent) => {
+                    if (!isSelected) {
+                      (e.currentTarget as HTMLElement).style.backgroundColor =
+                        themeVars.value.hoverColor
+                    }
+                  }}
+                  onMouseleave={(e: MouseEvent) => {
+                    if (!isSelected) {
+                      (e.currentTarget as HTMLElement).style.backgroundColor =
+                        themeVars.value.cardColor
+                    }
+                  }}
                   onClick={(e: MouseEvent) =>
                     props.onSelect(item.id, e.ctrlKey || e.metaKey)
                   }
@@ -83,24 +129,54 @@ export default defineComponent({
                   <td class="px-4 py-3">
                     <div class="flex items-center gap-3">
                       <FileIcon item={item} size={24} showThumbnail={false} />
-                      <span class="text-sm text-gray-900">{item.name}</span>
+                      <span 
+                        class="text-sm"
+                        style={{
+                          color: isSelected
+                            ? themeVars.value.primaryColor
+                            : themeVars.value.textColorBase
+                        }}
+                      >
+                        {item.name}
+                      </span>
                     </div>
                   </td>
 
                   {/* 修改时间 */}
-                  <td class="px-4 py-3 text-sm text-gray-500">
+                  <td 
+                    class="px-4 py-3 text-sm"
+                    style={{
+                      color: isSelected
+                        ? themeVars.value.primaryColor
+                        : themeVars.value.textColor2
+                    }}
+                  >
                     {formatDate(item.modifiedAt)}
                   </td>
 
                   {/* 类型 */}
-                  <td class="px-4 py-3 text-sm text-gray-500">
+                  <td 
+                    class="px-4 py-3 text-sm"
+                    style={{
+                      color: isSelected
+                        ? themeVars.value.primaryColor
+                        : themeVars.value.textColor2
+                    }}
+                  >
                     {item.type === 'folder'
                       ? '文件夹'
                       : item.extension?.toUpperCase() || '文件'}
                   </td>
 
                   {/* 大小 */}
-                  <td class="px-4 py-3 text-sm text-gray-500">
+                  <td 
+                    class="px-4 py-3 text-sm"
+                    style={{
+                      color: isSelected
+                        ? themeVars.value.primaryColor
+                        : themeVars.value.textColor2
+                    }}
+                  >
                     {item.type === 'file' ? formatFileSize(item.size) : '-'}
                   </td>
                 </tr>
