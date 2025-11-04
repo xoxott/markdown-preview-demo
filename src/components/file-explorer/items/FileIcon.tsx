@@ -47,12 +47,12 @@ export default defineComponent({
           {IconComp ? (
             <NIcon>
               {{
-                default: () => h(IconComp as any, { size, style: { color }, strokeWidth: 1.5 })
+                default: () => h(IconComp as any, {style: { color,fontSize:size }, strokeWidth: 1.5 })
               }}
             </NIcon>
           ) : (
             // 万一没有图标组件，留个占位，样式不变
-            <div style={{ width: `${size}px`, height: `${size}px` }} class="bg-gray-100 rounded" />
+            <div style={{ width: `${size}px`, height: `${size}px` }} class="bg-gray-500 rounded" />
           )}
 
           {item.type === 'folder' && (

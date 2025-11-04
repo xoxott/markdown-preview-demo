@@ -74,7 +74,7 @@
         :drag-current-pos="dragState.dragCurrentPos" :operation="dragOperation" />
     </div> -->
 
-    <!-- <test/> -->
+    <test/>
   </n-card>
 </template>
 
@@ -100,6 +100,7 @@ import {
 import { FileItem, GridSize, SortField, SortOrder, ViewMode } from '@/components/file-explorer/types/file-explorer'
 import { useFileDragDrop } from '@/components/file-explorer/hooks/useFileDragDrop'
 import { useFileSort } from '@/components/file-explorer/hooks/useFileSort'
+import test from './test.vue'
 const gridSize = ref<GridSize>('small')
 const viewMode = ref<ViewMode>('tile')
 const mockItems = ref<FileItem[]>([
@@ -302,7 +303,7 @@ const handleChange = (files: File[]) => {
 
 const handleSelect = (key: string) => {
   console.log('选择的菜单项:', key)
-  // selectedIds.value.add(key)
+  selectedIds.value = new Set([key])
 }
 
 const handleOpen = (file: FileItem) => {
