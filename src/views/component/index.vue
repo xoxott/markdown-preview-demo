@@ -2,7 +2,7 @@
  * @Author: yang 212920320@qq.com
  * @Date: 2025-11-01 21:48:56
  * @LastEditors: yang 212920320@qq.com
- * @LastEditTime: 2025-11-05 00:00:45
+ * @LastEditTime: 2025-11-05 01:09:21
  * @FilePath: \markdown-preview-demo\src\views\component\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -26,10 +26,12 @@
       </n-form-item>
 
       <n-form-item label="圈选组件" class="flex items-center">
-        <SelectionRect auto-scroll  :selection-change="handleSelectionChange" scrollContainerSelector=".select-node" :selection-start="handleSelectionStart"
-          :selection-end="handleSelectionEnd">
-          <div  class="w-100 h-50 rounded border-2 border-dashed overflow-auto select-node">
-            <p v-for="(item,index) in 50" :data-selectable-id="`${index}`" :style="{marginTop:index === 49 ? '50px' : '',marginBottom: index===0 ?'50px' : ''}">{{ `在此区域内拖动鼠标进行圈选${index}` }}</p>
+        <SelectionRect auto-scroll :selection-change="handleSelectionChange" scrollContainerSelector=".select-node"
+          :selection-start="handleSelectionStart" :selection-end="handleSelectionEnd">
+          <div class="w-100 h-50 rounded border-2 border-dashed overflow-auto select-node">
+            <p v-for="(item, index) in 50" :data-selectable-id="`${index}`"
+              :style="{ marginTop: index === 49 ? '50px' : '', marginBottom: index === 0 ? '50px' : '' }">{{
+                `在此区域内拖动鼠标进行圈选${index}` }}</p>
           </div>
         </SelectionRect>
       </n-form-item>
@@ -41,9 +43,18 @@
             <div data-selectable-id="item-1">
               右键我试试1
             </div>
-            <div data-selectable-id="item-1">
-              右键我试试2
+            <ContextMenu @select="handleSelect" triggerSelector="[data-selectable-id]" @hide="() => console.log('菜单隐藏')"
+              @show="e => console.log('菜单显示', e)" :options="fileMenuOptions1">
+            <div>
+              <div>
+                <div>
+                    <div data-selectable-id="item-1">
+                右键我试试2
+              </div>
+                </div>
+              </div>
             </div>
+            </ContextMenu>
           </div>
         </ContextMenu>
       </n-form-item>
@@ -56,8 +67,8 @@
 
     <FileStatusBar :totalItems="mockItems.length" :folderCount="10" :fileCount="100" />
 
-      <ViewContainer :items="sortedFiles" :viewMode="viewMode" :selectedIds="selectedIds" @select="handleSelect"
-        @open="handleOpen" :gridSize="gridSize" @sort="handleSort" :sort-field="sortField" :sort-order="sortOrder" />
+    <ViewContainer :items="sortedFiles" :viewMode="viewMode" :selectedIds="selectedIds" @select="handleSelect"
+      @open="handleOpen" :gridSize="gridSize" @sort="handleSort" :sort-field="sortField" :sort-order="sortOrder" />
     <!-- <div @dragover="handleDragMove" @dragend="endDrag">
       <div v-for="file in files" :key="file.id" draggable="true" @dragstart="handleDragStart(file, $event)">
         {{ file.name }}
@@ -309,6 +320,19 @@ const fileMenuOptions = computed<ContextMenuItem[]>(() => {
   ]
 })
 
+const fileMenuOptions1 = computed<ContextMenuItem[]>(() => {
+  const isMultiple = true // 示例中假设为多选状态
+  return [
+    {
+      key: 'open',
+      label: '打开',
+      icon: OpenOutline,
+      // show: !isMultiple && props.fileType !== 'empty',
+      show: true,
+      shortcut: 'Enter'
+    }
+  ]
+})
 
 const handleModelChange = (value: ViewMode) => {
   viewMode.value = value
