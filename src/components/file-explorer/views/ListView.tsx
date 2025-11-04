@@ -51,7 +51,7 @@ export default defineComponent({
           return (
             <div
               key={item.id}
-              class="group flex items-center gap-3 px-4 py-2 cursor-pointer transition-colors select-none"
+              class="group flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors select-none"
               style={{
                 backgroundColor: isSelected
                   ? `${themeVars.value.primaryColorHover}20`

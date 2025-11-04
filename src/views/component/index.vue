@@ -2,7 +2,7 @@
  * @Author: yang 212920320@qq.com
  * @Date: 2025-11-01 21:48:56
  * @LastEditors: yangtao 212920320@qq.com
- * @LastEditTime: 2025-11-04 11:59:19
+ * @LastEditTime: 2025-11-04 14:42:04
  * @FilePath: \markdown-preview-demo\src\views\component\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -46,6 +46,13 @@
       </n-form-item>
     </n-form>
 
+
+    <FileToolbar :viewMode="viewMode" :grid-size="gridSize" :sort-field="sortField" :sort-order="sortOrder"
+      :onSortChange="setSorting" :onViewModeChange="handleModelChange" :onGridSizeChange="handleGridSizeChange" />
+    <FileBreadcrumb path="" :items="[]" :onNavigate="()=>'/a'" />
+     
+    <FileStatusBar :totalItems="mockItems.length" :folderCount="10" :fileCount="100" />
+       
     <SelectionRect>
       <ViewContainer :items="sortedFiles" :viewMode="viewMode" :selectedIds="selectedIds" @select="handleSelect"
         @open="handleOpen" :gridSize="gridSize" @sort="handleSort" :sort-field="sortField" :sort-order="sortOrder" />
@@ -74,7 +81,7 @@
         :drag-current-pos="dragState.dragCurrentPos" :operation="dragOperation" />
     </div> -->
 
-    <test/>
+    <test />
   </n-card>
 </template>
 
@@ -85,6 +92,10 @@ import editableText from '@/components/custom/editable-text.vue'
 import SelectionRect from '@/components/file-explorer/interaction/SelectionRect'
 import ContextMenu, { ContextMenuItem } from '@/components/file-explorer/interaction/ContextMenu'
 import ViewContainer from '@/components/file-explorer/container/ViewContainer'
+import FileToolbar from '@/components/file-explorer/layout/FileToolbar'
+import FileBreadcrumb from '@/components/file-explorer/layout/FileBreadcrumb'
+import FileSidebar from '@/components/file-explorer/layout/FileSidebar'
+import FileStatusBar from '@/components/file-explorer/layout/FileStatusBar'
 import { computed, ref } from 'vue'
 import {
   CopyOutline,
@@ -102,7 +113,7 @@ import { useFileDragDrop } from '@/components/file-explorer/hooks/useFileDragDro
 import { useFileSort } from '@/components/file-explorer/hooks/useFileSort'
 import test from './test.vue'
 const gridSize = ref<GridSize>('medium')
-const viewMode = ref<ViewMode>('content')
+const viewMode = ref<ViewMode>('grid')
 const mockItems = ref<FileItem[]>([
   { id: '1', name: '项目文档', type: 'folder', size: 0, modifiedAt: new Date(2025, 10, 1), createdAt: new Date(2025, 9, 1) },
   { id: '2', name: '设计稿.fig', type: 'file', size: 2457600, extension: 'fig', modifiedAt: new Date(2025, 10, 2), createdAt: new Date(2025, 10, 2) },
@@ -296,6 +307,15 @@ const fileMenuOptions = computed<ContextMenuItem[]>(() => {
     }
   ]
 })
+
+
+const handleModelChange = (value: ViewMode) => {
+  viewMode.value = value 
+}
+
+const handleGridSizeChange = (value: GridSize) => {
+  gridSize.value = value 
+}
 
 const handleChange = (files: File[]) => {
   console.log('上传的文件:', files)
