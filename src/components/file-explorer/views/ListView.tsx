@@ -15,7 +15,7 @@ export default defineComponent({
       required: true
     },
     onSelect: {
-      type: Function as PropType<(id: string, multi: boolean) => void>,
+      type: Function as PropType<(id: string[], multi: boolean) => void>,
       required: true
     },
     onOpen: {
@@ -74,7 +74,7 @@ export default defineComponent({
                 }
               }}
               onClick={(e: MouseEvent) =>
-                props.onSelect(item.id, e.ctrlKey || e.metaKey)
+                props.onSelect([item.id], e.ctrlKey || e.metaKey)
               }
               onDblclick={() => props.onOpen(item)}
             >

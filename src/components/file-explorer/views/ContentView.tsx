@@ -9,7 +9,7 @@ export default defineComponent({
   props: {
     items: { type: Array as PropType<FileItem[]>, required: true },
     selectedIds: { type: Object as PropType<Set<string>>, required: true },
-    onSelect: { type: Function as PropType<(id: string, multi: boolean) => void>, required: true },
+    onSelect: { type: Function as PropType<(id: string[], multi: boolean) => void>, required: true },
     onOpen: { type: Function as PropType<(item: FileItem) => void>, required: true }
   },
   setup(props) {
@@ -45,7 +45,7 @@ export default defineComponent({
                   (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'
                 }
               }}
-              onClick={(e: MouseEvent) => props.onSelect(item.id, e.ctrlKey || e.metaKey)}
+              onClick={(e: MouseEvent) => props.onSelect([item.id], e.ctrlKey || e.metaKey)}
               onDblclick={() => props.onOpen(item)}
             >
               {/* 预览区域 */}

@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, PropType, CSSProperties, onMounted, onBeforeUnmount } from 'vue'
+import { defineComponent, ref, computed, PropType, CSSProperties, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useEventListener, useThrottleFn } from '@vueuse/core'
 import { useThemeVars } from 'naive-ui'
 
@@ -35,7 +35,11 @@ export default defineComponent({
     /** 自动滚动触发的边距 */
     scrollEdge: { type: Number, default: 5 },
     /** 滚动容器选择器 */
-    scrollContainerSelector: { type: String, required: true },
+    scrollContainerSelector: {
+      type: [String, Object, Function] as PropType<
+        string | HTMLElement | (() => HTMLElement | null)
+      >, required: true
+    },
     /** 阻止拖选的元素标识属性 */
     preventDragSelector: { type: String, default: 'data-prevent-selection' },
     /** 拖选开始回调 */
@@ -64,16 +68,28 @@ export default defineComponent({
     const lastMouseEvent = ref<MouseEvent>()
 
     /** 获取滚动容器 DOM */
-    const getScrollContainer = () => {
-      const element = document.querySelector(props.scrollContainerSelector) as HTMLElement
-      if (!element) console.warn(`[SelectionRect] 未找到滚动容器: ${props.scrollContainerSelector}`)
-      return element
+    const resolveScrollContainer = (): HTMLElement | null => {
+      const val = props.scrollContainerSelector
+      if (!val) return null
+      if (typeof val === 'function') return val() || null
+      if (typeof val === 'string') return document.querySelector(val) as HTMLElement
+      if (val instanceof HTMLElement) return val
+      return null
     }
+
+
 
     /** 初始化滚动容器 */
     onMounted(() => {
-      scrollContainerRef.value = getScrollContainer() || undefined
+      scrollContainerRef.value = resolveScrollContainer() || undefined
     })
+
+    watch(
+      () => props.scrollContainerSelector,
+      () => {
+        scrollContainerRef.value = resolveScrollContainer() || undefined
+      }
+    )
 
     /**
      * 计算内容坐标下的选区矩形
@@ -226,13 +242,14 @@ export default defineComponent({
     }, 16)
 
     /** 鼠标抬起事件 */
-    const handleMouseUp = () => {
+    const handleMouseUp = (e?: MouseEvent) => {
       if (!isMouseDown.value) return
       isMouseDown.value = false
       stopAutoScroll()
       if (isSelecting.value) {
         isSelecting.value = false
         props.onSelectionEnd?.(Array.from(selectedIds.value))
+        e?.stopPropagation?.()
       }
       selectedIds.value.clear()
       lastMouseEvent.value = undefined
@@ -240,7 +257,7 @@ export default defineComponent({
 
     // 全局事件监听
     useEventListener(document, 'mousemove', handleMouseMove)
-    useEventListener(document, 'mouseup', handleMouseUp)
+    useEventListener(document, 'mouseup', e => handleMouseUp(e))
     useEventListener(containerRef, 'selectstart', e => { if (isSelecting.value || isMouseDown.value) e.preventDefault() })
     useEventListener(scrollContainerRef, 'scroll', () => { if (isSelecting.value) updateSelection(selectionRect.value) })
     onBeforeUnmount(stopAutoScroll)

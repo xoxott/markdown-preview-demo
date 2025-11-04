@@ -3,34 +3,23 @@ import { FileItem, SortField, SortOrder } from '../types/file-explorer'
 import { ChevronDown, ChevronUp } from '@vicons/tabler'
 import FileIcon from '../items/FileIcon'
 import { NIcon, useThemeVars } from 'naive-ui'
+import { formatFileSize } from '../utils/fileHelpers'
 
 export default defineComponent({
   name: 'DetailView',
   props: {
     items: { type: Array as PropType<FileItem[]>, required: true },
     selectedIds: { type: Object as PropType<Set<string>>, required: true },
-    onSelect: { type: Function as PropType<(id: string, multi: boolean) => void>, required: true },
+    onSelect: { type: Function as PropType<(id: string[], multi: boolean) => void>, required: true },
     onOpen: { type: Function as PropType<(item: FileItem) => void>, required: true },
     sortField: { type: String as PropType<SortField>, required: true },
     sortOrder: { type: String as PropType<SortOrder>, required: true },
     onSort: { type: Function as PropType<(field: SortField) => void>, required: true }
   },
-  setup(props) {
+  setup(props,{expose}) {
     const themeVars = useThemeVars()
     const hoveredHeader = ref<SortField | null>(null)
-
-    const formatFileSize = (size?: number): string => {
-      if (!size) return ''
-      const units = ['B', 'KB', 'MB', 'GB', 'TB']
-      let num = size
-      let i = 0
-      while (num >= 1024 && i < units.length - 1) {
-        num /= 1024
-        i++
-      }
-      return `${num.toFixed(1)} ${units[i]}`
-    }
-
+    const bodyRef = ref<HTMLTableSectionElement | null>(null)
     const formatDate = (date?: string | Date) => {
       if (!date) return ''
       const d = date instanceof Date ? date : new Date(date)
@@ -73,6 +62,9 @@ export default defineComponent({
       )
     }
 
+     expose({
+      getSelectableContainer: () => bodyRef.value
+    })
     return () => (
       <div
         class="overflow-auto"
@@ -95,7 +87,7 @@ export default defineComponent({
               {SortHeader('size', '大小')}
             </tr>
           </thead>
-          <tbody>
+          <tbody ref={bodyRef}>
             {props.items.map(item => {
               const isSelected = props.selectedIds.has(item.id)
               return (
@@ -122,7 +114,7 @@ export default defineComponent({
                     }
                   }}
                   onClick={(e: MouseEvent) =>
-                    props.onSelect(item.id, e.ctrlKey || e.metaKey)
+                    props.onSelect([item.id], e.ctrlKey || e.metaKey)
                   }
                   onDblclick={() => props.onOpen(item)}
                 >
