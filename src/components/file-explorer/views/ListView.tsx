@@ -40,7 +40,7 @@ export default defineComponent({
     }
 
     return () => (
-      <div 
+      <div
         class="flex flex-col"
         style={{
           backgroundColor: themeVars.value.bodyColor
@@ -51,6 +51,7 @@ export default defineComponent({
           return (
             <div
               key={item.id}
+              data-selectable-id={item.id}
               class="group flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors select-none"
               style={{
                 backgroundColor: isSelected
@@ -81,7 +82,7 @@ export default defineComponent({
               <FileIcon item={item} size={20} showThumbnail={false} />
 
               {/* 文件名 */}
-              <div 
+              <div
                 class="flex-1 text-sm truncate"
                 style={{
                   color: isSelected
@@ -94,7 +95,7 @@ export default defineComponent({
 
               {/* 文件大小 */}
               {item.type === 'file' && (
-                <div 
+                <div
                   class="text-xs flex-shrink-0 w-20 text-right"
                   style={{
                     color: isSelected

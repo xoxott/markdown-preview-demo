@@ -1,349 +1,319 @@
-import { defineComponent, ref, computed, PropType, CSSProperties } from 'vue'
+import { defineComponent, ref, computed, PropType, CSSProperties, onMounted, onBeforeUnmount } from 'vue'
 import { useEventListener, useThrottleFn } from '@vueuse/core'
 import { useThemeVars } from 'naive-ui'
 
-interface Point {
-  x: number
-  y: number
-}
+/**
+ * 坐标点类型
+ */
+interface Point { x: number; y: number }
 
-interface Rect {
-  left: number
-  top: number
-  width: number
-  height: number
-}
+/**
+ * 矩形类型
+ */
+interface Rect { left: number; top: number; width: number; height: number }
 
+/**
+ * SelectionRect 组件
+ * - 提供鼠标拖拽选择功能
+ * - 支持自动滚动、阈值控制、选中元素回调
+ */
 export default defineComponent({
   name: 'SelectionRect',
   props: {
-    /** 是否禁用 */
+    /** 禁用拖选 */
     disabled: { type: Boolean, default: false },
-    /** 容器类名 */
+    /** 容器 className */
     className: { type: String, default: '' },
-    /** 圈选框样式 */
+    /** 选区矩形自定义样式 */
     rectStyle: { type: Object as PropType<CSSProperties>, default: () => ({}) },
-    /** 触发阈值 */
+    /** 鼠标移动最小距离触发选区 */
     threshold: { type: Number, default: 5 },
     /** 是否启用自动滚动 */
-    autoScroll: { type: Boolean, default: false },
-    /** 滚动速度 */
+    autoScroll: { type: Boolean, default: true },
+    /** 自动滚动速度 */
     scrollSpeed: { type: Number, default: 10 },
-    /** 滚动边距 */
-    scrollEdge: { type: Number, default: 50 },
-    /** 选中变化回调 */
+    /** 自动滚动触发的边距 */
+    scrollEdge: { type: Number, default: 5 },
+    /** 滚动容器选择器 */
+    scrollContainerSelector: { type: String, required: true },
+    /** 阻止拖选的元素标识属性 */
+    preventDragSelector: { type: String, default: 'data-prevent-selection' },
+    /** 拖选开始回调 */
     onSelectionStart: Function as PropType<() => void>,
+    /** 拖选中回调 */
     onSelectionChange: Function as PropType<(ids: string[]) => void>,
+    /** 拖选结束回调 */
     onSelectionEnd: Function as PropType<(ids: string[]) => void>
   },
-
   setup(props, { slots }) {
     const themeVars = useThemeVars()
+
+    // 容器引用
     const containerRef = ref<HTMLDivElement>()
+    const scrollContainerRef = ref<HTMLElement>()
+
+    // 拖选状态
     const isSelecting = ref(false)
     const isMouseDown = ref(false)
     const startPoint = ref<Point>({ x: 0, y: 0 })
     const currentPoint = ref<Point>({ x: 0, y: 0 })
     const selectedIds = ref<Set<string>>(new Set())
-    const scrollTimer = ref<number>()
 
-    /** 计算实际的圈选矩形（带边界限制） */
-    const selectionRect = computed<Rect>(() => {
-      if (!containerRef.value) {
-        return { left: 0, top: 0, width: 0, height: 0 }
-      }
+    // 自动滚动相关
+    const autoScrollTimer = ref<number>()
+    const lastMouseEvent = ref<MouseEvent>()
 
-      const container = containerRef.value.getBoundingClientRect()
-      const containerWidth = container.width
-      const containerHeight = container.height
-
-      // 限制在容器边界内
-      const clampX = (x: number) => Math.max(0, Math.min(x, containerWidth))
-      const clampY = (y: number) => Math.max(0, Math.min(y, containerHeight))
-
-      const clampedStart = {
-        x: clampX(startPoint.value.x),
-        y: clampY(startPoint.value.y)
-      }
-
-      const clampedCurrent = {
-        x: clampX(currentPoint.value.x),
-        y: clampY(currentPoint.value.y)
-      }
-
-      return {
-        left: Math.min(clampedStart.x, clampedCurrent.x),
-        top: Math.min(clampedStart.y, clampedCurrent.y),
-        width: Math.abs(clampedCurrent.x - clampedStart.x),
-        height: Math.abs(clampedCurrent.y - clampedStart.y)
-      }
-    })
-
-    /** 检查元素是否在选框内 */
-    const isElementInSelection = (element: HTMLElement, rect: Rect): boolean => {
-      if (!containerRef.value) return false
-
-      const containerRect = containerRef.value.getBoundingClientRect()
-      const elemRect = element.getBoundingClientRect()
-
-      // 计算元素相对于容器的位置
-      const elemRelative = {
-        left: elemRect.left - containerRect.left + containerRef.value.scrollLeft,
-        top: elemRect.top - containerRect.top + containerRef.value.scrollTop,
-        right: elemRect.right - containerRect.left + containerRef.value.scrollLeft,
-        bottom: elemRect.bottom - containerRect.top + containerRef.value.scrollTop
-      }
-
-      const rectRight = rect.left + rect.width
-      const rectBottom = rect.top + rect.height
-
-      // 相交检测
-      return !(
-        elemRelative.right < rect.left ||
-        elemRelative.left > rectRight ||
-        elemRelative.bottom < rect.top ||
-        elemRelative.top > rectBottom
-      )
+    /** 获取滚动容器 DOM */
+    const getScrollContainer = () => {
+      const element = document.querySelector(props.scrollContainerSelector) as HTMLElement
+      if (!element) console.warn(`[SelectionRect] 未找到滚动容器: ${props.scrollContainerSelector}`)
+      return element
     }
 
-    /** 更新选中状态 */
+    /** 初始化滚动容器 */
+    onMounted(() => {
+      scrollContainerRef.value = getScrollContainer() || undefined
+    })
+
+    /**
+     * 计算内容坐标下的选区矩形
+     */
+    const selectionRect = computed<Rect>(() => {
+      if (!containerRef.value || !scrollContainerRef.value) return { left: 0, top: 0, width: 0, height: 0 }
+
+      const scrollContainer = scrollContainerRef.value
+      const left = Math.max(0, Math.min(startPoint.value.x, currentPoint.value.x))
+      const top = Math.max(0, Math.min(startPoint.value.y, currentPoint.value.y))
+      const right = Math.min(scrollContainer.scrollWidth, Math.max(startPoint.value.x, currentPoint.value.x))
+      const bottom = Math.min(scrollContainer.scrollHeight, Math.max(startPoint.value.y, currentPoint.value.y))
+
+      return { left, top, width: right - left, height: bottom - top }
+    })
+
+    /**
+     * 计算显示在容器中的选区矩形（减去滚动偏移）
+     */
+    const displayRect = computed<Rect>(() => {
+      if (!scrollContainerRef.value) return { left: 0, top: 0, width: 0, height: 0 }
+      const scroll = scrollContainerRef.value
+      const rect = selectionRect.value
+      return { left: rect.left - scroll.scrollLeft, top: rect.top - scroll.scrollTop, width: rect.width, height: rect.height }
+    })
+
+    /** 判断两个 Set 是否相等 */
+    const areSetsEqual = (set1: Set<string>, set2: Set<string>) =>
+      set1.size === set2.size && Array.from(set1).every(i => set2.has(i))
+
+    /**
+     * 判断元素是否在选区内
+     * @param el 目标元素
+     * @param rect 选区矩形（内容坐标）
+     */
+    const isElementInSelection = (el: HTMLElement, rect: Rect) => {
+      if (!containerRef.value) return false
+      const containerRect = containerRef.value.getBoundingClientRect()
+      const scroll = scrollContainerRef.value
+      if (!scroll) return false
+
+      const r = el.getBoundingClientRect()
+      const elemRect = {
+        left: r.left - containerRect.left + scroll.scrollLeft,
+        top: r.top - containerRect.top + scroll.scrollTop,
+        right: r.right - containerRect.left + scroll.scrollLeft,
+        bottom: r.bottom - containerRect.top + scroll.scrollTop
+      }
+
+      return !(elemRect.right < rect.left || elemRect.left > rect.left + rect.width || elemRect.bottom < rect.top || elemRect.top > rect.top + rect.height)
+    }
+
+    /**
+     * 更新选中元素
+     * @param rect 当前选区矩形
+     */
     const updateSelection = (rect: Rect) => {
       if (!containerRef.value) return
-
-      const selectableElements = containerRef.value.querySelectorAll('[data-selectable-id]')
       const newSelectedIds = new Set<string>()
-
-      selectableElements.forEach((elem) => {
-        const el = elem as HTMLElement
+      containerRef.value.querySelectorAll<HTMLElement>('[data-selectable-id]').forEach(el => {
         const id = el.dataset.selectableId
-        if (!id) return
-
-        if (isElementInSelection(el, rect)) {
-          newSelectedIds.add(id)
-          el.classList.add('selection-active')
-        } else {
-          el.classList.remove('selection-active')
-        }
+        if (id && isElementInSelection(el, rect)) newSelectedIds.add(id)
       })
 
-      // 只在选中项变化时触发回调
       if (!areSetsEqual(selectedIds.value, newSelectedIds)) {
         selectedIds.value = newSelectedIds
         props.onSelectionChange?.(Array.from(newSelectedIds))
       }
     }
 
-    /** 比较两个 Set 是否相等 */
-    const areSetsEqual = (set1: Set<string>, set2: Set<string>): boolean => {
-      if (set1.size !== set2.size) return false
-      for (const item of set1) {
-        if (!set2.has(item)) return false
-      }
-      return true
-    }
+    /**
+     * 执行自动滚动
+     */
+    const performAutoScroll = () => {
+      if (!props.autoScroll || !scrollContainerRef.value || !lastMouseEvent.value) return
+      const { clientX, clientY } = lastMouseEvent.value
+      const scroll = scrollContainerRef.value
+      const rect = scroll.getBoundingClientRect()
+      let dx = 0, dy = 0
 
-    /** 自动滚动 */
-    const handleAutoScroll = (e: MouseEvent) => {
-      if (!props.autoScroll || !containerRef.value) return
+      if (clientY - rect.top < props.scrollEdge && scroll.scrollTop > 0) dy = -props.scrollSpeed
+      else if (rect.bottom - clientY < props.scrollEdge && scroll.scrollTop < scroll.scrollHeight - scroll.clientHeight) dy = props.scrollSpeed
 
-      const container = containerRef.value
-      const rect = container.getBoundingClientRect()
-      const { scrollEdge, scrollSpeed } = props
+      if (clientX - rect.left < props.scrollEdge && scroll.scrollLeft > 0) dx = -props.scrollSpeed
+      else if (rect.right - clientX < props.scrollEdge && scroll.scrollLeft < scroll.scrollWidth - scroll.clientWidth) dx = props.scrollSpeed
 
-      let scrollX = 0
-      let scrollY = 0
-
-      // 检测是否接近边缘
-      if (e.clientX - rect.left < scrollEdge) scrollX = -scrollSpeed
-      else if (rect.right - e.clientX < scrollEdge) scrollX = scrollSpeed
-
-      if (e.clientY - rect.top < scrollEdge) scrollY = -scrollSpeed
-      else if (rect.bottom - e.clientY < scrollEdge) scrollY = scrollSpeed
-
-      if (scrollX !== 0 || scrollY !== 0) {
-        container.scrollBy(scrollX, scrollY)
+      if (dx || dy) {
+        scroll.scrollBy({ left: dx, top: dy, behavior: 'auto' })
+        if (containerRef.value) {
+          const containerRect = containerRef.value.getBoundingClientRect()
+          currentPoint.value = {
+            x: clientX - containerRect.left + scroll.scrollLeft,
+            y: clientY - containerRect.top + scroll.scrollTop
+          }
+        }
       }
     }
 
-    /** 清除选中样式 */
-    const clearSelectionStyles = () => {
-      if (!containerRef.value) return
-      const selectableElements = containerRef.value.querySelectorAll('[data-selectable-id]')
-      selectableElements.forEach((elem) => {
-        elem.classList.remove('selection-active')
-      })
+    /** 开始自动滚动 */
+    const startAutoScroll = () => {
+      if (!autoScrollTimer.value) autoScrollTimer.value = window.setInterval(() => {
+        performAutoScroll()
+        if (isSelecting.value) updateSelection(selectionRect.value)
+      }, 16)
     }
 
-    /** 鼠标按下 */
+    /** 停止自动滚动 */
+    const stopAutoScroll = () => {
+      if (autoScrollTimer.value) clearInterval(autoScrollTimer.value)
+      autoScrollTimer.value = undefined
+    }
+
+    /** 判断是否允许拖选 */
+    const canStartDragSelection = (target: HTMLElement) => !target.closest(`[${props.preventDragSelector}]`)
+
+    /** 鼠标按下事件 */
     const handleMouseDown = (e: MouseEvent) => {
-      if (props.disabled || e.button !== 0) return
-
-      const target = e.target as HTMLElement
-      // 如果点击在可选择项上，不触发圈选
-      if (target.closest('[data-selectable-id]')) return
-
+      if (props.disabled || e.button !== 0 || !canStartDragSelection(e.target as HTMLElement)) return
       e.preventDefault()
+      if (!containerRef.value || !scrollContainerRef.value) return
 
-      if (!containerRef.value) return
-
-      const containerRect = containerRef.value.getBoundingClientRect()
-      startPoint.value = {
-        x: e.clientX - containerRect.left + containerRef.value.scrollLeft,
-        y: e.clientY - containerRect.top + containerRef.value.scrollTop
-      }
+      const scroll = scrollContainerRef.value
+      const rect = containerRef.value.getBoundingClientRect()
+      startPoint.value = { x: e.clientX - rect.left + scroll.scrollLeft, y: e.clientY - rect.top + scroll.scrollTop }
       currentPoint.value = { ...startPoint.value }
-
       isMouseDown.value = true
-      clearSelectionStyles()
+      selectedIds.value.clear()
+      lastMouseEvent.value = e
     }
 
-    /** 鼠标移动（节流优化） */
+    /** 鼠标移动事件 */
     const handleMouseMove = useThrottleFn((e: MouseEvent) => {
-      if (!isMouseDown.value || !containerRef.value) return
+      if (!isMouseDown.value) return
+      lastMouseEvent.value = e
+      if (!containerRef.value || !scrollContainerRef.value) return
 
-      const containerRect = containerRef.value.getBoundingClientRect()
-      currentPoint.value = {
-        x: e.clientX - containerRect.left + containerRef.value.scrollLeft,
-        y: e.clientY - containerRect.top + containerRef.value.scrollTop
-      }
+      const rect = containerRef.value.getBoundingClientRect()
+      const scroll = scrollContainerRef.value
+      currentPoint.value = { x: e.clientX - rect.left + scroll.scrollLeft, y: e.clientY - rect.top + scroll.scrollTop }
 
-      // 计算移动距离
-      const distance = Math.hypot(
-        currentPoint.value.x - startPoint.value.x,
-        currentPoint.value.y - startPoint.value.y
-      )
-
-      // 超过阈值才开始圈选
+      const distance = Math.hypot(currentPoint.value.x - startPoint.value.x, currentPoint.value.y - startPoint.value.y)
       if (distance > props.threshold) {
         if (!isSelecting.value) {
           isSelecting.value = true
           props.onSelectionStart?.()
         }
         updateSelection(selectionRect.value)
-        handleAutoScroll(e)
+        if (props.autoScroll) startAutoScroll()
       }
-    }, 16) // 约 60fps
+    }, 16)
 
-    /** 鼠标抬起 */
+    /** 鼠标抬起事件 */
     const handleMouseUp = () => {
       if (!isMouseDown.value) return
-
       isMouseDown.value = false
-
+      stopAutoScroll()
       if (isSelecting.value) {
         isSelecting.value = false
         props.onSelectionEnd?.(Array.from(selectedIds.value))
       }
-
-      clearSelectionStyles()
-      if (scrollTimer.value) {
-        clearInterval(scrollTimer.value)
-        scrollTimer.value = undefined
-      }
+      selectedIds.value.clear()
+      lastMouseEvent.value = undefined
     }
 
-    // 注册全局事件
+    // 全局事件监听
     useEventListener(document, 'mousemove', handleMouseMove)
     useEventListener(document, 'mouseup', handleMouseUp)
+    useEventListener(containerRef, 'selectstart', e => { if (isSelecting.value || isMouseDown.value) e.preventDefault() })
+    useEventListener(scrollContainerRef, 'scroll', () => { if (isSelecting.value) updateSelection(selectionRect.value) })
+    onBeforeUnmount(stopAutoScroll)
 
-    // 阻止拖拽时的默认选中行为
-    useEventListener(containerRef, 'selectstart', (e) => {
-      if (isSelecting.value) e.preventDefault()
-    })
-
-    // 动态生成样式（响应主题变化）
-    const dynamicStyles = computed(() => {
-      const primaryColor = themeVars.value.primaryColor
-      const primaryColorHover = themeVars.value.primaryColorHover
-      
-      return `
-        .selection-container {
-          position: relative;
-          user-select: none;
-          -webkit-user-select: none;
-          -moz-user-select: none;
-          -ms-user-select: none;
-        }
-
-        .selection-rect {
-          position: absolute;
-          pointer-events: none;
-          z-index: 9999;
-          border: 2px solid ${primaryColor};
-          background: ${primaryColorHover}14;
-          border-radius: 4px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-          transition: none;
-        }
-
-        .selection-rect-border {
-          position: absolute;
-          inset: -1px;
-          border: 1px solid ${primaryColorHover}66;
-          border-radius: 4px;
-          animation: selection-pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes selection-pulse {
-          0%, 100% {
-            opacity: 0.6;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 1;
-            transform: scale(0.98);
-          }
-        }
-
-        /* 被圈选中的元素样式 */
-        .selection-active {
-          outline: 2px solid ${primaryColor} !important;
-          outline-offset: 2px;
-          background: ${primaryColorHover}0D !important;
-          box-shadow: 0 2px 12px ${primaryColorHover}33 !important;
-          z-index: 1;
-          position: relative;
-        }
-
-        /* 性能优化 */
-        .selection-container * {
-          pointer-events: auto;
-        }
-
-        .selection-rect,
-        .selection-rect * {
-          pointer-events: none !important;
-        }
-      `
-    })
+    /** 动态样式 */
+    const dynamicStyles = computed(() => `
+      .selection-container { position: relative; user-select: none; overflow: hidden; }
+      .selection-rect {
+        position: absolute; pointer-events: none; z-index: 9999;
+        border: 2px solid ${themeVars.value.primaryColor};
+        background: ${themeVars.value.primaryColorHover}14; border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      }
+      .selection-rect-border {
+        position: absolute; inset: -1px;
+        border: 1px solid ${themeVars.value.primaryColorHover}66; border-radius: 4px;
+        animation: selection-pulse 1.5s ease-in-out infinite;
+      }
+      @keyframes selection-pulse {
+        0%,100%{opacity:0.6;transform:scale(1);}
+        50%{opacity:1;transform:scale(0.98);}
+      }
+    `)
 
     return () => (
-      <div
-        ref={containerRef}
-        class={['selection-container', props.className]}
-        onMousedown={handleMouseDown}
-      >
+      <div ref={containerRef} class={['selection-container', props.className]} onMousedown={handleMouseDown}>
         {slots.default?.()}
-
-        {/* 圈选矩形框 */}
-        {isSelecting.value && selectionRect.value.width > 0 && selectionRect.value.height > 0 && (
-          <div
-            class="selection-rect"
-            style={{
-              left: `${selectionRect.value.left}px`,
-              top: `${selectionRect.value.top}px`,
-              width: `${selectionRect.value.width}px`,
-              height: `${selectionRect.value.height}px`,
-              ...props.rectStyle
-            }}
-          >
+        {isSelecting.value && displayRect.value.width > 0 && displayRect.value.height > 0 && (
+          <div class="selection-rect" style={{ left: `${displayRect.value.left}px`, top: `${displayRect.value.top}px`, width: `${displayRect.value.width}px`, height: `${displayRect.value.height}px`, ...props.rectStyle }}>
             <div class="selection-rect-border" />
           </div>
         )}
-
-        {/* 动态注入样式 */}
         <style>{dynamicStyles.value}</style>
       </div>
     )
   }
 })
+
+
+// 后续扩展建议
+
+// 多选模式
+
+// 支持 shift/ctrl 多区域累加选择，而不是每次清空。
+
+// 允许通过 props.multiSelect 控制行为。
+
+// 键盘辅助
+
+// 配合方向键调整选区。
+
+// Esc 可取消当前选择。
+
+// 范围或网格约束
+
+// 支持网格对齐、固定比例选择矩形（如 1:1、16:9）。
+
+// 支持 touch / 手势操作
+
+// 在移动端支持触控选择。
+
+// 提供选中元素类名或回调 API 扩展
+
+// 当前仅返回 id，可以返回完整 HTMLElement，支持拖动、批量操作。
+
+// 可配置渲染样式
+
+// 允许通过 renderSelectionRect slot 或 rectRenderer prop 自定义选区 DOM。
+
+// 虚拟滚动/大数据优化
+
+// 对大量元素，支持虚拟化，只计算可视区域元素，提升性能。
+
+// 支持嵌套滚动容器
+
+// 通过 scrollContainerSelector 支持多个层级容器滚动。

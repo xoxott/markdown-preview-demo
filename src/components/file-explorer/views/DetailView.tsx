@@ -74,13 +74,13 @@ export default defineComponent({
     }
 
     return () => (
-      <div 
+      <div
         class="overflow-auto"
         style={{
           backgroundColor: themeVars.value.bodyColor
         }}
       >
-        <table 
+        <table
           class="min-w-full"
           style={{
             borderCollapse: 'separate',
@@ -101,6 +101,7 @@ export default defineComponent({
               return (
                 <tr
                   key={item.id}
+                  data-selectable-id={item.id}
                   class="cursor-pointer transition-colors select-none"
                   style={{
                     backgroundColor: isSelected
@@ -129,7 +130,7 @@ export default defineComponent({
                   <td class="px-4 py-3">
                     <div class="flex items-center gap-3">
                       <FileIcon item={item} size={24} showThumbnail={false} />
-                      <span 
+                      <span
                         class="text-sm"
                         style={{
                           color: isSelected
@@ -143,7 +144,7 @@ export default defineComponent({
                   </td>
 
                   {/* 修改时间 */}
-                  <td 
+                  <td
                     class="px-4 py-3 text-sm"
                     style={{
                       color: isSelected
@@ -155,7 +156,7 @@ export default defineComponent({
                   </td>
 
                   {/* 类型 */}
-                  <td 
+                  <td
                     class="px-4 py-3 text-sm"
                     style={{
                       color: isSelected
@@ -169,7 +170,7 @@ export default defineComponent({
                   </td>
 
                   {/* 大小 */}
-                  <td 
+                  <td
                     class="px-4 py-3 text-sm"
                     style={{
                       color: isSelected

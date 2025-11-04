@@ -27,6 +27,7 @@ export default defineComponent({
           return (
             <div
               key={item.id}
+              data-selectable-id={item.id}
               class="cursor-pointer select-none rounded overflow-hidden transition-all"
               style={{
                 backgroundColor: isSelected

@@ -54,6 +54,7 @@ export default defineComponent({
           return (
             <div
               key={item.id}
+              data-selectable-id={item.id}
               class="rounded-lg transition-colors duration-150 cursor-pointer select-none p-2"
               style={{
                 backgroundColor: isSelected

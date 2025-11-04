@@ -2,7 +2,7 @@
  * @Author: yang 212920320@qq.com
  * @Date: 2025-11-01 21:48:56
  * @LastEditors: yangtao 212920320@qq.com
- * @LastEditTime: 2025-11-04 14:42:04
+ * @LastEditTime: 2025-11-04 17:05:47
  * @FilePath: \markdown-preview-demo\src\views\component\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -26,8 +26,11 @@
       </n-form-item>
 
       <n-form-item label="圈选组件" class="flex items-center">
-        <SelectionRect>
-          <div class="w-100 h-50 rounded border-2 border-dashed"></div>
+        <SelectionRect auto-scroll  :selection-change="handleSelectionChange" scrollContainerSelector=".select-node" :selection-start="handleSelectionStart"
+          :selection-end="handleSelectionEnd">
+          <div  class="w-100 h-50 rounded border-2 border-dashed overflow-auto select-node">
+            <p v-for="(item,index) in 50" :data-selectable-id="`${index}`" :style="{marginTop:index === 49 ? '50px' : '',marginBottom: index===0 ?'50px' : ''}">{{ `在此区域内拖动鼠标进行圈选${index}` }}</p>
+          </div>
         </SelectionRect>
       </n-form-item>
 
@@ -49,14 +52,12 @@
 
     <FileToolbar :viewMode="viewMode" :grid-size="gridSize" :sort-field="sortField" :sort-order="sortOrder"
       :onSortChange="setSorting" :onViewModeChange="handleModelChange" :onGridSizeChange="handleGridSizeChange" />
-    <FileBreadcrumb path="" :items="[]" :onNavigate="()=>'/a'" />
-     
+    <FileBreadcrumb path="" :items="[]" :onNavigate="() => '/a'" />
+
     <FileStatusBar :totalItems="mockItems.length" :folderCount="10" :fileCount="100" />
-       
-    <SelectionRect>
+
       <ViewContainer :items="sortedFiles" :viewMode="viewMode" :selectedIds="selectedIds" @select="handleSelect"
         @open="handleOpen" :gridSize="gridSize" @sort="handleSort" :sort-field="sortField" :sort-order="sortOrder" />
-    </SelectionRect>
     <!-- <div @dragover="handleDragMove" @dragend="endDrag">
       <div v-for="file in files" :key="file.id" draggable="true" @dragstart="handleDragStart(file, $event)">
         {{ file.name }}
@@ -310,11 +311,11 @@ const fileMenuOptions = computed<ContextMenuItem[]>(() => {
 
 
 const handleModelChange = (value: ViewMode) => {
-  viewMode.value = value 
+  viewMode.value = value
 }
 
 const handleGridSizeChange = (value: GridSize) => {
-  gridSize.value = value 
+  gridSize.value = value
 }
 
 const handleChange = (files: File[]) => {
@@ -332,5 +333,17 @@ const handleOpen = (file: FileItem) => {
 
 const handleSort = (field: string) => {
   setSorting(field as SortField)
+}
+
+const handleSelectionChange = (selected: FileItem[]) => {
+  console.log('圈选的文件:', selected)
+}
+
+const handleSelectionStart = (selected: FileItem[]) => {
+  console.log('开始圈选', selected)
+}
+
+const handleSelectionEnd = (selected: FileItem[]) => {
+  console.log('结束圈选', selected)
 }
 </script>

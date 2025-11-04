@@ -69,7 +69,7 @@ export default defineComponent({
           {props.items.map(item => {
             const isSelected = props.selectedIds.has(item.id)
             return (
-              <div key={item.id} class="flex justify-center">
+              <div key={item.id}  data-selectable-id={item.id} class="flex justify-center">
                 <div
                   class="inline-flex flex-col items-center cursor-pointer rounded-lg transition-all duration-200 select-none"
                   style={{
