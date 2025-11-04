@@ -2,7 +2,7 @@
  * @Author: yang 212920320@qq.com
  * @Date: 2025-11-02 16:51:15
  * @LastEditors: yangtao 212920320@qq.com
- * @LastEditTime: 2025-11-04 11:53:56
+ * @LastEditTime: 2025-11-04 15:24:34
  * @FilePath: \markdown-preview-demo\src\components\file-explorer\types\file-explorer.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -10,7 +10,7 @@ export type IconSize = 'extra-large' | 'large' | 'medium' | 'small'
 export type SortOrder = 'asc' | 'desc'
 export type ViewMode = 'grid' | 'list' | 'tile' | 'detail' | 'content'
 export type GridSize = 'small' | 'medium' | 'large' | 'extra-large'
-export type SortField = 'name' | 'modifiedAt' | 'type' | 'size' | 'createdAt' | ''
+export type SortField = 'name' | 'modifiedAt' | 'type' | 'size' | 'createdAt' 
 /**
  * 文件项接口
  */
