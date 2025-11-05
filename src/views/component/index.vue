@@ -1,8 +1,8 @@
 <!--
  * @Author: yang 212920320@qq.com
  * @Date: 2025-11-01 21:48:56
- * @LastEditors: yang 212920320@qq.com
- * @LastEditTime: 2025-11-05 01:09:21
+ * @LastEditors: yangtao 212920320@qq.com
+ * @LastEditTime: 2025-11-05 14:00:47
  * @FilePath: \markdown-preview-demo\src\views\component\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -125,7 +125,7 @@ import { useFileDragDrop } from '@/components/file-explorer/hooks/useFileDragDro
 import { useFileSort } from '@/components/file-explorer/hooks/useFileSort'
 import test from './test.vue'
 const gridSize = ref<GridSize>('medium')
-const viewMode = ref<ViewMode>('grid')
+const viewMode = ref<ViewMode>('detail')
 const mockItems = ref<FileItem[]>([
   { id: '1', name: '项目文档', type: 'folder', size: 0, modifiedAt: new Date(2025, 10, 1), createdAt: new Date(2025, 9, 1) },
   { id: '2', name: '设计稿.fig', type: 'file', size: 2457600, extension: 'fig', modifiedAt: new Date(2025, 10, 2), createdAt: new Date(2025, 10, 2) },

@@ -2,6 +2,7 @@ import { defineComponent, PropType } from 'vue'
 import { FileItem } from '../types/file-explorer'
 import FileIcon from '../items/FileIcon'
 import { useThemeVars } from 'naive-ui'
+import { formatFileSize } from '../utils/fileHelpers'
 
 export default defineComponent({
   name: 'ListView',
@@ -25,20 +26,6 @@ export default defineComponent({
   },
   setup(props) {
     const themeVars = useThemeVars()
-
-    // 文件大小格式化函数
-    const formatFileSize = (size?: number): string => {
-      if (size == null || size === 0) return ''
-      const units = ['B', 'KB', 'MB', 'GB', 'TB']
-      let i = 0
-      let num = size
-      while (num >= 1024 && i < units.length - 1) {
-        num /= 1024
-        i++
-      }
-      return `${num.toFixed(1)} ${units[i]}`
-    }
-
     return () => (
       <div
         class="flex flex-col"

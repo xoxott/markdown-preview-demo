@@ -40,6 +40,8 @@ export default defineComponent({
         string | HTMLElement | (() => HTMLElement | null)
       >, required: true
     },
+    /** 可选元素标识属性名（如 data-selectable-id） */
+    selectableSelector: { type: String, default: '[data-selectable-id]' },
     /** 阻止拖选的元素标识属性 */
     preventDragSelector: { type: String, default: 'data-prevent-selection' },
     /** 拖选开始回调 */
@@ -47,7 +49,9 @@ export default defineComponent({
     /** 拖选中回调 */
     onSelectionChange: Function as PropType<(ids: string[]) => void>,
     /** 拖选结束回调 */
-    onSelectionEnd: Function as PropType<(ids: string[]) => void>
+    onSelectionEnd: Function as PropType<(ids: string[]) => void>,
+    /** 清除选择回调 */
+    onClearSelection: Function as PropType<() => void>
   },
   setup(props, { slots }) {
     const themeVars = useThemeVars()
@@ -149,7 +153,7 @@ export default defineComponent({
     const updateSelection = (rect: Rect) => {
       if (!containerRef.value) return
       const newSelectedIds = new Set<string>()
-      containerRef.value.querySelectorAll<HTMLElement>('[data-selectable-id]').forEach(el => {
+      containerRef.value.querySelectorAll<HTMLElement>(`${props.selectableSelector}`).forEach(el => {
         const id = el.dataset.selectableId
         if (id && isElementInSelection(el, rect)) newSelectedIds.add(id)
       })
@@ -255,7 +259,19 @@ export default defineComponent({
       lastMouseEvent.value = undefined
     }
 
+    /** 点击空白区域清空选中 */
+    const handleClickOutside = (e: MouseEvent) => {
+      if (isSelecting.value) return
+      const target = e.target as HTMLElement
+      const selectableEl = target.closest(`${props.selectableSelector}`)
+      if (!selectableEl) {
+        selectedIds.value.clear()
+        props.onClearSelection?.()
+      }
+    }
+
     // 全局事件监听
+    useEventListener(document, 'mousedown', handleClickOutside)
     useEventListener(document, 'mousemove', handleMouseMove)
     useEventListener(document, 'mouseup', e => handleMouseUp(e))
     useEventListener(containerRef, 'selectstart', e => { if (isSelecting.value || isMouseDown.value) e.preventDefault() })

@@ -1,8 +1,8 @@
 /*
  * @Author: yangtao 212920320@qq.com
  * @Date: 2025-11-03 09:19:21
- * @LastEditors: yang 212920320@qq.com
- * @LastEditTime: 2025-11-05 01:07:41
+ * @LastEditors: yangtao 212920320@qq.com
+ * @LastEditTime: 2025-11-05 11:39:51
  * @FilePath: \markdown-preview-demo\src\components\file-explorer\container\ViewContainer.tsx
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -174,21 +174,6 @@ export default defineComponent({
       props.onSelect(ids, false)
     }
 
-    /** 点击空白或非选中区域清空选择 */
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement
-      const selectableEl = target.closest('[data-selectable-id]')
-      if (!selectableEl) {
-        props.onSelect([], false)
-      }
-    }
-
-    onMounted(() => {
-      document.addEventListener('mousedown', handleClickOutside)
-    })
-    onBeforeUnmount(() => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    })
     return () => {
       const viewProps = {
         items: props.items,
@@ -198,11 +183,13 @@ export default defineComponent({
       }
 
       return (
-        <ContextMenu options={options.value} onSelect={props.onSelect} triggerSelector={`[data-selectable-id]`} onShow={() => { }} onHide={() => { }}>
+        <ContextMenu options={options.value} onSelect={props.onSelect} triggerSelector={`[data-selectable-id],.selection-container`} onShow={() => { }} onHide={() => { }}>
           <SelectionRect
             scrollContainerSelector={getScrollContainer}
             onSelectionChange={handleSelectionChange}
+            onClearSelection={() => props.onSelect([], false)}
           >
+
             <div class="flex-1  overflow-auto bg-white" ref={containerRef} >
               {props.viewMode === 'grid' && <GridView {...viewProps} gridSize={props.gridSize} />}
               {props.viewMode === 'list' && <ListView {...viewProps} />}
