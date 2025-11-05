@@ -209,7 +209,7 @@ export default defineComponent({
     })
 
     return () => (
-      <div ref={containerRef} class="context-menu-container">
+      <div ref={containerRef}>
         {slots.default?.()}
         {showMenu.value && (
           <div style={menuStyle.value}>
@@ -225,11 +225,6 @@ export default defineComponent({
           </div>
          )}
         <style>{`
-          .context-menu-container {
-            width: 100%;
-            height: 100%;
-          }
-
           /* 快捷键样式 */
           .context-menu-shortcut {
             margin-left: auto;

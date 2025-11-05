@@ -211,7 +211,6 @@ export default defineComponent({
       }
 
       return (
-        <div class={'w-full h-full'}>
           <ContextMenu options={options.value} onSelect={props.onSelect} triggerSelector={`[data-selectable-id],.selection-container`} onShow={handleContextMenuShow} onHide={() => { }}>
             <SelectionRect
               scrollContainerSelector={'[data-selector]'}
@@ -236,7 +235,6 @@ export default defineComponent({
             </SelectionRect>
 
           </ContextMenu>
-        </div>
       )
     }
   }

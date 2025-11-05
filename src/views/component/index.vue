@@ -78,7 +78,7 @@
         {{ file.name }}
       </div> -->
 
-      <!-- <div class="flex gap-2">
+      <div class="flex gap-2">
         <DropZone class="flex" v-for="folder in folders" :key="folder.id" :zone-id="folder.id"
           :target-path="folder.path || 'xxx'" :is-over="getDropZoneState(folder.id)?.isOver"
           :can-drop="getDropZoneState(folder.id)?.canDrop" as-folder-zone
@@ -92,7 +92,7 @@
             {{ folder.name }}
           </div>
         </DropZone>
-      </div> -->
+      </div>
       <!-- <DragPreview :items="dragState.draggedItems" :is-dragging="isDragging" :drag-start-pos="dragState.dragStartPos"
         :drag-current-pos="dragState.dragCurrentPos" :operation="dragOperation" /> -->
     </div>
