@@ -44,123 +44,142 @@ export default defineComponent({
   setup(props) {
     const viewRef = ref<any>(null)
     const containerRef = ref<HTMLElement | null>(null)
-    const options = computed<ContextMenuItem[]>(() => {
-      const isMultiple = true // 示例中假设为多选状态
-      return [
-        {
-          key: 'open',
-          label: '打开',
-          icon: OpenOutline,
-          // show: !isMultiple && props.fileType !== 'empty',
-          show: true,
-          shortcut: 'Enter'
-        },
-        {
-          key: 'open-with',
-          label: '打开方式',
-          icon: OpenOutline,
-          show: true,
-          // show: !isMultiple && props.fileType === 'file',
-          children: [
-            { key: 'open-default', label: '默认程序' },
-            { key: 'open-text', label: '文本编辑器' },
-            { key: 'open-code', label: '代码编辑器' }
-          ]
-        },
-        {
-          key: 'divider-1',
-          label: '',
-          divider: true,
-          show: true,
-          // show: props.fileType !== 'empty'
-        },
-        {
-          key: 'cut',
-          label: '剪切',
-          icon: CutOutline,
-          // show: props.fileType !== 'empty',
-          shortcut: 'Ctrl+X'
-        },
-        {
-          key: 'copy',
-          label: '复制',
-          icon: CopyOutline,
-          // show: props.fileType !== 'empty',
-          shortcut: 'Ctrl+C'
-        },
-        {
-          key: 'paste',
-          label: '粘贴',
-          icon: CopyOutline,
-          shortcut: 'Ctrl+V'
-        },
-        {
-          key: 'divider-2',
-          label: '',
-          divider: true
-        },
-        {
-          key: 'rename',
-          label: '重命名',
-          icon: CreateOutline,
-          // show: !isMultiple && props.fileType !== 'empty',
-          shortcut: 'F2'
-        },
-        {
-          key: 'delete',
-          // label: isMultiple ? `删除 ${props.selectedCount} 项` : '删除',
-          label: '删除',
-          icon: TrashOutline,
-          // show: props.fileType !== 'empty',
-          danger: true,
-          shortcut: 'Delete'
-        },
-        {
-          key: 'divider-3',
-          label: '',
-          divider: true,
-          // show: props.fileType !== 'empty'
-        },
-        {
-          key: 'download',
-          label: '下载',
-          icon: DownloadOutline,
-          // show: props.fileType !== 'empty'
-        },
-        {
-          key: 'share',
-          label: '分享',
-          icon: ShareSocialOutline,
-          // show: props.fileType !== 'empty'
-        },
-        {
-          key: 'favorite',
-          label: '收藏',
-          icon: StarOutline,
-          // show: !isMultiple && props.fileType !== 'empty'
-        },
-        {
-          key: 'divider-4',
-          label: '',
-          divider: true,
-          // show: props.fileType !== 'empty'
-        },
-        {
-          key: 'properties',
-          label: '属性',
-          icon: InformationCircleOutline,
-          // show: !isMultiple && props.fileType !== 'empty',
-          shortcut: 'Alt+Enter'
-        },
-        {
-          key: 'new-folder',
-          label: '新建文件夹',
-          icon: CreateOutline,
-          // show: props.fileType === 'empty',
-          shortcut: 'Ctrl+Shift+N'
-        }
-      ]
-    })
+    const blankOptions = ref<ContextMenuItem[]>([
+      {
+        key: 'refresh',
+        label: '刷新',
+        icon: OpenOutline,
+        show: true,
+        shortcut: 'F5'
+      },
+      {
+        key: 'paste',
+        label: '粘贴',
+        icon: CopyOutline,
+        shortcut: 'Ctrl+V'
+      },
+      {
+        key: 'new-folder',
+        label: '新建文件夹',
+        icon: CreateOutline,
+        shortcut: 'Ctrl+Shift+N'
+      }
+    ])
+    const fileOptions = ref<ContextMenuItem[]>([
+      {
+        key: 'open',
+        label: '打开',
+        icon: OpenOutline,
+        // show: !isMultiple && props.fileType !== 'empty',
+        show: true,
+        shortcut: 'Enter'
+      },
+      {
+        key: 'open-with',
+        label: '打开方式',
+        icon: OpenOutline,
+        show: true,
+        // show: !isMultiple && props.fileType === 'file',
+        children: [
+          { key: 'open-default', label: '默认程序' },
+          { key: 'open-text', label: '文本编辑器' },
+          { key: 'open-code', label: '代码编辑器' }
+        ]
+      },
+      {
+        key: 'divider-1',
+        label: '',
+        divider: true,
+        show: true,
+        // show: props.fileType !== 'empty'
+      },
+      {
+        key: 'cut',
+        label: '剪切',
+        icon: CutOutline,
+        // show: props.fileType !== 'empty',
+        shortcut: 'Ctrl+X'
+      },
+      {
+        key: 'copy',
+        label: '复制',
+        icon: CopyOutline,
+        // show: props.fileType !== 'empty',
+        shortcut: 'Ctrl+C'
+      },
+      {
+        key: 'paste',
+        label: '粘贴',
+        icon: CopyOutline,
+        shortcut: 'Ctrl+V'
+      },
+      {
+        key: 'divider-2',
+        label: '',
+        divider: true
+      },
+      {
+        key: 'rename',
+        label: '重命名',
+        icon: CreateOutline,
+        // show: !isMultiple && props.fileType !== 'empty',
+        shortcut: 'F2'
+      },
+      {
+        key: 'delete',
+        // label: isMultiple ? `删除 ${props.selectedCount} 项` : '删除',
+        label: '删除',
+        icon: TrashOutline,
+        // show: props.fileType !== 'empty',
+        danger: true,
+        shortcut: 'Delete'
+      },
+      {
+        key: 'divider-3',
+        label: '',
+        divider: true,
+        // show: props.fileType !== 'empty'
+      },
+      {
+        key: 'download',
+        label: '下载',
+        icon: DownloadOutline,
+        // show: props.fileType !== 'empty'
+      },
+      {
+        key: 'share',
+        label: '分享',
+        icon: ShareSocialOutline,
+        // show: props.fileType !== 'empty'
+      },
+      {
+        key: 'favorite',
+        label: '收藏',
+        icon: StarOutline,
+        // show: !isMultiple && props.fileType !== 'empty'
+      },
+      {
+        key: 'divider-4',
+        label: '',
+        divider: true,
+        // show: props.fileType !== 'empty'
+      },
+      {
+        key: 'properties',
+        label: '属性',
+        icon: InformationCircleOutline,
+        // show: !isMultiple && props.fileType !== 'empty',
+        shortcut: 'Alt+Enter'
+      },
+      {
+        key: 'new-folder',
+        label: '新建文件夹',
+        icon: CreateOutline,
+        // show: props.fileType === 'empty',
+        shortcut: 'Ctrl+Shift+N'
+      }
+    ])
+    const options = ref<ContextMenuItem[]>([])
     /** 获取滚动容器 */
     const getScrollContainer = () => {
       if (props.viewMode === 'detail' && viewRef.value?.getSelectableContainer) {
@@ -174,6 +193,21 @@ export default defineComponent({
       props.onSelect(ids, false)
     }
 
+    const handleContextMenuShow = (contextData: any) => {
+      const target = contextData.data.element as HTMLElement
+      const fileEl = target.closest('[data-selectable-id]') as HTMLElement | null
+      if (fileEl) {
+        const id = fileEl.dataset.selectableId!
+        if (!props.selectedIds.has(id)) {
+          props.onSelect([id], false) // 右键单选文件
+        }
+        options.value = fileOptions.value
+      } else {
+        props.onSelect([], false)
+        options.value = blankOptions.value
+      }
+    }
+
     return () => {
       const viewProps = {
         items: props.items,
@@ -183,7 +217,7 @@ export default defineComponent({
       }
 
       return (
-        <ContextMenu options={options.value} onSelect={props.onSelect} triggerSelector={`[data-selectable-id],.selection-container`} onShow={() => { }} onHide={() => { }}>
+        <ContextMenu options={options.value} onSelect={props.onSelect} triggerSelector={`[data-selectable-id],.selection-container`} onShow={handleContextMenuShow} onHide={() => { }}>
           <SelectionRect
             scrollContainerSelector={getScrollContainer}
             onSelectionChange={handleSelectionChange}
