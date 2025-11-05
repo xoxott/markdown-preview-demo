@@ -1,12 +1,12 @@
 /*
  * @Author: yangtao 212920320@qq.com
  * @Date: 2025-11-03 09:19:21
- * @LastEditors: yangtao 212920320@qq.com
- * @LastEditTime: 2025-11-05 11:39:51
+ * @LastEditors: yang 212920320@qq.com
+ * @LastEditTime: 2025-11-05 23:27:16
  * @FilePath: \markdown-preview-demo\src\components\file-explorer\container\ViewContainer.tsx
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
-import { computed, defineComponent, nextTick, onBeforeUnmount, onMounted, PropType, ref } from 'vue'
+import { computed, defineComponent, inject, nextTick, onBeforeUnmount, onMounted, PropType, provide, ref } from 'vue'
 import GridView from '../views/GridView'
 import TileView from '../views/TileView'
 import DetailView from '../views/DetailView'
@@ -15,6 +15,7 @@ import ListView from '../views/ListView'
 import ContentView from '../views/ContentView'
 import SelectionRect from '../interaction/SelectionRect'
 import ContextMenu, { ContextMenuItem } from '../interaction/ContextMenu'
+import DragPreview from '../interaction/DragPreview'
 import {
   CopyOutline,
   CreateOutline,
@@ -26,6 +27,7 @@ import {
   StarOutline,
   TrashOutline
 } from '@vicons/ionicons5'
+import { FileDragDropHook, useFileDragDropEnhanced } from '../hooks/useFileDragDropEnhanced'
 // import SelectionRectV1 from '../interaction/SelectionRectV1'
 
 export default defineComponent({
@@ -43,7 +45,6 @@ export default defineComponent({
   },
   setup(props) {
     const viewRef = ref<any>(null)
-    const containerRef = ref<HTMLElement | null>(null)
     const blankOptions = ref<ContextMenuItem[]>([
       {
         key: 'refresh',
@@ -180,13 +181,6 @@ export default defineComponent({
       }
     ])
     const options = ref<ContextMenuItem[]>([])
-    /** 获取滚动容器 */
-    const getScrollContainer = () => {
-      if (props.viewMode === 'detail' && viewRef.value?.getSelectableContainer) {
-        return viewRef.value.getSelectableContainer()
-      }
-      return containerRef.value
-    }
 
     /** 接收圈选结果 */
     const handleSelectionChange = (ids: string[]) => {
@@ -217,30 +211,32 @@ export default defineComponent({
       }
 
       return (
-        <ContextMenu options={options.value} onSelect={props.onSelect} triggerSelector={`[data-selectable-id],.selection-container`} onShow={handleContextMenuShow} onHide={() => { }}>
-          <SelectionRect
-            scrollContainerSelector={getScrollContainer}
-            onSelectionChange={handleSelectionChange}
-            onClearSelection={() => props.onSelect([], false)}
-          >
+        <div class={'w-full h-full'}>
+          <ContextMenu options={options.value} onSelect={props.onSelect} triggerSelector={`[data-selectable-id],.selection-container`} onShow={handleContextMenuShow} onHide={() => { }}>
+            <SelectionRect
+              scrollContainerSelector={'[data-selector]'}
+              onSelectionChange={handleSelectionChange}
+              onClearSelection={() => props.onSelect([], false)}
+            >
+              <div class="flex-1  overflow-auto bg-white"  >
+                {props.viewMode === 'grid' && <GridView {...viewProps} gridSize={props.gridSize} />}
+                {props.viewMode === 'list' && <ListView {...viewProps} />}
+                {props.viewMode === 'tile' && <TileView {...viewProps} />}
+                {props.viewMode === 'detail' && props.sortField && props.sortOrder && props.onSort && (
+                  <DetailView
+                    {...viewProps}
+                    ref={viewRef}
+                    sortField={props.sortField}
+                    sortOrder={props.sortOrder}
+                    onSort={props.onSort}
+                  />
+                )}
+                {props.viewMode === 'content' && <ContentView {...viewProps} />}
+              </div>
+            </SelectionRect>
 
-            <div class="flex-1  overflow-auto bg-white" ref={containerRef} >
-              {props.viewMode === 'grid' && <GridView {...viewProps} gridSize={props.gridSize} />}
-              {props.viewMode === 'list' && <ListView {...viewProps} />}
-              {props.viewMode === 'tile' && <TileView {...viewProps} />}
-              {props.viewMode === 'detail' && props.sortField && props.sortOrder && props.onSort && (
-                <DetailView
-                  {...viewProps}
-                  ref={viewRef}
-                  sortField={props.sortField}
-                  sortOrder={props.sortOrder}
-                  onSort={props.onSort}
-                />
-              )}
-              {props.viewMode === 'content' && <ContentView {...viewProps} />}
-            </div>
-          </SelectionRect>
-        </ContextMenu>
+          </ContextMenu>
+        </div>
       )
     }
   }

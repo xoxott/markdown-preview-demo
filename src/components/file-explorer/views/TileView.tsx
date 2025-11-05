@@ -44,6 +44,7 @@ export default defineComponent({
     return () => (
       <div
         class="grid gap-1 p-4"
+        data-selector="content-viewer"
         style={{
           gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
           backgroundColor: themeVars.value.bodyColor

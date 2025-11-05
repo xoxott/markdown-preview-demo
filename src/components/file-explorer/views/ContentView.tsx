@@ -18,6 +18,7 @@ export default defineComponent({
     return () => (
       <div 
         class="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 p-4"
+        data-selector="content-viewer"
         style={{
           backgroundColor: themeVars.value.bodyColor
         }}

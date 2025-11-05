@@ -32,7 +32,6 @@ export default defineComponent({
   },
   setup(props, { expose }) {
     const themeVars = useThemeVars()
-    const bodyRef = ref<HTMLTableSectionElement | null>(null)
     const tableRef = ref<HTMLTableElement | null>(null)
     const hoveredHeader = ref<SortField | null>(null)
     const hoveredResizer = ref<SortField | null>(null)
@@ -478,11 +477,6 @@ export default defineComponent({
         cancelAnimationFrame(resizing.value.animationFrame)
       }
     })
-
-    expose({
-      getSelectableContainer: () => bodyRef.value
-    })
-
     return () => (
       <div
         class="overflow-auto h-full"
@@ -512,7 +506,7 @@ export default defineComponent({
               {columns.value.map((column, index) => SortHeader(column, index))}
             </tr>
           </thead>
-          <tbody ref={bodyRef}>
+          <tbody data-selector="content-viewer">
             {props.items.map(item => {
               const isSelected = props.selectedIds.has(item.id)
               return (

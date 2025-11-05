@@ -1,8 +1,8 @@
 <!--
  * @Author: yang 212920320@qq.com
  * @Date: 2025-11-01 21:48:56
- * @LastEditors: yangtao 212920320@qq.com
- * @LastEditTime: 2025-11-05 14:00:47
+ * @LastEditors: yang 212920320@qq.com
+ * @LastEditTime: 2025-11-05 23:10:03
  * @FilePath: \markdown-preview-demo\src\views\component\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -45,15 +45,15 @@
             </div>
             <ContextMenu @select="handleSelect" triggerSelector="[data-selectable-id]" @hide="() => console.log('菜单隐藏')"
               @show="e => console.log('菜单显示', e)" :options="fileMenuOptions1">
-            <div>
               <div>
                 <div>
+                  <div>
                     <div data-selectable-id="item-1">
-                右键我试试2
-              </div>
+                      右键我试试2
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
             </ContextMenu>
           </div>
         </ContextMenu>
@@ -69,31 +69,35 @@
 
     <ViewContainer :items="sortedFiles" :viewMode="viewMode" :selectedIds="selectedIds" @select="handleSelect"
       @open="handleOpen" :gridSize="gridSize" @sort="handleSort" :sort-field="sortField" :sort-order="sortOrder" />
-    <!-- <div @dragover="handleDragMove" @dragend="endDrag">
-      <div v-for="file in files" :key="file.id" draggable="true" @dragstart="handleDragStart(file, $event)">
-        {{ file.name }}
-      </div>
 
-      <div class="flex gap-2">
-         <DropZone class="flex" v-for="folder in folders" :key="folder.id" :zone-id="folder.id" :target-path="folder.path || 'xxx'"
-        :is-over="getDropZoneState(folder.id)?.isOver" :can-drop="getDropZoneState(folder.id)?.canDrop" as-folder-zone
-        @drag-enter="enterDropZone(folder.id, folder.path || 'xxx')" @drag-leave="leaveDropZone(folder.id)"
-        @drop="handleDrop(folder.id)">
-        <div class="p-4 mt-4 border-2 rounded-lg"
-          :class="getDropZoneState(folder.id)?.isOver
+    <DragPreview :items="dragDrop.dragState.value.draggedItems" :is-dragging="dragDrop.isDragging.value" :drag-start-pos="dragDrop.dragState.value.dragStartPos"
+      :drag-current-pos="dragDrop.dragState.value.dragCurrentPos" :operation="dragDrop.dragOperation.value" />
+
+    <div @dragover="handleDragMove" @dragend="endDrag">
+      <!-- <div v-for="file in mockItems" :key="file.id" draggable="true" @dragstart="handleDragStart(file, $event)">
+        {{ file.name }}
+      </div> -->
+
+      <!-- <div class="flex gap-2">
+        <DropZone class="flex" v-for="folder in folders" :key="folder.id" :zone-id="folder.id"
+          :target-path="folder.path || 'xxx'" :is-over="getDropZoneState(folder.id)?.isOver"
+          :can-drop="getDropZoneState(folder.id)?.canDrop" as-folder-zone
+          @drag-enter="enterDropZone(folder.id, folder.path || 'xxx')" @drag-leave="leaveDropZone(folder.id)"
+          @drop="handleDrop(folder.id)">
+          <div class="p-4 mt-4 border-2 rounded-lg" :class="getDropZoneState(folder.id)?.isOver
             ? getDropZoneState(folder.id)?.canDrop
               ? 'border-green-500 bg-green-50'
               : 'border-red-500 bg-red-50'
             : 'border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-600'">
-          {{ folder.name }}
-        </div>
-      </DropZone>
-      </div>
-      <DragPreview :items="dragState.draggedItems" :is-dragging="isDragging" :drag-start-pos="dragState.dragStartPos"
-        :drag-current-pos="dragState.dragCurrentPos" :operation="dragOperation" />
-    </div> -->
+            {{ folder.name }}
+          </div>
+        </DropZone>
+      </div> -->
+      <!-- <DragPreview :items="dragState.draggedItems" :is-dragging="isDragging" :drag-start-pos="dragState.dragStartPos"
+        :drag-current-pos="dragState.dragCurrentPos" :operation="dragOperation" /> -->
+    </div>
 
-    <test />
+    <!-- <test /> -->
   </n-card>
 </template>
 
@@ -108,7 +112,9 @@ import FileToolbar from '@/components/file-explorer/layout/FileToolbar'
 import FileBreadcrumb from '@/components/file-explorer/layout/FileBreadcrumb'
 import FileSidebar from '@/components/file-explorer/layout/FileSidebar'
 import FileStatusBar from '@/components/file-explorer/layout/FileStatusBar'
-import { computed, ref } from 'vue'
+import DropZone from '@/components/file-explorer/interaction/DropZone'
+import DragPreview from '@/components/file-explorer/interaction/DragPreview'
+import { computed, provide, ref } from 'vue'
 import {
   CopyOutline,
   CreateOutline,
@@ -124,17 +130,20 @@ import { FileItem, GridSize, SortField, SortOrder, ViewMode } from '@/components
 import { useFileDragDrop } from '@/components/file-explorer/hooks/useFileDragDrop'
 import { useFileSort } from '@/components/file-explorer/hooks/useFileSort'
 import test from './test.vue'
+import { useFileDragDropEnhanced } from '@/components/file-explorer/hooks/useFileDragDropEnhanced'
 const gridSize = ref<GridSize>('medium')
-const viewMode = ref<ViewMode>('detail')
+const viewMode = ref<ViewMode>('grid')
+const dragDrop = useFileDragDropEnhanced()
+provide('FILE_DRAG_DROP', dragDrop)
 const mockItems = ref<FileItem[]>([
-  { id: '1', name: '项目文档', type: 'folder', size: 0, modifiedAt: new Date(2025, 10, 1), createdAt: new Date(2025, 9, 1) },
-  { id: '2', name: '设计稿.fig', type: 'file', size: 2457600, extension: 'fig', modifiedAt: new Date(2025, 10, 2), createdAt: new Date(2025, 10, 2) },
-  { id: '3', name: 'banner.png', type: 'file', size: 1024000, extension: 'png', modifiedAt: new Date(2025, 10, 3), createdAt: new Date(2025, 10, 3), thumbnailUrl: 'https://via.placeholder.com/150/3b82f6' },
-  { id: '4', name: '代码库', type: 'folder', size: 0, modifiedAt: new Date(2025, 9, 15), createdAt: new Date(2025, 8, 1) },
-  { id: '5', name: 'presentation.pptx', type: 'file', size: 5242880, extension: 'pptx', modifiedAt: new Date(2025, 10, 1), createdAt: new Date(2025, 10, 1) },
-  { id: '6', name: 'video-demo.mp4', type: 'file', size: 15728640, extension: 'mp4', modifiedAt: new Date(2025, 9, 28), createdAt: new Date(2025, 9, 28), thumbnailUrl: 'https://via.placeholder.com/150/ec4899' },
-  { id: '7', name: 'music.mp3', type: 'file', size: 3145728, extension: 'mp3', modifiedAt: new Date(2025, 10, 2), createdAt: new Date(2025, 10, 2) },
-  { id: '8', name: 'script.js', type: 'file', size: 8192, extension: 'js', modifiedAt: new Date(2025, 10, 3), createdAt: new Date(2025, 10, 3) },
+  { id: '1', name: '项目文档', type: 'folder', size: 0, modifiedAt: new Date(2025, 10, 1), createdAt: new Date(2025, 9, 1), path: '/' },
+  { id: '2', name: '设计稿.fig', type: 'file', size: 2457600, extension: 'fig', modifiedAt: new Date(2025, 10, 2), createdAt: new Date(2025, 10, 2), path: '/' },
+  { id: '3', name: 'banner.png', type: 'file', size: 1024000, extension: 'png', modifiedAt: new Date(2025, 10, 3), createdAt: new Date(2025, 10, 3), thumbnailUrl: 'https://via.placeholder.com/150/3b82f6', path: '/' },
+  { id: '4', name: '代码库', type: 'folder', size: 0, modifiedAt: new Date(2025, 9, 15), createdAt: new Date(2025, 8, 1), path: '/' },
+  { id: '5', name: 'presentation.pptx', type: 'file', size: 5242880, extension: 'pptx', modifiedAt: new Date(2025, 10, 1), createdAt: new Date(2025, 10, 1), path: '/' },
+  { id: '6', name: 'video-demo.mp4', type: 'file', size: 15728640, extension: 'mp4', modifiedAt: new Date(2025, 9, 28), createdAt: new Date(2025, 9, 28), thumbnailUrl: 'https://via.placeholder.com/150/ec4899', path: '/' },
+  { id: '7', name: 'music.mp3', type: 'file', size: 3145728, extension: 'mp3', modifiedAt: new Date(2025, 10, 2), createdAt: new Date(2025, 10, 2), path: '/' },
+  { id: '8', name: 'script.js', type: 'file', size: 8192, extension: 'js', modifiedAt: new Date(2025, 10, 3), createdAt: new Date(2025, 10, 3), path: '/' },
 ]);
 const { setSorting, sortedFiles, sortOrder, sortField } = useFileSort(mockItems)
 

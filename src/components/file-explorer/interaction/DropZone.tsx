@@ -1,3 +1,52 @@
+/**
+ * @file DropZone.vue
+ * @description
+ * 通用文件拖拽上传区域组件（支持文件、文件夹拖拽、禁用态、加载态、放置提示动画等）
+ * 
+ * 功能特性：
+ * - 支持文件和文件夹拖拽；
+ * - 拖拽进入/离开/放下时触发事件；
+ * - 根据状态动态变更样式（可放置、禁止放置、禁用、加载）；
+ * - 可配置为文件夹拖拽目标（asFolderZone）；
+ * - 支持自定义提示文本与插槽内容；
+ * - 内置 Naive UI 的图标与动画过渡效果；
+ * 
+ * @example
+ * ```vue
+ * <template>
+ *   <DropZone
+ *     zoneId="upload-main"
+ *     targetPath="/documents"
+ *     :canDrop="canUpload"
+ *     :disabled="uploading"
+ *     :loading="loading"
+ *     @drop="handleDrop"
+ *     @dragEnter="handleEnter"
+ *     @dragLeave="handleLeave"
+ *   />
+ * </template>
+ * 
+ * <script setup lang="ts">
+ * import DropZone from '@/components/DropZone'
+ * import { ref } from 'vue'
+ * 
+ * const canUpload = ref(true)
+ * const uploading = ref(false)
+ * const loading = ref(false)
+ * 
+ * const handleDrop = (zoneId: string) => {
+ *   console.log(`文件放下到区域: ${zoneId}`)
+ * }
+ * const handleEnter = (zoneId: string) => {
+ *   console.log(`拖拽进入: ${zoneId}`)
+ * }
+ * const handleLeave = (zoneId: string) => {
+ *   console.log(`拖拽离开: ${zoneId}`)
+ * }
+ * </script>
+ * ```
+ */
+
 import {
   defineComponent,
   ref,
@@ -16,6 +65,18 @@ import {
   ArrowDownOutline
 } from '@vicons/ionicons5'
 
+/**
+ * @typedef Props
+ * @property {string} zoneId 拖拽区域唯一标识符，用于区分不同放置目标
+ * @property {string} targetPath 放置目标路径（例如上传路径或目标文件夹路径）
+ * @property {boolean} [canDrop=true] 是否允许放置文件或文件夹
+ * @property {boolean} [isOver=false] 父组件传入的“正在被拖拽悬停”的外部状态
+ * @property {boolean} [disabled=false] 是否禁用该放置区
+ * @property {boolean} [asFolderZone=false] 是否作为文件夹模式（在文件夹卡片内使用）
+ * @property {string} [hint] 自定义提示文本（优先级最高）
+ * @property {boolean} [showUploadHint=true] 是否显示底部“支持拖拽文件和文件夹”的辅助提示
+ * @property {boolean} [loading=false] 是否显示加载状态（显示 NSpin）
+ */
 interface Props {
   zoneId: string
   targetPath: string
@@ -41,16 +102,31 @@ export default defineComponent({
     showUploadHint: { type: Boolean, default: true },
     loading: { type: Boolean, default: false }
   },
+  /**
+   * @emits dragEnter (zoneId: string) - 当拖拽进入该区域时触发
+   * @emits dragLeave (zoneId: string) - 当拖拽离开该区域时触发
+   * @emits drop (zoneId: string) - 当文件被放置到该区域时触发
+   */
   emits: ['dragEnter', 'dragLeave', 'drop'],
+
   setup(props, { emit, slots }) {
+    /** 当前区域是否处于激活状态（存在拖拽操作） */
     const isActive = ref(false)
+    /** 当前区域是否有拖拽悬停 */
     const isDragOver = ref(false)
+    /** 内部计数器，用于修正多层 dragenter/dragleave 嵌套事件 */
     const dropCounter = ref(0)
 
+    /**
+     * 是否允许放置文件（综合判断 disabled、canDrop、isOver 状态）
+     */
     const canAcceptDrop = computed(() => {
       return !props.disabled && props.canDrop && (props.isOver || isDragOver.value)
     })
 
+    /**
+     * 根据不同状态动态生成样式类名
+     */
     const zoneClasses = computed(() => {
       const classes: string[] = []
 
@@ -63,10 +139,7 @@ export default defineComponent({
           'scale-[1.02]'
         )
       } else if (props.isOver && !props.canDrop) {
-        classes.push(
-          'border-red-500 bg-red-50 dark:bg-red-900/20',
-          'ring-2 ring-red-500/30'
-        )
+        classes.push('border-red-500 bg-red-50 dark:bg-red-900/20', 'ring-2 ring-red-500/30')
       } else if (isActive.value) {
         classes.push('border-gray-400 dark:border-gray-500')
       } else {
@@ -76,6 +149,9 @@ export default defineComponent({
       return classes
     })
 
+    /**
+     * 根据当前状态动态切换图标
+     */
     const iconComponent = computed(() => {
       if (props.loading) return null
       if (canAcceptDrop.value) return CheckmarkCircleOutline
@@ -84,12 +160,18 @@ export default defineComponent({
       return CloudUploadOutline
     })
 
+    /**
+     * 图标颜色
+     */
     const iconColor = computed(() => {
       if (canAcceptDrop.value) return 'text-blue-500'
       if (props.isOver && !props.canDrop) return 'text-red-500'
       return 'text-gray-400 dark:text-gray-500'
     })
 
+    /**
+     * 提示文本逻辑
+     */
     const hintText = computed(() => {
       if (props.hint) return props.hint
       if (props.loading) return '正在处理...'
@@ -105,6 +187,7 @@ export default defineComponent({
       return '拖拽文件或文件夹到此处'
     })
 
+    /** 拖拽进入事件 */
     const handleDragEnter = (e: DragEvent) => {
       e.preventDefault()
       e.stopPropagation()
@@ -117,6 +200,7 @@ export default defineComponent({
       }
     }
 
+    /** 拖拽悬停事件（控制 dropEffect） */
     const handleDragOver = (e: DragEvent) => {
       e.preventDefault()
       e.stopPropagation()
@@ -131,6 +215,7 @@ export default defineComponent({
       }
     }
 
+    /** 拖拽离开事件 */
     const handleDragLeave = (e: DragEvent) => {
       e.preventDefault()
       e.stopPropagation()
@@ -143,6 +228,7 @@ export default defineComponent({
       }
     }
 
+    /** 放置事件 */
     const handleDrop = (e: DragEvent) => {
       e.preventDefault()
       e.stopPropagation()
@@ -153,6 +239,9 @@ export default defineComponent({
       emit('drop', props.zoneId)
     }
 
+    /**
+     * 监听外部 isOver 状态（重置内部状态）
+     */
     watch(
       () => props.isOver,
       newValue => {
@@ -163,10 +252,12 @@ export default defineComponent({
       }
     )
 
+    /** 全局拖拽开始事件（用于整体激活边框） */
     const handleGlobalDragStart = () => {
       isActive.value = true
     }
 
+    /** 全局拖拽结束事件（重置状态） */
     const handleGlobalDragEnd = () => {
       isActive.value = false
       isDragOver.value = false
@@ -187,7 +278,7 @@ export default defineComponent({
       <div
         class={[
           'relative transition-all duration-200 ease-out',
-          'border-2 border-dashed rounded-lg',
+          'border-2 border-dashed',
           props.asFolderZone ? 'p-2' : 'p-8',
           zoneClasses.value
         ]}
@@ -196,13 +287,13 @@ export default defineComponent({
         onDragleave={handleDragLeave}
         onDrop={handleDrop}
       >
-        {/* 文件夹模式插槽 */}
+        {/* 文件夹模式插槽（内部区域） */}
         {props.asFolderZone && slots.default?.()}
 
-        {/* 独立放置区 */}
+        {/* 独立拖拽区域 */}
         {!props.asFolderZone && (
           <div class="flex flex-col items-center justify-center gap-4 text-center">
-            {/* 图标 */}
+            {/* 图标部分 */}
             <div class="relative">
               {props.loading ? (
                 <NSpin size={48} />
@@ -216,7 +307,7 @@ export default defineComponent({
                 )
               )}
 
-              {/* 动画箭头提示 */}
+              {/* 箭头动画提示 */}
               <Transition
                 enterActiveClass="transition-all duration-300"
                 leaveActiveClass="transition-all duration-300"

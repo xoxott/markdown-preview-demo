@@ -1,8 +1,8 @@
 /*
  * @Author: yang 212920320@qq.com
  * @Date: 2025-11-02 16:51:15
- * @LastEditors: yangtao 212920320@qq.com
- * @LastEditTime: 2025-11-04 15:24:34
+ * @LastEditors: yang 212920320@qq.com
+ * @LastEditTime: 2025-11-05 23:08:01
  * @FilePath: \markdown-preview-demo\src\components\file-explorer\types\file-explorer.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -24,7 +24,7 @@ export interface FileItem {
   /** 文件大小（字节） */
   size?: number
   /** 完整路径 */
-  path?: string
+  path: string
   /** 文件扩展名 */
   extension?: string
   /** 修改时间 */

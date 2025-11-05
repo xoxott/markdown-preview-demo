@@ -1,7 +1,29 @@
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, Ref } from 'vue'
 import type { DragDropOptions, FileItem, DragState, DropZoneState } from '../types/file-explorer'
+export interface FileDragDropHook {
+  // 状态
+  dragState: Ref<DragState>
+  isDragging: Ref<boolean>
+  draggedCount: Ref<number>
+  dragOffset: Ref<{ x: number; y: number }>
+  dragOperation: Ref<'move' | 'copy'>
 
-export function useFileDragDropEnhanced(options: DragDropOptions = {}) {
+  // 方法
+  startDrag: (items: FileItem[], event: DragEvent, operation?: 'move' | 'copy') => void
+  updateDragPosition: (event: DragEvent | MouseEvent) => void
+  updateDragOperation: (event: DragEvent | KeyboardEvent) => void
+  endDrag: () => void
+  registerDropZone: (zoneId: string, targetPath: string) => void
+  unregisterDropZone: (zoneId: string) => void
+  getDropZoneState: (zoneId: string) => DropZoneState | undefined
+  enterDropZone: (zoneId: string, targetPath: string) => void
+  leaveDropZone: (zoneId: string) => void
+  executeDrop: (zoneId: string) => Promise<void>
+
+  // 工具方法
+  attachGlobalListeners: () => (() => void) | void
+}
+export function useFileDragDropEnhanced(options: DragDropOptions = {}):FileDragDropHook  {
   const {
     onDragStart,
     onDragEnd,
@@ -70,7 +92,7 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}) {
         items: validItems.map(item => item.id),
         operation
       }))
-      
+
       // 设置一个透明的拖拽图像，让我们的自定义预览生效
       const dragImage = document.createElement('div')
       dragImage.style.opacity = '0'
@@ -89,7 +111,7 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}) {
    * 更新拖拽位置（优化版）
    */
   const updateDragPosition = (event: DragEvent | MouseEvent) => {
-   if (!dragState.value.isDragging) return
+    if (!dragState.value.isDragging) return
     const x = event.clientX
     const y = event.clientY
     // 过滤掉无效的坐标
@@ -100,7 +122,7 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}) {
       // 坐标全为 0，保持上一次的位置
       return
     }
-    
+
     if (x < 0 || y < 0) {
       // 负数坐标，无效
       return
@@ -119,11 +141,11 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}) {
    */
   const updateDragOperation = (event: DragEvent | KeyboardEvent) => {
     const newOperation = (event.ctrlKey || event.metaKey) ? 'copy' : 'move'
-    
+
     if (dragOperation.value !== newOperation) {
       dragOperation.value = newOperation
     }
-    
+
     // 更新 dataTransfer 的 dropEffect
     if ('dataTransfer' in event && event.dataTransfer) {
       event.dataTransfer.dropEffect = newOperation
@@ -221,7 +243,7 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}) {
    */
   const executeDrop = async (zoneId: string) => {
     const zone = dropZones.value.get(zoneId)
-    if (!zone || !zone.canDrop || !zone.targetPath) return 
+    if (!zone || !zone.canDrop || !zone.targetPath) return
 
     const items = dragState.value.draggedItems
     const targetPath = zone.targetPath
@@ -245,13 +267,13 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}) {
 
   const attachGlobalListeners = () => {
     if (globalListenersAttached) return
-    
+
     const handleGlobalDrag = (e: DragEvent) => {
       if (isDragging.value) {
         updateDragPosition(e)
       }
     }
-    
+
     const handleGlobalDragOver = (e: DragEvent) => {
       if (isDragging.value) {
         e.preventDefault() // 必须调用才能触发 drop
@@ -259,13 +281,13 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}) {
         updateDragOperation(e)
       }
     }
-    
+
     const handleGlobalKeyChange = (e: KeyboardEvent) => {
       if (isDragging.value) {
         updateDragOperation(e)
       }
     }
-    
+
     // 🔥 全局 dragend 事件处理
     const handleGlobalDragEnd = (e: DragEvent) => {
       if (isDragging.value) {
@@ -273,7 +295,7 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}) {
         endDrag()
       }
     }
-    
+
     // 🔥 全局 drop 事件处理（备用）
     const handleGlobalDrop = (e: DragEvent) => {
       if (isDragging.value) {
@@ -282,19 +304,19 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}) {
         // 让具体的 DropZone 处理 drop 逻辑
       }
     }
-    
+
     // 监听拖拽事件
     document.addEventListener('drag', handleGlobalDrag, true)
     document.addEventListener('dragover', handleGlobalDragOver, true)
     document.addEventListener('dragend', handleGlobalDragEnd, true)
     document.addEventListener('drop', handleGlobalDrop, true)
-    
+
     // 监听键盘事件
     document.addEventListener('keydown', handleGlobalKeyChange, true)
     document.addEventListener('keyup', handleGlobalKeyChange, true)
-    
+
     globalListenersAttached = true
-    
+
     // 返回清理函数
     return () => {
       document.removeEventListener('drag', handleGlobalDrag, true)
@@ -315,7 +337,7 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}) {
     onMounted(() => {
       cleanup = attachGlobalListeners()
     })
-    
+
     onUnmounted(() => {
       cleanup?.()
     })
@@ -328,7 +350,7 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}) {
     draggedCount,
     dragOffset,
     dragOperation,
-    
+
     // 方法
     startDrag,
     updateDragPosition,
@@ -340,7 +362,7 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}) {
     enterDropZone,
     leaveDropZone,
     executeDrop,
-    
+
     // 工具方法
     attachGlobalListeners
   }

@@ -1,7 +1,9 @@
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, inject, PropType } from 'vue'
 import FileIcon from '../items/FileIcon'
 import { FileItem } from '../types/file-explorer'
 import { useThemeVars } from 'naive-ui'
+import { FileDragDropHook, useFileDragDropEnhanced } from '../hooks/useFileDragDropEnhanced'
+import { FileDropZoneWrapper } from '../interaction/FileDropZoneWrapper'
 
 type GridSize = 'small' | 'medium' | 'large' | 'extra-large'
 
@@ -31,7 +33,7 @@ export default defineComponent({
   },
   setup(props) {
     const themeVars = useThemeVars()
-
+    const dragDrop = inject<FileDragDropHook>('FILE_DRAG_DROP')!
     const sizeMap = {
       small: { icon: 48, gap: 8, itemWidth: 80, padding: '4px 6px' },
       medium: { icon: 64, gap: 10, itemWidth: 100, padding: '6px 8px' },
@@ -57,8 +59,10 @@ export default defineComponent({
     return () => {
       const config = getConfig()
       return (
+
         <div
           class="grid p-4"
+          data-selector="content-viewer"
           style={{
             gridTemplateColumns: `repeat(auto-fill, minmax(${config.itemWidth}px, 1fr))`,
             gap: `${config.gap}px`,
@@ -69,7 +73,7 @@ export default defineComponent({
           {props.items.map(item => {
             const isSelected = props.selectedIds.has(item.id)
             return (
-              <div key={item.id}  data-selectable-id={item.id} class="flex justify-center">
+              <FileDropZoneWrapper key={item.id} data-selectable-id={item.id} zoneId={item.id} targetPath={item.path} item={item} class="flex justify-center" >
                 <div
                   class="inline-flex flex-col items-center cursor-pointer rounded-lg transition-all duration-200 select-none"
                   style={{
@@ -78,12 +82,15 @@ export default defineComponent({
                       ? `${themeVars.value.primaryColorHover}20`
                       : 'transparent'
                   }}
+                  {...(isSelected ? { 'data-prevent-selection': 'true' } : null)}
                   onMouseenter={e => handleMouseEnter(e, isSelected)}
                   onMouseleave={e => handleMouseLeave(e, isSelected)}
                   onClick={(e: MouseEvent) =>
                     props.onSelect([item.id], e.ctrlKey || e.metaKey)
                   }
                   onDblclick={() => props.onOpen(item)}
+                  onDragstart={e => dragDrop.startDrag([item], e)} 
+                  draggable
                 >
                   {/* 图标 */}
                   <div class="mb-1">
@@ -106,9 +113,10 @@ export default defineComponent({
                     {item.name}
                   </div>
                 </div>
-              </div>
+              </FileDropZoneWrapper>
             )
           })}
+
         </div>
       )
     }

@@ -1,3 +1,61 @@
+/**
+ * @file DragPreview.vue
+ * @description 文件/文件夹拖拽操作时的悬浮预览组件。
+ * 用于在拖动文件或文件夹时显示简洁的预览卡片，
+ * 支持移动与复制操作的动态提示。
+ *
+ * 特性：
+ * - 支持显示多个被拖拽的项目（最多 3 个）
+ * - 支持文件类型图标自动识别（图片 / 视频 / 音频 / 代码 / 压缩包 / 普通文件）
+ * - 实时跟随鼠标位置渲染
+ * - 显示操作类型（复制 / 移动）与剩余数量提示
+ * - 使用 Naive UI 图标与动画效果
+ *
+ * @example
+ * ```vue
+ * <template>
+ *   <DragPreview
+ *     :items="selectedItems"
+ *     :is-dragging="isDragging"
+ *     :drag-start-pos="dragStart"
+ *     :drag-current-pos="dragPos"
+ *     :operation="operation"
+ *   />
+ * </template>
+ *
+ * <script setup lang="ts">
+ * import { ref } from 'vue'
+ * import DragPreview from './DragPreview.vue'
+ *
+ * const selectedItems = ref([
+ *   { id: '1', name: '设计稿.png', type: 'file', extension: 'png' },
+ *   { id: '2', name: '前端方案.docx', type: 'file', extension: 'docx' },
+ *   { id: '3', name: '开发资料', type: 'folder' }
+ * ])
+ *
+ * const isDragging = ref(false)
+ * const dragStart = ref<{ x: number; y: number } | null>(null)
+ * const dragPos = ref<{ x: number; y: number } | null>(null)
+ * const operation = ref<'move' | 'copy'>('move')
+ *
+ * document.addEventListener('dragstart', e => {
+ *   isDragging.value = true
+ *   dragStart.value = { x: e.clientX, y: e.clientY }
+ * })
+ *
+ * document.addEventListener('drag', e => {
+ *   dragPos.value = { x: e.clientX, y: e.clientY }
+ * })
+ *
+ * document.addEventListener('dragend', () => {
+ *   isDragging.value = false
+ *   dragStart.value = null
+ *   dragPos.value = null
+ * })
+ * </script>
+ * ```
+ */
+
 import {
   ArchiveOutline,
   CodeSlashOutline,
@@ -14,11 +72,24 @@ import { defineComponent, computed, Teleport, Transition } from 'vue'
 import type { CSSProperties } from 'vue'
 import type { FileItem } from '../types/file-explorer'
 
+/**
+ * @typedef {Object} FileItem
+ * @property {string} id - 文件唯一 ID
+ * @property {string} name - 文件或文件夹名称
+ * @property {'file' | 'folder'} type - 项目类型
+ * @property {string} [extension] - 文件扩展名（文件类型为 file 时可选）
+ */
+
 interface Props {
+  /** 拖拽的文件/文件夹项目集合 */
   items: FileItem[]
+  /** 是否处于拖拽中状态 */
   isDragging: boolean
+  /** 拖拽起始位置（通常为鼠标按下位置） */
   dragStartPos: { x: number; y: number } | null
+  /** 拖拽当前鼠标位置 */
   dragCurrentPos: { x: number; y: number } | null
+  /** 当前操作类型：move（移动）或 copy（复制） */
   operation: 'move' | 'copy'
 }
 
@@ -29,13 +100,26 @@ export default defineComponent({
   props: {
     items: { type: Array as () => FileItem[], required: true },
     isDragging: { type: Boolean, required: true },
-    dragStartPos: { type: Object as () => { x: number; y: number } | null, default: null },
-    dragCurrentPos: { type: Object as () => { x: number; y: number } | null, default: null },
+    dragStartPos: {
+      type: Object as () => { x: number; y: number } | null,
+      default: null
+    },
+    dragCurrentPos: {
+      type: Object as () => { x: number; y: number } | null,
+      default: null
+    },
     operation: { type: String as () => 'move' | 'copy', required: true }
   },
-  setup(props) {
+  setup(props: Props) {
+    /**
+     * 是否显示预览
+     * 仅在拖拽中并存在当前位置时显示
+     */
     const showPreview = computed(() => props.isDragging && props.dragCurrentPos)
 
+    /**
+     * 拖拽预览的样式，实时跟随鼠标偏移
+     */
     const previewStyle = computed<CSSProperties>(() => {
       if (!props.dragCurrentPos) return {}
       return {
@@ -45,17 +129,23 @@ export default defineComponent({
       }
     })
 
+    /** 显示的前几个预览项（最多 3 个） */
     const previewItems = computed(() => props.items.slice(0, MAX_PREVIEW_ITEMS))
+
+    /** 超出部分数量 */
     const remainingCount = computed(() => Math.max(0, props.items.length - MAX_PREVIEW_ITEMS))
 
+    /** 操作图标（复制或移动） */
     const operationIcon = computed(() =>
       props.operation === 'copy' ? CopyOutline : SwapHorizontalOutline
     )
 
-    const operationText = computed(() =>
-      props.operation === 'copy' ? '复制' : '移动'
-    )
+    /** 操作文案 */
+    const operationText = computed(() => (props.operation === 'copy' ? '复制' : '移动'))
 
+    /**
+     * 根据文件类型或扩展名获取图标
+     */
     const getFileIcon = (item: FileItem) => {
       if (item.type === 'folder') return FolderOutline
       const ext = item.extension?.toLowerCase()
@@ -64,13 +154,19 @@ export default defineComponent({
       if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm'].includes(ext)) return VideocamOutline
       if (['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'].includes(ext)) return MusicalNotesOutline
       if (
-        ['js', 'ts', 'jsx', 'tsx', 'vue', 'html', 'css', 'scss', 'json', 'xml', 'py', 'java', 'cpp', 'c', 'go', 'rs'].includes(ext)
+        [
+          'js', 'ts', 'jsx', 'tsx', 'vue', 'html', 'css', 'scss',
+          'json', 'xml', 'py', 'java', 'cpp', 'c', 'go', 'rs'
+        ].includes(ext)
       )
         return CodeSlashOutline
       if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext)) return ArchiveOutline
       return DocumentOutline
     }
 
+    /**
+     * 根据文件类型获取颜色
+     */
     const getFileColor = (item: FileItem): string => {
       if (item.type === 'folder') return 'text-blue-500'
       const ext = item.extension?.toLowerCase()
@@ -80,7 +176,10 @@ export default defineComponent({
       if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm'].includes(ext)) return 'text-purple-500'
       if (['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'].includes(ext)) return 'text-pink-500'
       if (
-        ['js', 'ts', 'jsx', 'tsx', 'vue', 'html', 'css', 'scss', 'json', 'xml', 'py', 'java', 'cpp', 'c', 'go', 'rs'].includes(ext)
+        [
+          'js', 'ts', 'jsx', 'tsx', 'vue', 'html', 'css', 'scss',
+          'json', 'xml', 'py', 'java', 'cpp', 'c', 'go', 'rs'
+        ].includes(ext)
       )
         return 'text-yellow-500'
       if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext)) return 'text-orange-500'
@@ -88,6 +187,7 @@ export default defineComponent({
       return 'text-gray-500'
     }
 
+    /** 阻止鼠标事件干扰页面 */
     const handleMouseDown = (e: MouseEvent) => {
       e.preventDefault()
       e.stopPropagation()

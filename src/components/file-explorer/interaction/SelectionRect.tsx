@@ -1,6 +1,7 @@
-import { defineComponent, ref, computed, PropType, CSSProperties, onMounted, onBeforeUnmount, watch } from 'vue'
+import { defineComponent, ref, computed, PropType, CSSProperties, onMounted, onBeforeUnmount, watch, watchEffect, nextTick } from 'vue'
 import { useEventListener, useThrottleFn } from '@vueuse/core'
 import { useThemeVars } from 'naive-ui'
+import { debounce } from '@/hooks/upload/utils';
 
 /**
  * 坐标点类型
@@ -35,11 +36,7 @@ export default defineComponent({
     /** 自动滚动触发的边距 */
     scrollEdge: { type: Number, default: 5 },
     /** 滚动容器选择器 */
-    scrollContainerSelector: {
-      type: [String, Object, Function] as PropType<
-        string | HTMLElement | (() => HTMLElement | null)
-      >, required: true
-    },
+    scrollContainerSelector: { type: String, required: true },
     /** 可选元素标识属性名（如 data-selectable-id） */
     selectableSelector: { type: String, default: '[data-selectable-id]' },
     /** 阻止拖选的元素标识属性 */
@@ -71,30 +68,30 @@ export default defineComponent({
     const autoScrollTimer = ref<number>()
     const lastMouseEvent = ref<MouseEvent>()
 
-    /** 获取滚动容器 DOM */
-    const resolveScrollContainer = (): HTMLElement | null => {
-      const val = props.scrollContainerSelector
-      if (!val) return null
-      if (typeof val === 'function') return val() || null
-      if (typeof val === 'string') return document.querySelector(val) as HTMLElement
-      if (val instanceof HTMLElement) return val
-      return null
+    const refreshScrollContainer = async () => {
+      await nextTick()
+      const el = document.querySelector(props.scrollContainerSelector) as HTMLElement | null
+      if (el && el !== scrollContainerRef.value) {
+        scrollContainerRef.value = el
+      }
     }
-
-
 
     /** 初始化滚动容器 */
     onMounted(() => {
-      scrollContainerRef.value = resolveScrollContainer() || undefined
+      refreshScrollContainer()
+      const observerCallback = debounce(() => {
+        const el = document.querySelector(props.scrollContainerSelector) as HTMLElement | null
+        if (el !== scrollContainerRef.value) {
+          scrollContainerRef.value = el || undefined
+        }
+      }, 100) // 100ms 防抖，根据需要调整
+      const observer = new MutationObserver(observerCallback)
+      observer.observe(document.body, { childList: true, subtree: true })
+
+      onBeforeUnmount(() => {
+        observer.disconnect()
+      })
     })
-
-    watch(
-      () => props.scrollContainerSelector,
-      () => {
-        scrollContainerRef.value = resolveScrollContainer() || undefined
-      }
-    )
-
     /**
      * 计算内容坐标下的选区矩形
      */
