@@ -70,11 +70,11 @@ import {
  * @property {string} zoneId 拖拽区域唯一标识符，用于区分不同放置目标
  * @property {string} targetPath 放置目标路径（例如上传路径或目标文件夹路径）
  * @property {boolean} [canDrop=true] 是否允许放置文件或文件夹
- * @property {boolean} [isOver=false] 父组件传入的“正在被拖拽悬停”的外部状态
+ * @property {boolean} [isOver=false] 父组件传入的"正在被拖拽悬停"的外部状态
  * @property {boolean} [disabled=false] 是否禁用该放置区
  * @property {boolean} [asFolderZone=false] 是否作为文件夹模式（在文件夹卡片内使用）
  * @property {string} [hint] 自定义提示文本（优先级最高）
- * @property {boolean} [showUploadHint=true] 是否显示底部“支持拖拽文件和文件夹”的辅助提示
+ * @property {boolean} [showUploadHint=true] 是否显示底部"支持拖拽文件和文件夹"的辅助提示
  * @property {boolean} [loading=false] 是否显示加载状态（显示 NSpin）
  */
 interface Props {
@@ -277,10 +277,9 @@ export default defineComponent({
     return () => (
       <div
         class={[
-          'relative transition-all duration-200 ease-out',
-          'border-2 border-dashed',
-          props.asFolderZone ? 'p-2' : 'p-8',
-          zoneClasses.value
+          'transition-all duration-200 ease-out',
+          props.asFolderZone ? 'contents' : 'relative border-2 border-dashed p-8',
+          !props.asFolderZone && zoneClasses.value
         ]}
         onDragenter={handleDragEnter}
         onDragover={handleDragOver}
@@ -288,7 +287,35 @@ export default defineComponent({
         onDrop={handleDrop}
       >
         {/* 文件夹模式插槽（内部区域） */}
-        {props.asFolderZone && slots.default?.()}
+        {props.asFolderZone && (
+          <div class="relative">
+            {slots.default?.()}
+            
+            {/* 蓝色覆盖层 */}
+            <Transition
+              enterActiveClass="transition-opacity duration-200"
+              leaveActiveClass="transition-opacity duration-200"
+              enterFromClass="opacity-0"
+              leaveToClass="opacity-0"
+            >
+              {canAcceptDrop.value && (
+                <div class="absolute inset-0 bg-blue-500/5 dark:bg-blue-500/10 pointer-events-none" />
+              )}
+            </Transition>
+
+            {/* 错误覆盖层 */}
+            <Transition
+              enterActiveClass="transition-opacity duration-200"
+              leaveActiveClass="transition-opacity duration-200"
+              enterFromClass="opacity-0"
+              leaveToClass="opacity-0"
+            >
+              {props.isOver && !props.canDrop && (
+                <div class="absolute inset-0 bg-red-500/5 dark:bg-red-500/10 pointer-events-none" />
+              )}
+            </Transition>
+          </div>
+        )}
 
         {/* 独立拖拽区域 */}
         {!props.asFolderZone && (
@@ -354,28 +381,32 @@ export default defineComponent({
         )}
 
         {/* 蓝色覆盖层 */}
-        <Transition
-          enterActiveClass="transition-opacity duration-200"
-          leaveActiveClass="transition-opacity duration-200"
-          enterFromClass="opacity-0"
-          leaveToClass="opacity-0"
-        >
-          {canAcceptDrop.value && (
-            <div class="absolute inset-0 bg-blue-500/5 dark:bg-blue-500/10 rounded-lg pointer-events-none" />
-          )}
-        </Transition>
+        {!props.asFolderZone && (
+          <Transition
+            enterActiveClass="transition-opacity duration-200"
+            leaveActiveClass="transition-opacity duration-200"
+            enterFromClass="opacity-0"
+            leaveToClass="opacity-0"
+          >
+            {canAcceptDrop.value && (
+              <div class="absolute inset-0 bg-blue-500/5 dark:bg-blue-500/10 rounded-lg pointer-events-none" />
+            )}
+          </Transition>
+        )}
 
         {/* 错误覆盖层 */}
-        <Transition
-          enterActiveClass="transition-opacity duration-200"
-          leaveActiveClass="transition-opacity duration-200"
-          enterFromClass="opacity-0"
-          leaveToClass="opacity-0"
-        >
-          {props.isOver && !props.canDrop && (
-            <div class="absolute inset-0 bg-red-500/5 dark:bg-red-500/10 rounded-lg pointer-events-none" />
-          )}
-        </Transition>
+        {!props.asFolderZone && (
+          <Transition
+            enterActiveClass="transition-opacity duration-200"
+            leaveActiveClass="transition-opacity duration-200"
+            enterFromClass="opacity-0"
+            leaveToClass="opacity-0"
+          >
+            {props.isOver && !props.canDrop && (
+              <div class="absolute inset-0 bg-red-500/5 dark:bg-red-500/10 rounded-lg pointer-events-none" />
+            )}
+          </Transition>
+        )}
       </div>
     )
   }
