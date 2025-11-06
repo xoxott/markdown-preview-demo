@@ -1,4 +1,4 @@
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, PropType, Ref } from 'vue'
 import FileIcon from '../items/FileIcon'
 import { FileItem } from '../types/file-explorer'
 import { formatFileSize } from '../utils/fileHelpers'
@@ -12,11 +12,11 @@ export default defineComponent({
       required: true
     },
     selectedIds: {
-      type: Object as PropType<Set<string>>,
+      type: Object as PropType<Ref<Set<string>>>,
       required: true
     },
     onSelect: {
-      type: Function as PropType<(id: string[], multi: boolean) => void>,
+      type: Function as PropType<(id: string[],event?: MouseEvent) => void>,
       required: true
     },
     onOpen: {
@@ -51,7 +51,7 @@ export default defineComponent({
         }}
       >
         {props.items.map(item => {
-          const isSelected = props.selectedIds.has(item.id)
+          const isSelected = props.selectedIds.value.has(item.id)
           return (
             <div
               key={item.id}
@@ -65,7 +65,7 @@ export default defineComponent({
               onMouseenter={e => handleMouseEnter(e, isSelected)}
               onMouseleave={e => handleMouseLeave(e, isSelected)}
               onClick={(e: MouseEvent) =>
-                props.onSelect([item.id], e.ctrlKey || e.metaKey)
+                props.onSelect([item.id], e)
               }
               onDblclick={() => props.onOpen(item)}
             >

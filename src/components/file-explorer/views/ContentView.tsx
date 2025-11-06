@@ -1,4 +1,4 @@
-import { defineComponent, PropType, ref } from 'vue'
+import { defineComponent, PropType, Ref, ref } from 'vue'
 import FileIcon from '../items/FileIcon'
 import { FileItem } from '../types/file-explorer'
 import { useThemeVars } from 'naive-ui'
@@ -8,8 +8,8 @@ export default defineComponent({
   name: 'ContentView',
   props: {
     items: { type: Array as PropType<FileItem[]>, required: true },
-    selectedIds: { type: Object as PropType<Set<string>>, required: true },
-    onSelect: { type: Function as PropType<(id: string[], multi: boolean) => void>, required: true },
+    selectedIds: { type: Object as PropType<Ref<Set<string>>>, required: true },
+    onSelect: { type: Function as PropType<(id: string[], event?: MouseEvent) => void>, required: true },
     onOpen: { type: Function as PropType<(item: FileItem) => void>, required: true }
   },
   setup(props) {
@@ -24,7 +24,7 @@ export default defineComponent({
         }}
       >
         {props.items.map(item => {
-          const isSelected = props.selectedIds.has(item.id)
+          const isSelected = props.selectedIds.value.has(item.id)
           return (
             <div
               key={item.id}
@@ -46,7 +46,7 @@ export default defineComponent({
                   (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'
                 }
               }}
-              onClick={(e: MouseEvent) => props.onSelect([item.id], e.ctrlKey || e.metaKey)}
+              onClick={(e: MouseEvent) => props.onSelect([item.id], e)}
               onDblclick={() => props.onOpen(item)}
             >
               {/* 预览区域 */}

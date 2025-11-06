@@ -82,7 +82,7 @@ export interface DropZoneState {
   /** 是否可以放置 */
   canDrop: boolean
   /** 目标路径 */
-  targetPath: string | null
+  targetPath: string
   /** 目标类型 */
   targetType?: 'folder' | 'area'
   /** 放置区域元素 */
@@ -179,7 +179,7 @@ export interface DragDropOptions {
   /** 自动滚动边缘区域大小 */
   autoScrollEdgeSize?: number
   /** 验证函数 */
-  validateDrop?: (items: FileItem[], targetPath: string) => boolean
+  validateDrop?: (items: FileItem[], targetPath: string,targetItem?:FileItem) => boolean
   /** 是否启用拖拽到外部 */
   enableDragOut?: boolean
   /** 是否启用从外部拖入 */

@@ -16,7 +16,7 @@ export interface FileDragDropHook {
   registerDropZone: (zoneId: string, targetPath: string) => void
   unregisterDropZone: (zoneId: string) => void
   getDropZoneState: (zoneId: string) => DropZoneState | undefined
-  enterDropZone: (zoneId: string, targetPath: string) => void
+  enterDropZone: (zoneId: string, targetPath: string,targetItem?:FileItem) => void
   leaveDropZone: (zoneId: string) => void
   executeDrop: (zoneId: string) => Promise<void>
 
@@ -197,10 +197,9 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}):FileDragD
   /**
    * 进入放置区域
    */
-  const enterDropZone = (zoneId: string, targetPath: string) => {
+  const enterDropZone = (zoneId: string, targetPath: string,targetItem?:FileItem) => {
     const items = dragState.value.draggedItems
     if (items.length === 0) return
-
     const canDrop = validateDropInternal(items, targetPath)
 
     dropZones.value.set(zoneId, {
@@ -226,13 +225,14 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}):FileDragD
   /**
    * 内部验证
    */
-  const validateDropInternal = (items: FileItem[], targetPath: string): boolean => {
-    if (validateDrop && !validateDrop(items, targetPath)) {
+  const validateDropInternal = (items: FileItem[], targetPath: string,targetItem?:FileItem): boolean => {
+    if (validateDrop && !validateDrop(items, targetPath,targetItem)) {
       return false
     }
-
     return items.every(item => {
+      // 阻止防止区域在自己身上
       if (item.path === targetPath) return false
+      // 不能放置在子目录
       if (targetPath.startsWith(item.path + '/')) return false
       return true
     })

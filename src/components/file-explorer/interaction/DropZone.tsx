@@ -56,7 +56,7 @@ import {
   watch,
   Transition
 } from 'vue'
-import { NIcon, NSpin } from 'naive-ui'
+import { NIcon, NSpin, useThemeVars } from 'naive-ui'
 import {
   CloudUploadOutline,
   FolderOpenOutline,
@@ -110,6 +110,7 @@ export default defineComponent({
   emits: ['dragEnter', 'dragLeave', 'drop'],
 
   setup(props, { emit, slots }) {
+    const themeVars = useThemeVars()
     /** 当前区域是否处于激活状态（存在拖拽操作） */
     const isActive = ref(false)
     /** 当前区域是否有拖拽悬停 */
@@ -274,140 +275,118 @@ export default defineComponent({
       document.removeEventListener('dragend', handleGlobalDragEnd)
     })
 
-    return () => (
-      <div
-        class={[
-          'transition-all duration-200 ease-out',
-          props.asFolderZone ? 'contents' : 'relative border-2 border-dashed p-8',
-          !props.asFolderZone && zoneClasses.value
-        ]}
-        onDragenter={handleDragEnter}
-        onDragover={handleDragOver}
-        onDragleave={handleDragLeave}
-        onDrop={handleDrop}
-      >
-        {/* 文件夹模式插槽（内部区域） */}
-        {props.asFolderZone && (
-          <div class="relative">
-            {slots.default?.()}
-            
-            {/* 蓝色覆盖层 */}
-            <Transition
-              enterActiveClass="transition-opacity duration-200"
-              leaveActiveClass="transition-opacity duration-200"
-              enterFromClass="opacity-0"
-              leaveToClass="opacity-0"
-            >
-              {canAcceptDrop.value && (
-                <div class="absolute inset-0 bg-blue-500/5 dark:bg-blue-500/10 pointer-events-none" />
-              )}
-            </Transition>
-
-            {/* 错误覆盖层 */}
-            <Transition
-              enterActiveClass="transition-opacity duration-200"
-              leaveActiveClass="transition-opacity duration-200"
-              enterFromClass="opacity-0"
-              leaveToClass="opacity-0"
-            >
-              {props.isOver && !props.canDrop && (
-                <div class="absolute inset-0 bg-red-500/5 dark:bg-red-500/10 pointer-events-none" />
-              )}
-            </Transition>
-          </div>
-        )}
-
-        {/* 独立拖拽区域 */}
-        {!props.asFolderZone && (
-          <div class="flex flex-col items-center justify-center gap-4 text-center">
-            {/* 图标部分 */}
+    return () => {
+      const dragState = {
+        isActive: isActive.value,
+        isDragOver: isDragOver.value,
+        canAcceptDrop: canAcceptDrop.value,
+        disabled: props.disabled,
+        loading: props.loading,
+        hintText: hintText.value,
+      }
+      return (
+        <div
+          class={[
+            'transition-all duration-200 ease-out',
+            props.asFolderZone ? 'contents' : 'relative border-2 border-dashed p-8',
+            !props.asFolderZone && zoneClasses.value
+          ]}
+          onDragenter={handleDragEnter}
+          onDragover={handleDragOver}
+          onDragleave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          {/* 文件夹模式插槽（内部区域） */}
+          {props.asFolderZone ? slots.default?.(dragState) : (
             <div class="relative">
-              {props.loading ? (
-                <NSpin size={48} />
-              ) : (
-                iconComponent.value && (
-                  <NIcon
-                    component={iconComponent.value}
-                    size={48}
-                    class={iconColor.value}
-                  />
-                )
-              )}
+              {/* 独立拖拽区域 */}
+              <div class="flex flex-col items-center justify-center gap-4 text-center">
+                {/* 图标部分 */}
+                <div class="relative">
+                  {props.loading ? (
+                    <NSpin size={48} />
+                  ) : (
+                    iconComponent.value && (
+                      <NIcon
+                        component={iconComponent.value}
+                        size={48}
+                        class={iconColor.value}
+                      />
+                    )
+                  )}
 
-              {/* 箭头动画提示 */}
+                  {/* 箭头动画提示 */}
+                  <Transition
+                    enterActiveClass="transition-all duration-300"
+                    leaveActiveClass="transition-all duration-300"
+                    enterFromClass="opacity-0 -translate-y-2"
+                    leaveToClass="opacity-0 -translate-y-2"
+                  >
+                    {canAcceptDrop.value && (
+                      <div class="absolute -bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+                        <NIcon
+                          component={ArrowDownOutline}
+                          size={20}
+                          class="text-blue-500"
+                        />
+                      </div>
+                    )}
+                  </Transition>
+                </div>
+
+                {/* 提示文本 */}
+                <div class="space-y-1">
+                  <p
+                    class={[
+                      'text-sm font-medium transition-colors',
+                      canAcceptDrop.value
+                        ? 'text-blue-600 dark:text-blue-400'
+                        : props.isOver && !props.canDrop
+                          ? 'text-red-600 dark:text-red-400'
+                          : 'text-gray-600 dark:text-gray-400'
+                    ]}
+                  >
+                    {hintText.value}
+                  </p>
+
+                  {props.showUploadHint && !props.isOver && !props.loading && (
+                    <p class="text-xs text-gray-400 dark:text-gray-500">
+                      支持拖拽文件和文件夹
+                    </p>
+                  )}
+                </div>
+
+                {/* 自定义内容插槽 */}
+                {slots.content?.()}
+              </div>
+
+              {/* 蓝色覆盖层 */}
               <Transition
-                enterActiveClass="transition-all duration-300"
-                leaveActiveClass="transition-all duration-300"
-                enterFromClass="opacity-0 -translate-y-2"
-                leaveToClass="opacity-0 -translate-y-2"
+                enterActiveClass="transition-opacity duration-200"
+                leaveActiveClass="transition-opacity duration-200"
+                enterFromClass="opacity-0"
+                leaveToClass="opacity-0"
               >
                 {canAcceptDrop.value && (
-                  <div class="absolute -bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-                    <NIcon
-                      component={ArrowDownOutline}
-                      size={20}
-                      class="text-blue-500"
-                    />
-                  </div>
+                  <div class="absolute inset-0 bg-blue-500/5 dark:bg-blue-500/10 rounded-lg pointer-events-none" />
+                )}
+              </Transition>
+              {/* 错误覆盖层 */}
+              <Transition
+                enterActiveClass="transition-opacity duration-200"
+                leaveActiveClass="transition-opacity duration-200"
+                enterFromClass="opacity-0"
+                leaveToClass="opacity-0"
+              >
+                {props.isOver && !props.canDrop && (
+                  <div class="absolute inset-0 bg-red-500/5 dark:bg-red-500/10 rounded-lg pointer-events-none" />
                 )}
               </Transition>
             </div>
+          )}
 
-            {/* 提示文本 */}
-            <div class="space-y-1">
-              <p
-                class={[
-                  'text-sm font-medium transition-colors',
-                  canAcceptDrop.value
-                    ? 'text-blue-600 dark:text-blue-400'
-                    : props.isOver && !props.canDrop
-                    ? 'text-red-600 dark:text-red-400'
-                    : 'text-gray-600 dark:text-gray-400'
-                ]}
-              >
-                {hintText.value}
-              </p>
-
-              {props.showUploadHint && !props.isOver && !props.loading && (
-                <p class="text-xs text-gray-400 dark:text-gray-500">
-                  支持拖拽文件和文件夹
-                </p>
-              )}
-            </div>
-
-            {/* 自定义内容插槽 */}
-            {slots.content?.()}
-          </div>
-        )}
-
-        {/* 蓝色覆盖层 */}
-        {!props.asFolderZone && (
-          <Transition
-            enterActiveClass="transition-opacity duration-200"
-            leaveActiveClass="transition-opacity duration-200"
-            enterFromClass="opacity-0"
-            leaveToClass="opacity-0"
-          >
-            {canAcceptDrop.value && (
-              <div class="absolute inset-0 bg-blue-500/5 dark:bg-blue-500/10 rounded-lg pointer-events-none" />
-            )}
-          </Transition>
-        )}
-
-        {/* 错误覆盖层 */}
-        {!props.asFolderZone && (
-          <Transition
-            enterActiveClass="transition-opacity duration-200"
-            leaveActiveClass="transition-opacity duration-200"
-            enterFromClass="opacity-0"
-            leaveToClass="opacity-0"
-          >
-            {props.isOver && !props.canDrop && (
-              <div class="absolute inset-0 bg-red-500/5 dark:bg-red-500/10 rounded-lg pointer-events-none" />
-            )}
-          </Transition>
-        )}
-      </div>
-    )
+        </div>
+      )
+    }
   }
 })

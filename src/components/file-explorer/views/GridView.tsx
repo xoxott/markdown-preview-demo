@@ -1,4 +1,4 @@
-import { defineComponent, inject, PropType } from 'vue'
+import { computed, defineComponent, inject, PropType, Ref } from 'vue'
 import FileIcon from '../items/FileIcon'
 import { FileItem } from '../types/file-explorer'
 import { useThemeVars } from 'naive-ui'
@@ -15,11 +15,11 @@ export default defineComponent({
       required: true
     },
     selectedIds: {
-      type: Object as PropType<Set<string>>,
+      type: Object as PropType<Ref<Set<string>>>,
       required: true
     },
     onSelect: {
-      type: Function as PropType<(id: string[], multi: boolean) => void>,
+      type: Function as PropType<(id: string[], event?: MouseEvent) => void>,
       required: true
     },
     onOpen: {
@@ -41,6 +41,8 @@ export default defineComponent({
       'extra-large': { icon: 128, gap: 14, itemWidth: 150, padding: '10px 12px' }
     }
 
+    const selectedItems = computed(() => props.items.filter(it => props.selectedIds.value.has(it.id)))
+
     const getConfig = () => sizeMap[props.gridSize]
 
     const handleMouseEnter = (e: MouseEvent, isSelected: boolean) => {
@@ -55,7 +57,6 @@ export default defineComponent({
         (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'
       }
     }
-
     return () => {
       const config = getConfig()
       return (
@@ -71,14 +72,21 @@ export default defineComponent({
           }}
         >
           {props.items.map(item => {
-            const isSelected = props.selectedIds.has(item.id)
+            const isSelected = props.selectedIds.value.has(item.id)
             return (
-              <FileDropZoneWrapper key={item.id} data-selectable-id={item.id} zoneId={item.id} targetPath={item.path} item={item} class="flex justify-center" >
+              <FileDropZoneWrapper
+                key={item.id}
+                data-selectable-id={item.id}
+                zoneId={item.id}
+                targetPath={item.path}
+                item={item}
+                class="flex justify-center"
+              >
                 <div
                   class="inline-flex flex-col items-center cursor-pointer rounded-lg transition-all duration-200 select-none"
                   style={{
                     padding: config.padding,
-                    backgroundColor: isSelected
+                    backgroundColor: isSelected || dragDrop.getDropZoneState(item.id)?.isOver && dragDrop.getDropZoneState(item.id)?.canDrop
                       ? `${themeVars.value.primaryColorHover}20`
                       : 'transparent'
                   }}
@@ -86,10 +94,10 @@ export default defineComponent({
                   onMouseenter={e => handleMouseEnter(e, isSelected)}
                   onMouseleave={e => handleMouseLeave(e, isSelected)}
                   onClick={(e: MouseEvent) =>
-                    props.onSelect([item.id], e.ctrlKey || e.metaKey)
+                    props.onSelect([item.id], e)
                   }
                   onDblclick={() => props.onOpen(item)}
-                  onDragstart={e => dragDrop.startDrag([item], e)} 
+                  onDragstart={e => dragDrop.startDrag(selectedItems.value, e)}
                   draggable
                 >
                   {/* 图标 */}

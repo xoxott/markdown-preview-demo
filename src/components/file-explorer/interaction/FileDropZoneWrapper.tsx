@@ -31,22 +31,22 @@ export const FileDropZoneWrapper = defineComponent({
     hint: { type: String, default: '' }
   },
   setup(props, { slots }) {
-    
+
     const dragDrop = inject<FileDragDropHook>('FILE_DRAG_DROP')!
-    
+
     // 注册 DropZone
     dragDrop.registerDropZone(props.zoneId, props.targetPath)
 
     const handleDragEnter = (e: DragEvent) => {
-      dragDrop.enterDropZone(props.zoneId,props.targetPath)
+      dragDrop.enterDropZone(props.zoneId, props.targetPath,props.item)
     }
 
     const handleDragLeave = (e: DragEvent) => {
       dragDrop.leaveDropZone(props.zoneId)
     }
 
-    const handleDrop = (e: DragEvent) => {
-      dragDrop.executeDrop(props.zoneId)
+    const handleDrop = async (e: DragEvent) => {
+      await dragDrop.executeDrop(props.zoneId)
     }
 
     // 卸载时注销
@@ -68,8 +68,9 @@ export const FileDropZoneWrapper = defineComponent({
         canDrop={dragDrop.getDropZoneState(props.zoneId)?.canDrop}
         key={props.zoneId}
       >
-        {/* slot 渲染原有内容，确保事件透传 */}
-        {slots.default?.()}
+        {{
+          default: (dragState: any) => slots.default?.(dragState)
+        }}
       </DropZone>
     )
   }

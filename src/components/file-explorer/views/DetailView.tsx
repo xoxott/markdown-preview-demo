@@ -1,4 +1,4 @@
-import { defineComponent, PropType, ref, computed, onUnmounted } from 'vue'
+import { defineComponent, PropType, ref, computed, onUnmounted, Ref } from 'vue'
 import { FileItem, SortField, SortOrder } from '../types/file-explorer'
 import { ChevronDown, ChevronUp } from '@vicons/tabler'
 import FileIcon from '../items/FileIcon'
@@ -23,8 +23,8 @@ export default defineComponent({
   name: 'DetailView',
   props: {
     items: { type: Array as PropType<FileItem[]>, required: true },
-    selectedIds: { type: Object as PropType<Set<string>>, required: true },
-    onSelect: { type: Function as PropType<(id: string[], multi: boolean) => void>, required: true },
+    selectedIds: { type: Object as PropType<Ref<Set<string>>>, required: true },
+    onSelect: { type: Function as PropType<(id: string[], event?: MouseEvent) => void>, required: true },
     onOpen: { type: Function as PropType<(item: FileItem) => void>, required: true },
     sortField: { type: String as PropType<SortField>, required: true },
     sortOrder: { type: String as PropType<SortOrder>, required: true },
@@ -508,7 +508,7 @@ export default defineComponent({
           </thead>
           <tbody data-selector="content-viewer">
             {props.items.map(item => {
-              const isSelected = props.selectedIds.has(item.id)
+              const isSelected = props.selectedIds.value.has(item.id)
               return (
                 <tr
                   key={item.id}
@@ -533,7 +533,7 @@ export default defineComponent({
                     }
                   }}
                   onClick={(e: MouseEvent) =>
-                    props.onSelect([item.id], e.ctrlKey || e.metaKey)
+                    props.onSelect([item.id], e)
                   }
                   onDblclick={() => props.onOpen(item)}
                 >

@@ -172,7 +172,6 @@ export default defineComponent({
     // 点击外部关闭
     const handleClickOutside = (e: MouseEvent) => {
       if (!showMenu.value) return
-      
       const target = e.target as HTMLElement
       const isClickInside = target.closest('.n-dropdown-menu')
       
