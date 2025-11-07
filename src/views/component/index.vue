@@ -36,8 +36,6 @@
         </SelectionRect>
       </n-form-item>
     </n-form>
-    
-    <FileExplorer/>
   </n-card>
 </template>
 
@@ -47,7 +45,6 @@ import countdownTimer from '@/components/custom/countdown-timer.vue'
 import editableText from '@/components/custom/editable-text.vue'
 import SelectionRect from '@/components/file-explorer/interaction/SelectionRectV1'
 import { FileItem } from '@/components/file-explorer/types/file-explorer'
-import FileExplorer from '@/components/file-explorer/FileExplorer'
 
 const handleChange = (files: File[]) => {
   console.log('上传的文件:', files)

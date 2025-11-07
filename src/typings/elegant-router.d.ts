@@ -22,6 +22,7 @@ declare module "@elegant-router/types" {
     "500": "/500";
     "chat": "/chat";
     "component": "/component";
+    "file-manager": "/file-manager";
     "home": "/home";
     "iframe-page": "/iframe-page/:url";
     "login": "/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?";
@@ -65,6 +66,7 @@ declare module "@elegant-router/types" {
     | "500"
     | "chat"
     | "component"
+    | "file-manager"
     | "home"
     | "iframe-page"
     | "login"
@@ -95,6 +97,7 @@ declare module "@elegant-router/types" {
     | "login"
     | "chat"
     | "component"
+    | "file-manager"
     | "home"
     | "markdownedit"
     | "mobile"

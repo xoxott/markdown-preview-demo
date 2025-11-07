@@ -60,6 +60,16 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
+    name: 'file-manager',
+    path: '/file-manager',
+    component: 'layout.base$view.file-manager',
+    meta: {
+      title: 'file-manager',
+      i18nKey: 'route.file-manager',
+      icon: 'mdi:file-tree'
+    }
+  },
+  {
     name: 'home',
     path: '/home',
     component: 'layout.base$view.home',

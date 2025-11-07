@@ -44,7 +44,7 @@ export default defineComponent({
           triggerSelector={`[data-selectable-id],.selection-container`}
           onShow={handleContextMenuShow}
           onHide={handleContextMenuHide}
-          class='h-500px'
+          class='h-full'
         >
           <SelectionRect
             scrollContainerSelector={'[data-selector]'}

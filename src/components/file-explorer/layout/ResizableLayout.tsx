@@ -1,5 +1,5 @@
 import { defineComponent, ref, PropType, computed, onMounted, onBeforeUnmount } from 'vue'
-import { NLayout, NLayoutSider, NLayoutContent, useThemeVars, NIcon } from 'naive-ui'
+import { NLayout, NLayoutSider, NLayoutContent, useThemeVars, NIcon, NScrollbar } from 'naive-ui'
 import { GripVertical } from '@vicons/tabler'
 
 export interface LayoutConfig {
@@ -26,9 +26,9 @@ export default defineComponent({
         showRight: true
       })
     },
-    collapsed:{
-      type:Boolean,
-      default:false
+    collapsed: {
+      type: Boolean,
+      default: false
     }
   },
   emits: ['update:collapsed', 'update:config'],
@@ -146,8 +146,9 @@ export default defineComponent({
         <NLayoutContent
           class="h-full overflow-auto"
           nativeScrollbar={false}
+          contentClass='h-full'
         >
-          {slots.default?.()}
+            {slots.default?.()}
         </NLayoutContent>
 
         {showRight.value && (

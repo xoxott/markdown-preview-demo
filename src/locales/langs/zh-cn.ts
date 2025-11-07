@@ -168,7 +168,8 @@ const local: App.I18n.Schema = {
     upload: "上传",
     utils: "工具",
     component: "组件示例",
-    mobile: "移动端"
+    mobile: "移动端",
+    "file-manager": "文件管理器"
   },
   page: {
     login: {

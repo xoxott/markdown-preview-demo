@@ -168,7 +168,8 @@ const local: App.I18n.Schema = {
     upload: "Upload",
     utils: "Utils",
     component: "component",
-    mobile: "mobile"
+    mobile: "mobile",
+    "file-manager": "file-manager"
   },
   page: {
     login: {
