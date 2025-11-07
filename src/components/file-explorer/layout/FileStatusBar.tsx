@@ -106,7 +106,7 @@ export default defineComponent({
 
     return () => (
       <div
-        class="flex items-center justify-between px-4 py-2 border-t text-xs"
+        class="flex items-center justify-between px-4 py-2 border-t text-xs select-none"
         style={{
           backgroundColor: themeVars.value.bodyColor,
           borderColor: themeVars.value.dividerColor,

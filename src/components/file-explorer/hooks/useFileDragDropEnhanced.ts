@@ -101,7 +101,7 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}):FileDragD
       document.body.appendChild(dragImage)
       event.dataTransfer.setDragImage(dragImage, 0, 0)
       // 清理
-      setTimeout(() => document.body.removeChild(dragImage), 0)
+      setTimeout(() => document.body.removeChild(dragImage), 1)
     }
 
     onDragStart?.(validItems)

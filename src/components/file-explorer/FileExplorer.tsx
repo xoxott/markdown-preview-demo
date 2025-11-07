@@ -7,7 +7,9 @@ import FileToolbar from "./layout/FileToolbar";
 import FileStatusBar from "./layout/FileStatusBar";
 import ViewContainer from "./container/ViewContainer";
 import DragPreview from "./interaction/DragPreview";
-import FileBreadcrumb from './layout/FileBreadcrumb'
+import FileBreadcrumb from './layout/FileBreadcrumb';
+import FileSidebar from "./layout/FileSidebar";
+import ResizableLayout from "./layout/ResizableLayout";
 
 export default defineComponent({
   name: 'FileExplorer',
@@ -28,7 +30,6 @@ export default defineComponent({
     ]);
 
     /** hooks: selection / drag-drop / sort */
-    const { selectedIds, selectFile } = useFileSelection(mockItems)
     const dragDrop = useFileDragDropEnhanced({
       validateDrop: (items, targetPath) => {
         return mockItems.value.find(it => it.path === targetPath)?.type === 'folder'
@@ -37,12 +38,13 @@ export default defineComponent({
     provide('FILE_DRAG_DROP', dragDrop)
 
     const { setSorting, sortedFiles, sortOrder, sortField } = useFileSort(mockItems)
+    const { selectedIds, selectFile } = useFileSelection(sortedFiles)
 
     /** 事件处理 */
     const handleViewModeChange = (value: ViewMode) => viewMode.value = value
     const handleOpen = (file: FileItem) => console.log('打开文件:', file)
     const handleBreadcrumbNavigate = (path: string) => console.log('导航到路径:', path)
-    const handleGridSizeChange = (size:GridSize)=> gridSize.value = size
+    const handleGridSizeChange = (size: GridSize) => gridSize.value = size
 
     /** 渲染 */
     return () => (
@@ -73,18 +75,27 @@ export default defineComponent({
           folderCount={mockItems.value.filter(f => f.type === 'folder').length}
         />
 
-        {/* 容器交互区 */}
-        <ViewContainer
-          items={sortedFiles.value}
-          viewMode={viewMode.value}
-          gridSize={gridSize.value}
-          selectedIds={selectedIds}
-          onSelect={selectFile}
-          onOpen={handleOpen}
-          sortField={sortField.value}
-          sortOrder={sortOrder.value}
-          onSort={setSorting}
-        />
+        {/* <FileSidebar treeData={[]} currentPath="/" onNavigate={() => { }} /> */}
+
+
+
+        <ResizableLayout>
+          {{
+            left: () => <FileSidebar treeData={[]} currentPath="/" onNavigate={() => { }} />,
+            default: () => <ViewContainer
+              items={sortedFiles.value}
+              viewMode={viewMode.value}
+              gridSize={gridSize.value}
+              selectedIds={selectedIds}
+              onSelect={selectFile}
+              onOpen={handleOpen}
+              sortField={sortField.value}
+              sortOrder={sortOrder.value}
+              onSort={setSorting}
+            />,
+            right: () => <div>right</div>
+          }}
+        </ResizableLayout>
 
         {/* 拖拽预览 */}
         <DragPreview

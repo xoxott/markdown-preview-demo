@@ -1,5 +1,12 @@
 import { defineComponent, PropType, ref } from 'vue'
-import { NCollapse, NCollapseItem, NIcon, NTree, useThemeVars } from 'naive-ui'
+import {
+  NCollapse,
+  NCollapseItem,
+  NIcon,
+  NTree,
+  NBadge,
+  useThemeVars
+} from 'naive-ui'
 import {
   Folder,
   Clock,
@@ -11,6 +18,7 @@ import {
   Archive,
   Photo
 } from '@vicons/tabler'
+
 export interface QuickAccessItem {
   id: string
   label: string
@@ -23,14 +31,13 @@ export interface TreeNode {
   key: string
   label: string
   children?: TreeNode[]
-  prefix?: () => any,
+  prefix?: () => any
   [key: string]: any
 }
 
 export default defineComponent({
   name: 'FileSidebar',
   props: {
-    // 快速访问项
     quickAccessItems: {
       type: Array as PropType<QuickAccessItem[]>,
       default: () => [
@@ -39,8 +46,6 @@ export default defineComponent({
         { id: 'trash', label: '回收站', icon: Trash, path: '/trash' }
       ]
     },
-
-    // 文件类型快捷方式
     fileTypeItems: {
       type: Array as PropType<QuickAccessItem[]>,
       default: () => [
@@ -51,32 +56,22 @@ export default defineComponent({
         { id: 'archives', label: '压缩包', icon: Archive, path: '/type/archives' }
       ]
     },
-
-    // 文件树数据
     treeData: {
       type: Array as PropType<TreeNode[]>,
       default: () => []
     },
-
-    // 当前选中路径
     currentPath: {
       type: String,
       required: true
     },
-
-    // 导航回调
     onNavigate: {
       type: Function as PropType<(path: string) => void>,
       required: true
     },
-
-    // 是否显示文件树
     showTree: {
       type: Boolean,
       default: true
     },
-
-    // 宽度
     width: {
       type: Number,
       default: 240
@@ -85,66 +80,52 @@ export default defineComponent({
 
   setup(props) {
     const themeVars = useThemeVars()
-    const expandedKeys = ref<string[]>(['quick-access', 'file-types', 'folders'])
+    const expandedKeys = ref(['quick-access', 'file-types', 'folders'])
 
-    // 渲染快速访问项
     const renderQuickAccessItem = (item: QuickAccessItem) => {
       const isActive = props.currentPath === item.path
-
       return (
         <div
           key={item.id}
-          class="flex items-center justify-between px-3 py-2 mx-2 rounded cursor-pointer transition-colors select-none"
+          onClick={() => props.onNavigate(item.path)}
+          class={[
+            'flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors duration-150',
+            isActive
+              ? 'bg-primary/10 text-primary font-medium'
+              : 'hover:bg-gray-100 text-gray-700 dark:hover:bg-neutral-800'
+          ]}
           style={{
-            backgroundColor: isActive
-              ? `${themeVars.value.primaryColorHover}20`
-              : 'transparent',
+            '--tw-bg-opacity': '1',
             color: isActive ? themeVars.value.primaryColor : themeVars.value.textColor2
           }}
-          onMouseenter={(e: MouseEvent) => {
-            if (!isActive) {
-              (e.currentTarget as HTMLElement).style.backgroundColor =
-                themeVars.value.hoverColor
-            }
-          }}
-          onMouseleave={(e: MouseEvent) => {
-            if (!isActive) {
-              (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'
-            }
-          }}
-          onClick={() => props.onNavigate(item.path)}
         >
           <div class="flex items-center gap-2">
             <NIcon size={18}>
               <item.icon />
             </NIcon>
-            <span class="text-sm">{item.label}</span>
+            <span class="truncate text-sm">{item.label}</span>
           </div>
           {item.count !== undefined && (
-            <span
-              class="text-xs px-1.5 py-0.5 rounded"
-              style={{
-                backgroundColor: themeVars.value.tableHeaderColor,
-                color: themeVars.value.textColor3
-              }}
-            >
-              {item.count}
-            </span>
+            <NBadge
+              value={item.count}
+              showZero={false}
+              type="info"
+              class="text-xs"
+            />
           )}
         </div>
       )
     }
 
-    // 树节点前缀图标
-    const renderTreePrefix = ({ option }: any) => (
-      <NIcon size={16}>
+    const renderTreePrefix = () => (
+      <NIcon size={16} color={themeVars.value.textColor3}>
         <Folder />
       </NIcon>
     )
 
     return () => (
       <div
-        class="flex flex-col h-full border-r overflow-y-auto"
+        class="flex flex-col border-r h-full overflow-y-auto select-none"
         style={{
           width: `${props.width}px`,
           backgroundColor: themeVars.value.bodyColor,
@@ -155,37 +136,38 @@ export default defineComponent({
           defaultExpandedNames={expandedKeys.value}
           accordion={false}
           displayDirective="show"
+          arrow-placement="right"
+          class="p-2"
         >
-          {/* 快速访问 */}
           <NCollapseItem title="快速访问" name="quick-access">
-            <div class="py-1">
-              {props.quickAccessItems.map(item => renderQuickAccessItem(item))}
+            <div class="flex flex-col gap-1 mt-1">
+              {props.quickAccessItems.map(renderQuickAccessItem)}
             </div>
           </NCollapseItem>
 
-          {/* 文件类型 */}
           {props.fileTypeItems.length > 0 && (
             <NCollapseItem title="文件类型" name="file-types">
-              <div class="py-1">
-                {props.fileTypeItems.map(item => renderQuickAccessItem(item))}
+              <div class="flex flex-col gap-1 mt-1">
+                {props.fileTypeItems.map(renderQuickAccessItem)}
               </div>
             </NCollapseItem>
           )}
 
-          {/* 文件夹树 */}
           {props.showTree && props.treeData.length > 0 && (
             <NCollapseItem title="文件夹" name="folders">
-              <div class="py-1 px-2">
+              <div class="p-1 rounded-lg bg-gray-50 dark:bg-neutral-900 mt-2">
                 <NTree
                   data={props.treeData}
-                  selectable
                   blockLine
                   expandOnClick
+                  selectable
                   renderPrefix={renderTreePrefix}
+                  keyField="key"
+                  labelField="label"
+                  childrenField="children"
+                  class="text-sm"
                   onUpdateSelectedKeys={(keys: string[]) => {
-                    if (keys.length > 0) {
-                      props.onNavigate(keys[0])
-                    }
+                    if (keys.length > 0) props.onNavigate(keys[0])
                   }}
                 />
               </div>

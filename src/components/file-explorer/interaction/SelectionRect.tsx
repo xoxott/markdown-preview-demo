@@ -277,7 +277,7 @@ export default defineComponent({
 
     /** 动态样式 */
     const dynamicStyles = computed(() => `
-      .selection-container { position: relative; user-select: none; overflow: hidden; }
+      .selection-container { position: relative; user-select: none; overflow: hidden}
       .selection-rect {
         position: absolute; pointer-events: none; z-index: 9999;
         border: 2px solid ${themeVars.value.primaryColor};

@@ -1,8 +1,10 @@
-import { defineComponent, PropType, Ref } from 'vue'
+import { computed, defineComponent, inject, PropType, Ref } from 'vue'
 import { FileItem } from '../types/file-explorer'
 import FileIcon from '../items/FileIcon'
 import { useThemeVars } from 'naive-ui'
 import { formatFileSize } from '../utils/fileHelpers'
+import { FileDropZoneWrapper } from '../interaction/FileDropZoneWrapper'
+import { FileDragDropHook } from '../hooks/useFileDragDropEnhanced'
 
 export default defineComponent({
   name: 'ListView',
@@ -26,9 +28,25 @@ export default defineComponent({
   },
   setup(props) {
     const themeVars = useThemeVars()
+    const selectedItems = computed(() => props.items.filter(it => props.selectedIds.value.has(it.id)))
+    const dragDrop = inject<FileDragDropHook>('FILE_DRAG_DROP')!
+
+
+    const handleMouseEnter = (e: MouseEvent, isSelected: boolean) => {
+      if (!isSelected) {
+        (e.currentTarget as HTMLElement).style.backgroundColor =
+          themeVars.value.hoverColor
+      }
+    }
+
+    const handleMouseLeave = (e: MouseEvent, isSelected: boolean) => {
+      if (!isSelected) {
+        (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'
+      }
+    }
     return () => (
       <div
-        class="flex flex-col"
+        class="flex flex-col h-full"
         data-selector="content-viewer"
         style={{
           backgroundColor: themeVars.value.bodyColor
@@ -37,64 +55,63 @@ export default defineComponent({
         {props.items.map(item => {
           const isSelected = props.selectedIds.value.has(item.id)
           return (
-            <div
+            <FileDropZoneWrapper
               key={item.id}
-              data-selectable-id={item.id}
-              class="group flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors select-none"
-              style={{
-                backgroundColor: isSelected
-                  ? `${themeVars.value.primaryColorHover}20`
-                  : themeVars.value.cardColor,
-                borderLeft: isSelected
-                  ? `2px solid ${themeVars.value.primaryColor}`
-                  : '2px solid transparent'
-              }}
-              onMouseenter={(e: MouseEvent) => {
-                if (!isSelected) {
-                  (e.currentTarget as HTMLElement).style.backgroundColor =
-                    themeVars.value.hoverColor
-                }
-              }}
-              onMouseleave={(e: MouseEvent) => {
-                if (!isSelected) {
-                  (e.currentTarget as HTMLElement).style.backgroundColor =
-                    themeVars.value.cardColor
-                }
-              }}
-              onClick={(e: MouseEvent) =>
-                props.onSelect([item.id], e)
-              }
-              onDblclick={() => props.onOpen(item)}
+              zoneId={item.id}
+              targetPath={item.path}
+              item={item}
             >
-              {/* 图标 */}
-              <FileIcon item={item} size={20} showThumbnail={false} />
-
-              {/* 文件名 */}
               <div
-                class="flex-1 text-sm truncate"
+                class="group flex items-center gap-3 px-4 py-3 transition-colors select-none"
                 style={{
-                  color: isSelected
-                    ? themeVars.value.primaryColor
-                    : themeVars.value.textColorBase
+                  backgroundColor: isSelected || dragDrop.getDropZoneState(item.id)?.isOver && dragDrop.getDropZoneState(item.id)?.canDrop
+                    ? `${themeVars.value.primaryColorHover}20`
+                    : themeVars.value.cardColor,
+                  borderLeft: isSelected
+                    ? `2px solid ${themeVars.value.primaryColor}`
+                    : '2px solid transparent'
                 }}
+                data-selectable-id={item.id}
+                {...(isSelected ? { 'data-prevent-selection': 'true' } : null)}
+                onMouseenter={e => handleMouseEnter(e, isSelected)}
+                onMouseleave={e => handleMouseLeave(e, isSelected)}
+                onClick={(e: MouseEvent) =>
+                  props.onSelect([item.id], e)
+                }
+                onDblclick={() => props.onOpen(item)}
+                onDragstart={e => dragDrop.startDrag(selectedItems.value, e)}
+                draggable
               >
-                {item.name}
-              </div>
+                {/* 图标 */}
+                <FileIcon item={item} size={20} showThumbnail={false} />
 
-              {/* 文件大小 */}
-              {item.type === 'file' && (
+                {/* 文件名 */}
                 <div
-                  class="text-xs flex-shrink-0 w-20 text-right"
+                  class="flex-1 text-sm truncate"
                   style={{
                     color: isSelected
                       ? themeVars.value.primaryColor
-                      : themeVars.value.textColor3
+                      : themeVars.value.textColorBase
                   }}
                 >
-                  {formatFileSize(item.size)}
+                  {item.name}
                 </div>
-              )}
-            </div>
+
+                {/* 文件大小 */}
+                {item.type === 'file' && (
+                  <div
+                    class="text-xs flex-shrink-0 w-20 text-right"
+                    style={{
+                      color: isSelected
+                        ? themeVars.value.primaryColor
+                        : themeVars.value.textColor3
+                    }}
+                  >
+                    {formatFileSize(item.size)}
+                  </div>
+                )}
+              </div>
+            </FileDropZoneWrapper>
           )
         })}
       </div>

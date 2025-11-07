@@ -62,7 +62,7 @@ export default defineComponent({
       return (
 
         <div
-          class="grid p-4"
+          class="grid p-4 h-full"
           data-selector="content-viewer"
           style={{
             gridTemplateColumns: `repeat(auto-fill, minmax(${config.itemWidth}px, 1fr))`,
@@ -83,7 +83,7 @@ export default defineComponent({
                 class="flex justify-center"
               >
                 <div
-                  class="inline-flex flex-col items-center cursor-pointer rounded-lg transition-all duration-200 select-none"
+                  class="inline-flex flex-col items-center rounded-lg transition-all duration-200 select-none"
                   style={{
                     padding: config.padding,
                     backgroundColor: isSelected || dragDrop.getDropZoneState(item.id)?.isOver && dragDrop.getDropZoneState(item.id)?.canDrop
