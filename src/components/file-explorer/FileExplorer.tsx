@@ -52,6 +52,15 @@ export default defineComponent({
       { id: '30', name: 'temp', type: 'folder', size: 0, modifiedAt: new Date(2025, 10, 20), createdAt: new Date(2025, 9, 15), path: '/temp' }
     ])
 
+    const breakItems = [
+      {id:'1',name:'根目录',path:'/'},
+      {id:'2',name:'项目文档',path:'/项目文档'},
+      {id:'3',name:'测试',path:'/项目文档/测试'},
+      {id:'4',name:'测试1',path:'/项目文档/测试/测试'},
+      {id:'5',name:'测试2',path:'/项目文档/测试/测试1/测试2'},
+      {id:'6',name:'测试3',path:'/项目文档/测试/测试1/测试2'},
+    ]
+
 
     /** hooks: selection / drag-drop / sort */
     const dragDrop = useFileDragDropEnhanced({
@@ -86,9 +95,9 @@ export default defineComponent({
 
         {/* 面包屑 */}
         <FileBreadcrumb
-          path="/"
-          items={mockItems.value}
-          maxItems={1}
+          path="/项目文档/测试"
+          maxItems={5}
+          items={breakItems}
           onNavigate={handleBreadcrumbNavigate}
         />
 
