@@ -9,7 +9,7 @@ export interface LayoutConfig {
   maxRightWidth?: number
   showLeft?: boolean
   showRight?: boolean
-  leftCollapsed?: boolean
+  collapsed?: boolean
 }
 
 export default defineComponent({
@@ -18,31 +18,29 @@ export default defineComponent({
     config: {
       type: Object as PropType<LayoutConfig>,
       default: () => ({
-        leftWidth: 240,
+        leftWidth: 180,
         rightWidth: 300,
         minRightWidth: 200,
         maxRightWidth: 600,
         showLeft: true,
-        showRight: true,
-        leftCollapsed: false
+        showRight: true
       })
     },
-    onConfigChange: {
-      type: Function as PropType<(config: LayoutConfig) => void>,
-      default: undefined
+    collapsed:{
+      type:Boolean,
+      default:false
     }
   },
-  setup(props, { slots }) {
+  emits: ['update:collapsed', 'update:config'],
+  setup(props, { slots, emit }) {
     const themeVars = useThemeVars()
 
     const leftWidth = ref(props.config.leftWidth)
     const rightWidth = ref(props.config.rightWidth)
     const showLeft = ref(props.config.showLeft ?? true)
     const showRight = ref(props.config.showRight ?? true)
-    const leftCollapsed = ref(props.config.leftCollapsed ?? false)
 
     const isResizingRight = ref(false)
-    const isHoveringHandle = ref(false)
     const startX = ref(0)
     const startWidth = ref(0)
 
@@ -51,7 +49,10 @@ export default defineComponent({
 
     // 左侧折叠切换
     const handleLeftCollapse = () => {
-      emitConfigChange()
+      emit('update:collapsed', !props.collapsed)
+      emit('update:config', {
+        ...props.config
+      })
     }
 
     // 右侧拖拽开始
@@ -73,9 +74,9 @@ export default defineComponent({
 
         if (newWidth >= minRightWidth.value && newWidth <= maxRightWidth.value) {
           rightWidth.value = newWidth
-          // 使用 requestAnimationFrame 使拖拽更流畅
-          requestAnimationFrame(() => {
-            emitConfigChange()
+          emit('update:config', {
+            ...props.config,
+            rightWidth: rightWidth.value
           })
         }
       }
@@ -89,19 +90,6 @@ export default defineComponent({
       }
     }
 
-    const emitConfigChange = () => {
-      if (props.onConfigChange) {
-        props.onConfigChange({
-          leftWidth: leftWidth.value,
-          rightWidth: rightWidth.value,
-          minRightWidth: minRightWidth.value,
-          maxRightWidth: maxRightWidth.value,
-          showLeft: showLeft.value,
-          showRight: showRight.value,
-          leftCollapsed: leftCollapsed.value
-        })
-      }
-    }
 
     onMounted(() => {
       document.addEventListener('mousemove', handleMouseMove)
@@ -115,34 +103,27 @@ export default defineComponent({
 
     // 渲染右侧拖拽手柄
     const renderRightResizeHandle = () => {
-      const isActive = isResizingRight.value || isHoveringHandle.value
       return (
         <div
-          class="absolute top-0 left-0 bottom-0 w-0.5 cursor-col-resize group transition-all z-50"
+          class="absolute top-0 left-0 bottom-0 w-1 cursor-col-resize group transition-all z-50 -translate-x-1/2"
           style={{
             backgroundColor: themeVars.value.dividerColor
           }}
-           onMousedown={handleRightMouseDown}
-          onMouseenter={() => isHoveringHandle.value = true}
-          onMouseleave={() => isHoveringHandle.value = false}
+          onMousedown={handleRightMouseDown}
         >
           <div
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-12 flex items-center justify-center rounded transition-all opacity-0 group-hover:opacity-100"
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-8 flex items-center justify-center rounded transition-all "
             style={{
-              backgroundColor: themeVars.value.dividerColor,
-              // boxShadow: themeVars.value.boxShadow2,
-              border: `1px solid ${themeVars.value.dividerColor}`
+              backgroundColor: themeVars.value.dividerColor
             }}
           >
-            <NIcon>
-              <GripVertical
-              />
+            <NIcon size="14">
+              <GripVertical />
             </NIcon>
           </div>
         </div>
       )
     }
-
     return () => (
       <NLayout class="h-full" hasSider>
         {showLeft.value && (
@@ -150,11 +131,11 @@ export default defineComponent({
             width={leftWidth.value}
             collapsedWidth={64}
             nativeScrollbar={false}
-            v-model:collapsed={leftCollapsed.value}
+            collapsed={props.collapsed}
             collapseMode="width"
             show-trigger="arrow-circle"
             bordered
-            onCollapse={handleLeftCollapse}
+            onUpdate:collapsed={handleLeftCollapse}
           >
             <div class="h-full overflow-auto">
               {slots.left?.()}
@@ -175,8 +156,6 @@ export default defineComponent({
             nativeScrollbar={false}
             collapsed={false}
             showTrigger={false}
-            bordered
-            class="relative"
             style={{
               transition: isResizingRight.value ? 'none' : 'width 0.2s ease'
             }}

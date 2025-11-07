@@ -1,4 +1,4 @@
-import { defineComponent, provide, ref } from "vue";
+import { defineComponent, provide, reactive, ref } from "vue";
 import { FileItem, GridSize, ViewMode } from "./types/file-explorer";
 import { useFileDragDropEnhanced } from "./hooks/useFileDragDropEnhanced";
 import { useFileSort } from "./hooks/useFileSort";
@@ -9,12 +9,14 @@ import ViewContainer from "./container/ViewContainer";
 import DragPreview from "./interaction/DragPreview";
 import FileBreadcrumb from './layout/FileBreadcrumb';
 import FileSidebar from "./layout/FileSidebar";
-import ResizableLayout from "./layout/ResizableLayout";
+import ResizableLayout, { LayoutConfig } from "./layout/ResizableLayout";
+import { useToggle } from "./hooks/useToggle";
 
 export default defineComponent({
   name: 'FileExplorer',
   setup() {
     /** 状态: view / grid / selection / sorting */
+    const collapsed = ref(false)
     const gridSize = ref<GridSize>('small')
     const viewMode = ref<ViewMode>('grid')
 
@@ -75,14 +77,11 @@ export default defineComponent({
           folderCount={mockItems.value.filter(f => f.type === 'folder').length}
         />
 
-        {/* <FileSidebar treeData={[]} currentPath="/" onNavigate={() => { }} /> */}
-
-
-
-        <ResizableLayout>
+        {/* 视图布局 */}
+        <ResizableLayout v-model:collapsed={collapsed.value}> 
           {{
-            left: () => <FileSidebar treeData={[]} currentPath="/" onNavigate={() => { }} />,
-            default: () => <ViewContainer
+            left: <FileSidebar treeData={[]} currentPath="/" onNavigate={() => { }} collapsed={collapsed.value}/>,
+            default: <ViewContainer
               items={sortedFiles.value}
               viewMode={viewMode.value}
               gridSize={gridSize.value}
@@ -93,7 +92,7 @@ export default defineComponent({
               sortOrder={sortOrder.value}
               onSort={setSorting}
             />,
-            right: () => <div>right</div>
+            right: <div>right</div>
           }}
         </ResizableLayout>
 
