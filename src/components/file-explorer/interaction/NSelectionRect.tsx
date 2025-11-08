@@ -64,12 +64,12 @@ const SCROLL_INTERVAL = 16 // ~60fps
 const ANIMATION_DURATION = '1.5s'
 
 /**
- * SelectionRect 组件
+ * NSelectionRect 组件
  * - 专为 NScrollbar 设计的高性能拖拽选择功能
  * - 支持自动滚动、阈值控制、选中元素回调
  */
 export default defineComponent({
-  name: 'SelectionRect',
+  name: 'NSelectionRect',
   props: {
     /** 禁用拖选 */
     disabled: { 

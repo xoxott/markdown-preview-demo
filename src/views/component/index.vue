@@ -2,7 +2,7 @@
  * @Author: yang 212920320@qq.com
  * @Date: 2025-11-01 21:48:56
  * @LastEditors: yangtao 212920320@qq.com
- * @LastEditTime: 2025-11-08 10:14:23
+ * @LastEditTime: 2025-11-08 14:34:28
  * @FilePath: \markdown-preview-demo\src\views\component\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -24,30 +24,24 @@
       <n-form-item label="可编辑文本组件" class="flex items-center">
         <editableText value="可编辑内容" />
       </n-form-item>
-
+     
+      <n-text class="text-red">
+         支持圈选自动横向、纵向滚动 注：通过插槽插入 NScrollbar 使用
+      </n-text>
       <n-form-item label="圈选组件" class="flex items-center">
-        <SelectionRect auto-scroll :selection-change="handleSelectionChange" scrollContainerSelector=".select-node"
-          :selection-start="handleSelectionStart" :selection-end="handleSelectionEnd">
-          <div class="w-100 h-50 rounded border-2 border-dashed overflow-auto select-node">
-            <p v-for="(item, index) in 50" :data-selectable-id="`${index}`"
-              :style="{ marginTop: index === 49 ? '50px' : '', marginBottom: index === 0 ? '50px' : '' }">{{
-                `在此区域内拖动鼠标进行圈选${index}` }}</p>
-          </div>
-        </SelectionRect>
+        <NSelectionRect>
+          <NScrollbar class="w-100 h-50" x-scrollable>
+            <div v-for="index in 50" :key="index" :data-selectable-id="`${index}`" class="whitespace-nowrap" :style="{
+              width: '1200px',
+              marginTop: index === 50 ? '50px' : '',
+              marginBottom: index === 1 ? '50px' : ''
+            }">
+              在此区域内拖动鼠标进行圈选在此区域内拖动鼠标进行圈选在此区域内拖动鼠标进行圈选在此区域内拖动鼠标进行圈选 {{ index }}
+            </div>
+          </NScrollbar>
+        </NSelectionRect>
       </n-form-item>
     </n-form>
-
-    <ResizableLayout>
-        <template #left>
-           左侧 sidebar
-        </template>
-        <div >
-            <p v-for="item in 100">主体内容 main</p>
-        </div>
-        <template #right>
-          右侧 sidebar or preview
-        </template>
-    </ResizableLayout>
   </n-card>
 </template>
 
@@ -55,9 +49,8 @@
 import customUpload from '@/components/custom-upload'
 import countdownTimer from '@/components/custom/countdown-timer.vue'
 import editableText from '@/components/custom/editable-text.vue'
-import SelectionRect from '@/components/file-explorer/interaction/SelectionRect'
 import { FileItem } from '@/components/file-explorer/types/file-explorer'
-import ResizableLayout from '@/components/file-explorer/layout/ResizableLayout'
+import NSelectionRect from '@/components/file-explorer/interaction/NSelectionRect'
 
 const handleChange = (files: File[]) => {
   console.log('上传的文件:', files)
