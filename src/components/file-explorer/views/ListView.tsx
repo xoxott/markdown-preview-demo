@@ -67,9 +67,9 @@ export default defineComponent({
                   backgroundColor: isSelected || dragDrop.getDropZoneState(item.id)?.isOver && dragDrop.getDropZoneState(item.id)?.canDrop
                     ? `${themeVars.value.primaryColorHover}20`
                     : themeVars.value.cardColor,
-                  borderLeft: isSelected
-                    ? `2px solid ${themeVars.value.primaryColor}`
-                    : '2px solid transparent'
+                  // borderLeft: isSelected
+                  //   ? `2px solid ${themeVars.value.primaryColor}`
+                  //   : '2px solid transparent'
                 }}
                 data-selectable-id={item.id}
                 {...(isSelected ? { 'data-prevent-selection': 'true' } : null)}

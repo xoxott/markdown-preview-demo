@@ -193,7 +193,7 @@ export default defineComponent({
             collapsedWidth={64}
             collapsedIconSize={20}
             indent={12}
-            accordion
+            // accordion
             onUpdateValue={handleMenuSelect}
           />
         </div>

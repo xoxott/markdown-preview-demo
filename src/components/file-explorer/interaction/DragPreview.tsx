@@ -10,50 +10,6 @@
  * - 实时跟随鼠标位置渲染
  * - 显示操作类型（复制 / 移动）与剩余数量提示
  * - 使用 Naive UI 图标与动画效果
- *
- * @example
- * ```vue
- * <template>
- *   <DragPreview
- *     :items="selectedItems"
- *     :is-dragging="isDragging"
- *     :drag-start-pos="dragStart"
- *     :drag-current-pos="dragPos"
- *     :operation="operation"
- *   />
- * </template>
- *
- * <script setup lang="ts">
- * import { ref } from 'vue'
- * import DragPreview from './DragPreview.vue'
- *
- * const selectedItems = ref([
- *   { id: '1', name: '设计稿.png', type: 'file', extension: 'png' },
- *   { id: '2', name: '前端方案.docx', type: 'file', extension: 'docx' },
- *   { id: '3', name: '开发资料', type: 'folder' }
- * ])
- *
- * const isDragging = ref(false)
- * const dragStart = ref<{ x: number; y: number } | null>(null)
- * const dragPos = ref<{ x: number; y: number } | null>(null)
- * const operation = ref<'move' | 'copy'>('move')
- *
- * document.addEventListener('dragstart', e => {
- *   isDragging.value = true
- *   dragStart.value = { x: e.clientX, y: e.clientY }
- * })
- *
- * document.addEventListener('drag', e => {
- *   dragPos.value = { x: e.clientX, y: e.clientY }
- * })
- *
- * document.addEventListener('dragend', () => {
- *   isDragging.value = false
- *   dragStart.value = null
- *   dragPos.value = null
- * })
- * </script>
- * ```
  */
 
 import {
@@ -67,7 +23,7 @@ import {
   SwapHorizontalOutline,
   VideocamOutline
 } from '@vicons/ionicons5'
-import { NBadge, NIcon } from 'naive-ui'
+import { NIcon } from 'naive-ui'
 import { defineComponent, computed, Teleport, Transition } from 'vue'
 import type { CSSProperties } from 'vue'
 import type { FileItem } from '../types/file-explorer'
@@ -240,16 +196,13 @@ export default defineComponent({
 
                 {/* 更多项提示 */}
                 {remainingCount.value > 0 && (
-                  <div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                    <NBadge value={`+${remainingCount.value}`} type="info" show-zero={false}>
-                      {{
-                        default: () => (
-                          <span class="text-xs text-gray-500 dark:text-gray-400">
-                            还有 {remainingCount.value} 个项目
-                          </span>
-                        )
-                      }}
-                    </NBadge>
+                  <div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700 flex items-center gap-2">
+                    <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                      +{remainingCount.value}
+                    </span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                      还有 {remainingCount.value} 个项目
+                    </span>
                   </div>
                 )}
 

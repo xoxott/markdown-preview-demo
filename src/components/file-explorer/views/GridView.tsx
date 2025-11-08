@@ -35,7 +35,7 @@ export default defineComponent({
     const themeVars = useThemeVars()
     const dragDrop = inject<FileDragDropHook>('FILE_DRAG_DROP')!
     const sizeMap = {
-      small: { icon: 48, gap: 8, itemWidth: 80, padding: '4px 6px' },
+      small: { icon: 48, gap: 8, itemWidth: 70, padding: '4px 6px' },
       medium: { icon: 64, gap: 10, itemWidth: 100, padding: '6px 8px' },
       large: { icon: 96, gap: 12, itemWidth: 120, padding: '8px 10px' },
       'extra-large': { icon: 128, gap: 14, itemWidth: 150, padding: '10px 12px' }
@@ -91,10 +91,10 @@ export default defineComponent({
                   {...(isSelected ? { 'data-prevent-selection': 'true' } : null)}
                   onMouseenter={e => handleMouseEnter(e, isSelected)}
                   onMouseleave={e => handleMouseLeave(e, isSelected)}
+                  data-selectable-id={item.id}
                   onClick={(e: MouseEvent) =>
                     props.onSelect([item.id], e)
                   }
-                  data-selectable-id={item.id}
                   onDblclick={() => props.onOpen(item)}
                   onDragstart={e => dragDrop.startDrag(selectedItems.value, e)}
                   draggable
