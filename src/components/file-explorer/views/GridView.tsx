@@ -76,11 +76,9 @@ export default defineComponent({
             return (
               <FileDropZoneWrapper
                 key={item.id}
-                data-selectable-id={item.id}
                 zoneId={item.id}
                 targetPath={item.path}
                 item={item}
-                class="flex justify-center"
               >
                 <div
                   class="inline-flex flex-col items-center rounded-lg transition-all duration-200 select-none"
@@ -96,6 +94,7 @@ export default defineComponent({
                   onClick={(e: MouseEvent) =>
                     props.onSelect([item.id], e)
                   }
+                  data-selectable-id={item.id}
                   onDblclick={() => props.onOpen(item)}
                   onDragstart={e => dragDrop.startDrag(selectedItems.value, e)}
                   draggable

@@ -148,7 +148,7 @@ export default defineComponent({
 
         <NLayoutContent
           nativeScrollbar={false}
-          style="display: flex; flex: 1; flex-direction: column; "
+          contentClass='h-full'
         >
             {slots.default?.()}
         </NLayoutContent>

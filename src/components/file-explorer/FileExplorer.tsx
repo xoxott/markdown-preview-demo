@@ -81,7 +81,7 @@ export default defineComponent({
 
     /** 渲染 */
     return () => (
-      <div class='flex flex-col'>
+      <div class='flex flex-col h-500px'>
         {/* 工具栏 */}
         <FileToolbar
           viewMode={viewMode.value}
@@ -109,23 +109,25 @@ export default defineComponent({
         />
 
         {/* 视图布局 */}
-        <ResizableLayout v-model:collapsed={collapsed.value}> 
-          {{
-            left: <FileSidebar treeData={[]} currentPath="/" onNavigate={() => { }} collapsed={collapsed.value}/>,
-            default: <ViewContainer
-              items={sortedFiles.value}
-              viewMode={viewMode.value}
-              gridSize={gridSize.value}
-              selectedIds={selectedIds}
-              onSelect={selectFile}
-              onOpen={handleOpen}
-              sortField={sortField.value}
-              sortOrder={sortOrder.value}
-              onSort={setSorting}
-            />,
-            right: <div>right</div>
-          }}
-        </ResizableLayout>
+        <div class="flex-1 overflow-hidden">
+          <ResizableLayout v-model:collapsed={collapsed.value}>
+            {{
+              left: <FileSidebar treeData={[]} currentPath="/" onNavigate={() => { }} collapsed={collapsed.value}/>,
+              default: <ViewContainer
+                items={sortedFiles.value}
+                viewMode={viewMode.value}
+                gridSize={gridSize.value}
+                selectedIds={selectedIds}
+                onSelect={selectFile}
+                onOpen={handleOpen}
+                sortField={sortField.value}
+                sortOrder={sortOrder.value}
+                onSort={setSorting}
+              />,
+              right: <div>right</div>
+            }}
+          </ResizableLayout>
+        </div>
 
         {/* 拖拽预览 */}
         <DragPreview

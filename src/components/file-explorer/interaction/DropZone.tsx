@@ -2,7 +2,7 @@
  * @file DropZone.vue
  * @description
  * 通用文件拖拽上传区域组件（支持文件、文件夹拖拽、禁用态、加载态、放置提示动画等）
- * 
+ *
  * 功能特性：
  * - 支持文件和文件夹拖拽；
  * - 拖拽进入/离开/放下时触发事件；
@@ -10,7 +10,7 @@
  * - 可配置为文件夹拖拽目标（asFolderZone）；
  * - 支持自定义提示文本与插槽内容；
  * - 内置 Naive UI 的图标与动画过渡效果；
- * 
+ *
  * @example
  * ```vue
  * <template>
@@ -25,15 +25,15 @@
  *     @dragLeave="handleLeave"
  *   />
  * </template>
- * 
+ *
  * <script setup lang="ts">
  * import DropZone from '@/components/DropZone'
  * import { ref } from 'vue'
- * 
+ *
  * const canUpload = ref(true)
  * const uploading = ref(false)
  * const loading = ref(false)
- * 
+ *
  * const handleDrop = (zoneId: string) => {
  *   console.log(`文件放下到区域: ${zoneId}`)
  * }

@@ -44,12 +44,14 @@ export default defineComponent({
           triggerSelector={`[data-selectable-id],.selection-container`}
           onShow={handleContextMenuShow}
           onHide={handleContextMenuHide}
+          class={'h-full'}
         >
           <NSelectionRect
             onSelectionChange={handleSelectionChange}
             onClearSelection={() => props.onSelect([])}
+            class={'h-full'}
           >
-            <NScrollbar yPlacement='right' xPlacement='bottom' class={'h-400px'}>
+            <NScrollbar yPlacement='right' xPlacement='bottom' class="h-full">
               <FileViewRenderer {...props} />
             </NScrollbar>
           </NSelectionRect>
