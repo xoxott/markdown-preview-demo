@@ -34,7 +34,7 @@ export default defineComponent({
     }
     return () => (
       <div
-        class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-2 p-4 h-full content-start"
+        class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-2 p-4 content-start"
         data-selector="content-viewer"
         style={{
           backgroundColor: themeVars.value.bodyColor

@@ -111,7 +111,7 @@ export default defineComponent({
           onMousedown={handleRightMouseDown}
         >
           <div
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-8 flex items-center justify-center rounded transition-all"
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-8 flex items-center justify-center rounded transition-all "
             style={{
               backgroundColor: themeVars.value.dividerColor
             }}
@@ -143,7 +143,7 @@ export default defineComponent({
 
         <NLayoutContent
           nativeScrollbar={false}
-          // style="display: flex; flex-direction: column;"
+          style="display: flex; flex: 1; flex-direction: column; "
         >
             {slots.default?.()}
         </NLayoutContent>

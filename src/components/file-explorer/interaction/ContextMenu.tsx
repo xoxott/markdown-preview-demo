@@ -94,7 +94,7 @@ export default defineComponent({
     // 调整菜单位置防止溢出
     const adjustPosition = async () => {
       await nextTick()
-      
+
       const menuEl = document.querySelector('.n-dropdown-menu') as HTMLElement
       if (!menuEl) return
 
@@ -131,7 +131,7 @@ export default defineComponent({
       e.stopPropagation()
 
       const target = e.target as HTMLElement
-      
+
       // 检查是否在指定触发区域内
       if (props.triggerSelector) {
         const triggerElement = target.closest(props.triggerSelector)
@@ -174,7 +174,7 @@ export default defineComponent({
       if (!showMenu.value) return
       const target = e.target as HTMLElement
       const isClickInside = target.closest('.n-dropdown-menu')
-      
+
       if (!isClickInside) {
         hideMenu()
       }

@@ -24,7 +24,7 @@
       <n-form-item label="可编辑文本组件" class="flex items-center">
         <editableText value="可编辑内容" />
       </n-form-item>
-     
+
       <n-text class="text-red">
          支持圈选自动横向、纵向滚动 注：通过插槽插入 NScrollbar 使用
       </n-text>
@@ -41,6 +41,18 @@
           </NScrollbar>
         </NSelectionRect>
       </n-form-item>
+
+      <ResizableLayout>
+        <template #left>
+          <div>left</div>
+        </template>
+        <template #default>
+          <div class="h-100px">default</div>
+        </template>
+        <template #right>
+          <div>right</div>
+        </template>
+      </ResizableLayout>
     </n-form>
   </n-card>
 </template>
@@ -51,6 +63,7 @@ import countdownTimer from '@/components/custom/countdown-timer.vue'
 import editableText from '@/components/custom/editable-text.vue'
 import { FileItem } from '@/components/file-explorer/types/file-explorer'
 import NSelectionRect from '@/components/file-explorer/interaction/NSelectionRect'
+import ResizableLayout from '@/components/file-explorer/layout/ResizableLayout'
 
 const handleChange = (files: File[]) => {
   console.log('上传的文件:', files)

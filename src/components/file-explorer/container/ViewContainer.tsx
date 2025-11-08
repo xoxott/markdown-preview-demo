@@ -11,8 +11,8 @@ import { useContextMenuOptions } from '../hooks/useContextMenuOptions'
 import ContextMenu from '../interaction/ContextMenu'
 import { FileItem, GridSize, SortField, SortOrder, ViewMode } from '../types/file-explorer'
 import FileViewRenderer from './FileViewRenderer'
-import SelectionRect from '../interaction/SelectionRect'
-
+import NSelectionRect from '../interaction/NSelectionRect'
+import { NScrollbar } from 'naive-ui'
 export default defineComponent({
   name: 'ViewContainer',
   props: {
@@ -20,50 +20,40 @@ export default defineComponent({
     viewMode: { type: String as PropType<ViewMode>, required: true },
     gridSize: { type: String as PropType<GridSize>, required: false, default: 'medium' },
     selectedIds: { type: Object as PropType<Ref<Set<string>>>, required: true },
-    onSelect: { type: Function as PropType<(id: string[],event?: MouseEvent) => void>, required: true },
+    onSelect: { type: Function as PropType<(id: string[], event?: MouseEvent) => void>, required: true },
     onOpen: { type: Function as PropType<(item: FileItem) => void>, required: true },
     sortField: { type: String as PropType<SortField>, required: false },
     sortOrder: { type: String as PropType<SortOrder>, required: false },
     onSort: { type: Function as PropType<(field: SortField) => void>, required: false }
   },
   setup(props) {
-    const { handleContextMenuShow, handleContextMenuHide,options } = useContextMenuOptions({
+    const { handleContextMenuShow, handleContextMenuHide, options } = useContextMenuOptions({
       selectedIds: props.selectedIds,
       onSelect: props.onSelect
     })
- 
+
     /** 接收圈选结果 */
     const handleSelectionChange = (ids: string[]) => {
       props.onSelect(ids)
     }
     return () => {
       return (
-        // <ContextMenu
-        //   options={options.value}
-        //   onSelect={props.onSelect}
-        //   triggerSelector={`[data-selectable-id],.selection-container`}
-        //   onShow={handleContextMenuShow}
-        //   onHide={handleContextMenuHide}
-        //   class='h-full'
-        // >
-        //   </ContextMenu>
-          // <SelectionRect
-          //   scrollContainerSelector={'[data-selector]'}
-          //   onSelectionChange={handleSelectionChange}
-          //   onClearSelection={() => props.onSelect([])}
-          //   autoScroll={true}
-          // >
-          //   <div class="w-100 h-50 rounded border-2 border-dashed overflow-auto select-node">
-          //     {/* <FileViewRenderer {...props}/> */}
-          //     {
-          //        Array(100).fill(1).map(it=>(
-          //         <p data-selector>测试</p>
-          //        ))
-          //     }
-          //   </div>
-          // </SelectionRect>
-          <div></div>
-        
+        <ContextMenu
+          options={options.value}
+          onSelect={props.onSelect}
+          triggerSelector={`[data-selectable-id],.selection-container`}
+          onShow={handleContextMenuShow}
+          onHide={handleContextMenuHide}
+        >
+          <NSelectionRect
+            onSelectionChange={handleSelectionChange}
+            onClearSelection={() => props.onSelect([])}
+          >
+            <NScrollbar yPlacement='right' xPlacement='bottom' class={'h-400px'}>
+              <FileViewRenderer {...props} />
+            </NScrollbar>
+          </NSelectionRect>
+        </ContextMenu>
       )
     }
   }

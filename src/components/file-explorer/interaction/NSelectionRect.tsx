@@ -1,12 +1,12 @@
-import { 
-  defineComponent, 
-  ref, 
-  computed, 
-  PropType, 
-  CSSProperties, 
-  onMounted, 
-  onBeforeUnmount, 
-  nextTick, 
+import {
+  defineComponent,
+  ref,
+  computed,
+  PropType,
+  CSSProperties,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
   Teleport,
   shallowRef
 } from 'vue'
@@ -17,19 +17,19 @@ import type { ScrollbarInst } from 'naive-ui'
 /**
  * 坐标点类型
  */
-interface Point { 
+interface Point {
   x: number
-  y: number 
+  y: number
 }
 
 /**
  * 矩形类型
  */
-interface Rect { 
+interface Rect {
   left: number
   top: number
   width: number
-  height: number 
+  height: number
 }
 
 /**
@@ -72,49 +72,49 @@ export default defineComponent({
   name: 'NSelectionRect',
   props: {
     /** 禁用拖选 */
-    disabled: { 
-      type: Boolean, 
-      default: false 
+    disabled: {
+      type: Boolean,
+      default: false
     },
     /** 容器 className */
-    className: { 
-      type: String, 
-      default: '' 
+    className: {
+      type: String,
+      default: ''
     },
     /** 选区矩形自定义样式 */
-    rectStyle: { 
-      type: Object as PropType<CSSProperties>, 
-      default: () => ({}) 
+    rectStyle: {
+      type: Object as PropType<CSSProperties>,
+      default: () => ({})
     },
     /** 鼠标移动最小距离触发选区 */
-    threshold: { 
-      type: Number, 
-      default: 5 
+    threshold: {
+      type: Number,
+      default: 5
     },
     /** 是否启用自动滚动 */
-    autoScroll: { 
-      type: Boolean, 
-      default: true 
+    autoScroll: {
+      type: Boolean,
+      default: true
     },
     /** 自动滚动速度 */
-    scrollSpeed: { 
-      type: Number, 
-      default: 10 
+    scrollSpeed: {
+      type: Number,
+      default: 10
     },
     /** 自动滚动触发的边距 */
-    scrollEdge: { 
-      type: Number, 
-      default: 10 
+    scrollEdge: {
+      type: Number,
+      default: 10
     },
     /** 可选元素标识属性名 */
-    selectableSelector: { 
-      type: String, 
-      default: '[data-selectable-id]' 
+    selectableSelector: {
+      type: String,
+      default: '[data-selectable-id]'
     },
     /** 阻止拖选的元素标识属性 */
-    preventDragSelector: { 
-      type: String, 
-      default: 'data-prevent-selection' 
+    preventDragSelector: {
+      type: String,
+      default: 'data-prevent-selection'
     },
     /** 拖选开始回调 */
     onSelectionStart: Function as PropType<() => void>,
@@ -125,14 +125,14 @@ export default defineComponent({
     /** 清除选择回调 */
     onClearSelection: Function as PropType<() => void>
   },
-  
-  setup(props, { slots }) {
+
+  setup(props, { slots, attrs }) {
     const themeVars = useThemeVars()
 
     // 使用 shallowRef 优化响应性能
     const containerRef = shallowRef<HTMLDivElement>()
     const scrollContainerInfo = shallowRef<ScrollContainerInfo>()
-    
+
     // 选区状态
     const selectionState = ref<SelectionState>({
       isSelecting: false,
@@ -187,17 +187,17 @@ export default defineComponent({
       if (!containerRef.value || !scroll) return DEFAULT_RECT
 
       const { startPoint, currentPoint } = selectionState.value
-      
+
       const left = Math.max(0, Math.min(startPoint.x, currentPoint.x))
       const top = Math.max(0, Math.min(startPoint.y, currentPoint.y))
       const right = Math.min(scroll.scrollWidth, Math.max(startPoint.x, currentPoint.x))
       const bottom = Math.min(scroll.scrollHeight, Math.max(startPoint.y, currentPoint.y))
 
-      return { 
-        left, 
-        top, 
-        width: right - left, 
-        height: bottom - top 
+      return {
+        left,
+        top,
+        width: right - left,
+        height: bottom - top
       }
     })
 
@@ -262,9 +262,9 @@ export default defineComponent({
       if (!containerRef.value) return
 
       const newSelectedIds = new Set<string>()
-      const elements = containerRef.value.querySelectorAll<HTMLElement>(props.selectableSelector)
+      const elements = Array.from(containerRef.value.querySelectorAll<HTMLElement>(props.selectableSelector))
 
-      // 使用 for...of 替代 forEach，性能更好
+      // 使用 for...of 遍历数组，性能更好
       for (const el of elements) {
         const id = el.dataset.selectableId
         if (id && isElementInSelection(el, rect)) {
@@ -293,7 +293,7 @@ export default defineComponent({
       // 垂直滚动
       if (clientY - rect.top < props.scrollEdge && scroll.scrollTop > 0) {
         dy = -props.scrollSpeed
-      } else if (rect.bottom - clientY < props.scrollEdge && 
+      } else if (rect.bottom - clientY < props.scrollEdge &&
                  scroll.scrollTop < scroll.scrollHeight - scroll.clientHeight) {
         dy = props.scrollSpeed
       }
@@ -301,7 +301,7 @@ export default defineComponent({
       // 水平滚动
       if (clientX - rect.left < props.scrollEdge && scroll.scrollLeft > 0) {
         dx = -props.scrollSpeed
-      } else if (rect.right - clientX < props.scrollEdge && 
+      } else if (rect.right - clientX < props.scrollEdge &&
                  scroll.scrollLeft < scroll.scrollWidth - scroll.clientWidth) {
         dx = props.scrollSpeed
       }
@@ -367,7 +367,7 @@ export default defineComponent({
     /**
      * 判断是否允许拖选
      */
-    const canStartDragSelection = (target: HTMLElement): boolean => 
+    const canStartDragSelection = (target: HTMLElement): boolean =>
       !target.closest(`[${props.preventDragSelector}]`)
 
     /**
@@ -448,7 +448,7 @@ export default defineComponent({
       const selectedIds = Array.from(selectionState.value.selectedIds)
 
       stopAutoScroll()
-      
+
       if (wasSelecting) {
         props.onSelectionEnd?.(selectedIds)
         e?.stopPropagation?.()
@@ -524,10 +524,10 @@ export default defineComponent({
     const dynamicStyles = computed(() => {
       const primary = themeVars.value.primaryColor
       const primaryHover = themeVars.value.primaryColorHover
-      
+
       return `
-        .selection-container { 
-          position: relative; 
+        .selection-container {
+          position: relative;
           user-select: none;
         }
         .selection-wrapper {
@@ -538,18 +538,18 @@ export default defineComponent({
           z-index: 9999;
         }
         .selection-rect {
-          position: absolute; 
+          position: absolute;
           pointer-events: none;
           border: 2px solid ${primary};
-          background: ${primaryHover}14; 
+          background: ${primaryHover}14;
           border-radius: 4px;
           box-shadow: 0 2px 8px rgba(0,0,0,0.08);
           transition: opacity 0.1s ease;
         }
         .selection-rect-border {
-          position: absolute; 
+          position: absolute;
           inset: -1px;
-          border: 1px solid ${primaryHover}66; 
+          border: 1px solid ${primaryHover}66;
           border-radius: 4px;
           animation: selection-pulse ${ANIMATION_DURATION} ease-in-out infinite;
         }
@@ -566,15 +566,15 @@ export default defineComponent({
     const renderSelectionRect = () => {
       const { isSelecting } = selectionState.value
       const { width, height, left, top } = displayRect.value
-      
+
       if (!isSelecting || width <= 0 || height <= 0) return null
 
       const primary = themeVars.value.primaryColor
       const primaryHover = themeVars.value.primaryColorHover
 
       return (
-        <div 
-          class="selection-wrapper" 
+        <div
+          class="selection-wrapper"
           style={{
             position: 'absolute',
             inset: '0',
@@ -598,14 +598,14 @@ export default defineComponent({
               ...props.rectStyle
             }}
           >
-            <div 
-              class="selection-rect-border" 
+            <div
+              class="selection-rect-border"
               style={{
                 position: 'absolute',
                 inset: '-1px',
                 border: `1px solid ${primaryHover}66`,
                 borderRadius: '4px'
-              }} 
+              }}
             />
           </div>
         </div>
@@ -617,9 +617,10 @@ export default defineComponent({
       const scroll = getScrollElement()
 
       return (
-        <div 
-          ref={containerRef} 
-          class={['selection-container', props.className]} 
+        <div
+          ref={containerRef}
+          class={['selection-container', props.className, attrs.class as string]}
+          style="display: flex; flex-direction: column; flex: 1; min-height: 0;"
           onMousedown={handleMouseDown}
         >
           {slots.default?.()}

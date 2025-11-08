@@ -479,7 +479,7 @@ export default defineComponent({
     })
     return () => (
       <div
-        class="overflow-auto h-full"
+        class="overflow-auto"
         style={{
           backgroundColor: themeVars.value.bodyColor,
           overflowX: 'auto'

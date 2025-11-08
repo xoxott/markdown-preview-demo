@@ -46,7 +46,7 @@ export default defineComponent({
     }
     return () => (
       <div
-        class="flex flex-col h-full"
+        class="flex flex-col"
         data-selector="content-viewer"
         style={{
           backgroundColor: themeVars.value.bodyColor

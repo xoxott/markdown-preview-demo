@@ -29,7 +29,6 @@ export default defineComponent({
         onSelect: props.onSelect,
         onOpen: props.onOpen
       }
-
       switch (props.viewMode) {
         case 'grid':
           return <GridView {...viewProps} gridSize={props.gridSize} />
