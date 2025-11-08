@@ -2,7 +2,7 @@
  * @Author: yangtao 212920320@qq.com
  * @Date: 2025-11-08 09:20:48
  * @LastEditors: yangtao 212920320@qq.com
- * @LastEditTime: 2025-11-08 11:38:30
+ * @LastEditTime: 2025-11-08 11:55:06
  * @FilePath: \markdown-preview-demo\src\views\file-manager\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -22,19 +22,15 @@
 </ResizableLayout>
 </div> -->
 
-  <NSelectionRect auto-scroll >
-    <NScrollbar class="w-100 h-50">
-      <p 
-        v-for="index in 50" 
-        :key="index"
-        :data-selectable-id="`${index}`"
-        :style="{ 
-          marginTop: index === 50 ? '50px' : '', 
-          marginBottom: index === 1 ? '50px' : '' 
-        }"
-      >
-        在此区域内拖动鼠标进行圈选 {{ index }}
-      </p>
+  <NSelectionRect auto-scroll>
+    <NScrollbar class="w-100 h-50" x-scrollable y-placement="right" x-placement="bottom">
+      <div v-for="index in 50" :key="index" :data-selectable-id="`${index}`" class="whitespace-nowrap" :style="{
+        width: '1200px',
+        marginTop: index === 50 ? '50px' : '',
+        marginBottom: index === 1 ? '50px' : ''
+      }">
+        在此区域内拖动鼠标进行圈选在此区域内拖动鼠标进行圈选在此区域内拖动鼠标进行圈选在此区域内拖动鼠标进行圈选 {{ index }}
+      </div>
     </NScrollbar>
   </NSelectionRect>
 </template>

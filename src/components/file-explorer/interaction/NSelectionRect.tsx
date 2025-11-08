@@ -19,7 +19,7 @@ interface Rect { left: number; top: number; width: number; height: number }
  * - 支持自动滚动、阈值控制、选中元素回调
  */
 export default defineComponent({
-  name: 'NSelectionRect',
+  name: 'SelectionRect',
   props: {
     /** 禁用拖选 */
     disabled: { type: Boolean, default: false },
@@ -32,9 +32,9 @@ export default defineComponent({
     /** 是否启用自动滚动 */
     autoScroll: { type: Boolean, default: true },
     /** 自动滚动速度 */
-    scrollSpeed: { type: Number, default: 8 },
+    scrollSpeed: { type: Number, default: 10 },
     /** 自动滚动触发的边距 */
-    scrollEdge: { type: Number, default: 10 },
+    scrollEdge: { type: Number, default: 5 },
     /** 可选元素标识属性名（如 data-selectable-id） */
     selectableSelector: { type: String, default: '[data-selectable-id]' },
     /** 阻止拖选的元素标识属性 */
@@ -118,19 +118,48 @@ export default defineComponent({
     })
 
     /**
-     * 计算显示在容器中的选区矩形（减去滚动偏移）
+     * 计算显示在容器中的选区矩形（减去滚动偏移并裁剪到可视区域）
      */
     const displayRect = computed<Rect>(() => {
-      if (!scrollContainer.value) return { left: 0, top: 0, width: 0, height: 0 }
+      if (!scrollContainer.value || !containerRef.value) return { left: 0, top: 0, width: 0, height: 0 }
       
       const scroll = scrollContainer.value
       const rect = selectionRect.value
-      return { 
-        left: rect.left - scroll.scrollLeft, 
-        top: rect.top - scroll.scrollTop, 
-        width: rect.width, 
-        height: rect.height 
+      const containerRect = containerRef.value.getBoundingClientRect()
+      
+      // 计算相对于容器的位置
+      let left = rect.left - scroll.scrollLeft
+      let top = rect.top - scroll.scrollTop
+      let width = rect.width
+      let height = rect.height
+      
+      // 裁剪左边超出部分
+      if (left < 0) {
+        width += left
+        left = 0
       }
+      
+      // 裁剪顶部超出部分
+      if (top < 0) {
+        height += top
+        top = 0
+      }
+      
+      // 裁剪右边超出部分
+      if (left + width > scroll.clientWidth) {
+        width = scroll.clientWidth - left
+      }
+      
+      // 裁剪底部超出部分
+      if (top + height > scroll.clientHeight) {
+        height = scroll.clientHeight - top
+      }
+      
+      // 确保宽高不为负数
+      width = Math.max(0, width)
+      height = Math.max(0, height)
+      
+      return { left, top, width, height }
     })
 
     /** 判断两个 Set 是否相等 */
