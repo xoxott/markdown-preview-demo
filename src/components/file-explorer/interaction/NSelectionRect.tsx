@@ -624,6 +624,7 @@ export default defineComponent({
         >
           {slots.default?.()}
           {scroll && wrapper ? (
+            // 修复右侧区域超出没有隐藏问题
             <Teleport to={scroll as any}>{wrapper}</Teleport>
           ) : wrapper}
           <style>{dynamicStyles.value}</style>

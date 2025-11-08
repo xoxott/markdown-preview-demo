@@ -2,7 +2,7 @@
  * @Author: yangtao 212920320@qq.com
  * @Date: 2025-11-08 09:20:48
  * @LastEditors: yangtao 212920320@qq.com
- * @LastEditTime: 2025-11-08 11:55:06
+ * @LastEditTime: 2025-11-08 14:23:52
  * @FilePath: \markdown-preview-demo\src\views\file-manager\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -39,5 +39,4 @@ import ResizableLayout from '@/components/file-explorer/layout/ResizableLayout';
 import NSelectionRect from '@/components/file-explorer/interaction/NSelectionRect';
 import FileExplorer from '@/components/file-explorer/FileExplorer';
 import { NScrollbar } from 'naive-ui';
-import { nextTick, onMounted, ref } from 'vue';
 </script>
