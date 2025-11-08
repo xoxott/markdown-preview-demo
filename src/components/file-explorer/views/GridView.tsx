@@ -62,7 +62,7 @@ export default defineComponent({
       return (
 
         <div
-          class="grid p-4 h-full"
+          class="grid p-4 h-200px"
           data-selector="content-viewer"
           style={{
             gridTemplateColumns: `repeat(auto-fill, minmax(${config.itemWidth}px, 1fr))`,

@@ -19,9 +19,9 @@ export default defineComponent({
       type: Object as PropType<LayoutConfig>,
       default: () => ({
         leftWidth: 180,
-        rightWidth: 300,
-        minRightWidth: 200,
-        maxRightWidth: 600,
+        rightWidth: 200,
+        minRightWidth: 120,
+        maxRightWidth: 1000,
         showLeft: true,
         showRight: true
       })
@@ -90,7 +90,6 @@ export default defineComponent({
       }
     }
 
-
     onMounted(() => {
       document.addEventListener('mousemove', handleMouseMove)
       document.addEventListener('mouseup', handleMouseUp)
@@ -112,7 +111,7 @@ export default defineComponent({
           onMousedown={handleRightMouseDown}
         >
           <div
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-8 flex items-center justify-center rounded transition-all "
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-8 flex items-center justify-center rounded transition-all"
             style={{
               backgroundColor: themeVars.value.dividerColor
             }}
@@ -124,6 +123,7 @@ export default defineComponent({
         </div>
       )
     }
+
     return () => (
       <NLayout class="h-full" hasSider>
         {showLeft.value && (
@@ -133,20 +133,17 @@ export default defineComponent({
             nativeScrollbar={false}
             collapsed={props.collapsed}
             collapseMode="width"
-            show-trigger="arrow-circle"
+            showTrigger="arrow-circle"
             bordered
             onUpdate:collapsed={handleLeftCollapse}
           >
-            <div class="h-full overflow-auto">
               {slots.left?.()}
-            </div>
           </NLayoutSider>
         )}
 
         <NLayoutContent
-          class="h-full overflow-auto"
           nativeScrollbar={false}
-          contentClass='h-full'
+          // style="display: flex; flex-direction: column;"
         >
             {slots.default?.()}
         </NLayoutContent>
@@ -162,9 +159,7 @@ export default defineComponent({
             }}
           >
             {renderRightResizeHandle()}
-            <div class="h-full overflow-auto">
               {slots.right?.()}
-            </div>
           </NLayoutSider>
         )}
       </NLayout>
