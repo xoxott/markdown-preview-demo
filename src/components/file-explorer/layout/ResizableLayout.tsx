@@ -1,6 +1,6 @@
 import { defineComponent, ref, PropType, computed, onMounted, onBeforeUnmount } from 'vue'
 import { NLayout, NLayoutSider, NLayoutContent, useThemeVars, NIcon, NScrollbar } from 'naive-ui'
-import { GripVertical } from '@vicons/tabler'
+import { Dots, GripVertical } from '@vicons/tabler'
 
 export interface LayoutConfig {
   leftWidth: number
@@ -104,20 +104,25 @@ export default defineComponent({
     const renderRightResizeHandle = () => {
       return (
         <div
-          class="absolute top-0 left-0 bottom-0 w-1 cursor-col-resize group transition-all z-50 -translate-x-1/2"
-          style={{
-            backgroundColor: themeVars.value.dividerColor
-          }}
+          class="absolute top-0 left-0 bottom-0 w-4 cursor-col-resize group transition-all"
           onMousedown={handleRightMouseDown}
         >
+          {/* 分隔线 */}
           <div
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-8 flex items-center justify-center rounded transition-all "
+            class="absolute top-0 left-1/2 bottom-0 w-[1px] -translate-x-1/2"
+            style={{
+              backgroundColor: themeVars.value.dividerColor
+            }}
+          />
+          {/* 拖拽图标 */}
+          <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-6 flex items-center justify-center rounded transition-all"
             style={{
               backgroundColor: themeVars.value.dividerColor
             }}
           >
-            <NIcon size="14">
-              <GripVertical />
+            <NIcon size="10">
+              <Dots />
             </NIcon>
           </div>
         </div>
@@ -155,11 +160,14 @@ export default defineComponent({
             collapsed={false}
             showTrigger={false}
             style={{
-              transition: isResizingRight.value ? 'none' : 'width 0.2s ease'
+              transition: isResizingRight.value ? 'none' : 'width 0.2s ease',
+              position: 'relative'
             }}
           >
             {renderRightResizeHandle()}
+            <div style="padding-left: 16px; height: 100%;">
               {slots.right?.()}
+            </div>
           </NLayoutSider>
         )}
       </NLayout>
