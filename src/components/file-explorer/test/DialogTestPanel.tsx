@@ -192,7 +192,7 @@ export default defineComponent({
 
           <NButton onClick={() => test.value = true}>测试弹窗</NButton>
 
-          <BaseDialog show={test.value} onClose={() => test.value = false} title="测试弹窗" width={400} height={300}>
+          <BaseDialog show={test.value} resizable onClose={() => test.value = false} title="测试弹窗" width={400} height={300}>
             {{
               default: () => <div>测试弹窗</div>,
               footer: () => <div>测试弹窗</div>

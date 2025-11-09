@@ -442,15 +442,16 @@ export default defineComponent({
     watch(() => props.show, (show) => {
       if (show) {
         setTimeout(() => {
-          initPosition()
           props.onAfterEnter?.()
+          initPosition()
         }, 50)
       } else {
         // 重置状态
-          currentSize.value = { width: 0, height: 0 }
-          isPositioned.value = false
-          isFullscreen.value = false
-          props.onAfterLeave?.()
+        currentSize.value = { width: 0, height: 0 }
+        // FIX: 这里重置状态会导致 弹框回到中心再执行动画后再销毁
+        // isPositioned.value = false
+        isFullscreen.value = false
+        props.onAfterLeave?.()
       }
     })
 
@@ -477,7 +478,9 @@ export default defineComponent({
         onUpdateShow={(show: boolean) => !show && handleClose()}
         class={props.class}
         zIndex={props.zIndex}
-        transformOrigin="center"
+        // transformOrigin="center"
+        // transformOrigin="mouse"
+        // transformOrigin={undefined}
       >
         <div
           ref={dialogRef}
