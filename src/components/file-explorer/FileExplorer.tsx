@@ -35,7 +35,13 @@ export default defineComponent({
     })
 
     // 组件挂载后自动聚焦，使快捷键立即可用
-    onMounted(() => {
+    onMounted(async () => {
+      // 模拟初始加载
+      logic.setLoading(true, '加载文件列表...')
+      await new Promise(resolve => setTimeout(resolve, 800))
+      logic.setLoading(false)
+
+      // 聚焦容器
       containerRef.value?.focus()
     })
 
@@ -96,6 +102,9 @@ export default defineComponent({
                   sortField={logic.sortField.value}
                   sortOrder={logic.sortOrder.value}
                   onSort={logic.setSorting}
+                  loading={logic.loading.value}
+                  loadingTip={logic.loadingTip.value}
+                  onContextMenuSelect={logic.handleContextMenuSelect}
                 />
               ),
               right: <div>right</div>

@@ -1,4 +1,4 @@
-import { ref, computed, Ref } from 'vue'
+import { ref, computed, Ref, nextTick } from 'vue'
 import {
   CopyOutline,
   CreateOutline,
@@ -92,11 +92,13 @@ export function useContextMenuOptions({ selectedIds, onSelect }: UseContextMenuO
 
     if (fileEl) {
       const id = fileEl.dataset.selectableId!
-      if (!selectedIds.value.has(id)) onSelect([id])
-      options.value = fileOptions.value
+      if (!selectedIds.value.has(id)) {
+        onSelect([id])
+      }
+        options.value = fileOptions.value
     } else {
       onSelect([])
-      options.value = blankOptions
+        options.value = blankOptions
     }
   }
 

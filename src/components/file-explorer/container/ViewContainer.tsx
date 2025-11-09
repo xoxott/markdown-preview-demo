@@ -13,6 +13,8 @@ import { FileItem, GridSize, SortField, SortOrder, ViewMode } from '../types/fil
 import FileViewRenderer from './FileViewRenderer'
 import NSelectionRect from '../interaction/NSelectionRect'
 import { NScrollbar } from 'naive-ui'
+import FileLoading from '../feedback/FileLoading'
+
 export default defineComponent({
   name: 'ViewContainer',
   props: {
@@ -24,7 +26,10 @@ export default defineComponent({
     onOpen: { type: Function as PropType<(item: FileItem) => void>, required: true },
     sortField: { type: String as PropType<SortField>, required: false },
     sortOrder: { type: String as PropType<SortOrder>, required: false },
-    onSort: { type: Function as PropType<(field: SortField) => void>, required: false }
+    onSort: { type: Function as PropType<(field: SortField) => void>, required: false },
+    loading: { type: Boolean, required: false, default: false },
+    loadingTip: { type: String, required: false, default: '加载中...' },
+    onContextMenuSelect: { type: Function as PropType<(key: string) => void>, required: true }
   },
   setup(props) {
     const { handleContextMenuShow, handleContextMenuHide, options } = useContextMenuOptions({
@@ -38,24 +43,32 @@ export default defineComponent({
     }
     return () => {
       return (
-        <ContextMenu
-          options={options.value}
-          onSelect={props.onSelect}
-          triggerSelector={`[data-selectable-id],.selection-container`}
-          onShow={handleContextMenuShow}
-          onHide={handleContextMenuHide}
-          class={'h-full'}
-        >
-          <NSelectionRect
-            onSelectionChange={handleSelectionChange}
-            onClearSelection={() => props.onSelect([])}
+        <div class="h-full" style={{ position: 'relative' }}>
+          <ContextMenu
+            options={options.value}
+            onSelect={props.onContextMenuSelect}
+            triggerSelector={`[data-selectable-id],.selection-container`}
+            onShow={handleContextMenuShow}
+            onHide={handleContextMenuHide}
             class={'h-full'}
           >
-            <NScrollbar yPlacement='right' xPlacement='bottom' class="h-full">
-              <FileViewRenderer {...props} />
-            </NScrollbar>
-          </NSelectionRect>
-        </ContextMenu>
+            <NSelectionRect
+              onSelectionChange={handleSelectionChange}
+              onClearSelection={() => props.onSelect([])}
+              class={'h-full'}
+            >
+              <NScrollbar yPlacement='right' xPlacement='bottom' class="h-full">
+                <FileViewRenderer {...props} />
+              </NScrollbar>
+            </NSelectionRect>
+          </ContextMenu>
+
+          {/* Loading 遮罩层 - 只覆盖文件列表区域 */}
+          <FileLoading
+            loading={props.loading}
+            tip={props.loadingTip}
+          />
+        </div>
       )
     }
   }

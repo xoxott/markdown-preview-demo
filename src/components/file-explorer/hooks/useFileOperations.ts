@@ -1,7 +1,26 @@
-import { ref, Ref } from 'vue'
+import { ref, Ref, ComputedRef } from 'vue'
 import { FileItem } from '../types/file-explorer'
 
 export type ClipboardOperation = 'copy' | 'cut' | null
+
+/**
+ * 文件操作返回类型
+ */
+export interface FileOperations {
+  clipboard: Ref<FileItem[]>
+  clipboardOperation: Ref<ClipboardOperation>
+  copyFiles: () => Promise<void>
+  cutFiles: () => Promise<void>
+  pasteFiles: (targetPath?: string) => Promise<void>
+  deleteFiles: () => Promise<void>
+  renameFile: (item: FileItem, newName: string) => Promise<void>
+  startRename: () => void
+  createFolder: () => Promise<void>
+  refresh: () => Promise<void>
+  showProperties: () => void
+  hasClipboardContent: ComputedRef<boolean>
+  clearClipboard: () => void
+}
 
 export interface FileOperationsOptions {
   onCopy?: (items: FileItem[]) => void | Promise<void>

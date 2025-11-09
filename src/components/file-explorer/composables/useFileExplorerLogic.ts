@@ -8,6 +8,7 @@ import { useFileOperations } from '../hooks/useFileOperations'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 import { createOperationsConfig } from '../config/operations.config'
 import { createShortcutsConfig } from '../config/shortcuts.config'
+import { createContextMenuHandler } from '../config/contextmenu.config'
 
 export interface UseFileExplorerLogicOptions {
   /** 初始文件列表 */
@@ -31,6 +32,8 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
   const gridSize = ref<GridSize>('small')
   const viewMode = ref<ViewMode>('grid')
   const mockItems = ref<FileItem[]>(initialItems)
+  const loading = ref(false)
+  const loadingTip = ref('加载中...')
 
   // ==================== 拖拽系统 ====================
   const dragDrop = useFileDragDropEnhanced({
@@ -44,8 +47,16 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
   const { setSorting, sortedFiles, sortOrder, sortField } = useFileSort(mockItems)
   const { selectedIds, selectFile, selectAll, clearSelection, selectedFiles } = useFileSelection(sortedFiles)
 
+  // ==================== Loading 控制 ====================
+  const setLoading = (value: boolean, tip?: string) => {
+    loading.value = value
+    if (tip !== undefined) {
+      loadingTip.value = tip
+    }
+  }
+
   // ==================== 文件操作 ====================
-  const operationsConfig = createOperationsConfig(message)
+  const operationsConfig = createOperationsConfig(message, setLoading)
   const fileOperations = useFileOperations(selectedFiles, operationsConfig)
 
   // ==================== 事件处理 ====================
@@ -79,6 +90,15 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
   // 绑定快捷键到容器
   useKeyboardShortcuts(shortcutsConfig, containerRef)
 
+  // ==================== 右键菜单处理 ====================
+  const handleContextMenuSelect = createContextMenuHandler({
+    fileOperations,
+    message,
+    selectedFiles,
+    onOpen: handleOpen,
+    onSort: setSorting
+  })
+
   // ==================== 返回所有状态和方法 ====================
   return {
     // 状态
@@ -91,6 +111,8 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
     sortField,
     selectedIds,
     selectedFiles,
+    loading,
+    loadingTip,
 
     // 拖拽
     dragDrop,
@@ -104,6 +126,8 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
     handleOpen,
     handleBreadcrumbNavigate,
     handleGridSizeChange,
+    setLoading,
+    handleContextMenuSelect,
 
     // 文件操作
     fileOperations

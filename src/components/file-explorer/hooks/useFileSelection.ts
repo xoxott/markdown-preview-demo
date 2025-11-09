@@ -48,6 +48,7 @@ export function useFileSelection(files: Ref<FileItem[]>) {
       selectedIds.value = new Set(idsArray)
       lastSelectedId.value = idsArray[idsArray.length - 1]
     }
+    console.log('selectedFiles', selectedFiles.value)
   }
 
   const selectMultiple = (ids: string[]) => {

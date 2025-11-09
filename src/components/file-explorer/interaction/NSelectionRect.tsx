@@ -294,7 +294,7 @@ export default defineComponent({
       if (clientY - rect.top < props.scrollEdge && scroll.scrollTop > 0) {
         dy = -props.scrollSpeed
       } else if (rect.bottom - clientY < props.scrollEdge &&
-                 scroll.scrollTop < scroll.scrollHeight - scroll.clientHeight) {
+        scroll.scrollTop < scroll.scrollHeight - scroll.clientHeight) {
         dy = props.scrollSpeed
       }
 
@@ -302,7 +302,7 @@ export default defineComponent({
       if (clientX - rect.left < props.scrollEdge && scroll.scrollLeft > 0) {
         dx = -props.scrollSpeed
       } else if (rect.right - clientX < props.scrollEdge &&
-                 scroll.scrollLeft < scroll.scrollWidth - scroll.clientWidth) {
+        scroll.scrollLeft < scroll.scrollWidth - scroll.clientWidth) {
         dx = props.scrollSpeed
       }
 
@@ -469,9 +469,8 @@ export default defineComponent({
      */
     const handleClickOutside = (e: MouseEvent): void => {
       if (selectionState.value.isSelecting) return
-
       const target = e.target as HTMLElement
-      if (!target.closest(props.selectableSelector)) {
+      if (!target.closest(props.selectableSelector) && !target.closest('[data-dropdown-option]')) {
         selectionState.value.selectedIds.clear()
         props.onClearSelection?.()
       }
