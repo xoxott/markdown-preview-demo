@@ -6,6 +6,7 @@ import { useFileSort } from '../hooks/useFileSort'
 import { useFileSelection } from '../hooks/useFileSelection'
 import { useFileOperations } from '../hooks/useFileOperations'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
+import { useDialog } from '../hooks/useDialog'
 import { createOperationsConfig } from '../config/operations.config'
 import { createShortcutsConfig } from '../config/shortcuts.config'
 import { createContextMenuHandler } from '../config/contextmenu.config'
@@ -55,9 +56,16 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
     }
   }
 
+  // ==================== 弹窗系统 ====================
+  const dialog = useDialog()
+  provide('FILE_DIALOG', dialog)
+
   // ==================== 文件操作 ====================
   const operationsConfig = createOperationsConfig(message, setLoading)
-  const fileOperations = useFileOperations(selectedFiles, operationsConfig)
+  const fileOperations = useFileOperations(selectedFiles, {
+    ...operationsConfig,
+    dialog
+  })
 
   // ==================== 事件处理 ====================
   const handleViewModeChange = (value: ViewMode) => {
@@ -116,6 +124,9 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
 
     // 拖拽
     dragDrop,
+
+    // 弹窗
+    dialog,
 
     // 方法
     setSorting,

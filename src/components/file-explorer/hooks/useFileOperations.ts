@@ -1,5 +1,6 @@
-import { ref, Ref, ComputedRef } from 'vue'
+import { ref, Ref, ComputedRef, computed } from 'vue'
 import { FileItem } from '../types/file-explorer'
+import { UseDialogReturn } from './useDialog'
 
 export type ClipboardOperation = 'copy' | 'cut' | null
 
@@ -23,6 +24,7 @@ export interface FileOperations {
 }
 
 export interface FileOperationsOptions {
+  dialog?: UseDialogReturn
   onCopy?: (items: FileItem[]) => void | Promise<void>
   onCut?: (items: FileItem[]) => void | Promise<void>
   onPaste?: (items: FileItem[], operation: ClipboardOperation, targetPath?: string) => void | Promise<void>
@@ -38,6 +40,7 @@ export function useFileOperations(
   options: FileOperationsOptions = {}
 ) {
   const {
+    dialog,
     onCopy,
     onCut,
     onPaste,
@@ -120,24 +123,33 @@ export function useFileOperations(
 
     const items = [...selectedFiles.value]
 
-    console.log(`🗑️ 删除 ${items.length} 个项目`)
-
-    await onDelete?.(items)
+    // 如果有 dialog,显示确认对话框
+    if (dialog) {
+      const itemNames = items.length === 1 
+        ? items[0].name 
+        : `${items.length} 个项目`
+      
+      dialog.confirm({
+        title: '确认删除',
+        content: `确定要删除 ${itemNames} 吗?此操作无法撤销。`,
+        type: 'warning',
+        confirmText: '删除',
+        onConfirm: async () => {
+          console.log(`🗑️ 删除 ${items.length} 个项目`)
+          await onDelete?.(items)
+        }
+      })
+    } else {
+      console.log(`🗑️ 删除 ${items.length} 个项目`)
+      await onDelete?.(items)
+    }
   }
 
   /**
    * 重命名文件（仅当选中单个文件时）
    */
-  const renameFile = async (newName: string) => {
-    if (selectedFiles.value.length !== 1) {
-      console.warn('只能重命名单个文件')
-      return
-    }
-
-    const item = selectedFiles.value[0]
-
+  const renameFile = async (item: FileItem, newName: string) => {
     console.log(`✏️ 重命名: ${item.name} -> ${newName}`)
-
     await onRename?.(item, newName)
   }
 
@@ -150,23 +162,59 @@ export function useFileOperations(
       return
     }
 
-    // 这里可以触发重命名对话框
-    // 实际的重命名逻辑由对话框完成后调用 renameFile
-    console.log('🔧 开始重命名:', selectedFiles.value[0].name)
+    const item = selectedFiles.value[0]
 
-    // 触发重命名回调（如果需要显示对话框）
-    onRename?.(selectedFiles.value[0], selectedFiles.value[0].name)
+    // 如果有 dialog,显示重命名对话框
+    if (dialog) {
+      dialog.rename({
+        title: '重命名',
+        defaultValue: item.name,
+        placeholder: '请输入新名称',
+        validator: (value: string) => {
+          if (!value.trim()) {
+            return '名称不能为空'
+          }
+          if (value === item.name) {
+            return '名称未改变'
+          }
+          return true
+        },
+        onConfirm: async (newName: string) => {
+          await renameFile(item, newName)
+        }
+      })
+    } else {
+      console.log('🔧 开始重命名:', item.name)
+      onRename?.(item, item.name)
+    }
   }
 
   /**
    * 新建文件夹
    */
   const createFolder = async (name?: string, parentPath?: string) => {
-    const folderName = name || '新建文件夹'
-
-    console.log(`📁 新建文件夹: ${folderName}`)
-
-    await onCreateFolder?.(folderName, parentPath)
+    // 如果有 dialog 且没有提供名称,显示输入对话框
+    if (dialog && !name) {
+      dialog.rename({
+        title: '新建文件夹',
+        defaultValue: '新建文件夹',
+        placeholder: '请输入文件夹名称',
+        validator: (value: string) => {
+          if (!value.trim()) {
+            return '文件夹名称不能为空'
+          }
+          return true
+        },
+        onConfirm: async (folderName: string) => {
+          console.log(`📁 新建文件夹: ${folderName}`)
+          await onCreateFolder?.(folderName, parentPath)
+        }
+      })
+    } else {
+      const folderName = name || '新建文件夹'
+      console.log(`📁 新建文件夹: ${folderName}`)
+      await onCreateFolder?.(folderName, parentPath)
+    }
   }
 
   /**
@@ -197,9 +245,9 @@ export function useFileOperations(
   /**
    * 检查剪贴板是否有内容
    */
-  const hasClipboardContent = () => {
+  const hasClipboardContent = computed(() => {
     return clipboard.value.length > 0 && clipboardOperation.value !== null
-  }
+  })
 
   /**
    * 清空剪贴板

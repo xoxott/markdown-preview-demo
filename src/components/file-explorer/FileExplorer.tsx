@@ -6,6 +6,7 @@ import FileSidebar from "./layout/FileSidebar"
 import FileStatusBar from "./layout/FileStatusBar"
 import FileToolbar from "./layout/FileToolbar"
 import ResizableLayout from "./layout/ResizableLayout"
+import DialogTestPanel from "./test/DialogTestPanel"
 import { mockFileItems, mockBreadcrumbItems } from "./config/mockData"
 import { useFileExplorerLogic } from "./composables/useFileExplorerLogic"
 
@@ -107,7 +108,7 @@ export default defineComponent({
                   onContextMenuSelect={logic.handleContextMenuSelect}
                 />
               ),
-              right: <div>right</div>
+              right: <DialogTestPanel dialog={logic.dialog} />
             }}
           </ResizableLayout>
         </div>
