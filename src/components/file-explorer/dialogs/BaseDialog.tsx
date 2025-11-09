@@ -1,13 +1,12 @@
 /**
  * BaseDialog - 基础可拖拽弹窗组件
- * 基于 Naive UI 的 NModal 进行二次封装,添加拖拽功能
+ * 基于 Naive UI 的 NModal 进行二次封装,添加拖拽和调整大小功能
  */
 
 import { computed, defineComponent, PropType, ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { NModal, NCard, NButton, NIcon, useThemeVars } from 'naive-ui'
-import { Close } from '@vicons/ionicons5'
-import { BaseDialogProps, DialogPosition, DEFAULT_DIALOG_CONFIG, ResizeDirection } from '../types/dialog'
-import styles from './BaseDialog.module.scss'
+import { Close, Expand, Contract } from '@vicons/ionicons5'
+import { DEFAULT_DIALOG_CONFIG, DialogPosition, ResizeDirection } from '../types/dialog'
 
 export default defineComponent({
   name: 'BaseDialog',
@@ -22,14 +21,17 @@ export default defineComponent({
     maxHeight: { type: Number, default: undefined },
     draggable: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.draggable },
     resizable: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.resizable },
+    showMask: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.showMask },
     maskClosable: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.maskClosable },
     showClose: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.showClose },
     closeOnEsc: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.closeOnEsc },
+    autoFocus: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.autoFocus },
+    trapFocus: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.trapFocus },
     position: {
       type: [String, Object] as PropType<'center' | DialogPosition>,
       default: DEFAULT_DIALOG_CONFIG.position
     },
-    zIndex: { type: Number, default: undefined },
+    zIndex: { type: Number, default: DEFAULT_DIALOG_CONFIG.zIndex },
     class: { type: String, default: '' },
     contentClass: { type: String, default: '' },
     onClose: { type: Function as PropType<() => void>, default: undefined },
@@ -42,15 +44,29 @@ export default defineComponent({
     const dialogRef = ref<HTMLElement | null>(null)
     const headerRef = ref<HTMLElement | null>(null)
 
-    // 拖拽状态
+    // 状态管理
     const isDragging = ref(false)
+    const isResizing = ref(false)
+    const isPositioned = ref(false)
+    const isFullscreen = ref(false)
+    const resizeDirection = ref<ResizeDirection | null>(null)
+
+    // 位置和尺寸
     const currentPosition = ref<DialogPosition>({ x: 0, y: 0 })
+    const currentSize = ref({ width: 0, height: 0 })
+
+    // 保存全屏前的状态
+    const beforeFullscreen = ref({
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0
+    })
+
+    // 拖拽起始信息
     const dragStart = ref({ x: 0, y: 0, dialogX: 0, dialogY: 0 })
 
-    // 调整大小状态
-    const isResizing = ref(false)
-    const resizeDirection = ref<ResizeDirection | null>(null)
-    const currentSize = ref({ width: 0, height: 0 })
+    // 调整大小起始信息
     const resizeStart = ref({
       x: 0,
       y: 0,
@@ -63,6 +79,18 @@ export default defineComponent({
     // 计算弹窗样式
     const dialogStyle = computed(() => {
       const style: Record<string, string> = {}
+
+      // 全屏模式
+      if (isFullscreen.value) {
+        style.position = 'fixed'
+        style.left = '0'
+        style.top = '0'
+        style.width = '100vw'
+        style.height = '100vh'
+        style.transform = 'none'
+        style.margin = '0'
+        return style
+      }
 
       // 宽度
       if (currentSize.value.width > 0) {
@@ -89,11 +117,12 @@ export default defineComponent({
       if (props.maxHeight) style.maxHeight = `${props.maxHeight}px`
 
       // 位置
-      if (props.position !== 'center') {
+      if (isPositioned.value || (props.position !== 'center' && typeof props.position === 'object')) {
         style.position = 'fixed'
         style.left = `${currentPosition.value.x}px`
         style.top = `${currentPosition.value.y}px`
         style.transform = 'none'
+        style.margin = '0'
       }
 
       return style
@@ -103,25 +132,69 @@ export default defineComponent({
     const initPosition = () => {
       if (props.position !== 'center' && typeof props.position === 'object') {
         currentPosition.value = { ...props.position }
-      } else if (props.position === 'center' && dialogRef.value) {
-        // 居中位置
+        isPositioned.value = true
+      } else if (dialogRef.value) {
         const rect = dialogRef.value.getBoundingClientRect()
         currentPosition.value = {
-          x: (window.innerWidth - rect.width) / 2,
-          y: (window.innerHeight - rect.height) / 2
+          x: rect.left,
+          y: rect.top
         }
+      }
+    }
+
+    // 切换全屏
+    const toggleFullscreen = () => {
+      if (isFullscreen.value) {
+        // 退出全屏，恢复之前的状态
+        isFullscreen.value = false
+        currentPosition.value = {
+          x: beforeFullscreen.value.x,
+          y: beforeFullscreen.value.y
+        }
+        currentSize.value = {
+          width: beforeFullscreen.value.width,
+          height: beforeFullscreen.value.height
+        }
+      } else {
+        // 进入全屏，保存当前状态
+        if (!isPositioned.value && dialogRef.value) {
+          const rect = dialogRef.value.getBoundingClientRect()
+          currentPosition.value = {
+            x: rect.left,
+            y: rect.top
+          }
+          isPositioned.value = true
+        }
+
+        beforeFullscreen.value = {
+          x: currentPosition.value.x,
+          y: currentPosition.value.y,
+          width: currentSize.value.width,
+          height: currentSize.value.height
+        }
+        isFullscreen.value = true
       }
     }
 
     // 开始拖拽
     const handleDragStart = (e: MouseEvent) => {
-      if (!props.draggable) return
+      if (!props.draggable || isFullscreen.value) return
       if (!headerRef.value?.contains(e.target as Node)) return
 
-      // 排除关闭按钮
-      if ((e.target as HTMLElement).closest('.dialog-close-btn')) return
+      // 排除按钮
+      if ((e.target as HTMLElement).closest('.dialog-action-btn')) return
 
       e.preventDefault()
+
+      if (!isPositioned.value && dialogRef.value) {
+        const rect = dialogRef.value.getBoundingClientRect()
+        currentPosition.value = {
+          x: rect.left,
+          y: rect.top
+        }
+        isPositioned.value = true
+      }
+
       isDragging.value = true
 
       dragStart.value = {
@@ -171,10 +244,20 @@ export default defineComponent({
 
     // 开始调整大小
     const handleResizeStart = (e: MouseEvent, direction: ResizeDirection) => {
-      if (!props.resizable) return
+      if (!props.resizable || isFullscreen.value) return
 
       e.preventDefault()
       e.stopPropagation()
+
+      if (!isPositioned.value && dialogRef.value) {
+        const rect = dialogRef.value.getBoundingClientRect()
+        currentPosition.value = {
+          x: rect.left,
+          y: rect.top
+        }
+        isPositioned.value = true
+      }
+
       isResizing.value = true
       resizeDirection.value = direction
 
@@ -208,43 +291,63 @@ export default defineComponent({
       let newX = resizeStart.value.dialogX
       let newY = resizeStart.value.dialogY
 
-      // 根据方向计算新尺寸和位置
-      if (direction.includes('e')) {
-        newWidth = resizeStart.value.width + deltaX
-      }
-      if (direction.includes('w')) {
-        newWidth = resizeStart.value.width - deltaX
-        newX = resizeStart.value.dialogX + deltaX
-      }
-      if (direction.includes('s')) {
-        newHeight = resizeStart.value.height + deltaY
-      }
-      if (direction.includes('n')) {
-        newHeight = resizeStart.value.height - deltaY
-        newY = resizeStart.value.dialogY + deltaY
-      }
-
-      // 应用最小/最大尺寸限制
       const minW = props.minWidth || 200
       const minH = props.minHeight || 150
       const maxW = props.maxWidth || window.innerWidth
       const maxH = props.maxHeight || window.innerHeight
 
-      newWidth = Math.max(minW, Math.min(newWidth, maxW))
-      newHeight = Math.max(minH, Math.min(newHeight, maxH))
-
-      // 边界检查
+      // 根据方向计算新尺寸和位置
+      if (direction.includes('e')) {
+        newWidth = Math.max(minW, Math.min(resizeStart.value.width + deltaX, maxW))
+      }
       if (direction.includes('w')) {
-        const maxLeft = resizeStart.value.dialogX + resizeStart.value.width - minW
-        newX = Math.min(newX, maxLeft)
-        newX = Math.max(0, newX)
-        newWidth = resizeStart.value.dialogX + resizeStart.value.width - newX
+        const proposedWidth = resizeStart.value.width - deltaX
+        if (proposedWidth >= minW && proposedWidth <= maxW) {
+          newWidth = proposedWidth
+          newX = resizeStart.value.dialogX + deltaX
+        } else if (proposedWidth < minW) {
+          newWidth = minW
+          newX = resizeStart.value.dialogX + resizeStart.value.width - minW
+        } else {
+          newWidth = maxW
+          newX = resizeStart.value.dialogX + resizeStart.value.width - maxW
+        }
+      }
+      if (direction.includes('s')) {
+        newHeight = Math.max(minH, Math.min(resizeStart.value.height + deltaY, maxH))
       }
       if (direction.includes('n')) {
-        const maxTop = resizeStart.value.dialogY + resizeStart.value.height - minH
-        newY = Math.min(newY, maxTop)
-        newY = Math.max(0, newY)
-        newHeight = resizeStart.value.dialogY + resizeStart.value.height - newY
+        const proposedHeight = resizeStart.value.height - deltaY
+        if (proposedHeight >= minH && proposedHeight <= maxH) {
+          newHeight = proposedHeight
+          newY = resizeStart.value.dialogY + deltaY
+        } else if (proposedHeight < minH) {
+          newHeight = minH
+          newY = resizeStart.value.dialogY + resizeStart.value.height - minH
+        } else {
+          newHeight = maxH
+          newY = resizeStart.value.dialogY + resizeStart.value.height - maxH
+        }
+      }
+
+      // 边界检查
+      if (newX < 0) {
+        if (direction.includes('w')) {
+          newWidth = newWidth + newX
+        }
+        newX = 0
+      }
+      if (newY < 0) {
+        if (direction.includes('n')) {
+          newHeight = newHeight + newY
+        }
+        newY = 0
+      }
+      if (newX + newWidth > window.innerWidth) {
+        newWidth = window.innerWidth - newX
+      }
+      if (newY + newHeight > window.innerHeight) {
+        newHeight = window.innerHeight - newY
       }
 
       currentSize.value = { width: newWidth, height: newHeight }
@@ -279,18 +382,40 @@ export default defineComponent({
 
     // 渲染调整大小手柄
     const renderResizeHandles = () => {
-      if (!props.resizable) return null
+      if (!props.resizable || isFullscreen.value) return null
 
       const directions: ResizeDirection[] = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']
 
-      return directions.map(direction => (
-        <div
-          key={direction}
-          class={[styles['resize-handle'], styles[`resize-handle-${direction}`]]}
-          style={{ cursor: getResizeCursor(direction) }}
-          onMousedown={(e: MouseEvent) => handleResizeStart(e, direction)}
-        />
-      ))
+      return (
+        <>
+          {directions.map(direction => (
+            <div
+              key={direction}
+              class={[
+                'absolute pointer-events-auto z-10',
+                // 边缘手柄
+                direction === 'n' && 'top-0 left-0 right-0 h-1 cursor-ns-resize',
+                direction === 's' && 'bottom-0 left-0 right-0 h-1 cursor-ns-resize',
+                direction === 'e' && 'top-0 right-0 bottom-0 w-1 cursor-ew-resize',
+                direction === 'w' && 'top-0 left-0 bottom-0 w-1 cursor-ew-resize',
+                // 角落手柄
+                direction === 'ne' && 'top-0 right-0 w-3 h-3 cursor-nesw-resize',
+                direction === 'nw' && 'top-0 left-0 w-3 h-3 cursor-nwse-resize',
+                direction === 'se' && 'bottom-0 right-0 w-3 h-3 cursor-nwse-resize',
+                direction === 'sw' && 'bottom-0 left-0 w-3 h-3 cursor-nesw-resize',
+              ]}
+              style={{ cursor: getResizeCursor(direction), backgroundColor: 'transparent', transition: 'background-color 0.1s ease-in-out' }}
+              onMousedown={(e: MouseEvent) => handleResizeStart(e, direction)}
+              onMouseenter={e => {
+                (e.target as HTMLElement).style.backgroundColor = themeVars.value.primaryColor + '33'
+              }}
+              onMouseleave={e => {
+                (e.target as HTMLElement).style.backgroundColor = 'transparent'
+              }}
+            />
+          ))}
+        </>
+      )
     }
 
     // 关闭弹窗
@@ -321,7 +446,11 @@ export default defineComponent({
           props.onAfterEnter?.()
         }, 50)
       } else {
-        props.onAfterLeave?.()
+        // 重置状态
+          currentSize.value = { width: 0, height: 0 }
+          isPositioned.value = false
+          isFullscreen.value = false
+          props.onAfterLeave?.()
       }
     })
 
@@ -339,79 +468,121 @@ export default defineComponent({
     return () => (
       <NModal
         show={props.show}
+        trapFocus={false}
+        autoFocus={false}
+        closeOnEsc={props.closeOnEsc}
+        unstableShowMask={props.showMask}
         maskClosable={props.maskClosable}
         onMaskClick={handleMaskClick}
         onUpdateShow={(show: boolean) => !show && handleClose()}
-        class={[styles['base-dialog-modal'], props.class]}
+        class={props.class}
         zIndex={props.zIndex}
         transformOrigin="center"
       >
-        <NCard
+        <div
           ref={dialogRef}
           class={[
-            styles['base-dialog'],
-            props.draggable && styles['draggable'],
-            props.resizable && styles['resizable'],
-            isDragging.value && styles['dragging'],
-            isResizing.value && styles['resizing']
+            'relative',
+            props.draggable && 'cursor-default',
+            isDragging.value && 'select-none',
+            isResizing.value && 'select-none transition-none'
           ]}
           style={dialogStyle.value}
-          bordered={false}
-          role="dialog"
-          aria-modal="true"
         >
-          {/* 调整大小手柄 */}
           {renderResizeHandles()}
-          {{
-            header: () => (
-              <div
-                ref={headerRef}
-                class={styles['dialog-header']}
-                onMousedown={handleDragStart}
-                style={{
-                  cursor: props.draggable ? 'move' : 'default',
-                  backgroundColor: themeVars.value.cardColor
-                }}
-              >
-                {slots.header ? (
-                  slots.header()
-                ) : (
-                  <div class={styles['dialog-title']} style={{ color: themeVars.value.textColor1 }}>
-                    {props.title}
+
+          <NCard
+            bordered={false}
+            role="dialog"
+            aria-modal="true"
+            class="h-full flex flex-col"
+          >
+            {{
+              header: () => (
+                <div
+                  ref={headerRef}
+                  class={[
+                    'flex items-center justify-between',
+                    props.draggable && !isFullscreen.value && 'cursor-move'
+                  ]}
+                  onMousedown={handleDragStart}
+                  style={{
+                    borderColor: themeVars.value.dividerColor,
+                    backgroundColor: themeVars.value.cardColor,
+                    userSelect: 'none'
+                  }}
+                >
+                  {slots.header ? (
+                    slots.header()
+                  ) : (
+                    <div
+                      class="text-base font-medium flex-1"
+                      style={{ color: themeVars.value.textColor1 }}
+                    >
+                      {props.title}
+                    </div>
+                  )}
+                  <div class="flex items-center gap-1">
+                    {/* 全屏按钮 */}
+                    <NButton
+                      text
+                      class="dialog-action-btn"
+                      onClick={toggleFullscreen}
+                      style={{
+                        color: themeVars.value.textColor3,
+                        padding: '4px'
+                      }}
+                    >
+                      {{
+                        icon: () => (
+                          <NIcon size={18}>
+                            {isFullscreen.value ? <Contract /> : <Expand />}
+                          </NIcon>
+                        )
+                      }}
+                    </NButton>
+                    {/* 关闭按钮 */}
+                    {props.showClose && (
+                      <NButton
+                        text
+                        class="dialog-action-btn"
+                        onClick={handleClose}
+                        style={{
+                          color: themeVars.value.textColor3,
+                          padding: '4px'
+                        }}
+                      >
+                        {{
+                          icon: () => (
+                            <NIcon size={18}>
+                              <Close />
+                            </NIcon>
+                          )
+                        }}
+                      </NButton>
+                    )}
                   </div>
-                )}
-                {props.showClose && (
-                  <NButton
-                    text
-                    class={[styles['dialog-close-btn'], 'dialog-close-btn']}
-                    onClick={handleClose}
-                    style={{
-                      color: themeVars.value.textColor3
-                    }}
+                </div>
+              ),
+              default: () => (
+                <div class={['flex-1 overflow-auto px-4 py-3', props.contentClass]}>
+                  {slots.default?.()}
+                </div>
+              ),
+              footer: slots.footer
+                ? () => (
+                  <div
+                    class="flex items-center justify-end gap-2"
+                    style={{ borderColor: themeVars.value.dividerColor }}
                   >
-                    {{
-                      icon: () => <NIcon size={20}><Close /></NIcon>
-                    }}
-                  </NButton>
-                )}
-              </div>
-            ),
-            default: () => (
-              <div class={[styles['dialog-content'], props.contentClass]}>
-                {slots.default?.()}
-              </div>
-            ),
-            footer: slots.footer
-              ? () => (
-                  <div class={styles['dialog-footer']}>
                     {slots.footer?.()}
                   </div>
                 )
-              : undefined
-          }}
-        </NCard>
+                : undefined
+            }}
+          </NCard>
+        </div>
       </NModal>
     )
   }
 })
-

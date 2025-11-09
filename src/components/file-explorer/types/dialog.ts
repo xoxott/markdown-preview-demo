@@ -49,10 +49,16 @@ export interface BaseDialogProps {
   resizable?: boolean
   /** 点击遮罩是否关闭 */
   maskClosable?: boolean
+  /** 是否显示遮罩 */
+  showMask?: boolean
   /** 是否显示关闭按钮 */
   showClose?: boolean
   /** ESC键是否关闭 */
   closeOnEsc?: boolean
+  /** 是否自动聚焦 */
+  autoFocus?: boolean
+  /** 是否锁定焦点 */
+  trapFocus?: boolean
   /** 弹窗位置 */
   position?: 'center' | DialogPosition
   /** 层级 */
@@ -270,10 +276,14 @@ export const DIALOG_SIZE_PRESETS: Record<DialogSize, { width: number; height: nu
  */
 export const DEFAULT_DIALOG_CONFIG: Partial<BaseDialogProps> = {
   draggable: true,
-  resizable: false,
+  resizable: true,
   maskClosable: true,
   showClose: true,
   closeOnEsc: true,
+  showMask: true,
+  autoFocus: true,
+  trapFocus: true,
+  zIndex: undefined,
   position: 'center',
   minWidth: 300,
   minHeight: 200

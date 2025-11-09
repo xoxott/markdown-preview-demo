@@ -3,7 +3,8 @@
  * 提供命令式API来显示各种对话框
  */
 
-import { ref, createVNode, render, App } from 'vue'
+import { ref, createVNode, render, App, nextTick, watchEffect } from 'vue'
+import { NConfigProvider } from 'naive-ui'
 import RenameDialog from '../dialogs/RenameDialog'
 import ConfirmDialog from '../dialogs/ConfirmDialog'
 import {
@@ -12,67 +13,84 @@ import {
   DialogInstance
 } from '../types/dialog'
 
+// 全局主题配置存储
+let globalThemeConfig: {
+  theme?: any;
+  themeOverrides?: any;
+} = {};
+
+/**
+ * 设置全局主题配置
+ * 应在应用初始化时调用，通常在 main.ts 或 App.vue 中
+ */
+export function setDialogTheme(config: {
+  theme?: any;
+  themeOverrides?: any;
+}) {
+  globalThemeConfig = config;
+}
+
 /**
  * 创建弹窗实例
  */
-function createDialogInstance(
-  component: any,
-  config: any,
-  app?: App
-): DialogInstance {
+async function createDialogInstance(component: any, config: any, app?: App): Promise<DialogInstance> {
   const container = document.createElement('div')
   document.body.appendChild(container)
 
   const show = ref(false)
+  let destroyed = false
 
-  // 创建虚拟节点
-  const vnode = createVNode(component, {
-    show: show.value,
-    config,
-    'onUpdate:show': (value: boolean) => {
-      show.value = value
-      if (!value) {
-        // 延迟销毁,等待动画完成
-        setTimeout(() => {
-          instance.destroy()
-        }, 300)
+  const destroyDom = () => {
+    if (destroyed) return
+    destroyed = true
+    setTimeout(() => {
+      render(null, container)
+      container.remove()
+      if (container.parentNode) {
+        document.body.removeChild(container)
       }
-    }
+    }, 300)
+  }
+
+  const handleAfterLeave = () => {
+    destroyDom()
+  }
+
+  const handleUpdateShow = (val: boolean) => {
+    show.value = val
+  }
+
+  watchEffect(() => {
+    const dialogVNode = createVNode(component, {
+      show: show.value,
+      config,
+      'onUpdate:show': handleUpdateShow,
+      onAfterLeave: handleAfterLeave,
+      onClose: config?.onClose
+    })
+
+    const vnode = createVNode(
+      NConfigProvider,
+      {
+        theme: globalThemeConfig?.theme,
+        themeOverrides: globalThemeConfig?.themeOverrides
+      },
+      { default: () => dialogVNode }
+    )
+
+    if (app) vnode.appContext = app._context
+
+    render(vnode, container)
   })
 
-  // 如果有 app 实例,使用其上下文
-  if (app) {
-    vnode.appContext = app._context
-  }
-
-  // 渲染到容器
-  render(vnode, container)
-
   const instance: DialogInstance = {
-    show: () => {
-      show.value = true
-      // 更新 vnode 的 props
-      if (vnode.component) {
-        vnode.component.props.show = true
-      }
-    },
-    hide: () => {
-      show.value = false
-      if (vnode.component) {
-        vnode.component.props.show = false
-      }
-    },
-    destroy: () => {
-      render(null, container)
-      document.body.removeChild(container)
-    }
+    show: () => (show.value = true),
+    hide: () => (show.value = false),
+    destroy: () => destroyDom()
   }
 
-  // 立即显示
-  setTimeout(() => {
-    instance.show()
-  }, 0)
-
+  await nextTick()
+  instance.show()
   return instance
 }
 
@@ -83,66 +101,66 @@ export function useDialog(app?: App) {
   /**
    * 显示重命名对话框
    */
-  const rename = (config: RenameDialogConfig): DialogInstance => {
+  const rename = (config: RenameDialogConfig): Promise<DialogInstance> => {
     return createDialogInstance(RenameDialog, config, app)
   }
 
   /**
    * 显示确认对话框
    */
-  const confirm = (config: ConfirmDialogConfig): DialogInstance => {
+  const confirm = (config: ConfirmDialogConfig): Promise<DialogInstance> => {
     return createDialogInstance(ConfirmDialog, config, app)
   }
 
   /**
    * 显示信息对话框
    */
-  const info = (content: string, title?: string): DialogInstance => {
+  const info = (content: string, title?: string): Promise<DialogInstance> => {
     return confirm({
       title: title || '信息',
       content,
       type: 'info',
       showCancel: false,
-      onConfirm: () => {}
+      onConfirm: () => { }
     })
   }
 
   /**
    * 显示成功对话框
    */
-  const success = (content: string, title?: string): DialogInstance => {
+  const success = (content: string, title?: string): Promise<DialogInstance> => {
     return confirm({
       title: title || '成功',
       content,
       type: 'success',
       showCancel: false,
-      onConfirm: () => {}
+      onConfirm: () => { }
     })
   }
 
   /**
    * 显示警告对话框
    */
-  const warning = (content: string, title?: string): DialogInstance => {
+  const warning = (content: string, title?: string): Promise<DialogInstance> => {
     return confirm({
       title: title || '警告',
       content,
       type: 'warning',
       showCancel: false,
-      onConfirm: () => {}
+      onConfirm: () => { }
     })
   }
 
   /**
    * 显示错误对话框
    */
-  const error = (content: string, title?: string): DialogInstance => {
+  const error = (content: string, title?: string): Promise<DialogInstance> => {
     return confirm({
       title: title || '错误',
       content,
       type: 'error',
       showCancel: false,
-      onConfirm: () => {}
+      onConfirm: () => { }
     })
   }
 
@@ -152,7 +170,7 @@ export function useDialog(app?: App) {
   const confirmDelete = (
     itemName: string,
     onConfirm: () => void | Promise<void>
-  ): DialogInstance => {
+  ): Promise<DialogInstance> => {
     return confirm({
       title: '确认删除',
       content: `确定要删除 "${itemName}" 吗?此操作无法撤销。`,
@@ -177,4 +195,3 @@ export function useDialog(app?: App) {
  * 导出类型
  */
 export type UseDialogReturn = ReturnType<typeof useDialog>
-

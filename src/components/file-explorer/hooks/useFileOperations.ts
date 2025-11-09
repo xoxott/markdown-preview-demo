@@ -125,10 +125,10 @@ export function useFileOperations(
 
     // 如果有 dialog,显示确认对话框
     if (dialog) {
-      const itemNames = items.length === 1 
-        ? items[0].name 
+      const itemNames = items.length === 1
+        ? items[0].name
         : `${items.length} 个项目`
-      
+
       dialog.confirm({
         title: '确认删除',
         content: `确定要删除 ${itemNames} 吗?此操作无法撤销。`,

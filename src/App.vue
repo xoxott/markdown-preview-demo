@@ -6,6 +6,7 @@ import { useAppStore } from './store/modules/app';
 import { useThemeStore } from './store/modules/theme';
 import { naiveDateLocales, naiveLocales } from './locales/naive';
 import { setDrawerTheme } from './hooks/customer/useDrawer';
+import { setDialogTheme } from './components/file-explorer/hooks/useDialog';
 
 defineOptions({
   name: 'App'
@@ -45,6 +46,10 @@ watch(
   () => themeStore.darkMode,
   (isDark) => {
     setDrawerTheme({
+      theme: isDark ? darkTheme : undefined,
+      themeOverrides: themeStore.naiveTheme
+    });
+    setDialogTheme({
       theme: isDark ? darkTheme : undefined,
       themeOverrides: themeStore.naiveTheme
     });

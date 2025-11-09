@@ -89,6 +89,7 @@ export default defineComponent({
           draggable={true}
           resizable={false}
           onClose={handleClose}
+          position={'center'}
         >
           {{
             default: () => (

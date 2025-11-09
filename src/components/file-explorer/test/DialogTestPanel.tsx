@@ -3,9 +3,11 @@
  * 用于测试所有弹窗功能
  */
 
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, PropType, ref } from 'vue'
 import { NButton, NSpace, NDivider, useThemeVars } from 'naive-ui'
 import { UseDialogReturn } from '../hooks/useDialog'
+import BaseDialog from '../dialogs/BaseDialog'
+import { useDrawer } from '@/hooks/customer/useDrawer'
 
 export default defineComponent({
   name: 'DialogTestPanel',
@@ -17,6 +19,7 @@ export default defineComponent({
   },
   setup(props) {
     const themeVars = useThemeVars()
+    const  drawer = useDrawer()
 
     // 测试重命名对话框
     const testRename = () => {
@@ -87,6 +90,8 @@ export default defineComponent({
       })
     }
 
+    const test = ref(false)
+
     return () => (
       <div
         style={{
@@ -99,7 +104,7 @@ export default defineComponent({
         <h3 style={{ margin: '0 0 16px 0', color: themeVars.value.textColor1 }}>
           弹窗测试面板
         </h3>
-        
+
         <NSpace vertical size="large">
           {/* 基础对话框 */}
           <div>
@@ -147,8 +152,8 @@ export default defineComponent({
             <h4 style={{ margin: '0 0 12px 0', color: themeVars.value.textColor2 }}>
               功能说明
             </h4>
-            <ul style={{ 
-              margin: 0, 
+            <ul style={{
+              margin: 0,
               paddingLeft: '20px',
               color: themeVars.value.textColor3,
               fontSize: '14px',
@@ -169,7 +174,7 @@ export default defineComponent({
             <h4 style={{ margin: '0 0 12px 0', color: themeVars.value.textColor2 }}>
               文件操作测试
             </h4>
-            <div style={{ 
+            <div style={{
               color: themeVars.value.textColor3,
               fontSize: '14px',
               lineHeight: '1.8'
@@ -184,7 +189,20 @@ export default defineComponent({
               </ul>
             </div>
           </div>
+
+          <NButton onClick={() => test.value = true}>测试弹窗</NButton>
+
+          <BaseDialog show={test.value} onClose={() => test.value = false} title="测试弹窗" width={400} height={300}>
+            {{
+              default: () => <div>测试弹窗</div>,
+              footer: () => <div>测试弹窗</div>
+            }}
+          </BaseDialog>
+
+          <NButton onClick={()=>drawer.open({ title: '测试抽屉', content: '测试抽屉' })}>测试抽屉</NButton>
+
         </NSpace>
+
       </div>
     )
   }
