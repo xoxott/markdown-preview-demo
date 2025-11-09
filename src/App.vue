@@ -49,10 +49,6 @@ watch(
       theme: isDark ? darkTheme : undefined,
       themeOverrides: themeStore.naiveTheme
     });
-    setDialogTheme({
-      theme: isDark ? darkTheme : undefined,
-      themeOverrides: themeStore.naiveTheme
-    });
   },
   { immediate: true }
 );

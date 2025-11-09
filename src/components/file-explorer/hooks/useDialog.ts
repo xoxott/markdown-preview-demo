@@ -4,7 +4,8 @@
  */
 
 import { ref, createVNode, render, App, nextTick, watchEffect } from 'vue'
-import { NConfigProvider } from 'naive-ui'
+import { useThemeStore } from '@/store/modules/theme'
+import { NConfigProvider,darkTheme } from 'naive-ui'
 import RenameDialog from '../dialogs/RenameDialog'
 import ConfirmDialog from '../dialogs/ConfirmDialog'
 import {
@@ -12,23 +13,8 @@ import {
   ConfirmDialogConfig,
   DialogInstance
 } from '../types/dialog'
+import { storeToRefs } from 'pinia'
 
-// 全局主题配置存储
-let globalThemeConfig: {
-  theme?: any;
-  themeOverrides?: any;
-} = {};
-
-/**
- * 设置全局主题配置
- * 应在应用初始化时调用，通常在 main.ts 或 App.vue 中
- */
-export function setDialogTheme(config: {
-  theme?: any;
-  themeOverrides?: any;
-}) {
-  globalThemeConfig = config;
-}
 
 /**
  * 创建弹窗实例
@@ -36,7 +22,8 @@ export function setDialogTheme(config: {
 async function createDialogInstance(component: any, config: any, app?: App): Promise<DialogInstance> {
   const container = document.createElement('div')
   document.body.appendChild(container)
-
+  const themeStore = useThemeStore()
+  const { naiveTheme,darkMode } = storeToRefs(themeStore)
   const show = ref(false)
   let destroyed = false
 
@@ -72,8 +59,8 @@ async function createDialogInstance(component: any, config: any, app?: App): Pro
     const vnode = createVNode(
       NConfigProvider,
       {
-        theme: globalThemeConfig?.theme,
-        themeOverrides: globalThemeConfig?.themeOverrides
+        theme: darkTheme ? darkTheme : naiveTheme.value.Modal, // 来自 pinia
+        themeOverrides: naiveTheme.value
       },
       { default: () => dialogVNode }
     )
