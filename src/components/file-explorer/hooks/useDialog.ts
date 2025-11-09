@@ -3,9 +3,9 @@
  * 提供命令式API来显示各种对话框
  */
 
-import { ref, createVNode, render, App, nextTick, watchEffect } from 'vue'
+import { ref, createVNode, render, App, nextTick, watchEffect, computed } from 'vue'
 import { useThemeStore } from '@/store/modules/theme'
-import { NConfigProvider,darkTheme } from 'naive-ui'
+import { NConfigProvider, darkTheme } from 'naive-ui'
 import RenameDialog from '../dialogs/RenameDialog'
 import ConfirmDialog from '../dialogs/ConfirmDialog'
 import {
@@ -23,7 +23,7 @@ async function createDialogInstance(component: any, config: any, app?: App): Pro
   const container = document.createElement('div')
   document.body.appendChild(container)
   const themeStore = useThemeStore()
-  const { naiveTheme,darkMode } = storeToRefs(themeStore)
+  const { naiveTheme, darkMode } = storeToRefs(themeStore)
   const show = ref(false)
   let destroyed = false
 
@@ -59,7 +59,7 @@ async function createDialogInstance(component: any, config: any, app?: App): Pro
     const vnode = createVNode(
       NConfigProvider,
       {
-        theme: darkTheme ? darkTheme : naiveTheme.value.Modal, // 来自 pinia
+        theme: darkMode.value ? darkTheme : naiveTheme.value.Modal,
         themeOverrides: naiveTheme.value
       },
       { default: () => dialogVNode }

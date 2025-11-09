@@ -61,6 +61,8 @@ export interface BaseDialogProps {
   trapFocus?: boolean
   /** 弹窗位置 */
   position?: 'center' | DialogPosition
+  /** 弹窗变换原点 */
+  transformOrigin?: 'center' | 'mouse' | undefined,
   /** 层级 */
   zIndex?: number
   /** 自定义类名 */
@@ -285,6 +287,7 @@ export const DEFAULT_DIALOG_CONFIG: Partial<BaseDialogProps> = {
   trapFocus: true,
   zIndex: undefined,
   position: 'center',
+  transformOrigin: undefined,
   minWidth: 300,
   minHeight: 200
 }

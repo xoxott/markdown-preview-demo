@@ -27,6 +27,7 @@ export default defineComponent({
     closeOnEsc: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.closeOnEsc },
     autoFocus: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.autoFocus },
     trapFocus: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.trapFocus },
+    transformOrigin: { type: String as PropType<'center' | 'mouse' | undefined>, default: DEFAULT_DIALOG_CONFIG.transformOrigin },
     position: {
       type: [String, Object] as PropType<'center' | DialogPosition>,
       default: DEFAULT_DIALOG_CONFIG.position
@@ -478,9 +479,7 @@ export default defineComponent({
         onUpdateShow={(show: boolean) => !show && handleClose()}
         class={props.class}
         zIndex={props.zIndex}
-        // transformOrigin="center"
-        // transformOrigin="mouse"
-        // transformOrigin={undefined}
+        transformOrigin={props.transformOrigin}
       >
         <div
           ref={dialogRef}
@@ -510,8 +509,6 @@ export default defineComponent({
                   ]}
                   onMousedown={handleDragStart}
                   style={{
-                    borderColor: themeVars.value.dividerColor,
-                    backgroundColor: themeVars.value.cardColor,
                     userSelect: 'none'
                   }}
                 >
@@ -520,7 +517,6 @@ export default defineComponent({
                   ) : (
                     <div
                       class="text-base font-medium flex-1"
-                      style={{ color: themeVars.value.textColor1 }}
                     >
                       {props.title}
                     </div>
@@ -529,16 +525,11 @@ export default defineComponent({
                     {/* 全屏按钮 */}
                     <NButton
                       text
-                      class="dialog-action-btn"
                       onClick={toggleFullscreen}
-                      style={{
-                        color: themeVars.value.textColor3,
-                        padding: '4px'
-                      }}
                     >
                       {{
                         icon: () => (
-                          <NIcon size={18}>
+                          <NIcon size={16}>
                             {isFullscreen.value ? <Contract /> : <Expand />}
                           </NIcon>
                         )
@@ -548,16 +539,11 @@ export default defineComponent({
                     {props.showClose && (
                       <NButton
                         text
-                        class="dialog-action-btn"
                         onClick={handleClose}
-                        style={{
-                          color: themeVars.value.textColor3,
-                          padding: '4px'
-                        }}
                       >
                         {{
                           icon: () => (
-                            <NIcon size={18}>
+                            <NIcon size={20}>
                               <Close />
                             </NIcon>
                           )
@@ -576,7 +562,6 @@ export default defineComponent({
                 ? () => (
                   <div
                     class="flex items-center justify-end gap-2"
-                    style={{ borderColor: themeVars.value.dividerColor }}
                   >
                     {slots.footer?.()}
                   </div>
