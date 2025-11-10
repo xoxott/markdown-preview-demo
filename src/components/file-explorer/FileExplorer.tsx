@@ -9,6 +9,7 @@ import ResizableLayout from "./layout/ResizableLayout"
 import DialogTestPanel from "./test/DialogTestPanel"
 import { mockFileItems, mockBreadcrumbItems } from "./config/mockData"
 import { useFileExplorerLogic } from "./composables/useFileExplorerLogic"
+import Example from "@/hooks/customer/useDrawer/example"
 
 /**
  * 文件管理器主组件
@@ -108,7 +109,8 @@ export default defineComponent({
                   onContextMenuSelect={logic.handleContextMenuSelect}
                 />
               ),
-              right: <DialogTestPanel dialog={logic.dialog} />
+              // right: <DialogTestPanel dialog={logic.dialog} />
+              right: <Example />
             }}
           </ResizableLayout>
         </div>

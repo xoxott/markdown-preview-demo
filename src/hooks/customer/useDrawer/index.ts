@@ -1,319 +1,140 @@
-import { useThemeStore } from '@/store/modules/theme';
 import type { DrawerInstance, DrawerOptions } from '@/typings/drawer';
-import {
-  darkTheme,
-  NButton,
-  NDrawer,
-  NDrawerContent,
-  NScrollbar,
-  NSpace
-} from 'naive-ui';
+import { createVNode, render, ref, watchEffect, readonly, getCurrentInstance, nextTick, type Ref } from 'vue';
+import { useThemeStore } from '@/store/modules/theme';
 import { storeToRefs } from 'pinia';
-import type { VNode } from 'vue';
-import { computed, createApp, defineComponent, h, nextTick, ref } from 'vue';
+import { NConfigProvider, darkTheme } from 'naive-ui';
+import { DrawerContainer } from './DrawerContainer';
 
-const DrawerContainer = defineComponent({
-  name: 'DrawerContainer',
-  props: {
-    options: {
-      type: Object as () => DrawerOptions,
-      required: true
-    }
-  },
-  setup(props, { expose }) {
-    const visible = ref(false); // 初始设置为 false，等待 DOM 挂载后再显示
-    const loading = ref(false);
-    const disabled = ref(false);
-
-    // 计算属性：是否显示底部按钮
-    const showFooter = computed(() => props.options.showFooter);
-
-    // 处理关闭
-    const handleClose = () => {
-      visible.value = false;
-      // 不在这里调用 onClose，等待动画结束后在 onAfterLeave 中调用
-    };
-
-    // 处理确认
-    const handleConfirm = async () => {
-      if (!props.options.onConfirm) {
-        handleClose();
-        return;
-      }
-
-      loading.value = disabled.value = true;
-      try {
-        await props.options.onConfirm();
-        handleClose();
-      } catch (error) {
-        console.error('Drawer confirm error:', error);
-        // 确认失败时不关闭抽屉，继续显示
-      } finally {
-        loading.value = disabled.value = false;
-      }
-    };
-
-    // 处理取消
-    const handleCancel = async () => {
-      if (props.options.onCancel) {
-        try {
-          await props.options.onCancel();
-        } catch (error) {
-          console.error('Drawer cancel error:', error);
-        }
-      }
-      handleClose();
-    };
-
-    // 处理自定义按钮点击
-    const handleButtonClick = async (button: any) => {
-      if (!button.onClick) return;
-
-      const shouldClose = button.closeOnClick ?? false;
-
-      try {
-        await button.onClick();
-        if (shouldClose) {
-          handleClose();
-        }
-      } catch (error) {
-        console.error('Drawer button click error:', error);
-      }
-    };
-
-    // 显示抽屉（用于触发打开动画）
-    const show = () => {
-      visible.value = true;
-    };
-
-    // 暴露方法给父组件
-    expose({
-      show,
-      handleClose,
-      handleConfirm,
-      handleCancel,
-      handleButtonClick
-    });
-
-    return {
-      visible,
-      disabled,
-      loading,
-      showFooter,
-      handleClose,
-      handleConfirm,
-      handleCancel,
-      handleButtonClick
-    };
-  },
-  render() {
-    const { options } = this.$props;
-
-    // 渲染内容
-    const renderContent = (): VNode | null => {
-      let content: VNode | null = null;
-
-      if (typeof options.content === 'string') {
-        content = h('div', options.content);
-      } else if (typeof options.content === 'function') {
-        content = h(options.content);
-      } else if (options.content) {
-        content = h(options.content);
-      }
-
-      if (!content) return null;
-
-      // 使用 NScrollbar 包裹内容
-      return h(
-        NScrollbar,
-        {
-          style: { maxHeight: '100%' },
-          xScrollable: options.xScrollable ?? false
-        },
-        () => content
-      );
-    };
-
-    // 渲染标题 - 支持字符串、VNode、JSX和函数
-    const renderTitle = (): VNode | string | null => {
-      if (typeof options.title === 'string') {
-        return options.title;
-      }
-      if (typeof options.title === 'function') {
-        return h(options.title);
-      }
-      if (options.title) {
-        return h(options.title);
-      }
-      return null;
-    };
-
-    // 渲染底部按钮
-    const renderFooter = (): VNode | null => {
-      if (!this.showFooter) return null;
-
-      const buttons: VNode[] = [];
-
-      // 自定义按钮（在左侧）
-      options.customButtons?.forEach((button, index) => {
-        buttons.push(
-          h(
-            NButton,
-            {
-              key: `custom-${index}`,
-              type: button.type || 'default',
-              loading: button.loading,
-              disabled: button.disabled || this.disabled,
-              size: button.size || 'small',
-              onClick: () => this.handleButtonClick(button)
-            },
-            () => button.text
-          )
-        );
-      });
-
-      // 取消按钮
-      if (options.cancelButton !== false) {
-        const cancelConfig = typeof options.cancelButton === 'object'
-          ? options.cancelButton
-          : { text: '取消' };
-
-        buttons.push(
-          h(
-            NButton,
-            {
-              key: 'cancel',
-              type: cancelConfig.type || 'default',
-              loading: cancelConfig.loading,
-              disabled: cancelConfig.disabled || this.disabled,
-              size: cancelConfig.size || 'small',
-              onClick: this.handleCancel
-            },
-            () => cancelConfig.text
-          )
-        );
-      }
-
-      // 确认按钮
-      if (options.confirmButton !== false) {
-        const confirmConfig = typeof options.confirmButton === 'object'
-          ? options.confirmButton
-          : { text: '确定' };
-
-        buttons.push(
-          h(
-            NButton,
-            {
-              key: 'confirm',
-              type: confirmConfig.type || 'primary',
-              loading: confirmConfig.loading || this.loading,
-              disabled: confirmConfig.disabled || this.disabled,
-              onClick: this.handleConfirm,
-              size: confirmConfig.size || 'small'
-            },
-            () => confirmConfig.text
-          )
-        );
-      }
-
-      return h(NSpace, { justify: 'end' }, () => buttons);
-    };
-
-    const renderDrawer = (): VNode => {
-      const titleContent = renderTitle();
-      const isStringTitle = typeof titleContent === 'string';
-
-      return h(
-        NDrawer,
-        {
-          show: this.visible,
-          width: options.width || 400,
-          height: options.height,
-          placement: options.placement || 'right',
-          maskClosable: options.maskClosable ?? true,
-          closeOnEsc: options.closeOnEsc ?? true,
-          autoFocus: options.autoFocus ?? true,
-          showMask: options.showMask ?? true,
-          trapFocus: options.trapFocus ?? true,
-          resizable: options.resizable ?? false,
-          onUpdateShow: (show: boolean) => {
-            if (!show) {
-              this.handleClose();
-            }
-          },
-          onAfterEnter: options.onAfterEnter,
-          onAfterLeave: () => {
-            // 动画结束后调用 onClose 和 onAfterLeave
-            options.onClose?.();
-            options.onAfterLeave?.();
-          },
-          onMaskClick: options.onMaskClick
-        },
-        () =>
-          h(
-            NDrawerContent,
-            {
-              closable: options.closable ?? true,
-              title: isStringTitle ? (titleContent as string) : undefined,
-              bodyStyle: options.bodyStyle,
-              headerStyle: options.headerStyle,
-              footerStyle: options.footerStyle
-            },
-            {
-              default: renderContent,
-              footer: this.showFooter ? renderFooter : undefined,
-              // 如果标题不是字符串，使用 header 插槽
-              header: !isStringTitle && titleContent ? () => titleContent : undefined
-            }
-          )
-      );
-    };
-
-   return renderDrawer();
-  }
-});
-
-
-// 抽屉管理器（单例模式）
+/**
+ * 抽屉管理器（单例模式）
+ * 支持嵌套抽屉和多实例管理
+ */
 class DrawerManager {
-  private instances: Set<DrawerInstance> = new Set();
+  private instances: Map<symbol, DrawerInstance> = new Map();
+  private instanceStack: symbol[] = []; // 用于管理嵌套层级
 
-  // 创建抽屉实例
+  /**
+   * 创建抽屉实例
+   */
   async createDrawer(options: DrawerOptions): Promise<DrawerInstance> {
     const container = document.createElement('div');
     document.body.appendChild(container);
 
-    const themeStore = useThemeStore()
-    const { naiveTheme, darkMode } = storeToRefs(themeStore)
-    const app = createApp(DrawerContainer, {
-      options,
-      theme: darkMode.value ? darkTheme : naiveTheme.value.Drawer,
-      themeOverrides: naiveTheme.value
-    });
-    const instance = app.mount(container) as any;
+    // 获取主题配置
+    const themeStore = useThemeStore();
+    const { naiveTheme, darkMode } = storeToRefs(themeStore);
 
-    const drawerInstance: DrawerInstance = {
-      close: () => {
-        instance.handleClose();
-      },
+    // 获取父组件上下文
+    const parent = getCurrentInstance();
 
-      destroy: () => {
-        this.instances.delete(drawerInstance);
-        // 等待关闭动画完成后再销毁
-        setTimeout(() => {
-          try {
-            app.unmount();
-            if (document.body.contains(container)) {
-              document.body.removeChild(container);
-            }
-          } catch (error) {
-            console.error('Error destroying drawer:', error);
+    // 创建响应式状态
+    const visible = ref(false);
+    const loading = ref(false);
+    const disabled = ref(false);
+    let destroyed = false;
+
+    const instanceId = Symbol('drawer-instance');
+
+    // 销毁逻辑
+    const destroyDom = () => {
+      if (destroyed) return;
+      destroyed = true;
+
+      this.instances.delete(instanceId);
+      this.instanceStack = this.instanceStack.filter(id => id !== instanceId);
+
+      setTimeout(() => {
+        render(null, container);
+        if (document.body.contains(container)) {
+          document.body.removeChild(container);
+        }
+      }, 300);
+    };
+
+    // 用于存储暴露的方法引用
+    let exposedMethods: any = null;
+
+    // 使用 watchEffect 实现响应式渲染
+    watchEffect(() => {
+      const drawerVNode = createVNode(DrawerContainer, {
+        options,
+        visible: visible.value,
+        loading: loading.value,
+        disabled: disabled.value,
+        'onUpdate:visible': (val: boolean) => {
+          visible.value = val;
+        },
+        'onUpdate:loading': (val: boolean) => {
+          loading.value = val;
+        },
+        'onUpdate:disabled': (val: boolean) => {
+          disabled.value = val;
+        },
+        ref: (el: any) => {
+          if (el) {
+            exposedMethods = el;
           }
-        }, 300);
+        }
+      });
+
+      // 包裹主题配置
+      const vnode = createVNode(
+        NConfigProvider,
+        {
+          theme: darkMode.value ? darkTheme : null,
+          themeOverrides: naiveTheme.value
+        },
+        { default: () => drawerVNode }
+      );
+
+      // 继承上下文
+      if (parent) {
+        vnode.appContext = parent.appContext;
+      }
+
+      render(vnode, container);
+    });
+
+    // 创建增强的抽屉实例
+    const drawerInstance: DrawerInstance = {
+      // 基础方法
+      close: () => {
+        visible.value = false;
       },
+
+      destroy: destroyDom,
 
       updateOptions: (newOptions: Partial<DrawerOptions>) => {
         Object.assign(options, newOptions);
+      },
+
+      // 响应式状态（只读）
+      state: {
+        visible: readonly(visible) as Ref<boolean>,
+        loading: readonly(loading) as Ref<boolean>,
+        disabled: readonly(disabled) as Ref<boolean>
+      },
+
+      // 手动控制方法
+      setLoading: (val: boolean) => {
+        loading.value = val;
+      },
+
+      setDisabled: (val: boolean) => {
+        disabled.value = val;
+      },
+
+      // 确认和取消方法
+      confirm: async () => {
+        if (exposedMethods?.handleConfirm) {
+          await exposedMethods.handleConfirm();
+        }
+      },
+
+      cancel: async () => {
+        if (exposedMethods?.handleCancel) {
+          await exposedMethods.handleCancel();
+        }
       }
     };
 
@@ -327,51 +148,102 @@ class DrawerManager {
       }, 300);
     };
 
-    this.instances.add(drawerInstance);
+    // 添加到管理器
+    this.instances.set(instanceId, drawerInstance);
+    this.instanceStack.push(instanceId);
 
     // 等待 DOM 挂载后再显示，触发打开动画
     await nextTick();
-    instance.show();
+    visible.value = true;
 
     return drawerInstance;
   }
 
-  // 关闭所有抽屉
+  /**
+   * 关闭所有抽屉
+   */
   closeAll() {
     this.instances.forEach(instance => instance.close());
   }
 
-  // 销毁所有抽屉
+  /**
+   * 销毁所有抽屉
+   */
   destroyAll() {
     this.instances.forEach(instance => instance.destroy());
     this.instances.clear();
+    this.instanceStack = [];
   }
 
-  // 获取当前打开的抽屉数量
+  /**
+   * 关闭最顶层的抽屉（用于嵌套场景）
+   */
+  closeTop() {
+    const topId = this.instanceStack[this.instanceStack.length - 1];
+    if (topId) {
+      const instance = this.instances.get(topId);
+      instance?.close();
+    }
+  }
+
+  /**
+   * 获取当前打开的抽屉数量
+   */
   get count() {
     return this.instances.size;
+  }
+
+  /**
+   * 获取所有抽屉实例
+   */
+  getInstances() {
+    return Array.from(this.instances.values());
+  }
+
+  /**
+   * 获取最顶层的抽屉实例
+   */
+  getTopInstance() {
+    const topId = this.instanceStack[this.instanceStack.length - 1];
+    return topId ? this.instances.get(topId) : undefined;
   }
 }
 
 // 全局抽屉管理器实例
 const drawerManager = new DrawerManager();
 
-// 导出创建抽屉的函数
+/**
+ * 创建抽屉
+ */
 export function createDrawer(options: DrawerOptions): Promise<DrawerInstance> {
   return drawerManager.createDrawer(options);
 }
 
-// 导出管理器方法
+/**
+ * 导出管理器方法
+ */
 export const closeAllDrawers = () => drawerManager.closeAll();
 export const destroyAllDrawers = () => drawerManager.destroyAll();
+export const closeTopDrawer = () => drawerManager.closeTop();
 export const getDrawerCount = () => drawerManager.count;
+export const getDrawerInstances = () => drawerManager.getInstances();
+export const getTopDrawerInstance = () => drawerManager.getTopInstance();
 
-// 便捷方法
+/**
+ * useDrawer Hook
+ * 提供便捷的抽屉操作方法
+ */
 export const useDrawer = () => {
+  /**
+   * 打开普通抽屉
+   */
   const open = (options: DrawerOptions) => {
     return createDrawer(options);
   };
 
+  /**
+   * 打开确认抽屉（带确认和取消按钮）
+   */
   const confirm = (options: Omit<DrawerOptions, 'showFooter'>) => {
     return createDrawer({
       ...options,
@@ -381,6 +253,9 @@ export const useDrawer = () => {
     });
   };
 
+  /**
+   * 打开信息抽屉（仅确认按钮）
+   */
   const info = (options: Omit<DrawerOptions, 'showFooter' | 'confirmButton'>) => {
     return createDrawer({
       ...options,
@@ -390,6 +265,9 @@ export const useDrawer = () => {
     });
   };
 
+  /**
+   * 打开成功抽屉
+   */
   const success = (options: Omit<DrawerOptions, 'showFooter' | 'confirmButton'>) => {
     return createDrawer({
       ...options,
@@ -399,6 +277,9 @@ export const useDrawer = () => {
     });
   };
 
+  /**
+   * 打开警告抽屉
+   */
   const warning = (options: Omit<DrawerOptions, 'showFooter' | 'confirmButton'>) => {
     return createDrawer({
       ...options,
@@ -408,6 +289,9 @@ export const useDrawer = () => {
     });
   };
 
+  /**
+   * 打开错误抽屉
+   */
   const error = (options: Omit<DrawerOptions, 'showFooter' | 'confirmButton'>) => {
     return createDrawer({
       ...options,
@@ -418,14 +302,20 @@ export const useDrawer = () => {
   };
 
   return {
+    // 创建方法
     open,
     confirm,
     info,
     success,
     warning,
     error,
+
+    // 管理方法
     closeAll: closeAllDrawers,
     destroyAll: destroyAllDrawers,
-    getCount: getDrawerCount
+    closeTop: closeTopDrawer,
+    getCount: getDrawerCount,
+    getInstances: getDrawerInstances,
+    getTopInstance: getTopDrawerInstance
   };
 };
