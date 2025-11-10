@@ -1,17 +1,16 @@
-import type { VNode } from 'vue';
-import { computed, createApp, defineComponent, h, nextTick, ref } from 'vue';
+import { useThemeStore } from '@/store/modules/theme';
+import type { DrawerInstance, DrawerOptions } from '@/typings/drawer';
 import {
+  darkTheme,
   NButton,
-  NConfigProvider,
-  NDialogProvider,
   NDrawer,
   NDrawerContent,
-  NMessageProvider,
-  NNotificationProvider,
   NScrollbar,
   NSpace
 } from 'naive-ui';
-import type { DrawerInstance, DrawerOptions } from '@/typings/drawer';
+import { storeToRefs } from 'pinia';
+import type { VNode } from 'vue';
+import { computed, createApp, defineComponent, h, nextTick, ref } from 'vue';
 
 const DrawerContainer = defineComponent({
   name: 'DrawerContainer',
@@ -41,7 +40,7 @@ const DrawerContainer = defineComponent({
         handleClose();
         return;
       }
-      
+
       loading.value = disabled.value = true;
       try {
         await props.options.onConfirm();
@@ -69,9 +68,9 @@ const DrawerContainer = defineComponent({
     // 处理自定义按钮点击
     const handleButtonClick = async (button: any) => {
       if (!button.onClick) return;
-      
+
       const shouldClose = button.closeOnClick ?? false;
-      
+
       try {
         await button.onClick();
         if (shouldClose) {
@@ -175,10 +174,10 @@ const DrawerContainer = defineComponent({
 
       // 取消按钮
       if (options.cancelButton !== false) {
-        const cancelConfig = typeof options.cancelButton === 'object' 
-          ? options.cancelButton 
+        const cancelConfig = typeof options.cancelButton === 'object'
+          ? options.cancelButton
           : { text: '取消' };
-        
+
         buttons.push(
           h(
             NButton,
@@ -200,7 +199,7 @@ const DrawerContainer = defineComponent({
         const confirmConfig = typeof options.confirmButton === 'object'
           ? options.confirmButton
           : { text: '确定' };
-        
+
         buttons.push(
           h(
             NButton,
@@ -270,57 +269,10 @@ const DrawerContainer = defineComponent({
       );
     };
 
-    const renderWithProviders = (): VNode =>
-      h(
-        NConfigProvider,
-        {
-        },
-        {
-          default: () =>
-            h(
-              NMessageProvider,
-              {},
-              {
-                default: () =>
-                  h(
-                    NDialogProvider,
-                    {},
-                    {
-                      default: () =>
-                        h(
-                          NNotificationProvider,
-                          {},
-                          {
-                            default: renderDrawer
-                          }
-                        )
-                    }
-                  )
-              }
-            )
-        }
-      );
-
-    return renderWithProviders();
+   return renderDrawer();
   }
 });
 
-// 全局主题配置存储
-let globalThemeConfig: {
-  theme?: any;
-  themeOverrides?: any;
-} = {};
-
-/**
- * 设置全局主题配置
- * 应在应用初始化时调用，通常在 main.ts 或 App.vue 中
- */
-export function setDrawerTheme(config: {
-  theme?: any;
-  themeOverrides?: any;
-}) {
-  globalThemeConfig = config;
-}
 
 // 抽屉管理器（单例模式）
 class DrawerManager {
@@ -331,10 +283,12 @@ class DrawerManager {
     const container = document.createElement('div');
     document.body.appendChild(container);
 
-    const app = createApp(DrawerContainer, { 
+    const themeStore = useThemeStore()
+    const { naiveTheme, darkMode } = storeToRefs(themeStore)
+    const app = createApp(DrawerContainer, {
       options,
-      themeOverrides: globalThemeConfig.themeOverrides,
-      theme: globalThemeConfig.theme
+      theme: darkMode.value ? darkTheme : naiveTheme.value.Drawer,
+      themeOverrides: naiveTheme.value
     });
     const instance = app.mount(container) as any;
 
