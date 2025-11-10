@@ -1,51 +1,51 @@
 <script lang="ts" setup>
-import { onMounted, onBeforeUnmount, shallowRef, watch, computed, ref } from "vue";
-import * as monaco from "monaco-editor-core";
-import { getOrCreateModel } from "./utils";
-import { registerHighlighter } from "./highlight";
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
+import * as monaco from 'monaco-editor-core';
+import { getOrCreateModel } from './utils';
+import { registerHighlighter } from './highlight';
 
-const modelValue = defineModel<string>({ default: "" });
+const modelValue = defineModel<string>({ default: '' });
 const props = withDefaults(
   defineProps<{
     filename?: string;
     readonly?: boolean;
-    theme?: "light" | "dark";
-    mode?: "javascript" | "vue" | "css" | string;
+    theme?: 'light' | 'dark';
+    mode?: 'javascript' | 'vue' | 'css' | string;
   }>(),
   {
     readonly: false,
-    theme: "dark",
-    mode: "javascript",
+    theme: 'dark',
+    mode: 'javascript'
   }
 );
 
 const emit = defineEmits<{
-  (e: "change", value: string): void;
+  (e: 'change', value: string): void;
 }>();
 
 const containerRef = ref<HTMLElement>();
 const editor = shallowRef<monaco.editor.IStandaloneCodeEditor>();
-let model = shallowRef<monaco.editor.ITextModel>();
+const model = shallowRef<monaco.editor.ITextModel>();
 
 const lang = computed(() => {
   if (props.mode) return props.mode;
-  if (props?.filename?.endsWith(".vue")) return "vue";
-  if (props?.filename?.endsWith(".css")) return "css";
-  return "javascript";
+  if (props?.filename?.endsWith('.vue')) return 'vue';
+  if (props?.filename?.endsWith('.css')) return 'css';
+  return 'javascript';
 });
 
 function emitChangeEvent() {
   if (editor.value) {
-     modelValue.value = editor.value!.getValue()
-    emit("change", editor.value.getValue());
+    modelValue.value = editor.value!.getValue();
+    emit('change', editor.value.getValue());
   }
 }
 
 onMounted(() => {
   if (!containerRef.value) return;
   registerHighlighter();
-  const uri = monaco.Uri.parse(`file:///${props.filename || "untitled"}`);
-  model.value = getOrCreateModel(uri, lang.value, modelValue.value || "");
+  const uri = monaco.Uri.parse(`file:///${props.filename || 'untitled'}`);
+  model.value = getOrCreateModel(uri, lang.value, modelValue.value || '');
 
   editor.value = monaco.editor.create(containerRef.value, {
     model: model.value,
@@ -53,34 +53,34 @@ onMounted(() => {
     fontSize: 14,
     tabSize: 2,
     readOnly: props.readonly,
-    theme: props.theme === "light" ? "vs" : "vs-dark",
+    theme: props.theme === 'light' ? 'vs' : 'vs-dark',
     automaticLayout: true,
     scrollBeyondLastLine: false,
-    minimap: { enabled: false },
+    minimap: { enabled: false }
   });
 
   editor.value.onDidChangeModelContent(() => emitChangeEvent());
 });
 
 watch(
-  () =>  modelValue.value,
-  (newVal) => {
+  () => modelValue.value,
+  newVal => {
     if (editor.value && editor.value.getValue() !== newVal) {
-      editor.value.setValue(newVal || "");
+      editor.value.setValue(newVal || '');
     }
   }
 );
 
 watch(
   () => props.theme,
-  (theme) => {
-    monaco.editor.setTheme(theme === "light" ? "vs" : "vs-dark");
+  theme => {
+    monaco.editor.setTheme(theme === 'light' ? 'vs' : 'vs-dark');
   }
 );
 
 watch(
   () => props.mode,
-  (newLang) => {
+  newLang => {
     if (model.value) {
       monaco.editor.setModelLanguage(model.value, newLang);
     }

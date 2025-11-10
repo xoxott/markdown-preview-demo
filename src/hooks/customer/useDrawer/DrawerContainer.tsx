@@ -1,12 +1,6 @@
+import { type PropType, type VNode, computed, defineComponent } from 'vue';
+import { NButton, NDrawer, NDrawerContent, NScrollbar, NSpace } from 'naive-ui';
 import type { DrawerButtonConfig, DrawerOptions } from '@/typings/drawer';
-import {
-  NButton,
-  NDrawer,
-  NDrawerContent,
-  NScrollbar,
-  NSpace
-} from 'naive-ui';
-import { computed, defineComponent, type PropType, type VNode } from 'vue';
 
 export const DrawerContainer = defineComponent({
   name: 'DrawerContainer',
@@ -122,10 +116,7 @@ export const DrawerContainer = defineComponent({
       if (!content) return null;
 
       return (
-        <NScrollbar
-          style={{ maxHeight: '100%' }}
-          xScrollable={options.xScrollable ?? false}
-        >
+        <NScrollbar style={{ maxHeight: '100%' }} xScrollable={options.xScrollable ?? false}>
           {content}
         </NScrollbar>
       );
@@ -171,10 +162,7 @@ export const DrawerContainer = defineComponent({
 
       // 取消按钮
       if (options.cancelButton !== false) {
-        const cancelConfig =
-          typeof options.cancelButton === 'object'
-            ? options.cancelButton
-            : { text: '取消' };
+        const cancelConfig = typeof options.cancelButton === 'object' ? options.cancelButton : { text: '取消' };
 
         buttons.push(
           <NButton
@@ -192,10 +180,7 @@ export const DrawerContainer = defineComponent({
 
       // 确认按钮
       if (options.confirmButton !== false) {
-        const confirmConfig =
-          typeof options.confirmButton === 'object'
-            ? options.confirmButton
-            : { text: '确定' };
+        const confirmConfig = typeof options.confirmButton === 'object' ? options.confirmButton : { text: '确定' };
 
         buttons.push(
           <NButton
@@ -257,4 +242,3 @@ export const DrawerContainer = defineComponent({
     );
   }
 });
-

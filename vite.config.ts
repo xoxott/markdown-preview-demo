@@ -13,7 +13,7 @@ export default defineConfig(configEnv => {
 
   return {
     base: viteEnv.VITE_BASE_URL,
-    optimizeDeps:{
+    optimizeDeps: {
       exclude: ['@vue/repl']
     },
     resolve: {
@@ -28,7 +28,7 @@ export default defineConfig(configEnv => {
           api: 'modern-compiler',
           additionalData: `@use "@/styles/scss/global.scss" as *;`,
           quietDeps: true, // 忽略依赖包的警告
-          silenceDeprecations: ['global-builtin','import'], // 忽略特定的弃用警告
+          silenceDeprecations: ['global-builtin', 'import'] // 忽略特定的弃用警告
         }
       }
     },

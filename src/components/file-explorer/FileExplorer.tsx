@@ -1,20 +1,21 @@
-import { defineComponent, onMounted, ref } from "vue"
-import ViewContainer from "./container/ViewContainer"
-import DragPreview from "./interaction/DragPreview"
-import FileBreadcrumb from './layout/FileBreadcrumb'
-import FileSidebar from "./layout/FileSidebar"
-import FileStatusBar from "./layout/FileStatusBar"
-import FileToolbar from "./layout/FileToolbar"
-import ResizableLayout from "./layout/ResizableLayout"
-import DialogTestPanel from "./test/DialogTestPanel"
-import { mockFileItems, mockBreadcrumbItems } from "./config/mockData"
-import { useFileExplorerLogic } from "./composables/useFileExplorerLogic"
-import Example from "@/hooks/customer/useDrawer/example"
+import { defineComponent, onMounted, ref } from 'vue';
+import Example from '@/hooks/customer/useDrawer/example';
+import ViewContainer from './container/ViewContainer';
+import DragPreview from './interaction/DragPreview';
+import FileBreadcrumb from './layout/FileBreadcrumb';
+import FileSidebar from './layout/FileSidebar';
+import FileStatusBar from './layout/FileStatusBar';
+import FileToolbar from './layout/FileToolbar';
+import ResizableLayout from './layout/ResizableLayout';
+import DialogTestPanel from './test/DialogTestPanel';
+import { mockBreadcrumbItems, mockFileItems } from './config/mockData';
+import { useFileExplorerLogic } from './composables/useFileExplorerLogic';
 
 /**
  * 文件管理器主组件
  *
  * 职责：
+ *
  * - 组合各个子组件
  * - 提供容器和布局
  * - 管理焦点状态
@@ -25,36 +26,31 @@ export default defineComponent({
   name: 'FileExplorer',
   setup() {
     // 容器引用
-    const containerRef = ref<HTMLElement | null>(null)
+    const containerRef = ref<HTMLElement | null>(null);
 
     // 使用封装的业务逻辑
     const logic = useFileExplorerLogic({
       initialItems: mockFileItems,
       containerRef,
       validateDrop: (items, targetPath) => {
-        return logic.mockItems.value.find(it => it.path === targetPath)?.type === 'folder'
+        return logic.mockItems.value.find(it => it.path === targetPath)?.type === 'folder';
       }
-    })
+    });
 
     // 组件挂载后自动聚焦，使快捷键立即可用
     onMounted(async () => {
       // 模拟初始加载
-      logic.setLoading(true, '加载文件列表...')
-      await new Promise(resolve => setTimeout(resolve, 800))
-      logic.setLoading(false)
+      logic.setLoading(true, '加载文件列表...');
+      await new Promise(resolve => setTimeout(resolve, 800));
+      logic.setLoading(false);
 
       // 聚焦容器
-      containerRef.value?.focus()
-    })
+      containerRef.value?.focus();
+    });
 
     /** 渲染 */
     return () => (
-      <div
-        ref={containerRef}
-        class='flex flex-col h-500px'
-        tabindex={0}
-        style={{ outline: 'none' }}
-      >
+      <div ref={containerRef} class="h-500px flex flex-col" tabindex={0} style={{ outline: 'none' }}>
         {/* 工具栏 */}
         <FileToolbar
           viewMode={logic.viewMode.value}
@@ -86,12 +82,7 @@ export default defineComponent({
           <ResizableLayout v-model:collapsed={logic.collapsed.value}>
             {{
               left: (
-                <FileSidebar
-                  treeData={[]}
-                  currentPath="/"
-                  onNavigate={() => { }}
-                  collapsed={logic.collapsed.value}
-                />
+                <FileSidebar treeData={[]} currentPath="/" onNavigate={() => {}} collapsed={logic.collapsed.value} />
               ),
               default: (
                 <ViewContainer
@@ -124,6 +115,6 @@ export default defineComponent({
           operation={logic.dragDrop.dragOperation.value}
         />
       </div>
-    )
+    );
   }
-})
+});

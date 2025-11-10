@@ -8,6 +8,7 @@ import type { ChangelogOption, GitCommit, Reference, ResolvedAuthor } from './ty
 
 /**
  * 格式化 commit 中的引用（issues 或 hash），生成对应的 Markdown 链接
+ *
  * @param references Git 提交中的引用信息
  * @param githubRepo 仓库名，例如 "user/repo"
  * @param type 'issues' | 'hash'
@@ -34,6 +35,7 @@ function formatReferences(references: Reference[], githubRepo: string, type: 'is
 
 /**
  * 格式化单个 commit 的描述和作者引用信息
+ *
  * @param commit GitCommit 对象
  * @param options Changelog 配置
  * @returns Markdown 格式的 commit 行
@@ -61,6 +63,7 @@ function formatLine(commit: GitCommit, options: ChangelogOption) {
 
 /**
  * 格式化章节标题
+ *
  * @param name 章节名
  * @param options Changelog 配置
  * @returns Markdown 标题
@@ -80,6 +83,7 @@ function formatTitle(name: string, options: ChangelogOption) {
 
 /**
  * 格式化一个 commit 类型的章节
+ *
  * @param commits GitCommit 数组
  * @param sectionName 章节名称
  * @param options Changelog 配置
@@ -120,6 +124,7 @@ function formatSection(commits: GitCommit[], sectionName: string, options: Chang
 
 /**
  * 获取用户的 GitHub 链接
+ *
  * @param userName GitHub 用户名
  */
 function getUserGithub(userName: string) {
@@ -130,6 +135,7 @@ function getUserGithub(userName: string) {
 
 /**
  * 获取用户头像链接
+ *
  * @param userName GitHub 用户名
  */
 function getGitUserAvatar(userName: string) {
@@ -142,6 +148,7 @@ function getGitUserAvatar(userName: string) {
 
 /**
  * 生成贡献者 Markdown 行
+ *
  * @param contributors 贡献者列表
  * @returns Markdown 字符串
  */
@@ -179,6 +186,7 @@ function createContributorLine(contributors: ResolvedAuthor[]) {
 
 /**
  * 根据 commits 和配置信息生成完整 Markdown changelog
+ *
  * @param params.commits Git 提交数组
  * @param params.options Changelog 配置
  * @param params.showTitle 是否显示版本标题
@@ -246,6 +254,7 @@ export function generateMarkdown(params: {
 
 /**
  * 判断指定版本是否已经存在于 changelog Markdown 文件中
+ *
  * @param newVersion 新版本号
  * @param mdPath changelog 文件路径
  * @returns true 已存在，false 不存在
@@ -273,6 +282,7 @@ export async function isVersionInMarkdown(newVersion: string, mdPath: string) {
 
 /**
  * 写入或更新 changelog Markdown 文件
+ *
  * @param md 生成的 Markdown 内容
  * @param mdPath changelog 文件路径
  * @param regenerate 是否重新生成（覆盖原有内容）

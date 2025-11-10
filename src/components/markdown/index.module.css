@@ -1,0 +1,15 @@
+.markdown-container {
+  color: var(--markdown-text-color);
+}
+
+.markdown-body table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.markdown-body table td,
+.markdown-body table th {
+  white-space: nowrap;
+}

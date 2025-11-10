@@ -1,10 +1,11 @@
-import { computed, defineComponent, inject, PropType, Ref } from 'vue'
-import { FileItem } from '../types/file-explorer'
-import FileIcon from '../items/FileIcon'
-import { useThemeVars } from 'naive-ui'
-import { formatFileSize } from '../utils/fileHelpers'
-import { FileDropZoneWrapper } from '../interaction/FileDropZoneWrapper'
-import { FileDragDropHook } from '../hooks/useFileDragDropEnhanced'
+import type { PropType, Ref } from 'vue';
+import { computed, defineComponent, inject } from 'vue';
+import { useThemeVars } from 'naive-ui';
+import type { FileItem } from '../types/file-explorer';
+import FileIcon from '../items/FileIcon';
+import { formatFileSize } from '../utils/fileHelpers';
+import { FileDropZoneWrapper } from '../interaction/FileDropZoneWrapper';
+import type { FileDragDropHook } from '../hooks/useFileDragDropEnhanced';
 
 export default defineComponent({
   name: 'ListView',
@@ -27,23 +28,21 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const themeVars = useThemeVars()
-    const selectedItems = computed(() => props.items.filter(it => props.selectedIds.value.has(it.id)))
-    const dragDrop = inject<FileDragDropHook>('FILE_DRAG_DROP')!
-
+    const themeVars = useThemeVars();
+    const selectedItems = computed(() => props.items.filter(it => props.selectedIds.value.has(it.id)));
+    const dragDrop = inject<FileDragDropHook>('FILE_DRAG_DROP')!;
 
     const handleMouseEnter = (e: MouseEvent, isSelected: boolean) => {
       if (!isSelected) {
-        (e.currentTarget as HTMLElement).style.backgroundColor =
-          themeVars.value.hoverColor
+        (e.currentTarget as HTMLElement).style.backgroundColor = themeVars.value.hoverColor;
       }
-    }
+    };
 
     const handleMouseLeave = (e: MouseEvent, isSelected: boolean) => {
       if (!isSelected) {
-        (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'
+        (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
       }
-    }
+    };
     return () => (
       <div
         class="flex flex-col"
@@ -53,20 +52,17 @@ export default defineComponent({
         }}
       >
         {props.items.map(item => {
-          const isSelected = props.selectedIds.value.has(item.id)
+          const isSelected = props.selectedIds.value.has(item.id);
           return (
-            <FileDropZoneWrapper
-              key={item.id}
-              zoneId={item.id}
-              targetPath={item.path}
-              item={item}
-            >
+            <FileDropZoneWrapper key={item.id} zoneId={item.id} targetPath={item.path} item={item}>
               <div
-                class="group flex items-center gap-3 px-4 py-3 transition-colors select-none"
+                class="group flex select-none items-center gap-3 px-4 py-3 transition-colors"
                 style={{
-                  backgroundColor: isSelected || dragDrop.getDropZoneState(item.id)?.isOver && dragDrop.getDropZoneState(item.id)?.canDrop
-                    ? `${themeVars.value.primaryColorHover}20`
-                    : themeVars.value.cardColor,
+                  backgroundColor:
+                    isSelected ||
+                    (dragDrop.getDropZoneState(item.id)?.isOver && dragDrop.getDropZoneState(item.id)?.canDrop)
+                      ? `${themeVars.value.primaryColorHover}20`
+                      : themeVars.value.cardColor
                   // borderLeft: isSelected
                   //   ? `2px solid ${themeVars.value.primaryColor}`
                   //   : '2px solid transparent'
@@ -75,9 +71,7 @@ export default defineComponent({
                 {...(isSelected ? { 'data-prevent-selection': 'true' } : null)}
                 onMouseenter={e => handleMouseEnter(e, isSelected)}
                 onMouseleave={e => handleMouseLeave(e, isSelected)}
-                onClick={(e: MouseEvent) =>
-                  props.onSelect([item.id], e)
-                }
+                onClick={(e: MouseEvent) => props.onSelect([item.id], e)}
                 onDblclick={() => props.onOpen(item)}
                 onDragstart={e => dragDrop.startDrag(selectedItems.value, e)}
                 draggable
@@ -87,11 +81,9 @@ export default defineComponent({
 
                 {/* 文件名 */}
                 <div
-                  class="flex-1 text-sm truncate"
+                  class="flex-1 truncate text-sm"
                   style={{
-                    color: isSelected
-                      ? themeVars.value.primaryColor
-                      : themeVars.value.textColorBase
+                    color: isSelected ? themeVars.value.primaryColor : themeVars.value.textColorBase
                   }}
                 >
                   {item.name}
@@ -100,11 +92,9 @@ export default defineComponent({
                 {/* 文件大小 */}
                 {item.type === 'file' && (
                   <div
-                    class="text-xs flex-shrink-0 w-20 text-right"
+                    class="w-20 flex-shrink-0 text-right text-xs"
                     style={{
-                      color: isSelected
-                        ? themeVars.value.primaryColor
-                        : themeVars.value.textColor3
+                      color: isSelected ? themeVars.value.primaryColor : themeVars.value.textColor3
                     }}
                   >
                     {formatFileSize(item.size)}
@@ -112,9 +102,9 @@ export default defineComponent({
                 )}
               </div>
             </FileDropZoneWrapper>
-          )
+          );
         })}
       </div>
-    )
+    );
   }
-})
+});

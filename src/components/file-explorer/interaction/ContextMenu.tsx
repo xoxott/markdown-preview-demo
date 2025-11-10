@@ -1,23 +1,24 @@
-import { defineComponent, ref, computed, watch, nextTick, PropType, CSSProperties } from 'vue'
-import { NDropdown, NIcon, NDivider } from 'naive-ui'
-import type { DropdownOption } from 'naive-ui'
-import { useEventListener } from '@vueuse/core'
+import type { CSSProperties, PropType } from 'vue';
+import { computed, defineComponent, nextTick, ref, watch } from 'vue';
+import { useEventListener } from '@vueuse/core';
+import { NDivider, NDropdown, NIcon } from 'naive-ui';
+import type { DropdownOption } from 'naive-ui';
 
 export interface ContextMenuItem {
-  key: string
-  label: string
-  icon?: any // Component
-  disabled?: boolean
-  show?: boolean
-  children?: ContextMenuItem[]
-  divider?: boolean
-  shortcut?: string
-  danger?: boolean
+  key: string;
+  label: string;
+  icon?: any; // Component
+  disabled?: boolean;
+  show?: boolean;
+  children?: ContextMenuItem[];
+  divider?: boolean;
+  shortcut?: string;
+  danger?: boolean;
 }
 
 interface ContextMenuPosition {
-  x: number
-  y: number
+  x: number;
+  y: number;
 }
 
 export default defineComponent({
@@ -42,10 +43,10 @@ export default defineComponent({
   emits: ['select', 'show', 'hide'],
 
   setup(props, { emit, slots }) {
-    const showMenu = ref(false)
-    const position = ref<ContextMenuPosition>({ x: 0, y: 0 })
-    const contextData = ref<any>(null)
-    const containerRef = ref<HTMLDivElement>()
+    const showMenu = ref(false);
+    const position = ref<ContextMenuPosition>({ x: 0, y: 0 });
+    const contextData = ref<any>(null);
+    const containerRef = ref<HTMLDivElement>();
 
     // 转换为 Naive UI Dropdown 格式
     const dropdownOptions = computed<DropdownOption[]>(() => {
@@ -53,7 +54,7 @@ export default defineComponent({
         .filter(item => item.show !== false)
         .map(item => {
           if (item.divider) {
-            return { type: 'divider', key: item.key } as DropdownOption
+            return { type: 'divider', key: item.key } as DropdownOption;
           }
 
           const option: DropdownOption = {
@@ -64,7 +65,7 @@ export default defineComponent({
             props: {
               class: item.danger ? 'text-red-500' : ''
             }
-          }
+          };
 
           if (item.children && item.children.length > 0) {
             option.children = item.children.map(child => ({
@@ -72,12 +73,12 @@ export default defineComponent({
               label: child.label,
               disabled: child.disabled,
               icon: child.icon ? () => <NIcon component={child.icon} /> : undefined
-            }))
+            }));
           }
 
-          return option
-        })
-    })
+          return option;
+        });
+    });
 
     // 计算菜单位置（防止溢出）
     const menuStyle = computed<CSSProperties>(() => {
@@ -86,126 +87,124 @@ export default defineComponent({
         left: `${position.value.x}px`,
         top: `${position.value.y}px`,
         zIndex: 9999
-      }
+      };
 
-      return style
-    })
+      return style;
+    });
 
     // 调整菜单位置防止溢出
     const adjustPosition = async () => {
-      await nextTick()
+      await nextTick();
 
-      const menuEl = document.querySelector('.n-dropdown-menu') as HTMLElement
-      if (!menuEl) return
+      const menuEl = document.querySelector('.n-dropdown-menu') as HTMLElement;
+      if (!menuEl) return;
 
-      const menuRect = menuEl.getBoundingClientRect()
-      const viewportWidth = window.innerWidth
-      const viewportHeight = window.innerHeight
+      const menuRect = menuEl.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
 
-      let { x, y } = position.value
+      let { x, y } = position.value;
 
       // 右侧溢出
       if (x + menuRect.width > viewportWidth) {
-        x = viewportWidth - menuRect.width - 10
+        x = viewportWidth - menuRect.width - 10;
       }
 
       // 底部溢出
       if (y + menuRect.height > viewportHeight) {
-        y = viewportHeight - menuRect.height - 10
+        y = viewportHeight - menuRect.height - 10;
       }
 
       // 左侧溢出
-      if (x < 0) x = 10
+      if (x < 0) x = 10;
 
       // 顶部溢出
-      if (y < 0) y = 10
+      if (y < 0) y = 10;
 
-      position.value = { x, y }
-    }
+      position.value = { x, y };
+    };
 
     // 处理右键事件
     const handleContextMenu = (e: MouseEvent) => {
-      if (props.disabled) return
+      if (props.disabled) return;
 
-      e.preventDefault()
-      e.stopPropagation()
+      e.preventDefault();
+      e.stopPropagation();
 
-      const target = e.target as HTMLElement
+      const target = e.target as HTMLElement;
 
       // 检查是否在指定触发区域内
       if (props.triggerSelector) {
-        const triggerElement = target.closest(props.triggerSelector)
-        if (!triggerElement) return
+        const triggerElement = target.closest(props.triggerSelector);
+        if (!triggerElement) return;
 
         // 获取触发元素的数据
         contextData.value = {
           id: (triggerElement as HTMLElement).dataset.selectableId,
           element: triggerElement,
-          ...Object.fromEntries(
-            Object.entries((triggerElement as HTMLElement).dataset)
-          )
-        }
+          ...Object.fromEntries(Object.entries((triggerElement as HTMLElement).dataset))
+        };
       } else {
-        contextData.value = null
+        contextData.value = null;
       }
 
-      position.value = { x: e.clientX, y: e.clientY }
-      showMenu.value = true
+      position.value = { x: e.clientX, y: e.clientY };
+      showMenu.value = true;
 
-      adjustPosition()
-      emit('show', { position: position.value, data: contextData.value })
-    }
+      adjustPosition();
+      emit('show', { position: position.value, data: contextData.value });
+    };
 
     // 处理菜单项选择
     const handleSelect = (key: string) => {
-      emit('select', key, contextData.value)
-      hideMenu()
-    }
+      emit('select', key, contextData.value);
+      hideMenu();
+    };
 
     // 隐藏菜单
     const hideMenu = () => {
-      showMenu.value = false
-      contextData.value = null
-      emit('hide')
-    }
+      showMenu.value = false;
+      contextData.value = null;
+      emit('hide');
+    };
 
     // 点击外部关闭
     const handleClickOutside = (e: MouseEvent) => {
-      if (!showMenu.value) return
-      const target = e.target as HTMLElement
-      const isClickInside = target.closest('.n-dropdown-menu')
+      if (!showMenu.value) return;
+      const target = e.target as HTMLElement;
+      const isClickInside = target.closest('.n-dropdown-menu');
 
       if (!isClickInside) {
-        hideMenu()
+        hideMenu();
       }
-    }
+    };
 
     // 注册事件监听
-    useEventListener(containerRef, 'contextmenu', handleContextMenu)
-    useEventListener(document, 'click', handleClickOutside)
-    useEventListener(document, 'contextmenu', (e) => {
+    useEventListener(containerRef, 'contextmenu', handleContextMenu);
+    useEventListener(document, 'click', handleClickOutside);
+    useEventListener(document, 'contextmenu', e => {
       // 如果右键点击在外部，关闭菜单
       if (showMenu.value) {
-        const target = e.target as HTMLElement
+        const target = e.target as HTMLElement;
         if (!containerRef.value?.contains(target)) {
-          hideMenu()
+          hideMenu();
         }
       }
-    })
+    });
 
     // Esc 键关闭
     useEventListener(document, 'keydown', (e: KeyboardEvent) => {
       if (e.key === 'Escape' && showMenu.value) {
-        hideMenu()
+        hideMenu();
       }
-    })
+    });
 
     // 监听菜单显示状态，调整位置
-    watch(showMenu, (show) => {
+    watch(showMenu, show => {
       if (show) {
-        adjustPosition()
+        adjustPosition();
       }
-    })
+    });
 
     return () => (
       <div ref={containerRef}>
@@ -222,7 +221,7 @@ export default defineComponent({
               <div></div>
             </NDropdown>
           </div>
-         )}
+        )}
         <style>{`
           /* 快捷键样式 */
           .context-menu-shortcut {
@@ -242,6 +241,6 @@ export default defineComponent({
           }
         `}</style>
       </div>
-    )
+    );
   }
-})
+});

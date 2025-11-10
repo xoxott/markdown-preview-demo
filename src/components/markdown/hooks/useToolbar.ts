@@ -4,7 +4,7 @@ import { useClipboard } from '@vueuse/core';
 import { v4 as uuid } from 'uuid';
 const { copy, isSupported } = useClipboard();
 interface SVGInfo {
-  viewBox: string;
+  viewBox?: string;
   content: string;
 }
 export function useCodeTools() {

@@ -1,10 +1,7 @@
-/**
- * useDrawer 使用示例
- * 展示优化后的新特性
- */
+/** useDrawer 使用示例 展示优化后的新特性 */
 
 import { defineComponent, ref, watch } from 'vue';
-import { NButton, NSpace, NInput, NForm, NFormItem } from 'naive-ui';
+import { NButton, NForm, NFormItem, NInput, NSpace } from 'naive-ui';
 import { useDrawer } from './index';
 
 export default defineComponent({
@@ -67,11 +64,9 @@ export default defineComponent({
       });
     };
 
-
-
     // 示例4: 嵌套抽屉
     const openNestedDrawer = async () => {
-       await drawer.open({
+      await drawer.open({
         title: '第一层抽屉',
         content: () => (
           <div>
@@ -81,7 +76,6 @@ export default defineComponent({
         ),
         width: 500
       });
-
     };
     const openSecondDrawer = async () => {
       const secondDrawer = await drawer.open({
@@ -104,7 +98,6 @@ export default defineComponent({
         width: 400
       });
     };
-
 
     // 示例5: 自定义按钮
     const openCustomButtonDrawer = () => {
@@ -196,4 +189,3 @@ export default defineComponent({
     );
   }
 });
-

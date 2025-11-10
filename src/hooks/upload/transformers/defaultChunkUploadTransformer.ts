@@ -1,15 +1,9 @@
-  // ==================== 默认的请求参数转换器 ====================
+// ==================== 默认的请求参数转换器 ====================
 
-import { CheckFileTransformer, ChunkUploadTransformer, MergeChunksTransformer } from "../type";
+import type { CheckFileTransformer, ChunkUploadTransformer, MergeChunksTransformer } from '../type';
 
-  /**
- * 默认分块上传参数转换器
- */
-export const defaultChunkUploadTransformer: ChunkUploadTransformer = ({
-  task,
-  chunk,
-  customParams = {}
-}) => {
+/** 默认分块上传参数转换器 */
+export const defaultChunkUploadTransformer: ChunkUploadTransformer = ({ task, chunk, customParams = {} }) => {
   const formData = new FormData();
   formData.append('file', chunk.blob, task.file.name);
   formData.append('chunkIndex', String(chunk.index));
@@ -20,7 +14,6 @@ export const defaultChunkUploadTransformer: ChunkUploadTransformer = ({
   formData.append('fileSize', String(task.file.size));
   formData.append('taskId', task.id);
 
-
   // 添加自定义参数
   Object.entries(customParams).forEach(([key, value]) => {
     formData.append(key, String(value));
@@ -29,37 +22,24 @@ export const defaultChunkUploadTransformer: ChunkUploadTransformer = ({
   return formData;
 };
 
-
-/**
- * 默认合并分块参数转换器
- */
-export const defaultMergeChunksTransformer: MergeChunksTransformer = ({
-  task,
-  customParams = {}
-}) => {
+/** 默认合并分块参数转换器 */
+export const defaultMergeChunksTransformer: MergeChunksTransformer = ({ task, customParams = {} }) => {
   return {
-    fileMD5:task.fileMD5,
+    fileMD5: task.fileMD5,
     fileName: task.file.name,
     fileSize: task.file.size,
-    totalChunks:task.totalChunks,
-    taskId:task.id,
+    totalChunks: task.totalChunks,
+    taskId: task.id,
     ...customParams
   };
 };
 
-
-/**
- * 默认秒传检查参数转换器
- */
-export const defaultCheckFileTransformer: CheckFileTransformer = ({
-  task,
-  customParams = {}
-}) => {
+/** 默认秒传检查参数转换器 */
+export const defaultCheckFileTransformer: CheckFileTransformer = ({ task, customParams = {} }) => {
   return {
-    fileMD5:task.fileMD5,
+    fileMD5: task.fileMD5,
     fileName: task.file.name,
     fileSize: task.file.size,
     ...customParams
   };
 };
-

@@ -6,45 +6,43 @@
  * @FilePath: \markdown-preview-demo\src\hooks\upload\ChunkUploadManager.ts
  * @Description: 分片上传管理器 - 优化版
  */
-import { computed, ref, watch } from "vue";
-import EnhancedSpeedCalculator from "./calculators/EnhancedSpeedCalculator";
-import SmartChunkCalculator from "./calculators/SmartChunkCalculator";
-import { CONSTANTS } from "./constants";
-import { UploadController } from "./controllers/UploadController";
-import FileCompressor from "./FileCompressor";
-import FileValidator from "./FileValidator";
-import CacheManager from "./managers/CacheManager";
-import { CallbackManager } from "./managers/CallbackManager";
-import { ChunkManager } from "./managers/ChunkManager";
-import { ProgressManager } from "./managers/ProgressManager";
-import RetryStrategyManager from "./managers/RetryStrategyManager";
-import TaskQueueManager from "./managers/TaskQueueManager";
-import UploadWorkerManager from "./managers/UploadWorkerManager";
-import NetworkAdapter from "./NetworkAdapter";
+import { computed, ref, watch } from 'vue';
+import EnhancedSpeedCalculator from './calculators/EnhancedSpeedCalculator';
+import SmartChunkCalculator from './calculators/SmartChunkCalculator';
+import { CONSTANTS } from './constants';
+import { UploadController } from './controllers/UploadController';
+import FileCompressor from './FileCompressor';
+import FileValidator from './FileValidator';
+import CacheManager from './managers/CacheManager';
+import { CallbackManager } from './managers/CallbackManager';
+import { ChunkManager } from './managers/ChunkManager';
+import { ProgressManager } from './managers/ProgressManager';
+import RetryStrategyManager from './managers/RetryStrategyManager';
+import TaskQueueManager from './managers/TaskQueueManager';
+import UploadWorkerManager from './managers/UploadWorkerManager';
+import NetworkAdapter from './NetworkAdapter';
 import PreviewGenerator from './PreviewGenerator';
-import { ChunkUploadTask } from "./tasks/ChunkUploadTask";
+import { ChunkUploadTask } from './tasks/ChunkUploadTask';
 import {
   defaultCheckFileTransformer,
   defaultChunkUploadTransformer,
   defaultMergeChunksTransformer
-} from "./transformers/defaultChunkUploadTransformer";
-import {
+} from './transformers/defaultChunkUploadTransformer';
+import type {
   CheckFileTransformer,
-  ChunkStatus,
   ChunkUploadTransformer,
   ExtendedUploadConfig,
   FileTask,
   FileUploadOptions,
   MergeChunksTransformer,
   UploadCallbacks,
-  UploadConfig,
-  UploadStatus
-} from "./type";
-import { delay } from "./utils";
+  UploadConfig
+} from './type';
+import { ChunkStatus, UploadStatus } from './type';
+import { delay } from './utils';
 
 // ==================== 主类:分片上传管理器 ====================
 export class ChunkUploadManager {
-
   private config: UploadConfig;
 
   // 管理器实例
@@ -60,10 +58,10 @@ export class ChunkUploadManager {
   private workerManager?: UploadWorkerManager;
 
   // 响应式状态
-  public readonly uploadQueue = ref<FileTask[]>([]);        // 待上传队列
+  public readonly uploadQueue = ref<FileTask[]>([]); // 待上传队列
   public readonly activeUploads = ref<Map<string, FileTask>>(new Map()); // 上传中的任务
-  public readonly completedUploads = ref<FileTask[]>([]);   // 已完成的任务
-  public readonly isUploading = ref(false);                 // 是否正在上传
+  public readonly completedUploads = ref<FileTask[]>([]); // 已完成的任务
+  public readonly isUploading = ref(false); // 是否正在上传
   private isAddingFiles = ref(false); // 添加文件处理中标志
   private addFilesPromise?: Promise<void>; // 新增：追踪添加文件的Promise
 
@@ -76,18 +74,14 @@ export class ChunkUploadManager {
   public readonly isPaused = computed(() => this.uploadController.isPaused.value);
 
   public readonly uploadStats = computed(() =>
-    this.progressManager.calculateStats(
-      this.uploadQueue.value,
-      this.activeUploads.value,
-      this.completedUploads.value
-    )
+    this.progressManager.calculateStats(this.uploadQueue.value, this.activeUploads.value, this.completedUploads.value)
   );
 
   // 辅助工具
   private speedCalculator = new EnhancedSpeedCalculator();
   private adaptiveConfig = {
     lastAdjustTime: 0,
-    adjustInterval: CONSTANTS.NETWORK.ADJUST_INTERVAL,
+    adjustInterval: CONSTANTS.NETWORK.ADJUST_INTERVAL
   };
 
   constructor(config: Partial<UploadConfig> = {}) {
@@ -102,9 +96,8 @@ export class ChunkUploadManager {
     this.retryStrategy = new RetryStrategyManager(this.config);
 
     // 创建分片管理器
-    this.chunkManager = new ChunkManager(
-      this.config,
-      (chunk, size, time) => this.progressManager.updateChunkProgress(chunk, size, time)
+    this.chunkManager = new ChunkManager(this.config, (chunk, size, time) =>
+      this.progressManager.updateChunkProgress(chunk, size, time)
     );
 
     // 初始化 Worker
@@ -118,9 +111,7 @@ export class ChunkUploadManager {
 
   // ==================== 配置管理 ====================
 
-  /**
-   * 合并配置
-   */
+  /** 合并配置 */
   private mergeConfig(config: Partial<ExtendedUploadConfig>): ExtendedUploadConfig {
     return {
       // 并发控制
@@ -152,12 +143,12 @@ export class ChunkUploadManager {
       maxFiles: CONSTANTS.UPLOAD.MAX_FILES,
 
       // 功能开关
-      enableResume: true,              // 断点续传
-      enableDeduplication: false,      // 秒传
-      useWorker: true,                // Web Worker
-      enableCache: true,               // 缓存
-      enableNetworkAdaptation: true,   // 网络自适应
-      enableSmartRetry: true,          // 智能重试
+      enableResume: true, // 断点续传
+      enableDeduplication: false, // 秒传
+      useWorker: true, // Web Worker
+      enableCache: true, // 缓存
+      enableNetworkAdaptation: true, // 网络自适应
+      enableSmartRetry: true, // 智能重试
 
       // 图片压缩配置
       enableCompression: CONSTANTS.COMPRESSION.ENABLE_COMPRESSION,
@@ -177,9 +168,7 @@ export class ChunkUploadManager {
     };
   }
 
-  /**
-   * 更新配置
-   */
+  /** 更新配置 */
   public updateConfig(newConfig: Partial<UploadConfig>): this {
     this.config = { ...this.config, ...newConfig };
     console.log('📝 配置已更新', this.config);
@@ -264,9 +253,7 @@ export class ChunkUploadManager {
     updateNetworkInfo();
   }
 
-  /**
-   * 网络自适应性能调整
-   */
+  /** 网络自适应性能调整 */
   private adjustPerformance(): void {
     if (!this.config.enableNetworkAdaptation) return;
 
@@ -282,12 +269,16 @@ export class ChunkUploadManager {
       // 网速慢,减少并发
       this.config.maxConcurrentFiles = Math.max(1, this.config.maxConcurrentFiles - 1);
       this.config.maxConcurrentChunks = Math.max(2, this.config.maxConcurrentChunks - 1);
-      console.log(`📉 网络速度慢,调整并发数: 文件=${this.config.maxConcurrentFiles}, 分片=${this.config.maxConcurrentChunks}`);
+      console.log(
+        `📉 网络速度慢,调整并发数: 文件=${this.config.maxConcurrentFiles}, 分片=${this.config.maxConcurrentChunks}`
+      );
     } else if (speed > 500 && activeCount === this.config.maxConcurrentFiles) {
       // 网速快,增加并发
       this.config.maxConcurrentFiles = Math.min(6, this.config.maxConcurrentFiles + 1);
       this.config.maxConcurrentChunks = Math.min(12, this.config.maxConcurrentChunks + 1);
-      console.log(`📈 网络速度快,调整并发数: 文件=${this.config.maxConcurrentFiles}, 分片=${this.config.maxConcurrentChunks}`);
+      console.log(
+        `📈 网络速度快,调整并发数: 文件=${this.config.maxConcurrentFiles}, 分片=${this.config.maxConcurrentChunks}`
+      );
     }
 
     // 根据网络质量调整分片大小
@@ -299,9 +290,7 @@ export class ChunkUploadManager {
 
   // ==================== 文件管理 ====================
 
-  /**
-  * 添加文件到上传队列（增强版）
-  */
+  /** 添加文件到上传队列（增强版） */
   public async addFiles(files: File[] | FileList | File, options: FileUploadOptions = {}): Promise<this> {
     // 如果正在添加文件，取消之前的操作
     if (this.isAddingFiles.value && this.addFilesAbortController) {
@@ -334,9 +323,7 @@ export class ChunkUploadManager {
     return this;
   }
 
-  /**
-   * 实际执行文件添加
-   */
+  /** 实际执行文件添加 */
   private async doAddFiles(
     files: File[] | FileList | File,
     options: FileUploadOptions,
@@ -377,13 +364,8 @@ export class ChunkUploadManager {
     }
   }
 
-  /**
-   * 创建单个任务（优化版）
-   */
-  private async createSingleTask(
-    file: File,
-    options: FileUploadOptions
-  ): Promise<FileTask | null> {
+  /** 创建单个任务（优化版） */
+  private async createSingleTask(file: File, options: FileUploadOptions): Promise<FileTask | null> {
     try {
       // 延迟处理大文件的压缩和预览
       const processedFile = await this.processFileOptimized(file);
@@ -399,13 +381,15 @@ export class ChunkUploadManager {
 
       // 异步生成预览（不阻塞）
       if (this.config.enablePreview) {
-        this.generatePreviewAsync(processedFile).then(preview => {
-          if (preview) {
-            // task.options.metadata.preview = preview;
-          }
-        }).catch(() => {
-          // 忽略预览生成错误
-        });
+        this.generatePreviewAsync(processedFile)
+          .then(preview => {
+            if (preview) {
+              // task.options.metadata.preview = preview;
+            }
+          })
+          .catch(() => {
+            // 忽略预览生成错误
+          });
       }
 
       return task;
@@ -415,22 +399,14 @@ export class ChunkUploadManager {
     }
   }
 
-  /**
-  * 批量添加文件（分批异步处理）
-  */
-  private async batchAddFiles(
-    files: File[],
-    options: FileUploadOptions,
-    signal?: AbortSignal
-  ): Promise<void> {
+  /** 批量添加文件（分批异步处理） */
+  private async batchAddFiles(files: File[], options: FileUploadOptions, signal?: AbortSignal): Promise<void> {
     const BATCH_SIZE = 10; // 每批处理文件数
     const BATCH_DELAY = 10; // 批次间延迟(ms)
     const USE_WORKER_THRESHOLD = 20; // 使用 Worker 的文件数阈值
 
     // 决定是否使用 Worker
-    const useWorker = this.config.useWorker &&
-      this.workerManager &&
-      files.length > USE_WORKER_THRESHOLD;
+    const useWorker = this.config.useWorker && this.workerManager && files.length > USE_WORKER_THRESHOLD;
 
     if (useWorker) {
       // 大批量文件使用 Worker 处理
@@ -441,9 +417,7 @@ export class ChunkUploadManager {
     }
   }
 
-  /**
-  * 在主线程批量添加文件（优化版）
-  */
+  /** 在主线程批量添加文件（优化版） */
   private async batchAddFilesInMainThread(
     files: File[],
     options: FileUploadOptions,
@@ -466,7 +440,7 @@ export class ChunkUploadManager {
 
       // 使用 Promise.all 并行处理批次内的文件
       await Promise.all(
-        batch.map(async (file) => {
+        batch.map(async file => {
           if (signal?.aborted) return;
 
           // 快速检查重复（不进行深度比较）
@@ -513,15 +487,12 @@ export class ChunkUploadManager {
     console.log(`⏱️ 文件处理耗时: ${(elapsed / 1000).toFixed(2)}s`);
   }
 
-
-  /**
-  * 异步生成预览（不阻塞主流程）
-  */
+  /** 异步生成预览（不阻塞主流程） */
   private async generatePreviewAsync(file: File): Promise<string | undefined> {
     if (!this.config.enablePreview || !PreviewGenerator.canGeneratePreview(file)) {
       return undefined;
     }
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const generatePreview = async () => {
         try {
           if (file.type.startsWith('image/')) {
@@ -547,9 +518,7 @@ export class ChunkUploadManager {
     });
   }
 
-  /**
-   * 让出主线程控制权
-   */
+  /** 让出主线程控制权 */
   private yieldToMain(delay: number = 0): Promise<void> {
     return new Promise(resolve => {
       if ('requestIdleCallback' in window && delay === 0) {
@@ -560,9 +529,7 @@ export class ChunkUploadManager {
     });
   }
 
-  /**
-  * 使用 Worker 批量添加文件（优化版）
-  */
+  /** 使用 Worker 批量添加文件（优化版） */
   private async batchAddFilesWithWorker(
     files: File[],
     options: FileUploadOptions,
@@ -583,7 +550,7 @@ export class ChunkUploadManager {
         const batchResults = await this.workerManager!.batchProcess(batch, {
           calculateMD5: this.config.enableDeduplication,
           generateChunks: false,
-          onProgress: (progress) => {
+          onProgress: progress => {
             // 静默处理，避免频繁更新UI
             if (progress % 20 === 0) {
               console.log(`📦 批次 ${Math.floor(i / CHUNK_SIZE) + 1} 处理进度: ${progress}%`);
@@ -619,9 +586,7 @@ export class ChunkUploadManager {
     }
   }
 
-  /**
-  * 批量创建任务
-  */
+  /** 批量创建任务 */
   private async createTasksBatch(
     files: File[],
     workerResults: any[],
@@ -669,9 +634,7 @@ export class ChunkUploadManager {
     return tasks;
   }
 
-  /**
-  * 快速检查文件是否重复
-  */
+  /** 快速检查文件是否重复 */
   private isFileDuplicate(file: File): boolean {
     // 使用文件名+大小+修改时间的组合快速判断
     const fileKey = `${file.name}_${file.size}_${file.lastModified}`;
@@ -681,9 +644,7 @@ export class ChunkUploadManager {
     });
   }
 
-  /**
-  * 优化的文件处理（延迟压缩）
-  */
+  /** 优化的文件处理（延迟压缩） */
   private async processFileOptimized(file: File): Promise<File> {
     // 小于 1MB 或非图片直接返回
     if (file.size < 1024 * 1024 || !file.type.startsWith('image/')) {
@@ -715,9 +676,7 @@ export class ChunkUploadManager {
 
   // ==================== 上传流程 ====================
 
-  /**
-   * 开始上传
-   */
+  /** 开始上传 */
   public async start(): Promise<this> {
     // 如果没有任务,触发完成回调
     if (this.uploadQueue.value.length === 0 && this.activeUploads.value.size === 0) {
@@ -740,9 +699,7 @@ export class ChunkUploadManager {
     return this;
   }
 
-  /**
-   * 处理上传队列(核心流程)
-   */
+  /** 处理上传队列(核心流程) */
   private async processQueue(): Promise<void> {
     const uploadTasks: ChunkUploadTask[] = [];
 
@@ -830,9 +787,7 @@ export class ChunkUploadManager {
     console.log('✅ 所有任务已完成');
   }
 
-  /**
-   * 处理上传完成
-   */
+  /** 处理上传完成 */
   private async handleUploadComplete(): Promise<void> {
     const completedTasks = this.completedUploads.value;
     const successTasks = completedTasks.filter(t => t.status === UploadStatus.SUCCESS);
@@ -854,9 +809,7 @@ export class ChunkUploadManager {
 
   // ==================== 控制方法 ====================
 
-  /**
-   * 暂停单个任务（保存进度）
-   */
+  /** 暂停单个任务（保存进度） */
   public pause(taskId: string): this {
     const task = this.getTask(taskId);
     if (!task) {
@@ -881,9 +834,7 @@ export class ChunkUploadManager {
     return this;
   }
 
-  /**
-   * 恢复单个任务（恢复进度）
-   */
+  /** 恢复单个任务（恢复进度） */
   public resume(taskId: string): this {
     const task = this.getTask(taskId);
     if (!task) {
@@ -911,8 +862,7 @@ export class ChunkUploadManager {
     // 从完成列表移除
     this.completedUploads.value = this.completedUploads.value.filter(t => t.id !== taskId);
     // 添加到队列(如果不在队列中)
-    if (!this.uploadQueue.value.some(t => t.id === taskId) &&
-      !this.activeUploads.value.has(taskId)) {
+    if (!this.uploadQueue.value.some(t => t.id === taskId) && !this.activeUploads.value.has(taskId)) {
       this.uploadQueue.value.unshift(task);
     }
     this.callbackManager.emit('onFileResume', task);
@@ -923,9 +873,7 @@ export class ChunkUploadManager {
     return this;
   }
 
-  /**
-  * 暂停所有上传（等待文件添加完成）
-  */
+  /** 暂停所有上传（等待文件添加完成） */
   public async pauseAll(): Promise<this> {
     console.log('⏸️ 准备暂停所有上传');
 
@@ -960,19 +908,13 @@ export class ChunkUploadManager {
     return this;
   }
 
-
-  /**
-   * 批量暂停任务
-   */
+  /** 批量暂停任务 */
   private async batchPauseTasks(): Promise<void> {
     const tasksToUpdate: FileTask[] = [];
     const tasksToSave: FileTask[] = [];
 
     // 收集所有需要暂停的任务
-    const allTasks = [
-      ...Array.from(this.activeUploads.value.values()),
-      ...this.uploadQueue.value
-    ];
+    const allTasks = [...Array.from(this.activeUploads.value.values()), ...this.uploadQueue.value];
 
     // 批量更新状态
     const updates: Array<() => void> = [];
@@ -1014,13 +956,8 @@ export class ChunkUploadManager {
     }
   }
 
-  /**
-   * 批量触发回调（修复类型）
-   */
-  private async batchEmitCallbacks<K extends keyof UploadCallbacks>(
-    event: K,
-    tasks: FileTask[]
-  ): Promise<void> {
+  /** 批量触发回调（修复类型） */
+  private async batchEmitCallbacks<K extends keyof UploadCallbacks>(event: K, tasks: FileTask[]): Promise<void> {
     const BATCH_SIZE = 20;
 
     for (let i = 0; i < tasks.length; i += BATCH_SIZE) {
@@ -1065,9 +1002,7 @@ export class ChunkUploadManager {
     }
   }
 
-  /**
-   * 批量保存任务进度（异步）
-   */
+  /** 批量保存任务进度（异步） */
   private async batchSaveTaskProgress(tasks: FileTask[]): Promise<void> {
     const BATCH_SIZE = 10;
 
@@ -1088,24 +1023,18 @@ export class ChunkUploadManager {
     }
   }
 
-  /**
-   * 恢复所有上传（优化版）
-   */
+  /** 恢复所有上传（优化版） */
   public resumeAll(): this {
     console.log('▶️ 恢复所有上传');
     // 收集所有暂停的任务（从各个列表）
     const allPausedTasks: FileTask[] = [];
 
     // 从已完成列表中找暂停的任务
-    const pausedInCompleted = this.completedUploads.value.filter(
-      t => t.status === UploadStatus.PAUSED
-    );
+    const pausedInCompleted = this.completedUploads.value.filter(t => t.status === UploadStatus.PAUSED);
     allPausedTasks.push(...pausedInCompleted);
 
     // 从队列中找暂停的任务
-    const pausedInQueue = this.uploadQueue.value.filter(
-      t => t.status === UploadStatus.PAUSED
-    );
+    const pausedInQueue = this.uploadQueue.value.filter(t => t.status === UploadStatus.PAUSED);
     allPausedTasks.push(...pausedInQueue);
 
     // 从活跃任务中找暂停的任务（理论上不应该有，但为了保险）
@@ -1156,9 +1085,7 @@ export class ChunkUploadManager {
     return this;
   }
 
-  /**
-  * 批量恢复任务进度（异步）
-  */
+  /** 批量恢复任务进度（异步） */
   private async batchRestoreTaskProgress(tasks: FileTask[]): Promise<void> {
     const BATCH_SIZE = 10;
 
@@ -1180,9 +1107,7 @@ export class ChunkUploadManager {
     }
   }
 
-  /**
-   * 重新组织任务队列
-   */
+  /** 重新组织任务队列 */
   private reorganizeTasks(restoredTasks: FileTask[]): void {
     // 清理已完成列表中的待恢复任务
     const completedTaskIds = new Set(restoredTasks.map(t => t.id));
@@ -1202,9 +1127,7 @@ export class ChunkUploadManager {
     this.taskQueueManager.sort(this.uploadQueue.value);
   }
 
-  /**
-   * 取消单个任务
-   */
+  /** 取消单个任务 */
   public cancel(taskId: string): this {
     const task = this.getTask(taskId);
     if (!task) {
@@ -1224,9 +1147,7 @@ export class ChunkUploadManager {
     return this;
   }
 
-  /**
-    * 取消所有任务（包括正在添加的文件）
-    */
+  /** 取消所有任务（包括正在添加的文件） */
   public async cancelAll(): Promise<this> {
     console.log('🛑 取消所有上传');
 
@@ -1237,10 +1158,7 @@ export class ChunkUploadManager {
       // 等待添加操作结束
       if (this.addFilesPromise) {
         try {
-          await Promise.race([
-            this.addFilesPromise,
-            new Promise(resolve => setTimeout(resolve, 500))
-          ]);
+          await Promise.race([this.addFilesPromise, new Promise(resolve => setTimeout(resolve, 500))]);
         } catch (e) {
           // 忽略错误
         }
@@ -1284,9 +1202,7 @@ export class ChunkUploadManager {
     return this;
   }
 
-  /**
-   * 清空所有文件
-   */
+  /** 清空所有文件 */
   public clear(): this {
     this.cancelAll();
     this.completedUploads.value = [];
@@ -1302,9 +1218,7 @@ export class ChunkUploadManager {
 
   // ==================== 任务管理 ====================
 
-  /**
-   * 移除文件
-   */
+  /** 移除文件 */
   public removeFile(taskId: string): this {
     // 从队列中移除
     const queueIndex = this.uploadQueue.value.findIndex(t => t.id === taskId);
@@ -1329,13 +1243,9 @@ export class ChunkUploadManager {
     return this;
   }
 
-  /**
-   * 重试单个失败的文件
-   */
+  /** 重试单个失败的文件 */
   public retrySingleFile(taskId: string): this {
-    const taskIndex = this.completedUploads.value.findIndex(
-      t => t.id === taskId && t.status === UploadStatus.ERROR
-    );
+    const taskIndex = this.completedUploads.value.findIndex(t => t.id === taskId && t.status === UploadStatus.ERROR);
 
     if (taskIndex === -1) {
       console.warn(`⚠️ 未找到失败的任务: ${taskId}`);
@@ -1366,13 +1276,9 @@ export class ChunkUploadManager {
     return this;
   }
 
-  /**
-   * 重试所有失败的文件
-   */
+  /** 重试所有失败的文件 */
   public retryFailed(): this {
-    const failedTasks = this.completedUploads.value.filter(
-      t => t.status === UploadStatus.ERROR
-    );
+    const failedTasks = this.completedUploads.value.filter(t => t.status === UploadStatus.ERROR);
 
     if (failedTasks.length === 0) {
       console.log('ℹ️ 没有失败的任务需要重试');
@@ -1386,9 +1292,7 @@ export class ChunkUploadManager {
       this.uploadQueue.value.push(task);
     });
 
-    this.completedUploads.value = this.completedUploads.value.filter(
-      t => t.status !== UploadStatus.PENDING
-    );
+    this.completedUploads.value = this.completedUploads.value.filter(t => t.status !== UploadStatus.PENDING);
 
     this.taskQueueManager.sort(this.uploadQueue.value);
 
@@ -1399,9 +1303,7 @@ export class ChunkUploadManager {
     return this;
   }
 
-  /**
-   * 重置任务状态用于重试
-   */
+  /** 重置任务状态用于重试 */
   private resetTaskForRetry(task: FileTask): void {
     // 重置基本状态
     this.retryStrategy.resetTask(task);
@@ -1437,9 +1339,7 @@ export class ChunkUploadManager {
     task.options.priority = 'high';
   }
 
-  /**
-   * 保存任务进度
-   */
+  /** 保存任务进度 */
   private saveTaskProgress(task: FileTask): void {
     const progressKey = `progress_${task.id}`;
     const progressData = {
@@ -1452,24 +1352,23 @@ export class ChunkUploadManager {
       progress: task.progress,
       status: task.status,
       pausedTime: task.pausedTime,
-      chunks: task.chunks?.map(chunk => ({
-        index: chunk.index,
-        start: chunk.start,
-        end: chunk.end,
-        size: chunk.size,
-        status: chunk.status,
-        etag: chunk.etag,
-        hash: chunk.hash
-      })) || []
+      chunks:
+        task.chunks?.map(chunk => ({
+          index: chunk.index,
+          start: chunk.start,
+          end: chunk.end,
+          size: chunk.size,
+          status: chunk.status,
+          etag: chunk.etag,
+          hash: chunk.hash
+        })) || []
     };
 
     this.cacheManager.set(progressKey, progressData);
     console.log(`💾 已保存任务进度: ${task.file.name} (${task.uploadedChunks}/${task.totalChunks})`);
   }
 
-  /**
-   * 恢复任务进度
-   */
+  /** 恢复任务进度 */
   private restoreTaskProgress(task: FileTask): void {
     const progressKey = `progress_${task.id}`;
     const cachedData = this.cacheManager.get(progressKey);
@@ -1501,9 +1400,7 @@ export class ChunkUploadManager {
 
   // ==================== 查询方法 ====================
 
-  /**
-   * 获取任务
-   */
+  /** 获取任务 */
   public getTask(taskId: string): FileTask | undefined {
     return (
       this.uploadQueue.value.find(t => t.id === taskId) ||
@@ -1512,9 +1409,7 @@ export class ChunkUploadManager {
     );
   }
 
-  /**
-   * 获取所有任务
-   */
+  /** 获取所有任务 */
   private getAllTasks(): FileTask[] {
     return [
       ...this.uploadQueue.value,
@@ -1523,9 +1418,7 @@ export class ChunkUploadManager {
     ];
   }
 
-  /**
-   * 获取详细统计信息
-   */
+  /** 获取详细统计信息 */
   public getDetailedStats(): {
     successRate: number;
     averageFileSize: number;
@@ -1550,14 +1443,12 @@ export class ChunkUploadManager {
       totalUploadTime,
       networkQuality: this.networkQuality.value,
       cacheHitRate: 0, // TODO: 实现缓存命中率统计
-      workerEnabled: this.config.useWorker && !!this.workerManager,
+      workerEnabled: this.config.useWorker && Boolean(this.workerManager),
       currentChunkSize: this.config.chunkSize
     };
   }
 
-  /**
-   * 销毁管理器
-   */
+  /** 销毁管理器 */
   public destroy(): void {
     this.cancelAll();
 

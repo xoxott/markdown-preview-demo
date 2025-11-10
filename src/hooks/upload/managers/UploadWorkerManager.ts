@@ -16,12 +16,7 @@ interface WorkerResponse {
   progress?: number;
 }
 
-type WorkerMessageType = 
-  | 'MD5_CALCULATE' 
-  | 'COMPRESS_IMAGE' 
-  | 'SLICE_FILE' 
-  | 'BATCH_PROCESS'
-  | 'PROGRESS';
+type WorkerMessageType = 'MD5_CALCULATE' | 'COMPRESS_IMAGE' | 'SLICE_FILE' | 'BATCH_PROCESS' | 'PROGRESS';
 
 interface BatchProcessOptions {
   calculateMD5?: boolean;
@@ -40,11 +35,11 @@ interface ChunkInfo {
 // ==================== 常量 ====================
 const CONSTANTS = {
   TIMEOUT: 30000,
-  DEFAULT_CHUNK_SIZE: 2 * 1024 * 1024,
+  DEFAULT_CHUNK_SIZE: 2 * 1024 * 1024
 } as const;
 
 // ==================== Worker 脚本生成器 ====================
- class WorkerScriptGenerator {
+class WorkerScriptGenerator {
   static generate(): string {
     return `
       ${this.getMD5Function()}
@@ -259,10 +254,7 @@ export default class UploadWorkerManager {
       if (workerScript) {
         this.worker = new Worker(workerScript);
       } else {
-        const blob = new Blob(
-          [WorkerScriptGenerator.generate()], 
-          { type: 'application/javascript' }
-        );
+        const blob = new Blob([WorkerScriptGenerator.generate()], { type: 'application/javascript' });
         const url = URL.createObjectURL(blob);
         this.worker = new Worker(url);
         URL.revokeObjectURL(url); // 立即释放 URL
@@ -270,7 +262,6 @@ export default class UploadWorkerManager {
 
       this.setupWorkerHandlers();
       this.isInitialized = true;
-
     } catch (error) {
       console.warn('Worker 初始化失败，将使用主线程模式:', error);
       this.worker = null;
@@ -283,7 +274,7 @@ export default class UploadWorkerManager {
 
     this.worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
       const response = event.data;
-      
+
       // 处理进度更新
       if (response.type === 'PROGRESS') {
         const progressHandler = this.progressHandlers.get(response.id);
@@ -301,7 +292,7 @@ export default class UploadWorkerManager {
       }
     };
 
-    this.worker.onerror = (error) => {
+    this.worker.onerror = error => {
       console.error('Worker 错误:', error);
       this.handleWorkerError(error);
     };
@@ -322,14 +313,14 @@ export default class UploadWorkerManager {
         error: error.message || 'Worker 发生错误'
       });
     });
-    
+
     this.messageHandlers.clear();
     this.progressHandlers.clear();
   }
 
   // ==================== 消息发送 ====================
   private sendMessage<T = any>(
-    type: WorkerMessageType, 
+    type: WorkerMessageType,
     payload: any,
     onProgress?: (progress: number) => void
   ): Promise<T> {
@@ -338,9 +329,7 @@ export default class UploadWorkerManager {
 
       // Worker 不可用时降级到主线程
       if (!this.worker || !this.isInitialized) {
-        this.fallbackToMainThread(type, payload, onProgress)
-          .then(resolve)
-          .catch(reject);
+        this.fallbackToMainThread(type, payload, onProgress).then(resolve).catch(reject);
         return;
       }
 
@@ -379,7 +368,7 @@ export default class UploadWorkerManager {
 
   // ==================== 主线程降级处理 ====================
   private async fallbackToMainThread(
-    type: WorkerMessageType, 
+    type: WorkerMessageType,
     payload: any,
     onProgress?: (progress: number) => void
   ): Promise<any> {
@@ -391,11 +380,7 @@ export default class UploadWorkerManager {
         return this.sliceFileInMainThread(payload.file, payload.chunkSize);
 
       case 'BATCH_PROCESS':
-        return await this.batchProcessInMainThread(
-          payload.files, 
-          payload.options,
-          onProgress
-        );
+        return await this.batchProcessInMainThread(payload.files, payload.options, onProgress);
 
       case 'COMPRESS_IMAGE':
         throw new Error('主线程不支持图片压缩，请使用 Worker 模式');
@@ -416,11 +401,11 @@ export default class UploadWorkerManager {
   private sliceFileInMainThread(file: File, chunkSize: number): ChunkInfo[] {
     const chunks: ChunkInfo[] = [];
     const totalChunks = Math.ceil(file.size / chunkSize);
-    
+
     for (let i = 0; i < totalChunks; i++) {
       const start = i * chunkSize;
       const end = Math.min(start + chunkSize, file.size);
-      
+
       chunks.push({
         index: i,
         start,
@@ -428,12 +413,12 @@ export default class UploadWorkerManager {
         size: end - start
       });
     }
-    
+
     return chunks;
   }
 
   private async batchProcessInMainThread(
-    files: File[], 
+    files: File[],
     options: BatchProcessOptions,
     onProgress?: (progress: number) => void
   ): Promise<any[]> {
@@ -461,11 +446,10 @@ export default class UploadWorkerManager {
         if (onProgress) {
           onProgress(Math.round(((i + 1) / total) * 100));
         }
-
       } catch (error) {
-        results.push({ 
-          file: files[i].name, 
-          error: (error as Error).message 
+        results.push({
+          file: files[i].name,
+          error: (error as Error).message
         });
       }
     }
@@ -479,7 +463,7 @@ export default class UploadWorkerManager {
   }
 
   public async compressImage(
-    imageData: ImageBitmap | Blob, 
+    imageData: ImageBitmap | Blob,
     options?: {
       width?: number;
       height?: number;
@@ -494,15 +478,8 @@ export default class UploadWorkerManager {
     return this.sendMessage<ChunkInfo[]>('SLICE_FILE', { file, chunkSize });
   }
 
-  public async batchProcess(
-    files: File[], 
-    options: BatchProcessOptions = {}
-  ): Promise<any[]> {
-    return this.sendMessage<any[]>(
-      'BATCH_PROCESS', 
-      { files, options },
-      options.onProgress
-    );
+  public async batchProcess(files: File[], options: BatchProcessOptions = {}): Promise<any[]> {
+    return this.sendMessage<any[]>('BATCH_PROCESS', { files, options }, options.onProgress);
   }
 
   // ==================== 工具方法 ====================
@@ -527,7 +504,7 @@ export default class UploadWorkerManager {
       this.worker.terminate();
       this.worker = null;
     }
-    
+
     this.messageHandlers.clear();
     this.progressHandlers.clear();
     this.isInitialized = false;

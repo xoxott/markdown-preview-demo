@@ -1,13 +1,11 @@
-/**
- * DialogTestPanel - 弹窗测试面板
- * 用于测试所有弹窗功能
- */
+/** DialogTestPanel - 弹窗测试面板 用于测试所有弹窗功能 */
 
-import { defineComponent, PropType, ref } from 'vue'
-import { NButton, NSpace, NDivider, useThemeVars } from 'naive-ui'
-import { UseDialogReturn } from '../hooks/useDialog'
-import BaseDialog from '../dialogs/BaseDialog'
-import { useDrawer } from '@/hooks/customer/useDrawer'
+import type { PropType } from 'vue';
+import { defineComponent, ref } from 'vue';
+import { NButton, NDivider, NSpace, useThemeVars } from 'naive-ui';
+import { useDrawer } from '@/hooks/customer/useDrawer';
+import type { UseDialogReturn } from '../hooks/useDialog';
+import BaseDialog from '../dialogs/BaseDialog';
 
 export default defineComponent({
   name: 'DialogTestPanel',
@@ -18,8 +16,8 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const themeVars = useThemeVars()
-    const  drawer = useDrawer()
+    const themeVars = useThemeVars();
+    const drawer = useDrawer();
 
     // 测试重命名对话框
     const testRename = () => {
@@ -27,12 +25,12 @@ export default defineComponent({
         title: '重命名文件',
         defaultValue: 'test-file.txt',
         placeholder: '请输入新名称',
-        onConfirm: async (newName) => {
-          console.log('新名称:', newName)
-          await new Promise(resolve => setTimeout(resolve, 500))
+        onConfirm: async newName => {
+          console.log('新名称:', newName);
+          await new Promise(resolve => setTimeout(resolve, 500));
         }
-      })
-    }
+      });
+    };
 
     // 测试确认对话框
     const testConfirm = () => {
@@ -41,42 +39,42 @@ export default defineComponent({
         content: '这是一个确认对话框,您确定要继续吗?',
         type: 'warning',
         onConfirm: async () => {
-          console.log('用户确认了操作')
-          await new Promise(resolve => setTimeout(resolve, 500))
+          console.log('用户确认了操作');
+          await new Promise(resolve => setTimeout(resolve, 500));
         },
         onCancel: () => {
-          console.log('用户取消了操作')
+          console.log('用户取消了操作');
         }
-      })
-    }
+      });
+    };
 
     // 测试信息对话框
     const testInfo = () => {
-      props.dialog.info('这是一条信息提示', '信息')
-    }
+      props.dialog.info('这是一条信息提示', '信息');
+    };
 
     // 测试成功对话框
     const testSuccess = () => {
-      props.dialog.success('操作已成功完成!', '成功')
-    }
+      props.dialog.success('操作已成功完成!', '成功');
+    };
 
     // 测试警告对话框
     const testWarning = () => {
-      props.dialog.warning('请注意这个警告信息!', '警告')
-    }
+      props.dialog.warning('请注意这个警告信息!', '警告');
+    };
 
     // 测试错误对话框
     const testError = () => {
-      props.dialog.error('发生了一个错误!', '错误')
-    }
+      props.dialog.error('发生了一个错误!', '错误');
+    };
 
     // 测试删除确认对话框
     const testConfirmDelete = () => {
       props.dialog.confirmDelete('重要文件.txt', async () => {
-        console.log('文件已删除')
-        await new Promise(resolve => setTimeout(resolve, 500))
-      })
-    }
+        console.log('文件已删除');
+        await new Promise(resolve => setTimeout(resolve, 500));
+      });
+    };
 
     // 测试可拖拽弹窗
     const testDraggable = () => {
@@ -85,12 +83,12 @@ export default defineComponent({
         content: '尝试拖拽标题栏来移动这个弹窗!',
         type: 'info',
         onConfirm: () => {
-          console.log('测试完成')
+          console.log('测试完成');
         }
-      })
-    }
+      });
+    };
 
-    const test = ref(false)
+    const test = ref(false);
 
     return () => (
       <div
@@ -101,16 +99,12 @@ export default defineComponent({
           backgroundColor: themeVars.value.cardColor
         }}
       >
-        <h3 style={{ margin: '0 0 16px 0', color: themeVars.value.textColor1 }}>
-          弹窗测试面板
-        </h3>
+        <h3 style={{ margin: '0 0 16px 0', color: themeVars.value.textColor1 }}>弹窗测试面板</h3>
 
         <NSpace vertical size="large">
           {/* 基础对话框 */}
           <div>
-            <h4 style={{ margin: '0 0 12px 0', color: themeVars.value.textColor2 }}>
-              基础对话框
-            </h4>
+            <h4 style={{ margin: '0 0 12px 0', color: themeVars.value.textColor2 }}>基础对话框</h4>
             <NSpace>
               <NButton onClick={testRename}>重命名对话框</NButton>
               <NButton onClick={testConfirm}>确认对话框</NButton>
@@ -121,14 +115,18 @@ export default defineComponent({
 
           {/* 消息对话框 */}
           <div>
-            <h4 style={{ margin: '0 0 12px 0', color: themeVars.value.textColor2 }}>
-              消息对话框
-            </h4>
+            <h4 style={{ margin: '0 0 12px 0', color: themeVars.value.textColor2 }}>消息对话框</h4>
             <NSpace>
               <NButton onClick={testInfo}>信息</NButton>
-              <NButton onClick={testSuccess} type="success">成功</NButton>
-              <NButton onClick={testWarning} type="warning">警告</NButton>
-              <NButton onClick={testError} type="error">错误</NButton>
+              <NButton onClick={testSuccess} type="success">
+                成功
+              </NButton>
+              <NButton onClick={testWarning} type="warning">
+                警告
+              </NButton>
+              <NButton onClick={testError} type="error">
+                错误
+              </NButton>
             </NSpace>
           </div>
 
@@ -136,11 +134,11 @@ export default defineComponent({
 
           {/* 特殊对话框 */}
           <div>
-            <h4 style={{ margin: '0 0 12px 0', color: themeVars.value.textColor2 }}>
-              特殊对话框
-            </h4>
+            <h4 style={{ margin: '0 0 12px 0', color: themeVars.value.textColor2 }}>特殊对话框</h4>
             <NSpace>
-              <NButton onClick={testConfirmDelete} type="error">删除确认</NButton>
+              <NButton onClick={testConfirmDelete} type="error">
+                删除确认
+              </NButton>
               <NButton onClick={testDraggable}>可拖拽弹窗</NButton>
             </NSpace>
           </div>
@@ -149,16 +147,16 @@ export default defineComponent({
 
           {/* 使用说明 */}
           <div>
-            <h4 style={{ margin: '0 0 12px 0', color: themeVars.value.textColor2 }}>
-              功能说明
-            </h4>
-            <ul style={{
-              margin: 0,
-              paddingLeft: '20px',
-              color: themeVars.value.textColor3,
-              fontSize: '14px',
-              lineHeight: '1.8'
-            }}>
+            <h4 style={{ margin: '0 0 12px 0', color: themeVars.value.textColor2 }}>功能说明</h4>
+            <ul
+              style={{
+                margin: 0,
+                paddingLeft: '20px',
+                color: themeVars.value.textColor3,
+                fontSize: '14px',
+                lineHeight: '1.8'
+              }}
+            >
               <li>所有弹窗都支持拖拽标题栏移动</li>
               <li>按 ESC 键可以关闭弹窗</li>
               <li>重命名对话框按 Enter 键确认</li>
@@ -171,17 +169,15 @@ export default defineComponent({
 
           {/* 文件操作测试 */}
           <div>
-            <h4 style={{ margin: '0 0 12px 0', color: themeVars.value.textColor2 }}>
-              文件操作测试
-            </h4>
-            <div style={{
-              color: themeVars.value.textColor3,
-              fontSize: '14px',
-              lineHeight: '1.8'
-            }}>
-              <p style={{ margin: '0 0 8px 0' }}>
-                在左侧文件列表中:
-              </p>
+            <h4 style={{ margin: '0 0 12px 0', color: themeVars.value.textColor2 }}>文件操作测试</h4>
+            <div
+              style={{
+                color: themeVars.value.textColor3,
+                fontSize: '14px',
+                lineHeight: '1.8'
+              }}
+            >
+              <p style={{ margin: '0 0 8px 0' }}>在左侧文件列表中:</p>
               <ul style={{ margin: 0, paddingLeft: '20px' }}>
                 <li>选中文件后按 F2 或右键选择"重命名"</li>
                 <li>选中文件后按 Delete 或右键选择"删除"</li>
@@ -190,21 +186,25 @@ export default defineComponent({
             </div>
           </div>
 
-          <NButton onClick={() => test.value = true}>测试弹窗</NButton>
+          <NButton onClick={() => (test.value = true)}>测试弹窗</NButton>
 
-          <BaseDialog show={test.value} resizable onClose={() => test.value = false} title="测试弹窗" width={400} height={300}>
+          <BaseDialog
+            show={test.value}
+            resizable
+            onClose={() => (test.value = false)}
+            title="测试弹窗"
+            width={400}
+            height={300}
+          >
             {{
               default: () => <div>测试弹窗</div>,
               footer: () => <div>测试弹窗</div>
             }}
           </BaseDialog>
 
-          <NButton onClick={()=>drawer.open({ title: '测试抽屉', content: '测试抽屉' })}>测试抽屉</NButton>
-
+          <NButton onClick={() => drawer.open({ title: '测试抽屉', content: '测试抽屉' })}>测试抽屉</NButton>
         </NSpace>
-
       </div>
-    )
+    );
   }
-})
-
+});

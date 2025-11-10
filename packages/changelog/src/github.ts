@@ -1,10 +1,11 @@
-import type { ChangelogOption } from './types';
 import { ofetch } from 'ofetch';
 import { consola } from 'consola';
 import { cyan, green, red, yellow } from 'kolorist';
+import type { ChangelogOption } from './types';
 
 /**
  * 构造 GitHub API 请求头
+ *
  * @param githubToken GitHub Token
  * @returns 包含认证和 Accept 类型的请求头
  */
@@ -17,6 +18,7 @@ function getHeaders(githubToken: string) {
 
 /**
  * 检查指定 tag 是否已经存在于 GitHub 仓库中
+ *
  * @param tag 标签名
  * @param repo 仓库全名（格式：owner/repo）
  * @param githubToken GitHub Token
@@ -35,10 +37,10 @@ export async function hasTagOnGitHub(tag: string, repo: string, githubToken: str
 
 /**
  * 创建或更新 GitHub Release
- * 
+ *
  * - 如果 release 已存在，则更新内容
  * - 如果 release 不存在，则新建
- * 
+ *
  * @param options changelog 配置项，包含 GitHub 仓库信息、tag 等
  * @param content 生成的 changelog markdown 内容
  */
@@ -102,6 +104,7 @@ export async function sendRelease(options: ChangelogOption, content: string) {
 
 /**
  * 执行命令行工具并返回输出
+ *
  * @param cmd 命令名
  * @param args 参数列表
  * @returns 命令输出结果
@@ -114,6 +117,7 @@ async function execCommand(cmd: string, args: string[]) {
 
 /**
  * 判断当前仓库是否为浅克隆（shallow clone）
+ *
  * @returns 若为浅克隆返回 true，否则 false
  */
 export async function isRepoShallow() {

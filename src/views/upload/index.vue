@@ -1,243 +1,32 @@
-<template>
-  <div class="flex flex-col w-full h-full gap-4">
-    <!-- 头部标题 -->
-    <div class="flex justify-between items-center">
-      <n-h3 class="flex items-center gap-3 m-0 font-semibold">
-        <n-icon :component="CloudUploadOutline" :size="22" />
-        文件上传管理
-      </n-h3>
-      <n-space>
-        <n-button size="small" @click="showSettings = true" quaternary circle>
-          <template #icon>
-            <n-icon :component="SettingsOutline" />
-          </template>
-        </n-button>
-        <n-button size="small" @click="clear" quaternary circle type="error" v-if="uploadStats.total > 0">
-          <template #icon>
-            <n-icon :component="TrashOutline" />
-          </template>
-        </n-button>
-      </n-space>
-    </div>
-
-    <div class="flex flex-col xl:flex-row gap-4 w-full">
-      <!-- 上传区域 -->
-      <div
-        class="flex flex-col md:flex-row gap-4 p-6 bg-white dark:bg-gray-800 rounded-lg shadow transition-all duration-300 flex-1">
-        <custom-upload ref="customUploadRef" :abstract="true" :multiple="true" :directory-dnd="true"
-          :max="CONSTANTS.UPLOAD.MAX_FILES" :max-size="CONSTANTS.UPLOAD.MAX_FILESIZE"
-          :disabled="isUploading || isPaused" :batch-size="100" :processing-timeout="20" @change="handleFilesChange"
-          @error="handleUploadError" @exceed="handleExceed" class="flex-1">
-          <template #default="{ isDragOver, isProcessing, fileCount }">
-            <div class="flex flex-col items-center justify-center py-4 px-4 text-center">
-              <n-icon :component="CloudUploadOutline" :size="56" :color="isDragOver
-                ? themeVars.primaryColor : themeVars.primaryColorHover" class="transition-all duration-300" />
-              <p class="mt-3 text-gray-500 dark:text-gray-400 text-sm">
-                {{ isProcessing ? '处理中...' : '拖拽文件到此处或点击选择' }}
-              </p>
-            </div>
-          </template>
-        </custom-upload>
-
-        <div class="flex flex-col justify-between gap-4 md:w-[260px]">
-          <div class="flex flex-wrap gap-2">
-            <n-button size="small" @click="retryFailed" :disabled="failedCount === 0" type="warning" class="flex-1">
-              <template #icon>
-                <n-icon :component="RefreshOutline" />
-              </template>
-              重试失败 ({{ failedCount }})
-            </n-button>
-
-            <n-button size="small" @click="pauseAll" :disabled="!isUploading || isPaused" class="flex-1">
-              <template #icon>
-                <n-icon :component="PauseOutline" />
-              </template>
-              暂停
-            </n-button>
-
-            <n-button size="small" @click="resumeAll" :disabled="!isPaused || isUploading" class="flex-1">
-              <template #icon>
-                <n-icon :component="PlayOutline" />
-              </template>
-              恢复
-            </n-button>
-
-            <n-button type="primary" @click="handleStartUpload"
-              :disabled="uploadQueue.length === 0 || isUploading || isPaused" :loading="isUploading" size="small"
-              class="flex-1">
-              <template #icon>
-                <n-icon :component="PlayOutline" />
-              </template>
-              开始上传
-            </n-button>
-          </div>
-
-          <div class="text-gray-400 dark:text-gray-500 text-xs text-center">
-            支持格式: {{ acceptText }} | 最大: {{ maxSizeText }}
-          </div>
-        </div>
-      </div>
-
-      <!-- 上传统计 -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex-1 min-w-[300px] transition-all duration-300">
-        <div class="flex items-start justify-between mb-4 gap-4">
-          <h3 class="text-lg font-medium text-gray-600 dark:text-gray-200">上传统计</h3>
-
-          <div class="flex flex-wrap gap-2">
-            <n-tag :bordered="false" type="info" class="flex items-center">
-              <template #icon><n-icon :component="DocumentsOutline" /></template>
-              总计: {{ uploadStats.total }}
-            </n-tag>
-
-            <n-tag :bordered="false" type="warning" class="flex items-center">
-              <template #icon><n-icon :component="TimeOutline" /></template>
-              待上传: {{ uploadStats.pending }}
-            </n-tag>
-
-            <n-tag :bordered="false" type="primary" class="flex items-center">
-              <template #icon><n-icon :component="ArrowUpOutline" /></template>
-              上传中: {{ uploadStats.active }}
-            </n-tag>
-
-            <n-tag :bordered="false" type="success" class="flex items-center">
-              <template #icon><n-icon :component="CheckmarkCircleOutline" /></template>
-              已完成: {{ uploadStats.completed }}
-            </n-tag>
-
-            <n-tag v-if="uploadStats.failed > 0" :bordered="false" type="error" class="flex items-center">
-              <template #icon><n-icon :component="CloseCircleOutline" /></template>
-              失败: {{ uploadStats.failed }}
-            </n-tag>
-          </div>
-        </div>
-
-        <!-- 全局进度 -->
-        <div class="mb-4">
-          <n-progress type="line" :percentage="totalProgress" :status="getProgressStatus()" :height="12"
-            :border-radius="6" :fill-border-radius="6" />
-        </div>
-
-        <!-- 详细 info -->
-        <div class="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm text-gray-600 dark:text-gray-400 items-center">
-          <div class="flex items-center gap-2">
-            <n-icon :component="SpeedometerOutline" />
-            <span>{{ formatSpeed(uploadSpeed) }}</span>
-          </div>
-
-          <!-- 🔥 使用平滑的时间显示 -->
-          <div class="flex items-center gap-2">
-            <n-icon :component="TimeOutline" />
-            <span class="smooth-time">{{ formatTime(displayEstimatedTime) }}</span>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <n-icon :component="WifiOutline" />
-            <n-tag :type="networkQuality === 'good' ? 'success' : networkQuality === 'fair' ? 'warning' : 'error'"
-              size="small" :bordered="false">
-              {{ networkQualityText }}
-            </n-tag>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 列表区域 -->
-    <div class="flex flex-col gap-4 flex-1">
-      <!-- 待上传队列 -->
-      <upload-list-section v-if="uploadQueue.length > 0" title="待上传队列" :icon="FolderOpenOutline"
-        :count="uploadQueue.length" tag-type="info" :items="uploadQueue" default-collapsed max-height="250px">
-        <template #item="{ item: task, index }">
-          <upload-file-item :index="index" :key="task.id" :task="task" :show-actions="true"
-            @remove="removeFile(task.id)" />
-        </template>
-      </upload-list-section>
-
-      <!-- 上传中 -->
-      <upload-list-section max-height="380px" v-if="activeUploads.size > 0" title="上传中" :icon="CloudUploadOutline"
-        :count="activeUploads.size" tag-type="primary" :items="Array.from(activeUploads.values())">
-        <template #item="{ item: task, index }">
-          <upload-file-item :index="index" :key="task.id" :task="task" :show-progress="true" />
-        </template>
-      </upload-list-section>
-
-      <!-- 已完成 -->
-      <upload-list-section v-if="completedUploads.length > 0" title="已完成" max-height="250px"
-        :icon="CheckmarkDoneOutline" :count="completedUploads.length" :items="completedUploads" tag-type="success">
-        <template #item="{ item: task, index }">
-          <upload-file-item :task="task" :index="index" :show-actions="true" @retry="handleRetrySingle(task.id)"
-            @view="handleView(task)" />
-        </template>
-      </upload-list-section>
-    </div>
-
-    <!-- 设置抽屉 -->
-    <n-drawer v-model:show="showSettings" :width="400" placement="right">
-      <n-drawer-content title="上传设置" closable>
-        <n-form label-placement="left" label-width="120">
-          <n-form-item label="并发文件数">
-            <n-input-number v-model:value="settings.maxConcurrentFiles" :min="1" :max="10"
-              @update:value="handleSettingChange" />
-          </n-form-item>
-          <n-form-item label="并发分片数">
-            <n-input-number v-model:value="settings.maxConcurrentChunks" :min="1" :max="10"
-              @update:value="handleSettingChange" />
-          </n-form-item>
-          <n-form-item label="分片大小">
-            <n-select v-model:value="settings.chunkSize" :options="chunkSizeOptions"
-              @update:value="handleSettingChange" />
-          </n-form-item>
-          <n-form-item label="最大重试次数">
-            <n-input-number v-model:value="settings.maxRetries" :min="0" :max="10"
-              @update:value="handleSettingChange" />
-          </n-form-item>
-          <n-form-item label="网络自适应">
-            <n-switch v-model:value="settings.enableNetworkAdaptation" @update:value="handleSettingChange" />
-          </n-form-item>
-          <n-form-item label="智能重试">
-            <n-switch v-model:value="settings.enableSmartRetry" @update:value="handleSettingChange" />
-          </n-form-item>
-          <n-form-item label="秒传检测">
-            <n-switch v-model:value="settings.enableDeduplication" @update:value="handleSettingChange" />
-          </n-form-item>
-          <n-form-item label="使用 Worker">
-            <n-switch v-model:value="settings.useWorker" @update:value="handleSettingChange" />
-          </n-form-item>
-        </n-form>
-      </n-drawer-content>
-    </n-drawer>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { ref, computed, reactive, watch, onBeforeUnmount } from 'vue';
+import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
+import { useMessage, useThemeVars } from 'naive-ui';
 import {
-  useMessage,
-  useThemeVars,
-} from 'naive-ui';
-import {
-  CloudUploadOutline,
-  PlayOutline,
-  PauseOutline,
-  RefreshOutline,
-  CheckmarkCircleOutline,
-  CloseCircleOutline,
-  CheckmarkDoneOutline,
-  FolderOpenOutline,
-  DocumentsOutline,
-  TimeOutline,
   ArrowUpOutline,
-  TrashOutline,
+  CheckmarkCircleOutline,
+  CheckmarkDoneOutline,
+  CloseCircleOutline,
+  CloudUploadOutline,
+  DocumentsOutline,
+  FolderOpenOutline,
+  PauseOutline,
+  PlayOutline,
+  RefreshOutline,
   SettingsOutline,
   SpeedometerOutline,
-  WifiOutline,
+  TimeOutline,
+  TrashOutline,
+  WifiOutline
 } from '@vicons/ionicons5';
 import { useChunkUpload } from '@/hooks/upload/useChunkUpload';
-import { FileTask, UploadStatus } from '@/hooks/upload/type';
+import type { FileTask } from '@/hooks/upload/type';
+import { UploadStatus } from '@/hooks/upload/type';
 import { CONSTANTS } from '@/hooks/upload/constants';
+import { useDrawer } from '@/hooks/customer/useDrawer/index';
+import type { CustomUploadFileInfo } from '@/components/custom-upload';
+import CustomUpload from '@/components/custom-upload';
 import UploadFileItem from './components/UploadFileItem.vue';
 import UploadListSection from './components/UploadListSection.vue';
-import { useDrawer } from '@/hooks/customer/useDrawer/index';
-import CustomUpload, { CustomUploadFileInfo } from '@/components/custom-upload';
 const drawer = useDrawer();
 const themeVars = useThemeVars();
 const message = useMessage();
@@ -261,10 +50,10 @@ const chunkSizeOptions = [
   { label: '1 MB', value: 1024 * 1024 },
   { label: '2 MB', value: 2 * 1024 * 1024 },
   { label: '5 MB', value: 5 * 1024 * 1024 },
-  { label: '10 MB', value: 10 * 1024 * 1024 },
+  { label: '10 MB', value: 10 * 1024 * 1024 }
 ];
 
-const token = `WGz4LlZ0W8P3+HOaQlLRkcdCuTsJGVrvvTZfdJYY3otxprBxscciMf+yoDBGJ+9f1bA5c+xXMNCkSzTr1aflzW0TcOXtrKagFj0ZvBk//rdHwQUzXVmVkiWN+5LR2wi/oqAnl5o5KmFP5tuTifyd1CUTZdG6aUPvnnHKbYZfevBbpvmuhKqC9Ks2v/NrfBGZ`
+const token = `WGz4LlZ0W8P3+HOaQlLRkcdCuTsJGVrvvTZfdJYY3otxprBxscciMf+yoDBGJ+9f1bA5c+xXMNCkSzTr1aflzW0TcOXtrKagFj0ZvBk//rdHwQUzXVmVkiWN+5LR2wi/oqAnl5o5KmFP5tuTifyd1CUTZdG6aUPvnnHKbYZfevBbpvmuhKqC9Ks2v/NrfBGZ`;
 
 // 使用上传 Hook
 const {
@@ -289,15 +78,15 @@ const {
   formatFileSize,
   formatSpeed,
   formatTime,
-  getProgressStatus,
+  getProgressStatus
 } = useChunkUpload({
   uploadChunkUrl: 'https://testaest-v1.umi6.com/proxy-minio/upload/chunk',
   mergeChunksUrl: 'https://testaest-v1.umi6.com/proxy-minio/upload/complete',
   checkFileUrl: '/api/upload/check',
   headers: {
     'custom-origin': 'https://testaigc.umi6.com',
-    'origin': 'https://testaigc.umi6.com',
-    'authorization': 'Bearer 6992fcd36dce4d24b9ddf26a110a17cf'
+    origin: 'https://testaigc.umi6.com',
+    authorization: 'Bearer 6992fcd36dce4d24b9ddf26a110a17cf'
   },
   chunkUploadTransformer: ({ task, chunk }) => {
     const formData = new FormData();
@@ -314,9 +103,9 @@ const {
       folder: task.file.webkitRelativePath,
       total_chunks: task.totalChunks,
       Authorization: token
-    }
+    };
   },
-  ...settings,
+  ...settings
 });
 
 const fileInputRef = ref<HTMLInputElement>();
@@ -355,7 +144,7 @@ const startTimeCountdown = (initialTime: number) => {
 // 监听后端时间变化
 watch(
   () => uploadStats.value.estimatedTime,
-  (newTime) => {
+  newTime => {
     // 🔥 只在变化超过 5 秒或首次时才更新
     const diff = Math.abs(newTime - localTime);
 
@@ -442,8 +231,8 @@ const handleView = (task: FileTask) => {
     title: '文件预览',
     content: JSON.stringify(task, null, 2),
     width: 600
-  })
-}
+  });
+};
 
 // 设置变更
 const handleSettingChange = () => {
@@ -451,6 +240,288 @@ const handleSettingChange = () => {
   message.success('设置已更新');
 };
 </script>
+
+<template>
+  <div class="h-full w-full flex flex-col gap-4">
+    <!-- 头部标题 -->
+    <div class="flex items-center justify-between">
+      <NH3 class="m-0 flex items-center gap-3 font-semibold">
+        <NIcon :component="CloudUploadOutline" :size="22" />
+        文件上传管理
+      </NH3>
+      <NSpace>
+        <NButton size="small" quaternary circle @click="showSettings = true">
+          <template #icon>
+            <NIcon :component="SettingsOutline" />
+          </template>
+        </NButton>
+        <NButton v-if="uploadStats.total > 0" size="small" quaternary circle type="error" @click="clear">
+          <template #icon>
+            <NIcon :component="TrashOutline" />
+          </template>
+        </NButton>
+      </NSpace>
+    </div>
+
+    <div class="w-full flex flex-col gap-4 xl:flex-row">
+      <!-- 上传区域 -->
+      <div
+        class="flex flex-col flex-1 gap-4 rounded-lg bg-white p-6 shadow transition-all duration-300 md:flex-row dark:bg-gray-800"
+      >
+        <CustomUpload
+          ref="customUploadRef"
+          :abstract="true"
+          :multiple="true"
+          :directory-dnd="true"
+          :max="CONSTANTS.UPLOAD.MAX_FILES"
+          :max-size="CONSTANTS.UPLOAD.MAX_FILESIZE"
+          :disabled="isUploading || isPaused"
+          :batch-size="100"
+          :processing-timeout="20"
+          class="flex-1"
+          @change="handleFilesChange"
+          @error="handleUploadError"
+          @exceed="handleExceed"
+        >
+          <template #default="{ isDragOver, isProcessing, fileCount }">
+            <div class="flex flex-col items-center justify-center px-4 py-4 text-center">
+              <NIcon
+                :component="CloudUploadOutline"
+                :size="56"
+                :color="isDragOver ? themeVars.primaryColor : themeVars.primaryColorHover"
+                class="transition-all duration-300"
+              />
+              <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
+                {{ isProcessing ? '处理中...' : '拖拽文件到此处或点击选择' }}
+              </p>
+            </div>
+          </template>
+        </CustomUpload>
+
+        <div class="flex flex-col justify-between gap-4 md:w-[260px]">
+          <div class="flex flex-wrap gap-2">
+            <NButton size="small" :disabled="failedCount === 0" type="warning" class="flex-1" @click="retryFailed">
+              <template #icon>
+                <NIcon :component="RefreshOutline" />
+              </template>
+              重试失败 ({{ failedCount }})
+            </NButton>
+
+            <NButton size="small" :disabled="!isUploading || isPaused" class="flex-1" @click="pauseAll">
+              <template #icon>
+                <NIcon :component="PauseOutline" />
+              </template>
+              暂停
+            </NButton>
+
+            <NButton size="small" :disabled="!isPaused || isUploading" class="flex-1" @click="resumeAll">
+              <template #icon>
+                <NIcon :component="PlayOutline" />
+              </template>
+              恢复
+            </NButton>
+
+            <NButton
+              type="primary"
+              :disabled="uploadQueue.length === 0 || isUploading || isPaused"
+              :loading="isUploading"
+              size="small"
+              class="flex-1"
+              @click="handleStartUpload"
+            >
+              <template #icon>
+                <NIcon :component="PlayOutline" />
+              </template>
+              开始上传
+            </NButton>
+          </div>
+
+          <div class="text-center text-xs text-gray-400 dark:text-gray-500">
+            支持格式: {{ acceptText }} | 最大: {{ maxSizeText }}
+          </div>
+        </div>
+      </div>
+
+      <!-- 上传统计 -->
+      <div class="min-w-[300px] flex-1 rounded-lg bg-white p-6 shadow transition-all duration-300 dark:bg-gray-800">
+        <div class="mb-4 flex items-start justify-between gap-4">
+          <h3 class="text-lg text-gray-600 font-medium dark:text-gray-200">上传统计</h3>
+
+          <div class="flex flex-wrap gap-2">
+            <NTag :bordered="false" type="info" class="flex items-center">
+              <template #icon><NIcon :component="DocumentsOutline" /></template>
+              总计: {{ uploadStats.total }}
+            </NTag>
+
+            <NTag :bordered="false" type="warning" class="flex items-center">
+              <template #icon><NIcon :component="TimeOutline" /></template>
+              待上传: {{ uploadStats.pending }}
+            </NTag>
+
+            <NTag :bordered="false" type="primary" class="flex items-center">
+              <template #icon><NIcon :component="ArrowUpOutline" /></template>
+              上传中: {{ uploadStats.active }}
+            </NTag>
+
+            <NTag :bordered="false" type="success" class="flex items-center">
+              <template #icon><NIcon :component="CheckmarkCircleOutline" /></template>
+              已完成: {{ uploadStats.completed }}
+            </NTag>
+
+            <NTag v-if="uploadStats.failed > 0" :bordered="false" type="error" class="flex items-center">
+              <template #icon><NIcon :component="CloseCircleOutline" /></template>
+              失败: {{ uploadStats.failed }}
+            </NTag>
+          </div>
+        </div>
+
+        <!-- 全局进度 -->
+        <div class="mb-4">
+          <NProgress
+            type="line"
+            :percentage="totalProgress"
+            :status="getProgressStatus()"
+            :height="12"
+            :border-radius="6"
+            :fill-border-radius="6"
+          />
+        </div>
+
+        <!-- 详细 info -->
+        <div class="grid grid-cols-1 mt-2 items-center gap-3 text-sm text-gray-600 sm:grid-cols-3 dark:text-gray-400">
+          <div class="flex items-center gap-2">
+            <NIcon :component="SpeedometerOutline" />
+            <span>{{ formatSpeed(uploadSpeed) }}</span>
+          </div>
+
+          <!-- 🔥 使用平滑的时间显示 -->
+          <div class="flex items-center gap-2">
+            <NIcon :component="TimeOutline" />
+            <span class="smooth-time">{{ formatTime(displayEstimatedTime) }}</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <NIcon :component="WifiOutline" />
+            <NTag
+              :type="networkQuality === 'good' ? 'success' : networkQuality === 'fair' ? 'warning' : 'error'"
+              size="small"
+              :bordered="false"
+            >
+              {{ networkQualityText }}
+            </NTag>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 列表区域 -->
+    <div class="flex flex-col flex-1 gap-4">
+      <!-- 待上传队列 -->
+      <UploadListSection
+        v-if="uploadQueue.length > 0"
+        title="待上传队列"
+        :icon="FolderOpenOutline"
+        :count="uploadQueue.length"
+        tag-type="info"
+        :items="uploadQueue"
+        default-collapsed
+        max-height="250px"
+      >
+        <template #item="{ item: task, index }">
+          <UploadFileItem
+            :key="task.id"
+            :index="index"
+            :task="task"
+            :show-actions="true"
+            @remove="removeFile(task.id)"
+          />
+        </template>
+      </UploadListSection>
+
+      <!-- 上传中 -->
+      <UploadListSection
+        v-if="activeUploads.size > 0"
+        max-height="380px"
+        title="上传中"
+        :icon="CloudUploadOutline"
+        :count="activeUploads.size"
+        tag-type="primary"
+        :items="Array.from(activeUploads.values())"
+      >
+        <template #item="{ item: task, index }">
+          <UploadFileItem :key="task.id" :index="index" :task="task" :show-progress="true" />
+        </template>
+      </UploadListSection>
+
+      <!-- 已完成 -->
+      <UploadListSection
+        v-if="completedUploads.length > 0"
+        title="已完成"
+        max-height="250px"
+        :icon="CheckmarkDoneOutline"
+        :count="completedUploads.length"
+        :items="completedUploads"
+        tag-type="success"
+      >
+        <template #item="{ item: task, index }">
+          <UploadFileItem
+            :task="task"
+            :index="index"
+            :show-actions="true"
+            @retry="handleRetrySingle(task.id)"
+            @view="handleView(task)"
+          />
+        </template>
+      </UploadListSection>
+    </div>
+
+    <!-- 设置抽屉 -->
+    <NDrawer v-model:show="showSettings" :width="400" placement="right">
+      <NDrawerContent title="上传设置" closable>
+        <NForm label-placement="left" label-width="120">
+          <NFormItem label="并发文件数">
+            <NInputNumber
+              v-model:value="settings.maxConcurrentFiles"
+              :min="1"
+              :max="10"
+              @update:value="handleSettingChange"
+            />
+          </NFormItem>
+          <NFormItem label="并发分片数">
+            <NInputNumber
+              v-model:value="settings.maxConcurrentChunks"
+              :min="1"
+              :max="10"
+              @update:value="handleSettingChange"
+            />
+          </NFormItem>
+          <NFormItem label="分片大小">
+            <NSelect
+              v-model:value="settings.chunkSize"
+              :options="chunkSizeOptions"
+              @update:value="handleSettingChange"
+            />
+          </NFormItem>
+          <NFormItem label="最大重试次数">
+            <NInputNumber v-model:value="settings.maxRetries" :min="0" :max="10" @update:value="handleSettingChange" />
+          </NFormItem>
+          <NFormItem label="网络自适应">
+            <NSwitch v-model:value="settings.enableNetworkAdaptation" @update:value="handleSettingChange" />
+          </NFormItem>
+          <NFormItem label="智能重试">
+            <NSwitch v-model:value="settings.enableSmartRetry" @update:value="handleSettingChange" />
+          </NFormItem>
+          <NFormItem label="秒传检测">
+            <NSwitch v-model:value="settings.enableDeduplication" @update:value="handleSettingChange" />
+          </NFormItem>
+          <NFormItem label="使用 Worker">
+            <NSwitch v-model:value="settings.useWorker" @update:value="handleSettingChange" />
+          </NFormItem>
+        </NForm>
+      </NDrawerContent>
+    </NDrawer>
+  </div>
+</template>
 
 <style scoped>
 /* 🔥 添加平滑过渡效果 */

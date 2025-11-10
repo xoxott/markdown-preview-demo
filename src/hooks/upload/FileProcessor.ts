@@ -1,4 +1,4 @@
-import { FileTask, FileUploadOptions, UploadConfig,IFileProcessor } from './type';
+import type { FileTask, FileUploadOptions, IFileProcessor, UploadConfig } from './type';
 import FileValidator from './FileValidator';
 import FileCompressor from './FileCompressor';
 import PreviewGenerator from './PreviewGenerator';
@@ -23,10 +23,10 @@ export class FileProcessor implements IFileProcessor {
 
     // 压缩文件
     const processedFile = await this.compressFile(file);
-    
+
     // 生成预览
     const preview = await this.generatePreview(processedFile);
-    
+
     // 计算MD5（如果需要）
     let md5: string | undefined;
     if (this.config.enableDeduplication) {
@@ -34,14 +34,7 @@ export class FileProcessor implements IFileProcessor {
     }
 
     // 创建任务
-    const task = this.taskQueueManager.createTask(
-      file,
-      processedFile,
-      options,
-      this.config,
-      0,
-      preview
-    );
+    const task = this.taskQueueManager.createTask(file, processedFile, options, this.config, 0, preview);
 
     if (md5) {
       task.fileMD5 = md5;
@@ -63,7 +56,7 @@ export class FileProcessor implements IFileProcessor {
     if (!this.config.enableCompression || !file.type.startsWith('image/')) {
       return file;
     }
-    
+
     try {
       return await FileCompressor.compressImage(
         file,
@@ -81,7 +74,7 @@ export class FileProcessor implements IFileProcessor {
     if (!this.config.enablePreview || !PreviewGenerator.canGeneratePreview(file)) {
       return undefined;
     }
-    
+
     try {
       if (file.type.startsWith('image/')) {
         return await PreviewGenerator.generateImagePreview(file);

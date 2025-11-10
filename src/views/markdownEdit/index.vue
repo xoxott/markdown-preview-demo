@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { NInput, useThemeVars } from 'naive-ui';
-import MarkDown from '@/components/markdown/index.vue';
-import README from './README.md?raw'
+import { MarkdownPreview } from '@/components/markdown';
+import README from './README.md?raw';
 const themeVars = useThemeVars();
 
 const content = ref(README);
@@ -76,7 +76,7 @@ const previewStyle = computed(() => ({
     <div class="w-2/3 overflow-y-auto p-4" :style="rightStyle">
       <div class="mb-2 text-lg font-semibold">预览结果</div>
       <div class="border border-gray-200 rounded-md p-4 shadow" :style="previewStyle">
-        <MarkDown :content="content" />
+        <MarkdownPreview :content="content" />
       </div>
     </div>
   </div>

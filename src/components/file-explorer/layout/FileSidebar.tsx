@@ -1,41 +1,22 @@
-import { defineComponent, PropType, ref, h, computed } from 'vue'
-import {
-  NMenu,
-  NIcon,
-  NTree,
-  NBadge,
-  NDivider,
-  useThemeVars,
-  type MenuOption
-} from 'naive-ui'
-import {
-  Folder,
-  Clock,
-  Star,
-  Trash,
-  FileText,
-  Music,
-  Video,
-  Archive,
-  Photo,
-  Rocket,
-  File
-} from '@vicons/tabler'
+import type { PropType } from 'vue';
+import { computed, defineComponent, h, ref } from 'vue';
+import { type MenuOption, NBadge, NDivider, NIcon, NMenu, NTree, useThemeVars } from 'naive-ui';
+import { Archive, Clock, File, FileText, Folder, Music, Photo, Rocket, Star, Trash, Video } from '@vicons/tabler';
 
 export interface QuickAccessItem {
-  id: string
-  label: string
-  icon: any
-  path: string
-  count?: number
+  id: string;
+  label: string;
+  icon: any;
+  path: string;
+  count?: number;
 }
 
 export interface TreeNode {
-  key: string
-  label: string
-  children?: TreeNode[]
-  prefix?: () => any
-  [key: string]: any
+  key: string;
+  label: string;
+  children?: TreeNode[];
+  prefix?: () => any;
+  [key: string]: any;
 }
 
 export default defineComponent({
@@ -82,36 +63,33 @@ export default defineComponent({
   },
 
   setup(props) {
-    const themeVars = useThemeVars()
-    const treeExpandedKeys = ref<string[]>([])
+    const themeVars = useThemeVars();
+    const treeExpandedKeys = ref<string[]>([]);
 
     // 渲染菜单项的图标
     const renderMenuIcon = (icon: any) => {
-      return () => h(NIcon, null, { default: () => h(icon) })
-    }
+      return () => h(NIcon, null, { default: () => h(icon) });
+    };
 
     // 渲染菜单项的标签（带徽章）
     const renderMenuLabel = (item: QuickAccessItem) => {
-      return () => h(
-        'div',
-        { class: 'flex items-center justify-between w-full' },
-        [
+      return () =>
+        h('div', { class: 'flex items-center justify-between w-full' }, [
           h('span', { class: 'truncate' }, item.label),
           item.count !== undefined && item.count > 0
             ? h(NBadge, {
-              value: item.count,
-              showZero: false,
-              type: 'info',
-              max: 99
-            })
+                value: item.count,
+                showZero: false,
+                type: 'info',
+                max: 99
+              })
             : null
-        ]
-      )
-    }
+        ]);
+    };
 
     // 构建菜单选项
     const menuOptions = computed<MenuOption[]>(() => {
-      const options: MenuOption[] = []
+      const options: MenuOption[] = [];
 
       // 快速访问
       if (props.quickAccessItems.length > 0) {
@@ -123,11 +101,9 @@ export default defineComponent({
             key: item.path,
             label: item.label, // 关键：保持为字符串
             icon: renderMenuIcon(item.icon),
-            extra: item.count
-              ? () => h(NBadge, { value: item.count, type: 'info', max: 99 })
-              : undefined
+            extra: item.count ? () => h(NBadge, { value: item.count, type: 'info', max: 99 }) : undefined
           }))
-        })
+        });
       }
 
       // 文件类型
@@ -140,23 +116,21 @@ export default defineComponent({
             key: item.path,
             label: item.label,
             icon: renderMenuIcon(item.icon),
-            extra: item.count
-              ? () => h(NBadge, { value: item.count, type: 'info', max: 99 })
-              : undefined
+            extra: item.count ? () => h(NBadge, { value: item.count, type: 'info', max: 99 }) : undefined
           }))
-        })
+        });
       }
 
-      return options
-    })
+      return options;
+    });
 
     // 菜单选中的值
-    const selectedKey = computed(() => props.currentPath)
+    const selectedKey = computed(() => props.currentPath);
 
     // 处理菜单选择
     const handleMenuSelect = (key: string) => {
-      props.onNavigate(key)
-    }
+      props.onNavigate(key);
+    };
 
     // 渲染树节点前缀图标
     const renderTreePrefix = ({ option }: { option: TreeNode }) => {
@@ -167,19 +141,19 @@ export default defineComponent({
           color: themeVars.value.textColor3
         },
         { default: () => h(option.children?.length ? Folder : Folder) }
-      )
-    }
+      );
+    };
 
     // 处理树节点选择
     const handleTreeSelect = (keys: string[]) => {
       if (keys.length > 0) {
-        props.onNavigate(keys[0])
+        props.onNavigate(keys[0]);
       }
-    }
+    };
 
     return () => (
       <div
-        class="flex flex-col h-full overflow-hidden"
+        class="h-full flex flex-col overflow-hidden"
         style={{
           backgroundColor: themeVars.value.cardColor
         }}
@@ -203,10 +177,7 @@ export default defineComponent({
           <>
             <NDivider class="my-2" />
             <div class="flex-1 overflow-y-auto px-2 pb-2">
-              <div
-                class="text-xs font-medium px-3 py-2 mb-1"
-                style={{ color: themeVars.value.textColor3 }}
-              >
+              <div class="mb-1 px-3 py-2 text-xs font-medium" style={{ color: themeVars.value.textColor3 }}>
                 文件夹
               </div>
               <div
@@ -227,7 +198,7 @@ export default defineComponent({
                   expandedKeys={treeExpandedKeys.value}
                   selectedKeys={[selectedKey.value]}
                   onUpdateExpandedKeys={(keys: string[]) => {
-                    treeExpandedKeys.value = keys
+                    treeExpandedKeys.value = keys;
                   }}
                   onUpdateSelectedKeys={handleTreeSelect}
                 />
@@ -236,6 +207,6 @@ export default defineComponent({
           </>
         )}
       </div>
-    )
+    );
   }
-})
+});

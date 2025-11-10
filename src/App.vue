@@ -38,8 +38,6 @@ const watermarkProps = computed<WatermarkProps>(() => {
     zIndex: 9999
   };
 });
-
-
 </script>
 
 <template>

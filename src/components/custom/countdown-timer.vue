@@ -1,24 +1,19 @@
-<template>
-  <div class="countdown-timer">
-    <span class="label">{{ label }}</span>
-    <span class="time" :class="timeClass">{{ displayTime }}</span>
-    <span v-if="showTrend" class="trend" :class="trendClass">{{ trendIcon }}</span>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { ref, watch, computed, onBeforeUnmount } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 
-const props = withDefaults(defineProps<{
-  seconds: number;           // 后端计算的剩余秒数
-  label?: string;            // 标签文字
-  showTrend?: boolean;       // 是否显示趋势图标
-  updateThreshold?: number;  // 更新阈值（秒）
-}>(), {
-  label: '预计剩余:',
-  showTrend: false,
-  updateThreshold: 5
-});
+const props = withDefaults(
+  defineProps<{
+    seconds: number; // 后端计算的剩余秒数
+    label?: string; // 标签文字
+    showTrend?: boolean; // 是否显示趋势图标
+    updateThreshold?: number; // 更新阈值（秒）
+  }>(),
+  {
+    label: '预计剩余:',
+    showTrend: false,
+    updateThreshold: 5
+  }
+);
 
 // 状态
 const displayTime = ref('');
@@ -28,51 +23,46 @@ let lastUpdateTime = 0;
 let lastBackendTime = 0;
 let animationTimer: number | null = null;
 
-/**
- * 格式化时间显示
- */
+/** 格式化时间显示 */
 function formatTime(seconds: number): string {
   if (seconds <= 0) return '即将完成';
-  
+
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const secs = Math.floor(seconds % 60);
-  
+
   if (hours > 0) {
     return `${hours}小时${minutes}分钟`;
   } else if (minutes > 0) {
     return `${minutes}分${secs}秒`;
-  } else {
-    return `${secs}秒`;
   }
+  return `${secs}秒`;
 }
 
-/**
- * 开始倒计时动画
- */
+/** 开始倒计时动画 */
 function startCountdown() {
   // 清除旧的定时器
   if (animationTimer) {
     clearInterval(animationTimer);
   }
-  
+
   // 初始化倒计时
   countdown = props.seconds;
   lastUpdateTime = Date.now();
   displayTime.value = formatTime(countdown);
-  
+
   // 启动定时器（每秒更新）
   animationTimer = window.setInterval(() => {
     const now = Date.now();
     const elapsed = (now - lastUpdateTime) / 1000;
-    
+
     // 减少时间
     countdown = Math.max(0, countdown - elapsed);
     lastUpdateTime = now;
-    
+
     // 更新显示
     displayTime.value = formatTime(countdown);
-    
+
     // 如果时间到了，停止定时器
     if (countdown <= 0) {
       stopCountdown();
@@ -80,9 +70,7 @@ function startCountdown() {
   }, 1000);
 }
 
-/**
- * 停止倒计时
- */
+/** 停止倒计时 */
 function stopCountdown() {
   if (animationTimer) {
     clearInterval(animationTimer);
@@ -90,18 +78,16 @@ function stopCountdown() {
   }
 }
 
-/**
- * 更新趋势
- */
+/** 更新趋势 */
 function updateTrend(newTime: number) {
   if (lastBackendTime === 0) {
     trend.value = 'stable';
   } else {
     const diff = newTime - lastBackendTime;
     if (diff > 3) {
-      trend.value = 'up';    // 时间增加（速度变慢）
+      trend.value = 'up'; // 时间增加（速度变慢）
     } else if (diff < -3) {
-      trend.value = 'down';  // 时间减少（速度变快）
+      trend.value = 'down'; // 时间减少（速度变快）
     } else {
       trend.value = 'stable';
     }
@@ -120,20 +106,23 @@ const trendClass = computed(() => `trend-${trend.value}`);
 
 const trendIcon = computed(() => {
   switch (trend.value) {
-    case 'up': return '⬆️';
-    case 'down': return '⬇️';
-    default: return '→';
+    case 'up':
+      return '⬆️';
+    case 'down':
+      return '⬇️';
+    default:
+      return '→';
   }
 });
 
 // 监听后端时间变化
 watch(
   () => props.seconds,
-  (newTime) => {
+  newTime => {
     // 🔥 只在变化超过阈值时才重新开始倒计时
     // 这样可以避免频繁更新导致的抖动
     const diff = Math.abs(newTime - countdown);
-    
+
     if (diff > props.updateThreshold || animationTimer === null) {
       console.log(`🕐 时间更新: ${countdown.toFixed(0)}s -> ${newTime}s (差异: ${diff.toFixed(1)}s)`);
       updateTrend(newTime);
@@ -148,6 +137,14 @@ onBeforeUnmount(() => {
   stopCountdown();
 });
 </script>
+
+<template>
+  <div class="countdown-timer">
+    <span class="label">{{ label }}</span>
+    <span class="time" :class="timeClass">{{ displayTime }}</span>
+    <span v-if="showTrend" class="trend" :class="trendClass">{{ trendIcon }}</span>
+  </div>
+</template>
 
 <style scoped>
 .countdown-timer {
@@ -204,7 +201,8 @@ onBeforeUnmount(() => {
 
 /* 脉动动画 */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }

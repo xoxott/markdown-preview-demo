@@ -34,7 +34,7 @@ export const useMindmap = (content: Ref<string>, svgRef: Ref<SVGElement | null>)
         el,
         {
           autoFit: true,
-          paddingX: 20,
+          paddingX: 20
           // paddingY: 20
         },
         root
@@ -75,7 +75,7 @@ export const useMindmap = (content: Ref<string>, svgRef: Ref<SVGElement | null>)
     d3.select(gNode).transition().duration(300).attr('transform', newTransform.toString());
 
     // 保证内部行为一致
-    svgNode.__zoom = newTransform;
+    (svgNode as any).__zoom = newTransform;
   };
 
   return {

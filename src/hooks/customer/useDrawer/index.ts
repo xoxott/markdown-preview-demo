@@ -1,21 +1,16 @@
-import type { DrawerInstance, DrawerOptions } from '@/typings/drawer';
-import { createVNode, render, ref, watchEffect, readonly, getCurrentInstance, nextTick, type Ref } from 'vue';
-import { useThemeStore } from '@/store/modules/theme';
+import { type Ref, createVNode, getCurrentInstance, nextTick, readonly, ref, render, watchEffect } from 'vue';
 import { storeToRefs } from 'pinia';
 import { NConfigProvider, darkTheme } from 'naive-ui';
+import { useThemeStore } from '@/store/modules/theme';
+import type { DrawerInstance, DrawerOptions } from '@/typings/drawer';
 import { DrawerContainer } from './DrawerContainer';
 
-/**
- * 抽屉管理器（单例模式）
- * 支持嵌套抽屉和多实例管理
- */
+/** 抽屉管理器（单例模式） 支持嵌套抽屉和多实例管理 */
 class DrawerManager {
   private instances: Map<symbol, DrawerInstance> = new Map();
   private instanceStack: symbol[] = []; // 用于管理嵌套层级
 
-  /**
-   * 创建抽屉实例
-   */
+  /** 创建抽屉实例 */
   async createDrawer(options: DrawerOptions): Promise<DrawerInstance> {
     const container = document.createElement('div');
     document.body.appendChild(container);
@@ -159,25 +154,19 @@ class DrawerManager {
     return drawerInstance;
   }
 
-  /**
-   * 关闭所有抽屉
-   */
+  /** 关闭所有抽屉 */
   closeAll() {
     this.instances.forEach(instance => instance.close());
   }
 
-  /**
-   * 销毁所有抽屉
-   */
+  /** 销毁所有抽屉 */
   destroyAll() {
     this.instances.forEach(instance => instance.destroy());
     this.instances.clear();
     this.instanceStack = [];
   }
 
-  /**
-   * 关闭最顶层的抽屉（用于嵌套场景）
-   */
+  /** 关闭最顶层的抽屉（用于嵌套场景） */
   closeTop() {
     const topId = this.instanceStack[this.instanceStack.length - 1];
     if (topId) {
@@ -186,23 +175,17 @@ class DrawerManager {
     }
   }
 
-  /**
-   * 获取当前打开的抽屉数量
-   */
+  /** 获取当前打开的抽屉数量 */
   get count() {
     return this.instances.size;
   }
 
-  /**
-   * 获取所有抽屉实例
-   */
+  /** 获取所有抽屉实例 */
   getInstances() {
     return Array.from(this.instances.values());
   }
 
-  /**
-   * 获取最顶层的抽屉实例
-   */
+  /** 获取最顶层的抽屉实例 */
   getTopInstance() {
     const topId = this.instanceStack[this.instanceStack.length - 1];
     return topId ? this.instances.get(topId) : undefined;
@@ -212,16 +195,12 @@ class DrawerManager {
 // 全局抽屉管理器实例
 const drawerManager = new DrawerManager();
 
-/**
- * 创建抽屉
- */
+/** 创建抽屉 */
 export function createDrawer(options: DrawerOptions): Promise<DrawerInstance> {
   return drawerManager.createDrawer(options);
 }
 
-/**
- * 导出管理器方法
- */
+/** 导出管理器方法 */
 export const closeAllDrawers = () => drawerManager.closeAll();
 export const destroyAllDrawers = () => drawerManager.destroyAll();
 export const closeTopDrawer = () => drawerManager.closeTop();
@@ -229,21 +208,14 @@ export const getDrawerCount = () => drawerManager.count;
 export const getDrawerInstances = () => drawerManager.getInstances();
 export const getTopDrawerInstance = () => drawerManager.getTopInstance();
 
-/**
- * useDrawer Hook
- * 提供便捷的抽屉操作方法
- */
+/** useDrawer Hook 提供便捷的抽屉操作方法 */
 export const useDrawer = () => {
-  /**
-   * 打开普通抽屉
-   */
+  /** 打开普通抽屉 */
   const open = (options: DrawerOptions) => {
     return createDrawer(options);
   };
 
-  /**
-   * 打开确认抽屉（带确认和取消按钮）
-   */
+  /** 打开确认抽屉（带确认和取消按钮） */
   const confirm = (options: Omit<DrawerOptions, 'showFooter'>) => {
     return createDrawer({
       ...options,
@@ -253,9 +225,7 @@ export const useDrawer = () => {
     });
   };
 
-  /**
-   * 打开信息抽屉（仅确认按钮）
-   */
+  /** 打开信息抽屉（仅确认按钮） */
   const info = (options: Omit<DrawerOptions, 'showFooter' | 'confirmButton'>) => {
     return createDrawer({
       ...options,
@@ -265,9 +235,7 @@ export const useDrawer = () => {
     });
   };
 
-  /**
-   * 打开成功抽屉
-   */
+  /** 打开成功抽屉 */
   const success = (options: Omit<DrawerOptions, 'showFooter' | 'confirmButton'>) => {
     return createDrawer({
       ...options,
@@ -277,9 +245,7 @@ export const useDrawer = () => {
     });
   };
 
-  /**
-   * 打开警告抽屉
-   */
+  /** 打开警告抽屉 */
   const warning = (options: Omit<DrawerOptions, 'showFooter' | 'confirmButton'>) => {
     return createDrawer({
       ...options,
@@ -289,9 +255,7 @@ export const useDrawer = () => {
     });
   };
 
-  /**
-   * 打开错误抽屉
-   */
+  /** 打开错误抽屉 */
   const error = (options: Omit<DrawerOptions, 'showFooter' | 'confirmButton'>) => {
     return createDrawer({
       ...options,

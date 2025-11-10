@@ -7,9 +7,7 @@
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 // ==================== 常量定义 ====================
-/**
- * 上传模块全局常量
- */
+/** 上传模块全局常量 */
 export const CONSTANTS = {
   /** 重试相关配置 */
   RETRY: {
@@ -22,7 +20,7 @@ export const CONSTANTS = {
     /** 指数退避倍数 */
     BACKOFF_MULTIPLIER: 1.5,
     /** 最大重试次数 */
-    MAX_RETRIES:3
+    MAX_RETRIES: 3
   },
 
   /** 网络相关配置 */
@@ -36,8 +34,8 @@ export const CONSTANTS = {
       /** 大于此值判定为良好网络 */
       GOOD: 1000,
       /** 大于此值判定为一般网络 */
-      FAIR: 100,
-    },
+      FAIR: 100
+    }
   },
 
   /** 上传进度相关配置 */
@@ -49,7 +47,7 @@ export const CONSTANTS = {
     /** 文件合并结束进度（百分比） */
     MERGE_END: 95,
     /** 文件合并进度（百分比） */
-    COMPLETE:100
+    COMPLETE: 100
   },
 
   /** 并发控制相关 */
@@ -63,50 +61,50 @@ export const CONSTANTS = {
     /** 默认同时上传文件数,并发数量 */
     DEFAULT_FILES: 10,
     /** 默认同时上传分片数，并发切块 */
-    DEFAULT_CHUNKS: 10,
+    DEFAULT_CHUNKS: 10
   },
 
   /** 可重试的错误关键字，用于判断是否需要自动重试 */
   RETRYABLE_ERROR_KEYWORDS: [
-    'networkerror', 
+    'networkerror',
     'timeouterror',
     'aborterror',
     'fetch',
     'network',
     'timeout',
-    '5', // 表示 5xx 服务器错误
+    '5' // 表示 5xx 服务器错误
   ],
 
   /** 上传相关配置 */
-  UPLOAD:{
+  UPLOAD: {
     /** 超时时间 */
-    TIMEOUT:60000,
+    TIMEOUT: 60000,
     /** 分块大小 */
-    CHUNK_SIZE:2 * 1024 * 1024,
+    CHUNK_SIZE: 2 * 1024 * 1024,
     /** 最小分块大小 */
-    MIN_CHUNK_SIZE:512 * 1024,
+    MIN_CHUNK_SIZE: 512 * 1024,
     /** 最大分块大小 */
-    MAX_CHUNK_SIZE:20 * 1024 * 1024,
+    MAX_CHUNK_SIZE: 20 * 1024 * 1024,
     /** 最大文件 */
-    MAX_FILESIZE:1 * 1024 * 1024 * 1024,
+    MAX_FILESIZE: 1 * 1024 * 1024 * 1024,
     /** 最大文件数量 */
     MAX_FILES: 500
   },
 
   /** 压缩相关配置 */
-  COMPRESSION:{
-      /** 图片压缩启用状态 */
-      ENABLE_COMPRESSION:true,
-      /** 压缩质量百分比 */
-      COMPRESSION_QUALITY:0.8, 
+  COMPRESSION: {
+    /** 图片压缩启用状态 */
+    ENABLE_COMPRESSION: true,
+    /** 压缩质量百分比 */
+    COMPRESSION_QUALITY: 0.8
   },
   /** 预览相关配置 */
-  PREVIEW:{
-      /** 预览启用状态 */
-      ENABLE_PREVIEW:true,
-      /** 预览图宽度 */
-      PREVIEW_MAX_WIDTH:200,
-      /** 预览图高度 */
-      PREVIEW_MAX_HEIGHT:200
+  PREVIEW: {
+    /** 预览启用状态 */
+    ENABLE_PREVIEW: true,
+    /** 预览图宽度 */
+    PREVIEW_MAX_WIDTH: 200,
+    /** 预览图高度 */
+    PREVIEW_MAX_HEIGHT: 200
   }
 } as const;

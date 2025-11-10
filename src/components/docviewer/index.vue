@@ -1,41 +1,7 @@
-<template>
-  <div class="doc-viewer">
-    <div class="doc-sidebar" v-if="showSidebar">
-      <nav class="doc-nav">
-        <ul>
-          <li>
-            <router-link to="/docs">📖 Overview</router-link>
-          </li>
-          <li v-for="module in modules" :key="module.name">
-            <router-link :to="`/docs/${module.path}`">
-              {{ module.name }}
-            </router-link>
-          </li>
-        </ul>
-      </nav>
-    </div>
-    
-    <div class="doc-content" :class="{ 'with-sidebar': showSidebar }">
-      <div class="doc-header">
-        <button @click="showSidebar = !showSidebar" class="sidebar-toggle">
-          ☰ Menu
-        </button>
-        <h1>{{ pageTitle }}</h1>
-      </div>
-      
-      <div 
-        class="markdown-content" 
-        v-html="processedContent"
-        @click="handleLinkClick"
-      ></div>
-    </div>
-  </div>
-</template>
-
 <script>
-import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { marked } from 'marked'
+import { computed, onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { marked } from 'marked';
 
 export default {
   name: 'DocViewer',
@@ -46,113 +12,109 @@ export default {
     }
   },
   setup(props) {
-    const route = useRoute()
-    const router = useRouter()
-    const rawContent = ref('')
-    const showSidebar = ref(true)
-    
+    const route = useRoute();
+    const router = useRouter();
+    const rawContent = ref('');
+    const showSidebar = ref(true);
+
     // 模块列表（根据你的实际文档结构调整）
     const modules = ref([
       { name: 'User Module', path: 'modules/user' },
-      { name: 'Auth Module', path: 'modules/auth' }, 
+      { name: 'Auth Module', path: 'modules/auth' },
       { name: 'Utils Module', path: 'modules/utils' },
       { name: 'Classes', path: 'classes' },
       { name: 'Interfaces', path: 'interfaces' }
-    ])
-    
+    ]);
+
     const pageTitle = computed(() => {
-      if (props.docFile === 'README') return 'API Documentation'
-      return props.docFile.replace(/\//g, ' / ').replace(/([A-Z])/g, ' $1').trim()
-    })
-    
+      if (props.docFile === 'README') return 'API Documentation';
+      return props.docFile
+        .replace(/\//g, ' / ')
+        .replace(/([A-Z])/g, ' $1')
+        .trim();
+    });
+
     // 处理 Markdown 内容，转换链接
     const processedContent = computed(() => {
-      if (!rawContent.value) return ''
-      
-      let content = rawContent.value
-      
+      if (!rawContent.value) return '';
+
+      let content = rawContent.value;
+
       // 转换相对链接为 Vue Router 链接
-      content = content.replace(
-        /\[([^\]]+)\]\(([^)]+)\.md\)/g, 
-        (match, text, link) => {
-          // 移除 .md 扩展名并转换为路由路径
-          const routePath = convertToRoutePath(link)
-          return `<router-link to="${routePath}">${text}</router-link>`
-        }
-      )
-      
+      content = content.replace(/\[([^\]]+)\]\(([^)]+)\.md\)/g, (match, text, link) => {
+        // 移除 .md 扩展名并转换为路由路径
+        const routePath = convertToRoutePath(link);
+        return `<router-link to="${routePath}">${text}</router-link>`;
+      });
+
       // 转换锚点链接
-      content = content.replace(
-        /\[([^\]]+)\]\(#([^)]+)\)/g,
-        '<a href="#$2" class="anchor-link">$1</a>'
-      )
-      
+      content = content.replace(/\[([^\]]+)\]\(#([^)]+)\)/g, '<a href="#$2" class="anchor-link">$1</a>');
+
       // 使用 marked 解析 Markdown
       return marked(content, {
-        highlight: function(code, lang) {
+        highlight(code, lang) {
           // 可以集成代码高亮库如 Prism.js
-          return `<pre><code class="language-${lang}">${code}</code></pre>`
+          return `<pre><code class="language-${lang}">${code}</code></pre>`;
         }
-      })
-    })
-    
+      });
+    });
+
     // 转换文档链接为路由路径
     function convertToRoutePath(link) {
       // 移除开头的 ./
-      link = link.replace(/^\.\//, '')
-      
+      link = link.replace(/^\.\//, '');
+
       // 处理不同类型的链接
       if (link.startsWith('classes/')) {
-        return `/docs/${link}`
+        return `/docs/${link}`;
       } else if (link.startsWith('interfaces/')) {
-        return `/docs/${link}`
+        return `/docs/${link}`;
       } else if (link.startsWith('modules/')) {
-        return `/docs/${link}`
+        return `/docs/${link}`;
       } else if (link === 'README') {
-        return '/docs'
-      } else {
-        return `/docs/${link}`
+        return '/docs';
       }
+      return `/docs/${link}`;
     }
-    
+
     // 处理点击链接事件
     function handleLinkClick(event) {
-      const target = event.target
-      
+      const target = event.target;
+
       if (target.tagName === 'A' && target.classList.contains('anchor-link')) {
-        event.preventDefault()
-        const anchor = target.getAttribute('href').substring(1)
-        const element = document.getElementById(anchor)
+        event.preventDefault();
+        const anchor = target.getAttribute('href').substring(1);
+        const element = document.getElementById(anchor);
         if (element) {
-          element.scrollIntoView({ behavior: 'smooth' })
+          element.scrollIntoView({ behavior: 'smooth' });
         }
       }
     }
-    
+
     // 加载文档内容
     async function loadDoc() {
       try {
-        const docPath = `${props.docFile}.md`
+        const docPath = `${props.docFile}.md`;
         // 这里需要根据你的实际情况调整文档文件的加载方式
-        const response = await fetch(`/docs/${docPath}`)
+        const response = await fetch(`/docs/${docPath}`);
         if (response.ok) {
-          rawContent.value = await response.text()
+          rawContent.value = await response.text();
         } else {
-          rawContent.value = '# 文档未找到\n\n请检查文档路径是否正确。'
+          rawContent.value = '# 文档未找到\n\n请检查文档路径是否正确。';
         }
       } catch (error) {
-        console.error('加载文档失败:', error)
-        rawContent.value = '# 加载错误\n\n文档加载失败，请稍后重试。'
+        console.error('加载文档失败:', error);
+        rawContent.value = '# 加载错误\n\n文档加载失败，请稍后重试。';
       }
     }
-    
+
     // 监听路由变化
-    watch(() => props.docFile, loadDoc, { immediate: true })
-    
+    watch(() => props.docFile, loadDoc, { immediate: true });
+
     onMounted(() => {
-      loadDoc()
-    })
-    
+      loadDoc();
+    });
+
     return {
       rawContent,
       processedContent,
@@ -160,10 +122,38 @@ export default {
       modules,
       pageTitle,
       handleLinkClick
-    }
+    };
   }
-}
+};
 </script>
+
+<template>
+  <div class="doc-viewer">
+    <div v-if="showSidebar" class="doc-sidebar">
+      <nav class="doc-nav">
+        <ul>
+          <li>
+            <RouterLink to="/docs">📖 Overview</RouterLink>
+          </li>
+          <li v-for="module in modules" :key="module.name">
+            <RouterLink :to="`/docs/${module.path}`">
+              {{ module.name }}
+            </RouterLink>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="doc-content" :class="{ 'with-sidebar': showSidebar }">
+      <div class="doc-header">
+        <button class="sidebar-toggle" @click="showSidebar = !showSidebar">☰ Menu</button>
+        <h1>{{ pageTitle }}</h1>
+      </div>
+
+      <div class="markdown-content" @click="handleLinkClick" v-html="processedContent"></div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .doc-viewer {
@@ -242,7 +232,7 @@ export default {
   background: white;
   padding: 30px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Markdown 样式 */
@@ -305,11 +295,11 @@ export default {
     z-index: 1000;
     transition: left 0.3s ease;
   }
-  
+
   .doc-sidebar.show {
     left: 0;
   }
-  
+
   .doc-content {
     margin-left: 0;
   }

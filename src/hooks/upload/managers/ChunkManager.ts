@@ -1,9 +1,10 @@
-import { FileTask, ChunkInfo, ChunkStatus, ChunkUploadResponse, MergeResponse, UploadConfig,IChunkManager } from '../type';
+import type { ChunkInfo, ChunkUploadResponse, FileTask, IChunkManager, MergeResponse, UploadConfig } from '../type';
+import { ChunkStatus } from '../type';
 import SmartChunkCalculator from '../calculators/SmartChunkCalculator';
 import { calculateFileMD5 } from '../utils';
 import { CONSTANTS } from '../constants';
 
-/**  分片管理器  */
+/** 分片管理器 */
 export class ChunkManager implements IChunkManager {
   constructor(
     private config: UploadConfig,
@@ -22,7 +23,7 @@ export class ChunkManager implements IChunkManager {
     for (let i = 0; i < totalChunks; i++) {
       const start = i * chunkSize;
       const end = Math.min(start + chunkSize, task.file.size);
-      
+
       chunks.push({
         index: i,
         start,
@@ -46,22 +47,18 @@ export class ChunkManager implements IChunkManager {
     return chunks;
   }
 
-  async uploadChunk(
-    task: FileTask,
-    chunk: ChunkInfo,
-    abortSignal: AbortSignal
-  ): Promise<ChunkUploadResponse> {
+  async uploadChunk(task: FileTask, chunk: ChunkInfo, abortSignal: AbortSignal): Promise<ChunkUploadResponse> {
     const startTime = performance.now();
-    
+
     try {
       chunk.status = ChunkStatus.UPLOADING;
-      
+
       const requestData = this.config.chunkUploadTransformer!({
         task,
         chunk,
         customParams: this.config.customParams
       });
-      
+
       const isFormData = requestData instanceof FormData;
       const headers = {
         ...this.config.headers,
@@ -80,14 +77,14 @@ export class ChunkManager implements IChunkManager {
       }
 
       const result: ChunkUploadResponse = await response.json();
-      
+
       chunk.status = ChunkStatus.SUCCESS;
       chunk.result = result;
       chunk.uploadTime = performance.now() - startTime;
-      
+
       // 更新进度
       this.progressCallback(chunk, chunk.size, chunk.uploadTime);
-      
+
       return result;
     } catch (error: any) {
       chunk.status = ChunkStatus.ERROR;
@@ -101,7 +98,7 @@ export class ChunkManager implements IChunkManager {
       task,
       customParams: this.config.customParams
     });
-    
+
     const isFormData = requestData instanceof FormData;
     const headers = {
       ...this.config.headers,
@@ -123,10 +120,6 @@ export class ChunkManager implements IChunkManager {
   }
 
   calculateOptimalChunkSize(fileSize: number, averageSpeed: number): number {
-    return SmartChunkCalculator.calculateOptimalChunkSize(
-      fileSize,
-      averageSpeed,
-      this.config
-    );
+    return SmartChunkCalculator.calculateOptimalChunkSize(fileSize, averageSpeed, this.config);
   }
 }

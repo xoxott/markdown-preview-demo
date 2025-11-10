@@ -1,11 +1,12 @@
 /**
  * 缓存管理器
- * 
+ *
  * 提供简单的基于 Map 的缓存机制，支持：
- *  - 最大缓存条数限制
- *  - TTL（时间有效性）
- *  - 自动删除最旧条目
- *  - LRU（最近最少使用）策略
+ *
+ * - 最大缓存条数限制
+ * - TTL（时间有效性）
+ * - 自动删除最旧条目
+ * - LRU（最近最少使用）策略
  */
 export default class CacheManager {
   private cache = new Map<string, { value: any; timestamp: number }>();
@@ -14,7 +15,7 @@ export default class CacheManager {
 
   /**
    * 构造函数
-   * 
+   *
    * @param maxSize - 最大缓存条数，默认 1000
    * @param ttl - 缓存有效期（毫秒），默认 30 分钟
    */
@@ -25,7 +26,7 @@ export default class CacheManager {
 
   /**
    * 设置缓存
-   * 
+   *
    * @param key - 缓存 key
    * @param value - 缓存值
    * @param customTtl - 自定义TTL（可选）
@@ -53,7 +54,7 @@ export default class CacheManager {
 
   /**
    * 获取缓存
-   * 
+   *
    * @param key - 缓存 key
    * @returns 缓存值，如果不存在或已过期则返回 null
    */
@@ -76,7 +77,7 @@ export default class CacheManager {
 
   /**
    * 删除指定缓存
-   * 
+   *
    * @param key - 缓存 key
    * @returns 是否删除成功
    */
@@ -86,7 +87,7 @@ export default class CacheManager {
 
   /**
    * 批量删除缓存
-   * 
+   *
    * @param keys - 要删除的 key 数组
    * @returns 删除的条数
    */
@@ -102,7 +103,7 @@ export default class CacheManager {
 
   /**
    * 删除符合条件的缓存
-   * 
+   *
    * @param predicate - 判断函数
    * @returns 删除的条数
    */
@@ -127,7 +128,7 @@ export default class CacheManager {
 
   /**
    * 检查缓存是否存在（不检查过期）
-   * 
+   *
    * @param key - 缓存 key
    * @returns 是否存在
    */
@@ -137,25 +138,25 @@ export default class CacheManager {
 
   /**
    * 检查缓存是否存在且有效（检查过期）
-   * 
+   *
    * @param key - 缓存 key
    * @returns 是否存在且有效
    */
   isValid(key: string): boolean {
     const item = this.cache.get(key);
     if (!item) return false;
-    
+
     if (Date.now() > item.timestamp) {
       this.cache.delete(key);
       return false;
     }
-    
+
     return true;
   }
 
   /**
    * 获取缓存大小
-   * 
+   *
    * @returns 当前缓存条数
    */
   size(): number {
@@ -164,7 +165,7 @@ export default class CacheManager {
 
   /**
    * 获取所有缓存的 key
-   * 
+   *
    * @returns key 数组
    */
   keys(): string[] {
@@ -173,7 +174,7 @@ export default class CacheManager {
 
   /**
    * 清理过期缓存
-   * 
+   *
    * @returns 清理的条数
    */
   cleanup(): number {
@@ -197,7 +198,7 @@ export default class CacheManager {
 
   /**
    * 更新缓存的 TTL
-   * 
+   *
    * @param key - 缓存 key
    * @param ttl - 新的 TTL（毫秒）
    * @returns 是否更新成功
@@ -212,7 +213,7 @@ export default class CacheManager {
 
   /**
    * 获取缓存统计信息
-   * 
+   *
    * @returns 统计信息
    */
   stats(): {
@@ -240,36 +241,34 @@ export default class CacheManager {
     };
   }
 
-  /**
-   * 清空所有缓存
-   */
+  /** 清空所有缓存 */
   clear(): void {
     this.cache.clear();
   }
 
   /**
    * 导出缓存数据（用于持久化）
-   * 
+   *
    * @returns 缓存数据
    */
   export(): Array<[string, any, number]> {
     const data: Array<[string, any, number]> = [];
-    
+
     this.cache.forEach((item, key) => {
       data.push([key, item.value, item.timestamp]);
     });
-    
+
     return data;
   }
 
   /**
    * 导入缓存数据（从持久化恢复）
-   * 
+   *
    * @param data - 缓存数据
    */
   import(data: Array<[string, any, number]>): void {
     this.clear();
-    
+
     data.forEach(([key, value, timestamp]) => {
       // 只导入未过期的数据
       if (timestamp > Date.now()) {
