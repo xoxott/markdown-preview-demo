@@ -10,6 +10,7 @@ import { useDialog } from '../hooks/useDialog'
 import { createOperationsConfig } from '../config/operations.config'
 import { createShortcutsConfig } from '../config/shortcuts.config'
 import { createContextMenuHandler } from '../config/contextmenu.config'
+import { LayoutConfig } from '../layout/ResizableLayout'
 
 export interface UseFileExplorerLogicOptions {
   /** 初始文件列表 */
@@ -34,7 +35,12 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
   const viewMode = ref<ViewMode>('grid')
   const mockItems = ref<FileItem[]>(initialItems)
   const loading = ref(false)
-  const loadingTip = ref('加载中...')
+  const loadingTip = ref('请稍等...')
+  const layoutConfig = ref<LayoutConfig>({
+    leftWidth: 200,
+    rightWidth: 400,
+    showRight: true
+  })
 
   // ==================== 拖拽系统 ====================
   const dragDrop = useFileDragDropEnhanced({
@@ -121,6 +127,7 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
     selectedFiles,
     loading,
     loadingTip,
+    layoutConfig,
 
     // 拖拽
     dragDrop,

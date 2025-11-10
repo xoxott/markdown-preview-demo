@@ -82,7 +82,7 @@ export default defineComponent({
 
         {/* 视图布局 */}
         <div class="flex-1 overflow-hidden">
-          <ResizableLayout v-model:collapsed={logic.collapsed.value}>
+          <ResizableLayout v-model:collapsed={logic.collapsed.value} config={logic.layoutConfig.value}>
             {{
               left: (
                 <FileSidebar
