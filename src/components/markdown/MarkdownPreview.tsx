@@ -6,7 +6,7 @@ import '@primer/css/markdown/index.scss';
 import 'github-markdown-css/github-markdown.css';
 import 'highlight.js/styles/github-dark.css';
 import { useMarkdownTheme } from './hooks/useMarkdownTheme';
-import markdownVuePlugin from './plugins/markdown-render-vnode-v2';
+import markdownVuePlugin from './plugins/v2/markdown-render-vnode-v2';
 import { CodeBlock } from './components/CodeBlock';
 import { MermaidRenderer } from './components/MermaidRenderer';
 import { MindmapRenderer } from './components/MindmapRenderer';

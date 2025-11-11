@@ -4,8 +4,8 @@
  */
 
 // 导出 V2 版本作为默认版本
-export { default as MarkdownVuePlugin } from './markdown-render-vnode-v2';
-export { default } from './markdown-render-vnode-v2';
+export { default as MarkdownVuePlugin } from './v2/markdown-render-vnode-v2';
+export { default } from './v2/markdown-render-vnode-v2';
 
 // 导出类型
 export type {

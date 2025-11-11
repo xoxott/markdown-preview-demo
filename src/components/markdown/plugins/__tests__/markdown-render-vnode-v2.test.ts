@@ -5,7 +5,7 @@
 import MarkdownIt from 'markdown-it';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { VNode } from 'vue';
-import MarkdownVuePluginV2 from '../markdown-render-vnode-v2';
+import MarkdownVuePluginV2 from '../v2/markdown-render-vnode-v2';
 
 describe('MarkdownVuePluginV2', () => {
   let md: MarkdownIt;

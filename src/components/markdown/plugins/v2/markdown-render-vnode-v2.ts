@@ -6,17 +6,17 @@
 import type MarkdownIt from 'markdown-it';
 import type { VNode } from 'vue';
 import { Fragment, createVNode } from 'vue';
-import { PERFORMANCE_CONFIG } from './v2/constants';
-import { defaultRenderRules, setCodeRendererOptions } from './v2/renderers';
-import { processToken } from './v2/token-processor';
+import { PERFORMANCE_CONFIG } from './constants';
+import { defaultRenderRules, setCodeRendererOptions } from './renderers';
+import { processToken } from './token-processor';
 import type {
   MarkdownRenderer,
   RenderEnv,
   RenderOptions,
   Token,
   VueMarkdownPluginOptions
-} from './v2/types';
-import { createCommentNode, createFragmentNode, createHtmlVNode, validateAttrName } from './v2/utils';
+} from './types';
+import { createCommentNode, createFragmentNode, createHtmlVNode, validateAttrName } from './utils';
 
 /** VNode 缓存 */
 const vnodeCache = new Map<string, VNode>();
@@ -202,9 +202,9 @@ export default MarkdownVuePluginV2;
 // 导出类型和工具
 export type {
   CodeBlockMeta, MarkdownRenderer, RenderEnv, RenderOptions, Token, VueMarkdownPluginOptions
-} from './v2/types';
+} from './types';
 
-export * from './v2/constants';
-export { defaultRenderRules } from './v2/renderers';
-export * from './v2/utils';
+export * from './constants';
+export { defaultRenderRules } from './renderers';
+export * from './utils';
 
