@@ -15,6 +15,7 @@ import echartsRender from './modules/echarts-render.vue';
 import mermaidRender from './modules/mermaid-render.vue';
 import mindmapRender from './modules/mindmap-render.vue';
 import markdwonVuePlugn from './plugins/markdown-render-vnode';
+import markdwonVuePlugnV2 from './plugins/markdown-render-vnode-v2';
 const themeVars = useThemeVars();
 const themeStore = useThemeStore();
 const { darkMode } = storeToRefs(themeStore);

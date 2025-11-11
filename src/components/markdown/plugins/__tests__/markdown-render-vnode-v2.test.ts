@@ -2,11 +2,10 @@
  * Markdown 渲染插件 V2 单元测试
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
 import MarkdownIt from 'markdown-it';
-import MarkdownVuePluginV2 from '../markdown-render-vnode-v2';
+import { beforeEach, describe, expect, it } from 'vitest';
 import type { VNode } from 'vue';
-import { Fragment, Text } from 'vue';
+import MarkdownVuePluginV2 from '../markdown-render-vnode-v2';
 
 describe('MarkdownVuePluginV2', () => {
   let md: MarkdownIt;
@@ -24,7 +23,7 @@ describe('MarkdownVuePluginV2', () => {
     it('应该正确渲染纯文本', () => {
       const tokens = md.parse('Hello World', {});
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
-      
+
       expect(vnodes).toBeDefined();
       expect(Array.isArray(vnodes)).toBe(true);
       expect(vnodes.length).toBeGreaterThan(0);
@@ -33,7 +32,7 @@ describe('MarkdownVuePluginV2', () => {
     it('应该正确渲染段落', () => {
       const tokens = md.parse('This is a paragraph.', {});
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
-      
+
       const paragraph = vnodes.find(node => node.type === 'p');
       expect(paragraph).toBeDefined();
     });
@@ -42,7 +41,7 @@ describe('MarkdownVuePluginV2', () => {
       const content = 'Paragraph 1\n\nParagraph 2\n\nParagraph 3';
       const tokens = md.parse(content, {});
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
-      
+
       const paragraphs = vnodes.filter(node => node.type === 'p');
       expect(paragraphs.length).toBe(3);
     });
@@ -52,7 +51,7 @@ describe('MarkdownVuePluginV2', () => {
     it('应该正确渲染行内代码', () => {
       const tokens = md.parse('This is `inline code` here', {});
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
-      
+
       expect(vnodes.length).toBeGreaterThan(0);
       // 检查是否包含 code 元素
       const hasCode = JSON.stringify(vnodes).includes('"code"');
@@ -63,7 +62,7 @@ describe('MarkdownVuePluginV2', () => {
       const content = '```javascript\nconsole.log("Hello");\n```';
       const tokens = md.parse(content, {});
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
-      
+
       expect(vnodes.length).toBeGreaterThan(0);
       // 检查是否包含 pre 元素
       const hasPre = vnodes.some(node => node.type === 'pre');
@@ -74,7 +73,7 @@ describe('MarkdownVuePluginV2', () => {
       const content = '```python\nprint("Hello")\n```';
       const tokens = md.parse(content, {});
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
-      
+
       const preNode = vnodes.find(node => node.type === 'pre');
       expect(preNode).toBeDefined();
       expect(preNode?.props?.['data-lang']).toBe('python');
@@ -86,7 +85,7 @@ describe('MarkdownVuePluginV2', () => {
       const content = '<div>HTML content</div>';
       const tokens = md.parse(content, {});
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
-      
+
       expect(vnodes).toBeDefined();
       expect(vnodes.length).toBeGreaterThan(0);
     });
@@ -95,7 +94,7 @@ describe('MarkdownVuePluginV2', () => {
       const content = 'Text with <span>HTML</span> inline';
       const tokens = md.parse(content, {});
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
-      
+
       expect(vnodes).toBeDefined();
     });
   });
@@ -105,7 +104,7 @@ describe('MarkdownVuePluginV2', () => {
       const content = '- Item 1\n- Item 2\n- Item 3';
       const tokens = md.parse(content, {});
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
-      
+
       const ulNode = vnodes.find(node => node.type === 'ul');
       expect(ulNode).toBeDefined();
     });
@@ -114,7 +113,7 @@ describe('MarkdownVuePluginV2', () => {
       const content = '1. First\n2. Second\n3. Third';
       const tokens = md.parse(content, {});
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
-      
+
       const olNode = vnodes.find(node => node.type === 'ol');
       expect(olNode).toBeDefined();
     });
@@ -125,7 +124,7 @@ describe('MarkdownVuePluginV2', () => {
       const content = '[Link text](https://example.com)';
       const tokens = md.parse(content, {});
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
-      
+
       expect(vnodes).toBeDefined();
       const linkExists = JSON.stringify(vnodes).includes('https://example.com');
       expect(linkExists).toBe(true);
@@ -135,7 +134,7 @@ describe('MarkdownVuePluginV2', () => {
       const content = '![Alt text](https://example.com/image.jpg)';
       const tokens = md.parse(content, {});
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
-      
+
       expect(vnodes).toBeDefined();
       const hasImg = JSON.stringify(vnodes).includes('img');
       expect(hasImg).toBe(true);
@@ -146,7 +145,7 @@ describe('MarkdownVuePluginV2', () => {
     it('应该正确渲染 H1 标题', () => {
       const tokens = md.parse('# Heading 1', {});
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
-      
+
       const h1Node = vnodes.find(node => node.type === 'h1');
       expect(h1Node).toBeDefined();
     });
@@ -155,11 +154,11 @@ describe('MarkdownVuePluginV2', () => {
       const content = '# H1\n## H2\n### H3';
       const tokens = md.parse(content, {});
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
-      
+
       const h1 = vnodes.find(node => node.type === 'h1');
       const h2 = vnodes.find(node => node.type === 'h2');
       const h3 = vnodes.find(node => node.type === 'h3');
-      
+
       expect(h1).toBeDefined();
       expect(h2).toBeDefined();
       expect(h3).toBeDefined();
@@ -171,7 +170,7 @@ describe('MarkdownVuePluginV2', () => {
       const content = '> This is a quote';
       const tokens = md.parse(content, {});
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
-      
+
       const blockquote = vnodes.find(node => node.type === 'blockquote');
       expect(blockquote).toBeDefined();
     });
@@ -182,18 +181,18 @@ describe('MarkdownVuePluginV2', () => {
       const content = 'Line 1  \nLine 2';
       const tokens = md.parse(content, {});
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
-      
+
       expect(vnodes).toBeDefined();
     });
 
     it('应该正确处理 breaks 选项', () => {
       const mdWithBreaks = new MarkdownIt({ breaks: true });
       mdWithBreaks.use(MarkdownVuePluginV2);
-      
+
       const content = 'Line 1\nLine 2';
       const tokens = mdWithBreaks.parse(content, {});
       const vnodes = mdWithBreaks.renderer.render(tokens, mdWithBreaks.options, {}) as unknown as VNode[];
-      
+
       expect(vnodes).toBeDefined();
     });
   });
@@ -201,12 +200,12 @@ describe('MarkdownVuePluginV2', () => {
   describe('性能测试', () => {
     it('应该能快速渲染大量内容', () => {
       const content = Array(100).fill('# Heading\n\nParagraph content\n\n- List item').join('\n\n');
-      
+
       const start = performance.now();
       const tokens = md.parse(content, {});
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
       const duration = performance.now() - start;
-      
+
       expect(vnodes).toBeDefined();
       expect(duration).toBeLessThan(1000); // 应在 1 秒内完成
     });
@@ -229,12 +228,12 @@ const code = "test";
 console.log(code);
 \`\`\`
       `.trim();
-      
+
       const start = performance.now();
       const tokens = md.parse(content, {});
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
       const duration = performance.now() - start;
-      
+
       expect(vnodes).toBeDefined();
       expect(vnodes.length).toBeGreaterThan(0);
       expect(duration).toBeLessThan(500);
@@ -246,7 +245,7 @@ console.log(code);
       const content = '<script>alert("XSS")</script>';
       const tokens = md.parse(content, {});
       const vnodes = md.renderer.render(tokens, md.options, { safeMode: true }) as unknown as VNode[];
-      
+
       expect(vnodes).toBeDefined();
     });
 
@@ -254,7 +253,7 @@ console.log(code);
       const content = '[Link](javascript:alert("XSS"))';
       const tokens = md.parse(content, {});
       const vnodes = md.renderer.render(tokens, md.options, { safeMode: true }) as unknown as VNode[];
-      
+
       expect(vnodes).toBeDefined();
     });
   });
