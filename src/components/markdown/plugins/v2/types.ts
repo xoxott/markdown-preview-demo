@@ -4,7 +4,6 @@
  */
 
 import type { Component, VNode } from 'vue';
-import type MarkdownIt from 'markdown-it';
 import type Token from 'markdown-it/lib/token.mjs';
 import type Renderer from 'markdown-it/lib/renderer.mjs';
 
