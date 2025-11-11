@@ -4,10 +4,12 @@
  */
 
 import type { Component, VNode } from 'vue';
-import type { Token as MarkdownItToken } from '../type.d';
+import type MarkdownIt from 'markdown-it';
+import type Token from 'markdown-it/lib/token.mjs';
+import type Renderer from 'markdown-it/lib/renderer.mjs';
 
-/** 导出原始 Token 类型 */
-export type Token = MarkdownItToken;
+/** 导出 Token 类型 */
+export type { Token, Renderer };
 
 /** 属性元组 */
 export type Attr = [string, string];
@@ -16,16 +18,16 @@ export type Attr = [string, string];
 export interface CodeBlockMeta {
   /** 语言名称 */
   langName: string;
-  
+
   /** 代码内容 */
   content: string;
-  
+
   /** 属性对象 */
   attrs: Record<string, string>;
-  
+
   /** 完整 info 字符串 */
   info: string;
-  
+
   /** 原始 Token */
   token: Token;
 }
@@ -48,13 +50,13 @@ export interface RenderRules {
 export interface RenderOptions {
   /** 是否启用换行符转 <br> */
   breaks?: boolean;
-  
+
   /** 语言前缀 */
   langPrefix?: string;
-  
+
   /** 高亮函数 */
   highlight?: (code: string, lang: string, attrs: string) => string;
-  
+
   /** 插件选项 */
   [key: string]: any;
 }
@@ -63,7 +65,7 @@ export interface RenderOptions {
 export interface RenderEnv {
   /** 是否安全模式 */
   safeMode?: boolean;
-  
+
   /** 宏定义行 */
   macroLines?: Array<{
     matchPos: number;
@@ -71,13 +73,13 @@ export interface RenderEnv {
     posOffset: number;
     currentPosOffset: number;
   }>;
-  
+
   /** 行起始位置 */
   bMarks?: number[];
-  
+
   /** 行结束位置 */
   eMarks?: number[];
-  
+
   /** 其他环境变量 */
   [key: string]: any;
 }
@@ -86,19 +88,19 @@ export interface RenderEnv {
 export interface MarkdownRenderer {
   /** 渲染规则 */
   rules: RenderRules;
-  
+
   /** 渲染 Token 数组 */
   render(tokens: Token[], options: RenderOptions, env: RenderEnv): VNode[];
-  
+
   /** 渲染行内内容 */
   renderInline(tokens: Token[], options: RenderOptions, env: RenderEnv): VNode[];
-  
+
   /** 渲染行内文本 */
   renderInlineAsText(tokens: Token[], options: RenderOptions, env: RenderEnv): string;
-  
+
   /** 渲染属性 */
   renderAttrs(token: Token): Record<string, any>;
-  
+
   /** 渲染单个 Token */
   renderToken(tokens: Token[], idx: number, options: RenderOptions, env: RenderEnv): VNode | null;
 }
@@ -110,12 +112,12 @@ export interface VueMarkdownPluginOptions {
     /** 代码块组件工厂 */
     codeBlock?: (meta: CodeBlockMeta) => Component | Promise<Component> | null;
   };
-  
+
   /** 性能配置 */
   performance?: {
     /** 是否启用缓存 */
     enableCache?: boolean;
-    
+
     /** 缓存大小 */
     cacheSize?: number;
   };
@@ -125,22 +127,22 @@ export interface VueMarkdownPluginOptions {
 export interface AsyncComponentOptions {
   /** 组件加载器 */
   loader: () => Promise<any>;
-  
+
   /** 加载中组件 */
   loadingComponent?: any;
-  
+
   /** 错误组件 */
   errorComponent?: any;
-  
+
   /** 延迟时间 */
   delay?: number;
-  
+
   /** 超时时间 */
   timeout?: number;
-  
+
   /** 是否可挂起 */
   suspensible?: boolean;
-  
+
   /** 错误回调 */
   onError?: () => any;
 }
@@ -155,13 +157,13 @@ export interface VNodeParentItem {
 export interface RenderContext {
   /** 当前选项 */
   options: RenderOptions;
-  
+
   /** 当前环境 */
   env: RenderEnv;
-  
+
   /** 渲染器实例 */
   renderer: MarkdownRenderer;
-  
+
   /** 父节点栈 */
   parentStack: VNode[];
 }
