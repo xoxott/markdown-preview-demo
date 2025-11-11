@@ -27,23 +27,34 @@ export function extractSvgDimensions(svg: string): {
   height?: string | number;
   viewBox?: string;
 } {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(svg, 'image/svg+xml');
-  const svgElement = doc.querySelector('svg');
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(svg, 'image/svg+xml');
+    const svgElement = doc.querySelector('svg');
 
-  if (!svgElement) {
+    if (!svgElement) {
+      return {};
+    }
+
+    // 检查解析错误
+    const parserError = doc.querySelector('parsererror');
+    if (parserError) {
+      return {};
+    }
+
+    const width = svgElement.getAttribute('width');
+    const height = svgElement.getAttribute('height');
+    const viewBox = svgElement.getAttribute('viewBox');
+
+    return {
+      width: width || undefined,
+      height: height || undefined,
+      viewBox: viewBox || undefined
+    };
+  } catch (error) {
+    console.error('Error extracting SVG dimensions:', error);
     return {};
   }
-
-  const width = svgElement.getAttribute('width');
-  const height = svgElement.getAttribute('height');
-  const viewBox = svgElement.getAttribute('viewBox');
-
-  return {
-    width: width || undefined,
-    height: height || undefined,
-    viewBox: viewBox || undefined
-  };
 }
 
 /**
@@ -188,6 +199,23 @@ export function isValidSvg(svg: string): boolean {
 }
 
 /**
+ * 安全地解析 SVG 尺寸属性
+ *
+ * @param value - 属性值
+ * @returns 解析后的数值，如果无法解析则返回 undefined
+ */
+function parseSvgDimension(value: string | null): number | undefined {
+  if (!value) return undefined;
+
+  // 移除单位（px, em, rem, %, 等）
+  const numericValue = value.replace(/[^\d.-]/g, '');
+  const parsed = Number.parseFloat(numericValue);
+
+  // 只返回有效的正数
+  return !Number.isNaN(parsed) && parsed > 0 ? parsed : undefined;
+}
+
+/**
  * 提取 SVG 元数据
  *
  * @param svg - SVG 字符串
@@ -204,22 +232,34 @@ export function extractSvgMeta(svg: string, options?: { sanitize?: boolean }): S
     result = sanitizeSvgSecurity(result);
   }
 
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(result, 'image/svg+xml');
-  const svgElement = doc.querySelector('svg');
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(result, 'image/svg+xml');
+    const svgElement = doc.querySelector('svg');
 
-  if (!svgElement) {
+    if (!svgElement) {
+      return null;
+    }
+
+    // 检查解析错误
+    const parserError = doc.querySelector('parsererror');
+    if (parserError) {
+      console.warn('SVG parsing error:', parserError.textContent);
+      return null;
+    }
+
+    const viewBox = svgElement.getAttribute('viewBox') || undefined;
+    const widthAttr = svgElement.getAttribute('width');
+    const heightAttr = svgElement.getAttribute('height');
+
+    return {
+      content: result,
+      viewBox,
+      width: parseSvgDimension(widthAttr),
+      height: parseSvgDimension(heightAttr)
+    };
+  } catch (error) {
+    console.error('Error extracting SVG metadata:', error);
     return null;
   }
-
-  const viewBox = svgElement.getAttribute('viewBox') || '';
-  const width = Number.parseFloat(svgElement.getAttribute('width') || '0');
-  const height = Number.parseFloat(svgElement.getAttribute('height') || '0');
-
-  return {
-    content: result,
-    viewBox,
-    width: width > 0 ? width : undefined,
-    height: height > 0 ? height : undefined
-  };
 }

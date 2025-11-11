@@ -29,21 +29,12 @@ export const useMindmap = (content: Ref<string>, svgRef: Ref<SVGElement | null>)
       await nextTick();
       const el = svgRef.value;
       if (!el) throw new Error('SVG 元素未挂载');
-      
-      // 确保 SVG 有明确的尺寸，避免 d3-zoom 报错
-      if (!el.hasAttribute('width')) {
-        el.setAttribute('width', '100%');
-      }
-      if (!el.hasAttribute('height')) {
-        el.setAttribute('height', '100%');
-      }
-      
       el.innerHTML = '';
       instance.value = Markmap.create(
         el,
         {
           autoFit: true,
-          paddingX: 20
+          paddingX: 20,
           // paddingY: 20
         },
         root
@@ -84,7 +75,7 @@ export const useMindmap = (content: Ref<string>, svgRef: Ref<SVGElement | null>)
     d3.select(gNode).transition().duration(300).attr('transform', newTransform.toString());
 
     // 保证内部行为一致
-    (svgNode as any).__zoom = newTransform;
+    svgNode.__zoom = newTransform;
   };
 
   return {

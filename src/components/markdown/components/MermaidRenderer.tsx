@@ -152,8 +152,17 @@ export const MermaidRenderer = defineComponent({
             svgValue.value &&
             !errorMessage.value && (
               <div key="svg" ref={containerRef} class="svg-container" style={containerStyle.value}>
-                <div class="svg-wrapper" style={svgWrapperStyle.value} onMousedown={startDrag} onTouchstart={startDrag}>
-                  <svg viewBox={svgValue.value.viewBox} class="scalable-svg" innerHTML={svgValue.value.content} />
+                <div
+                  class="svg-wrapper"
+                  style={svgWrapperStyle.value}
+                  onMousedown={startDrag}
+                  onTouchstart={startDrag}
+                >
+                  <svg
+                    viewBox={svgValue.value.viewBox}
+                    class="scalable-svg"
+                    innerHTML={svgValue.value.content}
+                  />
                 </div>
               </div>
             )

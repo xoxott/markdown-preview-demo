@@ -1,4 +1,4 @@
-import { type  PropType, type VNode, defineComponent, ref, watch } from 'vue';
+import { type VNode, cloneVNode, defineComponent, ref, watch } from 'vue';
 import MarkdownIt from 'markdown-it';
 import markdownItMultimdTable from 'markdown-it-multimd-table';
 import '@primer/css/core/index.scss';
@@ -55,21 +55,32 @@ export default defineComponent({
     }).use(markdownItMultimdTable);
 
     const vnodes = ref<VNode[]>([]);
+    const renderKey = ref(0);
 
     // 监听内容变化，重新解析
     watch(
       () => props.content,
-      () => {
-        const tokens = md.parse(props.content, {});
-        vnodes.value = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
+      (newContent) => {
+        if (newContent) {
+          const tokens = md.parse(newContent, {});
+          const newVnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
+          vnodes.value = newVnodes;
+          renderKey.value++; // 强制重新渲染
+        }
       },
       { immediate: true }
     );
 
     return () => (
-      <div style={cssVars.value} class={['markdown-container', themeClass.value]}>
+      <div
+        key={renderKey.value}
+        style={cssVars.value}
+        class={['markdown-container', themeClass.value]}
+      >
         <article class="markdown-body">
-          {vnodes.value}
+          {vnodes.value.map((vnode, index) =>
+            cloneVNode(vnode, { key: `vnode-${renderKey.value}-${index}` })
+          )}
         </article>
       </div>
     );

@@ -1,4 +1,4 @@
-import type { VNode } from 'vue';
+import { VNode } from "vue";
 
 export type Attr = [string, string];
 export interface Token {
@@ -21,15 +21,18 @@ export interface Token {
 }
 
 export interface Renderer {
-  render(tokens: Token[], idx: number, options: any, env?: any, self?: Renderer): VNode | VNode[];
+  render(
+    tokens: Token[],
+    idx: number,
+    options: any,
+    env?: any,
+    self?: Renderer
+  ): VNode | VNode[];
   renderInlineAsText(tokens: Token[], options: any, env: any): string;
   renderAttrs(token: Token): string;
   renderToken(tokens: Token[], index: number, options?: any, env?: any, self?: Renderer): string;
   renderInline(tokens: Token[], options?: any, env?: any): VNode | VNode[];
-  rules: Record<
-    string,
-    (tokens: Token[], idx: number, options: any, env: any, self: Renderer) => VNode | VNode[] | string
-  >;
+  rules: Record<string, (tokens: Token[], idx: number, options: any, env: any, self: Renderer) => VNode | VNode[] | string>;
 }
 
 export interface CodeBlockMeta {

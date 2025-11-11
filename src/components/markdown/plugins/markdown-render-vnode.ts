@@ -2,29 +2,125 @@ import type { Component, VNode } from 'vue';
 import { Comment, Fragment, Text, createVNode, defineAsyncComponent } from 'vue';
 import type MarkdownIt from 'markdown-it';
 import { v4 as uuid } from 'uuid';
-import { DOM_ATTR_NAME } from '../constants';
-import { SENSITIVE_ATTR_REG, SENSITIVE_URL_REG, escapeHtml, unescapeAll, validateAttrName } from '../utils/security';
-import { isSvgContent, sanitizeSvg } from '../utils/svg-utils';
-import { SvgRenderer } from '../components/SvgRenderer';
-import type { CodeBlockMeta, MarkdownPluginOptions, RenderEnv, Renderer, Token } from './types';
+import { Renderer, Token } from './type';
 
-/** 默认渲染规则 */
-const defaultRules: any = {
-  options: null
+
+interface CodeBlockMeta {
+  langName: string;
+  content: string;
+  attrs: Record<string, string>;
+  info: string;
+  token: Token;
+}
+type VueMarkdownPluginOptions = {
+  components?: {
+    codeBlock?: (meta: CodeBlockMeta) => Component | null;
+  };
 };
+// 安全检测正则表达式
+const sensitiveUrlReg = /^javascript:|vbscript:|file:/i;
+const sensitiveAttrReg = /^href|src|xlink:href|poster|srcset$/i;
+const attrNameReg = /^[a-zA-Z_:][a-zA-Z0-9:._-]*$/;
+const attrEventReg = /^on/i;
+const defaultRules = {
+  options: null
+} as any;
 
-/** 处理画中画模式离开事件 */
+const DOM_ATTR_NAME = {
+  /** 源代码起始行号 (1-based) */
+  SOURCE_LINE_START: 'data-source-line-start',
+
+  /** 源代码结束行号 (1-based) */
+  SOURCE_LINE_END: 'data-source-line-end',
+
+  /** 原始未处理内容 */
+  ORIGIN_CONTENT: 'data-origin-content',
+
+  /** 语法块类型标识 */
+  SYNTAX_TYPE: 'data-syntax-type',
+
+  /** Token 索引标识 */
+  TOKEN_IDX: 'data-token-idx',
+
+  /** 代码块语言类型 */
+  CODE_LANG: 'data-code-lang',
+
+  /** 是否折叠状态 */
+  COLLAPSE_STATE: 'data-collapse-state',
+
+  /** 安全渲染标识 */
+  SANITIZED: 'data-sanitized'
+} as const;
+
+/**
+ * HTML 转义工具
+ *
+ * @param str - 原始字符串
+ * @returns 转义后的字符串
+ */
+export function escapeHtml(str: string): string {
+  return str.replace(
+    /[&<>"']/g,
+    match =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[match] || match
+  );
+}
+
+/**
+ * 反转义 HTML（等同于原 markdown-it 的 unescapeAll）
+ *
+ * @param str - 转义后的字符串
+ * @returns 原始字符串
+ */
+export function unescapeAll(str: string): string {
+  const htmlUnescapes: Record<string, string> = {
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#39;': "'"
+  };
+  return str.replace(/&(amp|lt|gt|quot|#39);/g, (_, code) => htmlUnescapes[`&${code};`] || _);
+}
+
+/**
+ * 处理画中画模式离开事件
+ *
+ * @param e - 事件对象
+ */
 function onLeavepictureinpicture(e: Event) {
   const target = e.target as HTMLMediaElement;
   if (!target.isConnected) {
     target.pause();
   } else {
-    (target as any).scrollIntoViewIfNeeded?.();
+    (target as any).scrollIntoViewIfNeeded();
   }
 }
 
-/** 获取Token对应的源码行号范围 */
-function getLine(token: Token, env?: RenderEnv): [number, number] {
+/**
+ * 验证属性名称合法性
+ *
+ * @param name - 属性名称
+ * @returns 是否合法
+ */
+function validateAttrName(name: string) {
+  return attrNameReg.test(name) && !attrEventReg.test(name);
+}
+
+/**
+ * 获取Token对应的源码行号范围
+ *
+ * @param token - Markdown Token
+ * @param env - 渲染环境变量
+ * @returns {undefined} 起始行号, 结束行号
+ */
+function getLine(token: Token, env?: Record<string, any>): [number, number] {
   const [lineStart, lineEnd] = token.map || [0, 1];
   let sOffset = 0;
 
@@ -42,18 +138,27 @@ function getLine(token: Token, env?: RenderEnv): [number, number] {
   return [lineStart + sOffset, lineEnd + sOffset];
 }
 
-/** 判断是否为组件选项 */
+/**
+ * 判断是否为组件选项
+ *
+ * @param obj
+ * @returns
+ */
 function isComponentOptions(obj: any): obj is Component {
   return typeof obj === 'object' && ('setup' in obj || 'render' in obj || 'template' in obj);
 }
 
-/** 创建HTML内容的VNode */
-const createHtmlVNode = (html: string): VNode => {
+/**
+ * 创建HTML内容的VNode
+ *
+ * @param html - HTML字符串
+ * @returns 对应的VNode
+ */
+const createHtmlVNode = (html: string) => {
   const template = document.createElement('template');
   template.innerHTML = html;
   const elements = template.content.children;
-  const children: VNode[] = [];
-
+  const children = [];
   for (let i = 0; i < elements.length; i++) {
     const element = elements[i];
     const tagName = element.tagName.toLowerCase();
@@ -75,26 +180,30 @@ const createHtmlVNode = (html: string): VNode => {
   return createVNode(Fragment, {}, children);
 };
 
-/** 预处理Token */
-function processToken(token: Token, env?: RenderEnv) {
+/**
+ * 预处理Token
+ *
+ * @param token - 需要处理的Token
+ * @param env - 渲染环境变量
+ */
+function processToken(token: Token, env?: Record<string, any>) {
   if (!token.meta) {
     token.meta = {};
   }
-
   // 安全模式处理
   if (env?.safeMode) {
-    token.attrs?.forEach(([name, val]: any) => {
-      const lowerName = name.toLowerCase();
-      if (SENSITIVE_ATTR_REG.test(lowerName) && SENSITIVE_URL_REG.test(val)) {
+    token.attrs?.forEach(([name, val]:any) => {
+      // eslint-disable-next-line no-param-reassign
+      name = name.toLowerCase();
+      if (sensitiveAttrReg.test(name) && sensitiveUrlReg.test(val)) {
         token.attrSet(name, '');
       }
 
-      if (lowerName === 'href' && val.toLowerCase().startsWith('data:')) {
+      if (name === 'href' && val.toLowerCase().startsWith('data:')) {
         token.attrSet(name, '');
       }
     });
   }
-
   // 块级元素处理
   if (token.block) {
     const [lineStart, lineEnd] = getLine(token, env);
@@ -102,13 +211,12 @@ function processToken(token: Token, env?: RenderEnv) {
     if (token.map) {
       token.attrSet(DOM_ATTR_NAME.SOURCE_LINE_START, String(lineStart + 1));
       token.attrSet(DOM_ATTR_NAME.SOURCE_LINE_END, String(lineEnd + 1));
-
       if (!token.meta.attrs) {
         token.meta.attrs = {};
       }
 
       // 转换属性数组为对象
-      token.attrs?.forEach(([name, val]: any) => {
+      token.attrs?.forEach(([name, val]:any) => {
         token.meta.attrs[name] = val;
       });
     }
@@ -139,7 +247,6 @@ defaultRules.fence = (tokens: Token[], idx: number, options: any, _: any, slf: R
   const info = token.info ? unescapeAll(token.info).trim() : '';
   const [langName = '', langAttrs = ''] = info.split(/\s+/, 2);
   const content = token.content;
-
   // 构造元数据
   const meta: CodeBlockMeta = {
     langName,
@@ -148,7 +255,6 @@ defaultRules.fence = (tokens: Token[], idx: number, options: any, _: any, slf: R
     info,
     token
   };
-
   const defaultRender = () => {
     const originalAttrs = slf.renderAttrs(token) as unknown as Record<string, string>;
     const { [DOM_ATTR_NAME.SOURCE_LINE_START]: ___, [DOM_ATTR_NAME.SOURCE_LINE_END]: __, ...safeAttrs } = originalAttrs;
@@ -157,19 +263,16 @@ defaultRules.fence = (tokens: Token[], idx: number, options: any, _: any, slf: R
       (safeAttrs.class?.split(/\s+/) || []).concat(langName ? `${options.langPrefix}${langName}` : [])
     );
     safeAttrs.class = Array.from(classList).join(' ');
-
     // 代码高亮
     if (typeof options.highlight === 'function') {
       highlighted = options.highlight(token.content, langName, langAttrs) || escapeHtml(token.content);
     } else {
       highlighted = escapeHtml(token.content);
     }
-
     // 输入pre标签添加换行
     if (highlighted.indexOf('<pre') === 0) {
       return `${highlighted}\n`;
     }
-
     return createVNode(
       'pre',
       {
@@ -190,13 +293,11 @@ defaultRules.fence = (tokens: Token[], idx: number, options: any, _: any, slf: R
       ]
     );
   };
-
   // 自定义组件
   const customComponent = defaultRules.options.components?.codeBlock?.(meta);
   if (customComponent) {
     try {
       let components: Component | Promise<Component> | null = null;
-
       // Promise（动态导入）
       if (customComponent instanceof Promise) {
         components = defineAsyncComponent({
@@ -205,23 +306,21 @@ defaultRules.fence = (tokens: Token[], idx: number, options: any, _: any, slf: R
           delay: 500,
           suspensible: true,
           timeout: 3000,
-          onError: () => defaultRender()
+          onError: () => defaultRender() // 失败时回退
         });
         // 返回的是组件工厂函数
       } else if (typeof customComponent === 'function') {
-        components = customComponent;
+        components = customComponent(meta);
         // 组件选项/构造函数
       } else if (isComponentOptions(customComponent)) {
         components = customComponent;
       }
-
       // 确保 component 已初始化
       if (!components) {
         throw new Error('Invalid component type');
       }
-
       return createVNode(components, {
-        key: `${langName}-${uuid()}`,
+        key: `${langName}-${uuid}`,
         meta,
         class: 'code-block-transition',
         onRenderFallback: () => defaultRender()
@@ -231,7 +330,6 @@ defaultRules.fence = (tokens: Token[], idx: number, options: any, _: any, slf: R
       return defaultRender();
     }
   }
-
   return defaultRender();
 };
 
@@ -273,23 +371,11 @@ defaultRules.softbreak = (_: Token[], __: number, options: any) => (options.brea
 /** 文本处理 */
 defaultRules.text = (tokens: Token[], idx: number) => createVNode(Text, {}, tokens[idx].content);
 
-/** HTML块处理 - 添加 SVG 支持 */
-defaultRules.html_block = (tokens: Token[], idx: number, _: any, __: any, slf: Renderer) => {
+/** HTML块处理 */
+defaultRules.html_block = (tokens: Token[], idx: number) => {
   const token = tokens[idx] as any;
-
   if (token.contentVNode) {
     return token.contentVNode;
-  }
-
-  const content = token.content.trim();
-
-  // 检测是否为 SVG
-  if (isSvgContent(content)) {
-    const sanitized = sanitizeSvg(content);
-    return createVNode(SvgRenderer, {
-      content: sanitized,
-      attrs: slf.renderAttrs(token)
-    });
   }
 
   return createHtmlVNode(token.content);
@@ -298,7 +384,6 @@ defaultRules.html_block = (tokens: Token[], idx: number, _: any, __: any, slf: R
 /** HTML行内处理 */
 defaultRules.html_inline = (tokens: Token[], idx: number) => {
   const token = tokens[idx] as any;
-
   if (token.contentVNode) {
     return token.contentVNode;
   }
@@ -327,16 +412,17 @@ function renderToken(this: Renderer, tokens: Token[], idx: number): any {
 }
 
 /** 渲染Token属性 */
-function renderAttrs(this: Renderer, token: Token): Record<string, any> {
+function renderAttrs(this: Renderer, token: Token) {
   if (!token.attrs) {
     return {};
   }
 
   const result: any = {};
 
-  token.attrs.forEach((attr: any) => {
-    if (validateAttrName(attr[0])) {
-      result[attr[0]] = attr[1];
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  token.attrs.forEach((token:any) => {
+    if (validateAttrName(token[0])) {
+      result[token[0]] = token[1];
     }
   });
 
@@ -346,17 +432,18 @@ function renderAttrs(this: Renderer, token: Token): Record<string, any> {
 /** 渲染Token主要逻辑 */
 function render(this: Renderer, tokens: Token[], options: any, env: any) {
   const rules: any = this.rules;
+
   const vNodeParents: VNode[] = [];
 
   return tokens
     .map((token, i) => {
       processToken(token, env);
-
       if (token.block) {
         token.attrSet(DOM_ATTR_NAME.TOKEN_IDX, i.toString());
       }
 
       const type = token.type;
+
       let vnode: VNode | null = null;
       let parent: VNode | null = null;
 
@@ -378,7 +465,6 @@ function render(this: Renderer, tokens: Token[], options: any, env: any) {
 
       let isChild = false;
       const parentNode = vNodeParents.length > 0 ? vNodeParents[vNodeParents.length - 1] : null;
-
       if (vnode && parentNode) {
         if (typeof parentNode.type === 'string' || parentNode.type === Fragment) {
           const children = Array.isArray(parentNode.children) ? parentNode.children : [];
@@ -404,14 +490,12 @@ function render(this: Renderer, tokens: Token[], options: any, env: any) {
     .filter(node => Boolean(node)) as any;
 }
 
-/** Markdown Vue 插件 */
-const MarkdownVuePlugin = (md: MarkdownIt, options: MarkdownPluginOptions) => {
+const MarkdownVuePlugin = (md: MarkdownIt, options: VueMarkdownPluginOptions) => {
   defaultRules.options = options;
   Object.assign(md.renderer.rules, defaultRules);
   md.renderer.render = render;
   md.renderer.renderInline = render;
-  md.renderer.renderAttrs = renderAttrs as any;
+  md.renderer.renderAttrs = renderAttrs;
   md.renderer.renderToken = renderToken;
 };
-
 export default MarkdownVuePlugin;

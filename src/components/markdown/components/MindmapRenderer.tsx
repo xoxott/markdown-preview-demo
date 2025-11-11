@@ -117,7 +117,13 @@ export const MindmapRenderer = defineComponent({
           ) : (
             !errorMessage.value && (
               <div key="svg" ref={containerRef} class="svg-container">
-                <svg ref={svgRef} style={{ color: darkMode.value ? 'white' : 'black' }} class="h-full w-full" />
+                <svg
+                  ref={svgRef}
+                  width="100%"
+                  height="100%"
+                  style={{ color: darkMode.value ? 'white' : 'black' }}
+                  class="h-full w-full"
+                />
               </div>
             )
           )}

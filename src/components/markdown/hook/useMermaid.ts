@@ -58,7 +58,7 @@ export const useMermaid = (content: Ref<string>, darkMode: boolean) => {
 
     return {
       viewBox: svg.getAttribute('viewBox') || '0 0 100 100',
-      content: svg.innerHTML
+      content: new XMLSerializer().serializeToString(svg)
     };
   };
   /** 清理错误 */
