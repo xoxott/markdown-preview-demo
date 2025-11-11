@@ -9,9 +9,7 @@ export async function callOllamaStream(
 ) {
   try {
     const controller = new AbortController();
-    const timeoutId = options.timeout 
-      ? setTimeout(() => controller.abort(), options.timeout)
-      : null;
+    const timeoutId = options.timeout ? setTimeout(() => controller.abort(), options.timeout) : null;
 
     const res = await fetch('http://localhost:11434/api/generate', {
       method: 'POST',
@@ -19,9 +17,9 @@ export async function callOllamaStream(
       body: JSON.stringify({
         model,
         prompt,
-        stream: true,
+        stream: true
       }),
-      signal: options.signal || controller.signal,
+      signal: options.signal || controller.signal
     });
 
     if (!res.ok) {
@@ -41,7 +39,7 @@ export async function callOllamaStream(
       try {
         while (!isStreamEnded) {
           const { done, value } = await reader.read();
-          
+
           if (done) {
             isStreamEnded = true;
             // 处理缓冲区剩余数据
@@ -58,33 +56,33 @@ export async function callOllamaStream(
 
           buffer += decoder.decode(value, { stream: true });
           const lines = buffer.split('\n');
-          
+
           // 保留最后一个不完整行
           buffer = lines.pop() || '';
-          
+
           for (const line of lines) {
             if (!line.trim()) continue;
-            
+
             try {
               const json = JSON.parse(line);
               if (json.done) {
                 isStreamEnded = true;
                 break;
               }
-              console.log(json)
+              console.log(json);
               if (json.response) {
-                console.log(json)
+                console.log(json);
                 onMessage(json.response);
               }
             } catch (e) {
               console.warn('流响应解析失败:', line, e);
               // 尝试恢复：将错误行追加回缓冲区
-              buffer = line + '\n' + buffer;
+              buffer = `${line}\n${buffer}`;
               break;
             }
           }
         }
-      } catch (e:any) {
+      } catch (e: any) {
         if (e.name !== 'AbortError') {
           throw e;
         }
@@ -95,11 +93,10 @@ export async function callOllamaStream(
     };
 
     await processChunk();
-  } catch (error:any) {
+  } catch (error: any) {
     if (error.name === 'AbortError') {
       throw new Error('请求超时');
     }
     throw error;
   }
 }
-

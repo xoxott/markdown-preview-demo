@@ -54,7 +54,7 @@ export interface GitCommit extends RawGitCommit {
 
 /** GitHub 仓库配置 */
 export interface GithubConfig {
-  /** 仓库名称（格式：owner/repo）*/
+  /** 仓库名称（格式：owner/repo） */
   repo: string;
   /** GitHub API 访问的 Token */
   token: string;
@@ -110,7 +110,7 @@ export interface ChangelogOption {
    * 是否重新生成已有版本的 changelog
    *
    * @example
-   * 当 v0.0.1 已存在 changelog 时，开启此选项会强制重新生成该版本内容
+   *   当 v0.0.1 已存在 changelog 时，开启此选项会强制重新生成该版本内容
    */
   regenerate: boolean;
 

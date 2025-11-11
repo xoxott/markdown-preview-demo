@@ -1,4 +1,5 @@
-import { UploadCallbacks, FileTask, ChunkInfo, UploadStats } from '../type';
+import type { UploadCallbacks } from '../type';
+import { ChunkInfo, FileTask, UploadStats } from '../type';
 
 /** 回调管理器 */
 export class CallbackManager {

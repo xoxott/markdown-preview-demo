@@ -1,28 +1,25 @@
 /** 预览生成器 */
 export default class PreviewGenerator {
- /**
+  /**
    * 生成图片预览
+   *
    * @param file - 图片文件
    * @param maxWidth - 最大宽度
    * @param maxHeight - 最大高度
    * @returns Base64 格式的预览图
    */
-  static async generateImagePreview(
-    file: File,
-    maxWidth: number = 200,
-    maxHeight: number = 200
-  ): Promise<string> {
+  static async generateImagePreview(file: File, maxWidth: number = 200, maxHeight: number = 200): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      
-      reader.onload = (e) => {
+
+      reader.onload = e => {
         const img = new Image();
-        
+
         img.onload = () => {
           try {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            
+
             if (!ctx) {
               reject(new Error('无法获取 Canvas 上下文'));
               return;
@@ -66,6 +63,7 @@ export default class PreviewGenerator {
 
   /**
    * 生成视频预览（截取第一帧）
+   *
    * @param file - 视频文件
    * @param maxWidth - 最大宽度
    * @param maxHeight - 最大高度
@@ -116,11 +114,7 @@ export default class PreviewGenerator {
           }
 
           // 计算缩放比例
-          const scale = Math.min(
-            maxWidth / video.videoWidth,
-            maxHeight / video.videoHeight,
-            1
-          );
+          const scale = Math.min(maxWidth / video.videoWidth, maxHeight / video.videoHeight, 1);
 
           canvas.width = video.videoWidth * scale;
           canvas.height = video.videoHeight * scale;
@@ -130,7 +124,7 @@ export default class PreviewGenerator {
 
           // 转换为 Base64
           const preview = canvas.toDataURL('image/jpeg', 0.8);
-          
+
           cleanup();
           resolve(preview);
         } catch (error) {
@@ -149,8 +143,9 @@ export default class PreviewGenerator {
     });
   }
 
- /**
+  /**
    * 批量生成预览图
+   *
    * @param files - 文件数组
    * @param maxWidth - 最大宽度
    * @param maxHeight - 最大高度
@@ -161,7 +156,7 @@ export default class PreviewGenerator {
     maxWidth: number = 200,
     maxHeight: number = 200
   ): Promise<Array<string | null>> {
-    const promises = files.map(async (file) => {
+    const promises = files.map(async file => {
       try {
         if (file.type.startsWith('image/')) {
           return await this.generateImagePreview(file, maxWidth, maxHeight);
@@ -178,11 +173,7 @@ export default class PreviewGenerator {
     return Promise.all(promises);
   }
 
-
-   /**
-   * 获取文件的默认图标/预览
-   * 用于不支持预览的文件类型
-   */
+  /** 获取文件的默认图标/预览 用于不支持预览的文件类型 */
   static getFileIcon(file: File): string {
     const type = file.type.toLowerCase();
     const extension = file.name.split('.').pop()?.toLowerCase() || '';
@@ -195,33 +186,31 @@ export default class PreviewGenerator {
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '📝',
       'application/vnd.ms-excel': '📊',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '📊',
-      
+
       // 压缩文件
       'application/zip': '🗜️',
       'application/x-rar-compressed': '🗜️',
       'application/x-7z-compressed': '🗜️',
-      
+
       // 音频
-      'audio': '🎵',
-      
+      audio: '🎵',
+
       // 默认
-      'default': '📎'
+      default: '📎'
     };
 
     // 检查完整 MIME 类型
     if (iconMap[type]) return iconMap[type];
-    
+
     // 检查 MIME 类型前缀
     const typePrefix = type.split('/')[0];
     if (iconMap[typePrefix]) return iconMap[typePrefix];
-    
+
     // 返回默认图标
-    return iconMap['default'];
+    return iconMap.default;
   }
 
-  /**
-   * 验证文件是否支持预览
-   */
+  /** 验证文件是否支持预览 */
   static canGeneratePreview(file: File): boolean {
     return file.type.startsWith('image/') || file.type.startsWith('video/');
   }

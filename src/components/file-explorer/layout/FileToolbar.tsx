@@ -1,24 +1,16 @@
-import { defineComponent, PropType, ref, computed, onMounted, onUnmounted } from 'vue'
+import type { PropType } from 'vue';
+import { computed, defineComponent, onMounted, onUnmounted, ref } from 'vue';
+import { NButton, NButtonGroup, NDropdown, NIcon, NInput, NSelect, NTooltip, useThemeVars } from 'naive-ui';
 import {
-  NButton,
-  NButtonGroup,
-  NInput,
-  NSelect,
-  NIcon,
-  NTooltip,
-  NDropdown,
-  useThemeVars
-} from 'naive-ui'
-import {
-  GridOutline,
-  ListOutline,
-  GridSharp,
-  ReorderFourOutline,
   DocumentTextOutline,
-  EllipsisHorizontal
-} from '@vicons/ionicons5'
-import { Search, SortAscending, SortDescending, Plus, Upload } from '@vicons/tabler'
-import { ViewMode, SortField, SortOrder, GridSize } from '../types/file-explorer'
+  EllipsisHorizontal,
+  GridOutline,
+  GridSharp,
+  ListOutline,
+  ReorderFourOutline
+} from '@vicons/ionicons5';
+import { Plus, Search, SortAscending, SortDescending, Upload } from '@vicons/tabler';
+import type { GridSize, SortField, SortOrder, ViewMode } from '../types/file-explorer';
 
 export default defineComponent({
   name: 'FileToolbar',
@@ -39,20 +31,20 @@ export default defineComponent({
   },
 
   setup(props) {
-    const themeVars = useThemeVars()
-    const showSearchInput = ref(false)
-    const isMobile = ref(window.innerWidth < 768)
-    const isTablet = ref(window.innerWidth >= 768 && window.innerWidth < 1024)
-    const isDesktop = computed(() => !isMobile.value && !isTablet.value)
+    const themeVars = useThemeVars();
+    const showSearchInput = ref(false);
+    const isMobile = ref(window.innerWidth < 768);
+    const isTablet = ref(window.innerWidth >= 768 && window.innerWidth < 1024);
+    const isDesktop = computed(() => !isMobile.value && !isTablet.value);
 
     const resizeHandler = () => {
-      const width = window.innerWidth
-      isMobile.value = width < 768
-      isTablet.value = width >= 768 && width < 1024
-    }
+      const width = window.innerWidth;
+      isMobile.value = width < 768;
+      isTablet.value = width >= 768 && width < 1024;
+    };
 
-    onMounted(() => window.addEventListener('resize', resizeHandler))
-    onUnmounted(() => window.removeEventListener('resize', resizeHandler))
+    onMounted(() => window.addEventListener('resize', resizeHandler));
+    onUnmounted(() => window.removeEventListener('resize', resizeHandler));
 
     const viewModeOptions = [
       { value: 'grid' as ViewMode, icon: GridOutline, label: '网格视图' },
@@ -60,45 +52,61 @@ export default defineComponent({
       { value: 'tile' as ViewMode, icon: GridSharp, label: '平铺视图' },
       { value: 'detail' as ViewMode, icon: ReorderFourOutline, label: '详细视图' },
       { value: 'content' as ViewMode, icon: DocumentTextOutline, label: '内容视图' }
-    ]
+    ];
 
     const gridSizeOptions = [
       { label: '小', value: 'small' as GridSize },
       { label: '中', value: 'medium' as GridSize },
       { label: '大', value: 'large' as GridSize },
       { label: '特大', value: 'extra-large' as GridSize }
-    ]
+    ];
 
     const sortFieldOptions = [
       { label: '名称', value: 'name' as SortField },
       { label: '修改时间', value: 'modifiedAt' as SortField },
       { label: '类型', value: 'type' as SortField },
       { label: '大小', value: 'size' as SortField }
-    ]
+    ];
 
     const moreOptions = computed(() => {
-      const opts: any[] = []
+      const opts: any[] = [];
       if (props.showNewFolder) {
-        opts.push({ label: '新建文件夹', key: 'new-folder', icon: () => <NIcon><Plus /></NIcon> })
+        opts.push({
+          label: '新建文件夹',
+          key: 'new-folder',
+          icon: () => (
+            <NIcon>
+              <Plus />
+            </NIcon>
+          )
+        });
       }
       if (props.showUpload) {
-        opts.push({ label: '上传文件', key: 'upload', icon: () => <NIcon><Upload /></NIcon> })
+        opts.push({
+          label: '上传文件',
+          key: 'upload',
+          icon: () => (
+            <NIcon>
+              <Upload />
+            </NIcon>
+          )
+        });
       }
-      return opts
-    })
+      return opts;
+    });
 
     const handleMoreSelect = (key: 'new-folder' | 'upload') => {
       const map = {
         'new-folder': props.onNewFolder,
-        'upload': props.onUpload
-      }
-      map[key]?.()
-    }
+        upload: props.onUpload
+      };
+      map[key]?.();
+    };
 
     const toggleSortOrder = () => {
-      const newOrder = props.sortOrder === 'asc' ? 'desc' : 'asc'
-      props.onSortChange(props.sortField, newOrder)
-    }
+      const newOrder = props.sortOrder === 'asc' ? 'desc' : 'asc';
+      props.onSortChange(props.sortField, newOrder);
+    };
 
     return () => (
       <div
@@ -109,9 +117,9 @@ export default defineComponent({
         }}
       >
         {/* 主工具栏 */}
-        <div class="flex items-center justify-between px-4 py-3 gap-2">
+        <div class="flex items-center justify-between gap-2 px-4 py-3">
           {/* 左侧视图控制 */}
-          <div class="flex items-center gap-2 flex-shrink-0">
+          <div class="flex flex-shrink-0 items-center gap-2">
             {/* 桌面端视图切换 */}
             {isDesktop.value && (
               <NButtonGroup>
@@ -124,7 +132,9 @@ export default defineComponent({
                           ghost={props.viewMode !== opt.value}
                           onClick={() => props.onViewModeChange(opt.value)}
                         >
-                          <NIcon size={16}><opt.icon /></NIcon>
+                          <NIcon size={16}>
+                            <opt.icon />
+                          </NIcon>
                         </NButton>
                       ),
                       default: () => opt.label
@@ -150,16 +160,20 @@ export default defineComponent({
                 options={viewModeOptions.map(opt => ({
                   label: opt.label,
                   key: opt.value,
-                  icon: () => <NIcon><opt.icon /></NIcon>
+                  icon: () => (
+                    <NIcon>
+                      <opt.icon />
+                    </NIcon>
+                  )
                 }))}
                 onSelect={(key: string) => props.onViewModeChange(key as ViewMode)}
               >
                 <NButton>
                   <NIcon size={16}>
                     {(() => {
-                      const current = viewModeOptions.find(opt => opt.value === props.viewMode)
-                      const IconComp = current ? current.icon : GridOutline
-                      return <IconComp />
+                      const current = viewModeOptions.find(opt => opt.value === props.viewMode);
+                      const IconComp = current ? current.icon : GridOutline;
+                      return <IconComp />;
                     })()}
                   </NIcon>
                 </NButton>
@@ -180,7 +194,7 @@ export default defineComponent({
 
           {/* 搜索框（桌面） */}
           {!isMobile.value && (
-            <div class="flex flex-1 max-w-md mx-4">
+            <div class="mx-4 max-w-md flex flex-1">
               <NInput
                 value={props.searchQuery}
                 placeholder="搜索文件..."
@@ -199,7 +213,7 @@ export default defineComponent({
           )}
 
           {/* 右侧功能按钮 */}
-          <div class="flex items-center gap-2 flex-shrink-0">
+          <div class="flex flex-shrink-0 items-center gap-2">
             {/* 排序 */}
             {isDesktop.value && (
               <div class="flex items-center gap-2">
@@ -213,9 +227,7 @@ export default defineComponent({
                   {{
                     trigger: () => (
                       <NButton onClick={toggleSortOrder}>
-                        <NIcon size={16}>
-                          {props.sortOrder === 'asc' ? <SortAscending /> : <SortDescending />}
-                        </NIcon>
+                        <NIcon size={16}>{props.sortOrder === 'asc' ? <SortAscending /> : <SortDescending />}</NIcon>
                       </NButton>
                     ),
                     default: () => (props.sortOrder === 'asc' ? '升序' : '降序')
@@ -228,24 +240,17 @@ export default defineComponent({
             {isTablet.value && (
               <NDropdown
                 options={sortFieldOptions.map(opt => ({
-                  label: `${opt.label} ${props.sortField === opt.value ? (props.sortOrder === 'asc' ? '↑' : '↓') : ''
-                    }`,
+                  label: `${opt.label} ${props.sortField === opt.value ? (props.sortOrder === 'asc' ? '↑' : '↓') : ''}`,
                   key: opt.value
                 }))}
                 onSelect={(key: string) => {
                   const newOrder =
-                    props.sortField === key
-                      ? props.sortOrder === 'asc'
-                        ? 'desc'
-                        : 'asc'
-                      : props.sortOrder
-                  props.onSortChange(key as SortField, newOrder)
+                    props.sortField === key ? (props.sortOrder === 'asc' ? 'desc' : 'asc') : props.sortOrder;
+                  props.onSortChange(key as SortField, newOrder);
                 }}
               >
                 <NButton>
-                  <NIcon size={16}>
-                    {props.sortOrder === 'asc' ? <SortAscending /> : <SortDescending />}
-                  </NIcon>
+                  <NIcon size={16}>{props.sortOrder === 'asc' ? <SortAscending /> : <SortDescending />}</NIcon>
                 </NButton>
               </NDropdown>
             )}
@@ -253,7 +258,9 @@ export default defineComponent({
             {/* 移动端搜索按钮 */}
             {isMobile.value && (
               <NButton onClick={() => (showSearchInput.value = !showSearchInput.value)}>
-                <NIcon size={16}><Search /></NIcon>
+                <NIcon size={16}>
+                  <Search />
+                </NIcon>
               </NButton>
             )}
 
@@ -262,13 +269,8 @@ export default defineComponent({
               <>
                 {isDesktop.value && (
                   <>
-                    <div
-                      class="h-6 w-px mx-1"
-                      style={{ backgroundColor: themeVars.value.dividerColor }}
-                    />
-                    {props.showNewFolder && (
-                      <NButton onClick={props.onNewFolder}>新建文件夹</NButton>
-                    )}
+                    <div class="mx-1 h-6 w-px" style={{ backgroundColor: themeVars.value.dividerColor }} />
+                    {props.showNewFolder && <NButton onClick={props.onNewFolder}>新建文件夹</NButton>}
                     {props.showUpload && (
                       <NButton type="primary" onClick={props.onUpload}>
                         上传
@@ -281,7 +283,9 @@ export default defineComponent({
                 {!isDesktop.value && moreOptions.value.length > 0 && (
                   <NDropdown options={moreOptions.value} onSelect={handleMoreSelect}>
                     <NButton>
-                      <NIcon size={16}><EllipsisHorizontal /></NIcon>
+                      <NIcon size={16}>
+                        <EllipsisHorizontal />
+                      </NIcon>
                     </NButton>
                   </NDropdown>
                 )}
@@ -311,6 +315,6 @@ export default defineComponent({
           </div>
         )}
       </div>
-    )
+    );
   }
-})
+});

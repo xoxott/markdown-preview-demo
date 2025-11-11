@@ -3,8 +3,9 @@
  * GitHublogen CLI 工具
  *
  * 该工具基于 @soybeanjs/changelog 自动生成 changelog，并推送到 GitHub Release。
- * 
+ *
  * 功能点：
+ *
  * - 获取当前仓库的提交记录并生成 Markdown 格式的 changelog。
  * - 检查目标 tag 是否已经存在于 GitHub。
  * - 若仓库为浅克隆（shallow clone），提示用户配置 fetch-depth: 0。
@@ -19,9 +20,7 @@ import { blue, bold, cyan, dim, red, yellow } from 'kolorist';
 import { version } from '../package.json';
 import { hasTagOnGitHub, isRepoShallow, sendRelease } from './github';
 
-/**
- * 初始化 CLI 命令行工具
- */
+/** 初始化 CLI 命令行工具 */
 function setupCli() {
   // 使用 cac 创建命令行工具
   const cli = cac('githublogen');
@@ -45,15 +44,11 @@ function setupCli() {
       );
 
       // 输出 changelog 范围与提交数量
-      consola.log(
-        cyan(options.from) + dim(' -> ') + blue(options.to) + dim(` (${commits.length} commits)`)
-      );
+      consola.log(cyan(options.from) + dim(' -> ') + blue(options.to) + dim(` (${commits.length} commits)`));
 
       // 检查目标 tag 是否存在于 GitHub，不存在则跳过发布
       if (!(await hasTagOnGitHub(options.to, options.github.repo, options.github.token))) {
-        consola.error(
-          yellow(`Current ref "${bold(options.to)}" is not available as tags on GitHub. Release skipped.`)
-        );
+        consola.error(yellow(`Current ref "${bold(options.to)}" is not available as tags on GitHub. Release skipped.`));
 
         if (process.exitCode) {
           process.exitCode = 1;

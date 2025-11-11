@@ -1,8 +1,16 @@
-import { UploadFileInfo } from "naive-ui";
-import { FileUploadOptions, UploadConfig, UploadStatus } from "./type";
-import { formatFileSize, formatSpeed, formatTime } from "./utils";
-import { ChunkUploadManager } from "./ChunkUploadManager";
-import { ArchiveOutline, DocumentOutline, DocumentTextOutline, ImageOutline, MusicalNoteOutline, VideocamOutline } from "@vicons/ionicons5";
+import type { UploadFileInfo } from 'naive-ui';
+import {
+  ArchiveOutline,
+  DocumentOutline,
+  DocumentTextOutline,
+  ImageOutline,
+  MusicalNoteOutline,
+  VideocamOutline
+} from '@vicons/ionicons5';
+import type { FileUploadOptions, UploadConfig } from './type';
+import { UploadStatus } from './type';
+import { formatFileSize, formatSpeed, formatTime } from './utils';
+import { ChunkUploadManager } from './ChunkUploadManager';
 
 export function useChunkUpload(config: Partial<UploadConfig> = {}) {
   const uploader = new ChunkUploadManager(config);
@@ -18,23 +26,21 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
   const networkQuality = uploader.networkQuality;
 
   const createNaiveFileList = (): UploadFileInfo[] => {
-    const allTasks = [
-      ...uploadQueue.value,
-      ...Array.from(activeUploads.value.values()),
-      ...completedUploads.value
-    ];
+    const allTasks = [...uploadQueue.value, ...Array.from(activeUploads.value.values()), ...completedUploads.value];
 
-    return allTasks.map((task): UploadFileInfo => ({
-      id: task.id,
-      name: task.file.name,
-      status: convertToNaiveStatus(task.status),
-      percentage: task.progress,
-      file: task.file,
-      thumbnailUrl: task.options.metadata?.preview,
-      url: task.result?.fileUrl,
-      type: task.file.type,
-      fullPath: task.file.webkitRelativePath || task.file.name
-    }));
+    return allTasks.map(
+      (task): UploadFileInfo => ({
+        id: task.id,
+        name: task.file.name,
+        status: convertToNaiveStatus(task.status),
+        percentage: task.progress,
+        file: task.file,
+        thumbnailUrl: task.options.metadata?.preview,
+        url: task.result?.fileUrl,
+        type: task.file.type,
+        fullPath: task.file.webkitRelativePath || task.file.name
+      })
+    );
   };
 
   const convertToNaiveStatus = (status: UploadStatus): UploadFileInfo['status'] => {
@@ -44,30 +50,29 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
       [UploadStatus.SUCCESS]: 'finished',
       [UploadStatus.ERROR]: 'error',
       [UploadStatus.PAUSED]: 'pending',
-      [UploadStatus.CANCELLED]: 'removed',
+      [UploadStatus.CANCELLED]: 'removed'
     };
     return statusMap[status];
   };
 
-  const addFiles = (files: File[] | FileList | File, options?: FileUploadOptions) => 
-    uploader.addFiles(files, options);
+  const addFiles = (files: File[] | FileList | File, options?: FileUploadOptions) => uploader.addFiles(files, options);
 
   const start = () => uploader.start();
   const pauseAll = () => uploader.pauseAll();
-  const pause = (taskId: string)=> uploader.pause(taskId);
+  const pause = (taskId: string) => uploader.pause(taskId);
   const resumeAll = () => uploader.resumeAll();
-  const resume = (taskId: string)=> uploader.resume(taskId);
+  const resume = (taskId: string) => uploader.resume(taskId);
   const cancel = (taskId: string) => uploader.cancel(taskId);
-  const cancelAll = ()=> uploader.cancelAll();
+  const cancelAll = () => uploader.cancelAll();
   const retryFailed = () => uploader.retryFailed();
-  const retrySingleFile = (taskId: string)=>uploader.retrySingleFile(taskId)
+  const retrySingleFile = (taskId: string) => uploader.retrySingleFile(taskId);
   const removeFile = (taskId: string) => uploader.removeFile(taskId);
   const clear = () => uploader.clear();
   const getTask = (taskId: string) => uploader.getTask(taskId);
   const getDetailedStats = () => uploader.getDetailedStats();
   const updateConfig = (newConfig: Partial<UploadConfig>) => uploader.updateConfig(newConfig);
   const destroy = () => uploader.destroy();
- 
+
   // 获取进度条状态
   const getProgressStatus = (): 'default' | 'success' | 'error' => {
     if (uploadStats.value.failed > 0) return 'error';
@@ -83,7 +88,7 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
       [UploadStatus.SUCCESS]: '成功',
       [UploadStatus.ERROR]: '失败',
       [UploadStatus.PAUSED]: '已暂停',
-      [UploadStatus.CANCELLED]: '已取消',
+      [UploadStatus.CANCELLED]: '已取消'
     };
     return textMap[status];
   };
@@ -96,7 +101,7 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
       [UploadStatus.SUCCESS]: 'success',
       [UploadStatus.ERROR]: 'error',
       [UploadStatus.PAUSED]: 'warning',
-      [UploadStatus.CANCELLED]: 'default',
+      [UploadStatus.CANCELLED]: 'default'
     };
     return typeMap[status];
   };
@@ -157,6 +162,6 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
     getStatusText,
     getStatusType,
     getFileIcon,
-    getFileColor 
+    getFileColor
   };
 }

@@ -5,6 +5,7 @@ import type { ChangelogOption } from './types';
 
 /**
  * 创建默认的 Changelog 配置选项
+ *
  * @returns 默认的 ChangelogOption 对象
  */
 function createDefaultOptions() {
@@ -49,6 +50,7 @@ function createDefaultOptions() {
 
 /**
  * 从 package.json 中获取当前版本号
+ *
  * @param cwd 当前项目路径
  * @returns 包含 newVersion 的对象
  */
@@ -68,6 +70,7 @@ async function getVersionFromPkgJson(cwd: string) {
 
 /**
  * 创建完整的 Changelog 配置选项，包括 GitHub 仓库信息、Git 标签范围等
+ *
  * @param options 可选的自定义配置，会覆盖默认配置
  * @returns 完整的 ChangelogOption 对象
  */
@@ -101,7 +104,7 @@ export async function createOptions(options?: Partial<ChangelogOption>) {
   opts.prerelease ||= isPrerelease(opts.to);
   const isFromPrerelease = isPrerelease(opts.from);
 
- // 如果当前版本不是预发布版本，但 from 是预发布版本，则调整 from 为最近的正式版本
+  // 如果当前版本不是预发布版本，但 from 是预发布版本，则调整 from 为最近的正式版本
   if (!isPrerelease(newVersion) && isFromPrerelease) {
     const allReleaseTags = opts.tags.filter(tag => !isPrerelease(tag) && tag !== opts.to);
 

@@ -1,8 +1,9 @@
-import { ref, watch, onBeforeUnmount } from 'vue';
+import { onBeforeUnmount, ref, watch } from 'vue';
 import type { Ref } from 'vue';
 
 /**
  * 平滑的时间显示 Hook
+ *
  * @param sourceTime 来源时间（响应式）
  * @param threshold 更新阈值（秒），默认 5 秒
  */
@@ -15,7 +16,7 @@ export function useSmoothTime(sourceTime: Ref<number>, threshold = 5) {
   // 启动本地倒计时
   const startCountdown = () => {
     if (timer) clearInterval(timer);
-    
+
     localTime = sourceTime.value;
     displayTime.value = localTime;
     lastUpdateTime = Date.now();
@@ -24,7 +25,7 @@ export function useSmoothTime(sourceTime: Ref<number>, threshold = 5) {
     timer = window.setInterval(() => {
       const now = Date.now();
       const elapsed = (now - lastUpdateTime) / 1000;
-      
+
       localTime = Math.max(0, localTime - elapsed);
       displayTime.value = Math.round(localTime);
       lastUpdateTime = now;
@@ -47,10 +48,10 @@ export function useSmoothTime(sourceTime: Ref<number>, threshold = 5) {
   // 监听来源时间变化
   watch(
     sourceTime,
-    (newTime) => {
+    newTime => {
       // 🔥 只在变化超过阈值时才更新
       const diff = Math.abs(newTime - localTime);
-      
+
       if (diff > threshold || timer === null) {
         console.log(`🕐 时间同步: ${localTime.toFixed(0)}s -> ${newTime}s`);
         startCountdown();

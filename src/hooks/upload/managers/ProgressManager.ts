@@ -1,14 +1,13 @@
 import { ref } from 'vue';
-import { ChunkInfo, ChunkStatus, FileTask, UploadStats, UploadStatus } from '../type';
+import type { ChunkInfo, FileTask, UploadStats } from '../type';
+import { ChunkStatus, UploadStatus } from '../type';
 import EnhancedSpeedCalculator from '../calculators/EnhancedSpeedCalculator';
 import { TimeEstimator } from './TimeEstimator';
 
-/**
- * 进度管理器 - 优化剩余时间计算版本
- */
+/** 进度管理器 - 优化剩余时间计算版本 */
 export class ProgressManager {
   private speedCalculator: EnhancedSpeedCalculator;
-  private timeEstimator: TimeEstimator;  // 🔥 新增时间估算器
+  private timeEstimator: TimeEstimator; // 🔥 新增时间估算器
 
   public readonly totalProgress = ref(0);
   public readonly uploadSpeed = ref(0);
@@ -16,12 +15,10 @@ export class ProgressManager {
 
   constructor() {
     this.speedCalculator = new EnhancedSpeedCalculator();
-    this.timeEstimator = new TimeEstimator();  // 🔥 初始化
+    this.timeEstimator = new TimeEstimator(); // 🔥 初始化
   }
 
-  /**
-   * 更新文件进度
-   */
+  /** 更新文件进度 */
   updateFileProgress(task: FileTask): void {
     if (task.totalChunks > 0) {
       // 计算进度
@@ -40,9 +37,7 @@ export class ProgressManager {
     }
   }
 
-  /**
-   * 更新分片进度
-   */
+  /** 更新分片进度 */
   updateChunkProgress(chunk: ChunkInfo, size: number, uploadTime: number): void {
     this.speedCalculator.addData(size, uploadTime);
     // 添加数据点
@@ -53,9 +48,7 @@ export class ProgressManager {
     this.updateNetworkQuality();
   }
 
-  /**
-   * 更新总进度
-   */
+  /** 更新总进度 */
   updateTotalProgress(tasks: FileTask[]): void {
     if (tasks.length === 0) {
       this.totalProgress.value = 0;
@@ -63,17 +56,12 @@ export class ProgressManager {
     }
 
     const totalSize = tasks.reduce((sum, task) => sum + task.file.size, 0);
-    const uploadedSize = tasks.reduce(
-      (sum, task) => sum + (task.file.size * task.progress) / 100,
-      0
-    );
+    const uploadedSize = tasks.reduce((sum, task) => sum + (task.file.size * task.progress) / 100, 0);
 
     this.totalProgress.value = Math.min(100, Math.round((uploadedSize / totalSize) * 100) || 0);
   }
 
-  /**
-   * 计算统计信息
-   */
+  /** 计算统计信息 */
   calculateStats(
     uploadQueue: FileTask[],
     activeUploads: Map<string, FileTask>,
@@ -89,10 +77,7 @@ export class ProgressManager {
 
     const allTasks = [...uploadQueue, ...Array.from(activeUploads.values()), ...completedUploads];
     const totalSize = allTasks.reduce((sum, task) => sum + task.file.size, 0);
-    const uploadedSize = allTasks.reduce(
-      (sum, task) => sum + (task.file.size * task.progress) / 100,
-      0
-    );
+    const uploadedSize = allTasks.reduce((sum, task) => sum + (task.file.size * task.progress) / 100, 0);
 
     // 🔥 使用时间估算器计算剩余时间
     const remainingSize = totalSize - uploadedSize;
@@ -111,14 +96,12 @@ export class ProgressManager {
       uploadedSize,
       averageSpeed,
       instantSpeed: this.uploadSpeed.value,
-      estimatedTime,  // 🔥 平滑的剩余时间
+      estimatedTime, // 🔥 平滑的剩余时间
       networkQuality: this.networkQuality.value
     };
   }
 
-  /**
-   * 更新网络质量评级
-   */
+  /** 更新网络质量评级 */
   private updateNetworkQuality(): void {
     const speed = this.uploadSpeed.value;
     if (speed < 50) {
@@ -130,27 +113,21 @@ export class ProgressManager {
     }
   }
 
-  /**
-   * 重置进度管理器
-   */
+  /** 重置进度管理器 */
   reset(): void {
     this.totalProgress.value = 0;
     this.uploadSpeed.value = 0;
     this.networkQuality.value = 'good';
     this.speedCalculator.reset();
-    this.timeEstimator.reset();  // 🔥 重置时间估算器
+    this.timeEstimator.reset(); // 🔥 重置时间估算器
   }
 
-  /**
-   * 获取平均速度
-   */
+  /** 获取平均速度 */
   getAverageSpeed(): number {
     return this.speedCalculator.getAverageSpeed();
   }
 
-  /**
-   * 获取时间变化趋势
-   */
+  /** 获取时间变化趋势 */
   getTimeTrend(): 'increasing' | 'stable' | 'decreasing' {
     return this.timeEstimator.getTrend();
   }

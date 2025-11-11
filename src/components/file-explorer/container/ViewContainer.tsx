@@ -6,14 +6,15 @@
  * @FilePath: \markdown-preview-demo\src\components\file-explorer\container\ViewContainer.tsx
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
-import { computed, defineComponent, PropType, Ref } from 'vue'
-import { useContextMenuOptions } from '../hooks/useContextMenuOptions'
-import ContextMenu from '../interaction/ContextMenu'
-import { FileItem, GridSize, SortField, SortOrder, ViewMode } from '../types/file-explorer'
-import FileViewRenderer from './FileViewRenderer'
-import NSelectionRect from '../interaction/NSelectionRect'
-import { NScrollbar } from 'naive-ui'
-import FileLoading from '../feedback/FileLoading'
+import type { PropType, Ref } from 'vue';
+import { computed, defineComponent } from 'vue';
+import { NScrollbar } from 'naive-ui';
+import { useContextMenuOptions } from '../hooks/useContextMenuOptions';
+import ContextMenu from '../interaction/ContextMenu';
+import type { FileItem, GridSize, SortField, SortOrder, ViewMode } from '../types/file-explorer';
+import NSelectionRect from '../interaction/NSelectionRect';
+import FileLoading from '../feedback/FileLoading';
+import FileViewRenderer from './FileViewRenderer';
 
 export default defineComponent({
   name: 'ViewContainer',
@@ -35,12 +36,12 @@ export default defineComponent({
     const { handleContextMenuShow, handleContextMenuHide, options } = useContextMenuOptions({
       selectedIds: props.selectedIds,
       onSelect: props.onSelect
-    })
+    });
 
     /** 接收圈选结果 */
     const handleSelectionChange = (ids: string[]) => {
-      props.onSelect(ids)
-    }
+      props.onSelect(ids);
+    };
     return () => {
       return (
         <div class="h-full" style={{ position: 'relative' }}>
@@ -57,19 +58,16 @@ export default defineComponent({
               onClearSelection={() => props.onSelect([])}
               class={'h-full'}
             >
-              <NScrollbar yPlacement='right' xPlacement='bottom' class="h-full">
+              <NScrollbar yPlacement="right" xPlacement="bottom" class="h-full">
                 <FileViewRenderer {...props} />
               </NScrollbar>
             </NSelectionRect>
           </ContextMenu>
 
           {/* Loading 遮罩层 - 只覆盖文件列表区域 */}
-          <FileLoading
-            loading={props.loading}
-            tip={props.loadingTip}
-          />
+          <FileLoading loading={props.loading} tip={props.loadingTip} />
         </div>
-      )
-    }
+      );
+    };
   }
-})
+});

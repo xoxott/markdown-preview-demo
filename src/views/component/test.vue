@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { NButton, NSpace, useMessage } from 'naive-ui'
-import { FileItem } from '@/components/file-explorer/types/file-explorer'
-import { useFileDragDropEnhanced } from '@/components/file-explorer/hooks/useFileDragDropEnhanced'
-import DragPreview from '@/components/file-explorer/interaction/DragPreview'
-import DropZone from '@/components/file-explorer/interaction/DropZone'
+import { ref } from 'vue';
+import { NButton, NSpace, useMessage } from 'naive-ui';
+import type { FileItem } from '@/components/file-explorer/types/file-explorer';
+import { useFileDragDropEnhanced } from '@/components/file-explorer/hooks/useFileDragDropEnhanced';
+import DragPreview from '@/components/file-explorer/interaction/DragPreview';
+import DropZone from '@/components/file-explorer/interaction/DropZone';
 
-const message = useMessage()
+const message = useMessage();
 
 // 示例数据
 const files = ref<FileItem[]>([
@@ -53,115 +53,118 @@ const files = ref<FileItem[]>([
     size: 15360,
     modifiedAt: new Date()
   }
-])
+]);
 
 const targetFolders = ref([
   { id: 'folder-1', name: '📄 Documents', path: '/documents', color: 'blue' },
   { id: 'folder-2', name: '🖼️ Pictures', path: '/pictures', color: 'green' },
   { id: 'folder-3', name: '🎵 Music', path: '/music', color: 'purple' },
   { id: 'folder-4', name: '💼 Projects', path: '/projects', color: 'orange' }
-])
+]);
 
-const selectedFiles = ref<Set<string>>(new Set())
+const selectedFiles = ref<Set<string>>(new Set());
 
 // 🔥 使用增强版 Hook（自动处理所有拖拽事件，包括 dragend）
-const {
-  dragState,
-  isDragging,
-  dragOperation,
-  startDrag,
-  getDropZoneState,
-  enterDropZone,
-  leaveDropZone,
-  executeDrop
-} = useFileDragDropEnhanced({
-  onDragStart: (items) => {
-    console.log('🎯 开始拖拽:', items.map(i => i.name))
-  },
-  onDragEnd: () => {
-    console.log('✅ 拖拽结束')
-  },
-  onMove: async (items, targetPath) => {
-    message.success(`移动 ${items.length} 个项目到 ${targetPath}`)
-    await new Promise(resolve => setTimeout(resolve, 500)) // 模拟 API 延迟
-    console.log('📦 移动:', items.map(i => i.name), '到:', targetPath)
-  },
-  onCopy: async (items, targetPath) => {
-    message.info(`复制 ${items.length} 个项目到 ${targetPath}`)
-    await new Promise(resolve => setTimeout(resolve, 500))
-    console.log('📋 复制:', items.map(i => i.name), '到:', targetPath)
-  },
-  validateDrop: (items, targetPath) => {
-    // 验证：不能拖到源路径
-    return !items.some(item => {
-      const itemDir = item.path.substring(0, item.path.lastIndexOf('/'))
-      return itemDir === targetPath
-    })
-  }
-})
+const { dragState, isDragging, dragOperation, startDrag, getDropZoneState, enterDropZone, leaveDropZone, executeDrop } =
+  useFileDragDropEnhanced({
+    onDragStart: items => {
+      console.log(
+        '🎯 开始拖拽:',
+        items.map(i => i.name)
+      );
+    },
+    onDragEnd: () => {
+      console.log('✅ 拖拽结束');
+    },
+    onMove: async (items, targetPath) => {
+      message.success(`移动 ${items.length} 个项目到 ${targetPath}`);
+      await new Promise(resolve => setTimeout(resolve, 500)); // 模拟 API 延迟
+      console.log(
+        '📦 移动:',
+        items.map(i => i.name),
+        '到:',
+        targetPath
+      );
+    },
+    onCopy: async (items, targetPath) => {
+      message.info(`复制 ${items.length} 个项目到 ${targetPath}`);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      console.log(
+        '📋 复制:',
+        items.map(i => i.name),
+        '到:',
+        targetPath
+      );
+    },
+    validateDrop: (items, targetPath) => {
+      // 验证：不能拖到源路径
+      return !items.some(item => {
+        const itemDir = item.path.substring(0, item.path.lastIndexOf('/'));
+        return itemDir === targetPath;
+      });
+    }
+  });
 
 // 切换选择
 const toggleFileSelection = (fileId: string, event?: MouseEvent) => {
   if (event?.shiftKey) {
     // Shift 多选
-    const currentIndex = files.value.findIndex(f => f.id === fileId)
-    const selectedArray = Array.from(selectedFiles.value)
-    
+    const currentIndex = files.value.findIndex(f => f.id === fileId);
+    const selectedArray = Array.from(selectedFiles.value);
+
     if (selectedArray.length > 0) {
-      const lastSelectedId = selectedArray[selectedArray.length - 1]
-      const lastIndex = files.value.findIndex(f => f.id === lastSelectedId)
-      const start = Math.min(currentIndex, lastIndex)
-      const end = Math.max(currentIndex, lastIndex)
-      
+      const lastSelectedId = selectedArray[selectedArray.length - 1];
+      const lastIndex = files.value.findIndex(f => f.id === lastSelectedId);
+      const start = Math.min(currentIndex, lastIndex);
+      const end = Math.max(currentIndex, lastIndex);
+
       for (let i = start; i <= end; i++) {
-        selectedFiles.value.add(files.value[i].id)
+        selectedFiles.value.add(files.value[i].id);
       }
     } else {
-      selectedFiles.value.add(fileId)
+      selectedFiles.value.add(fileId);
     }
   } else if (event?.ctrlKey || event?.metaKey) {
     // Ctrl/Cmd 切换选择
     if (selectedFiles.value.has(fileId)) {
-      selectedFiles.value.delete(fileId)
+      selectedFiles.value.delete(fileId);
     } else {
-      selectedFiles.value.add(fileId)
+      selectedFiles.value.add(fileId);
     }
   } else {
     // 单选
-    selectedFiles.value.clear()
-    selectedFiles.value.add(fileId)
+    selectedFiles.value.clear();
+    selectedFiles.value.add(fileId);
   }
-}
+};
 
 // 获取选中的文件
 const getSelectedItems = (): FileItem[] => {
-  return files.value.filter(f => selectedFiles.value.has(f.id))
-}
+  return files.value.filter(f => selectedFiles.value.has(f.id));
+};
 
 // 开始拖拽
 const handleFileDragStart = (file: FileItem, event: DragEvent) => {
-  const itemsToDrag = selectedFiles.value.has(file.id)
-    ? getSelectedItems()
-    : [file]
-  
-  startDrag(itemsToDrag, event)
-}
+  const itemsToDrag = selectedFiles.value.has(file.id) ? getSelectedItems() : [file];
+
+  startDrag(itemsToDrag, event);
+};
 
 // 处理放置
 const handleDrop = async (zoneId: string) => {
-  await executeDrop(zoneId)
-  selectedFiles.value.clear()
-}
+  await executeDrop(zoneId);
+  selectedFiles.value.clear();
+};
 
 // 清空选择
 const clearSelection = () => {
-  selectedFiles.value.clear()
-}
+  selectedFiles.value.clear();
+};
 
 // 全选
 const selectAll = () => {
-  files.value.forEach(f => selectedFiles.value.add(f.id))
-}
+  files.value.forEach(f => selectedFiles.value.add(f.id));
+};
 
 // 获取文件夹颜色类
 const getFolderColorClass = (color: string) => {
@@ -170,34 +173,40 @@ const getFolderColorClass = (color: string) => {
     green: 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700',
     purple: 'bg-purple-100 dark:bg-purple-900/30 border-purple-300 dark:border-purple-700',
     orange: 'bg-orange-100 dark:bg-orange-900/30 border-orange-300 dark:border-orange-700'
-  }
-  return colorMap[color] || colorMap.blue
-}
+  };
+  return colorMap[color] || colorMap.blue;
+};
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
+  <div class="min-h-screen bg-gray-50 p-8 dark:bg-gray-900">
     <!-- 🔥 不需要任何拖拽事件监听！增强版 Hook 自动处理所有事件 -->
-    <div class="max-w-7xl mx-auto space-y-6">
+    <div class="mx-auto max-w-7xl space-y-6">
       <!-- 标题 -->
       <div class="space-y-3">
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-          🎯 增强版拖拽示例
-        </h1>
-        <p class="text-gray-600 dark:text-gray-400">
-          拖拽预览现在会完美跟随鼠标，即使在目标区域上也不会卡住！
-        </p>
+        <h1 class="text-3xl text-gray-900 font-bold dark:text-white">🎯 增强版拖拽示例</h1>
+        <p class="text-gray-600 dark:text-gray-400">拖拽预览现在会完美跟随鼠标，即使在目标区域上也不会卡住！</p>
         <div class="flex gap-3 text-sm text-gray-500 dark:text-gray-400">
-          <span>💡 按住 <kbd class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">Ctrl</kbd> 复制</span>
-          <span>💡 <kbd class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">Shift</kbd> 多选</span>
+          <span>
+            💡 按住
+            <kbd class="rounded bg-gray-200 px-2 py-1 dark:bg-gray-700">Ctrl</kbd>
+            复制
+          </span>
+          <span>
+            💡
+            <kbd class="rounded bg-gray-200 px-2 py-1 dark:bg-gray-700">Shift</kbd>
+            多选
+          </span>
           <span>💡 拖拽多个文件体验流畅动画</span>
         </div>
       </div>
 
       <!-- 操作栏 -->
-      <div class="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+      <div
+        class="flex items-center justify-between border border-gray-200 rounded-lg bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+      >
         <div class="flex items-center gap-3">
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <span class="text-sm text-gray-700 font-medium dark:text-gray-300">
             已选中: {{ selectedFiles.size }} / {{ files.length }}
           </span>
           <div class="h-4 w-px bg-gray-300 dark:bg-gray-600" />
@@ -213,18 +222,17 @@ const getFolderColorClass = (color: string) => {
 
       <!-- 文件列表 -->
       <div class="space-y-3">
-        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+        <h3 class="flex items-center gap-2 text-lg text-gray-800 font-semibold dark:text-gray-200">
           📁 文件列表
-          <span class="text-xs font-normal text-gray-500">(点击选择，拖拽移动)</span>
+          <span class="text-xs text-gray-500 font-normal">(点击选择，拖拽移动)</span>
         </h3>
-        
+
         <div class="grid grid-cols-5 gap-3">
           <div
             v-for="file in files"
             :key="file.id"
+            class="group relative cursor-move border-2 rounded-lg p-4 transition-all duration-200 hover:shadow-lg"
             :class="[
-              'group relative p-4 rounded-lg cursor-move transition-all duration-200',
-              'border-2 hover:shadow-lg',
               selectedFiles.has(file.id)
                 ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md scale-[1.02]'
                 : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300'
@@ -235,8 +243,8 @@ const getFolderColorClass = (color: string) => {
           >
             <!-- 选择指示器 -->
             <div
+              class="absolute right-2 top-2 h-5 w-5 border-2 rounded-full transition-all"
               :class="[
-                'absolute top-2 right-2 w-5 h-5 rounded-full border-2 transition-all',
                 selectedFiles.has(file.id)
                   ? 'bg-blue-500 border-blue-500'
                   : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 group-hover:border-blue-400'
@@ -244,7 +252,7 @@ const getFolderColorClass = (color: string) => {
             >
               <svg
                 v-if="selectedFiles.has(file.id)"
-                class="w-full h-full text-white"
+                class="h-full w-full text-white"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -259,14 +267,22 @@ const getFolderColorClass = (color: string) => {
             <!-- 文件图标 -->
             <div class="flex flex-col items-center gap-2 text-center">
               <div class="text-4xl">
-                {{ file.type === 'folder' ? '📁' : 
-                   file.extension === 'pdf' ? '📄' :
-                   file.extension === 'jpg' ? '🖼️' :
-                   file.extension === 'mp3' ? '🎵' :
-                   file.extension === 'js' ? '📜' : '📄' }}
+                {{
+                  file.type === 'folder'
+                    ? '📁'
+                    : file.extension === 'pdf'
+                      ? '📄'
+                      : file.extension === 'jpg'
+                        ? '🖼️'
+                        : file.extension === 'mp3'
+                          ? '🎵'
+                          : file.extension === 'js'
+                            ? '📜'
+                            : '📄'
+                }}
               </div>
               <div class="w-full">
-                <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                <p class="truncate text-sm text-gray-900 font-medium dark:text-white">
                   {{ file.name }}
                 </p>
                 <p class="text-xs text-gray-500 dark:text-gray-400">
@@ -280,11 +296,11 @@ const getFolderColorClass = (color: string) => {
 
       <!-- 目标文件夹 -->
       <div class="space-y-3">
-        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+        <h3 class="flex items-center gap-2 text-lg text-gray-800 font-semibold dark:text-gray-200">
           🎯 目标文件夹
-          <span class="text-xs font-normal text-gray-500">(拖拽到这里)</span>
+          <span class="text-xs text-gray-500 font-normal">(拖拽到这里)</span>
         </h3>
-        
+
         <div class="grid grid-cols-4 gap-4">
           <DropZone
             v-for="folder in targetFolders"
@@ -298,10 +314,10 @@ const getFolderColorClass = (color: string) => {
             @drag-leave="leaveDropZone(folder.id)"
             @drop="handleDrop(folder.id)"
           >
-            <div :class="['rounded-lg p-4 border-2 transition-all', getFolderColorClass(folder.color)]">
+            <div class="border-2 rounded-lg p-4 transition-all" :class="[getFolderColorClass(folder.color)]">
               <div class="flex flex-col items-center gap-2 text-center">
                 <div class="text-3xl">{{ folder.name.split(' ')[0] }}</div>
-                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                <p class="text-sm text-gray-900 font-medium dark:text-white">
                   {{ folder.name.split(' ').slice(1).join(' ') }}
                 </p>
                 <p class="text-xs text-gray-500 dark:text-gray-400">
@@ -315,10 +331,8 @@ const getFolderColorClass = (color: string) => {
 
       <!-- 独立上传区域 -->
       <div class="space-y-3">
-        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
-          ☁️ 上传区域
-        </h3>
-        
+        <h3 class="text-lg text-gray-800 font-semibold dark:text-gray-200">☁️ 上传区域</h3>
+
         <DropZone
           zone-id="upload-zone"
           target-path="/uploads"
@@ -330,9 +344,7 @@ const getFolderColorClass = (color: string) => {
           @drop="handleDrop('upload-zone')"
         >
           <template #content>
-            <NButton type="primary" size="large" ghost>
-              或点击选择文件
-            </NButton>
+            <NButton type="primary" size="large" ghost>或点击选择文件</NButton>
           </template>
         </DropZone>
       </div>
@@ -347,30 +359,32 @@ const getFolderColorClass = (color: string) => {
       />
 
       <!-- 状态面板 -->
-      <div class="p-6 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-inner">
-        <h4 class="text-sm font-bold mb-3 text-gray-700 dark:text-gray-300">📊 实时状态</h4>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="bg-white dark:bg-gray-800 p-3 rounded-lg">
+      <div
+        class="rounded-xl from-gray-100 to-gray-200 bg-gradient-to-br p-6 shadow-inner dark:from-gray-800 dark:to-gray-900"
+      >
+        <h4 class="mb-3 text-sm text-gray-700 font-bold dark:text-gray-300">📊 实时状态</h4>
+        <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <div class="rounded-lg bg-white p-3 dark:bg-gray-800">
             <p class="text-xs text-gray-500 dark:text-gray-400">拖拽状态</p>
             <p class="text-lg font-bold" :class="isDragging ? 'text-green-500' : 'text-gray-400'">
               {{ isDragging ? '✓ 活跃' : '○ 待命' }}
             </p>
           </div>
-          <div class="bg-white dark:bg-gray-800 p-3 rounded-lg">
+          <div class="rounded-lg bg-white p-3 dark:bg-gray-800">
             <p class="text-xs text-gray-500 dark:text-gray-400">操作类型</p>
-            <p class="text-lg font-bold text-blue-500">
+            <p class="text-lg text-blue-500 font-bold">
               {{ dragOperation === 'copy' ? '📋 复制' : '📦 移动' }}
             </p>
           </div>
-          <div class="bg-white dark:bg-gray-800 p-3 rounded-lg">
+          <div class="rounded-lg bg-white p-3 dark:bg-gray-800">
             <p class="text-xs text-gray-500 dark:text-gray-400">拖拽项数</p>
-            <p class="text-lg font-bold text-purple-500">
+            <p class="text-lg text-purple-500 font-bold">
               {{ dragState.draggedItems.length }}
             </p>
           </div>
-          <div class="bg-white dark:bg-gray-800 p-3 rounded-lg">
+          <div class="rounded-lg bg-white p-3 dark:bg-gray-800">
             <p class="text-xs text-gray-500 dark:text-gray-400">选中文件</p>
-            <p class="text-lg font-bold text-orange-500">
+            <p class="text-lg text-orange-500 font-bold">
               {{ selectedFiles.size }}
             </p>
           </div>

@@ -5,8 +5,6 @@ import type { WatermarkProps } from 'naive-ui';
 import { useAppStore } from './store/modules/app';
 import { useThemeStore } from './store/modules/theme';
 import { naiveDateLocales, naiveLocales } from './locales/naive';
-import { setDrawerTheme } from './hooks/customer/useDrawer';
-import { setDialogTheme } from './components/file-explorer/hooks/useDialog';
 
 defineOptions({
   name: 'App'
@@ -40,18 +38,6 @@ const watermarkProps = computed<WatermarkProps>(() => {
     zIndex: 9999
   };
 });
-
-// 监听主题变化并更新抽屉主题
-watch(
-  () => themeStore.darkMode,
-  (isDark) => {
-    setDrawerTheme({
-      theme: isDark ? darkTheme : undefined,
-      themeOverrides: themeStore.naiveTheme
-    });
-  },
-  { immediate: true }
-);
 </script>
 
 <template>

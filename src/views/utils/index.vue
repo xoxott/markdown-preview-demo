@@ -8,10 +8,10 @@
 -->
 <script setup lang="ts">
 // import README from '~/packages/changelog/docs/README.md?raw';
-import MarkDown from '@/components/markdown/index.vue';
-import {  computed,ref,watch  } from 'vue';
-import { useThemeVars } from 'naive-ui';
+import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { useThemeVars } from 'naive-ui';
+import { MarkdownPreview as MarkDown } from '@/components/markdown';
 const docs = import.meta.glob('~/packages/changelog/docs/*.md', { as: 'raw' });
 const themeVars = useThemeVars();
 const previewStyle = computed(() => ({
@@ -22,34 +22,33 @@ const previewStyle = computed(() => ({
 const content = ref('');
 const route = useRoute();
 
-async function loadDoc(path:string) {
+async function loadDoc(path: string) {
   const key = `/packages/changelog/docs${path}`;
   if (docs[key]) {
     return docs[key](); // 返回的是 Promise<string>
-  } else {
-    throw new Error(`文档不存在: ${path}`);
   }
+  throw new Error(`文档不存在: ${path}`);
 }
 
 async function fetchDocFromHash() {
   const hash = route.hash.replace(/^#/, ''); // '#/cli.md' → '/cli.md'
-    try {
-      content.value = await loadDoc(hash || '/README.md');
-    } catch (e) {
-      content.value = '# 文档未找到';
-    }
+  try {
+    content.value = await loadDoc(hash || '/README.md');
+  } catch (e) {
+    content.value = '# 文档未找到';
+  }
 }
 
-watch(
-  () => route.hash,
-  fetchDocFromHash,
-  { immediate: true }
-);
+watch(() => route.hash, fetchDocFromHash, { immediate: true });
 
 // const content = computed(()=> README)
 </script>
+
 <template>
-    <div class="border border-gray-200 rounded-md p-4 shadow w-full text-12px w-full  flex items-center justify-center " :style="previewStyle">
-        <MarkDown :content="content" />
-   </div>
+  <div
+    class="w-full w-full flex items-center justify-center border border-gray-200 rounded-md p-4 text-12px shadow"
+    :style="previewStyle"
+  >
+    <MarkDown :content="content" />
+  </div>
 </template>

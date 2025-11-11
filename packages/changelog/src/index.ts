@@ -8,11 +8,11 @@ import type { ChangelogOption } from './types';
  *
  * @param options changelog 配置项（部分字段可覆盖默认配置）
  * @param showTitle 是否在生成的 markdown 中包含标题
- *
  * @returns 包含以下内容的对象：
- * - `markdown`: 生成的 changelog 文本
- * - `commits`: 提交记录列表
- * - `options`: 最终合并的配置项
+ *
+ *   - `markdown`: 生成的 changelog 文本
+ *   - `commits`: 提交记录列表
+ *   - `options`: 最终合并的配置项
  */
 export async function getChangelogMarkdown(options?: Partial<ChangelogOption>, showTitle = true) {
   const opts = await createOptions(options);
@@ -38,7 +38,6 @@ export async function getChangelogMarkdown(options?: Partial<ChangelogOption>, s
  *
  * @param options changelog 配置项（部分字段可覆盖默认配置）
  * @param showProgress 是否显示进度条（默认显示）
- *
  * @returns 拼接好的完整 changelog 文本
  */
 export async function getTotalChangelogMarkdown(options?: Partial<ChangelogOption>, showProgress = true) {
@@ -86,9 +85,8 @@ export async function getTotalChangelogMarkdown(options?: Partial<ChangelogOptio
  *
  * @param options changelog 配置项（部分字段可覆盖默认配置）
  *
- * 
- * - 如果目标 changelog 文件中已存在该版本的内容，且未开启 `regenerate`，则不会重复生成。
- * - 否则会写入或覆盖 changelog。
+ *   - 如果目标 changelog 文件中已存在该版本的内容，且未开启 `regenerate`，则不会重复生成。
+ *   - 否则会写入或覆盖 changelog。
  */
 export async function generateChangelog(options?: Partial<ChangelogOption>) {
   const opts = await createOptions(options);
@@ -108,10 +106,9 @@ export async function generateChangelog(options?: Partial<ChangelogOption>) {
  * @param options changelog 配置项（部分字段可覆盖默认配置）
  * @param showProgress 是否显示进度条（默认显示）
  *
- * 
- * - 会生成包含所有版本记录的完整 changelog
- * - 结果会写入指定的输出文件（默认是 `CHANGELOG.md`）
- * - 与 `generateChangelog` 不同的是，该函数会强制覆盖写入所有版本内容
+ *   - 会生成包含所有版本记录的完整 changelog
+ *   - 结果会写入指定的输出文件（默认是 `CHANGELOG.md`）
+ *   - 与 `generateChangelog` 不同的是，该函数会强制覆盖写入所有版本内容
  */
 export async function generateTotalChangelog(options?: Partial<ChangelogOption>, showProgress = true) {
   const opts = await createOptions(options);

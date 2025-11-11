@@ -24,34 +24,28 @@ interface CommandArg {
   total?: boolean;
   /** 指定清理目录的 glob 模式 */
   cleanupDir?: string;
- /** CLI 显示语言 */
+  /** CLI 显示语言 */
   lang?: Lang;
 }
 
 export async function setupCli() {
-   // 加载 CLI 配置，例如忽略文件、changelog 配置等
+  // 加载 CLI 配置，例如忽略文件、changelog 配置等
   const cliOptions = await loadCliOptions();
-  
-   // 初始化 CLI 实例，指定工具名和颜色
+
+  // 初始化 CLI 实例，指定工具名和颜色
   const cli = cac(blue('soybean-admin'));
 
   // 设置 CLI 全局版本和选项
   cli
     .version(lightGreen(version)) // 显示当前项目版本
-    .option(
-      '-e, --execute [command]',
-      "在版本更新后、提交前执行额外命令，默认 'npx soy changelog'"
-    )
+    .option('-e, --execute [command]', "在版本更新后、提交前执行额外命令，默认 'npx soy changelog'")
     .option('-p, --push', '是否推送 git commit 和 tag')
     .option('-t, --total', '是否根据所有标签生成 changelog')
-    .option(
-      '-c, --cleanupDir <dir>',
-      '指定清理目录的 glob 模式，多个用 , 分隔'
-    )
+    .option('-c, --cleanupDir <dir>', '指定清理目录的 glob 模式，多个用 , 分隔')
     .option('-l, --lang <lang>', 'CLI 显示语言', { default: 'en-us', type: [String] })
     .help(); // 自动生成帮助命令
 
-    // 定义 CLI 支持的命令及其执行逻辑
+  // 定义 CLI 支持的命令及其执行逻辑
   const commands: CommandWithAction<CommandArg> = {
     cleanup: {
       desc: '删除目录,例如: node_modules, dist, etc 等',

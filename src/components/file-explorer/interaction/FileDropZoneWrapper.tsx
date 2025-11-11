@@ -6,18 +6,19 @@
  * @FilePath: \markdown-preview-demo\src\components\file-explorer\interaction\FileDropZoneWrapper.tsx
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
-import { computed, defineComponent, h, inject, onUnmounted, PropType } from 'vue'
-import DropZone from './DropZone'
-import type { FileItem } from '../types/file-explorer'
-import { FileDragDropHook } from '../hooks/useFileDragDropEnhanced'
+import type { PropType } from 'vue';
+import { computed, defineComponent, h, inject, onUnmounted } from 'vue';
+import type { FileItem } from '../types/file-explorer';
+import type { FileDragDropHook } from '../hooks/useFileDragDropEnhanced';
+import DropZone from './DropZone';
 
 interface Props {
-  item: FileItem
-  zoneId: string
-  targetPath: string
-  disabled?: boolean
-  asFolderZone?: boolean
-  hint?: string
+  item: FileItem;
+  zoneId: string;
+  targetPath: string;
+  disabled?: boolean;
+  asFolderZone?: boolean;
+  hint?: string;
 }
 
 export const FileDropZoneWrapper = defineComponent({
@@ -31,28 +32,27 @@ export const FileDropZoneWrapper = defineComponent({
     hint: { type: String, default: '' }
   },
   setup(props, { slots }) {
-
-    const dragDrop = inject<FileDragDropHook>('FILE_DRAG_DROP')!
+    const dragDrop = inject<FileDragDropHook>('FILE_DRAG_DROP')!;
 
     // 注册 DropZone
-    dragDrop.registerDropZone(props.zoneId, props.targetPath)
+    dragDrop.registerDropZone(props.zoneId, props.targetPath);
 
     const handleDragEnter = (e: DragEvent) => {
-      dragDrop.enterDropZone(props.zoneId, props.targetPath,props.item)
-    }
+      dragDrop.enterDropZone(props.zoneId, props.targetPath, props.item);
+    };
 
     const handleDragLeave = (e: DragEvent) => {
-      dragDrop.leaveDropZone(props.zoneId)
-    }
+      dragDrop.leaveDropZone(props.zoneId);
+    };
 
     const handleDrop = async (e: DragEvent) => {
-      await dragDrop.executeDrop(props.zoneId)
-    }
+      await dragDrop.executeDrop(props.zoneId);
+    };
 
     // 卸载时注销
     onUnmounted(() => {
-      dragDrop.unregisterDropZone(props.zoneId)
-    })
+      dragDrop.unregisterDropZone(props.zoneId);
+    });
 
     return () => (
       <DropZone
@@ -72,6 +72,6 @@ export const FileDropZoneWrapper = defineComponent({
           default: (dragState: any) => slots.default?.(dragState)
         }}
       </DropZone>
-    )
+    );
   }
-})
+});

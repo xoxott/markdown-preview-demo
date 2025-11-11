@@ -1,10 +1,11 @@
-import { defineComponent, PropType, Ref, ref } from 'vue'
-import GridView from '../views/GridView'
-import TileView from '../views/TileView'
-import DetailView from '../views/DetailView'
-import ListView from '../views/ListView'
-import ContentView from '../views/ContentView'
-import { FileItem, GridSize, SortField, SortOrder, ViewMode } from '../types/file-explorer'
+import type { PropType, Ref } from 'vue';
+import { defineComponent, ref } from 'vue';
+import GridView from '../views/GridView';
+import TileView from '../views/TileView';
+import DetailView from '../views/DetailView';
+import ListView from '../views/ListView';
+import ContentView from '../views/ContentView';
+import type { FileItem, GridSize, SortField, SortOrder, ViewMode } from '../types/file-explorer';
 
 export default defineComponent({
   name: 'FileViewRenderer',
@@ -20,7 +21,7 @@ export default defineComponent({
     onSort: { type: Function as PropType<(field: SortField) => void>, required: false }
   },
   setup(props) {
-    const viewRef = ref<any>(null)
+    const viewRef = ref<any>(null);
 
     return () => {
       const viewProps = {
@@ -28,14 +29,14 @@ export default defineComponent({
         selectedIds: props.selectedIds,
         onSelect: props.onSelect,
         onOpen: props.onOpen
-      }
+      };
       switch (props.viewMode) {
         case 'grid':
-          return <GridView {...viewProps} gridSize={props.gridSize} />
+          return <GridView {...viewProps} gridSize={props.gridSize} />;
         case 'list':
-          return <ListView {...viewProps} />
+          return <ListView {...viewProps} />;
         case 'tile':
-          return <TileView {...viewProps} />
+          return <TileView {...viewProps} />;
         case 'detail':
           if (props.sortField && props.sortOrder && props.onSort) {
             return (
@@ -46,14 +47,14 @@ export default defineComponent({
                 sortOrder={props.sortOrder}
                 onSort={props.onSort}
               />
-            )
+            );
           }
-          return null
+          return null;
         case 'content':
-          return <ContentView {...viewProps} />
+          return <ContentView {...viewProps} />;
         default:
-          return null
+          return null;
       }
-    }
+    };
   }
-})
+});

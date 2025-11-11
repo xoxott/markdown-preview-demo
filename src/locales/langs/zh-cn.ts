@@ -163,13 +163,13 @@ const local: App.I18n.Schema = {
     500: '服务器错误',
     'iframe-page': '外链页面',
     home: '首页',
-    chat: "会话",
-    markdownedit: "markdown编辑",
-    upload: "上传",
-    utils: "工具",
-    component: "组件示例",
-    mobile: "移动端",
-    "file-manager": "文件管理器"
+    chat: '会话',
+    markdownedit: 'markdown编辑',
+    upload: '上传',
+    utils: '工具',
+    component: '组件示例',
+    mobile: '移动端',
+    'file-manager': '文件管理器'
   },
   page: {
     login: {

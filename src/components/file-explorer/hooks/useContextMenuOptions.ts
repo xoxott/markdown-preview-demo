@@ -1,4 +1,5 @@
-import { ref, computed, Ref, nextTick } from 'vue'
+import type { Ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import {
   CopyOutline,
   CreateOutline,
@@ -10,16 +11,15 @@ import {
   ShareSocialOutline,
   StarOutline,
   TrashOutline
-} from '@vicons/ionicons5'
-import type { ContextMenuItem } from '../interaction/ContextMenu'
+} from '@vicons/ionicons5';
+import type { ContextMenuItem } from '../interaction/ContextMenu';
 
 interface UseContextMenuOptionsParams {
-  selectedIds: Ref<Set<string>>
-  onSelect: (ids: string[], event?: MouseEvent) => void
+  selectedIds: Ref<Set<string>>;
+  onSelect: (ids: string[], event?: MouseEvent) => void;
 }
 
 export function useContextMenuOptions({ selectedIds, onSelect }: UseContextMenuOptionsParams) {
-
   // 空白区菜单（固定 show）
   const blankOptions: ContextMenuItem[] = [
     { key: 'refresh', label: '刷新', icon: OpenOutline, shortcut: 'F5', show: true },
@@ -37,7 +37,7 @@ export function useContextMenuOptions({ selectedIds, onSelect }: UseContextMenuO
         { key: 'sort-created', label: '按创建日期排序' }
       ]
     }
-  ]
+  ];
 
   // 文件区菜单：computed 动态生成，每次依赖 selectedIds
   const fileOptions = computed<ContextMenuItem[]>(() => {
@@ -59,56 +59,69 @@ export function useContextMenuOptions({ selectedIds, onSelect }: UseContextMenuO
       { key: 'copy', label: '复制', icon: CopyOutline, shortcut: 'Ctrl+C', show: selectedIds.value.size > 0 },
       { key: 'divider-2', label: '', divider: true },
       { key: 'rename', label: '重命名', icon: CreateOutline, shortcut: 'F2', show: selectedIds.value.size === 1 },
-      { key: 'delete', label: `删除 ${selectedIds.value.size} 个项目`, icon: TrashOutline, danger: true, shortcut: 'Delete', show: selectedIds.value.size > 0 },
+      {
+        key: 'delete',
+        label: `删除 ${selectedIds.value.size} 个项目`,
+        icon: TrashOutline,
+        danger: true,
+        shortcut: 'Delete',
+        show: selectedIds.value.size > 0
+      },
       { key: 'divider-3', label: '', divider: true },
       { key: 'download', label: '下载', icon: DownloadOutline, show: selectedIds.value.size > 0 },
       { key: 'share', label: '分享', icon: ShareSocialOutline, show: selectedIds.value.size > 0 },
       { key: 'favorite', label: '收藏', icon: StarOutline, show: selectedIds.value.size === 1 },
       { key: 'divider-4', label: '', divider: true },
-      { key: 'properties', label: '属性', icon: InformationCircleOutline, shortcut: 'Alt+Enter', show: selectedIds.value.size === 1 }
-    ]
+      {
+        key: 'properties',
+        label: '属性',
+        icon: InformationCircleOutline,
+        shortcut: 'Alt+Enter',
+        show: selectedIds.value.size === 1
+      }
+    ];
 
     // 去掉多余分隔符
-    const filtered: ContextMenuItem[] = []
+    const filtered: ContextMenuItem[] = [];
     for (let i = 0; i < options.length; i++) {
-      const item = options[i]
+      const item = options[i];
       if (item.divider) {
-        const hasPrev = filtered.some(f => f.show)
-        const hasNext = options.slice(i + 1).some(f => f.show && !f.divider)
-        if (hasPrev && hasNext) filtered.push(item)
+        const hasPrev = filtered.some(f => f.show);
+        const hasNext = options.slice(i + 1).some(f => f.show && !f.divider);
+        if (hasPrev && hasNext) filtered.push(item);
       } else {
-        filtered.push(item)
+        filtered.push(item);
       }
     }
 
-    return filtered
-  })
+    return filtered;
+  });
 
-  const options = ref<ContextMenuItem[]>([])
+  const options = ref<ContextMenuItem[]>([]);
 
   const handleContextMenuShow = (contextData: any) => {
-    const target = contextData.data.element as HTMLElement
-    const fileEl = target.closest('[data-selectable-id]') as HTMLElement | null
+    const target = contextData.data.element as HTMLElement;
+    const fileEl = target.closest('[data-selectable-id]') as HTMLElement | null;
 
     if (fileEl) {
-      const id = fileEl.dataset.selectableId!
+      const id = fileEl.dataset.selectableId!;
       if (!selectedIds.value.has(id)) {
-        onSelect([id])
+        onSelect([id]);
       }
-        options.value = fileOptions.value
+      options.value = fileOptions.value;
     } else {
-      onSelect([])
-        options.value = blankOptions
+      onSelect([]);
+      options.value = blankOptions;
     }
-  }
+  };
 
   const handleContextMenuHide = () => {
-    options.value = []
-  }
+    options.value = [];
+  };
 
   return {
     options,
     handleContextMenuShow,
     handleContextMenuHide
-  }
+  };
 }

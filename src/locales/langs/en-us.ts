@@ -163,13 +163,13 @@ const local: App.I18n.Schema = {
     500: 'Server Error',
     'iframe-page': 'Iframe',
     home: 'Home',
-    chat: "Chat",
-    markdownedit: "MarkdownEdit",
-    upload: "Upload",
-    utils: "Utils",
-    component: "component",
-    mobile: "mobile",
-    "file-manager": "file-manager"
+    chat: 'Chat',
+    markdownedit: 'MarkdownEdit',
+    upload: 'Upload',
+    utils: 'Utils',
+    component: 'component',
+    mobile: 'mobile',
+    'file-manager': 'file-manager'
   },
   page: {
     login: {

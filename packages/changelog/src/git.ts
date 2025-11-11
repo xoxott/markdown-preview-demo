@@ -59,7 +59,7 @@ export async function getTagDateMap() {
  * 生成版本之间的 from-to 区间，用于生成 CHANGELOG 对比范围
  *
  * @param tags git 标签列表
- * @returns {Array<{ from: string; to: string }>} 版本区间对
+ * @returns {{ from: string; to: string }[]} 版本区间对
  */
 export function getFromToTags(tags: string[]) {
   const result: { from: string; to: string }[] = [];
@@ -101,7 +101,6 @@ async function getGitMainBranchName() {
   return main;
 }
 
-
 /**
  * 获取当前 Git 指针位置：若有 tag 返回 tag，否则返回分支名
  *
@@ -117,8 +116,8 @@ export async function getCurrentGitBranch() {
 /**
  * 获取 GitHub 仓库名称 (格式: owner/repo)
  *
- * @throws 当无法从 remote.origin.url 解析时抛出异常
  * @returns {Promise<string>} 仓库名称字符串
+ * @throws 当无法从 remote.origin.url 解析时抛出异常
  */
 export async function getGitHubRepo() {
   const url = await execCommand('git', ['config', '--get', 'remote.origin.url']);
@@ -211,7 +210,7 @@ function parseGitCommit(commit: RawGitCommit): GitCommit | null {
   const isBreaking = Boolean(match.groups.breaking);
   let description = match.groups.description;
 
-   // 引用信息
+  // 引用信息
   const references: Reference[] = [];
   for (const m of description.matchAll(PullRequestRE)) {
     references.push({ type: 'pull-request', value: m[1] });
@@ -224,7 +223,7 @@ function parseGitCommit(commit: RawGitCommit): GitCommit | null {
   references.push({ value: commit.shortHash, type: 'hash' });
   description = description.replace(PullRequestRE, '').trim();
 
- // 作者信息
+  // 作者信息
   const authors: GitCommitAuthor[] = [commit.author];
 
   const matches = commit.body.matchAll(CoAuthoredByRegex);
@@ -252,7 +251,6 @@ function parseGitCommit(commit: RawGitCommit): GitCommit | null {
   };
 }
 
-
 /**
  * 获取解析后的 git 提交记录
  *
@@ -267,9 +265,7 @@ export async function getGitCommits(from?: string, to = 'HEAD') {
   return commits;
 }
 
-/**
- * 根据 GitHub token 生成请求 headers
- */
+/** 根据 GitHub token 生成请求 headers */
 function getHeaders(githubToken: string) {
   return {
     accept: 'application/vnd.github.v3+json',
@@ -332,7 +328,6 @@ async function getResolvedAuthorLogin(github: GithubConfig, commitHashes: string
 
   return login;
 }
-
 
 /**
  * 获取解析后的提交及贡献者信息

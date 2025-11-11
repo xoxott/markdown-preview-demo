@@ -19,35 +19,19 @@ export enum ChunkStatus {
   RETRYING = 'retrying'
 }
 
-/**
- * 分块上传请求参数转换器
- */
+/** 分块上传请求参数转换器 */
 export interface ChunkUploadTransformer {
-  (params: {
-    task:FileTask,
-    chunk:ChunkInfo,
-    customParams?: Record<string, any>;
-  }): FormData | Record<string, any>;
+  (params: { task: FileTask; chunk: ChunkInfo; customParams?: Record<string, any> }): FormData | Record<string, any>;
 }
 
-/**
- * 合并分块请求参数转换器
- */
+/** 合并分块请求参数转换器 */
 export interface MergeChunksTransformer {
-  (params: {
-     task:FileTask,
-     customParams?: Record<string, any>;
-  }): FormData | Record<string, any>;
+  (params: { task: FileTask; customParams?: Record<string, any> }): FormData | Record<string, any>;
 }
 
-/**
- * 秒传检查请求参数转换器
- */
+/** 秒传检查请求参数转换器 */
 export interface CheckFileTransformer {
-  (params: {
-    task:FileTask,
-    customParams?: Record<string, any>;
-  }): FormData | Record<string, any>;
+  (params: { task: FileTask; customParams?: Record<string, any> }): FormData | Record<string, any>;
 }
 
 /** 切片信息接口 */
@@ -94,7 +78,7 @@ export interface FileTask {
   result: any;
   error: Error | null;
   options: FileUploadOptions;
-  fileMD5:string;
+  fileMD5: string;
   // Naive UI 兼容
   naiveFile?: UploadFileInfo;
 }
@@ -134,7 +118,7 @@ export interface UploadConfig {
   uploadChunkUrl: string;
   mergeChunksUrl: string;
   checkFileUrl?: string; // 秒传检查
-  cancelUploadUrl?: string; //取消上传
+  cancelUploadUrl?: string; // 取消上传
 
   // 请求配置
   headers: Record<string, string>;
@@ -146,7 +130,7 @@ export interface UploadConfig {
   // 文件过滤
   accept?: string[];
   maxFileSize?: number; // bytes
-  maxFiles?: number; //最大文件数
+  maxFiles?: number; // 最大文件数
 
   // 功能开关
   enableResume: boolean; // 断点续传
@@ -159,10 +143,10 @@ export interface UploadConfig {
   enableCache: boolean; // 缓存
 
   enableNetworkAdaptation: boolean; // 网络自适应
-  enableSmartRetry: boolean;// 智能重试
-  
+  enableSmartRetry: boolean; // 智能重试
+
   compressionQuality: number; // 压缩百分比
-  previewMaxWidth: number;  // 预览宽度
+  previewMaxWidth: number; // 预览宽度
   previewMaxHeight: number; // 预览高度
 }
 
@@ -197,8 +181,8 @@ export interface UploadStats {
   uploadedSize: number;
   averageSpeed: number; // KB/s
   estimatedTime: number; // seconds
-  instantSpeed:number;
-  networkQuality:string;
+  instantSpeed: number;
+  networkQuality: string;
 }
 
 /** 上传响应接口 */
@@ -223,7 +207,6 @@ export interface MergeResponse {
   originalFile?: File;
   uploadTime: number;
 }
-
 
 // types/upload.types.ts
 export interface IUploadController {
@@ -252,6 +235,6 @@ export interface IFileProcessor {
 
 export interface IChunkManager {
   createChunks(task: FileTask, chunkSize: number): Promise<ChunkInfo[]>;
-  uploadChunk(task: FileTask, chunk: ChunkInfo,abortSignal:AbortSignal): Promise<ChunkUploadResponse>;
-  mergeChunks(task: FileTask,abortSignal:AbortSignal): Promise<MergeResponse>;
+  uploadChunk(task: FileTask, chunk: ChunkInfo, abortSignal: AbortSignal): Promise<ChunkUploadResponse>;
+  mergeChunks(task: FileTask, abortSignal: AbortSignal): Promise<MergeResponse>;
 }
