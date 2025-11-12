@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { NInput, useThemeVars } from 'naive-ui';
-// import { MarkdownPreview } from '@/components/markdown';
+import { MarkdownPreview } from '@/components/markdown';
 import markdown from '@/components/markdown/index.vue';
 import README from './README.md?raw';
 const themeVars = useThemeVars();

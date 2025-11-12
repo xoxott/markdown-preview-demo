@@ -4,7 +4,7 @@
  */
 
 import type { Ref } from 'vue';
-import { computed, onUnmounted, ref, shallowRef } from 'vue';
+import { computed, watch, onUnmounted, ref, shallowRef } from 'vue';
 import type { MermaidConfig } from 'mermaid';
 import mermaid from 'mermaid';
 
@@ -37,10 +37,14 @@ const MERMAID_CONFIG_DEFAULTS = {
 /**
  * Mermaid 图表渲染 Hook
  * @param content - 图表内容（响应式）
- * @param darkMode - 是否为暗色模式
+ * @param darkMode - 是否为暗色模式（可以是响应式或普通值）
  * @returns Mermaid 渲染相关的状态和方法
  */
-export const useMermaid = (content: Ref<string>, darkMode: boolean) => {
+export const useMermaid = (content: Ref<string>, darkMode: Ref<boolean> | boolean) => {
+  // 统一处理 darkMode，支持响应式和非响应式
+  const isDarkMode = computed(() => {
+    return typeof darkMode === 'boolean' ? darkMode : darkMode.value;
+  });
   // ==================== 状态管理 ====================
   const errorMessage = ref<string | null>(null);
   const svgValue = shallowRef<SVGInfo>({
@@ -59,12 +63,12 @@ export const useMermaid = (content: Ref<string>, darkMode: boolean) => {
 
   // ==================== 配置 ====================
   /**
-   * Mermaid 配置项
+   * Mermaid 配置项（响应式）
    */
-  const mermaidConfig: MermaidConfig = {
+  const mermaidConfig = computed<MermaidConfig>(() => ({
     startOnLoad: false,
     securityLevel: 'loose',
-    theme: darkMode ? 'dark' : 'default',
+    theme: isDarkMode.value ? 'dark' : 'default',
     fontFamily: 'Arial, sans-serif',
     arrowMarkerAbsolute: true,
     themeVariables: {
@@ -82,7 +86,7 @@ export const useMermaid = (content: Ref<string>, darkMode: boolean) => {
       diagramMarginX: 30,
       diagramMarginY: 10
     }
-  };
+  }));
 
   // ==================== 辅助函数 ====================
   /**
@@ -177,12 +181,8 @@ export const useMermaid = (content: Ref<string>, darkMode: boolean) => {
    * 初始化 Mermaid
    */
   const initMermaid = (): void => {
-    if (renderState.value.isInitialized) {
-      return;
-    }
-
     try {
-      mermaid.initialize(mermaidConfig);
+      mermaid.initialize(mermaidConfig.value);
       renderState.value.isInitialized = true;
       errorMessage.value = null;
     } catch (err) {
@@ -290,6 +290,11 @@ export const useMermaid = (content: Ref<string>, darkMode: boolean) => {
   const isLoading = computed(() => renderState.value.isRendering);
 
   // ==================== 生命周期 ====================
+  // 监听主题变化，自动重新初始化并渲染
+  watch(isDarkMode, () => {
+    initMermaid();
+  });
+
   onUnmounted(() => {
     cancelRender();
   });

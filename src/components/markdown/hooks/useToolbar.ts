@@ -211,22 +211,57 @@ export function useSvgTools(
   // ==================== 缩放功能 ====================
   /**
    * 计算拖拽边界
+   * 放大后，内容可以超出容器，所以要允许更大的拖拽范围
    */
   const boundary = computed(() => {
     if (!validateContainer()) {
       return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
     }
 
-    const rect = containerRef!.value!.getBoundingClientRect();
-    const scaledWidth = rect.width * scale.value;
-    const scaledHeight = rect.height * scale.value;
+    const container = containerRef!.value!;
+    const rect = container.getBoundingClientRect();
 
-    return {
-      minX: rect.width - scaledWidth,
-      maxX: 0,
-      minY: rect.height - scaledHeight,
-      maxY: 0
-    };
+    // 获取 SVG 内容的实际尺寸
+    const svgElement = container.querySelector('svg');
+    if (!svgElement) {
+      return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+    }
+
+    // 使用 getBBox 获取 SVG 内容的实际边界
+    try {
+      const bbox = svgElement.getBBox();
+      const scaledWidth = bbox.width * scale.value;
+      const scaledHeight = bbox.height * scale.value;
+
+      // 计算内容与容器的差值（超出部分）
+      const overflowX = scaledWidth - rect.width;
+      const overflowY = scaledHeight - rect.height;
+
+      // position.x/y 是偏移量：
+      // - 正值表示向右/下移动
+      // - 负值表示向左/上移动
+      // 放大后，需要允许向所有方向拖拽来查看超出的内容
+      return {
+        minX: overflowX > 0 ? -overflowX / 2 : 0,  // 可以向左拖（负值）
+        maxX: overflowX > 0 ? overflowX / 2 : 0,   // 可以向右拖（正值）
+        minY: overflowY > 0 ? -overflowY / 2 : 0,  // 可以向上拖（负值）
+        maxY: overflowY > 0 ? overflowY / 2 : 0    // 可以向下拖（正值）
+      };
+    } catch (err) {
+      // 如果 getBBox 失败，使用容器尺寸作为后备
+      const scaledWidth = rect.width * scale.value;
+      const scaledHeight = rect.height * scale.value;
+
+      const overflowX = scaledWidth - rect.width;
+      const overflowY = scaledHeight - rect.height;
+
+      return {
+        minX: overflowX > 0 ? -overflowX / 2 : 0,
+        maxX: overflowX > 0 ? overflowX / 2 : 0,
+        minY: overflowY > 0 ? -overflowY / 2 : 0,
+        maxY: overflowY > 0 ? overflowY / 2 : 0
+      };
+    }
   });
 
   /**

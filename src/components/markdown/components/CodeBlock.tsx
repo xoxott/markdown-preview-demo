@@ -39,7 +39,6 @@ export const CodeBlock = defineComponent({
           <ToolBar
             copyFeedback={copyFeedback.value}
             langName={language.value}
-            theme={darkMode.value ? 'dark' : 'light'}
             isSvg={false}
             onCopy={handleCopy}
             onRun={handleRun}

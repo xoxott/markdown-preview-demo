@@ -6,7 +6,7 @@ import { NAlert, NButton, NCard, NDrawer, NDrawerContent, NIcon, NRadio, NRadioG
 import { Bug, PlayerPlay } from '@vicons/tabler';
 import { useThemeStore } from '@/store/modules/theme';
 import Monaco from '@/components/monaco/index.vue';
-import { useRunJSCode } from '../hook/useRunJSCode';
+import { useRunJSCode } from '../hooks/useRunJSCode';
 import '@vue/repl/style.css';
 defineOptions({
   name: 'SandBox'

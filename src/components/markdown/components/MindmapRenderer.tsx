@@ -97,7 +97,6 @@ export const MindmapRenderer = defineComponent({
             showCode={showCode.value}
             errorMessage={errorMessage.value}
             copyFeedback={copyFeedback.value}
-            theme={darkMode.value ? 'dark' : 'light'}
             isSvg={true}
             onToggleCode={handleToggleCode}
             onRetry={renderMindmap}

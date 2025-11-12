@@ -66,8 +66,16 @@ export const SvgRenderer = defineComponent({
       return extractSvgMeta(svgContent.value);
     });
 
+    const svgInfo = computed(() => {
+      if (!svgMeta.value) return null;
+      return {
+        viewBox: svgMeta.value.viewBox || '0 0 100 100',
+        content: svgMeta.value.content
+      };
+    });
+
     // 使用 SVG 工具（缩放、拖拽等）
-    const { downloadSVG, startDrag, scale, zoom, position, isDragging } = useSvgTools(containerRef, svgMeta);
+    const { downloadSVG, startDrag, scale, zoom, position, isDragging } = useSvgTools(containerRef, svgInfo);
 
     // 处理复制
     const handleCopy = async () => {
@@ -116,7 +124,6 @@ export const SvgRenderer = defineComponent({
               copyFeedback={copyFeedback.value}
               errorMessage={errorMessage.value}
               showCode={showCode.value}
-              theme={darkMode.value ? 'dark' : 'light'}
               isSvg={true}
               onCopy={handleCopy}
               onDownload={handleDownload}

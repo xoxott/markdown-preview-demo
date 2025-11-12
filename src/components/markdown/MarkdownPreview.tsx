@@ -40,15 +40,15 @@ export default defineComponent({
           if (meta.langName === 'mermaid') {
             return MermaidRenderer;
           }
-          if (meta.langName === 'markmap') {
-            return MindmapRenderer;
-          }
-          if (meta.langName === 'echarts') {
-            return EchartsRenderer;
-          }
-          if (meta.langName === 'svg') {
-            return SvgRenderer;
-          }
+          // if (meta.langName === 'markmap') {
+          //   return MindmapRenderer;
+          // }
+          // if (meta.langName === 'echarts') {
+          //   return EchartsRenderer;
+          // }
+          // if (meta.langName === 'svg') {
+          //   return SvgRenderer;
+          // }
           return CodeBlock;
         }
       }
@@ -65,7 +65,6 @@ export default defineComponent({
           const tokens = md.parse(newContent, {});
           const newVnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
           vnodes.value = newVnodes;
-          renderKey.value++; // 强制重新渲染
         }
       },
       { immediate: true }
@@ -73,7 +72,6 @@ export default defineComponent({
 
     return () => (
       <div
-        key={renderKey.value}
         style={cssVars.value}
         class={['markdown-container', themeClass.value]}
       >

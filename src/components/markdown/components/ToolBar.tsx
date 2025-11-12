@@ -1,4 +1,4 @@
-import { type PropType, defineComponent } from 'vue';
+import { type PropType, defineComponent, computed } from 'vue';
 import { NButton, NIcon, NSpace, NTag, NTooltip } from 'naive-ui';
 import {
   Check,
@@ -24,8 +24,6 @@ export interface ToolBarProps {
   langName: string;
   /** 错误信息 */
   errorMessage?: string | null;
-  /** 主题 */
-  theme: 'dark' | 'light';
   /** 是否为 SVG */
   isSvg: boolean;
 }
@@ -59,10 +57,6 @@ export const ToolBar = defineComponent({
       type: String as PropType<string | null>,
       default: null
     },
-    theme: {
-      type: String as PropType<'dark' | 'light'>,
-      required: true
-    },
     isSvg: {
       type: Boolean,
       required: true
@@ -77,6 +71,7 @@ export const ToolBar = defineComponent({
     run: () => true
   },
   setup(props, { emit }) {
+
     const handleToggleCode = () => emit('toggleCode');
     const handleZoom = (direction: ZoomDirection) => emit('zoom', direction);
     const handleDownload = () => emit('download');
@@ -84,18 +79,12 @@ export const ToolBar = defineComponent({
     const handleRetry = () => emit('retry');
     const handleRun = () => emit('run');
 
-    // 计算 NTag 的主题覆盖
-    const tagThemeOverrides = {
-      color: props.theme === 'dark' ? '#27272a' : '#f4f4f5',
-      textColor: props.theme === 'dark' ? '#e4e4e7' : '#71717a'
-    };
-
     // 判断是否可以运行代码
     const canRun = ['vue', 'javascript', 'js', 'typescript', 'ts'].includes(props.langName.toLowerCase());
 
     return () => (
       <div class="toolbar-controls">
-        <NTag size="small" type="default" bordered={false} themeOverrides={tagThemeOverrides}>
+        <NTag size="small" type="info" >
           {props.langName}
         </NTag>
 
