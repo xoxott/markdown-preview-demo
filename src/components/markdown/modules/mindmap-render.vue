@@ -2,8 +2,8 @@
 import { computed, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useThemeStore } from '@/store/modules/theme';
-import { useCodeTools, useSvgTools } from '../hook/useToolbar';
-import { useMindmap } from '../hook/useMindmap';
+import { useCodeTools, useSvgTools } from '../hooks/useToolbar';
+import { useMindmap } from '../hooks/useMindmap';
 import { debounce } from '../utils';
 import ToolBar from './tool-bar.vue';
 

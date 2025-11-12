@@ -2,9 +2,9 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useThemeStore } from '@/store/modules/theme';
-import { useMermaid } from '../hook/useMermaid';
+import { useMermaid } from '../hooks/useMermaid';
 import { debounce } from '../utils';
-import { useCodeTools, useSvgTools } from '../hook/useToolbar';
+import { useCodeTools, useSvgTools } from '../hooks/useToolbar';
 import ToolBar from './tool-bar.vue';
 interface Props {
   meta: {

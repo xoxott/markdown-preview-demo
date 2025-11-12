@@ -4,7 +4,7 @@ import { storeToRefs } from 'pinia';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
 import { useThemeStore } from '@/store/modules/theme/index.js';
-import { useCodeTools } from '../hook/useToolbar';
+import { useCodeTools } from '../hooks/useToolbar';
 import ToolBar from './tool-bar.vue';
 import SandBox from './sand-box.vue';
 const themeStore = useThemeStore();
