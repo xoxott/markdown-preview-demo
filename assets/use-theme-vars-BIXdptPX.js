@@ -1,0 +1,1 @@
+import{m as i,p as c,c as s,q as m}from"./index-saEpKK3w.js";function d(){const n=i(c,null);return s(()=>{if(n===null)return m;const{mergedThemeRef:{value:r},mergedThemeOverridesRef:{value:e}}=n,o=(r==null?void 0:r.common)||m;return e!=null&&e.common?Object.assign({},o,e.common):o})}export{d as u};
