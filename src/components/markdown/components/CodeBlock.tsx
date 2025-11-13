@@ -7,6 +7,7 @@ import type { CodeBlockMeta } from '../plugins/types';
 import { RUN_CODE_LANGS } from '../constants';
 import { ToolBar } from './ToolBar';
 import { SandBox } from './SandBox';
+import { useToggle } from '@/hooks/customer/useToggle';
 
 export const CodeBlock = defineComponent({
   name: 'CodeBlock',
@@ -23,7 +24,7 @@ export const CodeBlock = defineComponent({
   setup(props) {
     const { darkMode, cssVars, themeVars } = useMarkdownTheme();
     const { copyCode, copyFeedback } = useCodeTools();
-    const showSandBox = ref(false);
+    const { state:showSandBox,toggle:toggleSandBox } = useToggle(false)
 
     const language = computed(() => props.meta.langName || 'text');
     const canRun = computed(() => RUN_CODE_LANGS.includes(props.meta.langName as any));
@@ -41,9 +42,6 @@ export const CodeBlock = defineComponent({
       copyCode(props.meta.content);
     };
 
-    const handleRun = () => {
-      showSandBox.value = true;
-    };
 
     return () => (
       <NCard
@@ -56,7 +54,8 @@ export const CodeBlock = defineComponent({
           langName={language.value}
           isSvg={false}
           onCopy={handleCopy}
-          onRun={handleRun}
+          onRun={toggleSandBox}
+          canRun={canRun.value}
         />
 
         {/* 代码块 */}

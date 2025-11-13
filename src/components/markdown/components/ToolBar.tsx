@@ -60,6 +60,10 @@ export const ToolBar = defineComponent({
     isSvg: {
       type: Boolean,
       required: true
+    },
+    canRun: {
+      type: Boolean,
+      default: false
     }
   },
   emits: {
@@ -80,7 +84,6 @@ export const ToolBar = defineComponent({
     const handleRun = () => emit('run');
 
     // 判断是否可以运行代码
-    const canRun = ['vue', 'javascript', 'js', 'typescript', 'ts'].includes(props.langName.toLowerCase());
 
     return () => (
       <div class="flex items-center justify-between mb-4">
@@ -163,7 +166,7 @@ export const ToolBar = defineComponent({
           </NTooltip>
 
           {/* 运行按钮 */}
-          {canRun && (
+          {props.canRun && (
             <NTooltip>
               {{
                 trigger: () => (

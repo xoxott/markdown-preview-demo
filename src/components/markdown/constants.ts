@@ -19,7 +19,7 @@ export const DOM_ATTR_NAME = {
 } as const;
 
 /** 支持运行的代码语言 */
-export const RUN_CODE_LANGS = ['vue', 'javascript', 'typescript', 'js', 'ts'] as const;
+export const RUN_CODE_LANGS = ['vue', 'javascript', 'typescript', 'js', 'ts','vue3'] as const;
 
 /** 图表渲染语言 */
 export const CHART_LANGS = ['mermaid', 'markmap', 'echarts'] as const;

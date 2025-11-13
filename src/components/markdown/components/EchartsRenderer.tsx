@@ -1,14 +1,31 @@
 import { type PropType, computed, defineComponent, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { NCard } from 'naive-ui';
 import * as echarts from 'echarts/core';
-import { BarChart, LineChart, PieChart, RadarChart, ScatterChart } from 'echarts/charts';
+import {
+  BarChart,
+  BoxplotChart,
+  CandlestickChart,
+  FunnelChart,
+  GaugeChart,
+  GraphChart,
+  LineChart,
+  ParallelChart,
+  PieChart,
+  RadarChart,
+  SankeyChart,
+  ScatterChart
+} from 'echarts/charts';
 import {
   DataZoomComponent,
   GridComponent,
   LegendComponent,
+  MarkPointComponent,
+  ParallelComponent,
+  TimelineComponent,
   TitleComponent,
   ToolboxComponent,
-  TooltipComponent
+  TooltipComponent,
+  VisualMapComponent
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import type { EChartsOption } from 'echarts';
@@ -18,17 +35,31 @@ import { ErrorMessage } from './ErrorMessage';
 
 // 注册 ECharts 组件
 echarts.use([
+  // 图表类型
   BarChart,
   LineChart,
   PieChart,
   ScatterChart,
   RadarChart,
+  BoxplotChart,
+  CandlestickChart,
+  FunnelChart,
+  GaugeChart,
+  GraphChart,
+  ParallelChart,
+  SankeyChart,
+  // 组件
   GridComponent,
   TooltipComponent,
   LegendComponent,
   TitleComponent,
   DataZoomComponent,
   ToolboxComponent,
+  TimelineComponent,
+  VisualMapComponent,
+  ParallelComponent,
+  MarkPointComponent,
+  // 渲染器
   CanvasRenderer
 ]);
 
@@ -190,46 +221,6 @@ export const EchartsRenderer = defineComponent({
         ],
         label: {
           color: themeVars.value.textColor2
-        }
-      },
-      map: {
-        itemStyle: {
-          areaColor: themeVars.value.cardColor,
-          borderColor: themeVars.value.borderColor,
-          borderWidth: 0.5
-        },
-        label: {
-          color: themeVars.value.textColor2
-        },
-        emphasis: {
-          itemStyle: {
-            areaColor: themeVars.value.primaryColorHover,
-            borderColor: themeVars.value.primaryColor,
-            borderWidth: 1
-          },
-          label: {
-            color: themeVars.value.textColor1
-          }
-        }
-      },
-      geo: {
-        itemStyle: {
-          areaColor: themeVars.value.cardColor,
-          borderColor: themeVars.value.borderColor,
-          borderWidth: 0.5
-        },
-        label: {
-          color: themeVars.value.textColor2
-        },
-        emphasis: {
-          itemStyle: {
-            areaColor: themeVars.value.primaryColorHover,
-            borderColor: themeVars.value.primaryColor,
-            borderWidth: 1
-          },
-          label: {
-            color: themeVars.value.textColor1
-          }
         }
       },
       categoryAxis: {
