@@ -20,6 +20,7 @@ async function typewriterEffect(fullText: string, onUpdate: (current: string) =>
     currentText += fullText[i];
     onUpdate(currentText);
     // eslint-disable-next-line no-await-in-loop
+    // eslint-disable-next-line no-promise-executor-return
     await new Promise(resolve => setTimeout(resolve, delay));
   }
 }

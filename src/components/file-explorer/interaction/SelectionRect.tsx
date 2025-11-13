@@ -1,5 +1,5 @@
 import type { CSSProperties, PropType } from 'vue';
-import { computed, defineComponent, nextTick, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
+import { computed, defineComponent, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useEventListener, useThrottleFn } from '@vueuse/core';
 import { useThemeVars } from 'naive-ui';
 import { debounce } from '@/hooks/upload/utils';

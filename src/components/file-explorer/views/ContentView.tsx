@@ -1,5 +1,5 @@
 import type { PropType, Ref } from 'vue';
-import { computed, defineComponent, inject, ref } from 'vue';
+import { computed, defineComponent, inject } from 'vue';
 import { useThemeVars } from 'naive-ui';
 import FileIcon from '../items/FileIcon';
 import type { FileItem } from '../types/file-explorer';

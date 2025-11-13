@@ -55,6 +55,41 @@ export function useUpload(config: UploadConfig = {}) {
     };
   });
 
+  // 工具函数
+  const formatFileSize = (bytes: number): string => {
+    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    let size = bytes;
+    let unitIndex = 0;
+
+    while (size >= 1024 && unitIndex < units.length - 1) {
+      size /= 1024;
+      unitIndex++;
+    }
+
+    return `${size.toFixed(1)} ${units[unitIndex]}`;
+  };
+
+  // 更新统计信息
+  const updateStats = () => {
+    uploadStats.totalSize = files.value.reduce((sum, file) => sum + (file.file?.size || 0), 0);
+
+    uploadStats.uploadedSize = files.value.reduce((sum, file) => {
+      const fileSize = file.file?.size || 0;
+      const progress = file.percentage || 0;
+      return sum + (fileSize * progress) / 100;
+    }, 0);
+
+    // 计算上传速度和剩余时间（这里需要配合实际的上传进度回调）
+    const completedFiles = files.value.filter(f => f.status === 'finished').length;
+    const totalFiles = files.value.length;
+
+    if (totalFiles > 0) {
+      uploadStats.speed = uploadStats.uploadedSize; // 简化计算
+      const remainingSize = uploadStats.totalSize - uploadStats.uploadedSize;
+      uploadStats.remainingTime = uploadStats.speed > 0 ? remainingSize / uploadStats.speed : 0;
+    }
+  };
+
   // 文件验证
   const validateFile = (file: File): { valid: boolean; message?: string } => {
     // 检查文件大小
@@ -141,7 +176,7 @@ export function useUpload(config: UploadConfig = {}) {
   };
 
   // 更新文件状态
-  const updateFileStatus = (id: string, status: string, percentage?: number, error?: Error) => {
+  const updateFileStatus = (id: string, status: string, percentage?: number) => {
     const file = files.value.find(f => f.id === id);
     if (file) {
       file.status = status as any;
@@ -159,27 +194,6 @@ export function useUpload(config: UploadConfig = {}) {
     });
   };
 
-  // 更新统计信息
-  const updateStats = () => {
-    uploadStats.totalSize = files.value.reduce((sum, file) => sum + (file.file?.size || 0), 0);
-
-    uploadStats.uploadedSize = files.value.reduce((sum, file) => {
-      const fileSize = file.file?.size || 0;
-      const progress = file.percentage || 0;
-      return sum + (fileSize * progress) / 100;
-    }, 0);
-
-    // 计算上传速度和剩余时间（这里需要配合实际的上传进度回调）
-    const completedFiles = files.value.filter(f => f.status === 'finished').length;
-    const totalFiles = files.value.length;
-
-    if (totalFiles > 0) {
-      uploadStats.speed = uploadStats.uploadedSize; // 简化计算
-      const remainingSize = uploadStats.totalSize - uploadStats.uploadedSize;
-      uploadStats.remainingTime = uploadStats.speed > 0 ? remainingSize / uploadStats.speed : 0;
-    }
-  };
-
   // 重置统计信息
   const resetStats = () => {
     uploadStats.totalSize = 0;
@@ -191,20 +205,6 @@ export function useUpload(config: UploadConfig = {}) {
   // 获取指定状态的文件
   const getFilesByStatus = (status: string) => {
     return files.value.filter(file => file.status === status);
-  };
-
-  // 工具函数
-  const formatFileSize = (bytes: number): string => {
-    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-    let size = bytes;
-    let unitIndex = 0;
-
-    while (size >= 1024 && unitIndex < units.length - 1) {
-      size /= 1024;
-      unitIndex++;
-    }
-
-    return `${size.toFixed(1)} ${units[unitIndex]}`;
   };
 
   const formatTime = (seconds: number): string => {

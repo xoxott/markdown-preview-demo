@@ -1,6 +1,17 @@
 import { type PropType, computed, defineComponent, ref, watch, watchEffect } from 'vue';
 import { Sandbox, useStore, useVueImportMap } from '@vue/repl';
-import { NAlert, NButton, NCard, NDrawer, NDrawerContent, NIcon, NRadio, NRadioGroup, NScrollbar, NSpace } from 'naive-ui';
+import {
+  NAlert,
+  NButton,
+  NCard,
+  NDrawer,
+  NDrawerContent,
+  NIcon,
+  NRadio,
+  NRadioGroup,
+  NScrollbar,
+  NSpace
+} from 'naive-ui';
 import { Bug, PlayerPlay } from '@vicons/tabler';
 import Monaco from '@/components/monaco/index';
 import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
@@ -166,92 +177,92 @@ export const SandBox = defineComponent({
             default: () => (
               <NScrollbar style={{ maxHeight: 'calc(100vh - 100px)' }}>
                 <div class="flex flex-col gap-4 pr-4">
-                {/* 运行模式选择 */}
-                <NCard size="small" bordered title="运行模式">
-                  <NRadioGroup v-model:value={currentMode.value} name="mode" size="medium">
-                    <NSpace size={12}>
-                      <NRadio value="javascript">
-                        {{
-                          default: () => (
-                            <span class="flex items-center gap-2">
-                              <code class="text-blue-500">JavaScript</code>
-                            </span>
-                          )
-                        }}
-                      </NRadio>
-                      <NRadio value="vue">
-                        {{
-                          default: () => (
-                            <span class="flex items-center gap-2">
-                              <code class="text-blue-500">Vue</code>
-                            </span>
-                          )
-                        }}
-                      </NRadio>
-                    </NSpace>
-                  </NRadioGroup>
-                </NCard>
+                  {/* 运行模式选择 */}
+                  <NCard size="small" bordered title="运行模式">
+                    <NRadioGroup v-model:value={currentMode.value} name="mode" size="medium">
+                      <NSpace size={12}>
+                        <NRadio value="javascript">
+                          {{
+                            default: () => (
+                              <span class="flex items-center gap-2">
+                                <code class="text-blue-500">JavaScript</code>
+                              </span>
+                            )
+                          }}
+                        </NRadio>
+                        <NRadio value="vue">
+                          {{
+                            default: () => (
+                              <span class="flex items-center gap-2">
+                                <code class="text-blue-500">Vue</code>
+                              </span>
+                            )
+                          }}
+                        </NRadio>
+                      </NSpace>
+                    </NRadioGroup>
+                  </NCard>
 
-                {/* 代码编辑器 */}
-                <NCard title="代码预览" size="small" bordered>
-                  <Monaco
-                    v-model={currentCode.value}
-                    language={currentMode.value === 'vue' ? 'vue' : 'javascript'}
-                    height="350px"
-                    readonly={props.readonly}
-                  />
-                </NCard>
-
-                {/* 运行按钮 */}
-                <NSpace>
-                  <NButton type="primary" loading={loading.value} onClick={runCode}>
-                    {{
-                      icon: () => <PlayerPlay />,
-                      default: () => '运行'
-                    }}
-                  </NButton>
-                </NSpace>
-
-                {/* JavaScript 模式的输出 */}
-                {currentMode.value === 'javascript' && (
-                  <>
-                    {duration.value !== null && (
-                      <NAlert type="info" title="耗时">
-                        {duration.value.toFixed(2)} ms
-                      </NAlert>
-                    )}
-
-                    {logs.value.length > 0 && (
-                      <NAlert type="warning" title="控制台输出" showIcon>
-                        <div class="whitespace-pre-wrap text-sm">{logs.value.join('\n')}</div>
-                      </NAlert>
-                    )}
-
-                    {result.value && !error.value && (
-                      <NAlert type="success" title="输出结果" class="whitespace-pre-wrap text-sm" showIcon>
-                        {result.value}
-                      </NAlert>
-                    )}
-
-                    {error.value && (
-                      <NAlert type="error" title="错误" showIcon>
-                        {error.value}
-                      </NAlert>
-                    )}
-                  </>
-                )}
-
-                {/* Vue REPL */}
-                {showVueRepl.value && (
-                  <div class="vue-repl-container overflow-hidden border rounded-lg shadow-sm">
-                    <Sandbox
-                      show={showVueRepl.value}
-                      store={store}
-                      class="border rounded-lg shadow"
-                      theme={darkMode.value ? 'dark' : 'light'}
+                  {/* 代码编辑器 */}
+                  <NCard title="代码预览" size="small" bordered>
+                    <Monaco
+                      v-model={currentCode.value}
+                      language={currentMode.value === 'vue' ? 'vue' : 'javascript'}
+                      height="350px"
+                      readonly={props.readonly}
                     />
-                  </div>
-                )}
+                  </NCard>
+
+                  {/* 运行按钮 */}
+                  <NSpace>
+                    <NButton type="primary" loading={loading.value} onClick={runCode}>
+                      {{
+                        icon: () => <PlayerPlay />,
+                        default: () => '运行'
+                      }}
+                    </NButton>
+                  </NSpace>
+
+                  {/* JavaScript 模式的输出 */}
+                  {currentMode.value === 'javascript' && (
+                    <>
+                      {duration.value !== null && (
+                        <NAlert type="info" title="耗时">
+                          {duration.value.toFixed(2)} ms
+                        </NAlert>
+                      )}
+
+                      {logs.value.length > 0 && (
+                        <NAlert type="warning" title="控制台输出" showIcon>
+                          <div class="whitespace-pre-wrap text-sm">{logs.value.join('\n')}</div>
+                        </NAlert>
+                      )}
+
+                      {result.value && !error.value && (
+                        <NAlert type="success" title="输出结果" class="whitespace-pre-wrap text-sm" showIcon>
+                          {result.value}
+                        </NAlert>
+                      )}
+
+                      {error.value && (
+                        <NAlert type="error" title="错误" showIcon>
+                          {error.value}
+                        </NAlert>
+                      )}
+                    </>
+                  )}
+
+                  {/* Vue REPL */}
+                  {showVueRepl.value && (
+                    <div class="vue-repl-container overflow-hidden border rounded-lg shadow-sm">
+                      <Sandbox
+                        show={showVueRepl.value}
+                        store={store}
+                        class="border rounded-lg shadow"
+                        theme={darkMode.value ? 'dark' : 'light'}
+                      />
+                    </div>
+                  )}
                 </div>
               </NScrollbar>
             )

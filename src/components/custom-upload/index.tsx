@@ -1,5 +1,5 @@
 import { computed, defineComponent, ref } from 'vue';
-import { NButton, NIcon, NP, NText, useThemeVars } from 'naive-ui';
+import { NButton, NIcon, NText, useThemeVars } from 'naive-ui';
 import { CloudUploadOutline } from '@vicons/ionicons5';
 import DragDropProcessor from './DragDropProcessor';
 import FileProcessor from './FileProcessor';
@@ -203,34 +203,43 @@ export default defineComponent({
     expose({ triggerFileSelect, reset });
 
     // 样式计算
-    const getDragAreaStyle = () => ({
-      borderColor: isDragOver.value
-        ? themeVars.value.primaryColor
-        : isHovering.value && !isDisabledOrFull.value
-          ? themeVars.value.primaryColorHover
-          : isDisabledOrFull.value
-            ? themeVars.value.borderColor
-            : themeVars.value.dividerColor,
-      backgroundColor: isDragOver.value
-        ? `${themeVars.value.primaryColor}12`
-        : isHovering.value && !isDisabledOrFull.value
-          ? `${themeVars.value.primaryColor}08`
-          : isDisabledOrFull.value
-            ? themeVars.value.actionColor
-            : 'transparent',
-      opacity: isDisabledOrFull.value ? 0.6 : 1,
-      cursor: isDisabledOrFull.value ? 'not-allowed' : 'pointer'
-    });
+    const getDragAreaStyle = () => {
+      let borderColor = themeVars.value.dividerColor;
+      let backgroundColor: string | undefined = 'transparent';
 
-    const getIconStyle = () => ({
-      transform: isDragOver.value ? 'scale(1.1)' : isHovering.value ? 'scale(1.05)' : 'scale(1)',
-      color: isDragOver.value
-        ? themeVars.value.primaryColor
-        : isHovering.value
-          ? themeVars.value.primaryColorHover
-          : themeVars.value.textColor3
-    });
+      if (isDragOver.value) {
+        borderColor = themeVars.value.primaryColor;
+        backgroundColor = `${themeVars.value.primaryColor}12`;
+      } else if (isHovering.value && !isDisabledOrFull.value) {
+        borderColor = themeVars.value.primaryColorHover;
+        backgroundColor = `${themeVars.value.primaryColor}08`;
+      } else if (isDisabledOrFull.value) {
+        borderColor = themeVars.value.borderColor;
+        backgroundColor = themeVars.value.actionColor;
+      }
 
+      return {
+        borderColor,
+        backgroundColor,
+        opacity: isDisabledOrFull.value ? 0.6 : 1,
+        cursor: isDisabledOrFull.value ? 'not-allowed' : 'pointer'
+      };
+    };
+    const getIconStyle = () => {
+      let transform = 'scale(1)';
+      let color = themeVars.value.textColor3;
+      if (isDragOver.value) {
+        transform = 'scale(1.1)';
+        color = themeVars.value.primaryColor;
+      } else if (isHovering.value) {
+        transform = 'scale(1.05)';
+        color = themeVars.value.primaryColorHover;
+      }
+      return {
+        transform,
+        color
+      };
+    };
     // 渲染函数
     return () => {
       const fileInput = (

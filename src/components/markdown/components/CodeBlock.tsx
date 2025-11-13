@@ -1,13 +1,13 @@
-import { type PropType, computed, defineComponent, ref } from 'vue';
+import { type PropType, computed, defineComponent } from 'vue';
 import { NCard, NCode, NConfigProvider, darkTheme } from 'naive-ui';
 import hljs from 'highlight.js';
+import { useToggle } from '@/hooks/customer/useToggle';
 import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
 import { useCodeTools } from '../hooks/useToolbar';
 import type { CodeBlockMeta } from '../plugins/types';
 import { RUN_CODE_LANGS } from '../constants';
 import { ToolBar } from './ToolBar';
 import { SandBox } from './SandBox';
-import { useToggle } from '@/hooks/customer/useToggle';
 
 export const CodeBlock = defineComponent({
   name: 'CodeBlock',
@@ -24,7 +24,7 @@ export const CodeBlock = defineComponent({
   setup(props) {
     const { darkMode, cssVars, themeVars } = useMarkdownTheme();
     const { copyCode, copyFeedback } = useCodeTools();
-    const { state:showSandBox,toggle:toggleSandBox } = useToggle(false)
+    const { state: showSandBox, toggle: toggleSandBox } = useToggle(false);
 
     const language = computed(() => props.meta.langName || 'text');
     const canRun = computed(() => RUN_CODE_LANGS.includes(props.meta.langName as any));
@@ -42,13 +42,8 @@ export const CodeBlock = defineComponent({
       copyCode(props.meta.content);
     };
 
-
     return () => (
-      <NCard
-        bordered={props.bordered}
-        class={'mb-4 mt-4'}
-        style={cssVars.value as any}
-      >
+      <NCard bordered={props.bordered} class={'mb-4 mt-4'} style={cssVars.value as any}>
         {/* 工具栏 */}
         <ToolBar
           copyFeedback={copyFeedback.value}
@@ -60,14 +55,9 @@ export const CodeBlock = defineComponent({
         />
 
         {/* 代码块 */}
-        <div class="overflow-hidden flex flex-col code-block-wrapper">
+        <div class="code-block-wrapper flex flex-col overflow-hidden">
           <NConfigProvider theme={darkMode.value ? darkTheme : null} hljs={hljs}>
-            <NCode
-              code={props.meta.content}
-              language={language.value}
-              style={codeStyle.value}
-              wordWrap
-            />
+            <NCode code={props.meta.content} language={language.value} style={codeStyle.value} wordWrap />
           </NConfigProvider>
         </div>
 

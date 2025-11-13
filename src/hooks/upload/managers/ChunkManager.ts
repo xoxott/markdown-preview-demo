@@ -2,7 +2,6 @@ import type { ChunkInfo, ChunkUploadResponse, FileTask, IChunkManager, MergeResp
 import { ChunkStatus } from '../type';
 import SmartChunkCalculator from '../calculators/SmartChunkCalculator';
 import { calculateFileMD5 } from '../utils';
-import { CONSTANTS } from '../constants';
 
 /** 分片管理器 */
 export class ChunkManager implements IChunkManager {

@@ -1,5 +1,6 @@
 /**
  * Markdown 渲染类型定义
+ *
  * @module types
  */
 
@@ -179,4 +180,3 @@ export interface CacheItem<T> {
   value: T;
   timestamp: number;
 }
-

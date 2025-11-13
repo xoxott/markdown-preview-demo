@@ -5,7 +5,6 @@ import { defineComponent, ref } from 'vue';
 import { NButton, NIcon, NSpace, useThemeVars } from 'naive-ui';
 import { CheckmarkCircle, CloseCircle, InformationCircle, WarningOutline } from '@vicons/ionicons5';
 import type { ConfirmDialogConfig } from '../types/dialog';
-import { DialogType } from '../types/dialog';
 import BaseDialog from './BaseDialog';
 
 export default defineComponent({

@@ -63,7 +63,7 @@ export default defineComponent({
     // 监听内容变化，重新解析
     watch(
       () => props.content,
-      (newContent) => {
+      newContent => {
         if (newContent) {
           const tokens = md.parse(newContent, {});
           const newVnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
@@ -273,14 +273,9 @@ export default defineComponent({
     });
 
     return () => (
-      <div
-        style={cssVars.value}
-        class={['markdown-container', themeClass.value]}
-      >
+      <div style={cssVars.value} class={['markdown-container', themeClass.value]}>
         <article class={['markdown-body', darkMode.value && 'markdown-body-dark']}>
-          {vnodes.value.map((vnode, index) =>
-            cloneVNode(vnode, { key: `vnode-${renderKey.value}-${index}` })
-          )}
+          {vnodes.value.map((vnode, index) => cloneVNode(vnode, { key: `vnode-${renderKey.value}-${index}` }))}
         </article>
       </div>
     );

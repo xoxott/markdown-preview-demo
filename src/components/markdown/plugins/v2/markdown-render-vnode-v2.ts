@@ -1,29 +1,22 @@
 /**
  * Markdown 渲染 VNode 插件 V2（性能优化版本）
+ *
  * @module markdown-render-vnode-v2
  */
 
-import type MarkdownIt from 'markdown-it';
 import type { VNode } from 'vue';
 import { Fragment, createVNode } from 'vue';
+import type MarkdownIt from 'markdown-it';
 import { PERFORMANCE_CONFIG } from './constants';
 import { defaultRenderRules, setCodeRendererOptions } from './renderers';
 import { processToken } from './token-processor';
-import type {
-  MarkdownRenderer,
-  RenderEnv,
-  RenderOptions,
-  Token,
-  VueMarkdownPluginOptions
-} from './types';
+import type { MarkdownRenderer, RenderEnv, RenderOptions, Token, VueMarkdownPluginOptions } from './types';
 import { createCommentNode, createFragmentNode, createHtmlVNode, validateAttrName } from './utils';
 
 /** VNode 缓存 */
 const vnodeCache = new Map<string, VNode>();
 
-/**
- * 清理过期缓存
- */
+/** 清理过期缓存 */
 function cleanCache(): void {
   if (vnodeCache.size > PERFORMANCE_CONFIG.CACHE_MAX_SIZE) {
     const keys = Array.from(vnodeCache.keys());
@@ -32,9 +25,7 @@ function cleanCache(): void {
   }
 }
 
-/**
- * 渲染 Token 属性（性能优化）
- */
+/** 渲染 Token 属性（性能优化） */
 function renderAttrs(this: MarkdownRenderer, token: Token): Record<string, any> {
   if (!token.attrs || token.attrs.length === 0) {
     return {};
@@ -53,9 +44,7 @@ function renderAttrs(this: MarkdownRenderer, token: Token): Record<string, any> 
   return result;
 }
 
-/**
- * 渲染单个 Token（性能优化）
- */
+/** 渲染单个 Token（性能优化） */
 function renderToken(
   this: MarkdownRenderer,
   tokens: Token[],
@@ -84,15 +73,8 @@ function renderToken(
   return createVNode(token.tag, this.renderAttrs(token), []);
 }
 
-/**
- * 渲染 Token 数组（核心渲染逻辑，性能优化）
- */
-function render(
-  this: MarkdownRenderer,
-  tokens: Token[],
-  options: RenderOptions,
-  env: RenderEnv
-): VNode[] {
+/** 渲染 Token 数组（核心渲染逻辑，性能优化） */
+function render(this: MarkdownRenderer, tokens: Token[], options: RenderOptions, env: RenderEnv): VNode[] {
   const rules = this.rules;
   const vNodeParents: VNode[] = [];
   const results: VNode[] = [];
@@ -161,9 +143,7 @@ function render(
   return results;
 }
 
-/**
- * Markdown VNode 插件 V2
- */
+/** Markdown VNode 插件 V2 */
 const MarkdownVuePluginV2 = (md: MarkdownIt, options: VueMarkdownPluginOptions = {}): void => {
   // 设置代码渲染器选项
   setCodeRendererOptions(options);
@@ -180,7 +160,7 @@ const MarkdownVuePluginV2 = (md: MarkdownIt, options: VueMarkdownPluginOptions =
   // 性能监控（开发模式）
   if (process.env.NODE_ENV === 'development') {
     const originalRender: any = md.renderer.render;
-    (md.renderer.render as any) = function(this: any, tokens: any, options: any, env: any): any {
+    (md.renderer.render as any) = function (this: any, tokens: any, options: any, env: any): any {
       const start = performance.now();
       const result = originalRender.call(this, tokens, options, env);
       const duration = performance.now() - start;
@@ -201,10 +181,14 @@ export default MarkdownVuePluginV2;
 
 // 导出类型和工具
 export type {
-  CodeBlockMeta, MarkdownRenderer, RenderEnv, RenderOptions, Token, VueMarkdownPluginOptions
+  CodeBlockMeta,
+  MarkdownRenderer,
+  RenderEnv,
+  RenderOptions,
+  Token,
+  VueMarkdownPluginOptions
 } from './types';
 
 export * from './constants';
 export { defaultRenderRules } from './renderers';
 export * from './utils';
-

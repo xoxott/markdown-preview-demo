@@ -1,4 +1,4 @@
-import { type PropType, defineComponent, computed } from 'vue';
+import { type PropType, defineComponent } from 'vue';
 import { NButton, NIcon, NSpace, NTag, NTooltip } from 'naive-ui';
 import {
   Check,
@@ -75,7 +75,6 @@ export const ToolBar = defineComponent({
     run: () => true
   },
   setup(props, { emit }) {
-
     const handleToggleCode = () => emit('toggleCode');
     const handleZoom = (direction: ZoomDirection) => emit('zoom', direction);
     const handleDownload = () => emit('download');
@@ -86,8 +85,8 @@ export const ToolBar = defineComponent({
     // 判断是否可以运行代码
 
     return () => (
-      <div class="flex items-center justify-between mb-4">
-        <NTag size="small" type="info" >
+      <div class="mb-4 flex items-center justify-between">
+        <NTag size="small" type="info">
           {props.langName.toLocaleUpperCase()}
         </NTag>
 

@@ -1,28 +1,25 @@
 /**
  * 代码块渲染器模块
+ *
  * @module renderers/code-renderer
  */
 
 import type { VNode } from 'vue';
 import { Text, createVNode, defineAsyncComponent } from 'vue';
 import { v4 as uuid } from 'uuid';
-import type { Token, CodeBlockMeta, RenderOptions, RenderEnv, MarkdownRenderer, AsyncComponentOptions } from '../types';
-import { DOM_ATTR_NAME, ASYNC_COMPONENT_CONFIG } from '../constants';
-import { escapeHtml, unescapeAll, parseInfoString, mergeClasses, omitAttrs, isComponentOptions } from '../utils';
+import type { AsyncComponentOptions, CodeBlockMeta, MarkdownRenderer, RenderEnv, RenderOptions, Token } from '../types';
+import { ASYNC_COMPONENT_CONFIG, DOM_ATTR_NAME } from '../constants';
+import { escapeHtml, isComponentOptions, mergeClasses, omitAttrs, parseInfoString, unescapeAll } from '../utils';
 
 /** 插件选项缓存 */
 let pluginOptions: any = null;
 
-/**
- * 设置插件选项
- */
+/** 设置插件选项 */
 export function setCodeRendererOptions(options: any): void {
   pluginOptions = options;
 }
 
-/**
- * 行内代码渲染规则
- */
+/** 行内代码渲染规则 */
 export function renderCodeInline(
   tokens: Token[],
   idx: number,
@@ -32,13 +29,11 @@ export function renderCodeInline(
 ): VNode {
   const token = tokens[idx];
   const attrs = renderer.renderAttrs(token);
-  
+
   return createVNode('code', attrs, token.content);
 }
 
-/**
- * 代码块渲染规则
- */
+/** 代码块渲染规则 */
 export function renderCodeBlock(
   tokens: Token[],
   idx: number,
@@ -48,28 +43,19 @@ export function renderCodeBlock(
 ): VNode {
   const token = tokens[idx];
   const originalAttrs = renderer.renderAttrs(token);
-  
+
   // 分离源码行号属性
-  const safeAttrs = omitAttrs(originalAttrs, [
-    DOM_ATTR_NAME.SOURCE_LINE_START,
-    DOM_ATTR_NAME.SOURCE_LINE_END
-  ]);
-  
+  const safeAttrs = omitAttrs(originalAttrs, [DOM_ATTR_NAME.SOURCE_LINE_START, DOM_ATTR_NAME.SOURCE_LINE_END]);
+
   const preAttrs = {
     [DOM_ATTR_NAME.SOURCE_LINE_START]: originalAttrs[DOM_ATTR_NAME.SOURCE_LINE_START],
     [DOM_ATTR_NAME.SOURCE_LINE_END]: originalAttrs[DOM_ATTR_NAME.SOURCE_LINE_END]
   };
-  
-  return createVNode('pre', preAttrs, [
-    createVNode('code', safeAttrs, [
-      createVNode(Text, {}, token.content)
-    ])
-  ]);
+
+  return createVNode('pre', preAttrs, [createVNode('code', safeAttrs, [createVNode(Text, {}, token.content)])]);
 }
 
-/**
- * 围栏代码块渲染规则（性能优化版本）
- */
+/** 围栏代码块渲染规则（性能优化版本） */
 export function renderFence(
   tokens: Token[],
   idx: number,
@@ -81,7 +67,7 @@ export function renderFence(
   const info = token.info ? unescapeAll(token.info).trim() : '';
   const [langName, langAttrs] = parseInfoString(info);
   const content = token.content;
-  
+
   // 构造元数据
   const meta: CodeBlockMeta = {
     langName,
@@ -90,15 +76,12 @@ export function renderFence(
     info,
     token
   };
-  
+
   // 默认渲染函数
   const defaultRender = (): VNode | string => {
     const originalAttrs = renderer.renderAttrs(token);
-    const safeAttrs = omitAttrs(originalAttrs, [
-      DOM_ATTR_NAME.SOURCE_LINE_START,
-      DOM_ATTR_NAME.SOURCE_LINE_END
-    ]);
-    
+    const safeAttrs = omitAttrs(originalAttrs, [DOM_ATTR_NAME.SOURCE_LINE_START, DOM_ATTR_NAME.SOURCE_LINE_END]);
+
     // 代码高亮
     let highlighted: string;
     if (typeof options.highlight === 'function') {
@@ -106,22 +89,19 @@ export function renderFence(
     } else {
       highlighted = escapeHtml(content);
     }
-    
+
     // 合并 class
-    const classList = mergeClasses(
-      safeAttrs.class,
-      langName ? `${options.langPrefix || ''}${langName}` : undefined
-    );
-    
+    const classList = mergeClasses(safeAttrs.class, langName ? `${options.langPrefix || ''}${langName}` : undefined);
+
     if (classList) {
       safeAttrs.class = classList;
     }
-    
+
     // 如果高亮结果包含 <pre> 标签，直接返回
     if (highlighted.indexOf('<pre') === 0) {
       return `${highlighted}\n`;
     }
-    
+
     return createVNode(
       'pre',
       {
@@ -142,17 +122,17 @@ export function renderFence(
       ]
     );
   };
-  
+
   // 尝试使用自定义组件
   const customComponent = pluginOptions?.components?.codeBlock?.(meta);
-  
+
   if (!customComponent) {
     return defaultRender();
   }
-  
+
   try {
     let component: any = null;
-    
+
     // Promise（动态导入）
     if (customComponent instanceof Promise) {
       component = defineAsyncComponent({
@@ -172,11 +152,11 @@ export function renderFence(
     else if (isComponentOptions(customComponent)) {
       component = customComponent;
     }
-    
+
     if (!component) {
       return defaultRender();
     }
-    
+
     return createVNode(component, {
       key: `${langName}-${uuid()}`,
       meta,
@@ -188,4 +168,3 @@ export function renderFence(
     return defaultRender();
   }
 }
-

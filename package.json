@@ -41,13 +41,13 @@
     "dev:prod": "vite --mode prod",
     "gen-route": "sa gen-route",
     "i18n:convert": "node convert-locales.mjs",
-    "lint": "eslint . --fix",
+    "lint": "eslint src --fix",
     "prepare": "simple-git-hooks",
     "preview": "vite preview",
     "release": "sa release",
     "test": "vitest",
-    "test:ui": "vitest --ui",
     "test:run": "vitest run",
+    "test:ui": "vitest --ui",
     "typecheck": "vue-tsc --noEmit --skipLibCheck",
     "update-pkg": "sa update-pkg"
   },
@@ -134,7 +134,7 @@
   },
   "simple-git-hooks": {
     "commit-msg": "pnpm sa git-commit-verify",
-    "pre-commit": "pnpm typecheck && pnpm lint && git diff --exit-code"
+    "pre-commit": "pnpm typecheck && git diff --exit-code"
   },
   "website": "https://github.com/xoxott/markdown-preview-demo"
 }

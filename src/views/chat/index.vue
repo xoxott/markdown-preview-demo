@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { nextTick, onMounted, ref, watch } from 'vue';
+import { nextTick, ref } from 'vue';
 import { NButton, NInput, NScrollbar, NSpin } from 'naive-ui';
 import { callOllamaStream } from '@/hooks/customer/useOllamaStrem';
 import { MarkdownPreview } from '@/components/markdown';

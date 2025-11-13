@@ -1,5 +1,6 @@
 /**
  * Markdown 插件导出
+ *
  * @module plugins
  */
 
@@ -17,4 +18,3 @@ export type {
   VueMarkdownPluginOptions,
   CodeBlockMeta
 } from './v2/types';
-

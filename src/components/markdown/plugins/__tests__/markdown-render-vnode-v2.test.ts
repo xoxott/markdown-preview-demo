@@ -1,10 +1,8 @@
-/**
- * Markdown 渲染插件 V2 单元测试
- */
+/** Markdown 渲染插件 V2 单元测试 */
 
+import type { VNode } from 'vue';
 import MarkdownIt from 'markdown-it';
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { VNode } from 'vue';
 import MarkdownVuePluginV2 from '../v2/markdown-render-vnode-v2';
 
 describe('MarkdownVuePluginV2', () => {
@@ -258,4 +256,3 @@ console.log(code);
     });
   });
 });
-

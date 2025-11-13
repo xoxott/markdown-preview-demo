@@ -1,19 +1,8 @@
-/**
- * Monaco Editor 组件
- * 支持编辑和只读模式，代码折叠，语法高亮等功能
- */
-import {
-  ArrowsMaximize,
-  ArrowsMinimize,
-  ChevronDown,
-  ChevronRight,
-  Code,
-  Copy,
-  FileCode
-} from '@vicons/tabler';
-import * as monaco from 'monaco-editor-core';
-import { NButton, NIcon, NSpace, NTooltip } from 'naive-ui';
+/** Monaco Editor 组件 支持编辑和只读模式，代码折叠，语法高亮等功能 */
 import { type PropType, computed, defineComponent, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
+import { NButton, NIcon, NSpace, NTooltip } from 'naive-ui';
+import { ArrowsMaximize, ArrowsMinimize, ChevronDown, ChevronRight, Code, Copy, FileCode } from '@vicons/tabler';
+import * as monaco from 'monaco-editor-core';
 import { useMarkdownTheme } from '../markdown/hooks/useMarkdownTheme';
 import { registerHighlighter } from './highlight';
 import { getOrCreateModel } from './utils';
@@ -245,11 +234,11 @@ export const MonacoEditor = defineComponent({
 
     /** 监听全屏状态变化 */
     const handleFullscreenChange = () => {
-      const isCurrentlyFullscreen = !!(
+      const isCurrentlyFullscreen = Boolean(
         document.fullscreenElement ||
-        (document as any).webkitFullscreenElement ||
-        (document as any).mozFullScreenElement ||
-        (document as any).msFullscreenElement
+          (document as any).webkitFullscreenElement ||
+          (document as any).mozFullScreenElement ||
+          (document as any).msFullscreenElement
       );
       isFullscreen.value = isCurrentlyFullscreen;
     };
@@ -313,22 +302,20 @@ export const MonacoEditor = defineComponent({
       >
         {/* 工具栏 */}
         {props.showToolbar && (
-          <div class="flex items-center justify-between px-3 py-2 border-b bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 border-gray-200 dark:border-gray-700">
+          <div class="flex items-center justify-between border-b border-gray-200 from-gray-50 to-gray-100 bg-gradient-to-r px-3 py-2 dark:border-gray-700 dark:from-gray-800 dark:to-gray-900">
             <div class="flex items-center gap-2">
-              <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div class="flex items-center gap-1.5 border border-gray-200 rounded-md bg-white px-2.5 py-1 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <NIcon size={16} class="text-blue-500 dark:text-blue-400">
                   <Code />
                 </NIcon>
-                <span class="text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                <span class="text-xs text-gray-700 font-medium tracking-wide uppercase dark:text-gray-300">
                   {lang.value}
                 </span>
               </div>
               {props.readonly && (
-                <div class="flex items-center gap-1 px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800">
-                  <div class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400" />
-                  <span class="text-xs font-medium text-blue-600 dark:text-blue-400">
-                    只读
-                  </span>
+                <div class="flex items-center gap-1 border border-blue-200 rounded-md bg-blue-50 px-2 py-1 dark:border-blue-800 dark:bg-blue-900/30">
+                  <div class="h-1.5 w-1.5 rounded-full bg-blue-500 dark:bg-blue-400" />
+                  <span class="text-xs text-blue-600 font-medium dark:text-blue-400">只读</span>
                 </div>
               )}
             </div>
@@ -340,12 +327,10 @@ export const MonacoEditor = defineComponent({
                   {{
                     trigger: () => (
                       <NButton quaternary size="small" onClick={handleToggleFold}>
-                        <NIcon size={16}>
-                          {isFolded.value ? <ChevronRight /> : <ChevronDown />}
-                        </NIcon>
+                        <NIcon size={16}>{isFolded.value ? <ChevronRight /> : <ChevronDown />}</NIcon>
                       </NButton>
                     ),
-                    default: () => isFolded.value ? '展开所有' : '折叠所有'
+                    default: () => (isFolded.value ? '展开所有' : '折叠所有')
                   }}
                 </NTooltip>
               )}
@@ -388,7 +373,7 @@ export const MonacoEditor = defineComponent({
                       <NIcon size={16}>{isFullscreen.value ? <ArrowsMinimize /> : <ArrowsMaximize />}</NIcon>
                     </NButton>
                   ),
-                  default: () => isFullscreen.value ? '退出全屏' : '全屏'
+                  default: () => (isFullscreen.value ? '退出全屏' : '全屏')
                 }}
               </NTooltip>
             </NSpace>
@@ -396,14 +381,10 @@ export const MonacoEditor = defineComponent({
         )}
 
         {/* 编辑器容器 */}
-        <div
-          ref={containerRef}
-          class="flex-1 w-full overflow-hidden bg-white dark:bg-gray-900"
-        />
+        <div ref={containerRef} class="w-full flex-1 overflow-hidden bg-white dark:bg-gray-900" />
       </div>
     );
   }
 });
 
 export default MonacoEditor;
-

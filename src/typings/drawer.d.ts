@@ -1,5 +1,4 @@
 import type { Component, Ref, VNode } from 'vue';
-import type { ButtonProps } from 'naive-ui';
 
 // 按钮配置
 export interface DrawerButtonConfig {

@@ -1,7 +1,7 @@
 import type { CSSProperties, PropType } from 'vue';
 import { computed, defineComponent, nextTick, ref, watch } from 'vue';
 import { useEventListener } from '@vueuse/core';
-import { NDivider, NDropdown, NIcon } from 'naive-ui';
+import { NDropdown, NIcon } from 'naive-ui';
 import type { DropdownOption } from 'naive-ui';
 
 export interface ContextMenuItem {

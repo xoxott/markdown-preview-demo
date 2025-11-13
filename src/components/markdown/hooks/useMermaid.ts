@@ -1,10 +1,11 @@
 /**
  * Mermaid 图表渲染 Hook
+ *
  * @module useMermaid
  */
 
 import type { Ref } from 'vue';
-import { computed, watch, onUnmounted, ref, shallowRef } from 'vue';
+import { computed, onUnmounted, ref, shallowRef, watch } from 'vue';
 import type { MermaidConfig } from 'mermaid';
 import mermaid from 'mermaid';
 
@@ -36,6 +37,7 @@ const MERMAID_CONFIG_DEFAULTS = {
 
 /**
  * Mermaid 图表渲染 Hook
+ *
  * @param content - 图表内容（响应式）
  * @param darkMode - 是否为暗色模式（可以是响应式或普通值）
  * @returns Mermaid 渲染相关的状态和方法
@@ -62,9 +64,7 @@ export const useMermaid = (content: Ref<string>, darkMode: Ref<boolean> | boolea
   let renderCounter = 0;
 
   // ==================== 配置 ====================
-  /**
-   * Mermaid 配置项（响应式）
-   */
+  /** Mermaid 配置项（响应式） */
   const mermaidConfig = computed<MermaidConfig>(() => ({
     startOnLoad: false,
     securityLevel: 'loose',
@@ -89,9 +89,7 @@ export const useMermaid = (content: Ref<string>, darkMode: Ref<boolean> | boolea
   }));
 
   // ==================== 辅助函数 ====================
-  /**
-   * 生成唯一的渲染ID
-   */
+  /** 生成唯一的渲染ID */
   const generateRenderId = (): string => {
     renderCounter++;
     return `mermaid-${Date.now()}-${renderCounter}`;
@@ -99,6 +97,7 @@ export const useMermaid = (content: Ref<string>, darkMode: Ref<boolean> | boolea
 
   /**
    * 解析 SVG 字符串并提取信息
+   *
    * @param svgString - SVG 字符串
    * @returns SVG 信息对象
    */
@@ -139,6 +138,7 @@ export const useMermaid = (content: Ref<string>, darkMode: Ref<boolean> | boolea
 
   /**
    * 清理 SVG 中的错误信息
+   *
    * @param svg - SVG 字符串
    * @returns 清理后的 SVG 字符串
    */
@@ -165,6 +165,7 @@ export const useMermaid = (content: Ref<string>, darkMode: Ref<boolean> | boolea
 
   /**
    * 格式化错误信息
+   *
    * @param error - 错误对象
    * @param context - 错误上下文
    * @returns 格式化后的错误信息
@@ -177,9 +178,7 @@ export const useMermaid = (content: Ref<string>, darkMode: Ref<boolean> | boolea
   };
 
   // ==================== 核心功能 ====================
-  /**
-   * 初始化 Mermaid
-   */
+  /** 初始化 Mermaid */
   const initMermaid = (): void => {
     try {
       mermaid.initialize(mermaidConfig.value);
@@ -191,9 +190,7 @@ export const useMermaid = (content: Ref<string>, darkMode: Ref<boolean> | boolea
     }
   };
 
-  /**
-   * 渲染 Mermaid 图表
-   */
+  /** 渲染 Mermaid 图表 */
   const renderDiagram = async (): Promise<void> => {
     // 防止重复渲染
     if (renderState.value.isRendering) {
@@ -249,17 +246,13 @@ export const useMermaid = (content: Ref<string>, darkMode: Ref<boolean> | boolea
     }
   };
 
-  /**
-   * 取消当前渲染
-   */
+  /** 取消当前渲染 */
   const cancelRender = (): void => {
     renderState.value.currentRenderId = null;
     renderState.value.isRendering = false;
   };
 
-  /**
-   * 重置状态
-   */
+  /** 重置状态 */
   const reset = (): void => {
     cancelRender();
     errorMessage.value = null;
@@ -271,23 +264,16 @@ export const useMermaid = (content: Ref<string>, darkMode: Ref<boolean> | boolea
   };
 
   // ==================== 计算属性 ====================
-  /**
-   * 容器样式（基于宽高比）
-   * 不使用 paddingBottom，改为让 MermaidRenderer 手动设置高度
-   */
+  /** 容器样式（基于宽高比） 不使用 paddingBottom，改为让 MermaidRenderer 手动设置高度 */
   const containerStyle = computed(() => ({
     // 移除 paddingBottom，避免容器过高
     // 高度将由 MermaidRenderer 的 watch 监听器动态设置
   }));
 
-  /**
-   * 是否有错误
-   */
+  /** 是否有错误 */
   const hasError = computed(() => errorMessage.value !== null);
 
-  /**
-   * 是否正在加载
-   */
+  /** 是否正在加载 */
   const isLoading = computed(() => renderState.value.isRendering);
 
   // ==================== 生命周期 ====================

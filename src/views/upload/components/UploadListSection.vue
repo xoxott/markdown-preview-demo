@@ -27,11 +27,11 @@ const isCollapsed = ref(props.defaultCollapsed);
 const contentRef = ref<HTMLElement>();
 
 // TODO: 计算实际高度，限制最大高度
-const computedHeight = computed(() => {
-  const realHeight = props.items.length * props.itemSize; // 16px padding
-  const max = Number.parseInt(props.maxHeight);
-  return `${Math.min(realHeight, max)}px`;
-});
+// const computedHeight = computed(() => {
+//   const realHeight = props.items.length * props.itemSize; // 16px padding
+//   const max = Number.parseInt(props.maxHeight);
+//   return `${Math.min(realHeight, max)}px`;
+// });
 
 const toggleCollapse = () => {
   if (props.items.length === 0) return;

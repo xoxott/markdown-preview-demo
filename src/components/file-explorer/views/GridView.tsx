@@ -4,7 +4,6 @@ import { useThemeVars } from 'naive-ui';
 import FileIcon from '../items/FileIcon';
 import type { FileItem } from '../types/file-explorer';
 import type { FileDragDropHook } from '../hooks/useFileDragDropEnhanced';
-import { useFileDragDropEnhanced } from '../hooks/useFileDragDropEnhanced';
 import { FileDropZoneWrapper } from '../interaction/FileDropZoneWrapper';
 
 type GridSize = 'small' | 'medium' | 'large' | 'extra-large';

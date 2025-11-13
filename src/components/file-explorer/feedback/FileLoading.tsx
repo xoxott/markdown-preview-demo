@@ -1,4 +1,4 @@
-import { PropType, defineComponent } from 'vue';
+import { defineComponent } from 'vue';
 import { useThemeVars } from 'naive-ui';
 import styles from './FileLoading.module.scss';
 

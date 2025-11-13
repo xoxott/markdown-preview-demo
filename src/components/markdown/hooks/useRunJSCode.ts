@@ -1,5 +1,6 @@
 /**
  * JavaScript 代码运行 Hook (Web Worker)
+ *
  * @module useRunJSCode
  */
 
@@ -59,9 +60,7 @@ const RUN_CODE_CONFIG = {
   MAX_LOGS: 100
 } as const;
 
-/**
- * 创建 Worker 代码
- */
+/** 创建 Worker 代码 */
 const createWorkerCode = (): string => {
   return `
     self.onmessage = async (e) => {
@@ -135,16 +134,16 @@ const createWorkerCode = (): string => {
 /**
  * 使用 Web Worker 运行 JavaScript 代码
  *
+ * @example
+ *   ```typescript
+ *   const { run, result, error, isRunning, stop } = useRunJSCode('return 1 + 1');
+ *
+ *   await run();
+ *   console.log(result.value); // 2
+ *   ```;
+ *
  * @param code - JavaScript 代码内容
  * @returns 运行函数及相关状态
- *
- * @example
- * ```typescript
- * const { run, result, error, isRunning, stop } = useRunJSCode('return 1 + 1');
- *
- * await run();
- * console.log(result.value); // 2
- * ```
  */
 export function useRunJSCode(code: string): RunResult {
   // ==================== 状态管理 ====================
@@ -165,9 +164,7 @@ export function useRunJSCode(code: string): RunResult {
   let timeoutId: number | null = null;
 
   // ==================== 辅助函数 ====================
-  /**
-   * 清理 Worker 资源
-   */
+  /** 清理 Worker 资源 */
   const cleanupWorker = (): void => {
     // 清除超时定时器
     if (timeoutId !== null) {
@@ -196,9 +193,7 @@ export function useRunJSCode(code: string): RunResult {
     }
   };
 
-  /**
-   * 格式化错误信息
-   */
+  /** 格式化错误信息 */
   const formatError = (err: unknown): string => {
     if (err instanceof Error) {
       return err.message;
@@ -206,9 +201,7 @@ export function useRunJSCode(code: string): RunResult {
     return String(err);
   };
 
-  /**
-   * 限制日志数量
-   */
+  /** 限制日志数量 */
   const limitLogs = (logArray: string[]): string[] => {
     if (logArray.length > RUN_CODE_CONFIG.MAX_LOGS) {
       return [
@@ -220,9 +213,7 @@ export function useRunJSCode(code: string): RunResult {
   };
 
   // ==================== 核心功能 ====================
-  /**
-   * 运行代码
-   */
+  /** 运行代码 */
   const run = async (): Promise<void> => {
     // 防止重复运行
     if (runState.value.isRunning) {
@@ -315,9 +306,7 @@ export function useRunJSCode(code: string): RunResult {
     }
   };
 
-  /**
-   * 停止运行
-   */
+  /** 停止运行 */
   const stop = (): void => {
     if (runState.value.isRunning) {
       cleanupWorker();
@@ -326,9 +315,7 @@ export function useRunJSCode(code: string): RunResult {
     }
   };
 
-  /**
-   * 清空结果
-   */
+  /** 清空结果 */
   const clear = (): void => {
     result.value = null;
     error.value = null;
@@ -338,19 +325,13 @@ export function useRunJSCode(code: string): RunResult {
   };
 
   // ==================== 计算属性 ====================
-  /**
-   * 是否正在运行
-   */
+  /** 是否正在运行 */
   const isRunning = computed(() => runState.value.isRunning);
 
-  /**
-   * 是否有错误
-   */
+  /** 是否有错误 */
   const hasError = computed(() => error.value !== null);
 
-  /**
-   * 是否有结果
-   */
+  /** 是否有结果 */
   const hasResult = computed(() => result.value !== null && !hasError.value);
 
   // ==================== 生命周期 ====================

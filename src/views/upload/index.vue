@@ -269,7 +269,6 @@ const handleSettingChange = () => {
         class="flex flex-col flex-1 gap-4 rounded-lg bg-white p-6 shadow transition-all duration-300 md:flex-row dark:bg-gray-800"
       >
         <CustomUpload
-          ref="customUploadRef"
           :abstract="true"
           :multiple="true"
           :directory-dnd="true"

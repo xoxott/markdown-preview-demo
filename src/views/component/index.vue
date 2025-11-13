@@ -7,12 +7,8 @@
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <script lang="ts" setup>
-import customUpload from '@/components/custom-upload';
-import countdownTimer from '@/components/custom/countdown-timer.vue';
-import editableText from '@/components/custom/editable-text.vue';
 import type { FileItem } from '@/components/file-explorer/types/file-explorer';
 import NSelectionRect from '@/components/file-explorer/interaction/NSelectionRect';
-import ResizableLayout from '@/components/file-explorer/layout/ResizableLayout';
 
 const handleChange = (files: File[]) => {
   console.log('上传的文件:', files);

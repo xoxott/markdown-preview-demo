@@ -21,7 +21,7 @@ interface Props {
   showActions?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const { task, showProgress, showActions } = withDefaults(defineProps<Props>(), {
   showProgress: false,
   showActions: false
 });

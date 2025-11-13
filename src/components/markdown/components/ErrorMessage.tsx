@@ -1,4 +1,4 @@
-import { defineComponent, type PropType } from 'vue';
+import { type PropType, defineComponent } from 'vue';
 import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
 
 export interface ErrorMessageProps {
@@ -10,10 +10,7 @@ export interface ErrorMessageProps {
   overlay?: boolean;
 }
 
-/**
- * 统一的错误提示组件
- * 用于所有 Markdown 渲染器的错误显示
- */
+/** 统一的错误提示组件 用于所有 Markdown 渲染器的错误显示 */
 export const ErrorMessage = defineComponent({
   name: 'ErrorMessage',
   props: {
@@ -53,10 +50,9 @@ export const ErrorMessage = defineComponent({
           }}
         >
           <span class="shrink-0 text-lg">❌</span>
-          <span class="flex-1 leading-relaxed text-sm">{props.message}</span>
+          <span class="flex-1 text-sm leading-relaxed">{props.message}</span>
         </div>
       );
     };
   }
 });
-

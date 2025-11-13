@@ -11,7 +11,7 @@ import { useDialog } from '../hooks/useDialog';
 import { createOperationsConfig } from '../config/operations.config';
 import { createShortcutsConfig } from '../config/shortcuts.config';
 import { createContextMenuHandler } from '../config/contextmenu.config';
-import { LayoutConfig } from '../layout/ResizableLayout';
+import type { LayoutConfig } from '../layout/ResizableLayout';
 
 export interface UseFileExplorerLogicOptions {
   /** 初始文件列表 */
@@ -35,13 +35,13 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
   const loading = ref(false);
   const loadingTip = ref('加载中...');
   const layoutConfig = ref<LayoutConfig>({
-       leftWidth: 180,
-       rightWidth: 200,
-       minRightWidth: 120,
-       maxRightWidth: 1000,
-       showLeft: true,
-       showRight: true
-  })
+    leftWidth: 180,
+    rightWidth: 200,
+    minRightWidth: 120,
+    maxRightWidth: 1000,
+    showLeft: true,
+    showRight: true
+  });
 
   // ==================== 拖拽系统 ====================
   const dragDrop = useFileDragDropEnhanced({

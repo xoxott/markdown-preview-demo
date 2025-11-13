@@ -1,7 +1,7 @@
 import type { PropType } from 'vue';
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref } from 'vue';
-import { NIcon, NLayout, NLayoutContent, NLayoutSider, NScrollbar, useThemeVars } from 'naive-ui';
-import { Dots, GripVertical } from '@vicons/tabler';
+import { NIcon, NLayout, NLayoutContent, NLayoutSider, useThemeVars } from 'naive-ui';
+import { Dots } from '@vicons/tabler';
 
 export interface LayoutConfig {
   leftWidth: number;

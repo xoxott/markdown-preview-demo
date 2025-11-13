@@ -1,5 +1,6 @@
 /**
  * Markmap 思维导图渲染 Hook
+ *
  * @module useMindmap
  */
 
@@ -44,6 +45,7 @@ const DEFAULT_MARKMAP_OPTIONS: Partial<IMarkmapOptions> = {
 
 /**
  * Markmap 思维导图渲染 Hook
+ *
  * @param content - 思维导图内容（响应式）
  * @param svgRef - SVG 元素引用
  * @returns Markmap 渲染相关的状态和方法
@@ -65,9 +67,7 @@ export const useMindmap = (content: Ref<string>, svgRef: Ref<SVGElement | null>)
   let renderCounter = 0;
 
   // ==================== 辅助函数 ====================
-  /**
-   * 生成唯一的渲染ID
-   */
+  /** 生成唯一的渲染ID */
   const generateRenderId = (): string => {
     renderCounter++;
     return `markmap-${Date.now()}-${renderCounter}`;
@@ -75,6 +75,7 @@ export const useMindmap = (content: Ref<string>, svgRef: Ref<SVGElement | null>)
 
   /**
    * 格式化错误信息
+   *
    * @param error - 错误对象
    * @param context - 错误上下文
    * @returns 格式化后的错误信息
@@ -88,6 +89,7 @@ export const useMindmap = (content: Ref<string>, svgRef: Ref<SVGElement | null>)
 
   /**
    * 验证 SVG 元素是否可用
+   *
    * @returns 是否可用
    */
   const validateSvgElement = (): boolean => {
@@ -102,9 +104,7 @@ export const useMindmap = (content: Ref<string>, svgRef: Ref<SVGElement | null>)
     return true;
   };
 
-  /**
-   * 清理 SVG 元素内容
-   */
+  /** 清理 SVG 元素内容 */
   const cleanSvgElement = (): void => {
     if (svgRef.value) {
       // 简单清空内容即可，不需要克隆节点
@@ -114,9 +114,7 @@ export const useMindmap = (content: Ref<string>, svgRef: Ref<SVGElement | null>)
   };
 
   // ==================== 核心功能 ====================
-  /**
-   * 渲染思维导图
-   */
+  /** 渲染思维导图 */
   const renderMindmap = async (): Promise<void> => {
     // 防止重复渲染
     if (renderState.value.isRendering) {
@@ -137,10 +135,7 @@ export const useMindmap = (content: Ref<string>, svgRef: Ref<SVGElement | null>)
     try {
       // 超时控制
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(
-          () => reject(new Error('渲染超时')),
-          MARKMAP_CONFIG_DEFAULTS.RENDER_TIMEOUT
-        );
+        setTimeout(() => reject(new Error('渲染超时')), MARKMAP_CONFIG_DEFAULTS.RENDER_TIMEOUT);
       });
 
       // 渲染逻辑
@@ -175,11 +170,7 @@ export const useMindmap = (content: Ref<string>, svgRef: Ref<SVGElement | null>)
         }
 
         // 创建新的 Markmap 实例
-        const newInstance = Markmap.create(
-          svgRef.value!,
-          DEFAULT_MARKMAP_OPTIONS,
-          root
-        );
+        const newInstance = Markmap.create(svgRef.value!, DEFAULT_MARKMAP_OPTIONS, root);
 
         return newInstance;
       })();
@@ -208,6 +199,7 @@ export const useMindmap = (content: Ref<string>, svgRef: Ref<SVGElement | null>)
 
   /**
    * 缩放控制
+   *
    * @param direction - 缩放方向
    */
   const zoom = (direction: ZoomDirection): void => {
@@ -248,15 +240,10 @@ export const useMindmap = (content: Ref<string>, svgRef: Ref<SVGElement | null>)
       k = Math.max(0.1, Math.min(10, k));
 
       // 创建新的变换
-      const newTransform = d3.zoomIdentity
-        .translate(currentTransform.x, currentTransform.y)
-        .scale(k);
+      const newTransform = d3.zoomIdentity.translate(currentTransform.x, currentTransform.y).scale(k);
 
       // 应用变换动画
-      d3.select(gNode)
-        .transition()
-        .duration(ZOOM_DURATION)
-        .attr('transform', newTransform.toString());
+      d3.select(gNode).transition().duration(ZOOM_DURATION).attr('transform', newTransform.toString());
 
       // 同步内部状态
       (svgNode as any).__zoom = newTransform;
@@ -265,41 +252,29 @@ export const useMindmap = (content: Ref<string>, svgRef: Ref<SVGElement | null>)
     }
   };
 
-  /**
-   * 放大
-   */
+  /** 放大 */
   const zoomIn = (): void => zoom('in');
 
-  /**
-   * 缩小
-   */
+  /** 缩小 */
   const zoomOut = (): void => zoom('out');
 
-  /**
-   * 重置缩放
-   */
+  /** 重置缩放 */
   const zoomReset = (): void => zoom('reset');
 
-  /**
-   * 适应视图
-   */
+  /** 适应视图 */
   const fit = (): void => {
     if (instance.value) {
       instance.value.fit();
     }
   };
 
-  /**
-   * 取消当前渲染
-   */
+  /** 取消当前渲染 */
   const cancelRender = (): void => {
     renderState.value.currentRenderId = null;
     renderState.value.isRendering = false;
   };
 
-  /**
-   * 销毁实例
-   */
+  /** 销毁实例 */
   const destroy = (): void => {
     cancelRender();
 
@@ -321,33 +296,23 @@ export const useMindmap = (content: Ref<string>, svgRef: Ref<SVGElement | null>)
     renderState.value.isInitialized = false;
   };
 
-  /**
-   * 重置状态
-   */
+  /** 重置状态 */
   const reset = (): void => {
     destroy();
     errorMessage.value = null;
   };
 
   // ==================== 计算属性 ====================
-  /**
-   * 是否有错误
-   */
+  /** 是否有错误 */
   const hasError = computed(() => errorMessage.value !== null);
 
-  /**
-   * 是否正在加载
-   */
+  /** 是否正在加载 */
   const isLoading = computed(() => renderState.value.isRendering);
 
-  /**
-   * 是否已初始化
-   */
+  /** 是否已初始化 */
   const isReady = computed(() => renderState.value.isInitialized && instance.value !== null);
 
-  /**
-   * 是否可以进行缩放操作
-   */
+  /** 是否可以进行缩放操作 */
   const canZoom = computed(() => isReady.value && !isLoading.value);
 
   // ==================== 生命周期 ====================

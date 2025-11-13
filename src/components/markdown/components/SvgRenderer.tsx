@@ -1,11 +1,11 @@
 import { type PropType, Transition, computed, defineComponent, ref } from 'vue';
 import { NCard } from 'naive-ui';
+import { useToggle } from '@/hooks/customer/useToggle';
 import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
 import { useCodeTools, useSvgTools } from '../hooks/useToolbar';
-import { copySvgToClipboard, downloadSvg, extractSvgMeta, isValidSvg } from '../utils/svg-utils';
+import { extractSvgMeta, isValidSvg } from '../utils/svg-utils';
 import type { CodeBlockMeta, SvgMeta } from '../plugins/types';
 import { ToolBar } from './ToolBar';
-import { useToggle } from '@/hooks/customer/useToggle';
 import { ErrorMessage } from './ErrorMessage';
 
 export interface SvgRendererProps {
@@ -121,7 +121,7 @@ export const SvgRenderer = defineComponent({
         return (
           <NCard bordered={props.bordered} class="mb-2 mt-4">
             <div class="flex flex-col items-center justify-center p-12 text-gray-400">
-              <div class="text-5xl mb-4 opacity-50">⚠️</div>
+              <div class="mb-4 text-5xl opacity-50">⚠️</div>
               <div class="text-sm">无效的 SVG 内容</div>
             </div>
           </NCard>
@@ -157,7 +157,7 @@ export const SvgRenderer = defineComponent({
             <Transition name="fade-bottom" mode="out-in">
               {showCode.value ? (
                 <div key="code">
-                  <pre class="m-0 p-3 rounded overflow-auto text-sm leading-relaxed" style={codeBlockStyle.value}>
+                  <pre class="m-0 overflow-auto rounded p-3 text-sm leading-relaxed" style={codeBlockStyle.value}>
                     {svgContent.value}
                   </pre>
                 </div>
@@ -165,7 +165,7 @@ export const SvgRenderer = defineComponent({
                 <div
                   key="svg"
                   ref={containerRef}
-                  class="relative w-full min-h-[200px] overflow-hidden rounded-md flex items-center justify-center touch-none select-none"
+                  class="relative min-h-[200px] w-full flex touch-none select-none items-center justify-center overflow-hidden rounded-md"
                   style={containerBgStyle.value}
                 >
                   <div style={transformStyle.value} onMousedown={startDrag} onTouchstart={startDrag}>
@@ -180,4 +180,3 @@ export const SvgRenderer = defineComponent({
     };
   }
 });
-

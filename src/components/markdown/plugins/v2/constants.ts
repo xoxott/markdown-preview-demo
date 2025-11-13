@@ -1,5 +1,6 @@
 /**
  * Markdown 渲染常量定义
+ *
  * @module constants
  */
 
@@ -7,13 +8,13 @@
 export const SECURITY_PATTERNS = {
   /** 敏感 URL 协议检测 */
   SENSITIVE_URL: /^javascript:|vbscript:|file:|data:/i,
-  
+
   /** 敏感属性名检测 */
   SENSITIVE_ATTR: /^(href|src|xlink:href|poster|srcset)$/i,
-  
+
   /** 属性名格式验证 */
   ATTR_NAME: /^[a-zA-Z_:][a-zA-Z0-9:._-]*$/,
-  
+
   /** 事件属性检测 */
   ATTR_EVENT: /^on/i
 } as const;
@@ -49,10 +50,10 @@ export const DOM_ATTR_NAME = {
 export const ASYNC_COMPONENT_CONFIG = {
   /** 加载延迟时间 (ms) */
   DELAY: 500,
-  
+
   /** 超时时间 (ms) */
   TIMEOUT: 3000,
-  
+
   /** 是否支持 Suspense */
   SUSPENSIBLE: true
 } as const;
@@ -79,11 +80,10 @@ export const HTML_UNESCAPE_MAP: Record<string, string> = {
 export const PERFORMANCE_CONFIG = {
   /** 是否启用 VNode 缓存 */
   ENABLE_VNODE_CACHE: true,
-  
+
   /** 缓存最大数量 */
   CACHE_MAX_SIZE: 100,
-  
+
   /** 是否启用属性对象池 */
   ENABLE_OBJECT_POOL: true
 } as const;
-

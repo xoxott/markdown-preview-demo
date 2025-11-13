@@ -69,6 +69,7 @@ export default class FileProcessor {
       // 顺序处理剩余队列
       while (this.queue.length > 0) {
         const nextBatch = this.queue.splice(0, this.config.batchSize);
+        // eslint-disable-next-line no-await-in-loop
         await this.runBatches(nextBatch, validator, onProcess);
       }
     } finally {
@@ -86,6 +87,7 @@ export default class FileProcessor {
 
     for (let i = 0; i < files.length; i += batchSize) {
       const currentBatch = files.slice(i, i + batchSize);
+      // eslint-disable-next-line no-await-in-loop
       await this.runWithConcurrency(currentBatch, maxConcurrent, async file => {
         const info = this.createUploadFileInfo(file);
 
@@ -104,6 +106,7 @@ export default class FileProcessor {
 
       // 在批与批之间让出线程，避免卡死 UI
       if (i + batchSize < files.length) {
+        // eslint-disable-next-line no-await-in-loop
         await this.waitForIdle(idleTimeout);
       }
     }
@@ -127,6 +130,7 @@ export default class FileProcessor {
 
       // 如果达到并发上限，就等待其中一个完成再继续
       if (executing.length >= limit) {
+        // eslint-disable-next-line no-await-in-loop
         await Promise.race(executing);
       }
     }

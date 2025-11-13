@@ -1,6 +1,6 @@
 import type { CSSProperties, PropType } from 'vue';
 import { Teleport, computed, defineComponent, nextTick, onBeforeUnmount, onMounted, ref, shallowRef } from 'vue';
-import { useEventListener, useRafFn, useThrottleFn } from '@vueuse/core';
+import { useEventListener, useThrottleFn } from '@vueuse/core';
 import { useThemeVars } from 'naive-ui';
 import type { ScrollbarInst } from 'naive-ui';
 

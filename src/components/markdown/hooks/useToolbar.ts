@@ -1,5 +1,6 @@
 /**
  * Markdown 工具栏相关 Hooks
+ *
  * @module useToolbar
  */
 
@@ -32,29 +33,26 @@ const ZOOM_CONFIG = {
 } as const;
 
 /**
- * 代码工具 Hook
- * 提供代码复制功能
- *
- * @returns 代码工具相关的方法和状态
+ * 代码工具 Hook 提供代码复制功能
  *
  * @example
- * ```typescript
- * const { copyCode, copyFeedback, isSupported } = useCodeTools();
+ *   ```typescript
+ *   const { copyCode, copyFeedback, isSupported } = useCodeTools();
  *
- * await copyCode('console.log("hello")');
- * if (copyFeedback.value) {
- *   console.log('复制成功');
- * }
- * ```
+ *   await copyCode('console.log("hello")');
+ *   if (copyFeedback.value) {
+ *     console.log('复制成功');
+ *   }
+ *   ```;
+ *
+ * @returns 代码工具相关的方法和状态
  */
 export function useCodeTools() {
   const { copy, isSupported } = useClipboard();
   const copyFeedback = ref(false);
   let feedbackTimer: number | null = null;
 
-  /**
-   * 清除反馈定时器
-   */
+  /** 清除反馈定时器 */
   const clearFeedbackTimer = (): void => {
     if (feedbackTimer !== null) {
       clearTimeout(feedbackTimer);
@@ -64,13 +62,11 @@ export function useCodeTools() {
 
   /**
    * 复制代码到剪贴板
+   *
    * @param content - 要复制的内容
    * @param errorMessage - 可选的错误信息引用
    */
-  const copyCode = async (
-    content: string,
-    errorMessage?: Ref<string | null> | null | undefined
-  ): Promise<void> => {
+  const copyCode = async (content: string, errorMessage?: Ref<string | null> | null | undefined): Promise<void> => {
     // 检查浏览器支持
     if (!isSupported.value) {
       if (errorMessage) {
@@ -110,9 +106,7 @@ export function useCodeTools() {
     }
   };
 
-  /**
-   * 手动清除复制反馈
-   */
+  /** 手动清除复制反馈 */
   const clearFeedback = (): void => {
     clearFeedbackTimer();
     copyFeedback.value = false;
@@ -132,25 +126,24 @@ export function useCodeTools() {
 }
 
 /**
- * SVG 工具 Hook
- * 提供 SVG 缩放、拖拽、下载和复制功能
+ * SVG 工具 Hook 提供 SVG 缩放、拖拽、下载和复制功能
+ *
+ * @example
+ *   ```typescript
+ *   const { zoom, downloadSVG, copySvg, scale, position } = useSvgTools(containerRef, svgValue);
+ *
+ *   // 缩放
+ *   zoom('in');  // 放大
+ *   zoom('out'); // 缩小
+ *   zoom('reset'); // 重置
+ *
+ *   // 下载
+ *   downloadSVG('my-diagram');
+ *   ```;
  *
  * @param containerRef - 容器元素引用
  * @param svgValue - SVG 值引用
  * @returns SVG 工具相关的方法和状态
- *
- * @example
- * ```typescript
- * const { zoom, downloadSVG, copySvg, scale, position } = useSvgTools(containerRef, svgValue);
- *
- * // 缩放
- * zoom('in');  // 放大
- * zoom('out'); // 缩小
- * zoom('reset'); // 重置
- *
- * // 下载
- * downloadSVG('my-diagram');
- * ```
  */
 export function useSvgTools(
   containerRef: Ref<HTMLElement | undefined> | undefined,
@@ -169,6 +162,7 @@ export function useSvgTools(
   // ==================== 辅助函数 ====================
   /**
    * 获取 SVG 内容字符串
+   *
    * @returns SVG 内容或 null
    */
   const getSvgContent = (): string | null => {
@@ -190,9 +184,7 @@ export function useSvgTools(
     return null;
   };
 
-  /**
-   * 验证容器是否可用
-   */
+  /** 验证容器是否可用 */
   const validateContainer = (): boolean => {
     if (!containerRef || !containerRef.value) {
       console.warn('容器元素未定义');
@@ -201,18 +193,13 @@ export function useSvgTools(
     return true;
   };
 
-  /**
-   * 限制数值在指定范围内
-   */
+  /** 限制数值在指定范围内 */
   const clamp = (value: number, min: number, max: number): number => {
     return Math.min(max, Math.max(min, value));
   };
 
   // ==================== 缩放功能 ====================
-  /**
-   * 计算拖拽边界
-   * 放大后，内容可以超出容器，所以要允许更大的拖拽范围
-   */
+  /** 计算拖拽边界 放大后，内容可以超出容器，所以要允许更大的拖拽范围 */
   const boundary = computed(() => {
     if (!validateContainer()) {
       return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
@@ -243,10 +230,10 @@ export function useSvgTools(
       // 放大后，需要允许拖拽完整的超出内容，加上容器的 padding (20px)
       const padding = 20;
       return {
-        minX: overflowX > 0 ? -(overflowX / 2 + padding) : 0,  // 可以向左拖（负值）
-        maxX: overflowX > 0 ? (overflowX / 2 + padding) : 0,   // 可以向右拖（正值）
-        minY: overflowY > 0 ? -(overflowY / 2 + padding) : 0,  // 可以向上拖（负值）
-        maxY: overflowY > 0 ? (overflowY / 2 + padding) : 0    // 可以向下拖（正值）
+        minX: overflowX > 0 ? -(overflowX / 2 + padding) : 0, // 可以向左拖（负值）
+        maxX: overflowX > 0 ? overflowX / 2 + padding : 0, // 可以向右拖（正值）
+        minY: overflowY > 0 ? -(overflowY / 2 + padding) : 0, // 可以向上拖（负值）
+        maxY: overflowY > 0 ? overflowY / 2 + padding : 0 // 可以向下拖（正值）
       };
     } catch (err) {
       // 如果 getBBox 失败，使用容器尺寸作为后备
@@ -259,15 +246,16 @@ export function useSvgTools(
       const padding = 20;
       return {
         minX: overflowX > 0 ? -(overflowX / 2 + padding) : 0,
-        maxX: overflowX > 0 ? (overflowX / 2 + padding) : 0,
+        maxX: overflowX > 0 ? overflowX / 2 + padding : 0,
         minY: overflowY > 0 ? -(overflowY / 2 + padding) : 0,
-        maxY: overflowY > 0 ? (overflowY / 2 + padding) : 0
+        maxY: overflowY > 0 ? overflowY / 2 + padding : 0
       };
     }
   });
 
   /**
    * 缩放控制
+   *
    * @param direction - 缩放方向
    */
   const zoom = (direction: 'in' | 'out' | 'reset'): void => {
@@ -308,25 +296,17 @@ export function useSvgTools(
     };
   };
 
-  /**
-   * 放大
-   */
+  /** 放大 */
   const zoomIn = (): void => zoom('in');
 
-  /**
-   * 缩小
-   */
+  /** 缩小 */
   const zoomOut = (): void => zoom('out');
 
-  /**
-   * 重置缩放
-   */
+  /** 重置缩放 */
   const zoomReset = (): void => zoom('reset');
 
   // ==================== 拖拽功能 ====================
-  /**
-   * 处理拖拽移动
-   */
+  /** 处理拖拽移动 */
   const handleDrag = (e: MouseEvent | TouchEvent): void => {
     if (!isDragging.value) {
       return;
@@ -348,9 +328,7 @@ export function useSvgTools(
     position.value = { x: newX, y: newY };
   };
 
-  /**
-   * 结束拖拽
-   */
+  /** 结束拖拽 */
   const endDrag = (): void => {
     isDragging.value = false;
     window.removeEventListener('mousemove', handleDrag);
@@ -359,9 +337,7 @@ export function useSvgTools(
     window.removeEventListener('touchend', endDrag);
   };
 
-  /**
-   * 开始拖拽
-   */
+  /** 开始拖拽 */
   const startDrag = (e: MouseEvent | TouchEvent): void => {
     isDragging.value = true;
 
@@ -382,6 +358,7 @@ export function useSvgTools(
   // ==================== SVG 操作 ====================
   /**
    * 下载 SVG 文件
+   *
    * @param filename - 可选的文件名（不含扩展名）
    */
   const downloadSVG = (filename?: string): void => {
@@ -418,9 +395,7 @@ export function useSvgTools(
     }
   };
 
-  /**
-   * 复制 SVG 到剪贴板
-   */
+  /** 复制 SVG 到剪贴板 */
   const copySvg = async (): Promise<void> => {
     if (!isClipboardSupported.value) {
       errorMessage.value = '当前浏览器不支持剪贴板功能';
@@ -446,9 +421,7 @@ export function useSvgTools(
     }
   };
 
-  /**
-   * 重置所有状态
-   */
+  /** 重置所有状态 */
   const reset = (): void => {
     scale.value = 1;
     position.value = { x: 0, y: 0 };
@@ -457,30 +430,22 @@ export function useSvgTools(
   };
 
   // ==================== 计算属性 ====================
-  /**
-   * 是否可以缩放
-   */
+  /** 是否可以缩放 */
   const canZoom = computed(() => {
     return svgValue.value !== null && validateContainer();
   });
 
-  /**
-   * 是否可以下载
-   */
+  /** 是否可以下载 */
   const canDownload = computed(() => {
     return svgValue.value !== null;
   });
 
-  /**
-   * 是否可以复制
-   */
+  /** 是否可以复制 */
   const canCopy = computed(() => {
     return svgValue.value !== null && isClipboardSupported.value;
   });
 
-  /**
-   * 变换样式
-   */
+  /** 变换样式 */
   const transformStyle = computed(() => ({
     transform: `translate(${position.value.x}px, ${position.value.y}px) scale(${scale.value})`,
     cursor: isDragging.value ? 'grabbing' : 'grab',

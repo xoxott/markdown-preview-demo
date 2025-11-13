@@ -1,4 +1,4 @@
-import { type Ref, computed, ref } from 'vue';
+import { computed, ref } from 'vue';
 import type { DragDropOptions, DragState, DropZoneState, FileItem } from '../types/file-explorer';
 export function useFileDragDrop(options: DragDropOptions = {}) {
   const {

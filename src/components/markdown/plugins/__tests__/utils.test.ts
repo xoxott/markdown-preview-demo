@@ -1,15 +1,13 @@
-/**
- * 工具函数单元测试
- */
+/** 工具函数单元测试 */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   escapeHtml,
+  mergeClasses,
+  parseInfoString,
   unescapeAll,
   validateAttrName,
-  validateAttrValue,
-  mergeClasses,
-  parseInfoString
+  validateAttrValue
 } from '../v2/utils';
 
 describe('工具函数测试', () => {
@@ -144,4 +142,3 @@ describe('工具函数测试', () => {
     });
   });
 });
-

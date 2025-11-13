@@ -1,17 +1,18 @@
 /**
  * Mermaid 图表渲染器组件
+ *
  * @module MermaidRenderer
  */
 
-import { type CSSProperties, type PropType, Transition, computed, defineComponent, nextTick, onMounted, ref, watch } from 'vue';
+import { type PropType, Transition, computed, defineComponent, nextTick, onMounted, ref, watch } from 'vue';
 import { NCard } from 'naive-ui';
+import { useToggle } from '@/hooks/customer/useToggle';
 import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
 import { useMermaid } from '../hooks/useMermaid';
 import { useCodeTools, useSvgTools } from '../hooks/useToolbar';
 import { debounce } from '../utils';
 import type { CodeBlockMeta } from '../plugins/types';
 import { ToolBar } from './ToolBar';
-import { useToggle } from '@/hooks/customer/useToggle';
 import { ErrorMessage } from './ErrorMessage';
 
 /** Mermaid 渲染器属性 */
@@ -29,17 +30,16 @@ export interface MermaidRendererProps {
 }
 
 /**
- * Mermaid 图表渲染器
- * 支持独立使用或通过 Markdown 集成使用
+ * Mermaid 图表渲染器 支持独立使用或通过 Markdown 集成使用
  *
  * @example
- * ```tsx
- * // Markdown 集成
- * <MermaidRenderer meta={codeBlockMeta} />
+ *   ```tsx
+ *   // Markdown 集成
+ *   <MermaidRenderer meta={codeBlockMeta} />
  *
- * // 独立使用
- * <MermaidRenderer code="graph TD; A-->B;" />
- * ```
+ *   // 独立使用
+ *   <MermaidRenderer code="graph TD; A-->B;" />
+ *   ```;
  */
 export const MermaidRenderer = defineComponent({
   name: 'MermaidRenderer',
@@ -65,52 +65,33 @@ export const MermaidRenderer = defineComponent({
       default: true
     }
   },
-    setup(props) {
-      // ==================== 状态管理 ====================
-      const { darkMode, themeVars, cssVars, codeBlockStyle, containerBgStyle } = useMarkdownTheme();
-    const { state:showCode,toggle:toggleCode } = useToggle(false);
+  setup(props) {
+    // ==================== 状态管理 ====================
+    const { darkMode, themeVars, cssVars, codeBlockStyle, containerBgStyle } = useMarkdownTheme();
+    const { state: showCode, toggle: toggleCode } = useToggle(false);
     const containerRef = ref<HTMLElement>();
     const isRendering = ref(false);
 
     // ==================== 计算属性 ====================
-    /**
-     * 实际使用的内容
-     */
+    /** 实际使用的内容 */
     const content = computed(() => props.meta?.content || props.code);
 
-    /**
-     * 显示的语言名称
-     */
+    /** 显示的语言名称 */
     const displayLangName = computed(() => props.meta?.langName || props.langName);
 
-    /**
-     * 内容是否为空
-     */
+    /** 内容是否为空 */
     const isEmpty = computed(() => !content.value || !content.value.trim());
 
     // ==================== Hooks ====================
     const { copyCode, copyFeedback } = useCodeTools();
 
-    const {
-      svgValue,
-      svgAspectRatio,
-      initMermaid,
-      renderDiagram,
-      containerStyle,
-      errorMessage,
-      isLoading,
-      hasError
-    } = useMermaid(content, darkMode);
+    const { svgValue, svgAspectRatio, initMermaid, renderDiagram, containerStyle, errorMessage, isLoading, hasError } =
+      useMermaid(content, darkMode);
 
-    const {
-      downloadSVG,
-      startDrag,
-      scale,
-      zoom,
-      position,
-      isDragging,
-      transformStyle
-    } = useSvgTools(containerRef, svgValue);
+    const { downloadSVG, startDrag, scale, zoom, position, isDragging, transformStyle } = useSvgTools(
+      containerRef,
+      svgValue
+    );
 
     // ==================== 防抖渲染 ====================
     const debouncedRender = debounce(async () => {
@@ -126,9 +107,7 @@ export const MermaidRenderer = defineComponent({
     }, 100);
 
     // ==================== 监听器 ====================
-    /**
-     * 监听内容变化，自动重新渲染
-     */
+    /** 监听内容变化，自动重新渲染 */
     watch(
       content,
       (newVal, oldVal) => {
@@ -139,9 +118,7 @@ export const MermaidRenderer = defineComponent({
       { immediate: true }
     );
 
-    /**
-     * 监听主题变化，重新初始化
-     */
+    /** 监听主题变化，重新初始化 */
     watch(darkMode, () => {
       initMermaid();
       if (content.value) {
@@ -149,9 +126,7 @@ export const MermaidRenderer = defineComponent({
       }
     });
 
-    /**
-     * 监听 SVG 变化，调整容器高度
-     */
+    /** 监听 SVG 变化，调整容器高度 */
     watch(svgValue, () => {
       nextTick(() => {
         if (containerRef.value && svgValue.value) {
@@ -205,9 +180,7 @@ export const MermaidRenderer = defineComponent({
       });
     });
 
-    /**
-     * 监听缩放变化，重置位置
-     */
+    /** 监听缩放变化，重置位置 */
     watch(scale, (newVal, oldVal) => {
       if (newVal !== oldVal) {
         position.value = { x: 0, y: 0 };
@@ -220,9 +193,7 @@ export const MermaidRenderer = defineComponent({
     });
 
     // ==================== 事件处理 ====================
-    /**
-     * 处理复制
-     */
+    /** 处理复制 */
     const handleCopy = async (): Promise<void> => {
       try {
         await copyCode(content.value, errorMessage);
@@ -231,17 +202,12 @@ export const MermaidRenderer = defineComponent({
       }
     };
 
-
-    /**
-     * 处理缩放
-     */
+    /** 处理缩放 */
     const handleZoom = (direction: 'in' | 'out' | 'reset'): void => {
       zoom(direction);
     };
 
-    /**
-     * 处理下载
-     */
+    /** 处理下载 */
     const handleDownload = (): void => {
       try {
         downloadSVG('mermaid-diagram');
@@ -250,9 +216,7 @@ export const MermaidRenderer = defineComponent({
       }
     };
 
-    /**
-     * 处理重试
-     */
+    /** 处理重试 */
     const handleRetry = async (): Promise<void> => {
       try {
         await renderDiagram();
@@ -302,8 +266,8 @@ export const MermaidRenderer = defineComponent({
 
           {/* 加载提示 */}
           {isLoading.value && !showCode.value && (
-            <div class="flex items-center justify-center gap-3 p-8 mt-4 text-gray-500 text-sm">
-              <div class="w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+            <div class="mt-4 flex items-center justify-center gap-3 p-8 text-sm text-gray-500">
+              <div class="h-5 w-5 animate-spin border-2 border-gray-300 border-t-blue-500 rounded-full"></div>
               <span>正在渲染图表...</span>
             </div>
           )}
@@ -313,7 +277,7 @@ export const MermaidRenderer = defineComponent({
             <Transition name="fade-bottom" mode="out-in">
               {showCode.value ? (
                 <div key="code">
-                  <pre class="m-0 p-3 rounded overflow-auto text-sm leading-relaxed" style={codeBlockStyle.value}>
+                  <pre class="m-0 overflow-auto rounded p-3 text-sm leading-relaxed" style={codeBlockStyle.value}>
                     {content.value}
                   </pre>
                 </div>
@@ -323,7 +287,7 @@ export const MermaidRenderer = defineComponent({
                   <div
                     key="svg"
                     ref={containerRef}
-                    class="relative w-full min-h-[200px] overflow-hidden rounded-md  flex items-center justify-center touch-none select-none transition-[height] duration-300"
+                    class="relative min-h-[200px] w-full flex touch-none select-none items-center justify-center overflow-hidden rounded-md transition-[height] duration-300"
                     style={containerBgStyle.value}
                   >
                     <div
