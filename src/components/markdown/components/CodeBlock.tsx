@@ -1,7 +1,6 @@
 import { type PropType, computed, defineComponent, ref } from 'vue';
 import { NCard, NCode, NConfigProvider, darkTheme } from 'naive-ui';
 import hljs from 'highlight.js';
-import 'highlight.js/styles/github.css';
 import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
 import { useCodeTools } from '../hooks/useToolbar';
 import type { CodeBlockMeta } from '../plugins/types';
@@ -15,10 +14,14 @@ export const CodeBlock = defineComponent({
     meta: {
       type: Object as PropType<CodeBlockMeta>,
       required: true
+    },
+    bordered: {
+      type: Boolean,
+      default: true
     }
   },
   setup(props) {
-    const { darkMode } = useMarkdownTheme();
+    const { darkMode, cssVars } = useMarkdownTheme();
     const { copyCode, copyFeedback } = useCodeTools();
     const showSandBox = ref(false);
 
@@ -34,31 +37,59 @@ export const CodeBlock = defineComponent({
     };
 
     return () => (
-      <NConfigProvider hljs={hljs}>
-        <NCard class="mb-2 mt-4">
-          <ToolBar
-            copyFeedback={copyFeedback.value}
-            langName={language.value}
-            isSvg={false}
-            onCopy={handleCopy}
-            onRun={handleRun}
-          />
-          <NCode
-            showLineNumbers
-            code={props.meta.content}
-            language={language.value}
-            style={{ margin: 0, padding: 0, marginBottom: 0 }}
-            {...(darkMode.value && { theme: darkTheme.Code })}
-          />
-          {canRun.value && props.meta.content && (
-            <SandBox
-              v-model:show={showSandBox.value}
+      <NCard
+        bordered={props.bordered}
+        style={cssVars.value as any}
+      >
+        {/* 工具栏 */}
+        <ToolBar
+          copyFeedback={copyFeedback.value}
+          langName={language.value}
+          isSvg={false}
+          onCopy={handleCopy}
+          onRun={handleRun}
+        />
+
+        {/* 代码块 */}
+        <div class="overflow-hidden flex flex-col">
+          <NConfigProvider theme={darkMode.value ? darkTheme : null} hljs={hljs}>
+            <NCode
               code={props.meta.content}
-              mode={props.meta.langName as 'javascript' | 'vue'}
+              language={language.value}
+              showLineNumbers
+              style={{
+                  padding: 0,
+                  fontSize: 'none',
+                  marginBottom: 0
+              }}
             />
-          )}
-        </NCard>
-      </NConfigProvider>
+          </NConfigProvider>
+        </div>
+
+        {/* 代码沙箱 */}
+        {canRun.value && props.meta.content && (
+          <SandBox
+            v-model:show={showSandBox.value}
+            code={props.meta.content}
+            mode={props.meta.langName as 'javascript' | 'vue'}
+          />
+        )}
+      </NCard>
     );
   }
 });
+
+// 添加样式
+const style = document.createElement('style');
+style.textContent = `
+ .markdown-body code pre {
+   margin-bottom: 0;
+   font-size: 14px !important;
+   background: transparent;
+}
+`;
+
+if (typeof document !== 'undefined' && !document.getElementById('code-block-styles')) {
+  style.id = 'code-block-styles';
+  document.head.appendChild(style);
+}

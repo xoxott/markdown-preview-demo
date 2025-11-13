@@ -157,7 +157,7 @@ export const SvgRenderer = defineComponent({
           )}
 
           {/* 内容区域 */}
-          <div class="relative mt-4 min-h-[200px]">
+          <div class="relative mt-4">
             <Transition name="fade-bottom" mode="out-in">
               {showCode.value ? (
                 <div key="code">
