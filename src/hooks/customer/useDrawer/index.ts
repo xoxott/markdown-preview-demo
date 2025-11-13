@@ -3,7 +3,7 @@ import { storeToRefs } from 'pinia';
 import { NConfigProvider, darkTheme } from 'naive-ui';
 import { useThemeStore } from '@/store/modules/theme';
 import type { DrawerInstance, DrawerOptions } from '@/typings/drawer';
-import { DrawerContainer } from './DrawerContainer';
+import { DrawerContainer } from '@/components/custom/DrawerContainer';
 
 /** 抽屉管理器（单例模式） 支持嵌套抽屉和多实例管理 */
 class DrawerManager {

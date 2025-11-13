@@ -1,8 +1,8 @@
 import { type PropType, computed, defineComponent, ref, watch, watchEffect } from 'vue';
 import { Sandbox, useStore, useVueImportMap } from '@vue/repl';
-import { NAlert, NButton, NCard, NDrawer, NDrawerContent, NIcon, NRadio, NRadioGroup, NSpace } from 'naive-ui';
+import { NAlert, NButton, NCard, NDrawer, NDrawerContent, NIcon, NRadio, NRadioGroup, NScrollbar, NSpace } from 'naive-ui';
 import { Bug, PlayerPlay } from '@vicons/tabler';
-import Monaco from '@/components/monaco/index.vue';
+import Monaco from '@/components/monaco/index';
 import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
 import { useRunJSCode } from '../hooks/useRunJSCode';
 import '@vue/repl/style.css';
@@ -149,7 +149,7 @@ export const SandBox = defineComponent({
 
     return () => (
       <NDrawer v-model:show={showDrawer.value} placement="right" width="45%" onAfterLeave={handleClose}>
-        <NDrawerContent closable>
+        <NDrawerContent closable nativeScrollbar={false}>
           {{
             header: () => (
               <div class="flex items-center gap-2 font-semibold">
@@ -160,7 +160,8 @@ export const SandBox = defineComponent({
               </div>
             ),
             default: () => (
-              <div class="flex flex-col gap-4">
+              <NScrollbar style={{ maxHeight: 'calc(100vh - 100px)' }}>
+                <div class="flex flex-col gap-4 pr-4">
                 {/* 运行模式选择 */}
                 <NCard size="small" bordered title="运行模式">
                   <NRadioGroup v-model:value={currentMode.value} name="mode" size="medium">
@@ -191,9 +192,9 @@ export const SandBox = defineComponent({
                 <NCard title="代码预览" size="small" bordered>
                   <Monaco
                     v-model={currentCode.value}
-                    filename="App.vue"
-                    mode={currentMode.value}
-                    theme={darkMode.value ? 'dark' : 'light'}
+                    language={currentMode.value === 'vue' ? 'vue' : 'javascript'}
+                    height="350px"
+                    readonly
                   />
                 </NCard>
 
@@ -247,7 +248,8 @@ export const SandBox = defineComponent({
                     />
                   </div>
                 )}
-              </div>
+                </div>
+              </NScrollbar>
             )
           }}
         </NDrawerContent>

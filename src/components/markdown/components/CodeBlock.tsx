@@ -1,5 +1,5 @@
 import { type PropType, computed, defineComponent, ref } from 'vue';
-import { NCard, NCode, NConfigProvider } from 'naive-ui';
+import { NCard, NCode, NConfigProvider, darkTheme } from 'naive-ui';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
 import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
@@ -48,6 +48,7 @@ export const CodeBlock = defineComponent({
             code={props.meta.content}
             language={language.value}
             style={{ margin: 0, padding: 0, marginBottom: 0 }}
+            {...(darkMode.value && { theme: darkTheme.Code })}
           />
           {canRun.value && props.meta.content && (
             <SandBox
