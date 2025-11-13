@@ -188,7 +188,7 @@ export const MermaidRenderer = defineComponent({
 
               // 设置最小高度和最大高度
               const minHeight = 200;
-              const maxHeight = 800;
+              const maxHeight = 600;
               const finalHeight = Math.max(minHeight, Math.min(maxHeight, calculatedHeight));
 
               containerRef.value.style.height = `${finalHeight}px`;
@@ -313,7 +313,7 @@ export const MermaidRenderer = defineComponent({
           )}
 
           {/* 内容区域 */}
-          <div class="relative mt-4 min-h-[200px]">
+          <div class="relative mt-4">
             <Transition name="fade-bottom" mode="out-in">
               {showCode.value ? (
                 <div key="code">

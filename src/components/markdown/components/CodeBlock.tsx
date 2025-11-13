@@ -21,12 +21,21 @@ export const CodeBlock = defineComponent({
     }
   },
   setup(props) {
-    const { darkMode, cssVars } = useMarkdownTheme();
+    const { darkMode, cssVars, themeVars } = useMarkdownTheme();
     const { copyCode, copyFeedback } = useCodeTools();
     const showSandBox = ref(false);
 
     const language = computed(() => props.meta.langName || 'text');
     const canRun = computed(() => RUN_CODE_LANGS.includes(props.meta.langName as any));
+
+    // 代码块样式（确保在暗色模式下文字颜色正确）
+    const codeStyle = computed(() => ({
+      padding: 0,
+      fontSize: 'none',
+      marginBottom: 0,
+      color: themeVars.value.textColor2,
+      backgroundColor: themeVars.value.codeColor
+    }));
 
     const handleCopy = () => {
       copyCode(props.meta.content);
@@ -51,17 +60,13 @@ export const CodeBlock = defineComponent({
         />
 
         {/* 代码块 */}
-        <div class="overflow-hidden flex flex-col">
+        <div class="overflow-hidden flex flex-col code-block-wrapper">
           <NConfigProvider theme={darkMode.value ? darkTheme : null} hljs={hljs}>
             <NCode
               code={props.meta.content}
               language={language.value}
-              showLineNumbers
-              style={{
-                  padding: 0,
-                  fontSize: 'none',
-                  marginBottom: 0
-              }}
+              style={codeStyle.value}
+              wordWrap
             />
           </NConfigProvider>
         </div>
@@ -82,10 +87,30 @@ export const CodeBlock = defineComponent({
 // 添加样式
 const style = document.createElement('style');
 style.textContent = `
- .markdown-body code pre {
-   margin-bottom: 0;
-   font-size: 14px !important;
-   background: transparent;
+/* 代码块基础样式 */
+.code-block-wrapper {
+  margin-top: 0.75rem;
+}
+
+.code-block-wrapper .n-code {
+  font-size: 14px !important;
+}
+
+/* 确保代码块内的文本在所有情况下都有正确的颜色 */
+.code-block-wrapper .n-code pre,
+.code-block-wrapper .n-code code {
+  /* background: transparent !important; */
+}
+
+/* 未高亮的代码文本颜色继承父元素 */
+.code-block-wrapper .__code__ {
+  color: inherit;
+  margin: 0!important;
+}
+
+/* 暗色模式下确保文本可见 */
+.n-config-provider[data-theme="dark"] .code-block-wrapper .n-code pre code {
+  color: inherit;
 }
 `;
 

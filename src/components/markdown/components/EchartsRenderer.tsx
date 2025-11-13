@@ -70,10 +70,381 @@ export const EchartsRenderer = defineComponent({
     }
   },
   setup(props) {
-    const { darkMode, errorStyle } = useMarkdownTheme();
+    const { darkMode, themeVars, errorStyle, containerBgStyle } = useMarkdownTheme();
     const chartRef = ref<HTMLDivElement | null>(null);
     let chartInstance: echarts.ECharts | null = null;
     const errorMessage = ref<string | null>(null);
+
+    // 自定义 ECharts 主题配置（适配 Naive UI 主题）
+    const customTheme = computed(() => ({
+      backgroundColor: 'transparent',
+      textStyle: {
+        color: themeVars.value.textColor2
+      },
+      title: {
+        textStyle: {
+          color: themeVars.value.textColor1
+        },
+        subtextStyle: {
+          color: themeVars.value.textColor3
+        }
+      },
+      line: {
+        itemStyle: {
+          borderWidth: 1
+        },
+        lineStyle: {
+          width: 2
+        },
+        symbolSize: 4,
+        symbol: 'circle',
+        smooth: false
+      },
+      radar: {
+        itemStyle: {
+          borderWidth: 1
+        },
+        lineStyle: {
+          width: 2
+        },
+        symbolSize: 4,
+        symbol: 'circle',
+        smooth: false
+      },
+      bar: {
+        itemStyle: {
+          barBorderWidth: 0,
+          barBorderColor: themeVars.value.borderColor
+        }
+      },
+      pie: {
+        itemStyle: {
+          borderWidth: 0,
+          borderColor: themeVars.value.borderColor
+        }
+      },
+      scatter: {
+        itemStyle: {
+          borderWidth: 0,
+          borderColor: themeVars.value.borderColor
+        }
+      },
+      boxplot: {
+        itemStyle: {
+          borderWidth: 0,
+          borderColor: themeVars.value.borderColor
+        }
+      },
+      parallel: {
+        itemStyle: {
+          borderWidth: 0,
+          borderColor: themeVars.value.borderColor
+        }
+      },
+      sankey: {
+        itemStyle: {
+          borderWidth: 0,
+          borderColor: themeVars.value.borderColor
+        }
+      },
+      funnel: {
+        itemStyle: {
+          borderWidth: 0,
+          borderColor: themeVars.value.borderColor
+        }
+      },
+      gauge: {
+        itemStyle: {
+          borderWidth: 0,
+          borderColor: themeVars.value.borderColor
+        }
+      },
+      candlestick: {
+        itemStyle: {
+          color: '#eb5454',
+          color0: '#47b262',
+          borderColor: '#eb5454',
+          borderColor0: '#47b262',
+          borderWidth: 1
+        }
+      },
+      graph: {
+        itemStyle: {
+          borderWidth: 0,
+          borderColor: themeVars.value.borderColor
+        },
+        lineStyle: {
+          width: 1,
+          color: themeVars.value.dividerColor
+        },
+        symbolSize: 4,
+        symbol: 'circle',
+        smooth: false,
+        color: [
+          themeVars.value.primaryColor,
+          themeVars.value.successColor,
+          themeVars.value.warningColor,
+          themeVars.value.errorColor,
+          themeVars.value.infoColor
+        ],
+        label: {
+          color: themeVars.value.textColor2
+        }
+      },
+      map: {
+        itemStyle: {
+          areaColor: themeVars.value.cardColor,
+          borderColor: themeVars.value.borderColor,
+          borderWidth: 0.5
+        },
+        label: {
+          color: themeVars.value.textColor2
+        },
+        emphasis: {
+          itemStyle: {
+            areaColor: themeVars.value.primaryColorHover,
+            borderColor: themeVars.value.primaryColor,
+            borderWidth: 1
+          },
+          label: {
+            color: themeVars.value.textColor1
+          }
+        }
+      },
+      geo: {
+        itemStyle: {
+          areaColor: themeVars.value.cardColor,
+          borderColor: themeVars.value.borderColor,
+          borderWidth: 0.5
+        },
+        label: {
+          color: themeVars.value.textColor2
+        },
+        emphasis: {
+          itemStyle: {
+            areaColor: themeVars.value.primaryColorHover,
+            borderColor: themeVars.value.primaryColor,
+            borderWidth: 1
+          },
+          label: {
+            color: themeVars.value.textColor1
+          }
+        }
+      },
+      categoryAxis: {
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: themeVars.value.dividerColor
+          }
+        },
+        axisTick: {
+          show: true,
+          lineStyle: {
+            color: themeVars.value.dividerColor
+          }
+        },
+        axisLabel: {
+          show: true,
+          color: themeVars.value.textColor3
+        },
+        splitLine: {
+          show: false,
+          lineStyle: {
+            color: [themeVars.value.dividerColor]
+          }
+        },
+        splitArea: {
+          show: false,
+          areaStyle: {
+            color: [themeVars.value.cardColor]
+          }
+        }
+      },
+      valueAxis: {
+        axisLine: {
+          show: false,
+          lineStyle: {
+            color: themeVars.value.dividerColor
+          }
+        },
+        axisTick: {
+          show: false,
+          lineStyle: {
+            color: themeVars.value.dividerColor
+          }
+        },
+        axisLabel: {
+          show: true,
+          color: themeVars.value.textColor3
+        },
+        splitLine: {
+          show: true,
+          lineStyle: {
+            color: [themeVars.value.dividerColor]
+          }
+        },
+        splitArea: {
+          show: false,
+          areaStyle: {
+            color: [themeVars.value.cardColor]
+          }
+        }
+      },
+      logAxis: {
+        axisLine: {
+          show: false,
+          lineStyle: {
+            color: themeVars.value.dividerColor
+          }
+        },
+        axisTick: {
+          show: false,
+          lineStyle: {
+            color: themeVars.value.dividerColor
+          }
+        },
+        axisLabel: {
+          show: true,
+          color: themeVars.value.textColor3
+        },
+        splitLine: {
+          show: true,
+          lineStyle: {
+            color: [themeVars.value.dividerColor]
+          }
+        },
+        splitArea: {
+          show: false,
+          areaStyle: {
+            color: [themeVars.value.cardColor]
+          }
+        }
+      },
+      timeAxis: {
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: themeVars.value.dividerColor
+          }
+        },
+        axisTick: {
+          show: true,
+          lineStyle: {
+            color: themeVars.value.dividerColor
+          }
+        },
+        axisLabel: {
+          show: true,
+          color: themeVars.value.textColor3
+        },
+        splitLine: {
+          show: false,
+          lineStyle: {
+            color: [themeVars.value.dividerColor]
+          }
+        },
+        splitArea: {
+          show: false,
+          areaStyle: {
+            color: [themeVars.value.cardColor]
+          }
+        }
+      },
+      toolbox: {
+        iconStyle: {
+          borderColor: themeVars.value.textColor3
+        },
+        emphasis: {
+          iconStyle: {
+            borderColor: themeVars.value.textColor1
+          }
+        }
+      },
+      legend: {
+        textStyle: {
+          color: themeVars.value.textColor2
+        }
+      },
+      tooltip: {
+        backgroundColor: themeVars.value.popoverColor,
+        borderColor: themeVars.value.borderColor,
+        borderWidth: 1,
+        textStyle: {
+          color: themeVars.value.textColor2
+        },
+        axisPointer: {
+          lineStyle: {
+            color: themeVars.value.dividerColor,
+            width: 1
+          },
+          crossStyle: {
+            color: themeVars.value.dividerColor,
+            width: 1
+          }
+        }
+      },
+      timeline: {
+        lineStyle: {
+          color: themeVars.value.dividerColor,
+          width: 1
+        },
+        itemStyle: {
+          color: themeVars.value.primaryColor,
+          borderWidth: 1
+        },
+        controlStyle: {
+          color: themeVars.value.primaryColor,
+          borderColor: themeVars.value.primaryColor,
+          borderWidth: 0.5
+        },
+        checkpointStyle: {
+          color: themeVars.value.primaryColor,
+          borderColor: themeVars.value.primaryColorHover
+        },
+        label: {
+          color: themeVars.value.textColor2
+        },
+        emphasis: {
+          itemStyle: {
+            color: themeVars.value.primaryColorHover
+          },
+          controlStyle: {
+            color: themeVars.value.primaryColor,
+            borderColor: themeVars.value.primaryColor,
+            borderWidth: 0.5
+          },
+          label: {
+            color: themeVars.value.textColor1
+          }
+        }
+      },
+      visualMap: {
+        textStyle: {
+          color: themeVars.value.textColor2
+        }
+      },
+      dataZoom: {
+        backgroundColor: themeVars.value.cardColor,
+        dataBackgroundColor: themeVars.value.dividerColor,
+        fillerColor: themeVars.value.primaryColorSuppl,
+        handleColor: themeVars.value.primaryColor,
+        handleSize: '100%',
+        textStyle: {
+          color: themeVars.value.textColor2
+        }
+      },
+      markPoint: {
+        label: {
+          color: themeVars.value.textColor2
+        },
+        emphasis: {
+          label: {
+            color: themeVars.value.textColor1
+          }
+        }
+      }
+    }));
 
     // 计算图表配置
     const chartOption = computed(() => {
@@ -107,10 +478,16 @@ export const EchartsRenderer = defineComponent({
           chartInstance.dispose();
         }
 
-        // 创建新图表实例
-        chartInstance = echarts.init(chartRef.value, darkMode.value ? 'dark' : 'light');
+        // 创建新图表实例（不使用内置主题）
+        chartInstance = echarts.init(chartRef.value);
 
-        chartInstance.setOption(option);
+        // 合并自定义主题和用户配置
+        const mergedOption = {
+          ...customTheme.value,
+          ...option
+        } as EChartsOption;
+
+        chartInstance.setOption(mergedOption);
 
         // 监听容器大小变化自动 resize
         if (props.autoResize) {
@@ -150,8 +527,11 @@ export const EchartsRenderer = defineComponent({
     });
 
     return () => (
-      <NCard bordered={props.bordered} class="mb-2 mt-4">
-        <div class="relative">
+      <NCard
+        bordered={props.bordered}
+        class={`mb-2 mt-4 ${darkMode.value ? 'color-mode-dark' : 'color-mode-light'}`}
+      >
+        <div class="relative" style={containerBgStyle.value}>
           <div
             ref={chartRef}
             style={{
@@ -163,10 +543,11 @@ export const EchartsRenderer = defineComponent({
           />
           {errorMessage.value && (
             <div
-              class="absolute inset-0 flex items-center justify-center p-4 rounded border font-mono"
+              class="absolute inset-0 flex items-center justify-center gap-2 p-4 rounded border"
               style={errorStyle.value}
             >
-              {errorMessage.value}
+              <span class="shrink-0">❌</span>
+              <span class="flex-1 leading-relaxed">{errorMessage.value}</span>
             </div>
           )}
         </div>
