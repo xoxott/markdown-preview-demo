@@ -88,7 +88,7 @@ export const ToolBar = defineComponent({
     return () => (
       <div class="flex items-center justify-between mb-4">
         <NTag size="small" type="info" >
-          {props.langName}
+          {props.langName.toLocaleUpperCase()}
         </NTag>
 
         <NSpace size={4}>
