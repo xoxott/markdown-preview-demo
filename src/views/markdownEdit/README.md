@@ -26,6 +26,16 @@ sequenceDiagram
   用户->>系统: 获取用户信息
   系统-->>用户: 返回用户数据
 ```
+## svg 图表
+
+```svg
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="100" cy="100" r="80" fill="steelblue" />
+  <text x="100" y="100" text-anchor="middle" fill="white" font-size="20">
+    SVG
+  </text>
+</svg>
+```
 
 ---
 
