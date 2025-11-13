@@ -6,6 +6,7 @@ import { useCodeTools, useSvgTools } from '../hooks/useToolbar';
 import { debounce } from '../utils';
 import type { CodeBlockMeta } from '../plugins/types';
 import { ToolBar } from './ToolBar';
+import { ErrorMessage } from './ErrorMessage';
 
 export interface MindmapRendererProps {
   /** 代码块元数据（可选，用于 Markdown 集成） */
@@ -46,7 +47,7 @@ export const MindmapRenderer = defineComponent({
     }
   },
   setup(props) {
-    const { darkMode, themeVars, errorStyle, codeBlockStyle } = useMarkdownTheme();
+    const { darkMode, themeVars, codeBlockStyle } = useMarkdownTheme();
     const showCode = ref(false);
     const containerRef = ref<HTMLElement>();
     const svgRef = ref();
@@ -106,12 +107,7 @@ export const MindmapRenderer = defineComponent({
           />
         )}
 
-        {errorMessage.value && !showCode.value && (
-          <div class="flex items-center gap-2 p-4 mt-4 rounded border" style={errorStyle.value}>
-            <span class="shrink-0">❌</span>
-            <span class="flex-1 leading-relaxed">{errorMessage.value}</span>
-          </div>
-        )}
+        <ErrorMessage message={errorMessage.value} show={!showCode.value} />
 
         <Transition name="fade-bottom" mode="out-in" onAfterEnter={handleAfterEnter}>
           {showCode.value ? (

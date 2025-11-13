@@ -11,6 +11,7 @@ export { EchartsRenderer } from './components/EchartsRenderer';
 export { SvgRenderer } from './components/SvgRenderer';
 export { ToolBar } from './components/ToolBar';
 export { SandBox } from './components/SandBox';
+export { ErrorMessage } from './components/ErrorMessage';
 
 // Hooks
 export { useMarkdownTheme } from './hooks/useMarkdownTheme';
@@ -27,6 +28,7 @@ export type { EchartsRendererProps } from './components/EchartsRenderer';
 export type { SvgRendererProps } from './components/SvgRenderer';
 export type { ToolBarProps, ToolBarEmits, ZoomDirection } from './components/ToolBar';
 export type { SandBoxProps, CodeMode } from './components/SandBox';
+export type { ErrorMessageProps } from './components/ErrorMessage';
 
 // 工具函数
 export { escapeHtml, unescapeAll, validateAttrName, isUrlSafe, sanitizeSvg, sanitizeHtml } from './utils/security';

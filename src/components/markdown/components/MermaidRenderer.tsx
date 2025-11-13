@@ -12,6 +12,7 @@ import { debounce } from '../utils';
 import type { CodeBlockMeta } from '../plugins/types';
 import { ToolBar } from './ToolBar';
 import { useToggle } from '@/hooks/customer/useToggle';
+import { ErrorMessage } from './ErrorMessage';
 
 /** Mermaid 渲染器属性 */
 export interface MermaidRendererProps {
@@ -64,9 +65,9 @@ export const MermaidRenderer = defineComponent({
       default: true
     }
   },
-  setup(props) {
-    // ==================== 状态管理 ====================
-    const { darkMode, themeVars, cssVars, errorStyle, codeBlockStyle, containerBgStyle } = useMarkdownTheme();
+    setup(props) {
+      // ==================== 状态管理 ====================
+      const { darkMode, themeVars, cssVars, codeBlockStyle, containerBgStyle } = useMarkdownTheme();
     const { state:showCode,toggle:toggleCode } = useToggle(false);
     const containerRef = ref<HTMLElement>();
     const isRendering = ref(false);
@@ -297,12 +298,7 @@ export const MermaidRenderer = defineComponent({
           )}
 
           {/* 错误提示 */}
-          {hasError.value && !showCode.value && (
-            <div class="flex items-center gap-2 p-4 mt-4 rounded border" style={errorStyle.value}>
-              <span class="shrink-0">❌</span>
-              <span class="flex-1 leading-relaxed">{errorMessage.value}</span>
-            </div>
-          )}
+          <ErrorMessage message={errorMessage.value} show={hasError.value && !showCode.value} />
 
           {/* 加载提示 */}
           {isLoading.value && !showCode.value && (

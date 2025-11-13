@@ -6,6 +6,7 @@ import { copySvgToClipboard, downloadSvg, extractSvgMeta, isValidSvg } from '../
 import type { CodeBlockMeta, SvgMeta } from '../plugins/types';
 import { ToolBar } from './ToolBar';
 import { useToggle } from '@/hooks/customer/useToggle';
+import { ErrorMessage } from './ErrorMessage';
 
 export interface SvgRendererProps {
   /** 代码块元数据（可选，用于 Markdown 集成） */
@@ -47,7 +48,7 @@ export const SvgRenderer = defineComponent({
   },
   setup(props) {
     // ==================== 状态管理 ====================
-    const { darkMode, themeVars, cssVars, errorStyle, codeBlockStyle, containerBgStyle } = useMarkdownTheme();
+    const { darkMode, themeVars, cssVars, codeBlockStyle, containerBgStyle } = useMarkdownTheme();
     const { copyCode, copyFeedback } = useCodeTools();
     const { state: showCode, toggle: toggleCode } = useToggle(false);
 
@@ -149,12 +150,7 @@ export const SvgRenderer = defineComponent({
           )}
 
           {/* 错误提示 */}
-          {errorMessage.value && !showCode.value && (
-            <div class="flex items-center gap-2 p-4 mt-4 rounded border" style={errorStyle.value}>
-              <span class="shrink-0">❌</span>
-              <span class="flex-1 leading-relaxed">{errorMessage.value}</span>
-            </div>
-          )}
+          <ErrorMessage message={errorMessage.value} show={!showCode.value} />
 
           {/* 内容区域 */}
           <div class="relative mt-4">

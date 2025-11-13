@@ -14,6 +14,7 @@ import { CanvasRenderer } from 'echarts/renderers';
 import type { EChartsOption } from 'echarts';
 import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
 import type { CodeBlockMeta } from '../plugins/types';
+import { ErrorMessage } from './ErrorMessage';
 
 // 注册 ECharts 组件
 echarts.use([
@@ -70,7 +71,7 @@ export const EchartsRenderer = defineComponent({
     }
   },
   setup(props) {
-    const { darkMode, themeVars, errorStyle, containerBgStyle } = useMarkdownTheme();
+    const { darkMode, themeVars, containerBgStyle } = useMarkdownTheme();
     const chartRef = ref<HTMLDivElement | null>(null);
     let chartInstance: echarts.ECharts | null = null;
     const errorMessage = ref<string | null>(null);
@@ -541,15 +542,7 @@ export const EchartsRenderer = defineComponent({
               transition: 'all 0.3s ease-in-out'
             }}
           />
-          {errorMessage.value && (
-            <div
-              class="absolute inset-0 flex items-center justify-center gap-2 p-4 rounded border"
-              style={errorStyle.value}
-            >
-              <span class="shrink-0">❌</span>
-              <span class="flex-1 leading-relaxed">{errorMessage.value}</span>
-            </div>
-          )}
+          <ErrorMessage message={errorMessage.value} overlay={true} />
         </div>
       </NCard>
     );
