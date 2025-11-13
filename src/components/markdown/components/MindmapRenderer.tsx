@@ -91,7 +91,7 @@ export const MindmapRenderer = defineComponent({
     };
 
     return () => (
-      <NCard bordered={props.bordered} class="mb-2 mt-4">
+      <NCard bordered={props.bordered} class="mb-4 mt-4">
         {props.showToolbar && (
           <ToolBar
             langName={displayLangName.value}

@@ -26,7 +26,6 @@ sequenceDiagram
   用户->>系统: 获取用户信息
   系统-->>用户: 返回用户数据
 ```
-## svg 图表
 
 ```svg
 <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
@@ -37,66 +36,91 @@ sequenceDiagram
 </svg>
 ```
 
----
+| 功能                       | 示例                            | 说明         |
+| :----------------------- | :---------------------------- | :--------- |
+| **加粗**                   | `**bold**` → **bold**         | 强调关键词或标题   |
+| *斜体*                     | `*italic*` → *italic*         | 突出重点内容     |
+| `代码块`                    | `` `code` `` → `code`         | 适合短代码或变量名  |
+| [超链接](https://vuejs.org) | `[Vue.js](https://vuejs.org)` | 点击跳转外部网站   |
+| 图片                       | `![](url)`                    | 可嵌入外链或本地图片 |
 
-## 🧠 思维导图（Markmap）
-
-自动将 Markdown 大纲结构转为交互式思维导图：
-
-```markmap
-# Vue 组件通信
-
-- Props 和 Emits
-- 插槽（Slots）
-- 跨组件通信
-  - provide/inject
-  - 事件总线（event）
-  - 全局状态管理（如 Pinia）
-```
-
-> ✅ 当前编辑器已支持 Markmap 思维导图渲染
-
----
-
-## 📊 ECharts 图表支持
-
-通过 JSON 直接生成 ECharts 图表：
+| 日期     | 访问量 (PV) | 独立访客 (UV) |    转化率   |
+| :----- | -------: | --------: | :------: |
+| 周一     |     1024 |       768 |   5.2%   |
+| 周二     |     1540 |      1120 |   6.1%   |
+| 周三     |     1875 |      1320 |   6.8%   |
+| 周四     |     1322 |      1010 |   5.9%   |
+| **合计** | **5761** |  **4218** | **6.0%** |
 
 ```echarts
 {
-  "title": { "text": "周销售额" },
-  "tooltip": {},
-  "xAxis": { "data": ["周一", "周二", "周三", "周四"] },
-  "yAxis": {},
-  "series": [{ "type": "line", "data": [120, 200, 150, 80] }]
+  "title": { "text": "月度销售趋势", "left": "center" },
+  "tooltip": { "trigger": "axis" },
+  "legend": { "data": ["线上", "线下"], "top": "10%" },
+  "xAxis": { "type": "category", "data": ["1月", "2月", "3月", "4月", "5月", "6月"] },
+  "yAxis": { "type": "value" },
+  "series": [
+    { "name": "线上", "type": "bar", "data": [820, 932, 901, 934, 1290, 1330] },
+    { "name": "线下", "type": "line", "data": [620, 732, 801, 734, 1090, 1130] }
+  ]
 }
 ```
-
----
-
-## ⚙️ JavaScript 代码运行（Web Worker）
-
-可直接运行 JS 代码，支持输出与错误捕获：
-
-```javascript
-function greet(name) {
-  return `你好，\${name}！`;
-}
-console.log(greet("编辑器用户"));
+```markmap
+# 前端工程化
+- 构建工具
+  - Vite
+  - Webpack
+- 框架生态
+  - Vue 3
+  - React
+- 状态管理
+  - Pinia
+  - Redux
 ```
-
----
-
-## 🧩 Vue 3 组件运行（@vue/repl）
-
-实时运行 Vue 3 单文件组件（SFC）：
-
+```mermaid
+graph TD
+  用户 -->|访问| 前端
+  前端 -->|API 请求| 后端
+  后端 -->|返回数据| 数据库
+  数据库 --> 后端
+  后端 --> 前端
+  前端 -->|渲染页面| 用户
+```
 ```vue
 <template>
-  <div class="p-2 text-green-600 border rounded">
-    ✅ 这是一个运行中的 Vue 组件！
+  <div class="p-4 border rounded-md text-center text-green-600 bg-green-50">
+    <n-button type="primary" @click="count++">点击次数：{{ count }}</n-button>
   </div>
 </template>
-```
 
----
+<script setup>
+import { ref } from 'vue'
+const count = ref(0)
+</script>
+```
+```javascript
+function fibonacci(n) {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+console.log("前 10 个斐波那契数列：", Array.from({ length: 10 }, (_, i) => fibonacci(i)));
+```
+```svg
+<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="200" rx="16" fill="#1E40AF" />
+  <circle cx="80" cy="100" r="40" fill="#F59E0B" />
+  <circle cx="220" cy="100" r="40" fill="#10B981" />
+  <text x="150" y="105" text-anchor="middle" fill="white" font-size="22">SVG</text>
+</svg>
+```
+| 功能模块          | 支持状态 | 说明              |
+| :------------ | :--: | :-------------- |
+| Markdown 基础语法 |   ✅  | 支持标题、引用、列表等     |
+| 表格语法          |   ✅  | 自动样式美化          |
+| Mermaid 图     |   ✅  | 支持流程图、时序图       |
+| ECharts 图表    |   ✅  | JSON 一键渲染       |
+| Markmap 思维导图  |   ✅  | 自动解析大纲          |
+| Vue 组件运行      |   ✅  | 实时渲染 SFC        |
+| JS 代码执行       |   ✅  | Web Worker 隔离运行 |
+| SVG 内嵌图形      |   ✅  | 支持矢量展示          |

@@ -46,7 +46,6 @@ const handleSelectionEnd = (selected: FileItem[]) => {
       <NFormItem label="可编辑文本组件" class="flex items-center">
         <EditableText value="可编辑内容" />
       </NFormItem>
-
       <NText class="text-red">支持圈选自动横向、纵向滚动 注：通过插槽插入 NScrollbar 使用</NText>
       <NFormItem label="圈选组件" class="flex items-center">
         <NSelectionRect>
@@ -68,18 +67,6 @@ const handleSelectionEnd = (selected: FileItem[]) => {
           </NScrollbar>
         </NSelectionRect>
       </NFormItem>
-
-      <ResizableLayout>
-        <template #left>
-          <div>left</div>
-        </template>
-        <template #default>
-          <div class="h-100px">default</div>
-        </template>
-        <template #right>
-          <div>right</div>
-        </template>
-      </ResizableLayout>
     </NForm>
   </NCard>
 </template>

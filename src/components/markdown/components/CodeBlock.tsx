@@ -46,6 +46,7 @@ export const CodeBlock = defineComponent({
     return () => (
       <NCard
         bordered={props.bordered}
+        class={'mb-4 mt-4'}
         style={cssVars.value as any}
       >
         {/* 工具栏 */}

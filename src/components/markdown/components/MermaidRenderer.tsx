@@ -266,7 +266,7 @@ export const MermaidRenderer = defineComponent({
       // 空内容提示
       if (isEmpty.value) {
         return (
-          <NCard bordered={props.bordered} class="mb-2 mt-4">
+          <NCard bordered={props.bordered} class="mb-4 mt-4">
             <div class="empty-message">
               <div class="empty-icon">📊</div>
               <div>Mermaid 图表内容为空</div>
@@ -278,7 +278,7 @@ export const MermaidRenderer = defineComponent({
       return (
         <NCard
           bordered={props.bordered}
-          class={`mb-2 mt-4 ${darkMode.value ? 'color-mode-dark' : 'color-mode-light'}`}
+          class={`mb-4 mt-4 ${darkMode.value ? 'color-mode-dark' : 'color-mode-light'}`}
           style={cssVars.value as any}
         >
           {/* 工具栏 */}

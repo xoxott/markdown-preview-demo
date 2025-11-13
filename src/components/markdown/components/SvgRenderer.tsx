@@ -131,7 +131,7 @@ export const SvgRenderer = defineComponent({
       return (
         <NCard
           bordered={props.bordered}
-          class={`mb-2 mt-4 ${darkMode.value ? 'color-mode-dark' : 'color-mode-light'}`}
+          class={`mb-4 mt-4 ${darkMode.value ? 'color-mode-dark' : 'color-mode-light'}`}
           style={cssVars.value as any}
         >
           {/* 工具栏 */}

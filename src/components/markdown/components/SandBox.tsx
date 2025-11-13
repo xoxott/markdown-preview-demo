@@ -33,6 +33,10 @@ export const SandBox = defineComponent({
     show: {
       type: Boolean,
       default: false
+    },
+    readonly: {
+      type: Boolean,
+      default: false
     }
   },
   emits: {
@@ -194,7 +198,7 @@ export const SandBox = defineComponent({
                     v-model={currentCode.value}
                     language={currentMode.value === 'vue' ? 'vue' : 'javascript'}
                     height="350px"
-                    readonly
+                    readonly={props.readonly}
                   />
                 </NCard>
 

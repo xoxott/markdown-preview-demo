@@ -188,7 +188,7 @@ export const EchartsRenderer = defineComponent({
     return () => (
       <NCard
         bordered={props.bordered}
-        class={`mb-2 mt-4 ${darkMode.value ? 'color-mode-dark' : 'color-mode-light'}`}
+        class={`mb-4 mt-4 ${darkMode.value ? 'color-mode-dark' : 'color-mode-light'}`}
       >
         <div class="relative" style={containerBgStyle.value}>
           <div
