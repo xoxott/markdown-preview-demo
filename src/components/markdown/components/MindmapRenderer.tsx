@@ -1,4 +1,4 @@
-import { type PropType, computed, defineComponent, ref, watch } from 'vue';
+import { type PropType, Transition, computed, defineComponent, ref, watch } from 'vue';
 import { NCard } from 'naive-ui';
 import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
 import { useMindmap } from '../hooks/useMindmap';
@@ -46,7 +46,7 @@ export const MindmapRenderer = defineComponent({
     }
   },
   setup(props) {
-    const { darkMode } = useMarkdownTheme();
+    const { darkMode, themeVars, errorStyle, codeBlockStyle } = useMarkdownTheme();
     const showCode = ref(false);
     const containerRef = ref<HTMLElement>();
     const svgRef = ref();
@@ -106,16 +106,30 @@ export const MindmapRenderer = defineComponent({
           />
         )}
 
-        {errorMessage.value && !showCode.value && <div class="error-message">❌ {errorMessage.value}</div>}
+        {errorMessage.value && !showCode.value && (
+          <div class="flex items-center gap-2 p-4 mt-4 rounded border" style={errorStyle.value}>
+            <span class="shrink-0">❌</span>
+            <span class="flex-1 leading-relaxed">{errorMessage.value}</span>
+          </div>
+        )}
 
-        <transition name="mindmap-fade" mode="out-in" onAfterEnter={handleAfterEnter}>
+        <Transition name="fade-bottom" mode="out-in" onAfterEnter={handleAfterEnter}>
           {showCode.value ? (
-            <div key="code" class="code-block">
-              <pre>{content.value}</pre>
+            <div key="code" class="mt-3">
+              <pre
+                class="m-0 p-3 rounded overflow-auto text-sm leading-relaxed"
+                style={codeBlockStyle.value}
+              >
+                {content.value}
+              </pre>
             </div>
           ) : (
             !errorMessage.value && (
-              <div key="svg" ref={containerRef} class="svg-container">
+              <div
+                key="svg"
+                ref={containerRef}
+                class="w-full h-auto overflow-hidden rounded-md touch-none select-none"
+              >
                 <svg
                   ref={svgRef}
                   width="100%"
@@ -126,57 +140,8 @@ export const MindmapRenderer = defineComponent({
               </div>
             )
           )}
-        </transition>
+        </Transition>
       </NCard>
     );
   }
 });
-
-// 添加样式
-const style = document.createElement('style');
-style.textContent = `
-.mindmap-fade-enter-active,
-.mindmap-fade-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.mindmap-fade-enter-from,
-.mindmap-fade-leave-to {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.error-message {
-  color: #dc2626;
-  background: #fef2f2;
-  padding: 1rem;
-  border-radius: 4px;
-  margin-top: 1rem;
-  border: 1px solid #fecaca;
-}
-
-.svg-container {
-  width: 100%;
-  height: auto;
-  overflow: hidden;
-  border-radius: 6px;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-@media (max-width: 640px) {
-  .svg-container {
-    max-height: 30vh;
-  }
-}
-
-.code-block pre {
-  margin: 0 !important;
-}
-`;
-
-if (typeof document !== 'undefined' && !document.getElementById('mindmap-renderer-styles')) {
-  style.id = 'mindmap-renderer-styles';
-  document.head.appendChild(style);
-}

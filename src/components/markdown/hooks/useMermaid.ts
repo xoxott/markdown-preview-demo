@@ -273,10 +273,11 @@ export const useMermaid = (content: Ref<string>, darkMode: Ref<boolean> | boolea
   // ==================== 计算属性 ====================
   /**
    * 容器样式（基于宽高比）
+   * 不使用 paddingBottom，改为让 MermaidRenderer 手动设置高度
    */
   const containerStyle = computed(() => ({
-    paddingBottom: `${svgAspectRatio.value * 100}%`,
-    maxHeight: svgAspectRatio.value > 0 ? `${(1 / svgAspectRatio.value) * 100}px` : 'none'
+    // 移除 paddingBottom，避免容器过高
+    // 高度将由 MermaidRenderer 的 watch 监听器动态设置
   }));
 
   /**

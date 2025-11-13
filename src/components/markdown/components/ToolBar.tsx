@@ -83,12 +83,12 @@ export const ToolBar = defineComponent({
     const canRun = ['vue', 'javascript', 'js', 'typescript', 'ts'].includes(props.langName.toLowerCase());
 
     return () => (
-      <div class="toolbar-controls">
+      <div class="flex items-center justify-between mb-4">
         <NTag size="small" type="info" >
           {props.langName}
         </NTag>
 
-        <NSpace size={4} class="toolbar-actions">
+        <NSpace size={4}>
           {/* SVG 显示/代码切换按钮 */}
           {props.isSvg && (
             <NButton size="small" onClick={handleToggleCode}>
@@ -198,25 +198,3 @@ export const ToolBar = defineComponent({
     );
   }
 });
-
-// 添加样式
-const style = document.createElement('style');
-style.textContent = `
-.toolbar-controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-}
-
-.toolbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-`;
-
-if (typeof document !== 'undefined' && !document.getElementById('toolbar-styles')) {
-  style.id = 'toolbar-styles';
-  document.head.appendChild(style);
-}

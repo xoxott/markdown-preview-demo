@@ -77,7 +77,7 @@ const previewStyle = computed(() => ({
     <div class="w-2/3 overflow-y-auto p-4" :style="rightStyle">
       <div class="mb-2 text-lg font-semibold">预览结果</div>
       <div class="border border-gray-200 rounded-md p-4 shadow" :style="previewStyle">
-        <markdown :content="content" />
+        <MarkdownPreview :content="content" />
       </div>
     </div>
   </div>

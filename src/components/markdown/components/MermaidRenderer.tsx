@@ -3,7 +3,7 @@
  * @module MermaidRenderer
  */
 
-import { type CSSProperties, type PropType, computed, defineComponent, nextTick, onMounted, ref, watch } from 'vue';
+import { type CSSProperties, type PropType, Transition, computed, defineComponent, nextTick, onMounted, ref, watch } from 'vue';
 import { NCard } from 'naive-ui';
 import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
 import { useMermaid } from '../hooks/useMermaid';
@@ -66,7 +66,7 @@ export const MermaidRenderer = defineComponent({
   },
   setup(props) {
     // ==================== 状态管理 ====================
-    const { darkMode, themeVars, cssVars } = useMarkdownTheme();
+    const { darkMode, themeVars, cssVars, errorStyle, codeBlockStyle, containerBgStyle } = useMarkdownTheme();
     const { state:showCode,toggle:toggleCode } = useToggle(false);
     const containerRef = ref<HTMLElement>();
     const isRendering = ref(false);
@@ -155,11 +155,50 @@ export const MermaidRenderer = defineComponent({
       nextTick(() => {
         if (containerRef.value && svgValue.value) {
           try {
-            const { width } = containerRef.value.getBoundingClientRect();
-            const height = width * svgAspectRatio.value;
-            containerRef.value.style.height = `${height}px`;
+            // 获取容器内的 SVG 元素
+            const svgElement = containerRef.value.querySelector('svg');
+            if (svgElement) {
+              // 使用 SVG 的实际渲染尺寸（getBoundingClientRect 更准确）
+              const svgRect = svgElement.getBoundingClientRect();
+              let svgHeight = svgRect.height;
+              let svgWidth = svgRect.width;
+
+              // 如果 getBoundingClientRect 返回 0（SVG 还未渲染），尝试从 viewBox 获取
+              if (svgWidth === 0 || svgHeight === 0) {
+                const viewBox = svgElement.getAttribute('viewBox');
+                if (viewBox) {
+                  const [, , vw, vh] = viewBox.split(/\s+/).map(Number);
+                  svgWidth = vw || svgElement.clientWidth || 100;
+                  svgHeight = vh || svgElement.clientHeight || 100;
+                } else {
+                  // 最后的 fallback：使用 getBBox
+                  try {
+                    const bbox = svgElement.getBBox();
+                    svgWidth = bbox.width || 100;
+                    svgHeight = bbox.height || 100;
+                  } catch {
+                    svgWidth = 100;
+                    svgHeight = 100;
+                  }
+                }
+              }
+              // 直接使用 SVG 的实际渲染高度，加上一些 padding
+              const padding = 40; // 上下各 20px
+              const calculatedHeight = svgHeight + padding;
+
+              // 设置最小高度和最大高度
+              const minHeight = 200;
+              const maxHeight = 800;
+              const finalHeight = Math.max(minHeight, Math.min(maxHeight, calculatedHeight));
+
+              containerRef.value.style.height = `${finalHeight}px`;
+            }
           } catch (err) {
             console.warn('调整容器高度失败:', err);
+            // 失败时使用默认高度
+            if (containerRef.value) {
+              containerRef.value.style.height = '400px';
+            }
           }
         }
       });
@@ -259,242 +298,51 @@ export const MermaidRenderer = defineComponent({
 
           {/* 错误提示 */}
           {hasError.value && !showCode.value && (
-            <div class="error-message">
-              <span class="error-icon">❌</span>
-              <span class="error-text">{errorMessage.value}</span>
+            <div class="flex items-center gap-2 p-4 mt-4 rounded border" style={errorStyle.value}>
+              <span class="shrink-0">❌</span>
+              <span class="flex-1 leading-relaxed">{errorMessage.value}</span>
             </div>
           )}
 
           {/* 加载提示 */}
           {isLoading.value && !showCode.value && (
-            <div class="loading-message">
-              <div class="loading-spinner"></div>
+            <div class="flex items-center justify-center gap-3 p-8 mt-4 text-gray-500 text-sm">
+              <div class="w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
               <span>正在渲染图表...</span>
             </div>
           )}
 
           {/* 内容区域 */}
-          <div class="content-wrapper">
-            <div
-              class="code-block code-view"
-              style={{
-                display: showCode.value ? 'block' : 'none'
-              }}
-            >
-              <pre style={{
-                margin: 0,
-                padding: '12px',
-                backgroundColor: themeVars.value.codeColor,
-                color: themeVars.value.textColor2,
-                borderRadius: '4px',
-                overflow: 'auto',
-                fontSize: '14px',
-                lineHeight: '1.5'
-              }}>
-                {content.value}
-              </pre>
-            </div>
-
-            {svgValue.value && !hasError.value && (
-              <div
-                ref={containerRef}
-                class="svg-container svg-view"
-                style={{
-                  ...containerStyle.value,
-                  display: showCode.value ? 'none' : 'block'
-                }}
-              >
-                <div
-                  class="svg-wrapper"
-                  style={transformStyle.value}
-                  onMousedown={startDrag}
-                  onTouchstart={startDrag}
-                  innerHTML={svgValue.value.content}
-                />
-              </div>
-            )}
+          <div class="relative mt-4 min-h-[200px]">
+            <Transition name="fade-bottom" mode="out-in">
+              {showCode.value ? (
+                <div key="code">
+                  <pre class="m-0 p-3 rounded overflow-auto text-sm leading-relaxed" style={codeBlockStyle.value}>
+                    {content.value}
+                  </pre>
+                </div>
+              ) : (
+                svgValue.value &&
+                !hasError.value && (
+                  <div
+                    key="svg"
+                    ref={containerRef}
+                    class="relative w-full min-h-[200px] overflow-hidden rounded-md  flex items-center justify-center touch-none select-none transition-[height] duration-300"
+                    style={containerBgStyle.value}
+                  >
+                    <div
+                      style={transformStyle.value}
+                      onMousedown={startDrag}
+                      onTouchstart={startDrag}
+                      innerHTML={svgValue.value.content}
+                    />
+                  </div>
+                )
+              )}
+            </Transition>
           </div>
         </NCard>
       );
     };
   }
 });
-
-// ==================== 样式 ====================
-const style = document.createElement('style');
-style.textContent = `
-/* 空内容提示 */
-.empty-message {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 1rem;
-  color: #9ca3af;
-  font-size: 14px;
-}
-
-.empty-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  opacity: 0.5;
-}
-
-/* 错误提示 */
-.error-message {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #dc2626;
-  background: #fef2f2;
-  padding: 1rem;
-  border-radius: 4px;
-  margin-top: 1rem;
-  border: 1px solid #fecaca;
-  font-size: 14px;
-}
-
-.error-icon {
-  flex-shrink: 0;
-}
-
-.error-text {
-  flex: 1;
-  line-height: 1.5;
-}
-
-/* 加载提示 */
-.loading-message {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 2rem 1rem;
-  color: #6b7280;
-  font-size: 14px;
-}
-
-.loading-spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #e5e7eb;
-  border-top-color: #3b82f6;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* 内容包裹器 */
-.content-wrapper {
-  position: relative;
-  margin-top: 1rem;
-  min-height: 200px;
-}
-
-/* 代码视图和 SVG 视图的淡入动画 */
-.code-view,
-.svg-view {
-  animation: fadeInUp 0.3s ease-out;
-}
-
-/* 隐藏时不显示 */
-.code-view[style*="display: none"],
-.svg-view[style*="display: none"] {
-  display: none !important;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* SVG 容器 */
-.svg-container {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  border-radius: 6px;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-  background: var(--n-color-base, #fafafa);
-  transition: height 0.3s ease;
-}
-
-.color-mode-dark .svg-container {
-  background: var(--n-color-base, #1a1a1a);
-}
-
-.svg-container:active {
-  cursor: grabbing;
-}
-
-/* SVG 包裹器 */
-.svg-wrapper {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform-origin: center center;
-}
-
-/* SVG 包裹器内的 SVG 元素 */
-.svg-wrapper > svg {
-  display: block;
-  max-width: 100%;
-  max-height: 100%;
-  width: auto;
-  height: auto;
-}
-
-/* 代码块 */
-.code-block pre {
-  margin: 0 !important;
-  white-space: pre;
-  word-wrap: normal;
-  overflow-x: auto;
-}
-
-/* 响应式 */
-@media (max-width: 640px) {
-  .svg-container {
-    max-height: 30vh;
-  }
-
-  .empty-message {
-    padding: 2rem 1rem;
-  }
-
-  .empty-icon {
-    font-size: 2rem;
-  }
-}
-
-/* 暗色模式 */
-@media (prefers-color-scheme: dark) {
-  .svg-container {
-    background: #1a1a1a;
-  }
-}
-`;
-
-// 注入样式
-if (typeof document !== 'undefined' && !document.getElementById('mermaid-renderer-styles')) {
-  style.id = 'mermaid-renderer-styles';
-  document.head.appendChild(style);
-}

@@ -56,7 +56,7 @@ graph TD
   `;
 
   return (
-    <MermaidRenderer 
+    <MermaidRenderer
       code={mermaidCode}
       langName="mermaid"
       showToolbar={true}
@@ -80,7 +80,7 @@ function MyComponent() {
   `;
 
   return (
-    <MindmapRenderer 
+    <MindmapRenderer
       code={markmapCode}
       langName="markmap"
     />
@@ -105,7 +105,7 @@ function MyComponent() {
   };
 
   return (
-    <EchartsRenderer 
+    <EchartsRenderer
       option={chartOption}
       height={400}
     />
@@ -207,7 +207,7 @@ import { useMarkdownTheme } from '@/components/markdown';
 
 function MyComponent() {
   const { darkMode, cssVars, themeClass } = useMarkdownTheme();
-  
+
   return (
     <div style={cssVars.value} class={themeClass.value}>
       {/* 内容 */}
@@ -221,11 +221,11 @@ function MyComponent() {
 ### SVG 工具
 
 ```tsx
-import { 
+import {
   isSvgContent,
   sanitizeSvg,
   downloadSvg,
-  copySvgToClipboard 
+  copySvgToClipboard
 } from '@/components/markdown';
 
 // 检测是否为 SVG
@@ -244,10 +244,10 @@ await copySvgToClipboard(svgString);
 ### 安全工具
 
 ```tsx
-import { 
+import {
   escapeHtml,
   unescapeAll,
-  sanitizeHtml 
+  sanitizeHtml
 } from '@/components/markdown';
 
 // HTML 转义

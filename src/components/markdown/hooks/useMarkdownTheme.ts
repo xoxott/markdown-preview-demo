@@ -21,6 +21,24 @@ export function useMarkdownTheme() {
     '--markdown-heading-color': themeVars.value.textColor1
   }));
 
+  /** 错误提示样式 */
+  const errorStyle = computed(() => ({
+    color: themeVars.value.errorColor,
+    backgroundColor: themeVars.value.errorColorSuppl,
+    borderColor: themeVars.value.errorColorHover
+  }));
+
+  /** 容器背景样式 */
+  const containerBgStyle = computed(() => ({
+    backgroundColor: darkMode.value ? themeVars.value.cardColor : themeVars.value.baseColor
+  }));
+
+  /** 代码块样式 */
+  const codeBlockStyle = computed(() => ({
+    backgroundColor: themeVars.value.codeColor,
+    color: themeVars.value.textColor2
+  }));
+
   /** 主题类名 */
   const themeClass = computed(() => (darkMode.value ? 'color-mode-dark' : 'color-mode-light'));
 
@@ -39,6 +57,12 @@ export function useMarkdownTheme() {
     /** 主题类名 */
     themeClass,
     /** 代码高亮主题名称 */
-    highlightTheme
+    highlightTheme,
+    /** 错误提示样式 */
+    errorStyle,
+    /** 容器背景样式 */
+    containerBgStyle,
+    /** 代码块样式 */
+    codeBlockStyle
   };
 }

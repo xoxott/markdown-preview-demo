@@ -240,12 +240,13 @@ export function useSvgTools(
       // position.x/y 是偏移量：
       // - 正值表示向右/下移动
       // - 负值表示向左/上移动
-      // 放大后，需要允许向所有方向拖拽来查看超出的内容
+      // 放大后，需要允许拖拽完整的超出内容，加上容器的 padding (20px)
+      const padding = 20;
       return {
-        minX: overflowX > 0 ? -overflowX / 2 : 0,  // 可以向左拖（负值）
-        maxX: overflowX > 0 ? overflowX / 2 : 0,   // 可以向右拖（正值）
-        minY: overflowY > 0 ? -overflowY / 2 : 0,  // 可以向上拖（负值）
-        maxY: overflowY > 0 ? overflowY / 2 : 0    // 可以向下拖（正值）
+        minX: overflowX > 0 ? -(overflowX / 2 + padding) : 0,  // 可以向左拖（负值）
+        maxX: overflowX > 0 ? (overflowX / 2 + padding) : 0,   // 可以向右拖（正值）
+        minY: overflowY > 0 ? -(overflowY / 2 + padding) : 0,  // 可以向上拖（负值）
+        maxY: overflowY > 0 ? (overflowY / 2 + padding) : 0    // 可以向下拖（正值）
       };
     } catch (err) {
       // 如果 getBBox 失败，使用容器尺寸作为后备
@@ -255,11 +256,12 @@ export function useSvgTools(
       const overflowX = scaledWidth - rect.width;
       const overflowY = scaledHeight - rect.height;
 
+      const padding = 20;
       return {
-        minX: overflowX > 0 ? -overflowX / 2 : 0,
-        maxX: overflowX > 0 ? overflowX / 2 : 0,
-        minY: overflowY > 0 ? -overflowY / 2 : 0,
-        maxY: overflowY > 0 ? overflowY / 2 : 0
+        minX: overflowX > 0 ? -(overflowX / 2 + padding) : 0,
+        maxX: overflowX > 0 ? (overflowX / 2 + padding) : 0,
+        minY: overflowY > 0 ? -(overflowY / 2 + padding) : 0,
+        maxY: overflowY > 0 ? (overflowY / 2 + padding) : 0
       };
     }
   });
@@ -290,18 +292,19 @@ export function useSvgTools(
 
     scale.value = newScale;
 
-    // 更新位置以保持缩放中心点
-    if (!validateContainer()) {
-      return;
-    }
-
-    const rect = containerRef!.value!.getBoundingClientRect();
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
+    // 缩放时保持当前位置，按比例调整偏移量
+    // 这样可以保持用户拖拽后的位置，不会强制回到中心
+    const scaleRatio = newScale / oldScale;
     position.value = {
-      x: (position.value.x - centerX) * (newScale / oldScale) + centerX,
-      y: (position.value.y - centerY) * (newScale / oldScale) + centerY
+      x: position.value.x * scaleRatio,
+      y: position.value.y * scaleRatio
+    };
+
+    // 确保位置在边界内
+    const b = boundary.value;
+    position.value = {
+      x: clamp(position.value.x, b.minX, b.maxX),
+      y: clamp(position.value.y, b.minY, b.maxY)
     };
   };
 

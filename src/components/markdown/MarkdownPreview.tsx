@@ -40,15 +40,15 @@ export default defineComponent({
           if (meta.langName === 'mermaid') {
             return MermaidRenderer;
           }
-          // if (meta.langName === 'markmap') {
-          //   return MindmapRenderer;
-          // }
-          // if (meta.langName === 'echarts') {
-          //   return EchartsRenderer;
-          // }
-          // if (meta.langName === 'svg') {
-          //   return SvgRenderer;
-          // }
+          if (meta.langName === 'markmap') {
+            return MindmapRenderer;
+          }
+          if (meta.langName === 'echarts') {
+            return EchartsRenderer;
+          }
+          if (meta.langName === 'svg') {
+            return SvgRenderer;
+          }
           return CodeBlock;
         }
       }

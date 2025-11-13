@@ -70,7 +70,7 @@ export const EchartsRenderer = defineComponent({
     }
   },
   setup(props) {
-    const { darkMode } = useMarkdownTheme();
+    const { darkMode, errorStyle } = useMarkdownTheme();
     const chartRef = ref<HTMLDivElement | null>(null);
     let chartInstance: echarts.ECharts | null = null;
     const errorMessage = ref<string | null>(null);
@@ -151,45 +151,26 @@ export const EchartsRenderer = defineComponent({
 
     return () => (
       <NCard bordered={props.bordered} class="mb-2 mt-4">
-        <div
-          ref={chartRef}
-          class="echarts-container"
-          style={{
-            height: chartHeight.value,
-            minHeight: '300px',
-            width: '100%',
-            transition: 'all 0.3s ease-in-out'
-          }}
-        />
-        {errorMessage.value && <div class="error-overlay">{errorMessage.value}</div>}
+        <div class="relative">
+          <div
+            ref={chartRef}
+            style={{
+              height: chartHeight.value,
+              minHeight: '300px',
+              width: '100%',
+              transition: 'all 0.3s ease-in-out'
+            }}
+          />
+          {errorMessage.value && (
+            <div
+              class="absolute inset-0 flex items-center justify-center p-4 rounded border font-mono"
+              style={errorStyle.value}
+            >
+              {errorMessage.value}
+            </div>
+          )}
+        </div>
       </NCard>
     );
   }
 });
-
-// 添加样式
-const style = document.createElement('style');
-style.textContent = `
-.echarts-container {
-  position: relative;
-}
-
-.error-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #fecaca;
-  border-radius: 0.375rem;
-  background-color: #fef2f2;
-  padding: 1rem;
-  color: #dc2626;
-  font-family: monospace;
-}
-`;
-
-if (typeof document !== 'undefined' && !document.getElementById('echarts-renderer-styles')) {
-  style.id = 'echarts-renderer-styles';
-  document.head.appendChild(style);
-}
