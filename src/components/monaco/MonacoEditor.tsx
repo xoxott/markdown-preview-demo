@@ -6,6 +6,7 @@ import * as monaco from 'monaco-editor-core';
 import { useMarkdownTheme } from '../markdown/hooks/useMarkdownTheme';
 import { registerHighlighter } from './highlight';
 import { getOrCreateModel } from './utils';
+import './index.scss';
 
 export type MonacoLanguage = 'javascript' | 'typescript' | 'vue' | 'jsx' | 'tsx' | 'css' | 'html' | 'json' | 'markdown';
 
