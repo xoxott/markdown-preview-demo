@@ -2,8 +2,8 @@ import { type Ref, createVNode, getCurrentInstance, nextTick, readonly, ref, ren
 import { storeToRefs } from 'pinia';
 import { NConfigProvider, darkTheme } from 'naive-ui';
 import { useThemeStore } from '@/store/modules/theme';
-import type { DrawerInstance, DrawerOptions } from '@/typings/drawer';
-import { DrawerContainer } from '@/components/custom/DrawerContainer';
+import type { DrawerInstance, DrawerOptions } from './drawer';
+import BaseDrawer from './index';
 
 /** 抽屉管理器（单例模式） 支持嵌套抽屉和多实例管理 */
 class DrawerManager {
@@ -51,7 +51,7 @@ class DrawerManager {
 
     // 使用 watchEffect 实现响应式渲染
     watchEffect(() => {
-      const drawerVNode = createVNode(DrawerContainer, {
+      const drawerVNode = createVNode(BaseDrawer, {
         options,
         visible: visible.value,
         loading: loading.value,
@@ -209,7 +209,7 @@ export const getDrawerInstances = () => drawerManager.getInstances();
 export const getTopDrawerInstance = () => drawerManager.getTopInstance();
 
 /** useDrawer Hook 提供便捷的抽屉操作方法 */
-export const useDrawer = () => {
+export default () => {
   /** 打开普通抽屉 */
   const open = (options: DrawerOptions) => {
     return createDrawer(options);

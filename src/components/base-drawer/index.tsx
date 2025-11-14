@@ -1,9 +1,9 @@
 import { type PropType, type VNode, computed, defineComponent } from 'vue';
 import { NButton, NDrawer, NDrawerContent, NScrollbar, NSpace } from 'naive-ui';
-import type { DrawerButtonConfig, DrawerOptions } from '@/typings/drawer';
+import type { DrawerButtonConfig, DrawerOptions } from './drawer';
 
-export const DrawerContainer = defineComponent({
-  name: 'DrawerContainer',
+export default defineComponent({
+  name: 'baseDrawer',
   props: {
     options: {
       type: Object as PropType<DrawerOptions>,

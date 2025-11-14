@@ -31,7 +31,7 @@ const clickHandle = () => {
     currentText => {
       content.value = currentText;
     },
-    20
+    60
   );
 };
 const editorStyle = computed(() => ({

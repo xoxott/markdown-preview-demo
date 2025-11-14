@@ -4,8 +4,8 @@ import type { PropType } from 'vue';
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { NButton, NCard, NIcon, NModal, useThemeVars } from 'naive-ui';
 import { Close, Contract, Expand } from '@vicons/ionicons5';
-import type { DialogPosition, ResizeDirection } from '../types/dialog';
-import { DEFAULT_DIALOG_CONFIG } from '../types/dialog';
+import type { DialogPosition, ResizeDirection } from './dialog';
+import { DEFAULT_DIALOG_CONFIG } from './dialog';
 
 export default defineComponent({
   name: 'BaseDialog',
@@ -23,6 +23,7 @@ export default defineComponent({
     showMask: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.showMask },
     maskClosable: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.maskClosable },
     showClose: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.showClose },
+    showFullscreen: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.showFullscreen },
     closeOnEsc: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.closeOnEsc },
     autoFocus: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.autoFocus },
     trapFocus: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.trapFocus },
@@ -516,11 +517,13 @@ export default defineComponent({
                   {slots.header ? slots.header() : <div class="flex-1 text-base font-medium">{props.title}</div>}
                   <div class="flex items-center gap-1">
                     {/* 全屏按钮 */}
-                    <NButton text onClick={toggleFullscreen}>
-                      {{
-                        icon: () => <NIcon size={16}>{isFullscreen.value ? <Contract /> : <Expand />}</NIcon>
-                      }}
-                    </NButton>
+                    {props.showFullscreen && (
+                      <NButton text onClick={toggleFullscreen}>
+                        {{
+                          icon: () => <NIcon size={16}>{isFullscreen.value ? <Contract /> : <Expand />}</NIcon>
+                        }}
+                      </NButton>)
+                    }
                     {/* 关闭按钮 */}
                     {props.showClose && (
                       <NButton text onClick={handleClose}>

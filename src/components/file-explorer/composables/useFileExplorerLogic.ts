@@ -7,11 +7,11 @@ import { useFileSort } from '../hooks/useFileSort';
 import { useFileSelection } from '../hooks/useFileSelection';
 import { useFileOperations } from '../hooks/useFileOperations';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
-import { useDialog } from '../hooks/useDialog';
 import { createOperationsConfig } from '../config/operations.config';
 import { createShortcutsConfig } from '../config/shortcuts.config';
 import { createContextMenuHandler } from '../config/contextmenu.config';
 import type { LayoutConfig } from '../layout/ResizableLayout';
+import { useFileDialog } from '../hooks/useFileDialog';
 
 export interface UseFileExplorerLogicOptions {
   /** 初始文件列表 */
@@ -66,14 +66,14 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
   };
 
   // ==================== 弹窗系统 ====================
-  const dialog = useDialog();
-  provide('FILE_DIALOG', dialog);
+  const fileDialog = useFileDialog();
+  provide('FILE_DIALOG', fileDialog);
 
   // ==================== 文件操作 ====================
   const operationsConfig = createOperationsConfig(message, setLoading);
   const fileOperations = useFileOperations(selectedFiles, {
     ...operationsConfig,
-    dialog
+    fileDialog
   });
 
   // ==================== 事件处理 ====================
@@ -136,7 +136,7 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
     dragDrop,
 
     // 弹窗
-    dialog,
+    // dialog,
 
     // 方法
     setSorting,

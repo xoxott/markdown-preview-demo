@@ -1,16 +1,15 @@
 /** useDialog - 弹窗管理 Hook 提供命令式API来显示各种对话框 */
 
+import { useThemeStore } from '@/store/modules/theme';
+import { NConfigProvider, darkTheme } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import type { App } from 'vue';
 import { createVNode, nextTick, ref, render, watchEffect } from 'vue';
-import { storeToRefs } from 'pinia';
-import { NConfigProvider, darkTheme } from 'naive-ui';
-import { useThemeStore } from '@/store/modules/theme';
-import RenameDialog from '../dialogs/RenameDialog';
-import ConfirmDialog from '../dialogs/ConfirmDialog';
-import type { ConfirmDialogConfig, DialogInstance, RenameDialogConfig } from '../types/dialog';
+import ConfirmDialog from './ConfirmDialog';
+import type { ConfirmDialogConfig, DialogInstance } from './dialog';
 
 /** 创建弹窗实例 */
-async function createDialogInstance(component: any, config: any, app?: App): Promise<DialogInstance> {
+export async function createDialogInstance(component: any, config: any, app?: App): Promise<DialogInstance> {
   const container = document.createElement('div');
   document.body.appendChild(container);
   const themeStore = useThemeStore();
@@ -74,10 +73,6 @@ async function createDialogInstance(component: any, config: any, app?: App): Pro
 
 /** useDialog Hook */
 export function useDialog(app?: App) {
-  /** 显示重命名对话框 */
-  const rename = (config: RenameDialogConfig): Promise<DialogInstance> => {
-    return createDialogInstance(RenameDialog, config, app);
-  };
 
   /** 显示确认对话框 */
   const confirm = (config: ConfirmDialogConfig): Promise<DialogInstance> => {
@@ -140,7 +135,6 @@ export function useDialog(app?: App) {
   };
 
   return {
-    rename,
     confirm,
     info,
     success,

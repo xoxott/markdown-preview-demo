@@ -1,7 +1,8 @@
 import type { ComputedRef, Ref } from 'vue';
 import { computed, ref } from 'vue';
 import type { FileItem } from '../types/file-explorer';
-import type { UseDialogReturn } from './useDialog';
+import { useDialog } from '../../base-dialog/useDialog';
+import { UseFileDialogReturn } from './useFileDialog';
 
 export type ClipboardOperation = 'copy' | 'cut' | null;
 
@@ -23,7 +24,7 @@ export interface FileOperations {
 }
 
 export interface FileOperationsOptions {
-  dialog?: UseDialogReturn;
+  fileDialog?:UseFileDialogReturn;
   onCopy?: (items: FileItem[]) => void | Promise<void>;
   onCut?: (items: FileItem[]) => void | Promise<void>;
   onPaste?: (items: FileItem[], operation: ClipboardOperation, targetPath?: string) => void | Promise<void>;
@@ -35,7 +36,8 @@ export interface FileOperationsOptions {
 }
 
 export function useFileOperations(selectedFiles: Ref<FileItem[]>, options: FileOperationsOptions = {}) {
-  const { dialog, onCopy, onCut, onPaste, onDelete, onRename, onCreateFolder, onRefresh, onShowProperties } = options;
+  const { fileDialog,onCopy, onCut, onPaste, onDelete, onRename, onCreateFolder, onRefresh, onShowProperties } = options;
+  const dialog = useDialog()
 
   // 剪贴板状态
   const clipboard = ref<FileItem[]>([]);
@@ -137,8 +139,8 @@ export function useFileOperations(selectedFiles: Ref<FileItem[]>, options: FileO
     const item = selectedFiles.value[0];
 
     // 如果有 dialog,显示重命名对话框
-    if (dialog) {
-      dialog.rename({
+    if (fileDialog) {
+      fileDialog.rename({
         title: '重命名',
         defaultValue: item.name,
         placeholder: '请输入新名称',
@@ -164,8 +166,8 @@ export function useFileOperations(selectedFiles: Ref<FileItem[]>, options: FileO
   /** 新建文件夹 */
   const createFolder = async (name?: string, parentPath?: string) => {
     // 如果有 dialog 且没有提供名称,显示输入对话框
-    if (dialog && !name) {
-      dialog.rename({
+    if (fileDialog && !name) {
+      fileDialog.rename({
         title: '新建文件夹',
         defaultValue: '新建文件夹',
         placeholder: '请输入文件夹名称',

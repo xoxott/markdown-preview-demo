@@ -17,7 +17,7 @@ export type DialogType = 'info' | 'success' | 'warning' | 'error';
 /** 基础弹窗属性 */
 export interface BaseDialogProps {
   /** 是否显示弹窗 */
-  show: boolean;
+  show?: boolean;
   /** 弹窗标题 */
   title?: string;
   /** 弹窗宽度 */
@@ -42,6 +42,8 @@ export interface BaseDialogProps {
   showMask?: boolean;
   /** 是否显示关闭按钮 */
   showClose?: boolean;
+  /** 是否显示全屏按钮 */
+  showFullscreen?: boolean;
   /** ESC键是否关闭 */
   closeOnEsc?: boolean;
   /** 是否自动聚焦 */
@@ -85,7 +87,7 @@ export interface RenameDialogConfig {
 }
 
 /** 确认对话框配置 */
-export interface ConfirmDialogConfig {
+export interface ConfirmDialogConfig  extends BaseDialogProps{
   /** 标题 */
   title?: string;
   /** 内容 */
@@ -240,10 +242,11 @@ export const DIALOG_SIZE_PRESETS: Record<DialogSize, { width: number; height: nu
 
 /** 默认弹窗配置 */
 export const DEFAULT_DIALOG_CONFIG: Partial<BaseDialogProps> = {
-  draggable: true,
-  resizable: true,
+  draggable: false,
+  resizable: false,
   maskClosable: true,
   showClose: true,
+  showFullscreen: false,
   closeOnEsc: true,
   showMask: true,
   autoFocus: true,

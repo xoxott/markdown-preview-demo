@@ -2,7 +2,7 @@
 
 import { defineComponent, ref, watch } from 'vue';
 import { NButton, NForm, NFormItem, NInput, NSpace } from 'naive-ui';
-import { useDrawer } from './index';
+import useDrawer from './useDrawer';
 
 export default defineComponent({
   name: 'DrawerExample',

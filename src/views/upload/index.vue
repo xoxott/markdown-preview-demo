@@ -22,7 +22,7 @@ import { useChunkUpload } from '@/hooks/upload/useChunkUpload';
 import type { FileTask } from '@/hooks/upload/type';
 import { UploadStatus } from '@/hooks/upload/type';
 import { CONSTANTS } from '@/hooks/upload/constants';
-import { useDrawer } from '@/hooks/customer/useDrawer/index';
+import useDrawer from '@/components/base-drawer/useDrawer';
 import type { CustomUploadFileInfo } from '@/components/custom-upload';
 import CustomUpload from '@/components/custom-upload';
 import UploadFileItem from './components/UploadFileItem.vue';

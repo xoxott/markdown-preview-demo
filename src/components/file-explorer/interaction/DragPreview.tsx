@@ -230,7 +230,7 @@ export default defineComponent({
               </div>
 
               {/* 拖拽阴影效果 */}
-              <div class="absolute inset-0 rounded-lg bg-blue-500 opacity-30 blur-xl -z-10" />
+              <div class="absolute inset-0 rounded-lg bg-blue-500 opacity-30 blur-sm -z-10" />
             </div>
           )}
         </Transition>

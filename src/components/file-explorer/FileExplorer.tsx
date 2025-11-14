@@ -1,5 +1,5 @@
 import { defineComponent, onMounted, ref } from 'vue';
-import Example from '@/hooks/customer/useDrawer/example';
+import DrawerExample from '@/components/base-drawer/DrawerExample';
 import ViewContainer from './container/ViewContainer';
 import DragPreview from './interaction/DragPreview';
 import FileBreadcrumb from './layout/FileBreadcrumb';
@@ -9,6 +9,7 @@ import FileToolbar from './layout/FileToolbar';
 import ResizableLayout from './layout/ResizableLayout';
 import { mockBreadcrumbItems, mockFileItems } from './config/mockData';
 import { useFileExplorerLogic } from './composables/useFileExplorerLogic';
+import DialogTestPanel from './test/DialogTestPanel';
 
 /**
  * 文件管理器主组件
@@ -99,8 +100,10 @@ export default defineComponent({
                   onContextMenuSelect={logic.handleContextMenuSelect}
                 />
               ),
-              // right: <DialogTestPanel dialog={logic.dialog} />
-              right: <Example />
+              right: <div class={'flex flex-col'}>
+                  <DrawerExample />
+                  <DialogTestPanel/>
+              </div>
             }}
           </ResizableLayout>
         </div>

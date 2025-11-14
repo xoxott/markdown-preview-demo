@@ -1,27 +1,23 @@
 /** DialogTestPanel - 弹窗测试面板 用于测试所有弹窗功能 */
-
-import type { PropType } from 'vue';
-import { defineComponent, ref } from 'vue';
+import BaseDialog from '@/components/base-dialog';
+import { useDialog } from '@/components/base-dialog/useDialog';
+import useDrawer from '@/components/base-drawer/useDrawer';
 import { NButton, NDivider, NSpace, useThemeVars } from 'naive-ui';
-import { useDrawer } from '@/hooks/customer/useDrawer';
-import type { UseDialogReturn } from '../hooks/useDialog';
-import BaseDialog from '../dialogs/BaseDialog';
+import { defineComponent, ref } from 'vue';
+import { useFileDialog } from '../hooks/useFileDialog';
+
 
 export default defineComponent({
   name: 'DialogTestPanel',
-  props: {
-    dialog: {
-      type: Object as PropType<UseDialogReturn>,
-      required: true
-    }
-  },
   setup(props) {
     const themeVars = useThemeVars();
     const drawer = useDrawer();
+    const dialog = useDialog();
+    const fileDialog = useFileDialog()
 
     // 测试重命名对话框
     const testRename = () => {
-      props.dialog.rename({
+      fileDialog.rename({
         title: '重命名文件',
         defaultValue: 'test-file.txt',
         placeholder: '请输入新名称',
@@ -34,7 +30,7 @@ export default defineComponent({
 
     // 测试确认对话框
     const testConfirm = () => {
-      props.dialog.confirm({
+     dialog.confirm({
         title: '确认操作',
         content: '这是一个确认对话框,您确定要继续吗?',
         type: 'warning',
@@ -50,27 +46,27 @@ export default defineComponent({
 
     // 测试信息对话框
     const testInfo = () => {
-      props.dialog.info('这是一条信息提示', '信息');
+       dialog.info('这是一条信息提示', '信息');
     };
 
     // 测试成功对话框
     const testSuccess = () => {
-      props.dialog.success('操作已成功完成!', '成功');
+       dialog.success('操作已成功完成!', '成功');
     };
 
     // 测试警告对话框
     const testWarning = () => {
-      props.dialog.warning('请注意这个警告信息!', '警告');
+       dialog.warning('请注意这个警告信息!', '警告');
     };
 
     // 测试错误对话框
     const testError = () => {
-      props.dialog.error('发生了一个错误!', '错误');
+       dialog.error('发生了一个错误!', '错误');
     };
 
     // 测试删除确认对话框
     const testConfirmDelete = () => {
-      props.dialog.confirmDelete('重要文件.txt', async () => {
+        dialog.confirmDelete('重要文件.txt', async () => {
         console.log('文件已删除');
         await new Promise(resolve => setTimeout(resolve, 500));
       });
@@ -78,10 +74,11 @@ export default defineComponent({
 
     // 测试可拖拽弹窗
     const testDraggable = () => {
-      props.dialog.confirm({
+        dialog.confirm({
         title: '可拖拽弹窗',
         content: '尝试拖拽标题栏来移动这个弹窗!',
         type: 'info',
+        resizable: true,
         onConfirm: () => {
           console.log('测试完成');
         }
@@ -201,7 +198,6 @@ export default defineComponent({
               footer: () => <div>测试弹窗</div>
             }}
           </BaseDialog>
-
           <NButton onClick={() => drawer.open({ title: '测试抽屉', content: '测试抽屉' })}>测试抽屉</NButton>
         </NSpace>
       </div>

@@ -64,6 +64,7 @@ export default defineComponent({
     const sortFieldOptions = [
       { label: '名称', value: 'name' as SortField },
       { label: '修改时间', value: 'modifiedAt' as SortField },
+      { label: '创建时间', value: 'createdAt' as SortField },
       { label: '类型', value: 'type' as SortField },
       { label: '大小', value: 'size' as SortField }
     ];
