@@ -119,7 +119,7 @@ export default defineComponent({
 
           {/* 内容区域 */}
           <NScrollbar class="flex-1">
-            <div class="p-4">
+            <div class={`p-4 ${props.selectedFiles.length === 0 ? 'h-full flex items-center justify-center' : ''}`}>
               {/* 多选时的统计信息 */}
               {selectionStats.value && (
                 <div class="space-y-3">
@@ -258,7 +258,7 @@ export default defineComponent({
               {/* 未选中任何文件 */}
               {props.selectedFiles.length === 0 && (
                 <div
-                  class="flex flex-col items-center justify-center py-8 text-center"
+                  class="flex flex-col items-center justify-center text-center"
                   style={{ color: themeVars.value.textColor3 }}
                 >
                   <NIcon size={48} style={{ marginBottom: '12px', opacity: 0.5 }}>
