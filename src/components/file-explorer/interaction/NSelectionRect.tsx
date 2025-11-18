@@ -423,7 +423,17 @@ export default defineComponent({
     const handleClickOutside = (e: MouseEvent): void => {
       if (selectionState.value.isSelecting) return;
       const target = e.target as HTMLElement;
+
+      // 检查点击是否在容器内
+      const container = containerRef.value;
+      if (!container || !container.contains(target)) {
+        // 点击在容器外部，不清空选中
+        return;
+      }
+
+      // 检查是否点击在可选中元素或下拉菜单上
       if (!target.closest(props.selectableSelector) && !target.closest('[data-dropdown-option]')) {
+        // 点击在容器内的空白区域，清空选中
         selectionState.value.selectedIds.clear();
         props.onClearSelection?.();
       }

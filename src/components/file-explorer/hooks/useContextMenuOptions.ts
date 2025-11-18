@@ -73,6 +73,13 @@ export function useContextMenuOptions({ selectedIds, onSelect }: UseContextMenuO
       { key: 'favorite', label: '收藏', icon: StarOutline, show: selectedIds.value.size === 1 },
       { key: 'divider-4', label: '', divider: true },
       {
+        key: 'info',
+        label: '文件信息',
+        icon: InformationCircleOutline,
+        shortcut: 'Alt+Enter',
+        show: selectedIds.value.size > 0
+      },
+      {
         key: 'properties',
         label: '属性',
         icon: InformationCircleOutline,

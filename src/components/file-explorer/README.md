@@ -1,4 +1,22 @@
-# 📂 文件管理器完整架构
+# 📂 文件管理器组件
+
+## 📋 概述
+
+File Explorer 是一个功能完整的文件管理器组件，采用 Vue 3 Composition API 和 TypeScript 构建。组件采用分层架构设计，实现了关注点分离、高内聚低耦合的代码组织方式。
+
+### ✨ 核心特性
+
+- ✅ **5 种视图模式**: 网格、列表、平铺、详细、内容视图
+- ✅ **完整的文件操作**: 复制、剪切、粘贴、删除、重命名、新建文件夹
+- ✅ **拖拽系统**: 支持文件拖拽移动/复制，带预览和验证
+- ✅ **选择系统**: 单选、多选、范围选择、圈选（智能边界检测）
+- ✅ **键盘快捷键**: 16 个快捷键支持
+- ✅ **右键菜单**: 上下文相关的操作菜单
+- ✅ **信息面板**: 文件属性展示和统计信息（默认隐藏）
+- ✅ **响应式布局**: 可调整的侧边栏和面板
+- ✅ **加载状态**: 统一的加载反馈机制
+
+---
 
 ## 🏗️ 目录结构
 
@@ -26,47 +44,45 @@ src/
 │       │   └── ContentView.tsx           # 内容视图（预览摘要）
 │       │
 │       ├── items/                        # 文件项组件
-│       │   ├── FileItem.tsx              # 通用文件项
-│       │   ├── FileIcon.tsx              # 文件图标
-│       │   ├── FolderItem.tsx            # 文件夹项
-│       │   └── FileThumbnail.tsx         # 缩略图
+│       │   └── FileIcon.tsx              # 文件图标
+│       │
+│       ├── panels/                       # 面板组件
+│       │   └── FileInfoPanel.tsx         # 文件信息面板（属性、统计）
 │       │
 │       ├── interaction/                  # 交互组件
-│       │   ├── SelectionRect.tsx         # ✨ 圈选组件
+│       │   ├── NSelectionRect.tsx        # ✨ 圈选组件（新版）
+│       │   ├── SelectionRect.tsx         # 圈选组件（旧版）
 │       │   ├── ContextMenu.tsx           # 右键菜单
 │       │   ├── DragPreview.tsx           # 拖拽预览
-│       │   └── DropZone.tsx              # 拖放区域
+│       │   ├── DropZone.tsx              # 拖放区域
+│       │   └── FileDropZoneWrapper.tsx   # 文件拖拽包装器
 │       │
-│       ├── dialogs/                      # 对话框
-│       │   ├── RenameDialog.tsx          # 重命名
-│       │   ├── DeleteConfirm.tsx         # 删除确认
-│       │   ├── PropertiesDialog.tsx      # 文件属性
-│       │   ├── CreateFolderDialog.tsx    # 新建文件夹
-│       │   └── UploadDialog.tsx          # 上传进度
+│       ├── dialogs/                      # 对话框组件
+│       │   ├── RenameDialog.tsx          # 重命名对话框
+│       │   └── README.md                 # 对话框使用说明
 │       │
-│       ├── preview/                      # 预览组件
-│       │   ├── FilePreviewPanel.tsx      # 预览面板容器
-│       │   ├── ImagePreview.tsx          # 图片预览
-│       │   ├── VideoPreview.tsx          # 视频预览
-│       │   ├── AudioPreview.tsx          # 音频预览
-│       │   ├── PDFPreview.tsx            # PDF预览
-│       │   └── TextPreview.tsx           # 文本/代码预览
+│       ├── feedback/                     # 反馈组件
+│       │   ├── FileLoading.tsx           # 加载状态
+│       │   └── FileLoading.module.scss   # 加载样式
 │       │
-│       └── utils/                        # 工具组件
-│           ├── EmptyState.tsx            # 空状态
-│           ├── LoadingState.tsx          # 加载状态
-│           ├── ProgressBar.tsx           # 进度条
-│           └── BulkActionsBar.tsx        # 批量操作栏
+│       └── utils/                        # 工具函数
+│           ├── fileHelpers.ts            # 文件工具函数
+│           └── tabel.ts                  # 表格工具
 │
-├── composables/                          # 组合式函数
-│   └── file-explorer/
-│       ├── useFileSelection.ts           # ✨ 选择逻辑
-│       ├── useFileSort.ts                # ✨ 排序逻辑
-│       ├── useFileFilter.ts              # 过滤/搜索
-│       ├── useFileDragDrop.ts            # 拖拽逻辑
-│       ├── useFileOperations.ts          # 文件操作（复制/移动/删除）
-│       ├── useFileNavigation.ts          # 导航逻辑
-│       └── useKeyboardShortcuts.ts       # 键盘快捷键
+├── composables/                          # 业务逻辑层
+│   └── useFileExplorerLogic.ts          # 核心业务逻辑封装
+│
+├── hooks/                                # 功能 Hooks
+│   ├── useFileSelection.ts              # 文件选择逻辑
+│   ├── useFileSort.ts                   # 文件排序逻辑
+│   ├── useFileOperations.ts             # 文件操作逻辑
+│   ├── useFileDragDrop.ts               # 基础拖拽逻辑
+│   ├── useFileDragDropEnhanced.ts        # 增强拖拽逻辑
+│   ├── useKeyboardShortcuts.ts          # 键盘快捷键
+│   ├── useFileDialog.ts                 # 文件对话框
+│   ├── useFilePreview.ts                # 文件预览
+│   ├── useContextMenuOptions.ts         # 右键菜单选项
+│   └── useFileMetadata.ts                # 文件元数据管理
 │
 ├── types/                                # 类型定义
 │   └── file-explorer.ts                  # 所有类型接口
@@ -100,23 +116,30 @@ FileExplorer (主容器)
 │
 ├─ FileBreadcrumb (面包屑)
 │
-├─ Content Area (内容区域)
+├─ ResizableLayout (可调整布局)
 │  │
-│  ├─ FileSidebar (侧边栏 - 可选)
+│  ├─ FileSidebar (左侧边栏)
 │  │  ├─ QuickAccess (快速访问)
-│  │  ├─ FolderTree (文件树)
-│  │  └─ StorageInfo (存储信息)
+│  │  └─ FolderTree (文件树)
 │  │
-│  └─ ViewContainer (视图容器) ⭐
-│     │
-│     └─ SelectionRect (圈选层) ⭐
-│        │
-│        └─ [动态视图组件] ⭐
-│           ├─ GridView (网格)
-│           ├─ ListView (列表)
-│           ├─ TileView (平铺)
-│           ├─ DetailView (详细)
-│           └─ ContentView (内容)
+│  ├─ ViewContainer (视图容器) ⭐
+│  │  │
+│  │  ├─ ContextMenu (右键菜单)
+│  │  │
+│  │  ├─ NSelectionRect (圈选组件) ⭐
+│  │  │
+│  │  └─ FileViewRenderer (视图渲染器) ⭐
+│  │     │
+│  │     └─ [动态视图组件]
+│  │        ├─ GridView (网格视图)
+│  │        ├─ ListView (列表视图)
+│  │        ├─ TileView (平铺视图)
+│  │        ├─ DetailView (详细视图)
+│  │        └─ ContentView (内容视图)
+│  │
+│  └─ FileInfoPanel (信息面板) ⭐
+│     ├─ 基本信息（单选时）
+│     └─ 统计信息（多选时）
 │
 └─ FileStatusBar (状态栏)
    ├─ SelectionInfo (选中信息)
@@ -129,25 +152,62 @@ inject 用于“全局共享、深层复用的状态/方法”。
 
 ## 📋 核心功能实现清单
 
-### ✅ 已实现
-- [x] SelectionRect 圈选组件（带边界限制）
-- [x] ViewContainer 视图容器
-- [x] 5种视图模式基础结构
-- [x] useFileSelection 选择逻辑
-- [x] useFileSort 排序逻辑
-- [x] 文件工具函数
+### ✅ 已实现功能
 
-### 🚧 待完善
-- [x] 右键菜单系统
-- [x] 拖拽功能完整实现
-- [ ] 预览面板
-- [ ] 对话框系统
-- [x] 键盘快捷键
-- [x] 文件操作（复制/粘贴/移动）
-- [ ] 搜索过滤功能
+#### 视图系统
+- [x] 5种视图模式（网格、列表、平铺、详细、内容）
+- [x] 网格视图支持4种图标尺寸
+- [x] 详细视图支持列宽调整和列顺序拖拽
+- [x] 视图动态切换
+
+#### 选择系统
+- [x] 单选（普通点击）
+- [x] 多选（Ctrl/Cmd + 点击）
+- [x] 范围选择（Shift + 点击）
+- [x] 圈选（拖拽框选）
+- [x] 全选/反选（Ctrl+A / Escape）
+- [x] 智能边界检测（只在视图容器内清空选中）
+
+#### 文件操作
+- [x] 复制/剪切/粘贴（内部剪贴板管理）
+- [x] 删除文件
+- [x] 重命名文件
+- [x] 新建文件夹
+- [x] 刷新视图
+- [x] 显示文件属性
+
+#### 交互系统
+- [x] 右键菜单（上下文相关）
+- [x] 拖拽移动/复制（带预览和验证）
+- [x] 键盘快捷键（16个快捷键）
+- [x] 圈选组件（高性能，支持自动滚动）
+
+#### 布局系统
+- [x] 可调整的左侧边栏（可折叠）
+- [x] 可调整的右侧信息面板（默认隐藏）
+- [x] 响应式布局
+- [x] 拖拽调整宽度
+
+#### UI 组件
+- [x] 顶部工具栏（视图切换、排序、网格尺寸）
 - [x] 面包屑导航
-- [x] 侧边栏
-- [x] 状态栏
+- [x] 左侧边栏（快速访问、文件树）
+- [x] 底部状态栏（选中信息、统计）
+- [x] 右侧信息面板（文件属性、统计信息）
+- [x] 加载状态反馈
+
+#### 其他功能
+- [x] 文件排序（名称、大小、类型、日期）
+- [x] 文件夹始终在前
+- [x] 文件图标识别
+- [x] 文件大小格式化
+- [x] 日期格式化
+
+### 🚧 待完善功能
+- [ ] 搜索过滤功能
+- [ ] 文件预览（图片、PDF、文本等）
+- [ ] 批量操作进度显示
+- [ ] 文件上传功能
 
 ---
 
@@ -282,11 +342,27 @@ useKeyboardShortcuts({
 - 操作回调支持
 - 状态验证（单选/多选限制）
 
+### useFileDragDropEnhanced
+**功能**: 增强的拖拽逻辑  
+**特性**:
+- 支持拖拽移动/复制/链接
+- 拖拽预览
+- 放置区域验证
+- 自动滚动
+- 错误处理
+
+### useFileMetadata
+**功能**: 文件元数据管理  
+**特性**:
+- 使用 Map 存储文件 ID 到元数据的映射
+- 提供标签和备注的增删改查方法
+- 内存存储（可扩展为 localStorage 持久化）
+
 ---
 
 ## ⌨️ 键盘快捷键
 
-### 文件操作
+### 文件操作（8个）
 - `Ctrl+A` - 全选文件
 - `Ctrl+C` - 复制选中文件
 - `Ctrl+X` - 剪切选中文件
@@ -294,20 +370,84 @@ useKeyboardShortcuts({
 - `Delete` - 删除选中文件
 - `F2` - 重命名（单个文件）
 - `Enter` - 打开选中文件
-- `Alt+Enter` - 显示文件属性
+- `Alt+Enter` - 显示文件属性/信息面板
 
-### 视图切换
-- `Ctrl+1` - 网格视图
-- `Ctrl+2` - 列表视图
-- `Ctrl+3` - 平铺视图
-- `Ctrl+4` - 详细视图
-- `Ctrl+5` - 内容视图
+### 视图切换（5个）
+- `Ctrl+1` - 切换到网格视图
+- `Ctrl+2` - 切换到列表视图
+- `Ctrl+3` - 切换到平铺视图
+- `Ctrl+4` - 切换到详细视图
+- `Ctrl+5` - 切换到内容视图
 
-### 其他操作
+### 其他操作（3个）
 - `F5` - 刷新视图
 - `Ctrl+Shift+N` - 新建文件夹
 - `Escape` - 取消选择
 
 **详细说明**: 参见 [KEYBOARD_SHORTCUTS.md](./KEYBOARD_SHORTCUTS.md)
+
+---
+
+## 📊 信息面板
+
+### 功能特性
+- **文件信息展示**: 显示选中文件的详细信息（名称、类型、大小、路径、时间等）
+- **统计信息**: 多选时显示选中文件的统计信息（总数、文件数、文件夹数、总大小、文件类型分布）
+- **轻量级设计**: 适配窄面板（最小 200px），性能友好
+- **默认隐藏**: 通过右键菜单"文件信息"选项打开
+- **可调整宽度**: 支持拖拽调整面板宽度（120px - 1000px）
+
+### 打开方式
+- 右键菜单 → "文件信息"选项
+- 快捷键 `Alt+Enter`（选中文件时）
+
+### 显示内容
+
+**单选时**:
+- 基本信息：名称、类型、大小、扩展名、路径、创建时间、修改时间
+
+**多选时**:
+- 统计信息：总数、文件数、文件夹数、总大小
+- 文件类型分布：按扩展名统计
+
+---
+
+## 🎯 使用示例
+
+### 基本使用
+
+```vue
+<template>
+  <FileExplorer />
+</template>
+
+<script setup>
+import FileExplorer from '@/components/file-explorer/FileExplorer.vue'
+</script>
+```
+
+### 自定义配置
+
+```typescript
+import { useFileExplorerLogic } from '@/components/file-explorer/composables/useFileExplorerLogic'
+
+const logic = useFileExplorerLogic({
+  initialItems: fileList,
+  containerRef,
+  validateDrop: (items, targetPath) => {
+    // 自定义拖放验证逻辑
+    return true
+  }
+})
+```
+
+---
+
+## 📚 相关文档
+
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - 完整架构文档
+- [KEYBOARD_SHORTCUTS.md](./KEYBOARD_SHORTCUTS.md) - 键盘快捷键详细说明
+- [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) - 实施总结
+- [REFACTORING_SUMMARY.md](./REFACTORING_SUMMARY.md) - 重构总结
 
 ---

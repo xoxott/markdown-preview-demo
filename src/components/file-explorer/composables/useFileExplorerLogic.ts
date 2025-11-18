@@ -1,5 +1,6 @@
 import type { Ref } from 'vue';
-import { provide, ref } from 'vue';
+import { provide, ref, watch } from 'vue';
+import { useToggle } from '@vueuse/core';
 import { useMessage } from 'naive-ui';
 import type { FileItem, GridSize, ViewMode } from '../types/file-explorer';
 import { useFileDragDropEnhanced } from '../hooks/useFileDragDropEnhanced';
@@ -36,11 +37,19 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
   const loadingTip = ref('加载中...');
   const layoutConfig = ref<LayoutConfig>({
     leftWidth: 180,
-    rightWidth: 200,
+    rightWidth: 300,
     minRightWidth: 120,
     maxRightWidth: 1000,
     showLeft: true,
-    showRight: true
+    showRight: false // 默认隐藏右侧面板
+  });
+
+  // ==================== 信息面板状态 ====================
+  const [showInfoPanel, toggleInfoPanel] = useToggle(false);
+
+  // 同步更新布局配置
+  watch(showInfoPanel, (value) => {
+    layoutConfig.value.showRight = value;
   });
 
   // ==================== 拖拽系统 ====================
@@ -113,7 +122,8 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
     message,
     selectedFiles,
     onOpen: handleOpen,
-    onSort: setSorting
+    onSort: setSorting,
+    onToggleInfoPanel: toggleInfoPanel
   });
 
   // ==================== 返回所有状态和方法 ====================
@@ -131,6 +141,7 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
     loading,
     loadingTip,
     layoutConfig,
+    showInfoPanel,
 
     // 拖拽
     dragDrop,
@@ -149,6 +160,7 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
     handleGridSizeChange,
     setLoading,
     handleContextMenuSelect,
+    toggleInfoPanel,
 
     // 文件操作
     fileOperations

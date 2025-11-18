@@ -1,5 +1,5 @@
 import type { PropType } from 'vue';
-import { computed, defineComponent, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { NIcon, NLayout, NLayoutContent, NLayoutSider, useThemeVars } from 'naive-ui';
 import { Dots } from '@vicons/tabler';
 
@@ -38,9 +38,9 @@ export default defineComponent({
 
     const leftWidth = ref(props.config.leftWidth);
     const rightWidth = ref(props.config.rightWidth);
-    const showLeft = ref(props.config.showLeft ?? true);
-    const showRight = ref(props.config.showRight ?? true);
 
+    const showLeft = computed(() => props.config.showLeft ?? true);
+    const showRight = computed(() => props.config.showRight ?? true);
     const isResizingRight = ref(false);
     const startX = ref(0);
     const startWidth = ref(0);
@@ -105,7 +105,7 @@ export default defineComponent({
     const renderRightResizeHandle = () => {
       return (
         <div
-          class="group absolute bottom-0 left-0 top-0 w-4 cursor-col-resize transition-all"
+          class="group absolute bottom-0 left-0 top-0 w-4 cursor-col-resize transition-all z-10"
           onMousedown={handleRightMouseDown}
         >
           {/* 分隔线 */}
@@ -163,7 +163,7 @@ export default defineComponent({
             }}
           >
             {renderRightResizeHandle()}
-            <div style="padding-left: 16px; height: 100%;">{slots.right?.()}</div>
+            <div style="padding-left: 8px; height: 100%;">{slots.right?.()}</div>
           </NLayoutSider>
         )}
       </NLayout>

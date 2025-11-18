@@ -40,6 +40,20 @@ export interface FileItem {
   /** 自定义元数据 */
   metadata?: Record<string, any>;
   color?: string;
+  /** 标签数组 */
+  tags?: string[];
+  /** 备注文本 */
+  notes?: string;
+}
+
+/** 文件元数据接口 */
+export interface FileMetadata {
+  /** 文件 ID */
+  fileId: string;
+  /** 标签数组 */
+  tags: string[];
+  /** 备注文本 */
+  notes: string;
 }
 /** 文件权限 */
 export interface FilePermissions {

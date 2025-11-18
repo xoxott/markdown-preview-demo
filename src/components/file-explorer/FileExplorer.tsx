@@ -7,6 +7,7 @@ import FileSidebar from './layout/FileSidebar';
 import FileStatusBar from './layout/FileStatusBar';
 import FileToolbar from './layout/FileToolbar';
 import ResizableLayout from './layout/ResizableLayout';
+import FileInfoPanel from './panels/FileInfoPanel';
 import { mockBreadcrumbItems, mockFileItems } from './config/mockData';
 import { useFileExplorerLogic } from './composables/useFileExplorerLogic';
 import DialogTestPanel from './test/DialogTestPanel';
@@ -75,6 +76,7 @@ export default defineComponent({
           totalItems={logic.mockItems.value.length}
           fileCount={logic.mockItems.value.filter(f => f.type === 'file').length}
           folderCount={logic.mockItems.value.filter(f => f.type === 'folder').length}
+          selectedItems={logic.selectedFiles.value}
         />
 
         {/* 视图布局 */}
@@ -100,10 +102,15 @@ export default defineComponent({
                   onContextMenuSelect={logic.handleContextMenuSelect}
                 />
               ),
-              right: <div class={'flex flex-col'}>
-                  <DrawerExample />
-                  <DialogTestPanel/>
-              </div>
+              right: (
+                <FileInfoPanel
+                  selectedFiles={logic.selectedFiles.value}
+                  show={logic.showInfoPanel.value}
+                  onClose={() => {
+                    logic.toggleInfoPanel();
+                  }}
+                />
+              )
             }}
           </ResizableLayout>
         </div>

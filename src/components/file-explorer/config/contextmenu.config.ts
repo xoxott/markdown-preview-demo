@@ -23,6 +23,8 @@ export interface ContextMenuHandlerDeps {
   onOpen?: (file: FileItem) => void;
   /** 排序的回调 */
   onSort?: (field: SortField) => void;
+  /** 切换信息面板的回调 */
+  onToggleInfoPanel?: () => void;
 }
 
 /**
@@ -34,7 +36,7 @@ export interface ContextMenuHandlerDeps {
  * @returns 统一的右键菜单处理函数
  */
 export function createContextMenuHandler(deps: ContextMenuHandlerDeps) {
-  const { fileOperations, message, selectedFiles, onOpen, onSort } = deps;
+  const { fileOperations, message, selectedFiles, onOpen, onSort, onToggleInfoPanel } = deps;
 
   // 事件处理映射表
   const handlers: Record<string, () => void | Promise<void>> = {
@@ -47,6 +49,14 @@ export function createContextMenuHandler(deps: ContextMenuHandlerDeps) {
     refresh: () => fileOperations.refresh(),
     properties: () => fileOperations.showProperties(),
     'new-folder': () => fileOperations.createFolder(),
+    // ==================== 信息面板 ====================
+    info: () => {
+      if (onToggleInfoPanel) {
+        onToggleInfoPanel();
+      } else {
+        message.info('信息面板功能未启用');
+      }
+    },
 
     // ==================== 打开操作 ====================
     open: () => {
