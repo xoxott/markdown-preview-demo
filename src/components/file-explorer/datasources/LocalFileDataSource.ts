@@ -1,5 +1,5 @@
 import type { FileItem } from '../types/file-explorer';
-import type { IFileDataSource, LocalFileDataSourceConfig } from './types';
+import type { IFileDataSource, LocalFileDataSourceConfig, PaginationParams, PaginationResult } from './types';
 
 /** 本地文件数据源实现（使用 File System Access API） */
 export class LocalFileDataSource implements IFileDataSource {
@@ -156,6 +156,27 @@ export class LocalFileDataSource implements IFileDataSource {
     }
 
     return items;
+  }
+
+  async listFilesWithPagination(params: PaginationParams): Promise<PaginationResult> {
+    // 先获取所有文件
+    const allFiles = await this.listFiles(params.path);
+    const total = allFiles.length;
+    const { page, pageSize } = params;
+
+    // 计算分页范围
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+
+    // 切片获取当前页的文件
+    const items = allFiles.slice(startIndex, endIndex);
+
+    return {
+      items,
+      total,
+      page,
+      pageSize
+    };
   }
 
   async readFile(path: string): Promise<string | Blob> {

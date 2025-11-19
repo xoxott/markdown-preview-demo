@@ -15,6 +15,7 @@ import type { FileItem, GridSize, SortField, SortOrder, ViewMode } from '../type
 import NSelectionRect from '../interaction/NSelectionRect';
 import FileLoading from '../feedback/FileLoading';
 import FileViewRenderer from './FileViewRenderer';
+import FilePagination from '../layout/FilePagination';
 
 export default defineComponent({
   name: 'ViewContainer',
@@ -30,7 +31,15 @@ export default defineComponent({
     onSort: { type: Function as PropType<(field: SortField) => void>, required: false },
     loading: { type: Boolean, required: false, default: false },
     loadingTip: { type: String, required: false, default: '加载中...' },
-    onContextMenuSelect: { type: Function as PropType<(key: string) => void>, required: true }
+    onContextMenuSelect: { type: Function as PropType<(key: string) => void>, required: true },
+    // 分页相关 props
+    currentPage: { type: Number, required: false },
+    pageSize: { type: Number, required: false },
+    total: { type: Number, required: false },
+    totalPages: { type: Number, required: false },
+    showPagination: { type: Boolean, required: false, default: false },
+    onPageChange: { type: Function as PropType<(page: number) => void>, required: false },
+    onPageSizeChange: { type: Function as PropType<(size: number) => void>, required: false }
   },
   setup(props) {
     const { handleContextMenuShow, handleContextMenuHide, options } = useContextMenuOptions({
@@ -43,29 +52,47 @@ export default defineComponent({
       props.onSelect(ids);
     };
     return () => {
+      const hasPagination = props.showPagination && props.currentPage !== undefined && props.totalPages !== undefined;
+
       return (
-        <div class="h-full" style={{ position: 'relative' }}>
-          <ContextMenu
-            options={options.value}
-            onSelect={props.onContextMenuSelect}
-            triggerSelector={`[data-selectable-id],.selection-container`}
-            onShow={handleContextMenuShow}
-            onHide={handleContextMenuHide}
-            class={'h-full'}
-          >
-            <NSelectionRect
-              onSelectionChange={handleSelectionChange}
-              onClearSelection={() => props.onSelect([])}
+        <div class="h-full flex flex-col" style={{ position: 'relative' }}>
+          <div class={hasPagination ? 'flex-1 overflow-hidden' : 'h-full'}>
+            <ContextMenu
+              options={options.value}
+              onSelect={props.onContextMenuSelect}
+              triggerSelector={`[data-selectable-id],.selection-container`}
+              onShow={handleContextMenuShow}
+              onHide={handleContextMenuHide}
               class={'h-full'}
             >
-              <NScrollbar yPlacement="right" xPlacement="bottom" class="h-full">
-                <FileViewRenderer {...props} />
-              </NScrollbar>
-            </NSelectionRect>
-          </ContextMenu>
+              <NSelectionRect
+                onSelectionChange={handleSelectionChange}
+                onClearSelection={() => props.onSelect([])}
+                class={'h-full'}
+              >
+                <NScrollbar yPlacement="right" xPlacement="bottom" class="h-full">
+                  <FileViewRenderer {...props} />
+                </NScrollbar>
+              </NSelectionRect>
+            </ContextMenu>
 
-          {/* Loading 遮罩层 - 只覆盖文件列表区域 */}
-          <FileLoading loading={props.loading} tip={props.loadingTip} />
+            {/* Loading 遮罩层 - 只覆盖文件列表区域 */}
+            <FileLoading loading={props.loading} tip={props.loadingTip} />
+          </div>
+
+          {/* 分页器 */}
+          {hasPagination && (
+            <FilePagination
+              currentPage={props.currentPage!}
+              pageSize={props.pageSize!}
+              total={props.total!}
+              totalPages={props.totalPages!}
+              show={props.showPagination}
+              onPageChange={props.onPageChange || (() => {})}
+              onPageSizeChange={props.onPageSizeChange}
+              showPageSizeSelector={!!props.onPageSizeChange}
+            />
+          )}
         </div>
       );
     };

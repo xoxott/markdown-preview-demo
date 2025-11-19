@@ -1,5 +1,5 @@
 import type { FileItem } from '../types/file-explorer';
-import type { IFileDataSource, ServerFileDataSourceConfig } from './types';
+import type { IFileDataSource, ServerFileDataSourceConfig, PaginationParams, PaginationResult } from './types';
 
 /** 服务器文件数据源实现 */
 export class ServerFileDataSource implements IFileDataSource {
@@ -85,6 +85,31 @@ export class ServerFileDataSource implements IFileDataSource {
     const parentPath = normalizedPath || '';
 
     return response.files.map(file => this.serverFileToFileItem(file, parentPath));
+  }
+
+  async listFilesWithPagination(params: PaginationParams): Promise<PaginationResult> {
+    const normalizedPath = this.normalizePath(params.path || '/');
+    const queryParams = new URLSearchParams({
+      page: params.page.toString(),
+      pageSize: params.pageSize.toString()
+    });
+
+    if (normalizedPath) {
+      queryParams.set('path', normalizedPath);
+    }
+
+    const endpoint = `/api/files/list?${queryParams.toString()}`;
+    const response = await this.request<{ files: any[]; total: number; page: number; pageSize: number }>(endpoint);
+
+    const parentPath = normalizedPath || '';
+    const items = response.files.map(file => this.serverFileToFileItem(file, parentPath));
+
+    return {
+      items,
+      total: response.total || items.length,
+      page: response.page || params.page,
+      pageSize: response.pageSize || params.pageSize
+    };
   }
 
   async readFile(path: string): Promise<string | Blob> {

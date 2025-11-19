@@ -8,6 +8,8 @@ import { useFileSort } from '../hooks/useFileSort';
 import { useFileSelection } from '../hooks/useFileSelection';
 import { useFileOperations } from '../hooks/useFileOperations';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
+import { useFilePagination } from '../hooks/useFilePagination';
+import { getPageSizeByViewMode } from '../config/pagination.config';
 import { createOperationsConfig } from '../config/operations.config';
 import { createShortcutsConfig } from '../config/shortcuts.config';
 import { createContextMenuHandler } from '../config/contextmenu.config';
@@ -80,68 +82,16 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
   }
 
   // 切换数据源
-  const switchDataSource = (type: DataSourceType) => {
+  const switchDataSource = async (type: DataSourceType) => {
     dataSourceType.value = type;
     if (type === 'server' && serverDataSourceConfig) {
       dataSource.value = new ServerFileDataSource(serverDataSourceConfig);
     } else {
       dataSource.value = new LocalFileDataSource();
     }
-    // 切换数据源后刷新文件列表
-    refreshFileList();
-  };
-
-  // 打开本地文件夹
-  const openLocalFolder = async () => {
-    if (dataSource.value?.type !== 'local') {
-      message.warning('当前不是本地模式');
-      return;
-    }
-
-    const localDataSource = dataSource.value as LocalFileDataSource;
-    try {
-      setLoading(true, '正在打开文件夹...');
-      const handle = await localDataSource.openFolder();
-      if (handle) {
-        currentPath.value = '/';
-        await refreshFileList();
-        message.success('文件夹打开成功');
-      }
-    } catch (error: any) {
-      message.error(`打开文件夹失败: ${error.message}`);
-      console.error('打开文件夹失败:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 刷新文件列表
-  const refreshFileList = async () => {
-    if (!dataSource.value) {
-      mockItems.value = initialItems;
-      return;
-    }
-
-    // 本地模式且未选择文件夹时，使用初始数据
-    if (dataSource.value.type === 'local') {
-      const localDataSource = dataSource.value as LocalFileDataSource;
-      if (!localDataSource.hasRootHandle()) {
-        mockItems.value = initialItems;
-        return;
-      }
-    }
-
-    try {
-      setLoading(true, '加载文件列表...');
-      const files = await dataSource.value.listFiles(currentPath.value);
-      mockItems.value = files.length > 0 ? files : initialItems;
-    } catch (error: any) {
-      message.error(`加载文件列表失败: ${error.message}`);
-      console.error('加载文件列表失败:', error);
-      mockItems.value = initialItems; // 降级到初始数据
-    } finally {
-      setLoading(false);
-    }
+    // 切换数据源后重置分页并刷新文件列表
+    pagination.reset();
+    await refreshFileList();
   };
 
   // ==================== 状态管理 ====================
@@ -178,8 +128,103 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
   });
   provide('FILE_DRAG_DROP', dragDrop);
 
+  // ==================== 分页系统 ====================
+  const pagination = useFilePagination({
+    dataSource,
+    currentPath,
+    viewMode,
+    gridSize
+  });
+
+  // 刷新文件列表
+  const refreshFileList = async () => {
+    if (!dataSource.value) {
+      mockItems.value = initialItems;
+      pagination.paginatedItems.value = initialItems;
+      pagination.total.value = initialItems.length;
+      return;
+    }
+
+    // 本地模式且未选择文件夹时，使用初始数据
+    if (dataSource.value.type === 'local') {
+      const localDataSource = dataSource.value as LocalFileDataSource;
+      if (!localDataSource.hasRootHandle()) {
+        mockItems.value = initialItems;
+        pagination.paginatedItems.value = initialItems;
+        pagination.total.value = initialItems.length;
+        return;
+      }
+    }
+
+    try {
+      setLoading(true, '加载文件列表...');
+      // 使用分页加载
+      await pagination.loadPage();
+      // 对于本地模式，需要获取所有文件用于统计（保持兼容性）
+      // 对于云端模式，如果后端不支持获取总数，则使用分页结果
+      if (dataSource.value.type === 'local') {
+        const allFiles = await dataSource.value.listFiles(currentPath.value);
+        mockItems.value = allFiles.length > 0 ? allFiles : initialItems;
+      } else {
+        // 云端模式：使用分页结果更新 mockItems（用于统计）
+        // 注意：这里只更新当前页的数据，总数来自分页结果
+        mockItems.value = pagination.paginatedItems.value.length > 0
+          ? pagination.paginatedItems.value
+          : initialItems;
+      }
+    } catch (error: any) {
+      message.error(`加载文件列表失败: ${error.message}`);
+      console.error('加载文件列表失败:', error);
+      mockItems.value = initialItems; // 降级到初始数据
+      pagination.paginatedItems.value = initialItems;
+      pagination.total.value = initialItems.length;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 监听视图模式和网格大小变化，更新分页
+  watch([viewMode, gridSize], () => {
+    const newPageSize = pagination.pageSize.value;
+    const expectedPageSize = getPageSizeByViewMode(viewMode.value, gridSize.value);
+    if (newPageSize !== expectedPageSize) {
+      pagination.setPageSize(expectedPageSize);
+    }
+  });
+
+  // 监听路径变化，重置分页
+  watch(currentPath, () => {
+    pagination.reset();
+    pagination.loadPage();
+  });
+
+  // 打开本地文件夹
+  const openLocalFolder = async () => {
+    if (dataSource.value?.type !== 'local') {
+      message.warning('当前不是本地模式');
+      return;
+    }
+
+    const localDataSource = dataSource.value as LocalFileDataSource;
+    try {
+      setLoading(true, '正在打开文件夹...');
+      const handle = await localDataSource.openFolder();
+      if (handle) {
+        currentPath.value = '/';
+        await refreshFileList();
+        message.success('文件夹打开成功');
+      }
+    } catch (error: any) {
+      message.error(`打开文件夹失败: ${error.message}`);
+      console.error('打开文件夹失败:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // ==================== 排序和选择 ====================
-  const { setSorting, sortedFiles, sortOrder, sortField } = useFileSort(mockItems);
+  // 对分页后的文件进行排序
+  const { setSorting, sortedFiles, sortOrder, sortField } = useFileSort(pagination.paginatedItems);
   const { selectedIds, selectFile, selectAll, clearSelection, selectedFiles } = useFileSelection(sortedFiles);
 
   // ==================== Loading 控制 ====================
@@ -300,6 +345,9 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
     layoutConfig,
     showInfoPanel,
 
+    // 分页
+    pagination,
+
     // 数据源
     dataSourceType,
     dataSource,
@@ -347,3 +395,4 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
     fileOperations
   };
 }
+

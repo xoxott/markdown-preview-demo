@@ -3,6 +3,28 @@ import type { FileItem } from '../types/file-explorer';
 /** 数据源类型 */
 export type DataSourceType = 'local' | 'server';
 
+/** 分页参数 */
+export interface PaginationParams {
+  /** 页码（从1开始） */
+  page: number;
+  /** 每页数量 */
+  pageSize: number;
+  /** 路径 */
+  path?: string;
+}
+
+/** 分页结果 */
+export interface PaginationResult {
+  /** 文件列表 */
+  items: FileItem[];
+  /** 总数 */
+  total: number;
+  /** 当前页码 */
+  page: number;
+  /** 每页数量 */
+  pageSize: number;
+}
+
 /** 文件数据源接口 */
 export interface IFileDataSource {
   /** 数据源类型 */
@@ -13,6 +35,9 @@ export interface IFileDataSource {
 
   /** 列出指定路径下的文件 */
   listFiles(path?: string): Promise<FileItem[]>;
+
+  /** 分页列出指定路径下的文件 */
+  listFilesWithPagination(params: PaginationParams): Promise<PaginationResult>;
 
   /** 读取文件内容 */
   readFile(path: string): Promise<string | Blob>;

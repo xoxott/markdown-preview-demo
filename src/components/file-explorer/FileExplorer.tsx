@@ -186,6 +186,13 @@ export default defineComponent({
                   loading={logic.loading.value}
                   loadingTip={logic.loadingTip.value}
                   onContextMenuSelect={logic.handleContextMenuSelect}
+                  currentPage={logic.pagination.currentPage.value}
+                  pageSize={logic.pagination.pageSize.value}
+                  total={logic.pagination.total.value}
+                  totalPages={logic.pagination.totalPages.value}
+                  showPagination={logic.pagination.showPagination.value}
+                  onPageChange={logic.pagination.goToPage}
+                  onPageSizeChange={logic.pagination.setPageSize}
                 />
               ),
               right: (
