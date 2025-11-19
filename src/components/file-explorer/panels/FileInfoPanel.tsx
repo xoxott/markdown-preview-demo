@@ -10,6 +10,7 @@ import {
 } from 'naive-ui';
 import { CloseOutline, InformationCircleOutline } from '@vicons/ionicons5';
 import type { FileItem } from '../types/file-explorer';
+import { formatFileSize } from '../utils/fileHelpers';
 
 export default defineComponent({
   name: 'FileInfoPanel',
@@ -37,15 +38,6 @@ export default defineComponent({
     const currentFile = computed(() => {
       return props.selectedFiles.length === 1 ? props.selectedFiles[0] : null;
     });
-
-    // 格式化文件大小
-    const formatSize = (bytes?: number): string => {
-      if (!bytes || bytes === 0) return '0 B';
-      const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-      const k = 1024;
-      const i = Math.floor(Math.log(bytes) / Math.log(k));
-      return `${(bytes / k ** i).toFixed(1)} ${units[i]}`;
-    };
 
     // 格式化日期
     const formatDate = (date?: Date | string): string => {
@@ -118,7 +110,7 @@ export default defineComponent({
           </div>
 
           {/* 内容区域 */}
-          <NScrollbar class="flex-1">
+          <NScrollbar class="flex-1" contentClass='h-full'>
             <div class={`p-4 ${props.selectedFiles.length === 0 ? 'h-full flex items-center justify-center' : ''}`}>
               {/* 多选时的统计信息 */}
               {selectionStats.value && (
@@ -151,7 +143,7 @@ export default defineComponent({
                     <div class="flex justify-between items-center py-1.5 border-b border-dashed" style={{ borderColor: themeVars.value.dividerColor }}>
                       <span style={{ color: themeVars.value.textColor3 }}>总大小</span>
                       <span style={{ color: themeVars.value.textColorBase }}>
-                        {formatSize(selectionStats.value.totalSize)}
+                        {formatFileSize(selectionStats.value.totalSize)}
                       </span>
                     </div>
                     {selectionStats.value.typeMap.length > 0 && (
@@ -205,7 +197,7 @@ export default defineComponent({
                       <div class="flex justify-between items-center py-1.5 border-b border-dashed" style={{ borderColor: themeVars.value.dividerColor }}>
                         <span style={{ color: themeVars.value.textColor3 }}>大小</span>
                         <span style={{ color: themeVars.value.textColorBase }}>
-                          {formatSize(currentFile.value.size)}
+                          {formatFileSize(currentFile.value.size)}
                         </span>
                       </div>
                     )}

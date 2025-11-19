@@ -105,7 +105,7 @@ export default defineComponent({
     const renderRightResizeHandle = () => {
       return (
         <div
-          class="group absolute bottom-0 left-0 top-0 w-4 cursor-col-resize transition-all z-10"
+          class="group absolute bottom-0 left-0 top-0 w-1 cursor-col-resize transition-all z-10"
           onMousedown={handleRightMouseDown}
         >
           {/* 分隔线 */}
@@ -161,9 +161,10 @@ export default defineComponent({
               transition: isResizingRight.value ? 'none' : 'width 0.2s ease',
               position: 'relative'
             }}
+            contentClass='h-full ml-1'
           >
             {renderRightResizeHandle()}
-            <div style="padding-left: 8px; height: 100%;">{slots.right?.()}</div>
+            <div style="height: 100%;">{slots.right?.()}</div>
           </NLayoutSider>
         )}
       </NLayout>

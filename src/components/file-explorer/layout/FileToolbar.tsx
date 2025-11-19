@@ -9,8 +9,9 @@ import {
   ListOutline,
   ReorderFourOutline
 } from '@vicons/ionicons5';
-import { Plus, Search, SortAscending, SortDescending, Upload } from '@vicons/tabler';
+import { Folder, Plus, Search, SortAscending, SortDescending, Upload, Cloud, DeviceDesktop } from '@vicons/tabler';
 import type { GridSize, SortField, SortOrder, ViewMode } from '../types/file-explorer';
+import type { DataSourceType } from '../datasources/types';
 
 export default defineComponent({
   name: 'FileToolbar',
@@ -27,7 +28,10 @@ export default defineComponent({
     showUpload: { type: Boolean, default: true },
     showNewFolder: { type: Boolean, default: true },
     onUpload: Function as PropType<() => void>,
-    onNewFolder: Function as PropType<() => void>
+    onNewFolder: Function as PropType<() => void>,
+    dataSourceType: { type: String as PropType<DataSourceType>, default: 'local' },
+    onDataSourceTypeChange: Function as PropType<(type: DataSourceType) => void>,
+    onOpenLocalFolder: Function as PropType<() => void>
   },
 
   setup(props) {
@@ -69,6 +73,50 @@ export default defineComponent({
       { label: '大小', value: 'size' as SortField }
     ];
 
+    // 数据源模式选项
+    const dataSourceOptions = computed(() => {
+      const opts: any[] = [
+        {
+          label: '本地模式',
+          key: 'local',
+          icon: () => (
+            <NIcon>
+              <DeviceDesktop />
+            </NIcon>
+          )
+        },
+        {
+          label: '服务器模式',
+          key: 'server',
+          icon: () => (
+            <NIcon>
+              <Cloud />
+            </NIcon>
+          )
+        }
+      ];
+
+      // 本地模式下添加打开文件夹选项
+      if (props.dataSourceType === 'local' && props.onOpenLocalFolder) {
+        opts.push({
+          type: 'divider',
+          key: 'divider-1'
+        });
+        opts.push({
+          label: '打开文件夹',
+          key: 'open-folder',
+          icon: () => (
+            <NIcon>
+              <Folder />
+            </NIcon>
+          )
+        });
+      }
+
+      return opts;
+    });
+
+    // 更多操作选项（移动/平板端）
     const moreOptions = computed(() => {
       const opts: any[] = [];
       if (props.showNewFolder) {
@@ -82,7 +130,8 @@ export default defineComponent({
           )
         });
       }
-      if (props.showUpload) {
+      // 上传按钮仅在服务器模式显示
+      if (props.showUpload && props.dataSourceType === 'server') {
         opts.push({
           label: '上传文件',
           key: 'upload',
@@ -95,6 +144,15 @@ export default defineComponent({
       }
       return opts;
     });
+
+    // 处理数据源下拉菜单选择
+    const handleDataSourceSelect = (key: string) => {
+      if (key === 'local' || key === 'server') {
+        props.onDataSourceTypeChange?.(key as DataSourceType);
+      } else if (key === 'open-folder') {
+        props.onOpenLocalFolder?.();
+      }
+    };
 
     const handleMoreSelect = (key: 'new-folder' | 'upload') => {
       const map = {
@@ -119,8 +177,76 @@ export default defineComponent({
       >
         {/* 主工具栏 */}
         <div class="flex items-center justify-between gap-2 px-4 py-3">
-          {/* 左侧视图控制 */}
+          {/* 左侧：模式切换和视图控制 */}
           <div class="flex flex-shrink-0 items-center gap-2">
+            {/* 数据源模式切换 */}
+            {isDesktop.value ? (
+              // 桌面端：按钮组
+              <NButtonGroup>
+                <NTooltip>
+                  {{
+                    trigger: () => (
+                      <NButton
+                        type={props.dataSourceType === 'local' ? 'primary' : 'default'}
+                        ghost={props.dataSourceType !== 'local'}
+                        onClick={() => props.onDataSourceTypeChange?.('local')}
+                      >
+                        <NIcon size={16}>
+                          <DeviceDesktop />
+                        </NIcon>
+                      </NButton>
+                    ),
+                    default: () => '本地模式'
+                  }}
+                </NTooltip>
+                <NTooltip>
+                  {{
+                    trigger: () => (
+                      <NButton
+                        type={props.dataSourceType === 'server' ? 'primary' : 'default'}
+                        ghost={props.dataSourceType !== 'server'}
+                        onClick={() => props.onDataSourceTypeChange?.('server')}
+                      >
+                        <NIcon size={16}>
+                          <Cloud />
+                        </NIcon>
+                      </NButton>
+                    ),
+                    default: () => '服务器模式'
+                  }}
+                </NTooltip>
+              </NButtonGroup>
+            ) : (
+              // 移动/平板端：下拉菜单
+              <NDropdown options={dataSourceOptions.value} onSelect={handleDataSourceSelect}>
+                <NButton>
+                  <NIcon size={16}>
+                    {props.dataSourceType === 'local' ? <DeviceDesktop /> : <Cloud />}
+                  </NIcon>
+                </NButton>
+              </NDropdown>
+            )}
+
+            {/* 打开本地文件夹按钮（仅本地模式，桌面端显示） */}
+            {isDesktop.value && props.dataSourceType === 'local' && props.onOpenLocalFolder && (
+              <NTooltip>
+                {{
+                  trigger: () => (
+                    <NButton onClick={props.onOpenLocalFolder}>
+                      <NIcon size={16}>
+                        <Folder />
+                      </NIcon>
+                      <span class="ml-1 hidden lg:inline">打开文件夹</span>
+                    </NButton>
+                  ),
+                  default: () => '打开本地文件夹'
+                }}
+              </NTooltip>
+            )}
+
+            {/* 分隔线 */}
+            <div class="h-6 w-px" style={{ backgroundColor: themeVars.value.dividerColor }} />
+
             {/* 桌面端视图切换 */}
             {isDesktop.value && (
               <NButtonGroup>
@@ -182,20 +308,19 @@ export default defineComponent({
             )}
 
             {/* 网格大小 */}
-            {props.viewMode === 'grid' && props.onGridSizeChange && (
+            {props.viewMode === 'grid' && props.onGridSizeChange && !isMobile.value && (
               <NSelect
                 value={props.gridSize}
                 options={gridSizeOptions}
                 onUpdateValue={props.onGridSizeChange}
                 style={{ width: '80px' }}
-                class={isMobile.value ? 'hidden' : ''}
               />
             )}
           </div>
 
-          {/* 搜索框（桌面） */}
+          {/* 中间：搜索框（桌面/平板） */}
           {!isMobile.value && (
-            <div class="mx-4 max-w-md flex flex-1">
+            <div class="mx-4 max-w-md flex flex-1 min-w-0">
               <NInput
                 value={props.searchQuery}
                 placeholder="搜索文件..."
@@ -213,7 +338,7 @@ export default defineComponent({
             </div>
           )}
 
-          {/* 右侧功能按钮 */}
+          {/* 右侧：排序和操作按钮 */}
           <div class="flex flex-shrink-0 items-center gap-2">
             {/* 排序 */}
             {isDesktop.value && (
@@ -265,32 +390,44 @@ export default defineComponent({
               </NButton>
             )}
 
-            {/* 上传、新建文件夹 */}
-            {(props.showNewFolder || props.showUpload) && (
-              <>
-                {isDesktop.value && (
-                  <>
-                    <div class="mx-1 h-6 w-px" style={{ backgroundColor: themeVars.value.dividerColor }} />
-                    {props.showNewFolder && <NButton onClick={props.onNewFolder}>新建文件夹</NButton>}
-                    {props.showUpload && (
-                      <NButton type="primary" onClick={props.onUpload}>
-                        上传
-                      </NButton>
-                    )}
-                  </>
-                )}
+            {/* 分隔线 */}
+            {(props.showNewFolder || (props.showUpload && props.dataSourceType === 'server')) && (
+              <div class="h-6 w-px" style={{ backgroundColor: themeVars.value.dividerColor }} />
+            )}
 
-                {/* 更多操作（移动/平板） */}
-                {!isDesktop.value && moreOptions.value.length > 0 && (
-                  <NDropdown options={moreOptions.value} onSelect={handleMoreSelect}>
-                    <NButton>
-                      <NIcon size={16}>
-                        <EllipsisHorizontal />
-                      </NIcon>
-                    </NButton>
-                  </NDropdown>
+            {/* 操作按钮 */}
+            {isDesktop.value && (
+              <>
+                {/* 新建文件夹 */}
+                {props.showNewFolder && (
+                  <NButton onClick={props.onNewFolder}>
+                    <NIcon size={16}>
+                      <Plus />
+                    </NIcon>
+                    <span class="ml-1 hidden lg:inline">新建文件夹</span>
+                  </NButton>
+                )}
+                {/* 上传按钮（仅服务器模式） */}
+                {props.showUpload && props.dataSourceType === 'server' && (
+                  <NButton type="primary" onClick={props.onUpload}>
+                    <NIcon size={16}>
+                      <Upload />
+                    </NIcon>
+                    <span class="ml-1 hidden lg:inline">上传</span>
+                  </NButton>
                 )}
               </>
+            )}
+
+            {/* 更多操作（移动/平板） */}
+            {!isDesktop.value && moreOptions.value.length > 0 && (
+              <NDropdown options={moreOptions.value} onSelect={handleMoreSelect}>
+                <NButton>
+                  <NIcon size={16}>
+                    <EllipsisHorizontal />
+                  </NIcon>
+                </NButton>
+              </NDropdown>
             )}
           </div>
         </div>

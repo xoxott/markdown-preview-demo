@@ -22,12 +22,15 @@ File Explorer 是一个功能完整的文件管理器组件，采用 Vue 3 Compo
 
 ### 核心特性
 
+- ✅ **双模式支持**: 本地文件系统（File System Access API）和服务器文件管理
 - ✅ **5 种视图模式**: 网格、列表、平铺、详细、内容视图
 - ✅ **完整的文件操作**: 复制、剪切、粘贴、删除、重命名、新建文件夹
+- ✅ **文件预览和编辑**: 支持文本、图片、Markdown 预览，集成 Monaco 编辑器
 - ✅ **拖拽系统**: 支持文件拖拽移动/复制，带预览和验证
 - ✅ **选择系统**: 单选、多选、范围选择、圈选
 - ✅ **键盘快捷键**: 16+ 个快捷键支持
 - ✅ **右键菜单**: 上下文相关的操作菜单
+- ✅ **面包屑导航**: 动态路径导航，支持快速跳转
 - ✅ **响应式布局**: 可调整的侧边栏和面板
 - ✅ **加载状态**: 统一的加载反馈机制
 
@@ -55,6 +58,13 @@ File Explorer 是一个功能完整的文件管理器组件，采用 Vue 3 Compo
 │  - useFileOperations                    │
 │  - useFileDragDrop                      │
 │  - useKeyboardShortcuts                 │
+└──────────────┬──────────────────────────┘
+               │
+┌──────────────▼──────────────────────────┐
+│      数据源层 (Data Sources)             │  数据访问层（抽象接口）
+│  - IFileDataSource                      │
+│  - LocalFileDataSource                  │
+│  - ServerFileDataSource                 │
 └──────────────┬──────────────────────────┘
                │
 ┌──────────────▼──────────────────────────┐
@@ -116,6 +126,21 @@ src/components/file-explorer/
 │
 ├── composables/                  # 业务逻辑层
 │   └── useFileExplorerLogic.ts   # 核心业务逻辑封装
+│
+├── datasources/                  # 数据源层
+│   ├── types.ts                  # 数据源接口定义
+│   ├── LocalFileDataSource.ts   # 本地文件数据源（File System Access API）
+│   ├── ServerFileDataSource.ts  # 服务器文件数据源
+│   └── index.ts                  # 数据源导出
+│
+├── preview/                      # 文件预览组件
+│   ├── FilePreview.tsx           # 预览入口组件
+│   ├── TextPreview.tsx           # 文本预览
+│   ├── ImagePreview.tsx          # 图片预览
+│   └── MarkdownPreview.tsx       # Markdown 预览
+│
+├── editor/                       # 文件编辑组件
+│   └── FileEditor.tsx            # Monaco 编辑器封装
 │
 ├── config/                       # 配置层
 │   ├── shortcuts.config.ts       # 快捷键配置
@@ -223,14 +248,39 @@ const logic = useFileExplorerLogic({
 **职责**: 核心业务逻辑封装，整合所有 Hooks
 
 **功能模块**:
-- 状态管理（viewMode, gridSize, collapsed, loading 等）
-- 拖拽系统初始化
-- 排序和选择逻辑
-- 文件操作配置
-- 快捷键绑定
-- 事件处理方法
+- **数据源管理**: 切换本地/服务器模式，管理数据源实例
+- **路径管理**: 当前路径跟踪，面包屑生成
+- **状态管理**: viewMode, gridSize, collapsed, loading 等
+- **拖拽系统初始化**: 文件拖拽和放置
+- **排序和选择逻辑**: 文件排序和选择状态
+- **文件操作配置**: 复制、删除、重命名等操作
+- **快捷键绑定**: 键盘快捷键处理
+- **事件处理方法**: 文件打开、导航等
 
 **设计模式**: Composable Pattern（组合式函数）
+
+**数据源集成**:
+```typescript
+// 数据源管理
+const dataSourceType = ref<DataSourceType>('local');
+const dataSource = ref<IFileDataSource | null>(null);
+const currentPath = ref<string>('/');
+
+// 切换数据源
+const switchDataSource = (type: DataSourceType) => {
+  dataSourceType.value = type;
+  if (type === 'local') {
+    dataSource.value = new LocalFileDataSource();
+  } else {
+    dataSource.value = new ServerFileDataSource(serverDataSourceConfig);
+  }
+};
+
+// 面包屑生成
+const breadcrumbItems = computed<BreadcrumbItem[]>(() => {
+  // 根据 currentPath 生成面包屑项
+});
+```
 
 **返回值**:
 ```typescript
@@ -241,6 +291,10 @@ const logic = useFileExplorerLogic({
   selectedIds, selectedFiles,
   loading, loadingTip, layoutConfig,
   
+  // 数据源
+  dataSourceType, dataSource, currentPath,
+  breadcrumbItems,
+  
   // 拖拽
   dragDrop,
   
@@ -248,6 +302,7 @@ const logic = useFileExplorerLogic({
   setSorting, selectFile, selectAll, clearSelection,
   handleViewModeChange, handleOpen, handleBreadcrumbNavigate,
   handleGridSizeChange, setLoading, handleContextMenuSelect,
+  switchDataSource, openLocalFolder, refreshFileList,
   
   // 文件操作
   fileOperations
@@ -305,6 +360,27 @@ ViewContainer
 - 备注自动保存（防抖处理）
 - 响应式布局
 
+### 6. FilePreview.tsx / FileEditor.tsx
+
+**职责**: 文件预览和编辑功能
+
+**FilePreview.tsx**:
+- 根据文件类型自动选择预览组件
+- 支持文本、图片、Markdown 预览
+- 在 Drawer 中显示预览内容
+
+**FileEditor.tsx**:
+- 封装 Monaco 编辑器
+- 自动识别文件语言
+- 支持保存和关闭操作
+- 集成文件写入功能
+
+**特性**:
+- 双击文件自动打开预览或编辑器
+- 支持文本文件编辑
+- 图片文件预览
+- Markdown 渲染预览
+
 ---
 
 ## 数据流与状态管理
@@ -342,6 +418,10 @@ useFileSelection / useFileOperations
 
 | 状态 | 类型 | 说明 |
 |------|------|------|
+| `dataSourceType` | `Ref<DataSourceType>` | 当前数据源类型（local/server） |
+| `dataSource` | `Ref<IFileDataSource \| null>` | 当前数据源实例 |
+| `currentPath` | `Ref<string>` | 当前路径 |
+| `breadcrumbItems` | `ComputedRef<BreadcrumbItem[]>` | 面包屑导航项 |
 | `mockItems` | `Ref<FileItem[]>` | 原始文件列表 |
 | `sortedFiles` | `ComputedRef<FileItem[]>` | 排序后的文件列表 |
 | `selectedIds` | `Ref<Set<string>>` | 选中的文件 ID 集合 |
@@ -351,6 +431,9 @@ useFileSelection / useFileOperations
 | `sortOrder` | `Ref<SortOrder>` | 排序顺序 |
 | `loading` | `Ref<boolean>` | 加载状态 |
 | `collapsed` | `Ref<boolean>` | 侧边栏折叠状态 |
+| `openedFile` | `Ref<FileItem \| null>` | 当前打开的文件 |
+| `fileContent` | `Ref<string \| Blob \| null>` | 文件内容 |
+| `editorMode` | `Ref<boolean>` | 是否为编辑模式 |
 
 ---
 
@@ -782,6 +865,28 @@ export function createContextMenuHandler(deps: ContextMenuHandlerDeps) {
 
 ## 扩展指南
 
+### 添加新数据源
+
+1. 在 `datasources/` 目录创建新数据源类
+2. 实现 `IFileDataSource` 接口
+3. 在 `useFileExplorerLogic.ts` 中添加切换逻辑
+4. 在 `FileToolbar.tsx` 添加模式切换按钮（如需要）
+
+**示例**:
+```typescript
+// datasources/CustomDataSource.ts
+export class CustomDataSource implements IFileDataSource {
+  readonly type: DataSourceType = 'custom';
+  readonly rootPath: string = '/';
+  
+  async listFiles(path: string): Promise<FileItem[]> {
+    // 实现文件列表获取逻辑
+  }
+  
+  // 实现其他接口方法...
+}
+```
+
 ### 添加新视图模式
 
 1. 在 `views/` 目录创建新视图组件
@@ -794,8 +899,28 @@ export function createContextMenuHandler(deps: ContextMenuHandlerDeps) {
 
 1. 在 `useFileOperations.ts` 添加操作函数
 2. 在 `operations.config.ts` 添加回调配置
-3. 在 `contextmenu.config.ts` 添加菜单项（可选）
-4. 在 `shortcuts.config.ts` 添加快捷键（可选）
+3. 在数据源中实现对应的操作方法（如 `deleteFile`, `renameFile`）
+4. 在 `contextmenu.config.ts` 添加菜单项（可选）
+5. 在 `shortcuts.config.ts` 添加快捷键（可选）
+
+### 添加新文件预览类型
+
+1. 在 `preview/` 目录创建新预览组件
+2. 在 `FilePreview.tsx` 中添加文件类型判断逻辑
+3. 注册新的预览组件
+
+**示例**:
+```typescript
+// preview/PDFPreview.tsx
+export default defineComponent({
+  // PDF 预览实现
+});
+
+// FilePreview.tsx
+if (file.extension === 'pdf') {
+  return h(PDFPreview, { file, content });
+}
+```
 
 ### 添加新 Hook
 
@@ -816,6 +941,9 @@ export function createContextMenuHandler(deps: ContextMenuHandlerDeps) {
 
 **替换 Mock 数据**:
 编辑 `config/mockData.ts` 或连接真实 API
+
+**配置数据源**:
+在 `useFileExplorerLogic` 的 `options` 中传入 `initialDataSourceType` 和 `serverDataSourceConfig`
 
 ---
 
@@ -877,7 +1005,24 @@ File Explorer 组件采用分层架构设计，实现了：
 
 ---
 
-**文档版本**: 1.0  
-**最后更新**: 2025-11-08  
+**文档版本**: 2.0  
+**最后更新**: 2025-01-XX  
 **维护者**: 开发团队
+
+## 更新日志
+
+### v2.0 (2025-01-XX)
+- ✅ 添加双模式支持（本地/服务器）
+- ✅ 实现数据源抽象层（IFileDataSource）
+- ✅ 添加文件预览功能（文本、图片、Markdown）
+- ✅ 集成 Monaco 编辑器
+- ✅ 实现面包屑导航
+- ✅ 修复双击文件夹导航功能
+- ✅ 优化工具栏布局和响应式设计
+
+### v1.0 (2025-11-08)
+- ✅ 基础文件管理器功能
+- ✅ 5 种视图模式
+- ✅ 文件操作和拖拽系统
+- ✅ 键盘快捷键支持
 
