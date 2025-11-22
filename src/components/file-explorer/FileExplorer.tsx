@@ -218,7 +218,7 @@ export default defineComponent({
         />
 
         {/* 文件预览/编辑抽屉 */}
-        <NDrawer v-model:show={showFileDrawer.value} placement="right" width="80%" resizable>
+        <NDrawer v-model:show={showFileDrawer.value} placement="right" width="80%" resizable contentClass='h-full'>
           <NDrawerContent closable nativeScrollbar={false}>
             {{
               header: () => (

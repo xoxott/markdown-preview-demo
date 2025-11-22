@@ -60,14 +60,14 @@ export default defineComponent({
 
     return () => (
       <div class="h-full flex flex-col" style={{ backgroundColor: themeVars.value.bodyColor }}>
-        <NScrollbar class="flex-1">
+        <NScrollbar class="flex-1" contentClass='h-full'>
           <MonacoEditor
             modelValue={previewContent.value}
             filename={props.file.name}
             language={language.value}
             readonly={true}
             showToolbar={true}
-            height="100%"
+            height={'90vh'}
           />
         </NScrollbar>
       </div>

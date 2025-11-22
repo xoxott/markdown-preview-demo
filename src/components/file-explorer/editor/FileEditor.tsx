@@ -168,7 +168,7 @@ export default defineComponent({
             language={language.value}
             readonly={false}
             showToolbar={true}
-            height="100%"
+            height="85vh"
             onUpdate:modelValue={handleContentChange}
           />
         </div>
