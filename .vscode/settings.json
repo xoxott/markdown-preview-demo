@@ -26,5 +26,9 @@
   "i18n-ally.annotation.maxLength": 100,
   "prettier.enable": false,
   "typescript.tsdk": "node_modules/typescript/lib",
-  "unocss.root": ["./"]
+  "unocss.root": ["./"],
+  "vitest.enable": true,
+  "vitest.commandLine": "npm run test",
+  "vitest.include": ["**/__tests__/**/*.test.ts"],
+  "vitest.exclude": ["**/node_modules/**", "**/dist/**"]
 }

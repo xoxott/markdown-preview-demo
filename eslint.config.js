@@ -57,6 +57,19 @@ export default defineConfig(
       'unused-imports/no-unused-imports': 'warn',
       'unused-imports/no-unused-vars': 'warn',
 
+      /* ===== TypeScript 类型规则 ===== */
+      '@typescript-eslint/no-explicit-any': [
+        'warn',
+        {
+          ignoreRestArgs: true,
+          fixToUnknown: false
+        }
+      ],
+      '@typescript-eslint/no-unsafe-assignment': 'off', // 允许 any 赋值（渐进式迁移）
+      '@typescript-eslint/no-unsafe-member-access': 'off', // 允许 any 成员访问
+      '@typescript-eslint/no-unsafe-call': 'off', // 允许 any 函数调用
+      '@typescript-eslint/no-unsafe-return': 'off', // 允许 any 返回
+
       /* ===== 其他代码风格规则 - 可选择性禁用 ===== */
       'class-methods-use-this': 'off',
       'no-continue': 'off',
