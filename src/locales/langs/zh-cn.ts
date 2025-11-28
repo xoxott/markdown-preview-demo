@@ -166,6 +166,7 @@ const local: App.I18n.Schema = {
     chat: '会话',
     markdownedit: 'markdown编辑',
     upload: '上传',
+    'upload-v2-demo': '上传v2演示',
     utils: '工具',
     component: '组件示例',
     mobile: '移动端',

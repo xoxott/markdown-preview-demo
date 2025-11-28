@@ -136,6 +136,16 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
+    name: 'upload-v2-demo',
+    path: '/upload-v2-demo',
+    component: 'layout.base$view.upload-v2-demo',
+    meta: {
+      title: 'upload-v2-demo',
+      i18nKey: 'route.upload-v2-demo',
+      icon: 'mdi:upload-multiple'
+    }
+  },
+  {
     name: 'utils',
     path: '/utils',
     component: 'layout.base$view.utils',

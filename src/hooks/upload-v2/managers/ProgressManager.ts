@@ -44,16 +44,48 @@ export class ProgressManager {
 
   /** 更新文件进度 */
   updateFileProgress(task: FileTask): void {
-    if (task.totalChunks > 0) {
+    if (task.totalChunks > 0 && Number.isFinite(task.totalChunks) && task.totalChunks > 0) {
       const uploadProgress = (task.uploadedChunks / task.totalChunks) * 100;
-      task.progress = Math.round(uploadProgress);
-      task.speed = this.uploadSpeed.value;
+      task.progress = Math.max(0, Math.min(100, Math.round(uploadProgress)));
+      task.speed = Number.isFinite(this.uploadSpeed.value) && this.uploadSpeed.value >= 0
+        ? this.uploadSpeed.value
+        : 0;
 
-      if (task.chunks) {
-        task.uploadedSize = task.chunks
-          .filter((c: ChunkInfo) => c.status === ChunkStatus.SUCCESS)
-          .reduce((sum: number, c: ChunkInfo) => sum + c.size, 0);
+      // 优先使用 chunks 计算已上传大小
+      if (task.chunks && Array.isArray(task.chunks)) {
+        const calculatedSize = task.chunks
+          .filter((c: ChunkInfo) => c && c.status === ChunkStatus.SUCCESS)
+          .reduce((sum: number, c: ChunkInfo) => {
+            const chunkSize = c?.size;
+            if (chunkSize != null && Number.isFinite(chunkSize) && chunkSize >= 0) {
+              return sum + chunkSize;
+            }
+            return sum;
+          }, 0);
+
+        // 确保计算结果是有效数字
+        if (Number.isFinite(calculatedSize) && calculatedSize >= 0) {
+          task.uploadedSize = calculatedSize;
+        } else {
+          task.uploadedSize = 0;
+        }
+      } else {
+        // 如果没有 chunks，使用基于 progress 的计算
+        const fileSize = task?.file?.size;
+        const progress = task?.progress;
+        if (fileSize != null && progress != null &&
+            Number.isFinite(fileSize) && Number.isFinite(progress) &&
+            fileSize >= 0 && progress >= 0 && progress <= 100) {
+          const calculated = (fileSize * progress) / 100;
+          task.uploadedSize = Number.isFinite(calculated) && calculated >= 0 ? calculated : 0;
+        } else {
+          task.uploadedSize = 0;
+        }
       }
+    } else {
+      // 如果没有分片或分片数为0，重置进度
+      task.progress = 0;
+      task.uploadedSize = 0;
     }
   }
 
@@ -76,10 +108,43 @@ export class ProgressManager {
       return;
     }
 
-    const totalSize = tasks.reduce((sum, task) => sum + task.file.size, 0);
-    const uploadedSize = tasks.reduce((sum, task) => sum + (task.file.size * task.progress) / 100, 0);
+    // 计算总大小，添加边界检查
+    const totalSize = tasks.reduce((sum, task) => {
+      const fileSize = task?.file?.size;
+      if (fileSize != null && Number.isFinite(fileSize) && fileSize >= 0) {
+        return sum + fileSize;
+      }
+      return sum;
+    }, 0);
 
-    this.pendingTotalProgress = Math.min(100, Math.round((uploadedSize / totalSize) * 100) || 0);
+    // 计算已上传大小：优先使用 task.uploadedSize（如果已设置且有效），否则回退到计算值
+    const uploadedSize = tasks.reduce((sum, task) => {
+      // 优先使用 task.uploadedSize（如果已设置且有效）
+      if (task.uploadedSize != null && Number.isFinite(task.uploadedSize) && task.uploadedSize >= 0) {
+        return sum + task.uploadedSize;
+      }
+
+      // 回退到基于 progress 的计算
+      const fileSize = task?.file?.size;
+      const progress = task?.progress;
+
+      if (fileSize != null && progress != null &&
+          Number.isFinite(fileSize) && Number.isFinite(progress) &&
+          fileSize >= 0 && progress >= 0 && progress <= 100) {
+        const calculated = (fileSize * progress) / 100;
+        if (Number.isFinite(calculated) && calculated >= 0) {
+          return sum + calculated;
+        }
+      }
+
+      return sum;
+    }, 0);
+
+    // 确保计算结果是有效数字
+    const safeTotalSize = Number.isFinite(totalSize) && totalSize > 0 ? totalSize : 1; // 避免除以0
+    const safeUploadedSize = Number.isFinite(uploadedSize) && uploadedSize >= 0 ? uploadedSize : 0;
+
+    this.pendingTotalProgress = Math.min(100, Math.max(0, Math.round((safeUploadedSize / safeTotalSize) * 100) || 0));
 
     // 使用节流更新
     this.throttledUpdateTotalProgress();
@@ -102,12 +167,46 @@ export class ProgressManager {
     const cancelled = filterTasksByStatus(completedUploads, UploadStatus.CANCELLED).length;
     const total = allTasks.length;
 
-    const totalSize = allTasks.reduce((sum, task) => sum + task.file.size, 0);
-    const uploadedSize = allTasks.reduce((sum, task) => sum + (task.file.size * task.progress) / 100, 0);
+    // 计算总大小，添加边界检查
+    const totalSize = allTasks.reduce((sum, task) => {
+      const fileSize = task?.file?.size;
+      if (fileSize != null && Number.isFinite(fileSize) && fileSize >= 0) {
+        return sum + fileSize;
+      }
+      return sum;
+    }, 0);
 
-    const remainingSize = totalSize - uploadedSize;
+    // 计算已上传大小：优先使用 task.uploadedSize（如果已设置且有效），否则回退到计算值
+    const uploadedSize = allTasks.reduce((sum, task) => {
+      // 优先使用 task.uploadedSize（如果已设置且有效）
+      if (task.uploadedSize != null && Number.isFinite(task.uploadedSize) && task.uploadedSize >= 0) {
+        return sum + task.uploadedSize;
+      }
+
+      // 回退到基于 progress 的计算
+      const fileSize = task?.file?.size;
+      const progress = task?.progress;
+
+      if (fileSize != null && progress != null &&
+          Number.isFinite(fileSize) && Number.isFinite(progress) &&
+          fileSize >= 0 && progress >= 0 && progress <= 100) {
+        const calculated = (fileSize * progress) / 100;
+        if (Number.isFinite(calculated) && calculated >= 0) {
+          return sum + calculated;
+        }
+      }
+
+      return sum;
+    }, 0);
+
+    // 确保 uploadedSize 和 totalSize 都是有效数字
+    const safeUploadedSize = Number.isFinite(uploadedSize) && uploadedSize >= 0 ? uploadedSize : 0;
+    const safeTotalSize = Number.isFinite(totalSize) && totalSize >= 0 ? totalSize : 0;
+    const remainingSize = Math.max(0, safeTotalSize - safeUploadedSize);
+
     const averageSpeed = this.speedCalculator.getAverageSpeed();
-    const estimatedTime = this.timeEstimator.update(remainingSize, averageSpeed / 1024); // 转换为 KB/s
+    const safeAverageSpeed = Number.isFinite(averageSpeed) && averageSpeed >= 0 ? averageSpeed : 0;
+    const estimatedTime = this.timeEstimator.update(remainingSize, safeAverageSpeed / 1024); // 转换为 KB/s
 
     return {
       completed,
@@ -117,11 +216,13 @@ export class ProgressManager {
       paused,
       cancelled,
       total,
-      totalSize,
-      uploadedSize,
-      averageSpeed: averageSpeed / 1024, // 转换为 KB/s
-      instantSpeed: this.uploadSpeed.value / 1024, // 转换为 KB/s
-      estimatedTime,
+      totalSize: safeTotalSize,
+      uploadedSize: safeUploadedSize,
+      averageSpeed: safeAverageSpeed / 1024, // 转换为 KB/s
+      instantSpeed: Number.isFinite(this.uploadSpeed.value) && this.uploadSpeed.value >= 0
+        ? this.uploadSpeed.value / 1024
+        : 0, // 转换为 KB/s
+      estimatedTime: Number.isFinite(estimatedTime) && estimatedTime >= 0 ? estimatedTime : 0,
       networkQuality: this.networkQuality.value
     };
   }

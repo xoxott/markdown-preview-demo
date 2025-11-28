@@ -26,6 +26,7 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   home: () => import("@/views/home/index.vue"),
   markdownedit: () => import("@/views/markdownEdit/index.vue"),
   mobile: () => import("@/views/mobile/index.vue"),
+  "upload-v2-demo": () => import("@/views/upload-v2-demo/index.vue"),
   upload: () => import("@/views/upload/index.vue"),
   utils: () => import("@/views/utils/index.vue"),
 };

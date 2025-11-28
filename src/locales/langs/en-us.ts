@@ -166,6 +166,7 @@ const local: App.I18n.Schema = {
     chat: 'Chat',
     markdownedit: 'MarkdownEdit',
     upload: 'Upload',
+    'upload-v2-demo': 'Upload v2 Demo',
     utils: 'Utils',
     component: 'component',
     mobile: 'mobile',

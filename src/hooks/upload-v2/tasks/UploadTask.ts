@@ -219,6 +219,24 @@ export class UploadTask {
 
   /** 创建分片 */
   private async createChunks(): Promise<void> {
+    // 如果分片已存在且部分已成功上传（断点续传场景），则跳过重新创建
+    if (this.task.chunks && this.task.chunks.length > 0) {
+      const hasSuccessChunks = this.task.chunks.some(
+        (chunk: ChunkInfo) => chunk.status === ChunkStatus.SUCCESS
+      );
+      if (hasSuccessChunks) {
+        // 分片已存在且部分已成功，保留现有状态，只更新分片总数（如果文件大小或分片大小改变）
+        const chunkSize = this.task.options.chunkSize || this.config.chunkSize;
+        const expectedTotalChunks = Math.ceil(this.task.file.size / chunkSize);
+        if (this.task.totalChunks !== expectedTotalChunks) {
+          // 分片数量发生变化，需要重新创建
+          await this.chunkService.createChunks(this.task, chunkSize);
+        }
+        return;
+      }
+    }
+
+    // 分片不存在或全部失败，正常创建
     const chunkSize = this.task.options.chunkSize || this.config.chunkSize;
     await this.chunkService.createChunks(this.task, chunkSize);
   }
@@ -251,9 +269,19 @@ export class UploadTask {
         }
 
         await this.chunkService.uploadChunk(this.task, chunk, signal);
+
+        // 即使任务已暂停，如果分片上传成功，也要更新计数和状态
+        // 因为服务器已经接收了这个分片，需要保持状态一致性
         this.task.uploadedChunks++;
         this.progressManager.updateFileProgress(this.task);
         this.callbackManager.emit('onChunkSuccess', this.task, chunk);
+
+        // 如果任务已暂停，保存进度以确保已成功上传的分片状态被记录
+        if (this.task.status === UploadStatus.PAUSED || this.uploadController.shouldPause(this.task.id)) {
+          if (this.config.enableResume && this.config.enableCache) {
+            this.saveProgress();
+          }
+        }
       } catch (error) {
         if (this.isAbortError(error)) {
           throw error;

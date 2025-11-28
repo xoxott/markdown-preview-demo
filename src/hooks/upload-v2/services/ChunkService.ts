@@ -24,9 +24,71 @@ export class ChunkService {
 
   /**
    * 创建分片（延迟创建 blob，只在需要时创建）
+   * 如果分片已存在且部分已成功，则保留已成功的分片状态
    */
   async createChunks(task: FileTask, chunkSize: number): Promise<ChunkInfo[]> {
     const totalChunks = Math.ceil(task.file.size / chunkSize);
+
+    // 如果分片已存在，检查是否需要保留已成功的分片
+    if (task.chunks && task.chunks.length > 0) {
+      const existingChunks = new Map<number, ChunkInfo>();
+      task.chunks.forEach((chunk: ChunkInfo) => {
+        existingChunks.set(chunk.index, chunk);
+      });
+
+      // 检查是否有已成功的分片
+      const hasSuccessChunks = Array.from(existingChunks.values()).some(
+        (chunk: ChunkInfo) => chunk.status === ChunkStatus.SUCCESS
+      );
+
+      if (hasSuccessChunks && task.totalChunks === totalChunks) {
+        // 分片已存在且数量匹配，保留已成功的分片状态，只更新缺失或需要重置的分片
+        const chunks: ChunkInfo[] = [];
+
+        for (let i = 0; i < totalChunks; i++) {
+          const start = i * chunkSize;
+          const end = Math.min(start + chunkSize, task.file.size);
+          const existingChunk = existingChunks.get(i);
+
+          if (existingChunk && existingChunk.status === ChunkStatus.SUCCESS) {
+            // 保留已成功的分片状态
+            chunks.push({
+              ...existingChunk,
+              start, // 确保范围正确
+              end,
+              size: end - start
+            });
+          } else {
+            // 创建新分片或重置失败的分片
+            chunks.push({
+              index: i,
+              start,
+              end,
+              size: end - start,
+              blob: existingChunk?.blob || null, // 保留已有的 blob（如果有）
+              status: existingChunk?.status === ChunkStatus.ERROR
+                ? ChunkStatus.ERROR
+                : ChunkStatus.PENDING,
+              retryCount: existingChunk?.retryCount || 0,
+              uploadTime: existingChunk?.uploadTime || 0,
+              etag: existingChunk?.etag,
+              result: existingChunk?.result,
+              error: existingChunk?.error,
+              hash: existingChunk?.hash
+            });
+          }
+        }
+
+        task.chunks = chunks;
+        task.totalChunks = totalChunks;
+        // 保留已上传的分片计数
+        task.uploadedChunks = chunks.filter((c: ChunkInfo) => c.status === ChunkStatus.SUCCESS).length;
+
+        return chunks;
+      }
+    }
+
+    // 分片不存在或需要重新创建，创建全新的分片
     const chunks: ChunkInfo[] = [];
 
     // 计算文件MD5（如果还没有，支持 Worker）

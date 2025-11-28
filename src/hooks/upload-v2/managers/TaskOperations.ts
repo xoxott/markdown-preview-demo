@@ -3,7 +3,7 @@
  * 负责处理暂停、恢复、取消、重试等操作
  */
 import type { FileTask, ExtendedUploadConfig } from '../types';
-import { UploadStatus } from '../types';
+import { UploadStatus, ChunkStatus } from '../types';
 import { UploadController } from '../controllers/UploadController';
 import { CallbackManager } from './CallbackManager';
 import { ProgressPersistence } from './ProgressPersistence';
@@ -42,6 +42,19 @@ export class TaskOperations {
     if (task.status === UploadStatus.UPLOADING) {
       task.status = UploadStatus.PAUSED;
       task.pausedTime = Date.now();
+
+      // 更新进度以确保界面显示最新的已上传分片数
+      // 因为可能有正在进行的请求在暂停后完成
+      if (task.chunks) {
+        const successChunks = task.chunks.filter(
+          (c: ChunkInfo) => c.status === ChunkStatus.SUCCESS
+        );
+        task.uploadedChunks = successChunks.length;
+        // 更新进度百分比
+        if (task.totalChunks > 0) {
+          task.progress = Math.round((task.uploadedChunks / task.totalChunks) * 100);
+        }
+      }
 
       if (this.config.enableResume && this.config.enableCache) {
         this.progressPersistence.saveTaskProgress(task);

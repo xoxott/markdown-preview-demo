@@ -29,6 +29,7 @@ declare module "@elegant-router/types" {
     "markdownedit": "/markdownedit";
     "mobile": "/mobile";
     "upload": "/upload";
+    "upload-v2-demo": "/upload-v2-demo";
     "utils": "/utils";
   };
 
@@ -73,6 +74,7 @@ declare module "@elegant-router/types" {
     | "markdownedit"
     | "mobile"
     | "upload"
+    | "upload-v2-demo"
     | "utils"
   >;
 
@@ -101,6 +103,7 @@ declare module "@elegant-router/types" {
     | "home"
     | "markdownedit"
     | "mobile"
+    | "upload-v2-demo"
     | "upload"
     | "utils"
   >;
