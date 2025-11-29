@@ -1,12 +1,12 @@
-import { defineComponent, reactive, computed } from 'vue';
-import { NButton, NCheckbox, NDivider, NForm, NFormItem, NInput, NAlert, NSpace, NTag } from 'naive-ui';
-import { useAuthStore } from '@/store/modules/auth';
-import { useRouterPush } from '@/hooks/common/router';
-import { useFormRules, useNaiveForm } from '@/hooks/common/form';
-import { useLoginFlow } from '@/hooks/business/login-flow';
-import { $t } from '@/locales';
 import { loginModuleRecord } from '@/constants/app';
+import { useLoginFlow } from '@/hooks/business/login-flow';
+import { useFormRules, useNaiveForm } from '@/hooks/common/form';
+import { useRouterPush } from '@/hooks/common/router';
 import { calculateStringMD5 } from '@/hooks/upload-v2/utils/hash';
+import { $t } from '@/locales';
+import { useAuthStore } from '@/store/modules/auth';
+import { NAlert, NButton, NCheckbox, NForm, NFormItem, NInput, NSpace, NTag } from 'naive-ui';
+import { computed, defineComponent, reactive } from 'vue';
 
 interface FormModel {
   username: string;
