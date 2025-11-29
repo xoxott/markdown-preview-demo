@@ -1,20 +1,21 @@
-import { computed, reactive, ref } from 'vue';
-import { useRoute } from 'vue-router';
-import { defineStore } from 'pinia';
-import { useLoading } from '@sa/hooks';
+import { SetupStoreId } from '@/enum';
+import { useRouterPush } from '@/hooks/common/router';
+import { $t } from '@/locales';
 import {
   fetchGetUserInfo,
   fetchLoginStep1,
   fetchLoginStep2,
+  fetchLogout,
   fetchRegister,
+  fetchResetPassword,
   fetchSendRegistrationCode,
-  fetchRefreshToken,
-  fetchLogout
+  fetchSendResetPasswordCode
 } from '@/service/api';
-import { useRouterPush } from '@/hooks/common/router';
 import { localStg } from '@/utils/storage';
-import { SetupStoreId } from '@/enum';
-import { $t } from '@/locales';
+import { useLoading } from '@sa/hooks';
+import { defineStore } from 'pinia';
+import { computed, reactive, ref } from 'vue';
+import { useRoute } from 'vue-router';
 import { useRouteStore } from '../route';
 import { useTabStore } from '../tab';
 import { clearAuthStorage, getToken } from './shared';
@@ -286,6 +287,44 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     return true;
   }
 
+  /**
+   * Send reset password verification code
+   *
+   * @param email Email address
+   */
+  async function sendResetPasswordCode(email: string) {
+    const { data, error } = await fetchSendResetPasswordCode(email);
+
+    if (error || !data) {
+      return false;
+    }
+
+    window.$message?.success(data.message || '验证码已发送');
+
+    return true;
+  }
+
+  /**
+   * Reset password
+   *
+   * @param email Email address
+   * @param verificationCode Verification code
+   * @param newPassword New password (already encrypted with MD5)
+   */
+  async function resetPassword(email: string, verificationCode: string, newPassword: string) {
+    startLoading();
+    const { data, error } = await fetchResetPassword(email, verificationCode, newPassword);
+    endLoading();
+
+    if (error || !data) {
+      return false;
+    }
+
+    window.$message?.success(data.message || '密码重置成功');
+
+    return true;
+  }
+
   async function loginByToken(loginToken: Api.Auth.LoginToken, skipGetUserInfo = false) {
     // 1. stored in the localStorage, the later requests need it in headers
     localStg.set('token', loginToken.accessToken);
@@ -386,6 +425,8 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     loginStep2,
     register,
     sendRegistrationCode,
+    sendResetPasswordCode,
+    resetPassword,
     initUserInfo
   };
 });

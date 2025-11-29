@@ -187,7 +187,7 @@ export default defineComponent({
           {loginFlow.isStep1.value && (
             <>
               <div class="flex-y-center justify-between gap-12px">
-                <NButton class="flex-1" block onClick={handleSwitchToRegister}>
+                <NButton class="flex-1" round block onClick={handleSwitchToRegister}>
                   {$t(loginModuleRecord.register)}
                 </NButton>
               </div>

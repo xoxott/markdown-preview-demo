@@ -9,13 +9,47 @@ import SystemLogo from '@/components/common/system-logo.vue';
 import ThemeSchemaSwitch from '@/components/common/theme-schema-switch.vue';
 import LangSwitch from '@/components/common/lang-switch.vue';
 import WaveBg from '@/components/custom/wave-bg.vue';
+// @ts-ignore - TSX module resolution
 import PwdLogin from './modules/pwd-login';
+// @ts-ignore - TSX module resolution
 import Register from './modules/register';
+import ResetPwd from './modules/reset-pwd';
 
 interface Props {
   /** The login module */
   module?: UnionKey.LoginModule;
 }
+
+type LoginComponent = typeof PwdLogin | typeof Register | typeof ResetPwd;
+
+interface LoginModuleConfig {
+  label: App.I18n.I18nKey;
+  component: LoginComponent;
+}
+
+/** Login module component map */
+const loginModuleMap: Record<UnionKey.LoginModule, LoginModuleConfig> = {
+  'pwd-login': {
+    label: loginModuleRecord['pwd-login'],
+    component: PwdLogin
+  },
+  'code-login': {
+    label: loginModuleRecord['code-login'],
+    component: PwdLogin // TODO: 添加验证码登录组件
+  },
+  register: {
+    label: loginModuleRecord.register,
+    component: Register
+  },
+  'reset-pwd': {
+    label: loginModuleRecord['reset-pwd'],
+    component: ResetPwd
+  },
+  'bind-wechat': {
+    label: loginModuleRecord['bind-wechat'],
+    component: PwdLogin // TODO: 添加微信绑定组件
+  }
+};
 
 export default defineComponent({
   name: 'Login',
@@ -31,23 +65,7 @@ export default defineComponent({
 
     const activeModule = computed(() => {
       const module = props.module || 'pwd-login';
-      if (module === 'pwd-login') {
-        return {
-          label: loginModuleRecord['pwd-login'],
-          component: PwdLogin
-        };
-      }
-      if (module === 'register') {
-        return {
-          label: loginModuleRecord.register,
-          component: Register
-        };
-      }
-      // Default to password login
-      return {
-        label: loginModuleRecord['pwd-login'],
-        component: PwdLogin
-      };
+      return loginModuleMap[module] || loginModuleMap['pwd-login'];
     });
 
     const bgThemeColor = computed(() =>

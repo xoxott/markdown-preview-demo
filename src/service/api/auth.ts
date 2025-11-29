@@ -101,3 +101,37 @@ export function fetchLogout() {
     method: 'post'
   });
 }
+
+/**
+ * Send reset password verification code
+ *
+ * @param email Email address
+ */
+export function fetchSendResetPasswordCode(email: string) {
+  return request<Api.Auth.SendCodeResponse>({
+    url: '/api/admin/auth/send-reset-password-code',
+    method: 'post',
+    data: {
+      email
+    } satisfies Api.Auth.SendCodeRequest
+  });
+}
+
+/**
+ * Reset password
+ *
+ * @param email Email address
+ * @param verificationCode Verification code
+ * @param newPassword New password
+ */
+export function fetchResetPassword(email: string, verificationCode: string, newPassword: string) {
+  return request<Api.Auth.RegisterResponse>({
+    url: '/api/admin/auth/reset-password',
+    method: 'post',
+    data: {
+      email,
+      verificationCode,
+      newPassword
+    }
+  });
+}
