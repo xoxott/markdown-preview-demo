@@ -170,7 +170,10 @@ const local: App.I18n.Schema = {
     utils: 'Utils',
     component: 'component',
     mobile: 'mobile',
-    'file-manager': 'file-manager'
+    'file-manager': 'file-manager',
+    monitoring: 'System Monitoring',
+    monitoring_health: 'Health Check',
+    monitoring_system: 'System Monitoring Detail'
   },
   page: {
     login: {

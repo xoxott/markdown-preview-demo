@@ -29,4 +29,7 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   "upload-v2-demo": () => import("@/views/upload-v2-demo/index"),
   upload: () => import("@/views/upload/index.vue"),
   utils: () => import("@/views/utils/index.vue"),
+  monitoring: () => import("@/views/monitoring/index"),
+  monitoring_health: () => import("@/views/monitoring/health/index"),
+  monitoring_system: () => import("@/views/monitoring/system/index"),
 };

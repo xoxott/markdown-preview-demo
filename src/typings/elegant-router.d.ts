@@ -31,6 +31,9 @@ declare module "@elegant-router/types" {
     "upload": "/upload";
     "upload-v2-demo": "/upload-v2-demo";
     "utils": "/utils";
+    "monitoring": "/monitoring";
+    "monitoring_health": "/monitoring/health";
+    "monitoring_system": "/monitoring/system";
   };
 
   /**
@@ -76,6 +79,7 @@ declare module "@elegant-router/types" {
     | "upload"
     | "upload-v2-demo"
     | "utils"
+    | "monitoring"
   >;
 
   /**
@@ -106,6 +110,9 @@ declare module "@elegant-router/types" {
     | "upload-v2-demo"
     | "upload"
     | "utils"
+    | "monitoring"
+    | "monitoring_health"
+    | "monitoring_system"
   >;
 
   /**
@@ -177,7 +184,7 @@ declare module "@elegant-router/types" {
         component: `view.${K}`;
       }
     : never;
-  
+
   /**
    * the center level route
    */
@@ -200,7 +207,7 @@ declare module "@elegant-router/types" {
         children: (CenterLevelRoute<GetChildRouteKey<K>> | LastLevelRoute<GetChildRouteKey<K>>)[];
       }
     : never;
-  
+
   /**
    * the custom first level route
    */

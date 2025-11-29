@@ -235,4 +235,127 @@ declare namespace Api {
       home: import('@elegant-router/types').LastLevelRouteKey;
     }
   }
+
+  /**
+   * namespace Health
+   *
+   * backend api module: "health"
+   */
+  namespace Health {
+    /** Health check response */
+    interface HealthCheckResponse {
+      status: 'ok' | 'error';
+      timestamp: string;
+      [key: string]: any;
+    }
+
+    /** Liveness probe response */
+    interface LivenessResponse {
+      status: 'ok' | 'error';
+      timestamp: string;
+    }
+
+    /** Readiness probe response */
+    interface ReadinessResponse {
+      status: 'ok' | 'error';
+      timestamp: string;
+    }
+  }
+
+  /**
+   * namespace System
+   *
+   * backend api module: "system"
+   */
+  namespace System {
+    /** System information */
+    interface SystemInfo {
+      /** Operating system */
+      os?: string;
+      /** System version */
+      version?: string;
+      /** Node version */
+      nodeVersion?: string;
+      /** Uptime in seconds */
+      uptime?: number;
+      /** System hostname */
+      hostname?: string;
+      /** Platform */
+      platform?: string;
+      /** Architecture */
+      arch?: string;
+      /** CPU count */
+      cpuCount?: number;
+      [key: string]: any;
+    }
+
+    /** Performance metrics */
+    interface PerformanceMetrics {
+      /** CPU usage percentage */
+      cpu?: {
+        usage: number;
+        cores: number;
+        model?: string;
+      };
+      /** Memory usage */
+      memory?: {
+        total: number;
+        used: number;
+        free: number;
+        usage: number;
+      };
+      /** Disk usage */
+      disk?: {
+        total: number;
+        used: number;
+        free: number;
+        usage: number;
+        path?: string;
+      };
+      /** Load average */
+      loadAverage?: number[];
+      [key: string]: any;
+    }
+
+    /** Environment information */
+    interface EnvironmentInfo {
+      /** Environment variables (filtered) */
+      env?: Record<string, string>;
+      /** Application environment */
+      nodeEnv?: string;
+      /** Process information */
+      process?: {
+        pid: number;
+        ppid: number;
+        title: string;
+        argv: string[];
+        execPath: string;
+      };
+      [key: string]: any;
+    }
+  }
+
+  /**
+   * namespace Monitoring
+   *
+   * backend api module: "monitoring"
+   */
+  namespace Monitoring {
+    /** Metrics summary */
+    interface MetricsSummary {
+      /** Total requests */
+      totalRequests?: number;
+      /** Active connections */
+      activeConnections?: number;
+      /** Request rate per second */
+      requestRate?: number;
+      /** Error rate */
+      errorRate?: number;
+      /** Average response time */
+      avgResponseTime?: number;
+      /** Timestamp */
+      timestamp?: string;
+      [key: string]: any;
+    }
+  }
 }

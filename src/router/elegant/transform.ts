@@ -176,7 +176,10 @@ const routeMap: RouteMap = {
   "mobile": "/mobile",
   "upload": "/upload",
   "upload-v2-demo": "/upload-v2-demo",
-  "utils": "/utils"
+  "utils": "/utils",
+  monitoring: '/monitoring',
+  monitoring_health: '/monitoring/health',
+  monitoring_system: '/monitoring/system'
 };
 
 /**
