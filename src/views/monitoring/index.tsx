@@ -271,10 +271,10 @@ export default defineComponent({
         {/* Quick links */}
         <NCard title="快速链接">
           <NSpace>
-            <NButton type="primary" onClick={() => routerPushByKey('monitoring_health' as RouteKey)}>
+            <NButton type="primary" onClick={() => routerPushByKey('monitoring-health' as RouteKey)}>
               健康检查详情
             </NButton>
-            <NButton type="primary" onClick={() => routerPushByKey('monitoring_system' as RouteKey)}>
+            <NButton type="primary" onClick={() => routerPushByKey('monitoring-system' as RouteKey)}>
               系统监控详情
             </NButton>
           </NSpace>

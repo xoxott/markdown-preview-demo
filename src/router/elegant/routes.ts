@@ -153,5 +153,38 @@ export const generatedRoutes: GeneratedRoute[] = [
       title: 'utils',
       i18nKey: 'route.utils'
     }
+  },
+  {
+    name: 'monitoring',
+    path: '/monitoring',
+    component: 'layout.base$view.monitoring',
+    meta: {
+      title: 'monitoring',
+      i18nKey: 'route.monitoring',
+      icon: 'mdi:monitor-dashboard',
+      order: 3
+    }
+  },
+  {
+    name: 'monitoring-health',
+    path: '/monitoring/health',
+    component: 'layout.base$view.monitoring-health',
+    meta: {
+      title: 'monitoring_health',
+      i18nKey: 'route.monitoring-health',
+      icon: 'mdi:heart-pulse',
+      activeMenu: 'monitoring',
+    }
+  } ,
+  {
+    name: 'monitoring-system',
+    path: '/monitoring/system',
+    component: 'layout.base$view.monitoring-system',
+    meta: {
+      title: 'monitoring_system',
+      i18nKey: 'route.monitoring-system',
+      icon: 'mdi:server',
+      activeMenu: 'monitoring',
+    }
   }
 ];

@@ -177,9 +177,9 @@ const routeMap: RouteMap = {
   "upload": "/upload",
   "upload-v2-demo": "/upload-v2-demo",
   "utils": "/utils",
-  monitoring: '/monitoring',
-  monitoring_health: '/monitoring/health',
-  monitoring_system: '/monitoring/system'
+  "monitoring": '/monitoring',
+  "monitoring-health": '/monitoring/health',
+  "monitoring-system": '/monitoring/system'
 };
 
 /**

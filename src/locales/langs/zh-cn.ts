@@ -172,8 +172,8 @@ const local: App.I18n.Schema = {
     mobile: '移动端',
     'file-manager': '文件管理器',
     monitoring: '系统监控',
-    monitoring_health: '健康检查',
-    monitoring_system: '系统监控详情'
+    "monitoring-health": '健康检查',
+    "monitoring-system": '系统监控详情'
   },
   page: {
     login: {

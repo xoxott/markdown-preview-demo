@@ -30,6 +30,6 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   upload: () => import("@/views/upload/index.vue"),
   utils: () => import("@/views/utils/index.vue"),
   monitoring: () => import("@/views/monitoring/index"),
-  monitoring_health: () => import("@/views/monitoring/health/index"),
-  monitoring_system: () => import("@/views/monitoring/system/index"),
+  "monitoring-health": () => import("@/views/monitoring/health/index"),
+  "monitoring-system": () => import("@/views/monitoring/system/index"),
 };
