@@ -25,13 +25,12 @@ export const request = createFlatRequest<App.Service.Response, RequestInstanceSt
       return config;
     },
     isBackendSuccess(response) {
-      // when the backend response code is "0000"(default), it means the request is success
-      // to change this logic by yourself, you can modify the `VITE_SERVICE_SUCCESS_CODE` in `.env` file
-      return String(response.data.code) === import.meta.env.VITE_SERVICE_SUCCESS_CODE;
+      // when the backend response statusCode is 200, it means the request is success
+      return response.data.statusCode === 200;
     },
     async onBackendFail(response, instance) {
       const authStore = useAuthStore();
-      const responseCode = String(response.data.code);
+      const responseCode = String(response.data.statusCode);
 
       function handleLogout() {
         authStore.resetStore();
@@ -41,27 +40,27 @@ export const request = createFlatRequest<App.Service.Response, RequestInstanceSt
         handleLogout();
         window.removeEventListener('beforeunload', handleLogout);
 
-        request.state.errMsgStack = request.state.errMsgStack.filter(msg => msg !== response.data.msg);
+        request.state.errMsgStack = request.state.errMsgStack.filter(msg => msg !== response.data.message);
       }
 
-      // when the backend response code is in `logoutCodes`, it means the user will be logged out and redirected to login page
+      // when the backend response statusCode is in `logoutCodes`, it means the user will be logged out and redirected to login page
       const logoutCodes = import.meta.env.VITE_SERVICE_LOGOUT_CODES?.split(',') || [];
       if (logoutCodes.includes(responseCode)) {
         handleLogout();
         return null;
       }
 
-      // when the backend response code is in `modalLogoutCodes`, it means the user will be logged out by displaying a modal
+      // when the backend response statusCode is in `modalLogoutCodes`, it means the user will be logged out by displaying a modal
       const modalLogoutCodes = import.meta.env.VITE_SERVICE_MODAL_LOGOUT_CODES?.split(',') || [];
-      if (modalLogoutCodes.includes(responseCode) && !request.state.errMsgStack?.includes(response.data.msg)) {
-        request.state.errMsgStack = [...(request.state.errMsgStack || []), response.data.msg];
+      if (modalLogoutCodes.includes(responseCode) && !request.state.errMsgStack?.includes(response.data.message)) {
+        request.state.errMsgStack = [...(request.state.errMsgStack || []), response.data.message];
 
         // prevent the user from refreshing the page
         window.addEventListener('beforeunload', handleLogout);
 
         window.$dialog?.error({
           title: $t('common.error'),
-          content: response.data.msg,
+          content: response.data.message,
           positiveText: $t('common.confirm'),
           maskClosable: false,
           closeOnEsc: false,
@@ -76,7 +75,7 @@ export const request = createFlatRequest<App.Service.Response, RequestInstanceSt
         return null;
       }
 
-      // when the backend response code is in `expiredTokenCodes`, it means the token is expired, and refresh token
+      // when the backend response statusCode is in `expiredTokenCodes`, it means the token is expired, and refresh token
       // the api `refreshToken` can not return error code in `expiredTokenCodes`, otherwise it will be a dead loop, should return `logoutCodes` or `modalLogoutCodes`
       const expiredTokenCodes = import.meta.env.VITE_SERVICE_EXPIRED_TOKEN_CODES?.split(',') || [];
       if (expiredTokenCodes.includes(responseCode)) {
@@ -100,10 +99,15 @@ export const request = createFlatRequest<App.Service.Response, RequestInstanceSt
       let message = error.message;
       let backendErrorCode = '';
 
-      // get backend error message and code
-      if (error.code === BACKEND_ERROR_CODE) {
-        message = error.response?.data?.msg || message;
-        backendErrorCode = String(error.response?.data?.code || '');
+      // get backend error message and code from ErrorResponse format
+      // Check both BACKEND_ERROR_CODE and HTTP error responses
+      if (error.response?.data) {
+        const errorData = error.response.data as unknown as Api.ErrorResponse;
+        // Check if it's ErrorResponse format (has statusCode and message)
+        if (errorData && 'statusCode' in errorData && 'message' in errorData) {
+          message = errorData.message || message;
+          backendErrorCode = String(errorData.statusCode || '');
+        }
       }
 
       // the error message is displayed in the modal

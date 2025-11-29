@@ -81,8 +81,19 @@ export function useFormRules() {
 export function useNaiveForm() {
   const formRef = ref<FormInst | null>(null);
 
+  /**
+   * 运行表单校验
+   *
+   * - 返回 true 表示全部通过
+   * - 返回 false 表示校验未通过（不抛异常，方便调用方使用状态判断）
+   */
   async function validate() {
-    await formRef.value?.validate();
+    try {
+      await formRef.value?.validate();
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   async function restoreValidation() {

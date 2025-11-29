@@ -1,46 +1,103 @@
-/*
- * @Author: yangtao 212920320@qq.com
- * @Date: 2025-10-11 10:36:56
- * @LastEditors: yangtao 212920320@qq.com
- * @LastEditTime: 2025-10-17 11:10:38
- * @FilePath: \markdown-preview-demo\src\service\api\auth.ts
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
 import { request } from '../request';
 
 /**
- * Login
+ * Login step 1 - Initial login with username and password
  *
- * @param userName User name
+ * @param username Username
  * @param password Password
  */
-export function fetchLogin(userName: string, password: string) {
-  return request<Api.Auth.LoginToken>({
-    url: '/auth/login',
+export function fetchLoginStep1(username: string, password: string) {
+  return request<Api.Auth.LoginStep1Response>({
+    url: '/api/admin/auth/login-step1',
     method: 'post',
     data: {
-      userName,
+      username,
       password
-    }
+    } satisfies Api.Auth.LoginStep1Request
   });
 }
 
-/** Get user info */
-export function fetchGetUserInfo() {
-  return request<Api.Auth.UserInfo>({ url: '/auth/getUserInfo' });
+/**
+ * Login step 2 - Verify code with temporary token
+ *
+ * @param temporaryToken Temporary token from step 1
+ * @param code Verification code
+ */
+export function fetchLoginStep2(temporaryToken: string, code: string) {
+  return request<Api.Auth.LoginStep2Response>({
+    url: '/api/admin/auth/login-step2',
+    method: 'post',
+    data: {
+      temporaryToken,
+      code
+    } satisfies Api.Auth.LoginStep2Request
+  });
 }
 
 /**
- * Refresh token
+ * Register new user
+ *
+ * @param username Username
+ * @param email Email
+ * @param password Password
+ * @param verificationCode Verification code
+ */
+export function fetchRegister(username: string, email: string, password: string, verificationCode: string) {
+  return request<Api.Auth.RegisterResponse>({
+    url: '/api/admin/auth/register',
+    method: 'post',
+    data: {
+      username,
+      email,
+      password,
+      verificationCode
+    } satisfies Api.Auth.RegisterRequest
+  });
+}
+
+/**
+ * Send registration verification code
+ *
+ * @param email Email address
+ */
+export function fetchSendRegistrationCode(email: string) {
+  return request<Api.Auth.SendCodeResponse>({
+    url: '/api/admin/auth/send-registration-code',
+    method: 'post',
+    data: {
+      email
+    } satisfies Api.Auth.SendCodeRequest
+  });
+}
+
+/**
+ * Refresh access token
  *
  * @param refreshToken Refresh token
  */
 export function fetchRefreshToken(refreshToken: string) {
-  return request<Api.Auth.LoginToken>({
-    url: '/auth/refreshToken',
+  return request<Api.Auth.RefreshTokenResponse>({
+    url: '/api/admin/auth/refresh',
     method: 'post',
     data: {
       refreshToken
-    }
+    } satisfies Api.Auth.RefreshTokenRequest
+  });
+}
+
+/**
+ * Get user info
+ */
+export function fetchGetUserInfo() {
+  return request<Api.Auth.UserInfo>({ url: '/api/admin/users/me' });
+}
+
+/**
+ * Logout
+ */
+export function fetchLogout() {
+  return request<Api.Auth.LogoutResponse>({
+    url: '/api/admin/auth/logout',
+    method: 'post'
   });
 }

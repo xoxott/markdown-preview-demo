@@ -8,11 +8,13 @@ export function useAuth() {
       return false;
     }
 
+    const buttons = authStore.userInfo.buttons || [];
+
     if (typeof codes === 'string') {
-      return authStore.userInfo.buttons.includes(codes);
+      return buttons.includes(codes);
     }
 
-    return codes.some(code => authStore.userInfo.buttons.includes(code));
+    return codes.some(code => buttons.includes(code));
   }
 
   return {

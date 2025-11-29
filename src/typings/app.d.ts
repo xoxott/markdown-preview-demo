@@ -567,12 +567,14 @@ declare namespace App {
 
     /** The backend service response data */
     type Response<T = unknown> = {
-      /** The backend service response code */
-      code: string;
-      /** The backend service response message */
-      msg: string;
-      /** The backend service response data */
+      /** Response data */
       data: T;
+      /** HTTP status code */
+      statusCode: number;
+      /** Response message (default "Success") */
+      message: string;
+      /** Timestamp (ISO format) */
+      timestamp: string;
     };
 
     /** The demo backend service response data */
