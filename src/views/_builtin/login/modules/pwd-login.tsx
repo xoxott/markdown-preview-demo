@@ -5,8 +5,13 @@ import { useRouterPush } from '@/hooks/common/router';
 import { calculateStringMD5 } from '@/hooks/upload-v2/utils/hash';
 import { $t } from '@/locales';
 import { useAuthStore } from '@/store/modules/auth';
+import {
+  clearRememberedUsername,
+  getRememberedUsername,
+  saveRememberedUsername
+} from '@/store/modules/auth/shared';
 import { NAlert, NButton, NCheckbox, NForm, NFormItem, NInput, NSpace, NTag } from 'naive-ui';
-import { computed, defineComponent, reactive } from 'vue';
+import { computed, defineComponent, reactive, ref } from 'vue';
 
 interface FormModel {
   username: string;
@@ -22,8 +27,17 @@ export default defineComponent({
     const { formRef, validate } = useNaiveForm();
     const loginFlow = useLoginFlow();
 
+    // Remember me state
+    const rememberMe = ref(false);
+
+    // Load saved username on component mount
+    const savedUsername = getRememberedUsername();
+    if (savedUsername) {
+      rememberMe.value = true;
+    }
+
     const model = reactive<FormModel>({
-      username: '',
+      username: savedUsername || '',
       password: '',
       verificationCode: ''
     });
@@ -57,7 +71,12 @@ export default defineComponent({
           return;
         }
 
-        // Login completed without verification
+        // Login completed without verification - handle remember me
+        if (rememberMe.value && model.username) {
+          saveRememberedUsername(model.username);
+        } else {
+          clearRememberedUsername();
+        }
         return;
       }
 
@@ -67,7 +86,16 @@ export default defineComponent({
         return;
       }
 
-      await loginFlow.executeStep2(model.verificationCode);
+      const success = await loginFlow.executeStep2(model.verificationCode);
+
+      // Handle remember me after successful login
+      if (success) {
+        if (rememberMe.value && model.username) {
+          saveRememberedUsername(model.username);
+        } else {
+          clearRememberedUsername();
+        }
+      }
     };
 
     const handleBackToStep1 = () => {
@@ -166,7 +194,17 @@ export default defineComponent({
         <NSpace vertical size={24}>
           {loginFlow.isStep1.value && (
             <div class="flex-y-center justify-between">
-              <NCheckbox>{$t('page.login.pwdLogin.rememberMe')}</NCheckbox>
+              <NCheckbox
+                checked={rememberMe.value}
+                onUpdateChecked={(val) => {
+                  rememberMe.value = val;
+                  if (!val) {
+                    clearRememberedUsername();
+                  }
+                }}
+              >
+                {$t('page.login.pwdLogin.rememberMe')}
+              </NCheckbox>
               <NButton quaternary onClick={() => toggleLoginModule('reset-pwd')}>
                 {$t('page.login.pwdLogin.forgetPassword')}
               </NButton>

@@ -17,3 +17,20 @@ export function clearAuthStorage() {
   localStg.remove('refreshToken');
   localStg.remove('temporaryToken');
 }
+
+/** Save remembered username */
+export function saveRememberedUsername(username: string) {
+  localStg.set('savedUsername', username);
+  localStg.set('rememberMe', true);
+}
+
+/** Get remembered username */
+export function getRememberedUsername(): string {
+  return localStg.get('savedUsername') || '';
+}
+
+/** Clear remembered username */
+export function clearRememberedUsername() {
+  localStg.remove('savedUsername');
+  localStg.remove('rememberMe');
+}

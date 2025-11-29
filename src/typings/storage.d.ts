@@ -43,5 +43,9 @@ declare namespace StorageType {
     };
     /** The last login user id */
     lastLoginUserId: string;
+    /** Remember me option state */
+    rememberMe?: boolean;
+    /** Saved username for remember me feature */
+    savedUsername?: string;
   }
 }
