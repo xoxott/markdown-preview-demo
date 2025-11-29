@@ -25,8 +25,10 @@ export const request = createFlatRequest<App.Service.Response, RequestInstanceSt
       return config;
     },
     isBackendSuccess(response) {
-      // when the backend response statusCode is 200, it means the request is success
-      return response.data.statusCode === 200;
+      // when the backend response statusCode is 200 or 201, it means the request is success
+      // 200: OK, 201: Created (for POST requests that create resources)
+      const statusCode = response.data.statusCode;
+      return statusCode === 200 || statusCode === 201;
     },
     async onBackendFail(response, instance) {
       const authStore = useAuthStore();
