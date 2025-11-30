@@ -22,11 +22,13 @@ export function fetchPerformanceMetrics() {
 
 /**
  * Get environment information
+ * Note: This endpoint may take longer to respond, so we set a longer timeout (30 seconds)
  */
 export function fetchEnvironmentInfo() {
   return request<Api.System.EnvironmentInfo>({
     url: '/api/admin/system/environment',
-    method: 'get'
+    method: 'get',
+    // baseURL: 'http://localhost:3000'
   });
 }
 

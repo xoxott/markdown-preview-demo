@@ -252,13 +252,12 @@ export default defineComponent({
         if (!environmentInfo.value) {
           try {
             const data = await fetchEnvironmentInfo();
-            // request 函数会自动提取 response.data.data，所以这里直接使用
             if (data) {
               environmentInfo.value = data;
               lastUpdateTime.value = new Date();
             }
-          } catch (err) {
-            // 静默处理错误，不影响其他功能
+          } catch (err: any) {
+
           }
         }
       }
