@@ -164,5 +164,38 @@ export const generatedRoutes: GeneratedRoute[] = [
       icon: 'mdi:monitor-dashboard',
       order: 3
     }
+  },
+  {
+    name: 'user-management',
+    path: '/user-management',
+    component: 'layout.base$view.user-management',
+    meta: {
+      title: 'user-management',
+      i18nKey: 'route.user-management',
+      icon: 'mdi:account-group',
+      order: 4
+    }
+  },
+  {
+    name: 'role-management',
+    path: '/role-management',
+    component: 'layout.base$view.role-management',
+    meta: {
+      title: 'role-management',
+      i18nKey: 'route.role-management',
+      icon: 'mdi:account-key',
+      order: 5
+    }
+  },
+  {
+    name: 'permission-management',
+    path: '/permission-management',
+    component: 'layout.base$view.permission-management',
+    meta: {
+      title: 'permission-management',
+      i18nKey: 'route.permission-management',
+      icon: 'mdi:shield-key',
+      order: 6
+    }
   }
 ];

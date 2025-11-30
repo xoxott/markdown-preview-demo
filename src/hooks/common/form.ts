@@ -100,9 +100,19 @@ export function useNaiveForm() {
     formRef.value?.restoreValidation();
   }
 
+  /**
+   * 重置表单字段
+   *
+   * @param fields 要重置的字段，不传则重置所有字段
+   */
+  function resetFields(fields?: string[]) {
+    (formRef.value as any)?.resetFields?.(fields);
+  }
+
   return {
     formRef,
     validate,
-    restoreValidation
+    restoreValidation,
+    resetFields
   };
 }

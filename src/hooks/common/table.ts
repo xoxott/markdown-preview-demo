@@ -10,6 +10,10 @@ type TableData = NaiveUI.TableData;
 type GetTableData<A extends NaiveUI.TableApiFn> = NaiveUI.GetTableData<A>;
 type TableColumn<T> = NaiveUI.TableColumn<T>;
 
+// ListResponse data type (after transformBackendResponse)
+// transformBackendResponse returns response.data.data, which is ListResponse['data']
+type ListResponseData<T> = Api.ListResponse<T>['data'];
+
 export function useTable<A extends NaiveUI.TableApiFn>(config: NaiveUI.NaiveTableConfig<A>) {
   const scope = effectScope();
   const appStore = useAppStore();
@@ -38,17 +42,24 @@ export function useTable<A extends NaiveUI.TableApiFn>(config: NaiveUI.NaiveTabl
     apiParams,
     columns: config.columns,
     transformer: res => {
-      const { data: records = [], meta } = res.data || {};
-      const { page = 1, limit = 10, total = 0 } = meta || {};
+      // New ListResponse format: { lists: [], total, page, limit, totalPages }
+      // After transformBackendResponse, res.data is the inner data object (ListResponse['data'])
+      // transformBackendResponse returns response.data.data, so res.data is ListResponse['data']
+      const responseData = (res.data as unknown) as ListResponseData<GetTableData<A>>;
+
+      const records: GetTableData<A>[] = responseData?.lists || [];
+      const page = responseData?.page || 1;
+      const limit = responseData?.limit || 10;
+      const total = responseData?.total || 0;
 
       // Ensure that the limit is greater than 0, If it is less than 0, it will cause paging calculation errors.
       const pageSize = limit <= 0 ? 10 : limit;
 
-      const recordsWithIndex = records.map((item, index) => {
+      const recordsWithIndex: NaiveUI.TableDataWithIndex<GetTableData<A>>[] = records.map((item, index) => {
         return {
-          ...item,
+          ...(item as any),
           index: (page - 1) * pageSize + index + 1
-        };
+        } as NaiveUI.TableDataWithIndex<GetTableData<A>>;
       });
 
       return {
@@ -86,21 +97,22 @@ export function useTable<A extends NaiveUI.TableApiFn>(config: NaiveUI.NaiveTabl
       return checks;
     },
     getColumns: (cols, checks) => {
-      const columnMap = new Map<string, TableColumn<GetTableData<A>>>();
+      const columnMap = new Map<string, TableColumn<NaiveUI.TableDataWithIndex<GetTableData<A>>>>();
 
       cols.forEach(column => {
         if (isTableColumnHasKey(column)) {
-          columnMap.set(column.key as string, column);
+          columnMap.set(column.key as string, column as any);
         } else if (column.type === 'selection') {
-          columnMap.set(SELECTION_KEY, column);
+          columnMap.set(SELECTION_KEY, column as any);
         } else if (column.type === 'expand') {
-          columnMap.set(EXPAND_KEY, column);
+          columnMap.set(EXPAND_KEY, column as any);
         }
       });
 
       const filteredColumns = checks
         .filter(item => item.checked)
-        .map(check => columnMap.get(check.key) as TableColumn<GetTableData<A>>);
+        .map(check => columnMap.get(check.key))
+        .filter(Boolean) as TableColumn<NaiveUI.TableDataWithIndex<GetTableData<A>>>[];
 
       return filteredColumns;
     },

@@ -32,6 +32,9 @@ declare module "@elegant-router/types" {
     "upload-v2-demo": "/upload-v2-demo";
     "utils": "/utils";
     "monitoring": "/monitoring";
+    "user-management": "/user-management";
+    "role-management": "/role-management";
+    "permission-management": "/permission-management";
   };
 
   /**
@@ -78,6 +81,9 @@ declare module "@elegant-router/types" {
     | "upload-v2-demo"
     | "utils"
     | "monitoring"
+    | "user-management"
+    | "role-management"
+    | "permission-management"
   >;
 
   /**
@@ -109,6 +115,9 @@ declare module "@elegant-router/types" {
     | "upload"
     | "utils"
     | "monitoring"
+    | "user-management"
+    | "role-management"
+    | "permission-management"
   >;
 
   /**

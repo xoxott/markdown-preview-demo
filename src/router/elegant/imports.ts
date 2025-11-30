@@ -29,5 +29,8 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   "upload-v2-demo": () => import("@/views/upload-v2-demo/index"),
   upload: () => import("@/views/upload/index.vue"),
   utils: () => import("@/views/utils/index.vue"),
-  monitoring: () => import("@/views/monitoring/index")
+  monitoring: () => import("@/views/monitoring/index"),
+  "user-management": () => import("@/views/user-management/index"),
+  "role-management": () => import("@/views/role-management/index"),
+  "permission-management": () => import("@/views/permission-management/index")
 };

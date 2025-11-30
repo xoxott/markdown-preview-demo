@@ -108,8 +108,20 @@ export type FlatResponseData<T = any, ResponseData = any> =
   | FlatResponseSuccessData<T, ResponseData>
   | FlatResponseFailData<ResponseData>;
 
+/**
+ * Extract the inner data type from Api.ListResponse or Api.Response
+ * 
+ * @template T The response type (Api.ListResponse<U> | Api.Response<U> | any)
+ * @returns The extracted data type, or T itself if not a recognized response type
+ */
+export type ExtractResponseData<T> = T extends { data: { lists: any[] }; statusCode: number; message: string; timestamp: string }
+  ? T['data'] // Api.ListResponse<U>['data']
+  : T extends { data: infer D; statusCode: number; message: string; timestamp: string }
+    ? D // Api.Response<U>['data']
+    : T;
+
 export interface FlatRequestInstance<S = Record<string, unknown>, ResponseData = any> extends RequestInstanceCommon<S> {
   <T = any, R extends ResponseType = 'json'>(
     config: CustomAxiosRequestConfig<R>
-  ): Promise<FlatResponseData<MappedType<R, T>, ResponseData>>;
+  ): Promise<FlatResponseData<ExtractResponseData<MappedType<R, T>>, ResponseData>>;
 }
