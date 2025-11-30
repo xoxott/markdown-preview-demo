@@ -10,6 +10,83 @@ import type { RequestInstanceState } from './type';
 const isHttpProxy = import.meta.env.DEV && import.meta.env.VITE_HTTP_PROXY === 'Y';
 const { baseURL, otherBaseURL } = getServiceBaseURL(import.meta.env, isHttpProxy);
 
+/**
+ * 获取可刷新的 token 错误码列表
+ */
+function getExpiredTokenCodes(): string[] {
+  const codes = import.meta.env.VITE_SERVICE_EXPIRED_TOKEN_CODES?.split(',').filter(Boolean);
+  return codes && codes.length > 0 ? codes : ['40101'];
+}
+
+/**
+ * 获取登出码列表
+ */
+function getLogoutCodes(): string[] {
+  return import.meta.env.VITE_SERVICE_LOGOUT_CODES?.split(',').filter(Boolean) || [];
+}
+
+/**
+ * 获取模态框登出码列表
+ */
+function getModalLogoutCodes(): string[] {
+  return import.meta.env.VITE_SERVICE_MODAL_LOGOUT_CODES?.split(',').filter(Boolean) || [];
+}
+
+/**
+ * 提取错误响应中的错误码和状态码
+ */
+function extractErrorCodes(errorData: Api.ErrorResponse) {
+  const errorCode = errorData.errorCode ? String(errorData.errorCode) : null;
+  const statusCode = String(errorData.statusCode);
+  return { errorCode, statusCode };
+}
+
+/**
+ * 创建重试请求配置
+ */
+function createRetryConfig(response: AxiosResponse, newToken: string) {
+  return {
+    ...response.config,
+    headers: {
+      ...response.config.headers,
+      Authorization: newToken
+    }
+  };
+}
+
+/**
+ * 刷新 token 专用的请求实例
+ * 不携带 Authorization header，避免循环问题
+ */
+export const refreshTokenRequest = createFlatRequest<App.Service.Response, RequestInstanceState>(
+  {
+    baseURL,
+    headers: {
+      apifoxToken: 'XL299LiMEDZ0H5h3A29PxwQXdMJqWyY2'
+    }
+  },
+  {
+    // 不添加 Authorization header
+    async onRequest(config) {
+      return config;
+    },
+    isBackendSuccess(response) {
+      const statusCode = response.data.statusCode;
+      return statusCode === 200 || statusCode === 201;
+    },
+    async onBackendFail() {
+      // 刷新 token 失败时不处理，直接返回 null
+      return null;
+    },
+    transformBackendResponse(response) {
+      return response.data.data;
+    },
+    onError() {
+      // 刷新 token 失败时不显示错误消息
+    }
+  }
+);
+
 export const request = createFlatRequest<App.Service.Response, RequestInstanceState>(
   {
     baseURL,
@@ -32,32 +109,46 @@ export const request = createFlatRequest<App.Service.Response, RequestInstanceSt
     },
     async onBackendFail(response, instance) {
       const authStore = useAuthStore();
-      const responseCode = String(response.data.statusCode);
+      const errorData = response.data as unknown as Api.ErrorResponse;
+      const { errorCode, statusCode } = extractErrorCodes(errorData);
+      const expiredTokenCodes = getExpiredTokenCodes();
+      const logoutCodes = getLogoutCodes();
+      const modalLogoutCodes = getModalLogoutCodes();
+      const responseCode = errorCode ?? statusCode;
 
-      function handleLogout() {
-        authStore.resetStore();
-      }
-
-      function logoutAndCleanup() {
+      const handleLogout = () => authStore.resetStore();
+      const logoutAndCleanup = () => {
         handleLogout();
         window.removeEventListener('beforeunload', handleLogout);
-
         request.state.errMsgStack = request.state.errMsgStack.filter(msg => msg !== response.data.message);
+      };
+
+      // 1. 尝试刷新 token
+      if (errorCode && expiredTokenCodes.includes(errorCode)) {
+        console.log('[Token Refresh] 检测到 token 过期，开始刷新 token，errorCode:', errorCode);
+        const success = await handleExpiredRequest(request.state);
+        if (success) {
+          console.log('[Token Refresh] Token 刷新成功，重新发送请求');
+          const newToken = getAuthorization();
+          return instance.request(createRetryConfig(response, newToken!)) as Promise<AxiosResponse>;
+        }
+        console.warn('[Token Refresh] Token 刷新失败，将执行登出逻辑');
       }
 
-      // when the backend response statusCode is in `logoutCodes`, it means the user will be logged out and redirected to login page
-      const logoutCodes = import.meta.env.VITE_SERVICE_LOGOUT_CODES?.split(',') || [];
-      if (logoutCodes.includes(responseCode)) {
+      // 2. 处理需要登出的错误码
+      const shouldLogout =
+        (errorCode && !expiredTokenCodes.includes(errorCode)) ||
+        (!errorCode && statusCode === '401') ||
+        logoutCodes.includes(responseCode);
+
+      if (shouldLogout) {
         handleLogout();
         return null;
       }
 
-      // when the backend response statusCode is in `modalLogoutCodes`, it means the user will be logged out by displaying a modal
-      const modalLogoutCodes = import.meta.env.VITE_SERVICE_MODAL_LOGOUT_CODES?.split(',') || [];
+      // 3. 处理需要显示模态框的错误码
       if (modalLogoutCodes.includes(responseCode) && !request.state.errMsgStack?.includes(response.data.message)) {
         request.state.errMsgStack = [...(request.state.errMsgStack || []), response.data.message];
-
-        // prevent the user from refreshing the page
         window.addEventListener('beforeunload', handleLogout);
 
         window.$dialog?.error({
@@ -66,28 +157,11 @@ export const request = createFlatRequest<App.Service.Response, RequestInstanceSt
           positiveText: $t('common.confirm'),
           maskClosable: false,
           closeOnEsc: false,
-          onPositiveClick() {
-            logoutAndCleanup();
-          },
-          onClose() {
-            logoutAndCleanup();
-          }
+          onPositiveClick: logoutAndCleanup,
+          onClose: logoutAndCleanup
         });
 
         return null;
-      }
-
-      // when the backend response statusCode is in `expiredTokenCodes`, it means the token is expired, and refresh token
-      // the api `refreshToken` can not return error code in `expiredTokenCodes`, otherwise it will be a dead loop, should return `logoutCodes` or `modalLogoutCodes`
-      const expiredTokenCodes = import.meta.env.VITE_SERVICE_EXPIRED_TOKEN_CODES?.split(',') || [];
-      if (expiredTokenCodes.includes(responseCode)) {
-        const success = await handleExpiredRequest(request.state);
-        if (success) {
-          const Authorization = getAuthorization();
-          Object.assign(response.config.headers, { Authorization });
-
-          return instance.request(response.config) as Promise<AxiosResponse>;
-        }
       }
 
       return null;
@@ -96,31 +170,31 @@ export const request = createFlatRequest<App.Service.Response, RequestInstanceSt
       return response.data.data;
     },
     onError(error) {
-      // when the request is fail, you can show error message
-
       let message = error.message;
-      let backendErrorCode = '';
+      let errorCode: string | null = null;
+      let statusCode = '';
 
-      // get backend error message and code from ErrorResponse format
-      // Check both BACKEND_ERROR_CODE and HTTP error responses
+      // 提取错误信息
       if (error.response?.data) {
         const errorData = error.response.data as unknown as Api.ErrorResponse;
-        // Check if it's ErrorResponse format (has statusCode and message)
         if (errorData && 'statusCode' in errorData && 'message' in errorData) {
           message = errorData.message || message;
-          backendErrorCode = String(errorData.statusCode || '');
+          ({ errorCode, statusCode } = extractErrorCodes(errorData));
         }
       }
 
-      // the error message is displayed in the modal
-      const modalLogoutCodes = import.meta.env.VITE_SERVICE_MODAL_LOGOUT_CODES?.split(',') || [];
-      if (modalLogoutCodes.includes(backendErrorCode)) {
-        return;
-      }
+      // 判断是否应该显示错误消息
+      const expiredTokenCodes = getExpiredTokenCodes();
+      const modalLogoutCodes = getModalLogoutCodes();
+      const responseCode = errorCode ?? statusCode;
 
-      // when the token is expired, refresh token and retry request, so no need to show error message
-      const expiredTokenCodes = import.meta.env.VITE_SERVICE_EXPIRED_TOKEN_CODES?.split(',') || [];
-      if (expiredTokenCodes.includes(backendErrorCode)) {
+      const shouldSuppressError =
+        (errorCode && expiredTokenCodes.includes(errorCode)) || // token 已自动刷新
+        (errorCode && !expiredTokenCodes.includes(errorCode)) || // 已登出
+        (!errorCode && statusCode === '401') || // 已登出
+        modalLogoutCodes.includes(responseCode); // 错误消息已在模态框中显示
+
+      if (shouldSuppressError) {
         return;
       }
 

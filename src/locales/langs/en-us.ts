@@ -171,9 +171,7 @@ const local: App.I18n.Schema = {
     component: 'component',
     mobile: 'mobile',
     'file-manager': 'file-manager',
-    monitoring: 'System Monitoring',
-    "monitoring-health": 'Health Check',
-    "monitoring-system": 'System Monitoring Detail'
+    monitoring: 'Dashboard'
   },
   page: {
     login: {

@@ -51,6 +51,8 @@ declare namespace Api {
   interface ErrorResponse {
     /** HTTP status code */
     statusCode: number;
+    /** Error code (more specific than statusCode, e.g. 40101 for token expired) */
+    errorCode?: number;
     /** Error message */
     message: string;
     /** Timestamp (ISO format) */
@@ -59,6 +61,8 @@ declare namespace Api {
     path: string;
     /** HTTP method */
     method: string;
+    /** Error type */
+    error?: string;
   }
 
   namespace Common {
@@ -270,48 +274,78 @@ declare namespace Api {
   namespace System {
     /** System information */
     interface SystemInfo {
-      /** Operating system */
-      os?: string;
-      /** System version */
-      version?: string;
-      /** Node version */
-      nodeVersion?: string;
-      /** Uptime in seconds */
-      uptime?: number;
-      /** System hostname */
-      hostname?: string;
-      /** Platform */
-      platform?: string;
-      /** Architecture */
-      arch?: string;
-      /** CPU count */
-      cpuCount?: number;
+      /** Operating system information */
+      os?: {
+        platform: string;
+        type: string;
+        release: string;
+        arch: string;
+        hostname: string;
+        uptime: number;
+      };
+      /** CPU information */
+      cpu?: {
+        model: string;
+        cores: number;
+        speed: number;
+        usage: {
+          usage: string;
+          idle: number;
+          total: number;
+        };
+      };
+      /** Memory information */
+      memory?: {
+        total: number;
+        free: number;
+        used: number;
+        usagePercent: string;
+      };
+      /** Process information */
+      process?: {
+        pid: number;
+        version: string;
+        uptime: number;
+        memoryUsage: {
+          rss: number;
+          heapTotal: number;
+          heapUsed: number;
+          external: number;
+          arrayBuffers?: number;
+        };
+      };
+      /** Network interfaces */
+      network?: Record<string, Array<{
+        address: string;
+        netmask: string;
+        family: string;
+        mac: string;
+        internal: boolean;
+        cidr?: string;
+        scopeid?: number;
+      }>>;
       [key: string]: any;
     }
 
     /** Performance metrics */
     interface PerformanceMetrics {
-      /** CPU usage percentage */
-      cpu?: {
-        usage: number;
-        cores: number;
-        model?: string;
-      };
+      /** Timestamp */
+      timestamp?: string;
       /** Memory usage */
       memory?: {
-        total: number;
-        used: number;
-        free: number;
-        usage: number;
+        rss: number;
+        heapTotal: number;
+        heapUsed: number;
+        external: number;
+        arrayBuffers?: number;
       };
-      /** Disk usage */
-      disk?: {
-        total: number;
-        used: number;
-        free: number;
-        usage: number;
-        path?: string;
+      /** CPU usage */
+      cpu?: {
+        user: number;
+        system: number;
       };
+      /** Process uptime in seconds */
+      uptime?: number;
       /** Load average */
       loadAverage?: number[];
       [key: string]: any;
@@ -319,18 +353,18 @@ declare namespace Api {
 
     /** Environment information */
     interface EnvironmentInfo {
-      /** Environment variables (filtered) */
-      env?: Record<string, string>;
-      /** Application environment */
-      nodeEnv?: string;
-      /** Process information */
-      process?: {
-        pid: number;
-        ppid: number;
-        title: string;
-        argv: string[];
-        execPath: string;
-      };
+      /** Node.js version */
+      nodeVersion?: string;
+      /** Platform */
+      platform?: string;
+      /** Architecture */
+      arch?: string;
+      /** Environment */
+      env?: string;
+      /** Current working directory */
+      cwd?: string;
+      /** Executable path */
+      execPath?: string;
       [key: string]: any;
     }
   }
@@ -343,16 +377,20 @@ declare namespace Api {
   namespace Monitoring {
     /** Metrics summary */
     interface MetricsSummary {
-      /** Total requests */
-      totalRequests?: number;
-      /** Active connections */
-      activeConnections?: number;
-      /** Request rate per second */
-      requestRate?: number;
-      /** Error rate */
-      errorRate?: number;
-      /** Average response time */
-      avgResponseTime?: number;
+      /** Memory usage */
+      memory?: {
+        heapUsed: number;
+        heapTotal: number;
+        rss: number;
+        external: number;
+      };
+      /** CPU usage */
+      cpu?: {
+        user: number;
+        system: number;
+      };
+      /** Process uptime in seconds */
+      uptime?: number;
       /** Timestamp */
       timestamp?: string;
       [key: string]: any;

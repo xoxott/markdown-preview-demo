@@ -32,8 +32,6 @@ declare module "@elegant-router/types" {
     "upload-v2-demo": "/upload-v2-demo";
     "utils": "/utils";
     "monitoring": "/monitoring";
-    "monitoring-health": "/monitoring/health";
-    "monitoring-system": "/monitoring/system";
   };
 
   /**
@@ -80,8 +78,6 @@ declare module "@elegant-router/types" {
     | "upload-v2-demo"
     | "utils"
     | "monitoring"
-    | "monitoring-health"
-    | "monitoring-system"
   >;
 
   /**
@@ -113,8 +109,6 @@ declare module "@elegant-router/types" {
     | "upload"
     | "utils"
     | "monitoring"
-    | "monitoring-health"
-    | "monitoring-system"
   >;
 
   /**

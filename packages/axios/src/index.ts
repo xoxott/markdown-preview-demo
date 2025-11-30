@@ -48,6 +48,37 @@ function createCommonRequest<ResponseData = any>(
     return handledConfig;
   });
 
+  /**
+   * 检查错误响应是否是业务错误格式（包含 statusCode 和 errorCode）
+   */
+  function isBusinessErrorResponse(data: any): data is { statusCode: number; errorCode?: number | string } {
+    return data && typeof data === 'object' && 'statusCode' in data;
+  }
+
+  /**
+   * 将 HTTP 401 错误转换为业务错误响应格式，以便复用 onBackendFail 逻辑
+   */
+  function createBusinessErrorResponse(error: AxiosError<ResponseData>): AxiosResponse<ResponseData> | null {
+    if (error.response?.status !== 401 || !error.response?.data) {
+      return null;
+    }
+
+    const errorData = error.response.data;
+    if (!isBusinessErrorResponse(errorData)) {
+      return null;
+    }
+
+    // 创建模拟的成功响应（status 200），但包含业务错误数据
+    // 这样可以让 onBackendFail 统一处理业务错误（包括 token 过期）
+    return {
+      ...error.response,
+      status: 200,
+      statusText: 'OK',
+      data: errorData as ResponseData,
+      config: error.config
+    } as AxiosResponse<ResponseData>;
+  }
+
   instance.interceptors.response.use(
     async response => {
       const responseType: ResponseType = (response.config?.responseType as ResponseType) || 'json';
@@ -56,9 +87,9 @@ function createCommonRequest<ResponseData = any>(
         return Promise.resolve(response);
       }
 
-      const fail = await opts.onBackendFail(response, instance);
-      if (fail) {
-        return fail;
+      const retryResponse = await opts.onBackendFail(response, instance);
+      if (retryResponse) {
+        return retryResponse;
       }
 
       const backendError = new AxiosError<ResponseData>(
@@ -74,6 +105,20 @@ function createCommonRequest<ResponseData = any>(
       return Promise.reject(backendError);
     },
     async (error: AxiosError<ResponseData>) => {
+      // 当 HTTP 状态码是 401 时，axios 会进入 error handler
+      // 如果响应数据是业务错误格式（包含 errorCode），尝试复用 onBackendFail 处理刷新逻辑
+      const businessErrorResponse = createBusinessErrorResponse(error);
+      if (businessErrorResponse) {
+        try {
+          const retryResponse = await opts.onBackendFail(businessErrorResponse, instance);
+          if (retryResponse) {
+            return Promise.resolve(retryResponse);
+          }
+        } catch {
+          // 刷新失败，继续执行常规错误处理
+        }
+      }
+
       await opts.onError(error);
 
       return Promise.reject(error);

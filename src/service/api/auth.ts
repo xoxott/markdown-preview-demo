@@ -1,4 +1,4 @@
-import { request } from '../request';
+import { request, refreshTokenRequest } from '../request';
 
 /**
  * Login step 1 - Initial login with username and password
@@ -74,9 +74,10 @@ export function fetchSendRegistrationCode(email: string) {
  * Refresh access token
  *
  * @param refreshToken Refresh token
+ * 注意：使用 refreshTokenRequest 而不是 request，避免携带过期的 accessToken
  */
 export function fetchRefreshToken(refreshToken: string) {
-  return request<Api.Auth.RefreshTokenResponse>({
+  return refreshTokenRequest<Api.Auth.RefreshTokenResponse>({
     url: '/api/admin/auth/refresh',
     method: 'post',
     data: {

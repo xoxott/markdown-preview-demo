@@ -35,26 +35,30 @@ declare namespace Env {
      */
     readonly VITE_SERVICE_SUCCESS_CODE: string;
     /**
-     * logout codes of backend service
+     * logout codes of backend service (business error codes only, e.g. errorCode)
      *
-     * when the code is received, the user will be logged out and redirected to login page
+     * when the errorCode is received, the user will be logged out and redirected to login page
      *
+     * Note: Only configure business error codes (errorCode), not HTTP status codes (statusCode)
      * use "," to separate multiple codes
      */
     readonly VITE_SERVICE_LOGOUT_CODES: string;
     /**
-     * modal logout codes of backend service
+     * modal logout codes of backend service (business error codes only, e.g. errorCode)
      *
-     * when the code is received, the user will be logged out by displaying a modal
+     * when the errorCode is received, the user will be logged out by displaying a modal
      *
+     * Note: Only configure business error codes (errorCode), not HTTP status codes (statusCode)
      * use "," to separate multiple codes
      */
     readonly VITE_SERVICE_MODAL_LOGOUT_CODES: string;
     /**
-     * token expired codes of backend service
+     * token expired codes of backend service (business error codes only, e.g. errorCode)
      *
-     * when the code is received, it will refresh the token and resend the request
+     * when the errorCode is received, it will refresh the token and resend the request
      *
+     * Note: Only configure business error codes (errorCode), not HTTP status codes (statusCode)
+     * Example: "40101" means token expired but can be refreshed
      * use "," to separate multiple codes
      */
     readonly VITE_SERVICE_EXPIRED_TOKEN_CODES: string;
