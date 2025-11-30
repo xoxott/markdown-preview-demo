@@ -197,5 +197,60 @@ export const generatedRoutes: GeneratedRoute[] = [
       icon: 'mdi:shield-key',
       order: 6
     }
+  },
+  {
+    name: 'announcement-management',
+    path: '/announcement-management',
+    component: 'layout.base$view.announcement-management',
+    meta: {
+      title: 'announcement-management',
+      i18nKey: 'route.announcement-management',
+      icon: 'mdi:bullhorn',
+      order: 7
+    }
+  },
+  {
+    name: 'notification-management',
+    path: '/notification-management',
+    component: 'layout.base$view.notification-management',
+    meta: {
+      title: 'notification-management',
+      i18nKey: 'route.notification-management',
+      icon: 'mdi:bell',
+      order: 8
+    }
+  },
+  {
+    name: 'alert-management',
+    path: '/alert-management',
+    component: 'layout.base$view.alert-management',
+    meta: {
+      title: 'alert-management',
+      i18nKey: 'route.alert-management',
+      icon: 'mdi:alert',
+      order: 9
+    }
+  },
+  {
+    name: 'log-management',
+    path: '/log-management',
+    component: 'layout.base$view.log-management',
+    meta: {
+      title: 'log-management',
+      i18nKey: 'route.log-management',
+      icon: 'mdi:file-document-outline',
+      order: 10
+    }
+  },
+  {
+    name: 'version-log-management',
+    path: '/version-log-management',
+    component: 'layout.base$view.version-log-management',
+    meta: {
+      title: 'version-log-management',
+      i18nKey: 'route.version-log-management',
+      icon: 'mdi:history',
+      order: 11
+    }
   }
 ];

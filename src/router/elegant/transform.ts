@@ -180,7 +180,12 @@ const routeMap: RouteMap = {
   "monitoring": "/monitoring",
   "user-management": "/user-management",
   "role-management": "/role-management",
-  "permission-management": "/permission-management"
+  "permission-management": "/permission-management",
+  "announcement-management": "/announcement-management",
+  "notification-management": "/notification-management",
+  "alert-management": "/alert-management",
+  "log-management": "/log-management",
+  "version-log-management": "/version-log-management"
 };
 
 /**

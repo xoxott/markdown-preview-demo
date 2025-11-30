@@ -32,5 +32,10 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   monitoring: () => import("@/views/monitoring/index"),
   "user-management": () => import("@/views/user-management/index"),
   "role-management": () => import("@/views/role-management/index"),
-  "permission-management": () => import("@/views/permission-management/index")
+  "permission-management": () => import("@/views/permission-management/index"),
+  "announcement-management": () => import("@/views/announcement-management/index"),
+  "notification-management": () => import("@/views/notification-management/index"),
+  "alert-management": () => import("@/views/alert-management/index"),
+  "log-management": () => import("@/views/log-management/index"),
+  "version-log-management": () => import("@/views/version-log-management/index")
 };

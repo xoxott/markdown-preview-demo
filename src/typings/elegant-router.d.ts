@@ -35,6 +35,11 @@ declare module "@elegant-router/types" {
     "user-management": "/user-management";
     "role-management": "/role-management";
     "permission-management": "/permission-management";
+    "announcement-management": "/announcement-management";
+    "notification-management": "/notification-management";
+    "alert-management": "/alert-management";
+    "log-management": "/log-management";
+    "version-log-management": "/version-log-management";
   };
 
   /**
@@ -84,6 +89,11 @@ declare module "@elegant-router/types" {
     | "user-management"
     | "role-management"
     | "permission-management"
+    | "announcement-management"
+    | "notification-management"
+    | "alert-management"
+    | "log-management"
+    | "version-log-management"
   >;
 
   /**
@@ -118,6 +128,11 @@ declare module "@elegant-router/types" {
     | "user-management"
     | "role-management"
     | "permission-management"
+    | "announcement-management"
+    | "notification-management"
+    | "alert-management"
+    | "log-management"
+    | "version-log-management"
   >;
 
   /**
