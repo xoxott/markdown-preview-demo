@@ -701,7 +701,6 @@ declare namespace App {
           resolve: string;
           searchPlaceholder: string;
           statusPlaceholder: string;
-          levelPlaceholder: string;
           enabledStatusPlaceholder: string;
           namePlaceholder: string;
           descriptionPlaceholder: string;
@@ -739,6 +738,7 @@ declare namespace App {
           responseBody: string;
           error: string;
           createdAt: string;
+          updatedAt: string;
           logDetail: string;
           basicInfo: string;
           requestInfo: string;
@@ -763,7 +763,10 @@ declare namespace App {
           actionPlaceholder: string;
           modulePlaceholder: string;
           userPlaceholder: string;
+          userId: string;
           ipPlaceholder: string;
+          methodPlaceholder: string;
+          statusCodePlaceholder: string;
           startDatePlaceholder: string;
           endDatePlaceholder: string;
           confirmDelete: string;

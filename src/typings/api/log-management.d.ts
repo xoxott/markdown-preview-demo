@@ -14,36 +14,33 @@ declare namespace Api {
     /** Log information */
     interface Log {
       id: number;
-      action: string;
-      module: string | null;
-      userId: number | null;
-      username: string | null;
-      ip: string | null;
-      userAgent: string | null;
-      requestMethod: string | null;
-      requestUrl: string | null;
-      requestBody: string | null;
-      responseStatus: number | null;
-      responseBody: string | null;
-      duration: number | null;
-      error: string | null;
+      isActive: boolean;
       createdAt: string;
+      updatedAt: string;
+      deletedAt: string | null;
+      domainEvents: any[];
+      version: number;
+      userId: number | null;
+      method: string | null;
+      path: string | null;
+      statusCode: number | null;
+      ip: string | null;
+      responseTime: number | null;
+      error: string | null;
     }
 
     /** Log list query parameters */
     interface LogListParams extends Common.PaginationParams {
-      /** Search keyword (action, module, username, url) */
+      /** Search keyword (path, method) */
       search?: string;
-      /** Filter by action */
-      action?: string;
-      /** Filter by module */
-      module?: string;
       /** Filter by user ID */
       userId?: number;
       /** Filter by IP */
       ip?: string;
-      /** Filter by response status */
-      responseStatus?: number;
+      /** Filter by status code */
+      statusCode?: number;
+      /** Filter by method */
+      method?: string;
       /** Filter by start date */
       startDate?: string;
       /** Filter by end date */

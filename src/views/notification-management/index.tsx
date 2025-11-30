@@ -155,9 +155,7 @@ export default defineComponent({
         }
 
         // 确保用户和角色列表已加载
-        if (users.value.length === 0 || roles.value.length === 0) {
-          await loadUsersAndRoles();
-        }
+        await ensureUsersAndRolesLoaded();
 
         const formData: NotificationFormData = {
           title: notificationDetail.title,
@@ -416,10 +414,14 @@ export default defineComponent({
       );
     }
 
-    // 初始化时加载用户和角色
-    onMounted(() => {
-      loadUsersAndRoles();
-    });
+    // 按需加载用户和角色列表（只在需要时加载）
+    let usersAndRolesLoaded = false;
+    async function ensureUsersAndRolesLoaded() {
+      if (!usersAndRolesLoaded && (users.value.length === 0 || roles.value.length === 0)) {
+        await loadUsersAndRoles();
+        usersAndRolesLoaded = true;
+      }
+    }
 
     return () => (
       <NSpace vertical size={16}>

@@ -16,6 +16,7 @@ import {
   NForm,
   NFormItem,
   NInput,
+  NInputNumber,
   NSelect,
   NSpace,
   NTag,
@@ -64,37 +65,23 @@ export default defineComponent({
       }
     }
 
-    // 操作类型选项
-    const actionOptions = [
+    // HTTP方法选项
+    const methodOptions = [
       { label: $t('page.logManagement.all' as any), value: undefined },
-      { label: $t('page.logManagement.actionCreate' as any), value: 'create' },
-      { label: $t('page.logManagement.actionUpdate' as any), value: 'update' },
-      { label: $t('page.logManagement.actionDelete' as any), value: 'delete' },
-      { label: $t('page.logManagement.actionLogin' as any), value: 'login' },
-      { label: $t('page.logManagement.actionLogout' as any), value: 'logout' },
-      { label: $t('page.logManagement.actionRead' as any), value: 'read' }
-    ];
-
-    // 模块选项
-    const moduleOptions = [
-      { label: $t('page.logManagement.all' as any), value: undefined },
-      { label: $t('page.logManagement.moduleUser' as any), value: 'user' },
-      { label: $t('page.logManagement.moduleRole' as any), value: 'role' },
-      { label: $t('page.logManagement.modulePermission' as any), value: 'permission' },
-      { label: $t('page.logManagement.moduleAnnouncement' as any), value: 'announcement' },
-      { label: $t('page.logManagement.moduleNotification' as any), value: 'notification' },
-      { label: $t('page.logManagement.moduleAlert' as any), value: 'alert' },
-      { label: $t('page.logManagement.moduleSystem' as any), value: 'system' }
+      { label: 'GET', value: 'GET' },
+      { label: 'POST', value: 'POST' },
+      { label: 'PUT', value: 'PUT' },
+      { label: 'DELETE', value: 'DELETE' },
+      { label: 'PATCH', value: 'PATCH' }
     ];
 
     // 搜索表单数据
     const searchForm = reactive({
       search: '',
-      action: undefined,
-      module: undefined,
       userId: undefined,
       ip: undefined,
-      responseStatus: undefined,
+      statusCode: undefined,
+      method: undefined,
       startDate: null as number | null,
       endDate: null as number | null,
       sortBy: undefined as string | undefined,
@@ -170,7 +157,7 @@ export default defineComponent({
 
     // 获取状态码颜色
     function getStatusColor(status: number | null): 'success' | 'warning' | 'error' | 'info' {
-      if (!status) return 'info';
+      if (status === null) return 'info';
       if (status >= 200 && status < 300) return 'success';
       if (status >= 300 && status < 400) return 'info';
       if (status >= 400 && status < 500) return 'warning';
@@ -190,35 +177,11 @@ export default defineComponent({
           width: 80
         },
         {
-          title: $t('page.logManagement.action' as any),
-          key: 'action',
-          width: 120,
+          title: $t('page.logManagement.userId' as any),
+          key: 'userId',
+          width: 100,
           render: (row: Log) => {
-            const actionMap: Record<string, string> = {
-              create: $t('page.logManagement.actionCreate' as any),
-              update: $t('page.logManagement.actionUpdate' as any),
-              delete: $t('page.logManagement.actionDelete' as any),
-              login: $t('page.logManagement.actionLogin' as any),
-              logout: $t('page.logManagement.actionLogout' as any),
-              read: $t('page.logManagement.actionRead' as any)
-            };
-            return actionMap[row.action] || row.action;
-          }
-        },
-        {
-          title: $t('page.logManagement.module' as any),
-          key: 'module',
-          width: 120,
-          render: (row: Log) => {
-            return row.module || '-';
-          }
-        },
-        {
-          title: $t('page.logManagement.username' as any),
-          key: 'username',
-          width: 150,
-          render: (row: Log) => {
-            return row.username || '-';
+            return row.userId || '-';
           }
         },
         {
@@ -231,10 +194,10 @@ export default defineComponent({
         },
         {
           title: $t('page.logManagement.requestMethod' as any),
-          key: 'requestMethod',
+          key: 'method',
           width: 100,
           render: (row: Log) => {
-            if (!row.requestMethod) return '-';
+            if (!row.method) return '-';
             const methodColors: Record<string, 'success' | 'warning' | 'error' | 'info'> = {
               GET: 'info',
               POST: 'success',
@@ -243,41 +206,41 @@ export default defineComponent({
               PATCH: 'warning'
             };
             return (
-              <NTag type={methodColors[row.requestMethod] || 'info'} size="small">
-                {row.requestMethod}
+              <NTag type={methodColors[row.method] || 'info'} size="small">
+                {row.method}
               </NTag>
             );
           }
         },
         {
           title: $t('page.logManagement.requestUrl' as any),
-          key: 'requestUrl',
+          key: 'path',
           width: 300,
           render: (row: Log) => {
-            const url = row.requestUrl || '-';
-            return url.length > 50 ? url.substring(0, 50) + '...' : url;
+            const path = row.path || '-';
+            return path.length > 50 ? path.substring(0, 50) + '...' : path;
           }
         },
         {
           title: $t('page.logManagement.responseStatus' as any),
-          key: 'responseStatus',
+          key: 'statusCode',
           width: 120,
           render: (row: Log) => {
-            if (row.responseStatus === null) return '-';
+            if (row.statusCode === null) return '-';
             return (
-              <NTag type={getStatusColor(row.responseStatus)} size="small">
-                {row.responseStatus}
+              <NTag type={getStatusColor(row.statusCode)} size="small">
+                {row.statusCode}
               </NTag>
             );
           }
         },
         {
           title: $t('page.logManagement.duration' as any),
-          key: 'duration',
+          key: 'responseTime',
           width: 100,
           render: (row: Log) => {
-            if (row.duration === null) return '-';
-            return `${row.duration}ms`;
+            if (row.responseTime === null) return '-';
+            return `${row.responseTime}ms`;
           }
         },
         {
@@ -322,9 +285,15 @@ export default defineComponent({
         apiParams: {
           page: 1,
           limit: 10,
-          ...searchForm,
+          search: searchForm.search || undefined,
+          userId: searchForm.userId,
+          ip: searchForm.ip || undefined,
+          statusCode: searchForm.statusCode,
+          method: searchForm.method || undefined,
           startDate: searchForm.startDate ? new Date(searchForm.startDate).toISOString() : undefined,
-          endDate: searchForm.endDate ? new Date(searchForm.endDate).toISOString() : undefined
+          endDate: searchForm.endDate ? new Date(searchForm.endDate).toISOString() : undefined,
+          sortBy: searchForm.sortBy,
+          sortOrder: searchForm.sortOrder
         },
         columns: () => createColumns() as any,
         showTotal: true
@@ -334,9 +303,15 @@ export default defineComponent({
     function handleSearch() {
       updateSearchParams({
         page: 1,
-        ...searchForm,
+        search: searchForm.search || undefined,
+        userId: searchForm.userId,
+        ip: searchForm.ip || undefined,
+        statusCode: searchForm.statusCode,
+        method: searchForm.method || undefined,
         startDate: searchForm.startDate ? new Date(searchForm.startDate).toISOString() : undefined,
-        endDate: searchForm.endDate ? new Date(searchForm.endDate).toISOString() : undefined
+        endDate: searchForm.endDate ? new Date(searchForm.endDate).toISOString() : undefined,
+        sortBy: searchForm.sortBy,
+        sortOrder: searchForm.sortOrder
       });
       getData();
     }
@@ -350,10 +325,14 @@ export default defineComponent({
       getData();
     }
 
-    // 初始化时加载用户列表
-    onMounted(() => {
-      loadUsers();
-    });
+    // 按需加载用户列表（只在需要时加载）
+    let usersLoaded = false;
+    async function ensureUsersLoaded() {
+      if (!usersLoaded && users.value.length === 0) {
+        await loadUsers();
+        usersLoaded = true;
+      }
+    }
 
     return () => (
       <NSpace vertical size={16}>
@@ -373,24 +352,6 @@ export default defineComponent({
                 }}
               />
             </NFormItem>
-            <NFormItem path="action">
-              <NSelect
-                v-model:value={searchForm.action}
-                placeholder={$t('page.logManagement.actionPlaceholder' as any)}
-                style={{ width: '120px' }}
-                clearable
-                options={actionOptions}
-              />
-            </NFormItem>
-            <NFormItem path="module">
-              <NSelect
-                v-model:value={searchForm.module}
-                placeholder={$t('page.logManagement.modulePlaceholder' as any)}
-                style={{ width: '120px' }}
-                clearable
-                options={moduleOptions}
-              />
-            </NFormItem>
             <NFormItem path="userId">
               <NSelect
                 v-model:value={searchForm.userId}
@@ -399,6 +360,7 @@ export default defineComponent({
                 clearable
                 filterable
                 options={userOptions.value}
+                onFocus={ensureUsersLoaded}
               />
             </NFormItem>
             <NFormItem path="ip">
@@ -407,6 +369,25 @@ export default defineComponent({
                 placeholder={$t('page.logManagement.ipPlaceholder' as any)}
                 style={{ width: '150px' }}
                 clearable
+              />
+            </NFormItem>
+            <NFormItem path="method">
+              <NSelect
+                v-model:value={searchForm.method}
+                placeholder={$t('page.logManagement.methodPlaceholder' as any)}
+                style={{ width: '120px' }}
+                clearable
+                options={methodOptions}
+              />
+            </NFormItem>
+            <NFormItem path="statusCode">
+              <NInputNumber
+                v-model:value={searchForm.statusCode}
+                placeholder={$t('page.logManagement.statusCodePlaceholder' as any)}
+                style={{ width: '120px' }}
+                clearable
+                min={100}
+                max={599}
               />
             </NFormItem>
             <NFormItem path="startDate">
@@ -467,7 +448,7 @@ export default defineComponent({
             onUpdateCheckedRowKeys={(keys) => {
               selectedRowKeys.value = keys as number[];
             }}
-            scrollX={2400}
+            scrollX={1400}
           />
         </NCard>
 
@@ -496,13 +477,7 @@ export default defineComponent({
                         <strong>{$t('page.logManagement.id' as any)}:</strong> {log.id}
                       </div>
                       <div>
-                        <strong>{$t('page.logManagement.action' as any)}:</strong> {log.action}
-                      </div>
-                      <div>
-                        <strong>{$t('page.logManagement.module' as any)}:</strong> {log.module || '-'}
-                      </div>
-                      <div>
-                        <strong>{$t('page.logManagement.username' as any)}:</strong> {log.username || '-'}
+                        <strong>{$t('page.logManagement.userId' as any)}:</strong> {log.userId || '-'}
                       </div>
                       <div>
                         <strong>{$t('page.logManagement.ip' as any)}:</strong> {log.ip || '-'}
@@ -511,52 +486,37 @@ export default defineComponent({
                         <strong>{$t('page.logManagement.createdAt' as any)}:</strong>{' '}
                         {log.createdAt ? new Date(log.createdAt).toLocaleString('zh-CN') : '-'}
                       </div>
+                      <div>
+                        <strong>{$t('page.logManagement.updatedAt' as any)}:</strong>{' '}
+                        {log.updatedAt ? new Date(log.updatedAt).toLocaleString('zh-CN') : '-'}
+                      </div>
                     </NSpace>
                   </NCard>
                   <NCard title={$t('page.logManagement.requestInfo' as any)} size="small">
                     <NSpace vertical size={12}>
                       <div>
-                        <strong>{$t('page.logManagement.requestMethod' as any)}:</strong> {log.requestMethod || '-'}
+                        <strong>{$t('page.logManagement.requestMethod' as any)}:</strong> {log.method || '-'}
                       </div>
                       <div>
-                        <strong>{$t('page.logManagement.requestUrl' as any)}:</strong> {log.requestUrl || '-'}
+                        <strong>{$t('page.logManagement.requestUrl' as any)}:</strong> {log.path || '-'}
                       </div>
-                      <div>
-                        <strong>{$t('page.logManagement.userAgent' as any)}:</strong> {log.userAgent || '-'}
-                      </div>
-                      {log.requestBody && (
-                        <div>
-                          <strong>{$t('page.logManagement.requestBody' as any)}:</strong>
-                          <pre style={{ marginTop: '8px', padding: '8px', background: '#f5f5f5', borderRadius: '4px', overflow: 'auto', maxHeight: '200px' }}>
-                            {typeof log.requestBody === 'string' ? log.requestBody : JSON.stringify(log.requestBody, null, 2)}
-                          </pre>
-                        </div>
-                      )}
                     </NSpace>
                   </NCard>
                   <NCard title={$t('page.logManagement.responseInfo' as any)} size="small">
                     <NSpace vertical size={12}>
                       <div>
                         <strong>{$t('page.logManagement.responseStatus' as any)}:</strong>{' '}
-                        {log.responseStatus !== null ? (
-                          <NTag type={getStatusColor(log.responseStatus)} size="small">
-                            {log.responseStatus}
+                        {log.statusCode !== null ? (
+                          <NTag type={getStatusColor(log.statusCode)} size="small">
+                            {log.statusCode}
                           </NTag>
                         ) : (
                           '-'
                         )}
                       </div>
                       <div>
-                        <strong>{$t('page.logManagement.duration' as any)}:</strong> {log.duration !== null ? `${log.duration}ms` : '-'}
+                        <strong>{$t('page.logManagement.duration' as any)}:</strong> {log.responseTime !== null ? `${log.responseTime}ms` : '-'}
                       </div>
-                      {log.responseBody && (
-                        <div>
-                          <strong>{$t('page.logManagement.responseBody' as any)}:</strong>
-                          <pre style={{ marginTop: '8px', padding: '8px', background: '#f5f5f5', borderRadius: '4px', overflow: 'auto', maxHeight: '200px' }}>
-                            {typeof log.responseBody === 'string' ? log.responseBody : JSON.stringify(log.responseBody, null, 2)}
-                          </pre>
-                        </div>
-                      )}
                       {log.error && (
                         <div>
                           <strong>{$t('page.logManagement.error' as any)}:</strong>
@@ -586,4 +546,5 @@ export default defineComponent({
     );
   }
 });
+
 

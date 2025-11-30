@@ -7,7 +7,7 @@ import { request } from '../request';
  */
 export function fetchVersionLogList(params: Api.VersionLogManagement.VersionLogListParams) {
   return request<Api.VersionLogManagement.VersionLogListResponse>({
-    url: '/api/admin/version-logs',
+    url: '/api/admin/changelogs',
     method: 'get',
     params
   });
@@ -20,7 +20,7 @@ export function fetchVersionLogList(params: Api.VersionLogManagement.VersionLogL
  */
 export function fetchVersionLogDetail(id: number) {
   return request<Api.VersionLogManagement.VersionLogDetailResponse>({
-    url: `/api/admin/version-logs/${id}`,
+    url: `/api/admin/changelogs/${id}`,
     method: 'get'
   });
 }
@@ -32,7 +32,7 @@ export function fetchVersionLogDetail(id: number) {
  */
 export function fetchCreateVersionLog(data: Api.VersionLogManagement.CreateVersionLogRequest) {
   return request<Api.VersionLogManagement.CreateVersionLogResponse>({
-    url: '/api/admin/version-logs',
+    url: '/api/admin/changelogs',
     method: 'post',
     data
   });
@@ -46,7 +46,7 @@ export function fetchCreateVersionLog(data: Api.VersionLogManagement.CreateVersi
  */
 export function fetchUpdateVersionLog(id: number, data: Api.VersionLogManagement.UpdateVersionLogRequest) {
   return request<Api.VersionLogManagement.UpdateVersionLogResponse>({
-    url: `/api/admin/version-logs/${id}`,
+    url: `/api/admin/changelogs/${id}`,
     method: 'put',
     data
   });
@@ -59,7 +59,7 @@ export function fetchUpdateVersionLog(id: number, data: Api.VersionLogManagement
  */
 export function fetchDeleteVersionLog(id: number) {
   return request<Api.VersionLogManagement.DeleteVersionLogResponse>({
-    url: `/api/admin/version-logs/${id}`,
+    url: `/api/admin/changelogs/${id}`,
     method: 'delete'
   });
 }
@@ -71,7 +71,7 @@ export function fetchDeleteVersionLog(id: number) {
  */
 export function fetchBatchDeleteVersionLogs(data: Api.VersionLogManagement.BatchDeleteVersionLogsRequest) {
   return request<Api.VersionLogManagement.BatchDeleteVersionLogsResponse>({
-    url: '/api/admin/version-logs/batch',
+    url: '/api/admin/changelogs/batch',
     method: 'delete',
     data
   });
@@ -85,7 +85,7 @@ export function fetchBatchDeleteVersionLogs(data: Api.VersionLogManagement.Batch
  */
 export function fetchToggleVersionLogStatus(id: number, isPublished: boolean) {
   return request<Api.VersionLogManagement.ToggleVersionLogStatusResponse>({
-    url: `/api/admin/version-logs/${id}/status`,
+    url: `/api/admin/changelogs/${id}/status`,
     method: 'patch',
     data: { isPublished }
   });
