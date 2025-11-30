@@ -308,12 +308,12 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
    * Reset password
    *
    * @param email Email address
-   * @param verificationCode Verification code
+   * @param code Verification code
    * @param newPassword New password (already encrypted with MD5)
    */
-  async function resetPassword(email: string, verificationCode: string, newPassword: string) {
+  async function resetPassword(email: string, code: string, newPassword: string) {
     startLoading();
-    const { data, error } = await fetchResetPassword(email, verificationCode, newPassword);
+    const { data, error } = await fetchResetPassword(email, code, newPassword);
     endLoading();
 
     if (error || !data) {

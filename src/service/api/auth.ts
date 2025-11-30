@@ -122,16 +122,16 @@ export function fetchSendResetPasswordCode(email: string) {
  * Reset password
  *
  * @param email Email address
- * @param verificationCode Verification code
+ * @param code Verification code
  * @param newPassword New password
  */
-export function fetchResetPassword(email: string, verificationCode: string, newPassword: string) {
+export function fetchResetPassword(email: string, code: string, newPassword: string) {
   return request<Api.Auth.RegisterResponse>({
     url: '/api/admin/auth/reset-password',
     method: 'post',
     data: {
       email,
-      verificationCode,
+      code,
       newPassword
     }
   });
