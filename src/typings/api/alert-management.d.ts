@@ -99,7 +99,7 @@ declare namespace Api {
     }
 
     /** Alert list response */
-    type AlertListResponse = ListResponse<Alert>;
+    type AlertListResponse = ListData<Alert>;
 
     /** Alert detail response */
     type AlertDetailResponse = Alert;

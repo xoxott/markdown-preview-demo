@@ -901,8 +901,8 @@ declare namespace App {
     type Response<T = unknown> = {
       /** Response data */
       data: T;
-      /** HTTP status code */
-      statusCode: number;
+      /** Business status code (200=success, 201=created, 1xxx-5xxx=error) */
+      code: number;
       /** Response message (default "Success") */
       message: string;
       /** Timestamp (ISO format) */

@@ -12,10 +12,11 @@ const { baseURL, otherBaseURL } = getServiceBaseURL(import.meta.env, isHttpProxy
 
 /**
  * 获取可刷新的 token 错误码列表
+ * 默认: 1202 = TOKEN_EXPIRED (Access token has expired)
  */
 function getExpiredTokenCodes(): string[] {
   const codes = import.meta.env.VITE_SERVICE_EXPIRED_TOKEN_CODES?.split(',').filter(Boolean);
-  return codes && codes.length > 0 ? codes : ['40101'];
+  return codes && codes.length > 0 ? codes : ['1202'];
 }
 
 /**
@@ -33,12 +34,10 @@ function getModalLogoutCodes(): string[] {
 }
 
 /**
- * 提取错误响应中的错误码和状态码
+ * 提取错误响应中的业务错误码
  */
-function extractErrorCodes(errorData: Api.ErrorResponse) {
-  const errorCode = errorData.errorCode ? String(errorData.errorCode) : null;
-  const statusCode = String(errorData.statusCode);
-  return { errorCode, statusCode };
+function extractErrorCode(errorData: Api.ErrorResponse): string {
+  return String(errorData.code);
 }
 
 /**
@@ -71,8 +70,8 @@ export const refreshTokenRequest = createFlatRequest<App.Service.Response, Reque
       return config;
     },
     isBackendSuccess(response) {
-      const statusCode = response.data.statusCode;
-      return statusCode === 200 || statusCode === 201;
+      const code = response.data.code;
+      return code === 200 || code === 201;
     },
     async onBackendFail() {
       // 刷新 token 失败时不处理，直接返回 null
@@ -102,17 +101,31 @@ export const request = createFlatRequest<App.Service.Response, RequestInstanceSt
       return config;
     },
     isBackendSuccess(response) {
-      const statusCode = response.data.statusCode;
-      return statusCode === 200 || statusCode === 201;
+      const code = response.data.code;
+      const isSuccess = code === 200 || code === 201;
+      console.log('[Request] isBackendSuccess check:', {
+        code,
+        isSuccess,
+        url: response.config.url,
+        status: response.status
+      });
+      return isSuccess;
     },
     async onBackendFail(response, instance) {
       const authStore = useAuthStore();
       const errorData = response.data as unknown as Api.ErrorResponse;
-      const { errorCode, statusCode } = extractErrorCodes(errorData);
+      const errorCode = extractErrorCode(errorData);
       const expiredTokenCodes = getExpiredTokenCodes();
       const logoutCodes = getLogoutCodes();
       const modalLogoutCodes = getModalLogoutCodes();
-      const responseCode = errorCode ?? statusCode;
+
+      console.log('[Request] onBackendFail triggered:', {
+        errorCode,
+        expiredTokenCodes,
+        url: response.config.url,
+        status: response.status,
+        message: errorData.message
+      });
 
       const handleLogout = () => authStore.resetStore();
       const logoutAndCleanup = () => {
@@ -122,7 +135,7 @@ export const request = createFlatRequest<App.Service.Response, RequestInstanceSt
       };
 
       // 1. 尝试刷新 token
-      if (errorCode && expiredTokenCodes.includes(errorCode)) {
+      if (expiredTokenCodes.includes(errorCode)) {
         console.log('[Token Refresh] 检测到 token 过期，开始刷新 token，errorCode:', errorCode);
         const success = await handleExpiredRequest(request.state);
         if (success) {
@@ -134,10 +147,11 @@ export const request = createFlatRequest<App.Service.Response, RequestInstanceSt
       }
 
       // 2. 处理需要登出的错误码
+      // 认证相关错误码 (1200-1299)，除了可刷新的 token 过期错误
+      const authErrorCodes = ['1200', '1201', '1203', '1204', '1205', '1206', '1207'];
       const shouldLogout =
-        (errorCode && !expiredTokenCodes.includes(errorCode)) ||
-        (!errorCode && statusCode === '401') ||
-        logoutCodes.includes(responseCode);
+        !expiredTokenCodes.includes(errorCode) &&
+        (authErrorCodes.includes(errorCode) || logoutCodes.includes(errorCode));
 
       if (shouldLogout) {
         handleLogout();
@@ -145,7 +159,7 @@ export const request = createFlatRequest<App.Service.Response, RequestInstanceSt
       }
 
       // 3. 处理需要显示模态框的错误码
-      if (modalLogoutCodes.includes(responseCode) && !request.state.errMsgStack?.includes(response.data.message)) {
+      if (modalLogoutCodes.includes(errorCode) && !request.state.errMsgStack?.includes(response.data.message)) {
         request.state.errMsgStack = [...(request.state.errMsgStack || []), response.data.message];
         window.addEventListener('beforeunload', handleLogout);
 
@@ -170,27 +184,26 @@ export const request = createFlatRequest<App.Service.Response, RequestInstanceSt
     onError(error) {
       let message = error.message;
       let errorCode: string | null = null;
-      let statusCode = '';
 
       // 提取错误信息
       if (error.response?.data) {
         const errorData = error.response.data as unknown as Api.ErrorResponse;
-        if (errorData && 'statusCode' in errorData && 'message' in errorData) {
+        if (errorData && 'code' in errorData && 'message' in errorData) {
           message = errorData.message || message;
-          ({ errorCode, statusCode } = extractErrorCodes(errorData));
+          errorCode = extractErrorCode(errorData);
         }
       }
 
       // 判断是否应该显示错误消息
       const expiredTokenCodes = getExpiredTokenCodes();
       const modalLogoutCodes = getModalLogoutCodes();
-      const responseCode = errorCode ?? statusCode;
 
+      // 认证相关错误码 (1200-1299)，除了可刷新的 token 过期错误
+      const authErrorCodes = ['1200', '1201', '1203', '1204', '1205', '1206', '1207'];
       const shouldSuppressError =
         (errorCode && expiredTokenCodes.includes(errorCode)) || // token 已自动刷新
-        (errorCode && !expiredTokenCodes.includes(errorCode)) || // 已登出
-        (!errorCode && statusCode === '401') || // 已登出
-        modalLogoutCodes.includes(responseCode); // 错误消息已在模态框中显示
+        (errorCode && authErrorCodes.includes(errorCode)) || // 已登出
+        (errorCode && modalLogoutCodes.includes(errorCode)); // 错误消息已在模态框中显示
 
       if (shouldSuppressError) {
         return;

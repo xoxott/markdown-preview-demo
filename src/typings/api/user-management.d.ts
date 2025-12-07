@@ -79,8 +79,8 @@ declare namespace Api {
       isActive: boolean;
     }
 
-    /** User list response */
-    type UserListResponse = ListResponse<User>;
+    /** User list response (after transformBackendResponse) */
+    type UserListResponse = ListData<User>;
 
     /** User detail response */
     type UserDetailResponse = User;
@@ -114,8 +114,8 @@ declare namespace Api {
       user: User;
     }
 
-    /** Role list response */
-    type RoleListResponse = ListResponse<Role>;
+    /** Role list response (after transformBackendResponse) */
+    type RoleListResponse = ListData<Role>;
   }
 }
 

@@ -58,7 +58,7 @@ declare namespace Api {
     }
 
     /** Role list response */
-    type RoleListResponse = ListResponse<Role>;
+    type RoleListResponse = ListData<Role>;
 
     /** Role detail response */
     type RoleDetailResponse = Role;

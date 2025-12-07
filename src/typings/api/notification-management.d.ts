@@ -89,7 +89,7 @@ declare namespace Api {
     }
 
     /** Notification list response */
-    type NotificationListResponse = ListResponse<Notification>;
+    type NotificationListResponse = ListData<Notification>;
 
     /** Notification detail response */
     type NotificationDetailResponse = Notification;

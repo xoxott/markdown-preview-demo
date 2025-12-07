@@ -10,9 +10,9 @@ type TableData = NaiveUI.TableData;
 type GetTableData<A extends NaiveUI.TableApiFn> = NaiveUI.GetTableData<A>;
 type TableColumn<T> = NaiveUI.TableColumn<T>;
 
-// ListResponse data type (after transformBackendResponse)
-// transformBackendResponse returns response.data.data, which is ListResponse['data']
-type ListResponseData<T> = Api.ListResponse<T>['data'];
+// After transformBackendResponse, we get ListData<T> (not the full ListResponse)
+// transformBackendResponse returns response.data.data, which is { lists: T[], meta: {...} }
+type ListResponseData<T> = Api.ListData<T>;
 
 export function useTable<A extends NaiveUI.TableApiFn>(config: NaiveUI.NaiveTableConfig<A>) {
   const scope = effectScope();
@@ -42,15 +42,15 @@ export function useTable<A extends NaiveUI.TableApiFn>(config: NaiveUI.NaiveTabl
     apiParams,
     columns: config.columns,
     transformer: res => {
-      // New ListResponse format: { lists: [], total, page, limit, totalPages }
+      // New ListResponse format: { lists: [], meta: { page, limit, total, totalPages, hasPrevPage, hasNextPage } }
       // After transformBackendResponse, res.data is the inner data object (ListResponse['data'])
       // transformBackendResponse returns response.data.data, so res.data is ListResponse['data']
       const responseData = (res.data as unknown) as ListResponseData<GetTableData<A>>;
 
       const records: GetTableData<A>[] = responseData?.lists || [];
-      const page = responseData?.page || 1;
-      const limit = responseData?.limit || 10;
-      const total = responseData?.total || 0;
+      const page = responseData?.meta?.page || 1;
+      const limit = responseData?.meta?.limit || 10;
+      const total = responseData?.meta?.total || 0;
 
       // Ensure that the limit is greater than 0, If it is less than 0, it will cause paging calculation errors.
       const pageSize = limit <= 0 ? 10 : limit;

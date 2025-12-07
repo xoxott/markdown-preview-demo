@@ -32,9 +32,9 @@ async function handleRefreshToken() {
       if (error.response?.data) {
         const errorData = error.response.data as unknown as Api.ErrorResponse;
         console.error('[Token Refresh] 错误详情:', {
-          statusCode: errorData.statusCode,
-          errorCode: errorData.errorCode,
-          message: errorData.message
+          code: errorData.code,
+          message: errorData.message,
+          details: errorData.details
         });
       }
       resetStore();

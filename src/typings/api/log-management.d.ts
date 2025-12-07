@@ -68,7 +68,7 @@ declare namespace Api {
     }
 
     /** Log list response */
-    type LogListResponse = ListResponse<Log>;
+    type LogListResponse = ListData<Log>;
 
     /** Log detail response */
     type LogDetailResponse = Log;

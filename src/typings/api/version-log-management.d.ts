@@ -83,7 +83,7 @@ declare namespace Api {
     }
 
     /** Version log list response */
-    type VersionLogListResponse = ListResponse<VersionLog>;
+    type VersionLogListResponse = ListData<VersionLog>;
 
     /** Version log detail response */
     type VersionLogDetailResponse = VersionLog;

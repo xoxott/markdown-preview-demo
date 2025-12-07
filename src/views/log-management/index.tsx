@@ -280,7 +280,7 @@ export default defineComponent({
       getData,
       updateSearchParams,
       resetSearchParams
-    } = useTable({
+    } = useTable<typeof fetchLogList>({
         apiFn: fetchLogList,
         apiParams: {
           page: 1,

@@ -32,33 +32,45 @@ declare namespace Env {
      * success code of backend service
      *
      * when the code is received, the request is successful
+     * @example "200,201"
      */
     readonly VITE_SERVICE_SUCCESS_CODE: string;
     /**
-     * logout codes of backend service (business error codes only, e.g. errorCode)
+     * logout codes of backend service (business error codes only)
      *
-     * when the errorCode is received, the user will be logged out and redirected to login page
+     * when the code is received, the user will be logged out immediately and redirected to login page
      *
-     * Note: Only configure business error codes (errorCode), not HTTP status codes (statusCode)
+     * Note: Only configure business error codes (code field), not HTTP status codes
+     * @example "1200,1201,1203,1204,1205"
+     * - 1200: AUTHENTICATION_FAILED
+     * - 1201: INVALID_CREDENTIALS
+     * - 1203: TOKEN_INVALID
+     * - 1204: TOKEN_REVOKED
+     * - 1205: SESSION_EXPIRED
      * use "," to separate multiple codes
      */
     readonly VITE_SERVICE_LOGOUT_CODES: string;
     /**
-     * modal logout codes of backend service (business error codes only, e.g. errorCode)
+     * modal logout codes of backend service (business error codes only)
      *
-     * when the errorCode is received, the user will be logged out by displaying a modal
+     * when the code is received, the user will be logged out by displaying a modal first
      *
-     * Note: Only configure business error codes (errorCode), not HTTP status codes (statusCode)
+     * Note: Only configure business error codes (code field), not HTTP status codes
+     * @example "1206,1207,2000"
+     * - 1206: ACCOUNT_LOCKED
+     * - 1207: ACCOUNT_DISABLED
+     * - 2000: ACCOUNT_BLACKLISTED
      * use "," to separate multiple codes
      */
     readonly VITE_SERVICE_MODAL_LOGOUT_CODES: string;
     /**
-     * token expired codes of backend service (business error codes only, e.g. errorCode)
+     * token expired codes of backend service (business error codes only)
      *
-     * when the errorCode is received, it will refresh the token and resend the request
+     * when the code is received, it will refresh the token and resend the request
      *
-     * Note: Only configure business error codes (errorCode), not HTTP status codes (statusCode)
-     * Example: "40101" means token expired but can be refreshed
+     * Note: Only configure business error codes (code field), not HTTP status codes
+     * @example "1202"
+     * - 1202: TOKEN_EXPIRED (Access token has expired but can be refreshed)
      * use "," to separate multiple codes
      */
     readonly VITE_SERVICE_EXPIRED_TOKEN_CODES: string;

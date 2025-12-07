@@ -29,7 +29,7 @@ declare namespace NaiveUI {
 
   type TableApiFn<T = any, R = Api.Common.PaginationParams> = (
     params: R
-  ) => Promise<FlatResponseData<ExtractResponseData<Api.ListResponse<T>>>>;
+  ) => Promise<FlatResponseData<Api.ListData<T>>>;
 
   /**
    * the type of table operation
@@ -40,9 +40,7 @@ declare namespace NaiveUI {
   type TableOperateType = 'add' | 'edit';
 
   type GetTableData<A extends TableApiFn> = A extends TableApiFn<infer T>
-    ? ExtractResponseData<Api.ListResponse<T>> extends { lists: (infer U)[] }
-      ? U
-      : never
+    ? T
     : never;
 
   type NaiveTableConfig<A extends TableApiFn> = Pick<

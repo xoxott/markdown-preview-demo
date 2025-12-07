@@ -11,8 +11,8 @@ declare namespace Api {
   interface Response<T = any> {
     /** Response data */
     data: T;
-    /** HTTP status code */
-    statusCode: number;
+    /** Business status code (200=success, 201=created, 1xxx-5xxx=error) */
+    code: number;
     /** Response message (default "Success") */
     message: string;
     /** Timestamp (ISO format) */
@@ -20,26 +20,42 @@ declare namespace Api {
   }
 
   /**
-   * Unified list response format
+   * List data format (after transformBackendResponse)
+   * This is what you get from request<ListResponse<T>>().data
+   *
+   * @template T Item type in lists array
+   */
+  interface ListData<T = any> {
+    /** Data list */
+    lists: T[];
+    /** Pagination metadata */
+    meta: {
+      /** Current page */
+      page: number;
+      /** Items per page */
+      limit: number;
+      /** Total count */
+      total: number;
+      /** Total pages */
+      totalPages: number;
+      /** Whether has previous page */
+      hasPrevPage: boolean;
+      /** Whether has next page */
+      hasNextPage: boolean;
+    };
+  }
+
+  /**
+   * Unified list response format (raw API response)
+   * After transformBackendResponse, you get ListData<T>
    *
    * @template T Item type in lists array
    */
   interface ListResponse<T = any> {
     /** Response data */
-    data: {
-      /** Data list */
-      lists: T[];
-      /** Total count */
-      total: number;
-      /** Current page */
-      page: number;
-      /** Items per page */
-      limit: number;
-      /** Total pages */
-      totalPages: number;
-    };
-    /** HTTP status code */
-    statusCode: number;
+    data: ListData<T>;
+    /** Business status code (200=success, 201=created, 1xxx-5xxx=error) */
+    code: number;
     /** Response message */
     message: string;
     /** Timestamp (ISO format) */
@@ -75,19 +91,17 @@ declare namespace Api {
    * Error response format
    */
   interface ErrorResponse {
-    /** HTTP status code */
-    statusCode: number;
-    /** Error code (more specific than statusCode, e.g. 40101 for token expired) */
-    errorCode?: number;
+    /** Business error code (1xxx-5xxx range) */
+    code: number;
     /** Error message */
     message: string;
+    /** Error details */
+    details?: Record<string, any>;
     /** Timestamp (ISO format) */
     timestamp: string;
     /** Request path */
-    path: string;
-    /** HTTP method */
-    method: string;
-    /** Error type */
+    path?: string;
+    /** Error type (optional) */
     error?: string;
   }
 

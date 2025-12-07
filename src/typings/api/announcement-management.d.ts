@@ -73,7 +73,7 @@ declare namespace Api {
     }
 
     /** Announcement list response */
-    type AnnouncementListResponse = ListResponse<Announcement>;
+    type AnnouncementListResponse = ListData<Announcement>;
 
     /** Announcement detail response */
     type AnnouncementDetailResponse = Announcement;

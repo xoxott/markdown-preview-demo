@@ -90,7 +90,7 @@ declare namespace Api {
     }
 
     /** Permission list response */
-    type PermissionListResponse = ListResponse<Permission>;
+    type PermissionListResponse = ListData<Permission>;
 
     /** Permission tree response */
     interface PermissionTreeResponse {
