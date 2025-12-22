@@ -14,7 +14,16 @@ export default defineConfig(configEnv => {
   return {
     base: viteEnv.VITE_BASE_URL,
     optimizeDeps: {
-      exclude: ['@vue/repl']
+      exclude: ['@vue/repl'],
+      // 预构建常用依赖
+      include: [
+        'vue',
+        'vue-router',
+        'pinia',
+        '@vueuse/core',
+        'dayjs',
+        'axios'
+      ]
     },
     resolve: {
       alias: {
@@ -50,7 +59,41 @@ export default defineConfig(configEnv => {
       sourcemap: viteEnv.VITE_SOURCE_MAP === 'Y',
       commonjsOptions: {
         ignoreTryCatch: false
-      }
+      },
+      // 代码分割优化
+      rollupOptions: {
+        output: {
+          // 分离第三方库
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              // 大型库单独分包
+              if (id.includes('naive-ui')) {
+                return 'naive-ui';
+              }
+              if (id.includes('echarts')) {
+                return 'echarts';
+              }
+              if (id.includes('monaco-editor')) {
+                return 'monaco-editor';
+              }
+              if (id.includes('@vueuse')) {
+                return 'vueuse';
+              }
+              if (id.includes('vue') || id.includes('pinia') || id.includes('vue-router')) {
+                return 'vue-vendor';
+              }
+              // 其他第三方库
+              return 'vendor';
+            }
+          },
+          // 优化 chunk 文件名
+          chunkFileNames: 'js/[name]-[hash].js',
+          entryFileNames: 'js/[name]-[hash].js',
+          assetFileNames: '[ext]/[name]-[hash].[ext]'
+        }
+      },
+      // 设置 chunk 大小警告限制
+      chunkSizeWarningLimit: 1000
     }
   };
 });

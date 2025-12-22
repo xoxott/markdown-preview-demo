@@ -6,12 +6,10 @@
 import type { RouteComponent } from "vue-router";
 import type { LastLevelRouteKey, RouteLayout } from "@elegant-router/types";
 
-import BaseLayout from "@/layouts/base-layout/index.vue";
-import BlankLayout from "@/layouts/blank-layout/index.vue";
-
+// 懒加载布局组件以提升性能
 export const layouts: Record<RouteLayout, RouteComponent | (() => Promise<RouteComponent>)> = {
-  base: BaseLayout,
-  blank: BlankLayout,
+  base: () => import("@/layouts/base-layout/index.vue"),
+  blank: () => import("@/layouts/blank-layout/index.vue"),
 };
 
 export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<RouteComponent>)> = {
