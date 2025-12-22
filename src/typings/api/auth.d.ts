@@ -126,6 +126,30 @@ declare namespace Api {
     interface LogoutResponse {
       message: string;
     }
+
+    /** Email code login request */
+    interface EmailCodeLoginRequest {
+      email: string;
+      code: string;
+    }
+
+    /** Email code login response */
+    interface EmailCodeLoginResponse {
+      accessToken: string;
+      refreshToken: string;
+      expiresIn: number;
+      user: UserInfo;
+    }
+
+    /** Send login code request */
+    interface SendLoginCodeRequest {
+      email: string;
+    }
+
+    /** Send login code response */
+    interface SendLoginCodeResponse {
+      message: string;
+    }
   }
 }
 

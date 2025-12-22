@@ -214,7 +214,10 @@ const local: App.I18n.Schema = {
         getCode: '获取验证码',
         reGetCode: '{time}秒后重新获取',
         sendCodeSuccess: '验证码发送成功',
-        imageCodePlaceholder: '请输入图片验证码'
+        imageCodePlaceholder: '请输入图片验证码',
+        emailPlaceholder: '请输入邮箱地址',
+        emailRequired: '请输入邮箱地址',
+        emailFormatError: '邮箱格式不正确'
       },
       register: {
         title: '注册账号',

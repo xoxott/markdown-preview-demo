@@ -214,7 +214,10 @@ const local: App.I18n.Schema = {
         getCode: 'Get verification code',
         reGetCode: 'Reacquire after {time}s',
         sendCodeSuccess: 'Verification code sent successfully',
-        imageCodePlaceholder: 'Please enter image verification code'
+        imageCodePlaceholder: 'Please enter image verification code',
+        emailPlaceholder: 'Please enter email address',
+        emailRequired: 'Please enter email address',
+        emailFormatError: 'Invalid email format'
       },
       register: {
         title: 'Register',

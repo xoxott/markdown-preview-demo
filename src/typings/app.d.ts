@@ -447,6 +447,9 @@ declare namespace App {
             reGetCode: string;
             sendCodeSuccess: string;
             imageCodePlaceholder: string;
+            emailPlaceholder: string;
+            emailRequired: string;
+            emailFormatError: string;
           };
           register: {
             title: string;

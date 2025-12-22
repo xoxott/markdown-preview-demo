@@ -9,7 +9,9 @@ import {
   fetchRegister,
   fetchResetPassword,
   fetchSendRegistrationCode,
-  fetchSendResetPasswordCode
+  fetchSendResetPasswordCode,
+  fetchSendLoginCode,
+  fetchEmailCodeLogin
 } from '@/service/api';
 import { localStg } from '@/utils/storage';
 import { useLoading } from '@sa/hooks';
@@ -411,6 +413,77 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     }
   }
 
+  /**
+   * Send login verification code
+   *
+   * @param email Email address
+   */
+  async function sendLoginCode(email: string) {
+    const { data, error } = await fetchSendLoginCode(email);
+    return { data, error };
+  }
+
+  /**
+   * Email code login
+   *
+   * @param email Email address
+   * @param code Verification code
+   */
+  async function codeLogin(email: string, code: string) {
+    startLoading();
+    const { data, error } = await fetchEmailCodeLogin(email, code);
+    endLoading();
+
+    if (error || !data) {
+      return false;
+    }
+
+    const loginToken: Api.Auth.LoginToken = {
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+      expiresIn: data.expiresIn
+    };
+
+    // Update user info from response
+    // Extract role codes from roles array for compatibility
+    const roleCodes = data.user.roles?.map(role => role.code) || [];
+    const firstRoleCode = roleCodes[0] || '';
+
+    Object.assign(userInfo, {
+      id: data.user.id,
+      username: data.user.username,
+      email: data.user.email,
+      avatar: data.user.avatar,
+      isActive: data.user.isActive,
+      lastLoginAt: data.user.lastLoginAt,
+      lastActivityAt: data.user.lastActivityAt,
+      isOnline: data.user.isOnline,
+      createdAt: data.user.createdAt,
+      updatedAt: data.user.updatedAt,
+      roles: data.user.roles,
+      role: firstRoleCode,
+      buttons: data.user.buttons || []
+    });
+
+    // Skip getUserInfo since we already have user info from login response
+    const pass = await loginByToken(loginToken, true);
+
+    if (pass) {
+      const isClear = checkTabClear();
+      await redirectFromLogin(!isClear);
+
+      window.$notification?.success({
+        title: $t('page.login.common.loginSuccess'),
+        content: $t('page.login.common.welcomeBack', { userName: userInfo.username }),
+        duration: 4500
+      });
+
+      return true;
+    }
+
+    return false;
+  }
+
   return {
     token,
     userInfo,
@@ -427,6 +500,8 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     sendRegistrationCode,
     sendResetPasswordCode,
     resetPassword,
+    sendLoginCode,
+    codeLogin,
     initUserInfo
   };
 });

@@ -12,6 +12,8 @@ import WaveBg from '@/components/custom/wave-bg.vue';
 // @ts-ignore - TSX module resolution
 import PwdLogin from './modules/pwd-login';
 // @ts-ignore - TSX module resolution
+import CodeLogin from './modules/code-login';
+// @ts-ignore - TSX module resolution
 import Register from './modules/register';
 import ResetPwd from './modules/reset-pwd';
 
@@ -20,7 +22,7 @@ interface Props {
   module?: UnionKey.LoginModule;
 }
 
-type LoginComponent = typeof PwdLogin | typeof Register | typeof ResetPwd;
+type LoginComponent = typeof PwdLogin | typeof CodeLogin | typeof Register | typeof ResetPwd;
 
 interface LoginModuleConfig {
   label: App.I18n.I18nKey;
@@ -35,7 +37,7 @@ const loginModuleMap: Record<UnionKey.LoginModule, LoginModuleConfig> = {
   },
   'code-login': {
     label: loginModuleRecord['code-login'],
-    component: PwdLogin // TODO: 添加验证码登录组件
+    component: CodeLogin
   },
   register: {
     label: loginModuleRecord.register,
@@ -74,9 +76,26 @@ export default defineComponent({
 
     const bgColor = computed(() => {
       const COLOR_WHITE = '#ffffff';
-      const ratio = themeStore.darkMode ? 0.5 : 0.2;
-      return mixColor(COLOR_WHITE, themeStore.themeColor, ratio);
+      const COLOR_DARK = '#0f172a';
+      const ratio = themeStore.darkMode ? 0.8 : 0.15;
+      const baseColor = themeStore.darkMode ? COLOR_DARK : COLOR_WHITE;
+      return mixColor(baseColor, themeStore.themeColor, ratio);
     });
+
+    // 毛玻璃卡片样式
+    const cardStyle = computed(() => ({
+      background: themeStore.darkMode
+        ? 'rgba(30, 41, 59, 0.75)'
+        : 'rgba(255, 255, 255, 0.75)',
+      backdropFilter: 'blur(20px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+      border: themeStore.darkMode
+        ? '1px solid rgba(148, 163, 184, 0.1)'
+        : '1px solid rgba(255, 255, 255, 0.3)',
+      boxShadow: themeStore.darkMode
+        ? '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
+        : '0 8px 32px 0 rgba(31, 38, 135, 0.15)'
+    }));
 
     return () => (
       <div
@@ -84,45 +103,61 @@ export default defineComponent({
         style={{ backgroundColor: bgColor.value }}
       >
         <WaveBg themeColor={bgThemeColor.value} />
-        <NCard bordered={false} class="relative z-4 w-auto rd-12px">
-          <div class="w-400px lt-sm:w-300px">
-            <header class="flex-y-center justify-between">
-              <SystemLogo class="text-64px text-primary lt-sm:text-48px" />
-              <h3 class="text-28px text-primary font-500 lt-sm:text-22px">{$t('system.title')}</h3>
-              <div class="i-flex-col">
-                <ThemeSchemaSwitch
-                  themeSchema={themeStore.themeScheme}
-                  showTooltip={false}
-                  class="text-20px lt-sm:text-18px"
-                  onSwitch={themeStore.toggleThemeScheme}
-                />
-                {themeStore.header.multilingual.visible && (
-                  <LangSwitch
-                    lang={appStore.locale}
-                    langOptions={appStore.localeOptions}
-                    showTooltip={false}
-                    onChangeLang={appStore.changeLocale}
-                  />
-                )}
+
+        {/* 毛玻璃登录卡片 */}
+        <div
+          class="relative z-4 w-auto rd-12px p-24px lt-sm:p-16px shadow-2xl"
+          style={cardStyle.value}
+        >
+          {/* 主题和语言切换 - 右上角 */}
+          <div class="absolute top-16px right-16px flex items-center gap-8px lt-sm:(top-12px right-12px gap-6px)">
+            <ThemeSchemaSwitch
+              themeSchema={themeStore.themeScheme}
+              showTooltip={false}
+              class="text-18px lt-sm:text-16px cursor-pointer hover:text-primary transition-colors opacity-70 hover:opacity-100"
+              onSwitch={themeStore.toggleThemeScheme}
+            />
+            {themeStore.header.multilingual.visible && (
+              <LangSwitch
+                lang={appStore.locale}
+                langOptions={appStore.localeOptions}
+                showTooltip={false}
+                class="cursor-pointer opacity-70 hover:opacity-100"
+                onChangeLang={appStore.changeLocale}
+              />
+            )}
+          </div>
+
+          <div class="w-360px lt-sm:w-280px">
+            {/* 头部 - Logo和标题 */}
+            <header class="flex-col items-center mb-16px">
+              <div class="flex items-center justify-center mb-6px">
+                <SystemLogo class="text-48px text-primary lt-sm:text-40px" />
               </div>
+              <h3 class="text-20px text-primary font-600 text-center mb-3px lt-sm:text-18px">
+                {$t('system.title')}
+              </h3>
+              {/* <p class="text-12px text-gray-500 dark:text-gray-400 text-center">
+                {$t(activeModule.value.label)}
+              </p> */}
             </header>
-            <main class="pt-24px">
-              <h3 class="text-18px text-primary font-medium">{$t(activeModule.value.label)}</h3>
-              <div class="pt-24px">
-                <Transition name={themeStore.page.animateMode} mode="out-in" appear>
-                  {{
-                    default: () => {
-                      const Component = activeModule.value.component;
-                      return <Component />;
-                    }
-                  }}
-                </Transition>
-              </div>
+
+            {/* 表单内容 */}
+            <main>
+              <Transition name={themeStore.page.animateMode} mode="out-in" appear>
+                {{
+                  default: () => {
+                    const Component = activeModule.value.component;
+                    return <Component />;
+                  }
+                }}
+              </Transition>
             </main>
           </div>
-        </NCard>
+        </div>
       </div>
     );
   }
 });
+
 

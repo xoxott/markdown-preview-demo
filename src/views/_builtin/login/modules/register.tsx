@@ -93,64 +93,106 @@ export default defineComponent({
           size="large"
           showLabel={false}
         >
-        <NFormItem path="username">
+        <NFormItem path="username" class="mb-10px">
           <NInput
             value={model.username}
             onUpdateValue={(value) => (model.username = value)}
             placeholder="请输入用户名"
-          />
+            class="h-40px"
+          >
+            {{
+              prefix: () => <div class="i-carbon-user text-16px text-gray-400" />
+            }}
+          </NInput>
         </NFormItem>
-        <NFormItem path="email">
+        <NFormItem path="email" class="mb-10px">
           <NInput
             value={model.email}
             onUpdateValue={(value) => (model.email = value)}
             placeholder="请输入邮箱地址"
-          />
+            class="h-40px"
+          >
+            {{
+              prefix: () => <div class="i-carbon-email text-16px text-gray-400" />
+            }}
+          </NInput>
         </NFormItem>
-        <NFormItem path="verificationCode">
-          <div class="w-full flex-y-center gap-12px">
+        <NFormItem path="verificationCode" class="mb-10px">
+          <div class="w-full flex-y-center gap-8px">
             <NInput
               value={model.verificationCode}
               onUpdateValue={(value) => (model.verificationCode = value)}
               placeholder="请输入验证码"
               maxlength={6}
-              class="flex-1"
-            />
+              class="flex-1 h-40px"
+            >
+              {{
+                prefix: () => <div class="i-carbon-password text-16px text-gray-400" />
+              }}
+            </NInput>
             <NButton
               size="large"
+              secondary
               disabled={isCounting.value}
               loading={loading.value}
               onClick={handleSendCode}
-              class="whitespace-nowrap"
+              class="whitespace-nowrap w-110px h-40px text-12px"
             >
               {label.value}
             </NButton>
           </div>
         </NFormItem>
-        <NFormItem path="password">
+        <NFormItem path="password" class="mb-10px">
           <NInput
             value={model.password}
             onUpdateValue={(value) => (model.password = value)}
             type="password"
             showPasswordOn="click"
             placeholder={$t('page.login.common.passwordPlaceholder')}
-          />
+            class="h-40px"
+          >
+            {{
+              prefix: () => <div class="i-carbon-locked text-16px text-gray-400" />
+            }}
+          </NInput>
         </NFormItem>
-        <NFormItem path="confirmPassword">
+        <NFormItem path="confirmPassword" class="mb-10px">
           <NInput
             value={model.confirmPassword}
             onUpdateValue={(value) => (model.confirmPassword = value)}
             type="password"
             showPasswordOn="click"
             placeholder={$t('page.login.common.confirmPasswordPlaceholder')}
-          />
+            class="h-40px"
+          >
+            {{
+              prefix: () => <div class="i-carbon-locked text-16px text-gray-400" />
+            }}
+          </NInput>
         </NFormItem>
-        <NSpace vertical size={18} class="w-full">
-          <NButton type="primary" size="large" round block onClick={handleSubmit}>
+        <NSpace vertical size={8} class="w-full">
+          <NButton 
+            type="primary" 
+            size="large" 
+            round 
+            block 
+            onClick={handleSubmit}
+            class="h-40px text-14px font-500 shadow-lg hover:shadow-xl transition-all"
+          >
             {$t('common.confirm')}
           </NButton>
-          <NButton size="large" round block onClick={() => toggleLoginModule('pwd-login')}>
-            {$t('page.login.common.back')}
+          <NButton 
+            size="large" 
+            round 
+            block 
+            secondary
+            onClick={() => toggleLoginModule('pwd-login')}
+            class="h-36px"
+          >
+            <div class="flex items-center justify-center gap-4px text-13px">
+              <div class="i-carbon-arrow-left text-15px" />
+              <span>{$t('page.login.common.back')}</span>
+            </div>
           </NButton>
         </NSpace>
       </NForm>

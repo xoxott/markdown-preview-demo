@@ -136,3 +136,35 @@ export function fetchResetPassword(email: string, code: string, newPassword: str
     }
   });
 }
+
+/**
+ * Send login verification code
+ *
+ * @param email Email address
+ */
+export function fetchSendLoginCode(email: string) {
+  return request<Api.Auth.SendLoginCodeResponse>({
+    url: '/api/admin/auth/send-login-code',
+    method: 'post',
+    data: {
+      email
+    } satisfies Api.Auth.SendLoginCodeRequest
+  });
+}
+
+/**
+ * Email code login
+ *
+ * @param email Email address
+ * @param code Verification code
+ */
+export function fetchEmailCodeLogin(email: string, code: string) {
+  return request<Api.Auth.EmailCodeLoginResponse>({
+    url: '/api/admin/auth/email-code-login',
+    method: 'post',
+    data: {
+      email,
+      code
+    } satisfies Api.Auth.EmailCodeLoginRequest
+  });
+}
