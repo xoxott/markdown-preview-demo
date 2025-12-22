@@ -24,6 +24,9 @@ import {
   NSpace,
   NSwitch,
   NTag,
+  NPopover,
+  NText,
+  NBadge,
   useMessage
 } from 'naive-ui';
 import { computed, defineComponent, getCurrentInstance, onMounted, reactive, ref } from 'vue';
@@ -178,55 +181,101 @@ export default defineComponent({
     }
 
     // 创建表格列
-    function createColumns() {
+    function createColumns(): any[] {
       return [
         {
           type: 'selection',
-          width: 50
+          width: 50,
+          fixed: 'left'
         },
         {
           title: $t('common.index'),
           key: 'index',
-          width: 80
+          width: 70,
+          fixed: 'left',
+          render: (_row: User, index: number) => {
+            return ((pagination.page || 1) - 1) * (pagination.pageSize || 10) + index + 1;
+          }
         },
         {
           title: $t('page.userManagement.username'),
           key: 'username',
-          width: 150
+          width: 140,
+          fixed: 'left',
+          ellipsis: {
+            tooltip: true
+          },
+          render: (row: User) => (
+            <NSpace size="small" align="center">
+              <div class="flex items-center gap-6px">
+                {row.avatar ? (
+                  <img src={row.avatar} alt={row.username} class="w-28px h-28px rounded-full object-cover" />
+                ) : (
+                  <div class="w-28px h-28px rounded-full bg-primary text-white flex items-center justify-center text-12px font-500">
+                    {row.username.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <NText strong>{row.username}</NText>
+              </div>
+            </NSpace>
+          )
         },
         {
           title: $t('page.userManagement.email'),
           key: 'email',
-          width: 200
+          width: 200,
+          ellipsis: {
+            tooltip: true
+          }
         },
         {
           title: $t('page.userManagement.role'),
           key: 'roles',
-          width: 200,
+          width: 180,
           render: (row: User) => {
             if (!row.roles || row.roles.length === 0) {
-              return '-';
+              return <NText depth={3}>-</NText>;
+            }
+            if (row.roles.length === 1) {
+              return (
+                <NTag type="info" size="small" round>
+                  {row.roles[0].name}
+                </NTag>
+              );
             }
             return (
-              <NSpace size="small">
-                {row.roles.map((role: Api.UserManagement.Role) => (
-                  <NTag key={role.id} type="info" size="small">
-                    {role.name}
-                  </NTag>
-                ))}
-              </NSpace>
+              <NPopover trigger="hover" placement="top">
+                {{
+                  trigger: () => (
+                    <NBadge value={row.roles.length} type="info">
+                      <NTag type="info" size="small" round>
+                        {row.roles[0].name}
+                      </NTag>
+                    </NBadge>
+                  ),
+                  default: () => (
+                    <NSpace size="small" vertical>
+                      {row.roles.map((role: Api.UserManagement.Role) => (
+                        <NTag key={role.id} type="info" size="small" round>
+                          {role.name}
+                        </NTag>
+                      ))}
+                    </NSpace>
+                  )
+                }}
+              </NPopover>
             );
           }
         },
         {
           title: $t('page.userManagement.status'),
           key: 'isActive',
-          width: 100,
+          width: 90,
           render: (row: User) => (
             <NSwitch
               value={row.isActive}
               onUpdateValue={value => handleToggleStatus(row.id, value)}
-              loading={false}
+              size="small"
             />
           )
         },
@@ -235,51 +284,118 @@ export default defineComponent({
           key: 'isOnline',
           width: 100,
           render: (row: User) => (
-            <NTag type={row.isOnline ? 'success' : 'default'} size="small">
-              {row.isOnline ? $t('page.userManagement.online') : $t('page.userManagement.offline')}
-            </NTag>
+            <div class="flex items-center gap-6px">
+              <div class={`w-6px h-6px rounded-full ${row.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
+              <NText depth={row.isOnline ? 1 : 3}>
+                {row.isOnline ? $t('page.userManagement.online') : $t('page.userManagement.offline')}
+              </NText>
+            </div>
           )
         },
         {
           title: $t('page.userManagement.blacklistStatus' as any),
           key: 'isBlacklisted',
-          width: 120,
-          render: (row: User) => (
-            <NTag type={row.isBlacklisted ? 'error' : 'success'} size="small">
-              {row.isBlacklisted ? $t('page.userManagement.blacklisted' as any) : $t('page.userManagement.notBlacklisted' as any)}
-            </NTag>
-          )
-        },
-        {
-          title: $t('page.userManagement.createdAt'),
-          key: 'createdAt',
-          width: 200,
+          width: 100,
           render: (row: User) => {
-            if (!row.createdAt) return '-';
-            return new Date(row.createdAt).toLocaleString('zh-CN');
+            if (row.isBlacklisted) {
+              return (
+                <NPopover trigger="hover" placement="top">
+                  {{
+                    trigger: () => (
+                      <NTag type="error" size="small" round>
+                        {$t('page.userManagement.blacklisted' as any)}
+                      </NTag>
+                    ),
+                    default: () => (
+                      <div class="max-w-300px">
+                        {row.blacklistReason && (
+                          <div class="mb-4px">
+                            <NText strong>原因: </NText>
+                            <NText>{row.blacklistReason}</NText>
+                          </div>
+                        )}
+                        {row.blacklistedAt && (
+                          <div>
+                            <NText depth={3} class="text-12px">
+                              {new Date(row.blacklistedAt).toLocaleString('zh-CN')}
+                            </NText>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  }}
+                </NPopover>
+              );
+            }
+            return (
+              <NTag type="success" size="small" round>
+                {$t('page.userManagement.notBlacklisted' as any)}
+              </NTag>
+            );
           }
         },
         {
           title: $t('page.userManagement.lastLoginAt'),
           key: 'lastLoginAt',
-          width: 200,
+          width: 160,
           render: (row: User) => {
-            if (!row.lastLoginAt) return '-';
-            return new Date(row.lastLoginAt).toLocaleString('zh-CN');
+            if (!row.lastLoginAt) return <NText depth={3}>从未登录</NText>;
+            const date = new Date(row.lastLoginAt);
+            const now = new Date();
+            const diff = now.getTime() - date.getTime();
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+            if (days === 0) {
+              return <NText type="success">{date.toLocaleString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</NText>;
+            } else if (days < 7) {
+              return <NText>{days}天前</NText>;
+            }
+            return <NText depth={3}>{date.toLocaleDateString('zh-CN')}</NText>;
+          }
+        },
+        {
+          title: $t('page.userManagement.createdAt'),
+          key: 'createdAt',
+          width: 160,
+          render: (row: User) => {
+            if (!row.createdAt) return '-';
+            return new Date(row.createdAt).toLocaleString('zh-CN', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
           }
         },
         {
           title: $t('common.operate'),
           key: 'action',
-          width: 300,
+          width: 180,
           fixed: 'right',
           render: (row: User) => (
             <NSpace size="small">
-              <NButton size="small" type="primary" onClick={() => handleEdit(row)}>
-                {$t('common.edit')}
+              <NButton
+                size="small"
+                type="primary"
+                secondary
+                onClick={() => handleEdit(row)}
+              >
+                <div class="flex items-center gap-4px">
+                  <div class="i-carbon-edit text-14px" />
+                  <span>{$t('common.edit')}</span>
+                </div>
               </NButton>
-              <NButton size="small" type="error" onClick={() => handleDelete(row)}>
-                {$t('common.delete')}
+              <NButton
+                size="small"
+                type="error"
+                secondary
+                onClick={() => handleDelete(row)}
+              >
+                <div class="flex items-center gap-4px">
+                  <div class="i-carbon-trash-can text-14px" />
+                  <span>{$t('common.delete')}</span>
+                </div>
               </NButton>
             </NSpace>
           )
@@ -365,103 +481,162 @@ export default defineComponent({
     });
 
     return () => (
-      <NSpace vertical size={16}>
+      <div class="h-full flex flex-col gap-16px overflow-hidden p-16px">
         {/* 搜索栏 */}
-        <NCard>
-          <NForm ref={searchFormRef} model={searchForm} inline>
-            <NFormItem path="search">
-              <NInput
-                v-model:value={searchForm.search}
-                placeholder={$t('page.userManagement.searchPlaceholder')}
-                style={{ width: '200px' }}
-                clearable
-                onKeyup={(e: KeyboardEvent) => {
-                  if (e.key === 'Enter') {
-                    handleSearch();
-                  }
-                }}
-              />
-            </NFormItem>
-            <NFormItem path="isActive">
-              <NSelect
-                v-model:value={searchForm.isActive}
-                placeholder={$t('page.userManagement.statusPlaceholder')}
-                style={{ width: '120px' }}
-                clearable
-                options={[
-                  { label: $t('page.userManagement.active'), value: true as any },
-                  { label: $t('page.userManagement.inactive'), value: false as any }
-                ]}
-              />
-            </NFormItem>
-            <NFormItem path="isOnline">
-              <NSelect
-                v-model:value={searchForm.isOnline}
-                placeholder={$t('page.userManagement.onlineStatusPlaceholder')}
-                style={{ width: '120px' }}
-                clearable
-                options={[
-                  { label: $t('page.userManagement.online'), value: true as any },
-                  { label: $t('page.userManagement.offline'), value: false as any }
-                ]}
-              />
-            </NFormItem>
-            <NFormItem path="isBlacklisted">
-              <NSelect
-                v-model:value={searchForm.isBlacklisted}
-                placeholder={$t('page.userManagement.blacklistStatusPlaceholder' as any)}
-                style={{ width: '120px' }}
-                clearable
-                options={[
-                  { label: $t('page.userManagement.blacklisted' as any), value: true as any },
-                  { label: $t('page.userManagement.notBlacklisted' as any), value: false as any }
-                ]}
-              />
-            </NFormItem>
-            <NFormItem>
-              <NSpace>
-                <NButton type="primary" onClick={handleSearch}>
-                  {$t('common.search')}
-                </NButton>
-                <NButton onClick={handleReset}>
-                  {$t('common.reset')}
-                </NButton>
-              </NSpace>
-            </NFormItem>
-          </NForm>
+        <NCard class="flex-shrink-0" bordered={false}>
+          {{
+            default: () => (
+              <NForm ref={searchFormRef} model={searchForm} inline labelPlacement="left">
+                <NFormItem path="search" class="!mb-0">
+                  <NInput
+                    v-model:value={searchForm.search}
+                    placeholder={$t('page.userManagement.searchPlaceholder')}
+                    style={{ width: '220px' }}
+                    clearable
+                    onKeyup={(e: KeyboardEvent) => {
+                      if (e.key === 'Enter') {
+                        handleSearch();
+                      }
+                    }}
+                  >
+                    {{
+                      prefix: () => <div class="i-carbon-search text-16px text-gray-400" />
+                    }}
+                  </NInput>
+                </NFormItem>
+                <NFormItem path="isActive" class="!mb-0">
+                  <NSelect
+                    v-model:value={searchForm.isActive}
+                    placeholder={$t('page.userManagement.statusPlaceholder')}
+                    style={{ width: '130px' }}
+                    clearable
+                    options={[
+                      { label: $t('page.userManagement.active'), value: true as any },
+                      { label: $t('page.userManagement.inactive'), value: false as any }
+                    ]}
+                  />
+                </NFormItem>
+                <NFormItem path="isOnline" class="!mb-0">
+                  <NSelect
+                    v-model:value={searchForm.isOnline}
+                    placeholder={$t('page.userManagement.onlineStatusPlaceholder')}
+                    style={{ width: '130px' }}
+                    clearable
+                    options={[
+                      { label: $t('page.userManagement.online'), value: true as any },
+                      { label: $t('page.userManagement.offline'), value: false as any }
+                    ]}
+                  />
+                </NFormItem>
+                <NFormItem path="isBlacklisted" class="!mb-0">
+                  <NSelect
+                    v-model:value={searchForm.isBlacklisted}
+                    placeholder={$t('page.userManagement.blacklistStatusPlaceholder' as any)}
+                    style={{ width: '130px' }}
+                    clearable
+                    options={[
+                      { label: $t('page.userManagement.blacklisted' as any), value: true as any },
+                      { label: $t('page.userManagement.notBlacklisted' as any), value: false as any }
+                    ]}
+                  />
+                </NFormItem>
+                <NFormItem path="roleCode" class="!mb-0">
+                  <NSelect
+                    v-model:value={searchForm.roleCode}
+                    placeholder="筛选角色"
+                    style={{ width: '130px' }}
+                    clearable
+                    options={roles.value.map(role => ({
+                      label: role.name,
+                      value: role.code
+                    }))}
+                  />
+                </NFormItem>
+                <NFormItem class="!mb-0">
+                  <NSpace size="small">
+                    <NButton type="primary" onClick={handleSearch}>
+                      <div class="flex items-center gap-4px">
+                        <div class="i-carbon-search text-16px" />
+                        <span>{$t('common.search')}</span>
+                      </div>
+                    </NButton>
+                    <NButton onClick={handleReset}>
+                      <div class="flex items-center gap-4px">
+                        <div class="i-carbon-reset text-16px" />
+                        <span>{$t('common.reset')}</span>
+                      </div>
+                    </NButton>
+                  </NSpace>
+                </NFormItem>
+              </NForm>
+            )
+          }}
         </NCard>
 
         {/* 操作栏 */}
-        <NCard>
-          <NSpace>
-            <NButton type="primary" onClick={handleAdd}>
-              {$t('common.add')}
-            </NButton>
-            <NButton type="error" disabled={selectedRowKeys.value.length === 0} onClick={handleBatchDelete}>
-              {$t('common.batchDelete')}
-            </NButton>
-            <NButton onClick={getData}>
-              {$t('common.refresh')}
-            </NButton>
-          </NSpace>
+        <NCard class="flex-shrink-0" bordered={false}>
+          {{
+            default: () => (
+              <div class="flex items-center justify-between">
+                <NSpace size="small">
+                  <NButton type="primary" onClick={handleAdd}>
+                    <div class="flex items-center gap-4px">
+                      <div class="i-carbon-add text-16px" />
+                      <span>{$t('common.add')}</span>
+                    </div>
+                  </NButton>
+                  <NButton
+                    type="error"
+                    disabled={selectedRowKeys.value.length === 0}
+                    onClick={handleBatchDelete}
+                  >
+                    <div class="flex items-center gap-4px">
+                      <div class="i-carbon-trash-can text-16px" />
+                      <span>{$t('common.batchDelete')}</span>
+                      {selectedRowKeys.value.length > 0 && (
+                        <NBadge value={selectedRowKeys.value.length} type="error" />
+                      )}
+                    </div>
+                  </NButton>
+                  <NButton onClick={getData}>
+                    <div class="flex items-center gap-4px">
+                      <div class="i-carbon-renew text-16px" />
+                      <span>{$t('common.refresh')}</span>
+                    </div>
+                  </NButton>
+                </NSpace>
+                <NText depth={3} class="text-13px">
+                  共 {pagination.itemCount || 0} 条数据
+                  {selectedRowKeys.value.length > 0 && `, 已选择 ${selectedRowKeys.value.length} 条`}
+                </NText>
+              </div>
+            )
+          }}
         </NCard>
 
         {/* 表格 */}
-        <NCard>
-          <NDataTable
-            columns={columns.value as any}
-            data={data.value}
-            loading={loading.value}
-            pagination={pagination}
-            rowKey={(row: User) => row.id}
-            checkedRowKeys={selectedRowKeys.value}
-            onUpdateCheckedRowKeys={(keys) => {
-              selectedRowKeys.value = keys as number[];
-            }}
-            scrollX={1800}
-          />
+        <NCard class="flex-1 overflow-hidden" bordered={false} contentStyle={{ height: '100%', padding: 0 }}>
+          {{
+            default: () => (
+              <NDataTable
+                columns={columns.value as any}
+                data={data.value}
+                loading={loading.value}
+                pagination={pagination}
+                rowKey={(row: User) => row.id}
+                checkedRowKeys={selectedRowKeys.value}
+                onUpdateCheckedRowKeys={(keys) => {
+                  selectedRowKeys.value = keys as number[];
+                }}
+                scrollX={1600}
+                maxHeight="100%"
+                striped
+                size="small"
+              />
+            )
+          }}
         </NCard>
-      </NSpace>
+      </div>
     );
   }
 });
