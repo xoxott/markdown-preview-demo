@@ -252,5 +252,28 @@ export const generatedRoutes: GeneratedRoute[] = [
       icon: 'mdi:history',
       order: 11
     }
+  },
+  {
+    name: 'ai-workflow',
+    path: '/ai-workflow',
+    component: 'layout.base$view.ai-workflow',
+    meta: {
+      title: 'ai-workflow',
+      i18nKey: 'route.ai-workflow',
+      icon: 'mdi:workflow',
+      order: 12
+    }
+  },
+  {
+    name: 'ai-workflow-editor',
+    path: '/ai-workflow/editor/:id',
+    component: 'layout.base$view.ai-workflow-editor',
+    props: true,
+    meta: {
+      title: 'ai-workflow-editor',
+      i18nKey: 'route.ai-workflow-editor',
+      hideInMenu: true,
+      activeMenu: 'ai-workflow'
+    }
   }
 ];

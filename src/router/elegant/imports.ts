@@ -35,5 +35,7 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   "notification-management": () => import("@/views/notification-management/index"),
   "alert-management": () => import("@/views/alert-management/index"),
   "log-management": () => import("@/views/log-management/index"),
-  "version-log-management": () => import("@/views/version-log-management/index")
+  "version-log-management": () => import("@/views/version-log-management/index"),
+  "ai-workflow": () => import("@/views/ai-workflow/index"),
+  "ai-workflow-editor": () => import("@/views/ai-workflow/editor/index")
 };

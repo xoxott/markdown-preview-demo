@@ -1,0 +1,377 @@
+// AI Workflow 主题变量
+// 参考 Naive UI 的主题系统设计
+
+// ==================== 颜色系统 ====================
+
+// 主色调
+$primary-color: #2080f0;
+$primary-color-hover: #4098fc;
+$primary-color-pressed: #1060c9;
+$primary-color-suppl: #4098fc;
+
+// 信息色
+$info-color: #2080f0;
+$success-color: #18a058;
+$warning-color: #f0a020;
+$error-color: #d03050;
+
+// 中性色（浅色主题）
+$base-color: #ffffff;
+$base-color-hover: #f5f5f5;
+$body-color: #ffffff;
+$card-color: #ffffff;
+$modal-color: #ffffff;
+$popover-color: #ffffff;
+$tag-color: #f5f5f5;
+$divider-color: #efeff5;
+$border-color: #e0e0e6;
+$table-border-color: #efeff5;
+$action-color: #f5f5f5;
+
+// 文本色（浅色主题）
+$text-color-base: #000000d9;
+$text-color-1: #262626;
+$text-color-2: #525252;
+$text-color-3: #8a8a8a;
+$placeholder-color: #c2c2c2;
+$placeholder-color-disabled: #d8d8d8;
+$icon-color: #8a8a8a;
+$icon-color-hover: #525252;
+$icon-color-pressed: #262626;
+$icon-color-disabled: #c2c2c2;
+
+// 暗色主题
+$dark-base-color: #18181c;
+$dark-card-color: #1e1e20;
+$dark-modal-color: #262628;
+$dark-popover-color: #2c2c2e;
+$dark-divider-color: #3c3c3f;
+$dark-border-color: #3c3c3f;
+$dark-text-color-1: #ffffffd9;
+$dark-text-color-2: #ffffffb3;
+$dark-text-color-3: #ffffff73;
+
+// ==================== 工作流专用颜色 ====================
+
+// 画布
+$canvas-bg: linear-gradient(to bottom right, #f8fafc, #f1f5f9);
+$canvas-bg-dark: linear-gradient(to bottom right, #0f172a, #1e293b);
+
+// 网格
+$grid-color: #e2e8f0;
+$grid-color-dark: #334155;
+$grid-dot-color: #cbd5e1;
+$grid-dot-color-dark: #475569;
+
+// 节点
+$node-bg: linear-gradient(to bottom, #ffffff, #fafafa);
+$node-bg-dark: linear-gradient(to bottom, #262628, #1e1e20);
+$node-border-color: transparent;
+$node-border-color-hover: #e0e0e6;
+$node-border-color-selected: $primary-color;
+$node-border-color-locked: $warning-color;
+$node-border-color-error: $error-color;
+$node-border-color-success: $success-color;
+$node-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+$node-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+$node-shadow-selected: 0 8px 24px rgba(32, 128, 240, 0.25), 0 0 0 4px rgba(32, 128, 240, 0.1);
+$node-shadow-dark: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+// 端口
+$port-size: 14px;
+$port-border-width: 3px;
+$port-total-size: calc($port-size + $port-border-width * 2);
+$port-radius: calc($port-total-size / 2);
+$port-input-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+$port-output-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+$port-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+$port-shadow-output: 0 2px 8px rgba(245, 87, 108, 0.4);
+
+// 连接线
+$connection-color: #cbd5e1;
+$connection-color-hover: #94a3b8;
+$connection-color-selected: #f093fb;
+$connection-draft-gradient: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+$connection-selected-gradient: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+$connection-width: 2.5px;
+$connection-width-hover: 3px;
+$connection-width-selected: 3.5px;
+$connection-shadow: drop-shadow(0 0 4px rgba(0, 0, 0, 0.2));
+$connection-glow: drop-shadow(0 0 8px rgba(240, 147, 251, 0.6));
+
+// 工具栏
+$toolbar-bg: rgba(255, 255, 255, 0.9);
+$toolbar-bg-dark: rgba(30, 30, 32, 0.9);
+$toolbar-backdrop-blur: blur(8px);
+$toolbar-border-color: $border-color;
+$toolbar-border-color-dark: $dark-border-color;
+$toolbar-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+// 小地图
+$minimap-bg: rgba(255, 255, 255, 0.95);
+$minimap-bg-dark: rgba(30, 30, 32, 0.95);
+$minimap-canvas-bg: #f8fafc;
+$minimap-canvas-bg-dark: #1e293b;
+$minimap-viewport-border: #3b82f6;
+$minimap-viewport-bg: rgba(59, 130, 246, 0.15);
+$minimap-viewport-shadow: 0 0 0 1px rgba(59, 130, 246, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+$minimap-node-opacity: 0.7;
+$minimap-node-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+// 选择框
+$selection-border: 2px dashed #3b82f6;
+$selection-bg: rgba(59, 130, 246, 0.1);
+
+// 抽屉
+$drawer-width: 420px;
+$drawer-header-height: 56px;
+$drawer-footer-height: 64px;
+
+// ==================== 尺寸系统 ====================
+
+// 节点尺寸
+$node-min-width: 220px;
+$node-height: 72px;
+$node-border-radius: 12px;
+$node-border-width: 2px;
+$node-border-width-selected: 3px;
+$node-padding: 12px;
+$node-icon-size: 40px;
+$node-icon-border-radius: 10px;
+
+// 间距
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 12px;
+$spacing-lg: 16px;
+$spacing-xl: 24px;
+$spacing-2xl: 32px;
+
+// 圆角
+$border-radius-sm: 4px;
+$border-radius-md: 8px;
+$border-radius-lg: 12px;
+$border-radius-xl: 16px;
+
+// ==================== 动画 ====================
+
+$transition-fast: 0.1s;
+$transition-normal: 0.2s;
+$transition-slow: 0.3s;
+$transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+// 动画曲线
+$ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+$ease-out: cubic-bezier(0.0, 0, 0.2, 1);
+$ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+// ==================== 阴影系统 ====================
+
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+$shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+// ==================== Z-Index 层级 ====================
+
+$z-index-base: 0;
+$z-index-grid: 1;
+$z-index-connections: 2;
+$z-index-nodes: 3;
+$z-index-selection: 4;
+$z-index-toolbar: 10;
+$z-index-minimap: 10;
+$z-index-drawer: 1000;
+$z-index-modal: 2000;
+$z-index-popover: 3000;
+$z-index-notification: 4000;
+
+// ==================== Mixins ====================
+
+// 卡片样式
+@mixin card-style {
+  background: $card-color;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-base;
+
+  .dark & {
+    background: $dark-card-color;
+  }
+}
+
+// 悬停效果
+@mixin hover-lift {
+  transition: transform $transition-normal $ease-out, box-shadow $transition-normal $ease-out;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+// 节点样式
+@mixin node-style {
+  min-width: $node-min-width;
+  background: $node-bg;
+  border-radius: $node-border-radius;
+  box-shadow: $node-shadow;
+  transition: all $transition-normal $ease-in-out;
+
+  .dark & {
+    background: $node-bg-dark;
+    box-shadow: $node-shadow-dark;
+  }
+
+  &:hover {
+    box-shadow: $node-shadow-hover;
+  }
+
+  &.selected {
+    border-color: $node-border-color-selected;
+    border-width: $node-border-width-selected;
+    box-shadow: $node-shadow-selected;
+  }
+
+  &.locked {
+    border-color: $node-border-color-locked;
+  }
+
+  &.error {
+    border-color: $node-border-color-error;
+  }
+
+  &.success {
+    border-color: $node-border-color-success;
+  }
+}
+
+// 端口样式
+@mixin port-style($gradient, $shadow) {
+  width: $port-size;
+  height: $port-size;
+  border-radius: 50%;
+  background: $gradient;
+  border: $port-border-width solid #fff;
+  cursor: crosshair;
+  box-shadow: $shadow;
+  transition: all $transition-normal $ease-in-out;
+  pointer-events: auto;
+  position: relative;
+  z-index: 100;
+
+  &:hover {
+    transform: scale(1.25);
+  }
+}
+
+// 渐变背景
+@mixin gradient-bg($from, $to) {
+  background: linear-gradient(135deg, $from 0%, $to 100%);
+}
+
+// 玻璃态效果
+@mixin glass-effect {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+
+  .dark & {
+    background: rgba(30, 30, 32, 0.9);
+  }
+}
+
+// 响应式断点
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-2xl: 1536px;
+
+@mixin responsive($breakpoint) {
+  @if $breakpoint == sm {
+    @media (min-width: $breakpoint-sm) { @content; }
+  } @else if $breakpoint == md {
+    @media (min-width: $breakpoint-md) { @content; }
+  } @else if $breakpoint == lg {
+    @media (min-width: $breakpoint-lg) { @content; }
+  } @else if $breakpoint == xl {
+    @media (min-width: $breakpoint-xl) { @content; }
+  } @else if $breakpoint == 2xl {
+    @media (min-width: $breakpoint-2xl) { @content; }
+  }
+}
+
+// ==================== 工具类 ====================
+
+// 文本省略
+@mixin text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// 多行文本省略
+@mixin text-ellipsis-multiline($lines) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// 清除浮动
+@mixin clearfix {
+  &::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
+
+// 居中
+@mixin center-flex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// 绝对居中
+@mixin absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+// 滚动条样式
+@mixin custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .dark & {
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+    }
+  }
+}
+

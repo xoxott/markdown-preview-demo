@@ -180,7 +180,9 @@ const local: App.I18n.Schema = {
     'notification-management': '通知管理',
     'alert-management': '告警管理',
     'log-management': '日志管理',
-    'version-log-management': '版本日志管理'
+    'version-log-management': '版本日志管理',
+    'ai-workflow': 'AI工作流',
+    'ai-workflow-editor': 'AI工作流编辑器'
   },
   page: {
     login: {

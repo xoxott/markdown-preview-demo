@@ -185,7 +185,9 @@ const routeMap: RouteMap = {
   "notification-management": "/notification-management",
   "alert-management": "/alert-management",
   "log-management": "/log-management",
-  "version-log-management": "/version-log-management"
+  "version-log-management": "/version-log-management",
+  "ai-workflow": "/ai-workflow",
+  "ai-workflow-editor": "/ai-workflow/editor/:id"
 };
 
 /**
