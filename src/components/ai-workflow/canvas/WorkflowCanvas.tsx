@@ -289,6 +289,7 @@ export default defineComponent({
               offsetX={canvas.viewport.value.x}
               offsetY={canvas.viewport.value.y}
               zoom={canvas.viewport.value.zoom}
+              color='#f00'
             />
           )}
 

@@ -1,104 +1,280 @@
 import { defineComponent, computed, type PropType } from 'vue';
 
+/**
+ * 连接线位置坐标接口
+ */
+interface ConnectionPosition {
+  x: number;
+  y: number;
+}
+
+/**
+ * 草稿连接线数据接口
+ */
+interface ConnectionDraft {
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+}
+
+/**
+ * 连接线组件常量配置
+ */
+const CONNECTION_LINE_CONFIG = {
+  /** 贝塞尔曲线控制点偏移比例 */
+  BEZIER_CONTROL_OFFSET: 0.5,
+  /** 默认描边颜色 */
+  DEFAULT_STROKE_COLOR: '#cbd5e1',
+  /** 默认描边宽度 */
+  DEFAULT_STROKE_WIDTH: 2.5,
+  /** 草稿状态描边宽度 */
+  DRAFT_STROKE_WIDTH: 3,
+  /** 选中状态描边宽度 */
+  SELECTED_STROKE_WIDTH: 3.5,
+  /** 点击区域扩展宽度（用于提高点击体验） */
+  CLICK_AREA_WIDTH: 24,
+  /** 发光效果扩展宽度 */
+  GLOW_EXTRA_WIDTH: 4,
+  /** 发光效果透明度 */
+  GLOW_OPACITY: 0.3,
+  /** 草稿状态渐变色起始 */
+  DRAFT_GRADIENT_START: '#667eea',
+  /** 草稿状态渐变色结束 */
+  DRAFT_GRADIENT_END: '#764ba2',
+  /** 选中状态渐变色起始 */
+  SELECTED_GRADIENT_START: '#f093fb',
+  /** 选中状态渐变色结束 */
+  SELECTED_GRADIENT_END: '#f5576c',
+  /** 箭头填充色（未选中） */
+  ARROW_FILL_DEFAULT: '#94a3b8',
+  /** 箭头填充色（选中） */
+  ARROW_FILL_SELECTED: '#f5576c',
+  /** 动画虚线间隔 */
+  ANIMATION_DASH_ARRAY: '8, 6',
+  /** 动画速度 */
+  ANIMATION_DURATION: '1.5s',
+  /** 过渡动画时长 */
+  TRANSITION_DURATION: '0.2s'
+} as const;
+
+/**
+ * ConnectionLine 组件
+ *
+ * 用于在 AI 工作流画布中渲染节点之间的连接线。
+ * 支持两种模式：
+ * 1. 已建立的连接线：使用 connection、sourcePos、targetPos 属性
+ * 2. 正在绘制的草稿连接线：使用 draft 属性
+ *
+ * 功能特性：
+ * - 使用贝塞尔曲线绘制平滑的连接线
+ * - 支持选中状态高亮显示
+ * - 支持动画效果（流动的虚线）
+ * - 支持点击删除连接
+ * - 自动显示箭头指示方向
+ * - 发光效果增强视觉反馈
+ *
+ * @example
+ * ```tsx
+ * // 已建立的连接线
+ * <ConnectionLine
+ *   connection={connection}
+ *   sourcePos={{ x: 100, y: 50 }}
+ *   targetPos={{ x: 300, y: 150 }}
+ *   selected={true}
+ *   animated={false}
+ *   onClick={(id) => handleDelete(id)}
+ * />
+ *
+ * // 正在绘制的草稿连接线
+ * <ConnectionLine
+ *   draft={{ startX: 100, startY: 50, endX: 200, endY: 100 }}
+ * />
+ * ```
+ */
 export default defineComponent({
   name: 'ConnectionLine',
   props: {
+    /**
+     * 连接线数据对象
+     * 包含连接的源节点、目标节点等信息
+     * 仅在已建立的连接线模式下使用
+     */
     connection: {
       type: Object as PropType<Api.Workflow.Connection>,
-      required: false
+      required: false,
+      default: undefined
     },
+    /**
+     * 草稿连接线数据
+     * 用于正在绘制中的连接线，包含起始和结束坐标
+     * 与 connection/sourcePos/targetPos 互斥
+     */
     draft: {
-      type: Object as PropType<{ startX: number; startY: number; endX: number; endY: number }>,
-      required: false
+      type: Object as PropType<ConnectionDraft>,
+      required: false,
+      default: undefined
     },
+    /**
+     * 源节点端口位置坐标
+     * 连接线的起始点位置
+     * 仅在已建立的连接线模式下使用，需与 targetPos 同时提供
+     */
     sourcePos: {
-      type: Object as PropType<{ x: number; y: number }>,
-      required: false
+      type: Object as PropType<ConnectionPosition>,
+      required: false,
+      default: undefined
     },
+    /**
+     * 目标节点端口位置坐标
+     * 连接线的结束点位置
+     * 仅在已建立的连接线模式下使用，需与 sourcePos 同时提供
+     */
     targetPos: {
-      type: Object as PropType<{ x: number; y: number }>,
-      required: false
+      type: Object as PropType<ConnectionPosition>,
+      required: false,
+      default: undefined
     },
+    /**
+     * 是否选中状态
+     * 选中时会显示高亮颜色和更粗的线条
+     * @default false
+     */
     selected: {
       type: Boolean,
       default: false
     },
+    /**
+     * 是否启用动画效果
+     * 启用后会显示流动的虚线动画
+     * @default false
+     */
     animated: {
       type: Boolean,
       default: false
     },
+    /**
+     * 点击连接线时的回调函数
+     * 参数为连接线的 ID
+     * 通常用于删除连接线
+     */
     onClick: {
       type: Function as PropType<(id: string) => void>,
+      required: false,
       default: undefined
     }
   },
   setup(props) {
+    /**
+     * 计算 SVG 路径数据
+     * 根据起始点和结束点生成贝塞尔曲线路径
+     * 使用三次贝塞尔曲线（Cubic Bezier）实现平滑的连接效果
+     */
     const pathData = computed(() => {
-      let x1, y1, x2, y2;
+      let x1: number, y1: number, x2: number, y2: number;
 
+      // 优先使用草稿数据（正在绘制中）
       if (props.draft) {
         x1 = props.draft.startX;
         y1 = props.draft.startY;
         x2 = props.draft.endX;
         y2 = props.draft.endY;
-      } else if (props.sourcePos && props.targetPos) {
+      }
+      // 使用已建立的连接线数据
+      else if (props.sourcePos && props.targetPos) {
         x1 = props.sourcePos.x;
         y1 = props.sourcePos.y;
         x2 = props.targetPos.x;
         y2 = props.targetPos.y;
-      } else {
+      }
+      // 数据不足，返回空路径
+      else {
         return '';
       }
 
-      // 贝塞尔曲线控制点
+      // 计算贝塞尔曲线控制点
+      // 控制点偏移量基于水平距离，使曲线更自然
       const dx = x2 - x1;
-      const controlOffset = Math.abs(dx) * 0.5;
+      const controlOffset = Math.abs(dx) * CONNECTION_LINE_CONFIG.BEZIER_CONTROL_OFFSET;
 
+      // 第一个控制点（靠近起始点）
       const cx1 = x1 + controlOffset;
       const cy1 = y1;
+      // 第二个控制点（靠近结束点）
       const cx2 = x2 - controlOffset;
       const cy2 = y2;
 
+      // 生成 SVG 路径：M 移动到起始点，C 三次贝塞尔曲线到结束点
       return `M ${x1},${y1} C ${cx1},${cy1} ${cx2},${cy2} ${x2},${y2}`;
     });
 
+    /**
+     * 计算描边颜色
+     * 根据状态返回不同的颜色或渐变
+     */
     const strokeColor = computed(() => {
-      if (props.draft) return 'url(#gradient-draft)';
-      if (props.selected) return 'url(#gradient-selected)';
-      return '#cbd5e1';
+      if (props.draft) {
+        return 'url(#gradient-draft)';
+      }
+      if (props.selected) {
+        return 'url(#gradient-selected)';
+      }
+      return CONNECTION_LINE_CONFIG.DEFAULT_STROKE_COLOR;
     });
 
+    /**
+     * 计算描边宽度
+     * 根据状态返回不同的线条粗细
+     */
     const strokeWidth = computed(() => {
-      if (props.selected) return 3.5;
-      if (props.draft) return 3;
-      return 2.5;
+      if (props.selected) {
+        return CONNECTION_LINE_CONFIG.SELECTED_STROKE_WIDTH;
+      }
+      if (props.draft) {
+        return CONNECTION_LINE_CONFIG.DRAFT_STROKE_WIDTH;
+      }
+      return CONNECTION_LINE_CONFIG.DEFAULT_STROKE_WIDTH;
     });
 
+    /**
+     * 处理连接线点击事件
+     * 阻止事件冒泡，并调用 onClick 回调
+     */
     const handleClick = (e: MouseEvent) => {
       e.stopPropagation();
-      if (props.connection && props.onClick) {
+      if (props.connection?.id && props.onClick) {
         props.onClick(props.connection.id);
       }
     };
 
     return () => {
-      if (!pathData.value) return null;
+      // 如果没有有效的路径数据，不渲染任何内容
+      if (!pathData.value) {
+        return null;
+      }
 
       // 正在绘制的连接线不拦截鼠标事件，让事件穿透到端口
+      // 这样可以避免在绘制过程中误触其他元素
       const pointerEvents = props.draft ? 'none' : 'auto';
+
+      // 生成唯一的箭头标记 ID，避免多个连接线实例之间的冲突
+      const arrowMarkerId = `arrowhead-${props.connection?.id || `draft-${Date.now()}`}`;
 
       return (
         <g class="connection-line" onClick={handleClick} style={{ pointerEvents }}>
-          {/* 渐变定义 */}
+          {/* SVG 渐变和滤镜定义 */}
           <defs>
+            {/* 草稿状态渐变（紫色系） */}
             <linearGradient id="gradient-draft" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" style={{ stopColor: '#667eea', stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: '#764ba2', stopOpacity: 1 }} />
+              <stop offset="0%" style={{ stopColor: CONNECTION_LINE_CONFIG.DRAFT_GRADIENT_START, stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: CONNECTION_LINE_CONFIG.DRAFT_GRADIENT_END, stopOpacity: 1 }} />
             </linearGradient>
+            {/* 选中状态渐变（粉色系） */}
             <linearGradient id="gradient-selected" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" style={{ stopColor: '#f093fb', stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: '#f5576c', stopOpacity: 1 }} />
+              <stop offset="0%" style={{ stopColor: CONNECTION_LINE_CONFIG.SELECTED_GRADIENT_START, stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: CONNECTION_LINE_CONFIG.SELECTED_GRADIENT_END, stopOpacity: 1 }} />
             </linearGradient>
+            {/* 发光效果滤镜 */}
             <filter id="glow">
               <feGaussianBlur stdDeviation="2" result="coloredBlur" />
               <feMerge>
@@ -106,31 +282,51 @@ export default defineComponent({
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
+            {/* 箭头标记（仅在已建立的连接线上显示） */}
+            {!props.draft && props.sourcePos && props.targetPos && (
+              <marker
+                id={arrowMarkerId}
+                markerWidth="12"
+                markerHeight="12"
+                refX="10"
+                refY="3.5"
+                orient="auto"
+                markerUnits="strokeWidth"
+              >
+                <path
+                  d="M0,0 L0,7 L10,3.5 z"
+                  fill={props.selected ? CONNECTION_LINE_CONFIG.ARROW_FILL_SELECTED : CONNECTION_LINE_CONFIG.ARROW_FILL_DEFAULT}
+                  style={{ transition: `fill ${CONNECTION_LINE_CONFIG.TRANSITION_DURATION}` }}
+                />
+              </marker>
+            )}
           </defs>
 
-          {/* 透明的宽路径用于更容易点击 */}
+          {/* 透明的宽路径用于提高点击体验 */}
+          {/* 连接线本身较细，通过增加透明点击区域让用户更容易点击 */}
           <path
             d={pathData.value}
             stroke="transparent"
-            stroke-width="24"
+            stroke-width={CONNECTION_LINE_CONFIG.CLICK_AREA_WIDTH}
             fill="none"
-            style={{ cursor: 'pointer' }}
+            style={{ cursor: props.draft ? 'default' : 'pointer' }}
           />
 
-          {/* 发光效果背景 */}
+          {/* 发光效果背景层 */}
+          {/* 仅在选中或草稿状态下显示，增强视觉反馈 */}
           {(props.selected || props.draft) && (
             <path
               d={pathData.value}
-              stroke={props.draft ? '#667eea' : '#f5576c'}
-              stroke-width={strokeWidth.value + 4}
+              stroke={props.draft ? CONNECTION_LINE_CONFIG.DRAFT_GRADIENT_START : CONNECTION_LINE_CONFIG.SELECTED_GRADIENT_END}
+              stroke-width={strokeWidth.value + CONNECTION_LINE_CONFIG.GLOW_EXTRA_WIDTH}
               fill="none"
               stroke-linecap="round"
-              opacity="0.3"
+              opacity={CONNECTION_LINE_CONFIG.GLOW_OPACITY}
               filter="url(#glow)"
             />
           )}
 
-          {/* 实际显示的路径 */}
+          {/* 实际显示的连接线路径 */}
           <path
             d={pathData.value}
             stroke={strokeColor.value}
@@ -139,36 +335,20 @@ export default defineComponent({
             stroke-linecap="round"
             stroke-linejoin="round"
             class={props.animated ? 'animated-line' : ''}
+            marker-end={!props.draft && props.sourcePos && props.targetPos ? `url(#${arrowMarkerId})` : undefined}
             style={{
-              transition: 'all 0.2s',
+              transition: `all ${CONNECTION_LINE_CONFIG.TRANSITION_DURATION}`,
               filter: props.selected || props.draft ? 'drop-shadow(0 0 4px rgba(0,0,0,0.2))' : 'none'
             }}
           />
 
-          {/* 箭头 */}
-          {!props.draft && props.sourcePos && props.targetPos && (
-            <marker
-              id={`arrowhead-${props.connection?.id || 'draft'}`}
-              markerWidth="12"
-              markerHeight="12"
-              refX="10"
-              refY="3.5"
-              orient="auto"
-              markerUnits="strokeWidth"
-            >
-              <path
-                d="M0,0 L0,7 L10,3.5 z"
-                fill={props.selected ? '#f5576c' : '#94a3b8'}
-                style={{ transition: 'fill 0.2s' }}
-              />
-            </marker>
-          )}
 
+          {/* 动画样式定义 */}
           <style>
             {`
               .animated-line {
-                stroke-dasharray: 8, 6;
-                animation: dash 1.5s linear infinite;
+                stroke-dasharray: ${CONNECTION_LINE_CONFIG.ANIMATION_DASH_ARRAY};
+                animation: dash ${CONNECTION_LINE_CONFIG.ANIMATION_DURATION} linear infinite;
               }
               @keyframes dash {
                 to {
