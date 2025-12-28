@@ -1,5 +1,5 @@
 import { defineComponent, ref } from 'vue';
-import { NCard, NCollapse, NCollapseItem, NIcon, NEmpty } from 'naive-ui';
+import { NCard, NCollapse, NCollapseItem, NIcon, NEmpty, NScrollbar } from 'naive-ui';
 import { Icon } from '@iconify/vue';
 import { getNodesByCategory } from '../nodes/NodeRegistry';
 
@@ -20,11 +20,11 @@ export default defineComponent({
       if (e.dataTransfer) {
         e.dataTransfer.effectAllowed = 'copy';
         e.dataTransfer.setData('application/workflow-node', type);
-        
+
         // 创建自定义拖拽预览
         const target = e.currentTarget as HTMLElement;
         const clone = target.cloneNode(true) as HTMLElement;
-        
+
         // 设置克隆元素的样式
         clone.style.position = 'absolute';
         clone.style.top = '-9999px';
@@ -34,12 +34,12 @@ export default defineComponent({
         clone.style.transform = 'rotate(2deg)';
         clone.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
         clone.style.pointerEvents = 'none';
-        
+
         document.body.appendChild(clone);
-        
+
         // 设置拖拽图像
         e.dataTransfer.setDragImage(clone, target.offsetWidth / 2, target.offsetHeight / 2);
-        
+
         // 延迟移除克隆元素
         setTimeout(() => {
           document.body.removeChild(clone);
@@ -48,18 +48,21 @@ export default defineComponent({
     };
 
     return () => (
-      <div class="node-library-panel h-full flex flex-col">
-        <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-          <h3 class="text-base font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-            <NIcon size={20}>
+      <div class="node-library-panel h-full flex flex-col w-64" >
+        {/* 标题栏 - 与工具栏高度一致 */}
+        <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm">
+          <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+            <NIcon size={18}>
               <Icon icon="mdi:view-grid-plus-outline" />
             </NIcon>
             节点库
           </h3>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">拖拽节点到画布</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">拖拽节点到画布</p>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-3">
+        {/* 使用 NScrollbar 替代原生滚动条 */}
+        <NScrollbar class="flex-1" style={{ maxHeight: 'calc(100vh - 60px)' }}>
+          <div class="p-3">
           <NCollapse v-model:expanded-names={expandedKeys.value} accordion={false}>
             {Object.entries(categories).map(([category, nodes]) => (
               <NCollapseItem
@@ -114,7 +117,8 @@ export default defineComponent({
               </NCollapseItem>
             ))}
           </NCollapse>
-        </div>
+          </div>
+        </NScrollbar>
       </div>
     );
   }

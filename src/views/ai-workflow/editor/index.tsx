@@ -160,7 +160,7 @@ export default defineComponent({
             {/* 左侧节点库面板 */}
             {showLeftPanel.value && (
               <div
-                class="w-72 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-r border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden flex flex-col"
+                class=" bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-r border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden flex flex-col"
                 style={{ flexShrink: 0 }}
               >
                 <NodeLibraryPanel />
