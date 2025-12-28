@@ -128,32 +128,32 @@ export default defineComponent({
               const portCenterY = spacing * (index + 1);
 
               return (
-                <div
-                  key={port.id}
-                  class="node-port node-port-input hover:scale-125 transition-transform"
-                  data-node-id={props.id}
-                  data-port-id={port.id}
-                  data-port-type="input"
-                  onMousedown={(e: MouseEvent) => handlePortMouseDown(port.id, 'input', e)}
-                  onMouseup={(e: MouseEvent) => handlePortMouseUp(port.id, 'input', e)}
-                  style={{
+              <div
+                key={port.id}
+                class="node-port node-port-input hover:scale-125 transition-transform"
+                data-node-id={props.id}
+                data-port-id={port.id}
+                data-port-type="input"
+                onMousedown={(e: MouseEvent) => handlePortMouseDown(port.id, 'input', e)}
+                onMouseup={(e: MouseEvent) => handlePortMouseUp(port.id, 'input', e)}
+                style={{
                     position: 'absolute',
                     left: '0px',
                     top: `${portCenterY}px`,
                     transform: 'translate(-50%, -50%)', // 中心对齐
-                    width: '14px',
-                    height: '14px',
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    border: '3px solid #fff',
-                    cursor: 'crosshair',
-                    boxShadow: '0 2px 8px rgba(102, 126, 234, 0.4)',
-                    transition: 'all 0.2s',
+                  width: '14px',
+                  height: '14px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  border: '3px solid #fff',
+                  cursor: 'crosshair',
+                  boxShadow: '0 2px 8px rgba(102, 126, 234, 0.4)',
+                  transition: 'all 0.2s',
                     pointerEvents: 'auto',
                     zIndex: 100
-                  }}
-                  title={port.label || 'Input'}
-                />
+                }}
+                title={port.label || 'Input'}
+              />
               );
             })}
           </>
@@ -170,32 +170,32 @@ export default defineComponent({
               const portCenterY = spacing * (index + 1);
 
               return (
-                <div
-                  key={port.id}
-                  class="node-port node-port-output hover:scale-125 transition-transform"
-                  data-node-id={props.id}
-                  data-port-id={port.id}
-                  data-port-type="output"
-                  onMousedown={(e: MouseEvent) => handlePortMouseDown(port.id, 'output', e)}
-                  onMouseup={(e: MouseEvent) => handlePortMouseUp(port.id, 'output', e)}
-                  style={{
+              <div
+                key={port.id}
+                class="node-port node-port-output hover:scale-125 transition-transform"
+                data-node-id={props.id}
+                data-port-id={port.id}
+                data-port-type="output"
+                onMousedown={(e: MouseEvent) => handlePortMouseDown(port.id, 'output', e)}
+                onMouseup={(e: MouseEvent) => handlePortMouseUp(port.id, 'output', e)}
+                style={{
                     position: 'absolute',
                     right: '0px',
                     top: `${portCenterY}px`,
                     transform: 'translate(50%, -50%)', // 中心对齐
-                    width: '14px',
-                    height: '14px',
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                    border: '3px solid #fff',
-                    cursor: 'crosshair',
-                    boxShadow: '0 2px 8px rgba(245, 87, 108, 0.4)',
-                    transition: 'all 0.2s',
+                  width: '14px',
+                  height: '14px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                  border: '3px solid #fff',
+                  cursor: 'crosshair',
+                  boxShadow: '0 2px 8px rgba(245, 87, 108, 0.4)',
+                  transition: 'all 0.2s',
                     pointerEvents: 'auto',
                     zIndex: 100
-                  }}
-                  title={port.label || 'Output'}
-                />
+                }}
+                title={port.label || 'Output'}
+              />
               );
             })}
           </>
@@ -203,16 +203,16 @@ export default defineComponent({
 
         {/* 删除按钮 - 鼠标悬停时显示 */}
         {props.onDelete && (
-          <NButton
-            size="tiny"
-            circle
-            type="error"
-            onClick={handleDelete}
+              <NButton
+                size="tiny"
+                circle
+                type="error"
+                onClick={handleDelete}
             class="absolute -top-2 -right-1 z-20 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200"
             style={{
-              width: '18px',
-              height: '18px',
-              minWidth: '18px',
+              width: '14px',
+              height: '14px',
+              minWidth: '14px',
               padding: '0',
               pointerEvents: 'auto'
             }}
@@ -220,12 +220,12 @@ export default defineComponent({
             {{
               icon: () => (
                 <NIcon size={12}>
-                  <Icon icon="mdi:close" />
-                </NIcon>
+                    <Icon icon="mdi:close" />
+                  </NIcon>
               )
             }}
-          </NButton>
-        )}
+              </NButton>
+            )}
 
         {/* 节点主体 - 使用自定义div替代NCard以确保尺寸可控 */}
         <div

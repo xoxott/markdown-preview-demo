@@ -149,13 +149,13 @@ export default defineComponent({
           // 折叠状态：只显示一个按钮
           <NButton
             circle
-            size="large"
+            size="small"
             type="primary"
             onClick={toggleCollapse}
             class="shadow-lg"
             style={{
-              width: '48px',
-              height: '48px',
+              width: '32px',
+              height: '32px',
               background: 'rgba(59, 130, 246, 0.95)',
               backdropFilter: 'blur(8px)'
             }}
