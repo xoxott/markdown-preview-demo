@@ -1,5 +1,6 @@
 import { defineComponent, computed, ref, type PropType } from 'vue';
-import { NCard } from 'naive-ui';
+import { NCard, NButton, NIcon } from 'naive-ui';
+import { Icon } from '@iconify/vue';
 import { NODE_TYPES } from '../nodes/NodeRegistry';
 import { NODE_WIDTH, NODE_HEIGHT } from '../constants/node-dimensions';
 
@@ -41,6 +42,7 @@ export default defineComponent({
   },
   setup(props) {
     const isDragging = ref(false);
+    const isCollapsed = ref(false);
 
     const bounds = computed(() => {
       if (props.nodes.length === 0) {
@@ -132,24 +134,84 @@ export default defineComponent({
       height: NODE_HEIGHT * scale.value
     }));
 
+    const toggleCollapse = () => {
+      isCollapsed.value = !isCollapsed.value;
+    };
+
     return () => (
       <div
         class="minimap absolute bottom-4 right-4 z-10"
         style={{
-          width: `${props.width}px`,
-          height: `${props.height}px`
+          pointerEvents: 'auto'
         }}
       >
-        <NCard
-          size="small"
-          class="overflow-hidden shadow-lg"
-          contentStyle={{ padding: '0' }}
-          style={{
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(0, 0, 0, 0.1)'
-          }}
-        >
+        {isCollapsed.value ? (
+          // 折叠状态：只显示一个按钮
+          <NButton
+            circle
+            size="large"
+            type="primary"
+            onClick={toggleCollapse}
+            class="shadow-lg"
+            style={{
+              width: '48px',
+              height: '48px',
+              background: 'rgba(59, 130, 246, 0.95)',
+              backdropFilter: 'blur(8px)'
+            }}
+          >
+            {{
+              icon: () => (
+                <NIcon size={24}>
+                  <Icon icon="mdi:map" />
+                </NIcon>
+              )
+            }}
+          </NButton>
+        ) : (
+          // 展开状态：显示完整地图
+          <div
+            class="relative"
+            style={{
+              width: `${props.width}px`,
+              height: `${props.height}px`
+            }}
+          >
+            {/* 折叠按钮 - 放在外层容器 */}
+            <div class="absolute -top-2 -right-2 z-20">
+              <NButton
+                circle
+                size="tiny"
+                onClick={toggleCollapse}
+                class="shadow-md"
+                style={{
+                  width: '20px',
+                  height: '20px',
+                  minWidth: '20px',
+                  padding: '0'
+                }}
+              >
+                {{
+                  icon: () => (
+                    <NIcon size={12}>
+                      <Icon icon="mdi:chevron-down" />
+                    </NIcon>
+                  )
+                }}
+              </NButton>
+            </div>
+
+            <NCard
+              size="small"
+              class="overflow-hidden shadow-lg"
+              contentStyle={{ padding: '0' }}
+              style={{
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(8px)',
+                border: '1px solid rgba(0, 0, 0, 0.1)'
+              }}
+            >
+
           <div
             class="relative select-none"
             style={{
@@ -199,8 +261,10 @@ export default defineComponent({
                 transition: isDragging.value ? 'none' : 'all 0.15s ease-out'
               }}
             />
-          </div>
-        </NCard>
+            </div>
+          </NCard>
+        </div>
+        )}
       </div>
     );
   }

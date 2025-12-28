@@ -15,13 +15,11 @@ export interface BaseNodeProps {
   type: Api.Workflow.NodeType;
   data: NodeData;
   selected?: boolean;
-  locked?: boolean;
   executing?: boolean;
   error?: boolean;
   success?: boolean;
   onSelect?: (id: string) => void;
   onDelete?: (id: string) => void;
-  onToggleLock?: (id: string) => void;
   onPortMouseDown?: (nodeId: string, portId: string, type: 'input' | 'output', event: MouseEvent) => void;
 }
 
@@ -41,10 +39,6 @@ export default defineComponent({
       required: true
     },
     selected: {
-      type: Boolean,
-      default: false
-    },
-    locked: {
       type: Boolean,
       default: false
     },
@@ -83,10 +77,6 @@ export default defineComponent({
     onPortMouseUp: {
       type: Function as PropType<(nodeId: string, portId: string, type: 'input' | 'output', event: MouseEvent) => void>,
       default: undefined
-    },
-    onToggleLock: {
-      type: Function as PropType<(id: string) => void>,
-      default: undefined
     }
   },
   setup(props, { slots }) {
@@ -95,7 +85,6 @@ export default defineComponent({
       if (props.success) return '#18a058';
       if (props.executing) return '#2080f0';
       if (props.selected) return '#2080f0';
-      if (props.locked) return '#f59e0b'; // 锁定状态显示橙色边框
       return 'transparent';
     });
 
@@ -106,11 +95,6 @@ export default defineComponent({
     const handleDelete = (e: MouseEvent) => {
       e.stopPropagation();
       props.onDelete?.(props.id);
-    };
-
-    const handleToggleLock = (e: MouseEvent) => {
-      e.stopPropagation();
-      props.onToggleLock?.(props.id);
     };
 
     const handlePortMouseDown = (portId: string, type: 'input' | 'output', event: MouseEvent) => {
@@ -217,58 +201,30 @@ export default defineComponent({
           </>
         )}
 
-        {/* 操作按钮组 */}
-        {props.selected && (
-          <div
-            class="absolute -top-1 -right-1 z-20 flex gap-1"
-            style={{ pointerEvents: 'auto' }}
+        {/* 删除按钮 - 鼠标悬停时显示 */}
+        {props.onDelete && (
+          <NButton
+            size="tiny"
+            circle
+            type="error"
+            onClick={handleDelete}
+            class="absolute -top-2 -right-1 z-20 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            style={{
+              width: '18px',
+              height: '18px',
+              minWidth: '18px',
+              padding: '0',
+              pointerEvents: 'auto'
+            }}
           >
-            {/* 锁定/解锁按钮 */}
-            {props.onToggleLock && (
-              <NButton
-                size="tiny"
-                circle
-                type={props.locked ? 'warning' : 'default'}
-                onClick={handleToggleLock}
-                class="shadow-md"
-                style={{
-                  width: '20px',
-                  height: '20px',
-                  minWidth: '20px',
-                  padding: '0'
-                }}
-              >
-                <template v-slots:icon>
-                  <NIcon size={12}>
-                    <Icon icon={props.locked ? 'mdi:lock' : 'mdi:lock-open-variant'} />
-                  </NIcon>
-                </template>
-              </NButton>
-            )}
-
-            {/* 删除按钮 */}
-            {props.onDelete && !props.locked && (
-              <NButton
-                size="tiny"
-                circle
-                type="error"
-                onClick={handleDelete}
-                class="shadow-md"
-                style={{
-                  width: '20px',
-                  height: '20px',
-                  minWidth: '20px',
-                  padding: '0'
-                }}
-              >
-                <template v-slots:icon>
-                  <NIcon size={12}>
-                    <Icon icon="mdi:close" />
-                  </NIcon>
-                </template>
-              </NButton>
-            )}
-          </div>
+            {{
+              icon: () => (
+                <NIcon size={12}>
+                  <Icon icon="mdi:close" />
+                </NIcon>
+              )
+            }}
+          </NButton>
         )}
 
         {/* 节点主体 - 使用自定义div替代NCard以确保尺寸可控 */}
