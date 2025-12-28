@@ -1,5 +1,5 @@
 import { defineComponent, ref, watch, type PropType } from 'vue';
-import { NModal, NCard, NForm, NFormItem, NSelect, NColorPicker, NSlider, NSwitch, NButton, NSpace } from 'naive-ui';
+import { NModal, NCard, NForm, NFormItem, NSelect, NColorPicker, NSlider, NSwitch, NButton, NSpace, NDivider } from 'naive-ui';
 import type { ConnectionLineStyle, ConnectionLineType } from '../types/canvas-settings';
 
 export default defineComponent({
@@ -91,6 +91,37 @@ export default defineComponent({
 
               <NFormItem label="显示箭头">
                 <NSwitch v-model:value={localSettings.value.showArrow} />
+              </NFormItem>
+
+              <NDivider style={{ marginTop: '16px', marginBottom: '16px' }}>
+                拖拽预览线条
+              </NDivider>
+
+              <NFormItem label="预览线条颜色" labelStyle={{ alignItems: 'flex-start' }}>
+                <div style={{ width: '100%' }}>
+                  <NColorPicker
+                    v-model:value={localSettings.value.draftColor}
+                    showAlpha={false}
+                    modes={['hex']}
+                  />
+                  <div style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}>
+                    留空则使用默认渐变色
+                  </div>
+                </div>
+              </NFormItem>
+
+              <NFormItem label="预览线条宽度">
+                <NSlider
+                  v-model:value={localSettings.value.draftWidth}
+                  min={1}
+                  max={10}
+                  step={1}
+                  marks={{
+                    1: '1px',
+                    5: '5px',
+                    10: '10px'
+                  }}
+                />
               </NFormItem>
             </NForm>
           ),

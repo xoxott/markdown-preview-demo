@@ -304,8 +304,8 @@ export default defineComponent({
      */
     const strokeColor = computed(() => {
       if (props.draft) {
-        // 草稿线条：使用配置的颜色或默认渐变
-        return props.style?.color || 'url(#gradient-draft)';
+        // 草稿线条：优先使用草稿颜色配置，其次使用默认渐变
+        return props.style?.draftColor || 'url(#gradient-draft)';
       }
       if (props.selected) {
         return 'url(#gradient-selected)';
@@ -323,8 +323,8 @@ export default defineComponent({
         return CONNECTION_LINE_CONFIG.SELECTED_STROKE_WIDTH;
       }
       if (props.draft) {
-        // 草稿线条：使用配置的宽度或稍粗的默认宽度
-        return props.style?.width || CONNECTION_LINE_CONFIG.DRAFT_STROKE_WIDTH;
+        // 草稿线条：优先使用草稿宽度配置，其次使用默认宽度
+        return props.style?.draftWidth || CONNECTION_LINE_CONFIG.DRAFT_STROKE_WIDTH;
       }
       // 使用自定义样式宽度或默认宽度
       return props.style?.width || CONNECTION_LINE_CONFIG.DEFAULT_STROKE_WIDTH;

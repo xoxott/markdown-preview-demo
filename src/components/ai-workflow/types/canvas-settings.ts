@@ -12,6 +12,10 @@ export interface ConnectionLineStyle {
   width: number;
   animated: boolean;
   showArrow: boolean;
+  /** 草稿线条颜色（拖拽预览时的颜色，为空则使用默认渐变） */
+  draftColor?: string;
+  /** 草稿线条宽度（拖拽预览时的宽度，为空则使用默认宽度） */
+  draftWidth?: number;
 }
 
 /** 网格类型 */
@@ -39,7 +43,9 @@ export const DEFAULT_CANVAS_SETTINGS: CanvasSettings = {
     color: '#94a3b8',
     width: 2,
     animated: false,
-    showArrow: true
+    showArrow: true,
+    draftColor: undefined,  // 默认使用渐变
+    draftWidth: undefined   // 默认使用 3px
   },
   background: {
     showGrid: true,
