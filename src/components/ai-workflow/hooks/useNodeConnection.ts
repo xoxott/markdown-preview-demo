@@ -52,10 +52,10 @@ export function useNodeConnection() {
     // 验证：不能重复连接
     const exists = connections.value.some(
       conn =>
-        conn.source === connectionDraft.value!.sourceNodeId &&
-        conn.sourceHandle === connectionDraft.value!.sourcePortId &&
-        conn.target === targetNodeId &&
-        conn.targetHandle === targetPortId
+        conn.sourceNodeId === connectionDraft.value!.sourceNodeId &&
+        conn.sourcePortId === connectionDraft.value!.sourcePortId &&
+        conn.targetNodeId === targetNodeId &&
+        conn.targetPortId === targetPortId
     );
 
     if (exists) {
@@ -66,11 +66,10 @@ export function useNodeConnection() {
     // 创建连接
     const newConnection: Api.Workflow.Connection = {
       id: uuidv4(),
-      source: connectionDraft.value.sourceNodeId,
-      sourceHandle: connectionDraft.value.sourcePortId,
-      target: targetNodeId,
-      targetHandle: targetPortId,
-      type: 'bezier'
+      sourceNodeId: connectionDraft.value.sourceNodeId,
+      sourcePortId: connectionDraft.value.sourcePortId,
+      targetNodeId: targetNodeId,
+      targetPortId: targetPortId
     };
 
     connections.value.push(newConnection);
@@ -94,7 +93,7 @@ export function useNodeConnection() {
   /** 删除节点相关的所有连接 */
   function removeNodeConnections(nodeId: string) {
     connections.value = connections.value.filter(
-      conn => conn.source !== nodeId && conn.target !== nodeId
+      conn => conn.sourceNodeId !== nodeId && conn.targetNodeId !== nodeId
     );
   }
 

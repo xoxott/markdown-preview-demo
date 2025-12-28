@@ -51,28 +51,32 @@ export function useNodeDragDrop() {
     return newNode;
   }
 
-  /** 移动已有节点 */
+  /** 移动已有节点（性能优化版本） */
   function moveNode(nodeId: string, deltaX: number, deltaY: number) {
-    const node = nodes.value.find(n => n.id === nodeId);
-    if (node) {
+    const nodeIndex = nodes.value.findIndex(n => n.id === nodeId);
+    if (nodeIndex !== -1) {
+      const node = nodes.value[nodeIndex];
       // 直接修改位置，Vue 3 的响应式系统会自动追踪
       node.position.x += deltaX;
       node.position.y += deltaY;
     }
   }
 
-  /** 移动多个节点（优化：批量更新） */
+  /** 移动多个节点（性能优化：批量更新） */
   function moveNodes(nodeIds: string[], deltaX: number, deltaY: number) {
     // 优化：创建 Set 以加快查找速度
     const nodeIdSet = new Set(nodeIds);
 
     // 批量更新所有选中的节点
-    nodes.value.forEach(node => {
+    // 使用 for 循环代替 forEach，性能更好
+    const nodesArray = nodes.value;
+    for (let i = 0; i < nodesArray.length; i++) {
+      const node = nodesArray[i];
       if (nodeIdSet.has(node.id)) {
         node.position.x += deltaX;
         node.position.y += deltaY;
       }
-    });
+    }
   }
 
   /** 结束拖拽 */

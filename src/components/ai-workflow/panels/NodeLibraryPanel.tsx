@@ -20,6 +20,30 @@ export default defineComponent({
       if (e.dataTransfer) {
         e.dataTransfer.effectAllowed = 'copy';
         e.dataTransfer.setData('application/workflow-node', type);
+        
+        // 创建自定义拖拽预览
+        const target = e.currentTarget as HTMLElement;
+        const clone = target.cloneNode(true) as HTMLElement;
+        
+        // 设置克隆元素的样式
+        clone.style.position = 'absolute';
+        clone.style.top = '-9999px';
+        clone.style.left = '-9999px';
+        clone.style.width = `${target.offsetWidth}px`;
+        clone.style.opacity = '0.9';
+        clone.style.transform = 'rotate(2deg)';
+        clone.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
+        clone.style.pointerEvents = 'none';
+        
+        document.body.appendChild(clone);
+        
+        // 设置拖拽图像
+        e.dataTransfer.setDragImage(clone, target.offsetWidth / 2, target.offsetHeight / 2);
+        
+        // 延迟移除克隆元素
+        setTimeout(() => {
+          document.body.removeChild(clone);
+        }, 0);
       }
     };
 

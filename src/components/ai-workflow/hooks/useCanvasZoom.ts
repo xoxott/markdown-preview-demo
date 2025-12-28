@@ -27,8 +27,6 @@ export function useCanvasZoom(options: UseCanvasZoomOptions = {}) {
   const transformStyle = computed(() => ({
     transform: `translate(${viewport.value.x}px, ${viewport.value.y}px) scale(${viewport.value.zoom})`,
     transformOrigin: '0 0'
-    // 移除 transition，避免动画期间连接线位置不同步
-    // transition: 'transform 0.2s ease-out'
   }));
 
   /** 缩放 */
@@ -40,7 +38,7 @@ export function useCanvasZoom(options: UseCanvasZoomOptions = {}) {
       const zoomRatio = newZoom / viewport.value.zoom;
       const newX = centerX - (centerX - viewport.value.x) * zoomRatio;
       const newY = centerY - (centerY - viewport.value.y) * zoomRatio;
-      
+
       // 一次性更新所有值，避免触发多次响应式更新
       viewport.value = {
         x: newX,

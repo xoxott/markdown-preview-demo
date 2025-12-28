@@ -48,4 +48,23 @@ declare namespace StorageType {
     /** Saved username for remember me feature */
     savedUsername?: string;
   }
+
+  /**
+   * Workflow UI cache storage
+   *
+   * Dynamic keys for workflow UI data
+   * Key format: `workflow_ui_{workflowId}`
+   */
+  interface WorkflowUICache {
+    [key: `workflow_ui_${string}`]: {
+      workflowId: string;
+      nodesUI: Record<string, any>;
+      connectionsUI: Record<string, any>;
+      canvasConfig?: Record<string, any>;
+      lastUpdated: number;
+    };
+  }
+
+  // Merge WorkflowUICache into Local
+  interface Local extends WorkflowUICache {}
 }

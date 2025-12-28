@@ -182,6 +182,18 @@
   }
 }
 
+// 连接线动画效果
+.workflow-connection-animated {
+  stroke-dasharray: 8, 6;
+  animation: workflow-connection-dash 1.5s linear infinite;
+}
+
+@keyframes workflow-connection-dash {
+  to {
+    stroke-dashoffset: -14;
+  }
+}
+
 // ==================== 工具栏样式 ====================
 
 .canvas-toolbar {

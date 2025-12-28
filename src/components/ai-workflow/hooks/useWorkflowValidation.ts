@@ -43,8 +43,8 @@ export function useWorkflowValidation({ nodes, connections }: ValidationOptions)
     // 3. 检查孤立节点（没有连接的节点）
     const connectedNodeIds = new Set<string>();
     connections.value.forEach(conn => {
-      connectedNodeIds.add(conn.source);
-      connectedNodeIds.add(conn.target);
+      connectedNodeIds.add(conn.sourceNodeId);
+      connectedNodeIds.add(conn.targetNodeId);
     });
 
     nodes.value.forEach(node => {
@@ -52,7 +52,7 @@ export function useWorkflowValidation({ nodes, connections }: ValidationOptions)
         errors.push({
           type: 'warning',
           nodeId: node.id,
-          message: `节点 "${node.data.label}" 未连接到任何其他节点`
+          message: `节点 "${node.name}" 未连接到任何其他节点`
         });
       }
     });
@@ -61,12 +61,12 @@ export function useWorkflowValidation({ nodes, connections }: ValidationOptions)
     nodes.value.forEach(node => {
       if (node.type === 'start') return; // 开始节点不需要输入
 
-      const inputConnections = connections.value.filter(conn => conn.target === node.id);
+      const inputConnections = connections.value.filter(conn => conn.targetNodeId === node.id);
       if (inputConnections.length === 0) {
         errors.push({
           type: 'warning',
           nodeId: node.id,
-          message: `节点 "${node.data.label}" 缺少输入连接`
+          message: `节点 "${node.name}" 缺少输入连接`
         });
       }
     });
@@ -78,7 +78,7 @@ export function useWorkflowValidation({ nodes, connections }: ValidationOptions)
         type: 'error',
         message: `检测到循环依赖: ${cycle.map(id => {
           const node = nodes.value.find(n => n.id === id);
-          return node?.data.label || id;
+          return node?.name || id;
         }).join(' → ')}`
       });
     });
@@ -86,22 +86,22 @@ export function useWorkflowValidation({ nodes, connections }: ValidationOptions)
     // 6. 检查条件节点的输出
     nodes.value.forEach(node => {
       if (node.type === 'condition') {
-        const outputs = connections.value.filter(conn => conn.source === node.id);
-        const trueOutput = outputs.find(conn => conn.sourceHandle === 'true');
-        const falseOutput = outputs.find(conn => conn.sourceHandle === 'false');
+        const outputs = connections.value.filter(conn => conn.sourceNodeId === node.id);
+        const trueOutput = outputs.find(conn => conn.sourcePortId === 'true');
+        const falseOutput = outputs.find(conn => conn.sourcePortId === 'false');
 
         if (!trueOutput) {
           errors.push({
             type: 'warning',
             nodeId: node.id,
-            message: `条件节点 "${node.data.label}" 缺少 "true" 分支连接`
+            message: `条件节点 "${node.name}" 缺少 "true" 分支连接`
           });
         }
         if (!falseOutput) {
           errors.push({
             type: 'warning',
             nodeId: node.id,
-            message: `条件节点 "${node.data.label}" 缺少 "false" 分支连接`
+            message: `条件节点 "${node.name}" 缺少 "false" 分支连接`
           });
         }
       }
@@ -123,9 +123,9 @@ export function useWorkflowValidation({ nodes, connections }: ValidationOptions)
       adjacencyList.set(node.id, []);
     });
     connections.value.forEach(conn => {
-      const targets = adjacencyList.get(conn.source) || [];
-      targets.push(conn.target);
-      adjacencyList.set(conn.source, targets);
+      const targets = adjacencyList.get(conn.sourceNodeId) || [];
+      targets.push(conn.targetNodeId);
+      adjacencyList.set(conn.sourceNodeId, targets);
     });
 
     function dfs(nodeId: string): boolean {
@@ -178,8 +178,8 @@ export function useWorkflowValidation({ nodes, connections }: ValidationOptions)
       if (visited.has(current)) continue;
 
       visited.add(current);
-      const outgoing = connections.value.filter(conn => conn.source === current);
-      outgoing.forEach(conn => queue.push(conn.target));
+      const outgoing = connections.value.filter(conn => conn.sourceNodeId === current);
+      outgoing.forEach(conn => queue.push(conn.targetNodeId));
     }
 
     return false;
@@ -194,10 +194,10 @@ export function useWorkflowValidation({ nodes, connections }: ValidationOptions)
       if (visited.has(id)) return;
       visited.add(id);
 
-      const incoming = connections.value.filter(conn => conn.target === id);
+      const incoming = connections.value.filter(conn => conn.targetNodeId === id);
       incoming.forEach(conn => {
-        dependencies.add(conn.source);
-        traverse(conn.source);
+        dependencies.add(conn.sourceNodeId);
+        traverse(conn.sourceNodeId);
       });
     }
 
@@ -214,10 +214,10 @@ export function useWorkflowValidation({ nodes, connections }: ValidationOptions)
       if (visited.has(id)) return;
       visited.add(id);
 
-      const outgoing = connections.value.filter(conn => conn.source === id);
+      const outgoing = connections.value.filter(conn => conn.sourceNodeId === id);
       outgoing.forEach(conn => {
-        downstream.add(conn.target);
-        traverse(conn.target);
+        downstream.add(conn.targetNodeId);
+        traverse(conn.targetNodeId);
       });
     }
 

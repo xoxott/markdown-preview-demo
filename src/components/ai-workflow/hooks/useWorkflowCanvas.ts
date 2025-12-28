@@ -23,6 +23,22 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
   const showMinimap = ref(true); // 显示小地图
   const lockedNodeIds = ref<Set<string>>(new Set()); // 锁定的节点ID集合
 
+  // 性能优化：使用 RAF 节流
+  let rafId: number | null = null;
+  let pendingMouseMove: MouseEvent | null = null;
+  // 记录上一次处理的鼠标位置（用于计算增量）
+  let lastProcessedMousePos: { x: number; y: number } | null = null;
+
+  // 清理函数
+  onUnmounted(() => {
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+    pendingMouseMove = null;
+    lastProcessedMousePos = null;
+  });
+
   // 使用各个子hooks
   const zoom = useCanvasZoom({
     initialViewport: options.initialDefinition?.viewport
@@ -79,13 +95,29 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
     }
   }
 
-  /** 画布鼠标移动 */
+  /** 画布鼠标移动（性能优化：使用 RAF 节流） */
   function handleCanvasMouseMove(e: MouseEvent) {
+    // 保存最新的鼠标事件
+    pendingMouseMove = e;
+
+    // 如果已经有待处理的 RAF，直接返回
+    if (rafId !== null) {
+      return;
+    }
+
+    // 使用 requestAnimationFrame 节流
+    rafId = requestAnimationFrame(() => {
+      rafId = null;
+
+      if (!pendingMouseMove) return;
+      const event = pendingMouseMove;
+      pendingMouseMove = null;
+
     // 更新框选区域
     if (selectionBox.isSelecting.value && canvasRef.value) {
       const rect = canvasRef.value.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
       selectionBox.updateSelection(x, y);
 
       // 实时更新选中的节点
@@ -114,45 +146,47 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
     // 更新连接线位置（如果正在连接）
     if (connection.isConnecting.value && canvasRef.value) {
       const canvasRect = canvasRef.value.getBoundingClientRect();
-      const x = e.clientX - canvasRect.left;
-      const y = e.clientY - canvasRect.top;
+        const x = event.clientX - canvasRect.left;
+        const y = event.clientY - canvasRect.top;
       connection.updateConnection(x, y);
     }
 
     // 平移画布（右键/中键）
     if (isPanning.value) {
-      const deltaX = e.clientX - panStart.value.x;
-      const deltaY = e.clientY - panStart.value.y;
+        const deltaX = event.clientX - panStart.value.x;
+        const deltaY = event.clientY - panStart.value.y;
       zoom.pan(deltaX, deltaY);
-      panStart.value = { x: e.clientX, y: e.clientY };
+        panStart.value = { x: event.clientX, y: event.clientY };
       return;
     }
 
     // 拖拽画布（左键空白处）
     if (isCanvasDragging.value) {
-      const deltaX = e.clientX - canvasDragStart.value.x;
-      const deltaY = e.clientY - canvasDragStart.value.y;
-      
+        const deltaX = event.clientX - canvasDragStart.value.x;
+        const deltaY = event.clientY - canvasDragStart.value.y;
+
       // 只有移动超过阈值才开始拖拽（避免误触）
       if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
         zoom.pan(deltaX, deltaY);
-        canvasDragStart.value = { x: e.clientX, y: e.clientY };
+          canvasDragStart.value = { x: event.clientX, y: event.clientY };
       }
       return;
     }
 
     // 拖拽节点
     if (nodeDragDrop.draggingNodeId.value && nodeDragState.value) {
-      const deltaX = e.movementX / zoom.viewport.value.zoom;
-      const deltaY = e.movementY / zoom.viewport.value.zoom;
-      
       // 检查是否超过移动阈值
-      const totalDeltaX = Math.abs(e.clientX - nodeDragState.value.startX);
-      const totalDeltaY = Math.abs(e.clientY - nodeDragState.value.startY);
-      
+        const totalDeltaX = Math.abs(event.clientX - nodeDragState.value.startX);
+        const totalDeltaY = Math.abs(event.clientY - nodeDragState.value.startY);
+
       if (totalDeltaX > 3 || totalDeltaY > 3) {
         nodeDragState.value.hasMoved = true;
-        
+
+          // 使用绝对位置计算增量，避免丢失中间帧
+          if (lastProcessedMousePos) {
+            const deltaX = (event.clientX - lastProcessedMousePos.x) / zoom.viewport.value.zoom;
+            const deltaY = (event.clientY - lastProcessedMousePos.y) / zoom.viewport.value.zoom;
+
         if (nodeDragDrop.selectedNodeIds.value.length > 1) {
           // 移动所有选中的节点
           nodeDragDrop.moveNodes(nodeDragDrop.selectedNodeIds.value, deltaX, deltaY);
@@ -160,6 +194,10 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
           // 移动单个节点
           nodeDragDrop.moveNode(nodeDragDrop.draggingNodeId.value, deltaX, deltaY);
         }
+          }
+
+          // 更新上一次处理的位置
+          lastProcessedMousePos = { x: event.clientX, y: event.clientY };
       }
       return;
     }
@@ -168,10 +206,11 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
     if (connection.isConnecting.value && canvasRef.value) {
       // 转换为相对于画布的坐标
       const canvasRect = canvasRef.value.getBoundingClientRect();
-      const x = e.clientX - canvasRect.left;
-      const y = e.clientY - canvasRect.top;
+        const x = event.clientX - canvasRect.left;
+        const y = event.clientY - canvasRect.top;
       connection.updateConnection(x, y);
     }
+    });
   }
 
   /** 画布鼠标抬起 */
@@ -191,12 +230,12 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
     if (isCanvasDragging.value) {
       const deltaX = Math.abs(e.clientX - canvasDragStart.value.x);
       const deltaY = Math.abs(e.clientY - canvasDragStart.value.y);
-      
+
       // 如果移动距离很小，视为点击，取消选择
       if (deltaX < 3 && deltaY < 3) {
         nodeDragDrop.deselectAll();
       }
-      
+
       isCanvasDragging.value = false;
       return;
     }
@@ -204,6 +243,7 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
     // 结束节点拖拽
     if (nodeDragDrop.draggingNodeId.value) {
       nodeDragDrop.endDrag();
+      lastProcessedMousePos = null; // 清理位置记录
       return;
     }
 
@@ -211,15 +251,15 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
     if (connection.isConnecting.value) {
       // 检查鼠标位置是否在某个输入端口上
       const target = document.elementFromPoint(e.clientX, e.clientY);
-      
+
       if (target) {
         // 查找最近的端口元素
         const portElement = target.closest('.node-port-input') as HTMLElement;
-        
+
         if (portElement) {
           const nodeId = portElement.getAttribute('data-node-id');
           const portId = portElement.getAttribute('data-port-id');
-          
+
           if (nodeId && portId) {
             // 完成连接
             connection.finishConnection(nodeId, portId);
@@ -227,7 +267,7 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
           }
         }
       }
-      
+
       // 如果没有找到输入端口，取消连接
       connection.cancelConnection();
     }
@@ -308,6 +348,9 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
       hasMoved: false
     };
 
+    // 初始化上一次处理的鼠标位置
+    lastProcessedMousePos = { x: e.clientX, y: e.clientY };
+
     // 开始拖拽节点
     const node = nodeDragDrop.getNode(nodeId);
     if (node) {
@@ -344,15 +387,15 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
       // 获取端口的屏幕位置
       const target = e.target as HTMLElement;
       const rect = target.getBoundingClientRect();
-      
+
       // 获取画布的屏幕位置
       if (canvasRef.value) {
         const canvasRect = canvasRef.value.getBoundingClientRect();
-        
+
         // 转换为相对于画布的坐标
         const centerX = rect.left + rect.width / 2 - canvasRect.left;
         const centerY = rect.top + rect.height / 2 - canvasRect.top;
-        
+
         // 从输出端口中心开始连接
         connection.startConnection(nodeId, portId, centerX, centerY);
       }
@@ -409,7 +452,7 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
 
     // 复制相关的连接（只复制选中节点之间的连接）
     const copiedConnections = connection.connections.value
-      .filter(conn => selectedNodeIds.has(conn.source) && selectedNodeIds.has(conn.target))
+      .filter(conn => selectedNodeIds.has(conn.sourceNodeId) && selectedNodeIds.has(conn.targetNodeId))
       .map(conn => JSON.parse(JSON.stringify(conn)));
 
     clipboard.value = {
@@ -445,15 +488,15 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
 
     // 创建新连接
     clipboard.value.connections.forEach(conn => {
-      const newSourceId = idMap.get(conn.source);
-      const newTargetId = idMap.get(conn.target);
+      const newSourceId = idMap.get(conn.sourceNodeId);
+      const newTargetId = idMap.get(conn.targetNodeId);
 
       if (newSourceId && newTargetId) {
         const newConnection = {
           ...JSON.parse(JSON.stringify(conn)),
           id: `c-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          source: newSourceId,
-          target: newTargetId
+          sourceNodeId: newSourceId,
+          targetNodeId: newTargetId
         };
         connection.connections.value.push(newConnection);
       }

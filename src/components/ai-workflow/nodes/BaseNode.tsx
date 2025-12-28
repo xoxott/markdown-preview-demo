@@ -1,11 +1,19 @@
 import { defineComponent, computed, type PropType } from 'vue';
-import { NCard, NIcon, NTag, NButton } from 'naive-ui';
+import { NIcon, NTag, NButton } from 'naive-ui';
 import { Icon } from '@iconify/vue';
+
+/** 节点显示数据 */
+export interface NodeData {
+  label: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+}
 
 export interface BaseNodeProps {
   id: string;
   type: Api.Workflow.NodeType;
-  data: Api.Workflow.NodeData;
+  data: NodeData;
   selected?: boolean;
   locked?: boolean;
   executing?: boolean;
@@ -29,7 +37,7 @@ export default defineComponent({
       required: true
     },
     data: {
-      type: Object as PropType<Api.Workflow.NodeData>,
+      type: Object as PropType<NodeData>,
       required: true
     },
     selected: {
@@ -120,7 +128,8 @@ export default defineComponent({
         class={`workflow-node group ${props.selected ? 'selected' : ''}`}
         style={{
           position: 'relative',
-          minWidth: '220px',
+          width: '220px',
+          height: '72px',
           userSelect: 'none'
         }}
       >
@@ -130,7 +139,7 @@ export default defineComponent({
             class="node-ports node-inputs"
             style={{
               position: 'absolute',
-              left: '-10px',
+              left: '0px',
               top: '50%',
               transform: 'translateY(-50%)',
               display: 'flex',
@@ -157,9 +166,10 @@ export default defineComponent({
                   cursor: 'crosshair',
                   boxShadow: '0 2px 8px rgba(102, 126, 234, 0.4)',
                   transition: 'all 0.2s',
-                  pointerEvents: 'auto', // 确保端口可以接收事件
+                  pointerEvents: 'auto',
                   position: 'relative',
-                  zIndex: 100 // 确保端口在最上层
+                  left: '-10px', // 向左偏移10px (端口总宽度20px的一半)
+                  zIndex: 100
                 }}
                 title={port.label || 'Input'}
               />
@@ -173,12 +183,12 @@ export default defineComponent({
             class="node-ports node-outputs"
             style={{
               position: 'absolute',
-              right: '-10px',
+              right: '0px',
               top: '50%',
               transform: 'translateY(-50%)',
               display: 'flex',
               flexDirection: 'column',
-              gap: '10px',
+              gap: '14px',
               zIndex: 10
             }}
           >
@@ -200,9 +210,10 @@ export default defineComponent({
                   cursor: 'crosshair',
                   boxShadow: '0 2px 8px rgba(245, 87, 108, 0.4)',
                   transition: 'all 0.2s',
-                  pointerEvents: 'auto', // 确保端口可以接收事件
+                  pointerEvents: 'auto',
                   position: 'relative',
-                  zIndex: 100 // 确保端口在最上层
+                  left:'7px',
+                  zIndex: 100
                 }}
                 title={port.label || 'Output'}
               />
@@ -253,25 +264,29 @@ export default defineComponent({
           </div>
         )}
 
-        {/* 节点主体 */}
-        <NCard
-          size="small"
-          bordered
+        {/* 节点主体 - 使用自定义div替代NCard以确保尺寸可控 */}
+        <div
           class="group-hover:shadow-xl transition-all duration-200"
           style={{
+            width: '100%',
+            height: '100%',
             borderColor: borderColor.value,
             borderWidth: props.selected ? '3px' : '2px',
+            borderStyle: 'solid',
             borderRadius: '12px',
             transition: 'all 0.2s',
             boxShadow: props.selected
               ? '0 8px 24px rgba(32, 128, 240, 0.25), 0 0 0 4px rgba(32, 128, 240, 0.1)'
               : '0 4px 12px rgba(0,0,0,0.08)',
             background: 'linear-gradient(to bottom, #ffffff, #fafafa)',
-            // 性能优化：提示浏览器这些属性会变化
+            padding: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            boxSizing: 'border-box',
             willChange: props.selected ? 'border-color, box-shadow' : 'auto'
           }}
         >
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-3 w-full">
             {/* 图标 */}
             {props.data.icon && (
               <div
@@ -335,7 +350,7 @@ export default defineComponent({
 
           {/* 自定义内容插槽 */}
           {slots.default?.()}
-        </NCard>
+        </div>
       </div>
     );
   }

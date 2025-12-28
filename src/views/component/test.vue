@@ -4,8 +4,8 @@ import { ref } from 'vue';
 import { NButton, NSpace, useMessage } from 'naive-ui';
 import type { FileItem } from '@/components/file-explorer/types/file-explorer';
 import { useFileDragDropEnhanced } from '@/components/file-explorer/hooks/useFileDragDropEnhanced';
-import DragPreview from '@/components/file-explorer/interaction/DragPreview';
-import DropZone from '@/components/file-explorer/interaction/DropZone';
+import DragPreview from '@/components/common-interaction/DragPreview/DragPreview';
+import DropZone from '@/components/common-interaction/DropZone/DropZone';
 
 const message = useMessage();
 
@@ -306,11 +306,7 @@ const getFolderColorClass = (color: string) => {
           <DropZone
             v-for="folder in targetFolders"
             :key="folder.id"
-            :zone-id="folder.id"
-            :target-path="folder.path"
-            :can-drop="getDropZoneState(folder.id)?.canDrop ?? true"
-            :is-over="getDropZoneState(folder.id)?.isOver ?? false"
-            as-folder-zone
+            :id="folder.id"
             @drag-enter="enterDropZone(folder.id, folder.path)"
             @drag-leave="leaveDropZone(folder.id)"
             @drop="handleDrop(folder.id)"
@@ -335,11 +331,8 @@ const getFolderColorClass = (color: string) => {
         <h3 class="text-lg text-gray-800 font-semibold dark:text-gray-200">☁️ 上传区域</h3>
 
         <DropZone
-          zone-id="upload-zone"
-          target-path="/uploads"
-          :can-drop="getDropZoneState('upload-zone')?.canDrop ?? true"
-          :is-over="getDropZoneState('upload-zone')?.isOver ?? false"
-          hint="拖拽文件到此处上传"
+          id="upload-zone"
+          hint-text="拖拽文件到此处上传"
           @drag-enter="enterDropZone('upload-zone', '/uploads')"
           @drag-leave="leaveDropZone('upload-zone')"
           @drop="handleDrop('upload-zone')"

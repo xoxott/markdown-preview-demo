@@ -1,0 +1,107 @@
+/**
+ * 通用交互组件样式
+ * Common Interaction Components Styles
+ */
+
+// ==================== DragPreview ====================
+
+.drag-preview {
+  position: relative;
+  user-select: none;
+}
+
+.drag-preview-enter-active,
+.drag-preview-leave-active {
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.drag-preview-enter-from {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.drag-preview-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.drag-preview-item {
+  cursor: grabbing;
+}
+
+.drag-preview-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* 拖拽时禁用文本选择 */
+.drag-preview * {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+// ==================== SelectionRect ====================
+
+.selection-rect {
+  position: absolute;
+  border: 2px solid #1890ff;
+  background-color: rgba(24, 144, 255, 0.1);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.selection-rect-enter-active,
+.selection-rect-leave-active {
+  transition: opacity 0.2s;
+}
+
+.selection-rect-enter-from,
+.selection-rect-leave-to {
+  opacity: 0;
+}
+
+// ==================== DropZone ====================
+
+.drop-zone {
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.drop-zone-highlight {
+  outline: 2px dashed #1890ff;
+  outline-offset: 2px;
+  background-color: rgba(24, 144, 255, 0.05);
+}
+
+.drop-zone-invalid {
+  outline: 2px dashed #ff4d4f;
+  outline-offset: 2px;
+  background-color: rgba(255, 77, 79, 0.05);
+}
+
+.drop-zone-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 12px 24px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  pointer-events: none;
+  z-index: 10;
+  white-space: nowrap;
+}
+
+.drop-zone-hint-enter-active,
+.drop-zone-hint-leave-active {
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.drop-zone-hint-enter-from,
+.drop-zone-hint-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.9);
+}
+

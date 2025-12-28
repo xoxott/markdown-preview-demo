@@ -150,12 +150,8 @@ export function createDefaultNodeData(type: Api.Workflow.NodeType): Partial<Api.
   const config = NODE_TYPES[type];
   return {
     type,
-    data: {
-      label: config.label,
-      description: config.description,
-      icon: config.icon,
-      color: config.color
-    },
+    name: config.label,
+    description: config.description,
     inputs: config.defaultPorts?.inputs || [],
     outputs: config.defaultPorts?.outputs || [],
     config: {}

@@ -41,8 +41,8 @@ export default defineComponent({
       () => props.node,
       node => {
         if (node) {
-          formData.label = node.data.label || '';
-          formData.description = node.data.description || '';
+          formData.label = node.name || '';
+          formData.description = node.description || '';
           formData.config = { ...node.config };
         }
       },
@@ -53,11 +53,8 @@ export default defineComponent({
       if (!props.node || !props.onUpdate) return;
 
       props.onUpdate(props.node.id, {
-        data: {
-          ...props.node.data,
-          label: formData.label,
-          description: formData.description
-        },
+        name: formData.label,
+        description: formData.description,
         config: formData.config
       });
     };

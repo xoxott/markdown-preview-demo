@@ -2,7 +2,8 @@ import { defineComponent, onMounted, ref } from 'vue';
 import { NButton, NDrawer, NDrawerContent, useMessage } from 'naive-ui';
 import DrawerExample from '@/components/base-drawer/DrawerExample';
 import ViewContainer from './container/ViewContainer';
-import DragPreview from './interaction/DragPreview';
+import { DragPreview } from '@/components/common-interaction';
+import type { DragItem } from '@/components/common-interaction';
 import FileBreadcrumb from './layout/FileBreadcrumb';
 import FileSidebar from './layout/FileSidebar';
 import FileStatusBar from './layout/FileStatusBar';
@@ -15,6 +16,7 @@ import { mockFileItems } from './config/mockData';
 import { useFileExplorerLogic } from './composables/useFileExplorerLogic';
 import DialogTestPanel from './test/DialogTestPanel';
 import type { FileItem } from './types/file-explorer';
+import FileIcon from './items/FileIcon';
 
 /**
  * 文件管理器主组件
@@ -106,6 +108,85 @@ export default defineComponent({
       fileContent.value = undefined;
       showFileDrawer.value = false;
       editorMode.value = 'preview';
+    };
+
+    // 转换 FileItem 为 DragItem
+    const convertToDragItems = (fileItems: FileItem[]): DragItem[] => {
+      return fileItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        type: item.type,
+        data: item
+      }));
+    };
+
+    // 自定义文件项渲染器（返回包装容器）
+    const renderFileItem = (item: DragItem, index: number) => {
+      const fileItem = item.data as FileItem;
+      const getFileColor = (): string => {
+        if (fileItem.type === 'folder') return 'text-blue-500';
+        const ext = fileItem.extension?.toLowerCase();
+        if (!ext) return 'text-gray-500';
+        if (['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp'].includes(ext)) return 'text-green-500';
+        if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm'].includes(ext)) return 'text-purple-500';
+        if (['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'].includes(ext)) return 'text-pink-500';
+        if (['js', 'ts', 'jsx', 'tsx', 'vue', 'html', 'css', 'scss', 'json', 'xml', 'py', 'java', 'cpp', 'c', 'go', 'rs'].includes(ext)) return 'text-yellow-500';
+        if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext)) return 'text-orange-500';
+        return 'text-gray-500';
+      };
+
+      // 只在第一个项目时返回完整的包装容器
+      if (index === 0) {
+        const displayItems = logic.dragDrop.dragState.value.draggedItems.slice(0, 3);
+        const remainingCount = Math.max(0, logic.dragDrop.dragState.value.draggedItems.length - 3);
+
+        return (
+          <div key="file-preview-wrapper" class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 p-3 min-w-[240px] max-w-[320px]">
+            {/* 操作类型指示器 */}
+            <div class="flex items-center gap-2 mb-2 pb-2 border-b border-gray-200 dark:border-gray-700">
+              <span class="text-xs font-medium text-gray-600 dark:text-gray-400">
+                {logic.dragDrop.dragOperation.value === 'copy' ? '复制' : '移动'} {logic.dragDrop.dragState.value.draggedItems.length} 个项目
+              </span>
+            </div>
+
+            {/* 预览项列表 */}
+            <div class="space-y-1.5">
+              {displayItems.map((fileItem, idx) => (
+                <div
+                  key={fileItem.id}
+                  class="flex items-center gap-2 p-1.5 rounded bg-gray-50 dark:bg-gray-700/50"
+                  style={{ opacity: 1 - idx * 0.15 }}
+                >
+                  <div class={['flex-shrink-0', getFileColor()]}>
+                    <FileIcon item={fileItem} size={20} />
+                  </div>
+                  <span class="flex-1 text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                    {fileItem.name}
+                  </span>
+                  <span class="flex-shrink-0 text-xs text-gray-500 dark:text-gray-400">
+                    {fileItem.type === 'folder' ? '文件夹' : fileItem.extension?.toUpperCase()}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* 更多项提示 */}
+            {remainingCount > 0 && (
+              <div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700 flex items-center gap-2">
+                <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                  +{remainingCount}
+                </span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">
+                  还有 {remainingCount} 个项目
+                </span>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      // 其他项目返回空 fragment，因为已经在第一个项目中渲染了所有内容
+      return <></>;
     };
 
     // 组件挂载后自动聚焦，使快捷键立即可用
@@ -210,19 +291,24 @@ export default defineComponent({
 
         {/* 拖拽预览 */}
         <DragPreview
-          items={logic.dragDrop.dragState.value.draggedItems}
+          items={convertToDragItems(logic.dragDrop.dragState.value.draggedItems)}
           isDragging={logic.dragDrop.isDragging.value}
           dragStartPos={logic.dragDrop.dragState.value.dragStartPos}
           dragCurrentPos={logic.dragDrop.dragState.value.dragCurrentPos}
           operation={logic.dragDrop.dragOperation.value}
+          itemRenderer={renderFileItem}
+          showOperationIcon={false}
+          showCountBadge={false}
+          showRemainingCount={false}
+          maxItems={1}
         />
 
         {/* 文件预览/编辑抽屉 */}
-        <NDrawer 
-          v-model:show={showFileDrawer.value} 
-          placement="right" 
-          width="80%" 
-          resizable 
+        <NDrawer
+          v-model:show={showFileDrawer.value}
+          placement="right"
+          width="80%"
+          resizable
           contentClass='h-full'>
           <NDrawerContent closable nativeScrollbar={false}>
             {{

@@ -1,9 +1,14 @@
 /**
  * AI Workflow API Type Definitions
+ *
+ * 仅包含需要持久化到后端的业务数据
+ * UI 相关的数据（位置、样式、状态等）由前端管理，不入库
  */
 
 declare namespace Api {
   namespace Workflow {
+    // ==================== 基础类型 ====================
+
     /** 节点类型 */
     type NodeType = 'start' | 'end' | 'ai' | 'http' | 'database' | 'condition' | 'transform' | 'file';
 
@@ -16,8 +21,7 @@ declare namespace Api {
     /** HTTP 方法 */
     type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
-    /** 连接线类型 */
-    type ConnectionType = 'bezier' | 'straight' | 'step';
+    // ==================== 核心业务数据结构 ====================
 
     /** 位置坐标 */
     interface Position {
@@ -25,21 +29,50 @@ declare namespace Api {
       y: number;
     }
 
-    /** 端口定义 */
+    /** 端口定义（业务逻辑） */
     interface Port {
       id: string;
       type: 'input' | 'output';
       label?: string;
       dataType?: string;
+      required?: boolean;
+      defaultValue?: any;
     }
 
-    /** 节点数据（基础） */
-    interface NodeData {
-      label: string;
+    /** 工作流节点（业务数据） */
+    interface WorkflowNode {
+      id: string;
+      type: NodeType;
+      name: string;
       description?: string;
-      icon?: string;
-      color?: string;
+      position: Position;  // 节点位置需要持久化
+      config: NodeConfig;
+      inputs?: Port[];
+      outputs?: Port[];
     }
+
+    /** 连接线（业务数据） */
+    interface Connection {
+      id: string;
+      sourceNodeId: string;
+      sourcePortId: string;
+      targetNodeId: string;
+      targetPortId: string;
+    }
+
+    /** 工作流定义（业务数据） */
+    interface WorkflowDefinition {
+      nodes: WorkflowNode[];
+      connections: Connection[];
+      variables?: Record<string, any>;
+      viewport?: {
+        x: number;
+        y: number;
+        zoom: number;
+      };
+    }
+
+    // ==================== 节点配置（业务逻辑） ====================
 
     /** AI 节点配置 */
     interface AINodeConfig {
@@ -96,39 +129,7 @@ declare namespace Api {
       | FileNodeConfig
       | Record<string, any>;
 
-    /** 工作流节点 */
-    interface WorkflowNode {
-      id: string;
-      type: NodeType;
-      position: Position;
-      data: NodeData;
-      config: NodeConfig;
-      inputs?: Port[];
-      outputs?: Port[];
-    }
-
-    /** 连接线 */
-    interface Connection {
-      id: string;
-      source: string;
-      sourceHandle: string;
-      target: string;
-      targetHandle: string;
-      type?: ConnectionType;
-      animated?: boolean;
-    }
-
-    /** 工作流定义 */
-    interface WorkflowDefinition {
-      nodes: WorkflowNode[];
-      connections: Connection[];
-      variables?: Record<string, any>;
-      viewport?: {
-        x: number;
-        y: number;
-        zoom: number;
-      };
-    }
+    // ==================== 工作流 API ====================
 
     /** 工作流 */
     interface Workflow {
@@ -187,6 +188,8 @@ declare namespace Api {
       nodeResults: NodeExecutionResult[];
     }
 
+    // ==================== 请求/响应类型 ====================
+
     /** 工作流列表查询参数 */
     interface WorkflowListParams {
       page?: number;
@@ -241,4 +244,3 @@ declare namespace Api {
     }
   }
 }
-

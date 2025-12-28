@@ -24,16 +24,16 @@ const mockWorkflows: Api.Workflow.Workflow[] = [
         {
           id: 'start-1',
           type: 'start',
+          name: '开始',
           position: { x: 100, y: 200 },
-          data: { label: '开始', icon: 'mdi:play-circle', color: '#18a058' },
           config: {},
           outputs: [{ id: 'output', type: 'output', label: '输出' }]
         },
         {
           id: 'ai-1',
           type: 'ai',
+          name: 'AI分析问题',
           position: { x: 350, y: 200 },
-          data: { label: 'AI分析问题', icon: 'mdi:robot', color: '#2080f0' },
           config: {
             model: 'gpt-4',
             prompt: '分析客户问题并分类',
@@ -46,8 +46,8 @@ const mockWorkflows: Api.Workflow.Workflow[] = [
         {
           id: 'condition-1',
           type: 'condition',
+          name: '问题分类',
           position: { x: 600, y: 200 },
-          data: { label: '问题分类', icon: 'mdi:source-branch', color: '#f59e0b' },
           config: { expression: 'category === "technical"' },
           inputs: [{ id: 'input', type: 'input', label: '输入' }],
           outputs: [
@@ -58,8 +58,8 @@ const mockWorkflows: Api.Workflow.Workflow[] = [
         {
           id: 'ai-2',
           type: 'ai',
+          name: '生成技术回复',
           position: { x: 850, y: 100 },
-          data: { label: '生成技术回复', icon: 'mdi:robot', color: '#2080f0' },
           config: {
             model: 'gpt-4',
             prompt: '生成专业的技术支持回复',
@@ -71,8 +71,8 @@ const mockWorkflows: Api.Workflow.Workflow[] = [
         {
           id: 'ai-3',
           type: 'ai',
+          name: '生成常规回复',
           position: { x: 850, y: 300 },
-          data: { label: '生成常规回复', icon: 'mdi:robot', color: '#2080f0' },
           config: {
             model: 'gpt-3.5-turbo',
             prompt: '生成友好的客服回复',
@@ -84,19 +84,19 @@ const mockWorkflows: Api.Workflow.Workflow[] = [
         {
           id: 'end-1',
           type: 'end',
+          name: '结束',
           position: { x: 1100, y: 200 },
-          data: { label: '结束', icon: 'mdi:stop-circle', color: '#d03050' },
           config: {},
           inputs: [{ id: 'input', type: 'input', label: '输入' }]
         }
       ],
       connections: [
-        { id: 'c1', source: 'start-1', sourceHandle: 'output', target: 'ai-1', targetHandle: 'input' },
-        { id: 'c2', source: 'ai-1', sourceHandle: 'output', target: 'condition-1', targetHandle: 'input' },
-        { id: 'c3', source: 'condition-1', sourceHandle: 'true', target: 'ai-2', targetHandle: 'input' },
-        { id: 'c4', source: 'condition-1', sourceHandle: 'false', target: 'ai-3', targetHandle: 'input' },
-        { id: 'c5', source: 'ai-2', sourceHandle: 'output', target: 'end-1', targetHandle: 'input' },
-        { id: 'c6', source: 'ai-3', sourceHandle: 'output', target: 'end-1', targetHandle: 'input' }
+        { id: 'c1', sourceNodeId: 'start-1', sourcePortId: 'output', targetNodeId: 'ai-1', targetPortId: 'input' },
+        { id: 'c2', sourceNodeId: 'ai-1', sourcePortId: 'output', targetNodeId: 'condition-1', targetPortId: 'input' },
+        { id: 'c3', sourceNodeId: 'condition-1', sourcePortId: 'true', targetNodeId: 'ai-2', targetPortId: 'input' },
+        { id: 'c4', sourceNodeId: 'condition-1', sourcePortId: 'false', targetNodeId: 'ai-3', targetPortId: 'input' },
+        { id: 'c5', sourceNodeId: 'ai-2', sourcePortId: 'output', targetNodeId: 'end-1', targetPortId: 'input' },
+        { id: 'c6', sourceNodeId: 'ai-3', sourcePortId: 'output', targetNodeId: 'end-1', targetPortId: 'input' }
       ],
       viewport: { x: 0, y: 0, zoom: 1 }
     }
@@ -118,16 +118,16 @@ const mockWorkflows: Api.Workflow.Workflow[] = [
         {
           id: 'start-2',
           type: 'start',
+          name: '开始',
           position: { x: 100, y: 200 },
-          data: { label: '开始', icon: 'mdi:play-circle', color: '#18a058' },
           config: {},
           outputs: [{ id: 'output', type: 'output', label: '输出' }]
         },
         {
           id: 'db-1',
           type: 'database',
+          name: '读取数据',
           position: { x: 350, y: 200 },
-          data: { label: '读取数据', icon: 'mdi:database', color: '#7c3aed' },
           config: {
             connectionString: 'postgresql://localhost:5432/mydb',
             query: 'SELECT * FROM users WHERE active = true'
@@ -138,8 +138,8 @@ const mockWorkflows: Api.Workflow.Workflow[] = [
         {
           id: 'transform-1',
           type: 'transform',
+          name: '数据转换',
           position: { x: 600, y: 200 },
-          data: { label: '数据转换', icon: 'mdi:code-braces', color: '#10b981' },
           config: {
             code: 'return data.map(user => ({ ...user, fullName: `${user.firstName} ${user.lastName}` }))',
             language: 'javascript'
@@ -150,16 +150,16 @@ const mockWorkflows: Api.Workflow.Workflow[] = [
         {
           id: 'end-2',
           type: 'end',
+          name: '结束',
           position: { x: 850, y: 200 },
-          data: { label: '结束', icon: 'mdi:stop-circle', color: '#d03050' },
           config: {},
           inputs: [{ id: 'input', type: 'input', label: '输入' }]
         }
       ],
       connections: [
-        { id: 'c1', source: 'start-2', sourceHandle: 'output', target: 'db-1', targetHandle: 'input' },
-        { id: 'c2', source: 'db-1', sourceHandle: 'output', target: 'transform-1', targetHandle: 'input' },
-        { id: 'c3', source: 'transform-1', sourceHandle: 'output', target: 'end-2', targetHandle: 'input' }
+        { id: 'c1', sourceNodeId: 'start-2', sourcePortId: 'output', targetNodeId: 'db-1', targetPortId: 'input' },
+        { id: 'c2', sourceNodeId: 'db-1', sourcePortId: 'output', targetNodeId: 'transform-1', targetPortId: 'input' },
+        { id: 'c3', sourceNodeId: 'transform-1', sourcePortId: 'output', targetNodeId: 'end-2', targetPortId: 'input' }
       ],
       viewport: { x: 0, y: 0, zoom: 1 }
     }
@@ -181,20 +181,20 @@ const mockWorkflows: Api.Workflow.Workflow[] = [
         {
           id: 'start-3',
           type: 'start',
+          name: '开始',
           position: { x: 100, y: 200 },
-          data: { label: '开始', icon: 'mdi:play-circle', color: '#18a058' },
           config: {},
           outputs: [{ id: 'output', type: 'output', label: '输出' }]
         },
         {
           id: 'http-1',
           type: 'http',
+          name: '获取用户数据',
           position: { x: 350, y: 200 },
-          data: { label: '获取用户数据', icon: 'mdi:web', color: '#f0a020' },
           config: {
             url: 'https://api.example.com/users',
             method: 'GET',
-            headers: '{"Authorization": "Bearer token"}',
+            headers: { Authorization: 'Bearer token' },
             timeout: 30
           },
           inputs: [{ id: 'input', type: 'input', label: '输入' }],
@@ -206,15 +206,15 @@ const mockWorkflows: Api.Workflow.Workflow[] = [
         {
           id: 'end-3',
           type: 'end',
+          name: '结束',
           position: { x: 600, y: 200 },
-          data: { label: '结束', icon: 'mdi:stop-circle', color: '#d03050' },
           config: {},
           inputs: [{ id: 'input', type: 'input', label: '输入' }]
         }
       ],
       connections: [
-        { id: 'c1', source: 'start-3', sourceHandle: 'output', target: 'http-1', targetHandle: 'input' },
-        { id: 'c2', source: 'http-1', sourceHandle: 'success', target: 'end-3', targetHandle: 'input' }
+        { id: 'c1', sourceNodeId: 'start-3', sourcePortId: 'output', targetNodeId: 'http-1', targetPortId: 'input' },
+        { id: 'c2', sourceNodeId: 'http-1', sourcePortId: 'success', targetNodeId: 'end-3', targetPortId: 'input' }
       ],
       viewport: { x: 0, y: 0, zoom: 1 }
     }
@@ -370,9 +370,9 @@ const createMockResponse = <T>(data: T) => ({
 export const mockWorkflowApi = {
   async fetchWorkflowList(params: Api.Workflow.WorkflowListParams) {
     await delay(300);
-    
+
     let filtered = [...mockWorkflows];
-    
+
     // 搜索过滤
     if (params.search) {
       const search = params.search.toLowerCase();
@@ -380,19 +380,19 @@ export const mockWorkflowApi = {
         w => w.name.toLowerCase().includes(search) || w.description?.toLowerCase().includes(search)
       );
     }
-    
+
     // 状态过滤
     if (params.status) {
       filtered = filtered.filter(w => w.status === params.status);
     }
-    
+
     // 分页
     const page = params.page || 1;
     const limit = params.limit || 10;
     const start = (page - 1) * limit;
     const end = start + limit;
     const paged = filtered.slice(start, end);
-    
+
     return createMockResponse({
       lists: paged,
       meta: {
@@ -445,7 +445,7 @@ export const mockWorkflowApi = {
     if (index === -1) {
       throw new Error('工作流不存在');
     }
-    
+
     const workflow = mockWorkflows[index];
     if (data.name) workflow.name = data.name;
     if (data.description !== undefined) workflow.description = data.description;
@@ -456,7 +456,7 @@ export const mockWorkflowApi = {
     }
     if (data.tags) workflow.tags = data.tags;
     workflow.updatedAt = new Date().toISOString();
-    
+
     return createMockResponse(workflow);
   },
 
@@ -486,7 +486,7 @@ export const mockWorkflowApi = {
     if (!original) {
       throw new Error('工作流不存在');
     }
-    
+
     const copied: Api.Workflow.Workflow = {
       ...original,
       id: uuidv4(),
@@ -530,7 +530,7 @@ export const mockWorkflowApi = {
     if (!workflow) {
       throw new Error('工作流不存在');
     }
-    
+
     const execution: Api.Workflow.Execution = {
       id: uuidv4(),
       workflowId: id,
@@ -540,35 +540,35 @@ export const mockWorkflowApi = {
       triggeredBy: 'user',
       input: params?.input
     };
-    
+
     mockExecutions.unshift(execution);
     workflow.executionCount++;
     workflow.lastExecutedAt = execution.startTime;
-    
+
     // 模拟异步执行完成
     setTimeout(() => {
       execution.status = 'success';
       execution.endTime = new Date().toISOString();
       execution.duration = 5000;
     }, 2000);
-    
+
     return createMockResponse(execution);
   },
 
   async fetchExecutionHistory(params: Api.Workflow.ExecutionHistoryParams) {
     await delay(300);
     let filtered = mockExecutions.filter(e => e.workflowId === params.workflowId);
-    
+
     if (params.status) {
       filtered = filtered.filter(e => e.status === params.status);
     }
-    
+
     const page = params.page || 1;
     const limit = params.limit || 10;
     const start = (page - 1) * limit;
     const end = start + limit;
     const paged = filtered.slice(start, end);
-    
+
     return createMockResponse({
       lists: paged,
       meta: {
@@ -608,17 +608,17 @@ export const mockWorkflowApi = {
     if (!workflow) {
       throw new Error('工作流不存在');
     }
-    
+
     const versions = mockVersions[workflowId] || [];
     const targetVersion = versions.find(v => v.version === version);
     if (!targetVersion) {
       throw new Error('版本不存在');
     }
-    
+
     workflow.definition = targetVersion.definition;
     workflow.version++;
     workflow.updatedAt = new Date().toISOString();
-    
+
     return createMockResponse(workflow);
   }
 };

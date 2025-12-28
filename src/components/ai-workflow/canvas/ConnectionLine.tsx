@@ -50,6 +50,8 @@ const CONNECTION_LINE_CONFIG = {
   ARROW_FILL_DEFAULT: '#94a3b8',
   /** 箭头填充色（选中） */
   ARROW_FILL_SELECTED: '#f5576c',
+  /** 箭头长度（需要从终点缩短的距离） */
+  ARROW_LENGTH: 10,
   /** 动画虚线间隔 */
   ANIMATION_DASH_ARRAY: '8, 6',
   /** 动画速度 */
@@ -166,12 +168,25 @@ export default defineComponent({
   },
   setup(props) {
     /**
+     * 计算贝塞尔曲线在 t=1 时的切线方向（用于箭头对齐）
+     */
+    const getBezierTangent = (x1: number, y1: number, cx1: number, cy1: number, cx2: number, cy2: number, x2: number, y2: number) => {
+      // 三次贝塞尔曲线在 t=1 处的导数
+      // B'(1) = 3(P3 - P2)
+      const dx = 3 * (x2 - cx2);
+      const dy = 3 * (y2 - cy2);
+      const length = Math.sqrt(dx * dx + dy * dy);
+      return { dx: dx / length, dy: dy / length };
+    };
+
+    /**
      * 计算 SVG 路径数据
      * 根据起始点和结束点生成贝塞尔曲线路径
      * 使用三次贝塞尔曲线（Cubic Bezier）实现平滑的连接效果
      */
     const pathData = computed(() => {
       let x1: number, y1: number, x2: number, y2: number;
+      let isDraft = false;
 
       // 优先使用草稿数据（正在绘制中）
       if (props.draft) {
@@ -179,6 +194,7 @@ export default defineComponent({
         y1 = props.draft.startY;
         x2 = props.draft.endX;
         y2 = props.draft.endY;
+        isDraft = true;
       }
       // 使用已建立的连接线数据
       else if (props.sourcePos && props.targetPos) {
@@ -193,19 +209,34 @@ export default defineComponent({
       }
 
       // 计算贝塞尔曲线控制点
-      // 控制点偏移量基于水平距离，使曲线更自然
       const dx = x2 - x1;
-      const controlOffset = Math.abs(dx) * CONNECTION_LINE_CONFIG.BEZIER_CONTROL_OFFSET;
+      const dy = y2 - y1;
 
-      // 第一个控制点（靠近起始点）
+      // 使用水平距离的一半作为控制点偏移，但至少保持一个最小值
+      const minOffset = 50; // 最小偏移量，确保曲线平滑
+      const controlOffset = Math.max(Math.abs(dx) * CONNECTION_LINE_CONFIG.BEZIER_CONTROL_OFFSET, minOffset);
+
+      // 第一个控制点（从起点向右偏移）
       const cx1 = x1 + controlOffset;
       const cy1 = y1;
-      // 第二个控制点（靠近结束点）
+      // 第二个控制点（从终点向左偏移）
       const cx2 = x2 - controlOffset;
       const cy2 = y2;
 
+      // 对于非草稿连接线，缩短终点以留出箭头空间
+      let endX = x2;
+      let endY = y2;
+
+      if (!isDraft) {
+        // 获取曲线在终点的切线方向
+        const tangent = getBezierTangent(x1, y1, cx1, cy1, cx2, cy2, x2, y2);
+        // 沿着切线方向向后移动箭头长度，让线条在箭头起点处结束
+        endX = x2 - tangent.dx * CONNECTION_LINE_CONFIG.ARROW_LENGTH;
+        endY = y2 - tangent.dy * CONNECTION_LINE_CONFIG.ARROW_LENGTH;
+      }
+
       // 生成 SVG 路径：M 移动到起始点，C 三次贝塞尔曲线到结束点
-      return `M ${x1},${y1} C ${cx1},${cy1} ${cx2},${cy2} ${x2},${y2}`;
+      return `M ${x1},${y1} C ${cx1},${cy1} ${cx2},${cy2} ${endX},${endY}`;
     });
 
     /**
@@ -288,13 +319,13 @@ export default defineComponent({
                 id={arrowMarkerId}
                 markerWidth="12"
                 markerHeight="12"
-                refX="10"
-                refY="3.5"
+                refX="1"
+                refY="6"
                 orient="auto"
-                markerUnits="strokeWidth"
+                markerUnits="userSpaceOnUse"
               >
                 <path
-                  d="M0,0 L0,7 L10,3.5 z"
+                  d="M2,2 L2,10 L10,6 z"
                   fill={props.selected ? CONNECTION_LINE_CONFIG.ARROW_FILL_SELECTED : CONNECTION_LINE_CONFIG.ARROW_FILL_DEFAULT}
                   style={{ transition: `fill ${CONNECTION_LINE_CONFIG.TRANSITION_DURATION}` }}
                 />
@@ -323,6 +354,9 @@ export default defineComponent({
               stroke-linecap="round"
               opacity={CONNECTION_LINE_CONFIG.GLOW_OPACITY}
               filter="url(#glow)"
+              style={{
+                vectorEffect: 'non-scaling-stroke'
+              }}
             />
           )}
 
@@ -334,29 +368,13 @@ export default defineComponent({
             fill="none"
             stroke-linecap="round"
             stroke-linejoin="round"
-            class={props.animated ? 'animated-line' : ''}
+            class={props.animated ? 'workflow-connection-animated' : ''}
             marker-end={!props.draft && props.sourcePos && props.targetPos ? `url(#${arrowMarkerId})` : undefined}
             style={{
-              transition: `all ${CONNECTION_LINE_CONFIG.TRANSITION_DURATION}`,
-              filter: props.selected || props.draft ? 'drop-shadow(0 0 4px rgba(0,0,0,0.2))' : 'none'
+              filter: props.selected || props.draft ? 'drop-shadow(0 0 4px rgba(0,0,0,0.2))' : 'none',
+              vectorEffect: 'non-scaling-stroke'
             }}
           />
-
-
-          {/* 动画样式定义 */}
-          <style>
-            {`
-              .animated-line {
-                stroke-dasharray: ${CONNECTION_LINE_CONFIG.ANIMATION_DASH_ARRAY};
-                animation: dash ${CONNECTION_LINE_CONFIG.ANIMATION_DURATION} linear infinite;
-              }
-              @keyframes dash {
-                to {
-                  stroke-dashoffset: -14;
-                }
-              }
-            `}
-          </style>
         </g>
       );
     };
