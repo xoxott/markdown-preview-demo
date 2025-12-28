@@ -135,90 +135,86 @@ export default defineComponent({
       >
         {/* 输入端口 */}
         {props.inputs && props.inputs.length > 0 && (
-          <div
-            class="node-ports node-inputs"
-            style={{
-              position: 'absolute',
-              left: '0px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '10px',
-              zIndex: 10
-            }}
-          >
-            {props.inputs.map(port => (
-              <div
-                key={port.id}
-                class="node-port node-port-input hover:scale-125 transition-transform"
-                data-node-id={props.id}
-                data-port-id={port.id}
-                data-port-type="input"
-                onMousedown={(e: MouseEvent) => handlePortMouseDown(port.id, 'input', e)}
-                onMouseup={(e: MouseEvent) => handlePortMouseUp(port.id, 'input', e)}
-                style={{
-                  width: '14px',
-                  height: '14px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  border: '3px solid #fff',
-                  cursor: 'crosshair',
-                  boxShadow: '0 2px 8px rgba(102, 126, 234, 0.4)',
-                  transition: 'all 0.2s',
-                  pointerEvents: 'auto',
-                  position: 'relative',
-                  left: '-10px', // 向左偏移10px (端口总宽度20px的一半)
-                  zIndex: 100
-                }}
-                title={port.label || 'Input'}
-              />
-            ))}
-          </div>
+          <>
+            {props.inputs.map((port, index) => {
+              // 使用与连接线完全相同的计算公式
+              const portCount = props.inputs!.length;
+              const nodeHeight = 72; // NODE_HEIGHT
+              const spacing = nodeHeight / (portCount + 1);
+              const portCenterY = spacing * (index + 1);
+
+              return (
+                <div
+                  key={port.id}
+                  class="node-port node-port-input hover:scale-125 transition-transform"
+                  data-node-id={props.id}
+                  data-port-id={port.id}
+                  data-port-type="input"
+                  onMousedown={(e: MouseEvent) => handlePortMouseDown(port.id, 'input', e)}
+                  onMouseup={(e: MouseEvent) => handlePortMouseUp(port.id, 'input', e)}
+                  style={{
+                    position: 'absolute',
+                    left: '0px',
+                    top: `${portCenterY}px`,
+                    transform: 'translate(-50%, -50%)', // 中心对齐
+                    width: '14px',
+                    height: '14px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    border: '3px solid #fff',
+                    cursor: 'crosshair',
+                    boxShadow: '0 2px 8px rgba(102, 126, 234, 0.4)',
+                    transition: 'all 0.2s',
+                    pointerEvents: 'auto',
+                    zIndex: 100
+                  }}
+                  title={port.label || 'Input'}
+                />
+              );
+            })}
+          </>
         )}
 
         {/* 输出端口 */}
         {props.outputs && props.outputs.length > 0 && (
-          <div
-            class="node-ports node-outputs"
-            style={{
-              position: 'absolute',
-              right: '0px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '14px',
-              zIndex: 10
-            }}
-          >
-            {props.outputs.map(port => (
-              <div
-                key={port.id}
-                class="node-port node-port-output hover:scale-125 transition-transform"
-                data-node-id={props.id}
-                data-port-id={port.id}
-                data-port-type="output"
-                onMousedown={(e: MouseEvent) => handlePortMouseDown(port.id, 'output', e)}
-                onMouseup={(e: MouseEvent) => handlePortMouseUp(port.id, 'output', e)}
-                style={{
-                  width: '14px',
-                  height: '14px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                  border: '3px solid #fff',
-                  cursor: 'crosshair',
-                  boxShadow: '0 2px 8px rgba(245, 87, 108, 0.4)',
-                  transition: 'all 0.2s',
-                  pointerEvents: 'auto',
-                  position: 'relative',
-                  left:'7px',
-                  zIndex: 100
-                }}
-                title={port.label || 'Output'}
-              />
-            ))}
-          </div>
+          <>
+            {props.outputs.map((port, index) => {
+              // 使用与连接线完全相同的计算公式
+              const portCount = props.outputs!.length;
+              const nodeHeight = 72; // NODE_HEIGHT
+              const spacing = nodeHeight / (portCount + 1);
+              const portCenterY = spacing * (index + 1);
+
+              return (
+                <div
+                  key={port.id}
+                  class="node-port node-port-output hover:scale-125 transition-transform"
+                  data-node-id={props.id}
+                  data-port-id={port.id}
+                  data-port-type="output"
+                  onMousedown={(e: MouseEvent) => handlePortMouseDown(port.id, 'output', e)}
+                  onMouseup={(e: MouseEvent) => handlePortMouseUp(port.id, 'output', e)}
+                  style={{
+                    position: 'absolute',
+                    right: '0px',
+                    top: `${portCenterY}px`,
+                    transform: 'translate(50%, -50%)', // 中心对齐
+                    width: '14px',
+                    height: '14px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                    border: '3px solid #fff',
+                    cursor: 'crosshair',
+                    boxShadow: '0 2px 8px rgba(245, 87, 108, 0.4)',
+                    transition: 'all 0.2s',
+                    pointerEvents: 'auto',
+                    zIndex: 100
+                  }}
+                  title={port.label || 'Output'}
+                />
+              );
+            })}
+          </>
         )}
 
         {/* 操作按钮组 */}

@@ -72,22 +72,18 @@ function calculatePortPosition(
   }
 
   // 计算端口Y坐标
-  // 端口容器：top: '50%', transform: 'translateY(-50%)'，从节点中心垂直居中
-  // 端口之间：gap: '10px'
-  // 端口大小：20px（包含边框）
+  // 端口容器：top: '0', height: '100%', justifyContent: 'space-evenly'
+  // space-evenly 会在端口之间和两端创建相等的空间
   const portCount = ports.length;
+  const nodeHeight = NODE_HEIGHT * zoom;
 
-  // 容器高度 = 所有端口高度 + 间隙
-  const totalPortsHeight = portCount * PORT_SIZE + (portCount - 1) * PORT_GAP;
-
-  // 容器顶部位置（考虑 translateY(-50%)）
-  const containerTop = nodeY + (NODE_HEIGHT * zoom) / 2 - (totalPortsHeight * zoom) / 2;
-
-  // 当前端口顶部位置
-  const portTop = containerTop + portIndex * (PORT_SIZE + PORT_GAP) * zoom;
-
-  // 端口中心Y坐标 = 端口顶部 + 端口半径
-  const portCenterY = portTop + PORT_RADIUS * zoom;
+  // space-evenly 的计算方式：
+  // 总空间 = nodeHeight
+  // 空隙数量 = portCount + 1（端口前、端口间、端口后）
+  // 每个空隙大小 = nodeHeight / (portCount + 1)
+  // 第 i 个端口的中心位置 = nodeY + 空隙大小 * (i + 1)
+  const spacing = nodeHeight / (portCount + 1);
+  const portCenterY = nodeY + spacing * (portIndex + 1);
 
   return {
     x: portCenterX,
