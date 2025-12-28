@@ -1,6 +1,7 @@
 import { defineComponent, computed, ref, watch, onMounted, onUnmounted, type PropType } from 'vue';
 import { useWorkflowCanvas } from '../hooks/useWorkflowCanvas';
 import { useConnectionPositions } from '../hooks/useConnectionPositions';
+import { useCanvasSettings } from '../hooks/useCanvasSettings';
 import { NODE_DIMENSIONS } from '../constants/node-dimensions';
 import CanvasGrid from './CanvasGrid';
 import CanvasToolbar from './CanvasToolbar';
@@ -10,6 +11,8 @@ import CanvasEmptyState from './CanvasEmptyState';
 import CanvasSelectionBox from './CanvasSelectionBox';
 import Minimap from './Minimap';
 import NodeConfigDrawer from '../panels/NodeConfigDrawer';
+import ConnectionLineSettingsDialog from '../dialogs/ConnectionLineSettingsDialog';
+import BackgroundSettingsDialog from '../dialogs/BackgroundSettingsDialog';
 
 export default defineComponent({
   name: 'WorkflowCanvas',
@@ -39,11 +42,23 @@ export default defineComponent({
       viewport: canvas.viewport
     });
 
+    // 使用画布设置 Hook
+    const {
+      connectionLineStyle,
+      backgroundSettings,
+      updateConnectionLineStyle,
+      updateBackgroundSettings
+    } = useCanvasSettings();
+
     // 画布容器尺寸
     const canvasSize = ref({ width: 0, height: 0 });
 
     // 配置抽屉状态
     const showConfigDrawer = ref(false);
+
+    // 设置对话框状态
+    const showConnectionLineDialog = ref(false);
+    const showBackgroundDialog = ref(false);
     const selectedNode = computed(() => {
       const selectedIds = canvas.selectedNodeIds.value;
       if (selectedIds.length === 1) {
@@ -183,6 +198,8 @@ export default defineComponent({
           onDistributeVertical={() => { canvas.distributeVertical(); canvas.saveHistory(); }}
           onToggleGrid={canvas.toggleGrid}
           onToggleMinimap={canvas.toggleMinimap}
+          onConnectionLineSettings={() => showConnectionLineDialog.value = true}
+          onBackgroundSettings={() => showBackgroundDialog.value = true}
           onLockSelected={canvas.lockSelectedNodes}
           onUnlockSelected={canvas.unlockSelectedNodes}
           onValidate={() => {
@@ -212,12 +229,15 @@ export default defineComponent({
           onContextmenu={(e: MouseEvent) => e.preventDefault()}
         >
           {/* 网格背景 - 可切换显示 */}
-          {canvas.showGrid.value && (
+          {backgroundSettings.value.showGrid && (
             <CanvasGrid
               offsetX={canvas.viewport.value.x}
               offsetY={canvas.viewport.value.y}
               zoom={canvas.viewport.value.zoom}
-              color='#f00'
+              size={backgroundSettings.value.gridSize}
+              color={backgroundSettings.value.gridColor}
+              gridType={backgroundSettings.value.gridType}
+              backgroundColor={backgroundSettings.value.backgroundColor}
             />
           )}
 
@@ -226,6 +246,7 @@ export default defineComponent({
             connections={canvas.connections.value}
             connectionPositions={connectionPositions.value}
             connectionDraft={canvas.connectionDraft.value}
+            connectionLineStyle={connectionLineStyle.value}
             onConnectionClick={canvas.removeConnection}
           />
 
@@ -278,6 +299,22 @@ export default defineComponent({
           node={selectedNode.value}
           onUpdate={handleUpdateNode}
           onClose={handleCloseDrawer}
+        />
+
+        {/* 连接线设置对话框 */}
+        <ConnectionLineSettingsDialog
+          show={showConnectionLineDialog.value}
+          settings={connectionLineStyle.value}
+          onUpdate={updateConnectionLineStyle}
+          onClose={() => showConnectionLineDialog.value = false}
+        />
+
+        {/* 背景设置对话框 */}
+        <BackgroundSettingsDialog
+          show={showBackgroundDialog.value}
+          settings={backgroundSettings.value}
+          onUpdate={updateBackgroundSettings}
+          onClose={() => showBackgroundDialog.value = false}
         />
       </div>
     );

@@ -1,4 +1,5 @@
 import { defineComponent, computed, type PropType } from 'vue';
+import type { ConnectionLineStyle } from '../types/canvas-settings';
 
 /**
  * 连接线位置坐标接口
@@ -164,6 +165,15 @@ export default defineComponent({
       type: Function as PropType<(id: string) => void>,
       required: false,
       default: undefined
+    },
+    /**
+     * 连接线样式配置
+     * 包含颜色、宽度、类型等样式信息
+     */
+    style: {
+      type: Object as PropType<ConnectionLineStyle>,
+      required: false,
+      default: undefined
     }
   },
   setup(props) {
@@ -208,63 +218,124 @@ export default defineComponent({
         return '';
       }
 
-      // 计算贝塞尔曲线控制点
-      const dx = x2 - x1;
-      const dy = y2 - y1;
+      // 判断是否显示箭头
+      const showArrow = !isDraft && (props.style?.showArrow !== false);
 
-      // 使用水平距离的一半作为控制点偏移，但至少保持一个最小值
-      const minOffset = 50; // 最小偏移量，确保曲线平滑
-      const controlOffset = Math.max(Math.abs(dx) * CONNECTION_LINE_CONFIG.BEZIER_CONTROL_OFFSET, minOffset);
+      // 获取线条类型
+      const lineType = props.style?.type || 'bezier';
 
-      // 第一个控制点（从起点向右偏移）
-      const cx1 = x1 + controlOffset;
-      const cy1 = y1;
-      // 第二个控制点（从终点向左偏移）
-      const cx2 = x2 - controlOffset;
-      const cy2 = y2;
+      // 根据线条类型生成路径
+      switch (lineType) {
+        case 'straight': {
+          // 直线
+          let endX = x2;
+          let endY = y2;
 
-      // 对于非草稿连接线，缩短终点以留出箭头空间
-      let endX = x2;
-      let endY = y2;
+          if (showArrow) {
+            // 缩短线条以留出箭头空间
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            if (length > 0) {
+              endX = x2 - (dx / length) * CONNECTION_LINE_CONFIG.ARROW_LENGTH;
+              endY = y2 - (dy / length) * CONNECTION_LINE_CONFIG.ARROW_LENGTH;
+            }
+          }
 
-      if (!isDraft) {
-        // 获取曲线在终点的切线方向
-        const tangent = getBezierTangent(x1, y1, cx1, cy1, cx2, cy2, x2, y2);
-        // 沿着切线方向向后移动箭头长度，让线条在箭头起点处结束
-        endX = x2 - tangent.dx * CONNECTION_LINE_CONFIG.ARROW_LENGTH;
-        endY = y2 - tangent.dy * CONNECTION_LINE_CONFIG.ARROW_LENGTH;
+          return `M ${x1},${y1} L ${endX},${endY}`;
+        }
+
+        case 'step': {
+          // 阶梯线（直角转折）
+          const midX = (x1 + x2) / 2;
+          let endX = x2;
+          let endY = y2;
+
+          if (showArrow) {
+            endX = x2 - CONNECTION_LINE_CONFIG.ARROW_LENGTH;
+          }
+
+          return `M ${x1},${y1} H ${midX} V ${y2} H ${endX}`;
+        }
+
+        case 'smoothstep': {
+          // 平滑阶梯线
+          const midX = (x1 + x2) / 2;
+          const radius = 10;
+          let endX = x2;
+          let endY = y2;
+
+          if (showArrow) {
+            endX = x2 - CONNECTION_LINE_CONFIG.ARROW_LENGTH;
+          }
+
+          return `M ${x1},${y1} H ${midX - radius} Q ${midX},${y1} ${midX},${y1 + radius} V ${y2 - radius} Q ${midX},${y2} ${midX + radius},${y2} H ${endX}`;
+        }
+
+        case 'bezier':
+        default: {
+          // 贝塞尔曲线（默认）
+          const dx = x2 - x1;
+          const minOffset = 50;
+          const controlOffset = Math.max(Math.abs(dx) * CONNECTION_LINE_CONFIG.BEZIER_CONTROL_OFFSET, minOffset);
+
+          const cx1 = x1 + controlOffset;
+          const cy1 = y1;
+          const cx2 = x2 - controlOffset;
+          const cy2 = y2;
+
+          let endX = x2;
+          let endY = y2;
+
+          if (showArrow) {
+            const tangent = getBezierTangent(x1, y1, cx1, cy1, cx2, cy2, x2, y2);
+            endX = x2 - tangent.dx * CONNECTION_LINE_CONFIG.ARROW_LENGTH;
+            endY = y2 - tangent.dy * CONNECTION_LINE_CONFIG.ARROW_LENGTH;
+          }
+
+          return `M ${x1},${y1} C ${cx1},${cy1} ${cx2},${cy2} ${endX},${endY}`;
+        }
       }
-
-      // 生成 SVG 路径：M 移动到起始点，C 三次贝塞尔曲线到结束点
-      return `M ${x1},${y1} C ${cx1},${cy1} ${cx2},${cy2} ${endX},${endY}`;
     });
 
     /**
      * 计算描边颜色
-     * 根据状态返回不同的颜色或渐变
+     * 根据状态和样式配置返回不同的颜色或渐变
      */
     const strokeColor = computed(() => {
       if (props.draft) {
-        return 'url(#gradient-draft)';
+        // 草稿线条：使用配置的颜色或默认渐变
+        return props.style?.color || 'url(#gradient-draft)';
       }
       if (props.selected) {
         return 'url(#gradient-selected)';
       }
-      return CONNECTION_LINE_CONFIG.DEFAULT_STROKE_COLOR;
+      // 使用自定义样式颜色或默认颜色
+      return props.style?.color || CONNECTION_LINE_CONFIG.DEFAULT_STROKE_COLOR;
     });
 
     /**
      * 计算描边宽度
-     * 根据状态返回不同的线条粗细
+     * 根据状态和样式配置返回不同的线条粗细
      */
     const strokeWidth = computed(() => {
       if (props.selected) {
         return CONNECTION_LINE_CONFIG.SELECTED_STROKE_WIDTH;
       }
       if (props.draft) {
-        return CONNECTION_LINE_CONFIG.DRAFT_STROKE_WIDTH;
+        // 草稿线条：使用配置的宽度或稍粗的默认宽度
+        return props.style?.width || CONNECTION_LINE_CONFIG.DRAFT_STROKE_WIDTH;
       }
-      return CONNECTION_LINE_CONFIG.DEFAULT_STROKE_WIDTH;
+      // 使用自定义样式宽度或默认宽度
+      return props.style?.width || CONNECTION_LINE_CONFIG.DEFAULT_STROKE_WIDTH;
+    });
+
+    /**
+     * 判断是否启用动画
+     * 根据 props 和样式配置
+     */
+    const isAnimated = computed(() => {
+      return props.animated || props.style?.animated || false;
     });
 
     /**
@@ -313,8 +384,8 @@ export default defineComponent({
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
-            {/* 箭头标记（仅在已建立的连接线上显示） */}
-            {!props.draft && props.sourcePos && props.targetPos && (
+            {/* 箭头标记（仅在已建立的连接线上显示，且配置为显示箭头） */}
+            {!props.draft && props.sourcePos && props.targetPos && (props.style?.showArrow !== false) && (
               <marker
                 id={arrowMarkerId}
                 markerWidth="12"
@@ -326,7 +397,11 @@ export default defineComponent({
               >
                 <path
                   d="M2,2 L2,10 L10,6 z"
-                  fill={props.selected ? CONNECTION_LINE_CONFIG.ARROW_FILL_SELECTED : CONNECTION_LINE_CONFIG.ARROW_FILL_DEFAULT}
+                  fill={
+                    props.selected
+                      ? CONNECTION_LINE_CONFIG.ARROW_FILL_SELECTED
+                      : (props.style?.color || CONNECTION_LINE_CONFIG.ARROW_FILL_DEFAULT)
+                  }
                   style={{ transition: `fill ${CONNECTION_LINE_CONFIG.TRANSITION_DURATION}` }}
                 />
               </marker>
@@ -368,8 +443,8 @@ export default defineComponent({
             fill="none"
             stroke-linecap="round"
             stroke-linejoin="round"
-            class={props.animated ? 'workflow-connection-animated' : ''}
-            marker-end={!props.draft && props.sourcePos && props.targetPos ? `url(#${arrowMarkerId})` : undefined}
+            class={isAnimated.value ? 'workflow-connection-animated' : ''}
+            marker-end={!props.draft && props.sourcePos && props.targetPos && (props.style?.showArrow !== false) ? `url(#${arrowMarkerId})` : undefined}
             style={{
               filter: props.selected || props.draft ? 'drop-shadow(0 0 4px rgba(0,0,0,0.2))' : 'none',
               vectorEffect: 'non-scaling-stroke'

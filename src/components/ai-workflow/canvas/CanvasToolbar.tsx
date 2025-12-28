@@ -104,6 +104,14 @@ export default defineComponent({
     onClear: {
       type: Function as PropType<() => void>,
       default: undefined
+    },
+    onConnectionLineSettings: {
+      type: Function as PropType<() => void>,
+      default: undefined
+    },
+    onBackgroundSettings: {
+      type: Function as PropType<() => void>,
+      default: undefined
     }
   },
   setup(props) {
@@ -147,15 +155,12 @@ export default defineComponent({
 
           <NTooltip>
             {{
-              default: () => '自动调整画布以显示所有节点',
+              default: () => '适应视图 - 自动调整画布以显示所有节点',
               trigger: () => (
                 <NButton size="small" onClick={props.onFitView} secondary>
-                  <template v-slots:icon>
-                    <NIcon>
-                      <Icon icon="mdi:fit-to-screen" />
-                    </NIcon>
-                  </template>
-                  适应视图
+                  <NIcon>
+                    <Icon icon="mdi:fit-to-screen" />
+                  </NIcon>
                 </NButton>
               )
             }}
@@ -338,6 +343,40 @@ export default defineComponent({
             )}
           </NButtonGroup>
 
+          {/* 设置按钮 */}
+          <NDivider vertical />
+          <NButtonGroup>
+            {props.onConnectionLineSettings && (
+              <NTooltip>
+                {{
+                  default: () => '连接线设置 - 配置线条样式',
+                  trigger: () => (
+                    <NButton size="small" onClick={props.onConnectionLineSettings} secondary>
+                      <NIcon>
+                        <Icon icon="mdi:vector-line" />
+                      </NIcon>
+                    </NButton>
+                  )
+                }}
+              </NTooltip>
+            )}
+
+            {props.onBackgroundSettings && (
+              <NTooltip>
+                {{
+                  default: () => '背景设置 - 配置网格和背景',
+                  trigger: () => (
+                    <NButton size="small" onClick={props.onBackgroundSettings} secondary>
+                      <NIcon>
+                        <Icon icon="mdi:palette-outline" />
+                      </NIcon>
+                    </NButton>
+                  )
+                }}
+              </NTooltip>
+            )}
+          </NButtonGroup>
+
           {/* 锁定控制 */}
           {props.selectedCount > 0 && (
             <NButtonGroup>
@@ -376,15 +415,12 @@ export default defineComponent({
           {props.onValidate && (
             <NTooltip>
               {{
-                default: () => '验证工作流',
+                default: () => '验证工作流配置',
                 trigger: () => (
                   <NButton size="small" onClick={props.onValidate} secondary>
-                    <template v-slots:icon>
-                      <NIcon>
-                        <Icon icon="mdi:check-circle-outline" />
-                      </NIcon>
-                    </template>
-                    验证
+                    <NIcon>
+                      <Icon icon="mdi:check-circle-outline" />
+                    </NIcon>
                   </NButton>
                 )
               }}
@@ -394,15 +430,12 @@ export default defineComponent({
           {props.onSave && (
             <NTooltip>
               {{
-                default: () => '保存当前工作流配置 (Ctrl + S)',
+                default: () => '保存工作流 (Ctrl + S)',
                 trigger: () => (
                   <NButton size="small" type="primary" onClick={props.onSave}>
-                    <template v-slots:icon>
-                      <NIcon>
-                        <Icon icon="mdi:content-save" />
-                      </NIcon>
-                    </template>
-                    保存工作流
+                    <NIcon>
+                      <Icon icon="mdi:content-save" />
+                    </NIcon>
                   </NButton>
                 )
               }}
@@ -414,15 +447,12 @@ export default defineComponent({
               <NDivider vertical />
               <NTooltip>
                 {{
-                  default: () => '删除画布上的所有节点和连接',
+                  default: () => '清空画布 - 删除所有节点和连接',
                   trigger: () => (
                     <NButton size="small" onClick={props.onClear} secondary>
-                      <template v-slots:icon>
-                        <NIcon>
-                          <Icon icon="mdi:delete-sweep" />
-                        </NIcon>
-                      </template>
-                      清空画布
+                      <NIcon>
+                        <Icon icon="mdi:delete-sweep" />
+                      </NIcon>
                     </NButton>
                   )
                 }}

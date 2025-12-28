@@ -1,4 +1,5 @@
 import { defineComponent, computed, type PropType } from 'vue';
+import type { GridType } from '../types/canvas-settings';
 
 /**
  * 网格组件常量配置
@@ -97,6 +98,22 @@ export default defineComponent({
     zoom: {
       type: Number as PropType<number>,
       default: GRID_CONFIG.DEFAULT_ZOOM
+    },
+    /**
+     * 网格类型
+     * @default 'dots'
+     */
+    gridType: {
+      type: String as PropType<GridType>,
+      default: 'dots' as GridType
+    },
+    /**
+     * 背景颜色
+     * @default '#ffffff'
+     */
+    backgroundColor: {
+      type: String as PropType<string>,
+      default: '#ffffff'
     }
   },
   setup(props) {
@@ -136,6 +153,78 @@ export default defineComponent({
      */
     const largePatternY = computed(() => props.offsetY % largePatternSize.value);
 
+    /**
+     * 渲染不同类型的网格图案
+     */
+    const renderGridPattern = () => {
+      switch (props.gridType) {
+        case 'dots':
+          // 点状网格
+          return (
+            <circle
+              cx={GRID_CONFIG.SMALL_DOT_CENTER}
+              cy={GRID_CONFIG.SMALL_DOT_CENTER}
+              r={GRID_CONFIG.SMALL_DOT_RADIUS}
+              fill={props.color}
+              opacity={GRID_CONFIG.SMALL_GRID_OPACITY}
+            />
+          );
+
+        case 'lines':
+          // 线状网格
+          return (
+            <>
+              <line
+                x1="0"
+                y1="0"
+                x2={smallPatternSize.value}
+                y2="0"
+                stroke={props.color}
+                stroke-width="0.5"
+                opacity={GRID_CONFIG.SMALL_GRID_OPACITY}
+              />
+              <line
+                x1="0"
+                y1="0"
+                x2="0"
+                y2={smallPatternSize.value}
+                stroke={props.color}
+                stroke-width="0.5"
+                opacity={GRID_CONFIG.SMALL_GRID_OPACITY}
+              />
+            </>
+          );
+
+        case 'cross':
+          // 十字网格
+          return (
+            <>
+              <line
+                x1={smallPatternSize.value / 2 - 2}
+                y1={smallPatternSize.value / 2}
+                x2={smallPatternSize.value / 2 + 2}
+                y2={smallPatternSize.value / 2}
+                stroke={props.color}
+                stroke-width="1"
+                opacity={GRID_CONFIG.SMALL_GRID_OPACITY}
+              />
+              <line
+                x1={smallPatternSize.value / 2}
+                y1={smallPatternSize.value / 2 - 2}
+                x2={smallPatternSize.value / 2}
+                y2={smallPatternSize.value / 2 + 2}
+                stroke={props.color}
+                stroke-width="1"
+                opacity={GRID_CONFIG.SMALL_GRID_OPACITY}
+              />
+            </>
+          );
+
+        default:
+          return null;
+      }
+    };
+
     return () => (
       <svg
         class="canvas-grid"
@@ -146,7 +235,8 @@ export default defineComponent({
           width: '100%',
           height: '100%',
           pointerEvents: 'none', // 不拦截鼠标事件，让交互事件穿透到画布
-          zIndex: 0 // 确保网格在最底层
+          zIndex: 0, // 确保网格在最底层
+          backgroundColor: props.backgroundColor
         }}
       >
         <defs>
@@ -160,14 +250,7 @@ export default defineComponent({
             height={smallPatternSize.value}
             patternUnits="userSpaceOnUse" // 使用用户空间单位，确保缩放正确
           >
-            {/* 小网格点：圆形点，位于模式中心 */}
-            <circle
-              cx={GRID_CONFIG.SMALL_DOT_CENTER}
-              cy={GRID_CONFIG.SMALL_DOT_CENTER}
-              r={GRID_CONFIG.SMALL_DOT_RADIUS}
-              fill={props.color}
-              opacity={GRID_CONFIG.SMALL_GRID_OPACITY}
-            />
+            {renderGridPattern()}
           </pattern>
 
           {/* 大网格线模式定义 */}

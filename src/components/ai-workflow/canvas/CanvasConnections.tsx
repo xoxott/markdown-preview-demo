@@ -7,6 +7,7 @@ import { defineComponent, type PropType } from 'vue';
 import ConnectionLine from './ConnectionLine';
 import type { ConnectionDraft } from '../hooks/useNodeConnection';
 import type { ConnectionPosition } from '../hooks/useConnectionPositions';
+import type { ConnectionLineStyle } from '../types/canvas-settings';
 
 export default defineComponent({
   name: 'CanvasConnections',
@@ -26,6 +27,11 @@ export default defineComponent({
     onConnectionClick: {
       type: Function as PropType<(id: string) => void>,
       required: true
+    },
+    connectionLineStyle: {
+      type: Object as PropType<ConnectionLineStyle>,
+      required: false,
+      default: undefined
     }
   },
   setup(props) {
@@ -53,13 +59,17 @@ export default defineComponent({
               sourcePos={positions.source}
               targetPos={positions.target}
               onClick={(id: string) => props.onConnectionClick(id)}
+              style={props.connectionLineStyle}
             />
           );
         })}
 
         {/* 正在绘制的连接线 */}
         {props.connectionDraft && (
-          <ConnectionLine draft={props.connectionDraft} />
+          <ConnectionLine
+            draft={props.connectionDraft}
+            style={props.connectionLineStyle}
+          />
         )}
       </svg>
     );
