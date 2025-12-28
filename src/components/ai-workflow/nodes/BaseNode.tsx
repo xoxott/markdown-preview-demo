@@ -220,7 +220,7 @@ export default defineComponent({
         {/* 操作按钮组 */}
         {props.selected && (
           <div
-            class="absolute -top-2 -right-2 z-20 flex gap-1"
+            class="absolute -top-1 -right-1 z-20 flex gap-1"
             style={{ pointerEvents: 'auto' }}
           >
             {/* 锁定/解锁按钮 */}
@@ -230,11 +230,16 @@ export default defineComponent({
                 circle
                 type={props.locked ? 'warning' : 'default'}
                 onClick={handleToggleLock}
-                class="shadow-lg"
-                secondary
+                class="shadow-md"
+                style={{
+                  width: '20px',
+                  height: '20px',
+                  minWidth: '20px',
+                  padding: '0'
+                }}
               >
                 <template v-slots:icon>
-                  <NIcon>
+                  <NIcon size={12}>
                     <Icon icon={props.locked ? 'mdi:lock' : 'mdi:lock-open-variant'} />
                   </NIcon>
                 </template>
@@ -248,10 +253,16 @@ export default defineComponent({
                 circle
                 type="error"
                 onClick={handleDelete}
-                class="shadow-lg"
+                class="shadow-md"
+                style={{
+                  width: '20px',
+                  height: '20px',
+                  minWidth: '20px',
+                  padding: '0'
+                }}
               >
                 <template v-slots:icon>
-                  <NIcon>
+                  <NIcon size={12}>
                     <Icon icon="mdi:close" />
                   </NIcon>
                 </template>

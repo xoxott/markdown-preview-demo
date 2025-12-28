@@ -96,11 +96,22 @@ export default defineComponent({
     };
 
     /**
-     * 监听选中节点变化，自动打开配置抽屉
+     * 处理节点点击 - 只在点击时打开配置抽屉
      */
-    watch(selectedNode, (node) => {
-      showConfigDrawer.value = !!node;
-    });
+    const handleNodeClickWithConfig = (nodeId: string, e: MouseEvent) => {
+      canvas.handleNodeClick(nodeId, e);
+
+      // 只有在单击选中单个节点时才打开配置抽屉
+      // 圈选或多选时不打开
+      if (!e.ctrlKey && !e.metaKey) {
+        // 延迟一帧，确保 selectedNodeIds 已更新
+        requestAnimationFrame(() => {
+          if (canvas.selectedNodeIds.value.length === 1 && canvas.selectedNodeIds.value[0] === nodeId) {
+            showConfigDrawer.value = true;
+          }
+        });
+      }
+    };
 
     /**
      * 更新节点配置
@@ -225,7 +236,7 @@ export default defineComponent({
               selectedNodeIds={canvas.selectedNodeIds.value}
               lockedNodeIds={Array.from(canvas.lockedNodeIds.value)}
               onNodeMouseDown={canvas.handleNodeMouseDown}
-              onNodeClick={canvas.handleNodeClick}
+              onNodeClick={handleNodeClickWithConfig}
               onNodeDelete={canvas.deleteNode}
               onNodeToggleLock={canvas.toggleNodeLock}
               onPortMouseDown={canvas.handlePortMouseDown}
