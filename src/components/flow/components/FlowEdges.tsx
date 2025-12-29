@@ -4,7 +4,7 @@
  * 负责渲染所有连接线，支持 Canvas/SVG 混合渲染、视口裁剪等性能优化
  */
 
-import { computed, defineComponent, onMounted, watch, ref, type PropType } from 'vue';
+import { computed, defineComponent, onMounted, watch, ref, shallowReactive, type PropType } from 'vue';
 import type { FlowEdge, FlowNode, FlowViewport } from '../types';
 import BaseEdge from './edges/BaseEdge';
 
@@ -20,6 +20,8 @@ export interface FlowEdgesProps {
   selectedEdgeIds?: string[];
   /** 视口状态 */
   viewport?: FlowViewport;
+  /** 实例 ID（用于生成唯一的 SVG ID） */
+  instanceId?: string;
   /** 是否启用视口裁剪 */
   enableViewportCulling?: boolean;
   /** 是否启用 Canvas 渲染（大量连接线时性能更好） */
@@ -126,6 +128,10 @@ export default defineComponent({
       type: Object as PropType<FlowViewport>,
       default: () => ({ x: 0, y: 0, zoom: 1 })
     },
+    instanceId: {
+      type: String,
+      default: 'default'
+    },
     enableViewportCulling: {
       type: Boolean,
       default: true
@@ -161,11 +167,50 @@ export default defineComponent({
       return props.enableCanvasRendering && props.edges.length >= props.canvasThreshold;
     });
 
-    // 计算可见连接线（视口裁剪）
+    // ✅ 性能优化：使用 Set 替代 Array.includes()，O(n) → O(1)
+    const selectedEdgeIdsSet = computed(() => new Set(props.selectedEdgeIds));
+
+    // ✅ 生成唯一 ID 前缀，避免多实例冲突
+    const idPrefix = computed(() => `flow-arrow-${props.instanceId}`);
+
+    // ✅ 性能优化：使用 shallowReactive 避免每次都重新创建 Map
+    const nodesMap = shallowReactive(new Map<string, FlowNode>());
+
+    // 监听 nodes 变化，智能更新 Map
+    watch(
+      () => props.nodes,
+      (newNodes) => {
+        // 检查是否需要完全重建
+        if (nodesMap.size !== newNodes.length) {
+          nodesMap.clear();
+          for (let i = 0; i < newNodes.length; i++) {
+            nodesMap.set(newNodes[i].id, newNodes[i]);
+          }
+        } else {
+          // 只更新变化的节点（拖拽时）
+          for (let i = 0; i < newNodes.length; i++) {
+            const node = newNodes[i];
+            nodesMap.set(node.id, node);
+          }
+        }
+      },
+      { immediate: true }
+    );
+
+    // 路径计算缓存（性能优化）
+    const pathCache = ref(new Map<string, {
+      path: string;
+      positions: any;
+      timestamp: number;
+    }>());
+
+    // 计算可见连接线（视口裁剪，使用 Map 优化）
     const visibleEdges = computed(() => {
       if (!props.enableViewportCulling) {
         return props.edges;
       }
+
+      const map = nodesMap; // shallowReactive 不需要 .value
 
       // 获取视口区域
       const viewportX = -props.viewport.x / props.viewport.zoom;
@@ -173,10 +218,10 @@ export default defineComponent({
       const viewportWidth = (window.innerWidth || 1000) / props.viewport.zoom;
       const viewportHeight = (window.innerHeight || 1000) / props.viewport.zoom;
 
-      // 过滤可见连接线（检查源节点和目标节点是否在视口内）
+      // 过滤可见连接线（使用 Map 查找，O(1)）
       return props.edges.filter(edge => {
-        const sourceNode = props.nodes.find(n => n.id === edge.source);
-        const targetNode = props.nodes.find(n => n.id === edge.target);
+        const sourceNode = map.get(edge.source);
+        const targetNode = map.get(edge.target);
 
         if (!sourceNode || !targetNode) {
           return false;
@@ -195,13 +240,31 @@ export default defineComponent({
       });
     });
 
-    // 计算连接线位置
+    // 计算连接线位置（带缓存，使用 Map 优化）
     const getEdgePositions = (edge: FlowEdge) => {
-      const sourceNode = props.nodes.find(n => n.id === edge.source);
-      const targetNode = props.nodes.find(n => n.id === edge.target);
+      // 性能优化：使用 Map 查找，O(1) 复杂度
+      const map = nodesMap; // shallowReactive 不需要 .value
+      const sourceNode = map.get(edge.source);
+      const targetNode = map.get(edge.target);
 
       if (!sourceNode || !targetNode) {
         return null;
+      }
+
+      // ✅ 优化：缓存键包含 viewport 信息，确保缩放/拖拽时实时更新
+      // 使用较小的容差（2px）以提高精度，同时保持缓存效率
+      const zoom = props.viewport.zoom;
+      const viewportX = Math.round(props.viewport.x / 10);
+      const viewportY = Math.round(props.viewport.y / 10);
+      const zoomKey = Math.round(zoom * 100); // 精确到小数点后2位
+
+      const cacheKey = `${edge.id}-${Math.round(sourceNode.position.x/2)}-${Math.round(sourceNode.position.y/2)}-${Math.round(targetNode.position.x/2)}-${Math.round(targetNode.position.y/2)}-${viewportX}-${viewportY}-${zoomKey}`;
+      const cached = pathCache.value.get(cacheKey);
+      const now = Date.now();
+
+      // ✅ 优化：缩短缓存有效期到 16ms（约1帧），确保缩放/拖拽时实时更新
+      if (cached && now - cached.timestamp < 16) {
+        return cached.positions;
       }
 
       // 如果有端口 ID，使用端口位置；否则使用节点中心
@@ -222,7 +285,7 @@ export default defineComponent({
         targetPos = getNodeCenter(targetNode, props.viewport);
       }
 
-      return {
+      const positions = {
         sourceX: sourcePos.x,
         sourceY: sourcePos.y,
         targetX: targetPos.x,
@@ -233,6 +296,22 @@ export default defineComponent({
         targetHandleX: edge.targetHandle ? targetPos.x : undefined,
         targetHandleY: edge.targetHandle ? targetPos.y : undefined
       };
+
+      // 更新缓存
+      pathCache.value.set(cacheKey, {
+        path: '', // 路径将在后续计算
+        positions,
+        timestamp: now
+      });
+
+      // ✅ 优化：更积极地清理缓存，避免内存占用过高
+      if (pathCache.value.size > 500) {
+        const entries = Array.from(pathCache.value.entries());
+        entries.sort((a, b) => b[1].timestamp - a[1].timestamp);
+        pathCache.value = new Map(entries.slice(0, 250));
+      }
+
+      return positions;
     };
 
     // Canvas 渲染（如果启用）
@@ -264,7 +343,7 @@ export default defineComponent({
           return;
         }
 
-        const isSelected = props.selectedEdgeIds.includes(edge.id);
+        const isSelected = selectedEdgeIdsSet.value.has(edge.id); // ✅ O(1) 查找
 
         // 设置样式
         ctx.strokeStyle = isSelected ? '#f5576c' : '#cbd5e1';
@@ -309,28 +388,32 @@ export default defineComponent({
       });
     };
 
-    // 监听视口变化和连接线变化，重新渲染 Canvas
-    onMounted(() => {
-      // 使用 nextTick 确保 DOM 已更新
-      setTimeout(() => {
+    // ✅ 优化：使用 RAF 节流渲染，避免过度渲染
+    let rafId: number | null = null;
+    const scheduleRender = () => {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+      rafId = requestAnimationFrame(() => {
         if (useCanvas.value && canvasRef.value) {
           renderCanvas();
         }
-      }, 0);
+        rafId = null;
+      });
+    };
+
+    // 监听视口变化和连接线变化，重新渲染 Canvas
+    onMounted(() => {
+      scheduleRender();
     });
 
-    // 监听视口和连接线变化，重新渲染 Canvas
+    // ✅ 优化：移除 deep watch，使用浅监听 + RAF 节流
     watch(
-      [() => visibleEdges.value, () => props.viewport, () => props.nodes, () => useCanvas.value],
+      [() => visibleEdges.value.length, () => props.viewport.zoom, () => props.viewport.x, () => props.viewport.y, () => useCanvas.value],
       () => {
-        if (useCanvas.value && canvasRef.value) {
-          // 使用 nextTick 确保 DOM 已更新
-          setTimeout(() => {
-            renderCanvas();
-          }, 0);
-        }
+        scheduleRender();
       },
-      { deep: true }
+      { deep: false }
     );
 
     return () => {
@@ -366,7 +449,7 @@ export default defineComponent({
       const refY = (6 / baseArrowSize) * arrowSize;
       const pathSize = (8 / baseArrowSize) * arrowSize;
 
-      // 箭头路径定义
+      // 箭头路径定义 - 使用更简洁的路径
       const arrowPath = `M${refX},${refX} L${refX},${refX + pathSize} L${refX + pathSize},${refY} z`;
 
       return (
@@ -381,31 +464,35 @@ export default defineComponent({
             overflow: 'visible',
             pointerEvents: 'none',
             zIndex: 1,
-            // GPU 加速优化
+            // ✅ GPU 加速优化
             willChange: 'transform',
             transform: 'translateZ(0)',
             backfaceVisibility: 'hidden',
             perspective: '1000px'
           }}
         >
-          {/* 共享的箭头标记定义（使用 <use> 优化） */}
+          {/* ✅ 共享的箭头标记定义 - 使用 <use> 优化，带唯一 ID */}
           <defs>
-            {/* 默认箭头标记 */}
-            <g id="flow-arrow-default">
-              <path d={arrowPath} fill="#cbd5e1" />
-            </g>
-            {/* 选中箭头标记 */}
-            <g id="flow-arrow-selected">
-              <path d={arrowPath} fill="#f5576c" />
-            </g>
-            {/* 悬停箭头标记 */}
-            <g id="flow-arrow-hovered">
-              <path d={arrowPath} fill="#94a3b8" />
-            </g>
+            {/* 共享的箭头路径定义 */}
+            <path
+              id={`${idPrefix.value}-path-default`}
+              d={arrowPath}
+              fill="#cbd5e1"
+            />
+            <path
+              id={`${idPrefix.value}-path-selected`}
+              d={arrowPath}
+              fill="#f5576c"
+            />
+            <path
+              id={`${idPrefix.value}-path-hovered`}
+              d={arrowPath}
+              fill="#94a3b8"
+            />
 
-            {/* 箭头标记（使用 <use> 引用共享定义） */}
+            {/* 箭头标记 - 使用 <use> 引用共享路径 */}
             <marker
-              id="flow-arrow-marker-default"
+              id={`${idPrefix.value}-marker-default`}
               markerWidth={arrowSize}
               markerHeight={arrowSize}
               refX={refX}
@@ -413,11 +500,11 @@ export default defineComponent({
               orient="auto"
               markerUnits="userSpaceOnUse"
             >
-              <use href="#flow-arrow-default" />
+              <use href={`#${idPrefix.value}-path-default`} />
             </marker>
 
             <marker
-              id="flow-arrow-marker-selected"
+              id={`${idPrefix.value}-marker-selected`}
               markerWidth={arrowSize}
               markerHeight={arrowSize}
               refX={refX}
@@ -425,11 +512,11 @@ export default defineComponent({
               orient="auto"
               markerUnits="userSpaceOnUse"
             >
-              <use href="#flow-arrow-selected" />
+              <use href={`#${idPrefix.value}-path-selected`} />
             </marker>
 
             <marker
-              id="flow-arrow-marker-hovered"
+              id={`${idPrefix.value}-marker-hovered`}
               markerWidth={arrowSize}
               markerHeight={arrowSize}
               refX={refX}
@@ -437,7 +524,7 @@ export default defineComponent({
               orient="auto"
               markerUnits="userSpaceOnUse"
             >
-              <use href="#flow-arrow-hovered" />
+              <use href={`#${idPrefix.value}-path-hovered`} />
             </marker>
           </defs>
           {visibleEdges.value.map(edge => {
@@ -446,7 +533,7 @@ export default defineComponent({
               return null;
             }
 
-            const isSelected = props.selectedEdgeIds.includes(edge.id);
+            const isSelected = selectedEdgeIdsSet.value.has(edge.id); // ✅ O(1) 查找
 
             // 生成路径（使用端口位置或节点中心）
             const startX = positions.sourceHandleX ?? positions.sourceX;
@@ -534,6 +621,7 @@ export default defineComponent({
                 targetHandleY={positions.targetHandleY}
                 path={path}
                 viewport={props.viewport}
+                instanceId={props.instanceId}
                 selected={isSelected}
                 onClick={(event: MouseEvent) => {
                   if (props.onEdgeClick) {

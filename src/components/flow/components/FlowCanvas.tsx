@@ -4,7 +4,7 @@
  * 整合所有功能的核心画布组件，提供完整的图形编辑器功能
  */
 
-import { defineComponent, ref, computed, onMounted, onUnmounted, type PropType, CSSProperties } from 'vue';
+import { defineComponent, ref, computed, watch, onMounted, onUnmounted, shallowRef, type PropType, CSSProperties } from 'vue';
 import { useFlowConfig } from '../hooks/useFlowConfig';
 import { useFlowState } from '../hooks/useFlowState';
 import { FlowEventEmitter } from '../core/events/FlowEventEmitter';
@@ -120,6 +120,69 @@ export default defineComponent({
       maxHistorySize: config.value.performance?.maxHistorySize || 50
     });
 
+    // ✅ 性能优化：使用 computed 但避免在拖拽时重建
+    const nodesMap = computed(() => {
+      return new Map(nodes.value.map(n => [n.id, n]));
+    });
+
+    // ✅ 性能优化：高效的 ID 比较函数 O(n log n) → O(n)
+    const compareNodeIds = (arr1: FlowNode[], arr2: FlowNode[]): boolean => {
+      if (arr1.length !== arr2.length) return false;
+
+      const set1 = new Set(arr1.map(n => n.id));
+      const set2 = new Set(arr2.map(n => n.id));
+
+      if (set1.size !== set2.size) return false;
+
+      for (const id of set1) {
+        if (!set2.has(id)) return false;
+      }
+
+      return true;
+    };
+
+    const compareEdgeIds = (arr1: FlowEdge[], arr2: FlowEdge[]): boolean => {
+      if (arr1.length !== arr2.length) return false;
+
+      const set1 = new Set(arr1.map(e => e.id));
+      const set2 = new Set(arr2.map(e => e.id));
+
+      if (set1.size !== set2.size) return false;
+
+      for (const id of set1) {
+        if (!set2.has(id)) return false;
+      }
+
+      return true;
+    };
+
+    // 监听 props 变化，同步到内部状态
+    watch(
+      () => props.initialNodes,
+      (newNodes) => {
+        if (newNodes && newNodes.length > 0) {
+          // ✅ 使用优化的比较函数
+          if (!compareNodeIds(nodes.value, newNodes)) {
+            nodes.value = [...newNodes];
+          }
+        }
+      },
+      { deep: false }
+    );
+
+    watch(
+      () => props.initialEdges,
+      (newEdges) => {
+        if (newEdges && newEdges.length > 0) {
+          // ✅ 使用优化的比较函数
+          if (!compareEdgeIds(edges.value, newEdges)) {
+            edges.value = [...newEdges];
+          }
+        }
+      },
+      { deep: false }
+    );
+
     // 事件系统
     const eventEmitter = new FlowEventEmitter();
 
@@ -145,6 +208,10 @@ export default defineComponent({
     let panStartY = 0;
     let panStartViewportX = 0;
     let panStartViewportY = 0;
+
+    // RAF 节流优化
+    let rafId: number | null = null;
+    let pendingMouseEvent: MouseEvent | null = null;
 
     const handleMouseDown = (event: MouseEvent) => {
       // 如果点击在节点上，不处理画布拖拽
@@ -192,43 +259,63 @@ export default defineComponent({
     const connectionPreviewPos = ref<{ x: number; y: number } | null>(null);
 
     const handleMouseMove = (event: MouseEvent) => {
-      // 优先处理连接创建
-      if (connectionDraft.value) {
-        // 更新连接预览位置
-        connectionPreviewPos.value = {
-          x: event.clientX,
-          y: event.clientY
-        };
+      // 存储最新的鼠标事件
+      pendingMouseEvent = event;
+
+      // 如果已经有待处理的 RAF，直接返回
+      if (rafId !== null) {
         return;
       }
 
-      // 清除预览位置
-      connectionPreviewPos.value = null;
+      // 使用 RAF 节流
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
 
-      // 优先处理节点拖拽
-      if (isNodeDragging) {
-        handleNodeMouseMove(event);
-        return;
-      }
+        if (!pendingMouseEvent) {
+          return;
+        }
 
-      if (!isPanning) {
-        return;
-      }
+        const evt = pendingMouseEvent;
+        pendingMouseEvent = null;
 
-      const deltaX = event.clientX - panStartX;
-      const deltaY = event.clientY - panStartY;
+        // 优先处理连接创建
+        if (connectionDraft.value) {
+          // 更新连接预览位置
+          connectionPreviewPos.value = {
+            x: evt.clientX,
+            y: evt.clientY
+          };
+          return;
+        }
 
-      panViewport(deltaX, deltaY);
+        // 清除预览位置
+        connectionPreviewPos.value = null;
 
-      // 重置起始位置
-      panStartX = event.clientX;
-      panStartY = event.clientY;
-      panStartViewportX = viewport.value.x;
-      panStartViewportY = viewport.value.y;
+        // 优先处理节点拖拽
+        if (isNodeDragging) {
+          handleNodeMouseMove(evt);
+          return;
+        }
 
-      // 触发视口变化事件
-      emit('viewport-change', viewport.value);
-      eventEmitter.emit('onCanvasPan', viewport.value);
+        if (!isPanning) {
+          return;
+        }
+
+        const deltaX = evt.clientX - panStartX;
+        const deltaY = evt.clientY - panStartY;
+
+        panViewport(deltaX, deltaY);
+
+        // 重置起始位置
+        panStartX = evt.clientX;
+        panStartY = evt.clientY;
+        panStartViewportX = viewport.value.x;
+        panStartViewportY = viewport.value.y;
+
+        // 触发视口变化事件
+        emit('viewport-change', viewport.value);
+        eventEmitter.emit('onCanvasPan', viewport.value);
+      });
     };
 
     const handleMouseUp = (event: MouseEvent) => {
@@ -384,6 +471,9 @@ export default defineComponent({
       }
     };
 
+    // ✅ 性能优化：追踪拖拽节点 ID，用于 z-index 层级管理
+    const draggingNodeId = ref<string | null>(null);
+
     const handleNodeMouseDown = (node: FlowNode, event: MouseEvent) => {
       // 检查是否点击在端口上（通过检查事件目标）
       const target = event.target as HTMLElement;
@@ -398,6 +488,9 @@ export default defineComponent({
         return;
       }
 
+      // ✅ 记录拖拽节点 ID（用于提升 z-index）
+      draggingNodeId.value = node.id;
+
       isNodeDragging = true;
       nodeDragState = {
         nodeId: node.id,
@@ -411,12 +504,17 @@ export default defineComponent({
       event.stopPropagation();
     };
 
+    // ✅ 性能优化：RAF 节流拖拽更新
+    let isDraggingRaf = false;
+    let pendingDragUpdate: { x: number; y: number } | null = null;
+
     const handleNodeMouseMove = (event: MouseEvent) => {
       if (!isNodeDragging || !nodeDragState) {
         return;
       }
 
-      const node = nodes.value.find(n => n.id === nodeDragState!.nodeId);
+      // 性能优化：使用 Map 查找，O(1) 复杂度
+      const node = nodesMap.value.get(nodeDragState!.nodeId);
       if (!node) {
         isNodeDragging = false;
         nodeDragState = null;
@@ -446,12 +544,33 @@ export default defineComponent({
       const finalX = newX;
       const finalY = newY;
 
-      updateNode(nodeDragState.nodeId, { position: { x: finalX, y: finalY } });
+      // ✅ 性能优化：保存待更新的位置，但不立即更新
+      pendingDragUpdate = { x: finalX, y: finalY };
+
+      // ✅ 性能优化：如果已经有 RAF 在执行，跳过（避免过度更新）
+      if (isDraggingRaf) return;
+
+      isDraggingRaf = true;
+      requestAnimationFrame(() => {
+        if (pendingDragUpdate && nodeDragState) {
+          // ✅ 批量更新：位置更新
+          const draggedNode = nodesMap.value.get(nodeDragState.nodeId);
+          if (draggedNode) {
+            draggedNode.position.x = pendingDragUpdate.x;
+            draggedNode.position.y = pendingDragUpdate.y;
+          }
+          pendingDragUpdate = null;
+        }
+        isDraggingRaf = false;
+      });
     };
 
     const handleNodeMouseUp = () => {
       const wasDragging = isNodeDragging;
       const hadMoved = nodeDragState?.hasMoved || false;
+
+      // ✅ 清除拖拽节点 ID（恢复 z-index）
+      draggingNodeId.value = null;
 
       isNodeDragging = false;
       nodeDragState = null;
@@ -532,6 +651,12 @@ export default defineComponent({
     });
 
     onUnmounted(() => {
+      // 清理 RAF
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+
       if (canvasRef.value) {
         canvasRef.value.removeEventListener('mousedown', handleMouseDown);
         document.removeEventListener('mousemove', handleMouseMove);
@@ -589,6 +714,7 @@ export default defineComponent({
               gridOpacity={config.value.canvas?.gridOpacity}
               backgroundColor={config.value.canvas?.backgroundColor}
               viewport={viewport.value}
+              instanceId={props.id || 'default'}
             />
           )
         )}
@@ -599,6 +725,7 @@ export default defineComponent({
           nodes={nodes.value}
           selectedEdgeIds={selectedEdgeIds.value}
           viewport={viewport.value}
+          instanceId={props.id || 'default'}
           enableViewportCulling={config.value.performance?.enableViewportCulling}
           enableCanvasRendering={config.value.performance?.enableEdgeCanvasRendering}
           canvasThreshold={config.value.performance?.edgeCanvasThreshold}
@@ -623,6 +750,7 @@ export default defineComponent({
             nodes={nodes.value}
             selectedNodeIds={selectedNodeIds.value}
             lockedNodeIds={[]}
+            draggingNodeId={draggingNodeId.value}
             viewport={viewport.value}
             enableViewportCulling={config.value.performance?.enableViewportCulling}
             viewportCullingBuffer={config.value.performance?.virtualScrollBuffer}

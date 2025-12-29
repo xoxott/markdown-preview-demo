@@ -74,7 +74,20 @@ export default defineComponent({
     const dragStartX = ref(0);
     const dragStartY = ref(0);
 
-    // 计算节点边界
+    // ✅ 性能优化：边界计算缓存
+    const boundsCache = ref<{
+      nodesHash: string;
+      bounds: {
+        minX: number;
+        minY: number;
+        maxX: number;
+        maxY: number;
+        width: number;
+        height: number;
+      };
+    } | null>(null);
+
+    // 计算节点边界（带缓存）
     const bounds = computed(() => {
       if (props.nodes.length === 0) {
         return {
@@ -87,12 +100,24 @@ export default defineComponent({
         };
       }
 
+      // ✅ 生成节点哈希（只包含位置和大小）
+      const nodesHash = props.nodes
+        .map(n => `${n.id}-${n.position.x}-${n.position.y}-${n.size?.width || 220}-${n.size?.height || 72}`)
+        .join('|');
+
+      // ✅ 如果哈希相同，返回缓存
+      if (boundsCache.value && boundsCache.value.nodesHash === nodesHash) {
+        return boundsCache.value.bounds;
+      }
+
+      // 计算新边界（使用 for 循环代替 forEach，性能更好）
       let minX = Infinity;
       let minY = Infinity;
       let maxX = -Infinity;
       let maxY = -Infinity;
 
-      props.nodes.forEach(node => {
+      for (let i = 0; i < props.nodes.length; i++) {
+        const node = props.nodes[i];
         const nodeX = node.position.x;
         const nodeY = node.position.y;
         const nodeWidth = node.size?.width || 220;
@@ -102,7 +127,7 @@ export default defineComponent({
         minY = Math.min(minY, nodeY);
         maxX = Math.max(maxX, nodeX + nodeWidth);
         maxY = Math.max(maxY, nodeY + nodeHeight);
-      });
+      }
 
       // 添加边距
       const padding = 100;
@@ -111,7 +136,7 @@ export default defineComponent({
       maxX += padding;
       maxY += padding;
 
-      return {
+      const result = {
         minX,
         minY,
         maxX,
@@ -119,6 +144,11 @@ export default defineComponent({
         width: maxX - minX,
         height: maxY - minY
       };
+
+      // ✅ 更新缓存
+      boundsCache.value = { nodesHash, bounds: result };
+
+      return result;
     });
 
     // 计算缩放比例
@@ -284,9 +314,31 @@ export default defineComponent({
           <svg
             width={width}
             height={height}
-            style={{ display: 'block' }}
+            style={{
+              display: 'block',
+              // ✅ GPU 加速优化
+              willChange: 'transform',
+              transform: 'translateZ(0)',
+              backfaceVisibility: 'hidden'
+            }}
           >
-            {/* 渲染节点 */}
+            <defs>
+              {/* ✅ 共享的节点矩形定义（使用 <use> 引用） */}
+              <rect
+                id="flow-minimap-node-shape"
+                fill="#2080f0"
+                opacity={0.3}
+                stroke="#2080f0"
+                stroke-width={1}
+                // ✅ GPU 加速
+                style={{
+                  willChange: 'transform',
+                  transform: 'translateZ(0)'
+                }}
+              />
+            </defs>
+
+            {/* 渲染节点 - 使用 <use> 引用共享定义 */}
             {props.nodes.map(node => {
               const nodeX = (node.position.x - minX) * scaleValue;
               const nodeY = (node.position.y - minY) * scaleValue;
@@ -294,16 +346,13 @@ export default defineComponent({
               const nodeHeight = (node.size?.height || 72) * scaleValue;
 
               return (
-                <rect
+                <use
                   key={node.id}
+                  href="#flow-minimap-node-shape"
                   x={nodeX}
                   y={nodeY}
                   width={nodeWidth}
                   height={nodeHeight}
-                  fill="#2080f0"
-                  opacity={0.3}
-                  stroke="#2080f0"
-                  stroke-width={1}
                 />
               );
             })}
@@ -317,7 +366,12 @@ export default defineComponent({
               fill="none"
               stroke="#f5576c"
               stroke-width={2}
-              style={{ cursor: 'move' }}
+              style={{
+                cursor: 'move',
+                // ✅ GPU 加速
+                willChange: 'transform',
+                transform: 'translateZ(0)'
+              }}
               onMousedown={handleViewportBoxMouseDown}
             />
           </svg>

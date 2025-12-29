@@ -28,6 +28,9 @@ export * from './core/plugin';
 // 性能优化导出
 export * from './core/performance';
 
+// 命令模式导出
+export * from './core/commands';
+
 // Hook 导出
 export * from './hooks';
 

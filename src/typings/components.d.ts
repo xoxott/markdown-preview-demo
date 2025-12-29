@@ -82,6 +82,7 @@ declare module 'vue' {
     NThing: typeof import('naive-ui')['NThing']
     NTooltip: typeof import('naive-ui')['NTooltip']
     NWatermark: typeof import('naive-ui')['NWatermark']
+    'OptimizedFlowCanvas.example': typeof import('./../components/flow/examples/OptimizedFlowCanvas.example.vue')['default']
     PinToggler: typeof import('./../components/common/pin-toggler.vue')['default']
     ReloadButton: typeof import('./../components/common/reload-button.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

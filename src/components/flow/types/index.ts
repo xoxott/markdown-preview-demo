@@ -56,3 +56,27 @@ export type {
   FlowPluginConfig
 } from './flow-plugin';
 
+// Zod Schemas 和验证函数
+export {
+  FlowPositionSchema,
+  FlowSizeSchema,
+  FlowHandleSchema,
+  FlowNodeSchema,
+  FlowEdgeSchema,
+  FlowViewportSchema,
+  FlowCanvasConfigSchema,
+  FlowNodeConfigSchema,
+  FlowEdgeConfigSchema,
+  FlowInteractionConfigSchema,
+  FlowPerformanceConfigSchema,
+  FlowThemeConfigSchema,
+  FlowConfigSchema,
+  // Zod 运行时验证函数（重命名以避免与 utils 中的函数冲突）
+  zodValidateNode,
+  zodValidateEdge,
+  zodValidateConfig,
+  zodSafeValidateNode,
+  zodSafeValidateEdge,
+  zodSafeValidateConfig
+} from './schemas';
+

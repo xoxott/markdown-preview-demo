@@ -33,6 +33,8 @@ export interface BaseEdgeProps {
   path?: string;
   /** 视口状态（用于计算缩放后的线条粗细和箭头大小） */
   viewport?: { zoom: number };
+  /** 实例 ID（用于生成唯一的箭头标记 ID） */
+  instanceId?: string;
   /** 自定义样式 */
   style?: Record<string, any>;
   /** CSS 类名 */
@@ -97,6 +99,10 @@ export default defineComponent({
       type: Object as PropType<{ zoom: number }>,
       default: () => ({ zoom: 1 })
     },
+    instanceId: {
+      type: String,
+      default: 'default'
+    },
     style: {
       type: Object as PropType<Record<string, any>>,
       default: () => ({})
@@ -108,6 +114,8 @@ export default defineComponent({
   },
   emits: ['click', 'double-click', 'mouseenter', 'mouseleave', 'contextmenu'],
   setup(props, { emit, slots }) {
+    // ✅ 生成唯一的箭头标记 ID 前缀
+    const arrowIdPrefix = computed(() => `flow-arrow-${props.instanceId}`);
     // 计算实际起点和终点（如果有端口位置，使用端口位置）
     const startX = computed(() => props.sourceHandleX ?? props.sourceX);
     const startY = computed(() => props.sourceHandleY ?? props.sourceY);
@@ -199,19 +207,20 @@ export default defineComponent({
       emit('contextmenu', event);
     };
 
-    // 计算箭头标记 ID（使用共享标记）
+    // 计算箭头标记 ID（使用共享标记，带实例 ID）
     const markerEndId = computed(() => {
       if (props.edge.showArrow === false) {
         return undefined;
       }
+      const prefix = arrowIdPrefix.value;
       // 根据状态选择对应的共享标记
       if (props.selected) {
-        return 'flow-arrow-marker-selected';
+        return `${prefix}-marker-selected`;
       }
       if (props.hovered) {
-        return 'flow-arrow-marker-hovered';
+        return `${prefix}-marker-hovered`;
       }
-      return 'flow-arrow-marker-default';
+      return `${prefix}-marker-default`;
     });
 
     // 检查是否显示箭头（默认显示）
@@ -234,7 +243,12 @@ export default defineComponent({
         {/* 连接线路径（使用共享的箭头标记） */}
         <path
           d={pathData.value}
-          style={edgeStyle.value}
+          style={{
+            ...edgeStyle.value,
+            // ✅ GPU 加速优化
+            willChange: 'transform',
+            transform: 'translateZ(0)'
+          }}
           marker-end={showArrow.value && markerEndId.value ? `url(#${markerEndId.value})` : undefined}
           onClick={handleClick}
           onDblclick={handleDoubleClick}

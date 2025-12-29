@@ -9,6 +9,7 @@ export { default as FlowBackground } from './FlowBackground';
 export { default as FlowMinimap } from './FlowMinimap';
 export { default as FlowToolbar } from './FlowToolbar';
 export { default as FlowEmptyState } from './FlowEmptyState';
+export { default as FlowPerformanceMonitor } from './FlowPerformanceMonitor';
 export type { FlowCanvasProps } from './FlowCanvas';
 export type { FlowNodesProps } from './FlowNodes';
 export type { FlowEdgesProps } from './FlowEdges';

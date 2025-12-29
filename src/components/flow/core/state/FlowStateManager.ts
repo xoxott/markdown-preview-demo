@@ -50,6 +50,12 @@ export class FlowStateManager {
   /** 最大历史记录数量 */
   private maxHistorySize: number = 50;
 
+  // ✅ 性能优化：使用 Set 和 Map 进行 O(1) 查找
+  private nodeIdsSet = new Set<string>();
+  private edgeIdsSet = new Set<string>();
+  private nodesMap = new Map<string, FlowNode>();
+  private edgesMap = new Map<string, FlowEdge>();
+
   constructor(initialState?: {
     nodes?: FlowNode[];
     edges?: FlowEdge[];
@@ -65,9 +71,33 @@ export class FlowStateManager {
     this.selectedEdgeIds = ref<string[]>([]);
     this.maxHistorySize = initialState?.maxHistorySize || 50;
 
+    // ✅ 初始化索引
+    this.rebuildIndexes();
+
     // 保存初始状态
     if (initialState) {
       this.pushHistory();
+    }
+  }
+
+  // ✅ 重建索引（用于批量操作后同步）
+  private rebuildIndexes(): void {
+    this.nodeIdsSet.clear();
+    this.nodesMap.clear();
+    
+    for (let i = 0; i < this.nodes.value.length; i++) {
+      const node = this.nodes.value[i];
+      this.nodeIdsSet.add(node.id);
+      this.nodesMap.set(node.id, node);
+    }
+    
+    this.edgeIdsSet.clear();
+    this.edgesMap.clear();
+    
+    for (let i = 0; i < this.edges.value.length; i++) {
+      const edge = this.edges.value[i];
+      this.edgeIdsSet.add(edge.id);
+      this.edgesMap.set(edge.id, edge);
     }
   }
 
@@ -79,13 +109,15 @@ export class FlowStateManager {
    * @param node 节点数据
    */
   addNode(node: FlowNode): void {
-    // 检查节点 ID 是否已存在
-    if (this.nodes.value.some(n => n.id === node.id)) {
+    // ✅ O(1) 查找
+    if (this.nodeIdsSet.has(node.id)) {
       console.warn(`Node with id "${node.id}" already exists`);
       return;
     }
 
     this.nodes.value.push(node);
+    this.nodeIdsSet.add(node.id);
+    this.nodesMap.set(node.id, node);
   }
 
   /**
@@ -94,7 +126,18 @@ export class FlowStateManager {
    * @param nodes 节点数据数组
    */
   addNodes(nodes: FlowNode[]): void {
-    nodes.forEach(node => this.addNode(node));
+    // ✅ 批量操作优化：过滤 + 一次性更新
+    const validNodes = nodes.filter(n => !this.nodeIdsSet.has(n.id));
+    
+    if (validNodes.length === 0) return;
+    
+    this.nodes.value.push(...validNodes);
+    
+    for (let i = 0; i < validNodes.length; i++) {
+      const node = validNodes[i];
+      this.nodeIdsSet.add(node.id);
+      this.nodesMap.set(node.id, node);
+    }
   }
 
   /**
@@ -104,16 +147,21 @@ export class FlowStateManager {
    * @param updates 要更新的数据
    */
   updateNode(nodeId: string, updates: Partial<FlowNode>): void {
-    const index = this.nodes.value.findIndex(n => n.id === nodeId);
-    if (index === -1) {
+    // ✅ O(1) 查找
+    const node = this.nodesMap.get(nodeId);
+    if (!node) {
       console.warn(`Node with id "${nodeId}" not found`);
       return;
     }
 
-    this.nodes.value[index] = {
-      ...this.nodes.value[index],
-      ...updates
-    };
+    // 更新节点
+    Object.assign(node, updates);
+    
+    // 触发响应式更新
+    this.nodes.value = [...this.nodes.value];
+    
+    // 更新 Map
+    this.nodesMap.set(nodeId, node);
   }
 
   /**
@@ -122,17 +170,30 @@ export class FlowStateManager {
    * @param nodeId 节点 ID
    */
   removeNode(nodeId: string): void {
-    const index = this.nodes.value.findIndex(n => n.id === nodeId);
-    if (index === -1) {
+    // ✅ O(1) 查找
+    if (!this.nodeIdsSet.has(nodeId)) {
       return;
     }
 
-    this.nodes.value.splice(index, 1);
+    this.nodes.value = this.nodes.value.filter(n => n.id !== nodeId);
+    this.nodeIdsSet.delete(nodeId);
+    this.nodesMap.delete(nodeId);
 
     // 同时删除相关的连接线
-    this.edges.value = this.edges.value.filter(
-      edge => edge.source !== nodeId && edge.target !== nodeId
-    );
+    const edgesToRemove: string[] = [];
+    for (const [id, edge] of this.edgesMap) {
+      if (edge.source === nodeId || edge.target === nodeId) {
+        edgesToRemove.push(id);
+      }
+    }
+    
+    if (edgesToRemove.length > 0) {
+      this.edges.value = this.edges.value.filter(e => !edgesToRemove.includes(e.id));
+      edgesToRemove.forEach(id => {
+        this.edgeIdsSet.delete(id);
+        this.edgesMap.delete(id);
+      });
+    }
 
     // 从选中列表中移除
     const selectedIndex = this.selectedNodeIds.value.indexOf(nodeId);
@@ -147,7 +208,38 @@ export class FlowStateManager {
    * @param nodeIds 节点 ID 数组
    */
   removeNodes(nodeIds: string[]): void {
-    nodeIds.forEach(nodeId => this.removeNode(nodeId));
+    // ✅ 批量操作优化：一次性过滤
+    const nodeIdsToRemove = new Set(nodeIds.filter(id => this.nodeIdsSet.has(id)));
+    
+    if (nodeIdsToRemove.size === 0) return;
+    
+    this.nodes.value = this.nodes.value.filter(n => !nodeIdsToRemove.has(n.id));
+    
+    nodeIdsToRemove.forEach(id => {
+      this.nodeIdsSet.delete(id);
+      this.nodesMap.delete(id);
+    });
+
+    // 同时删除相关的连接线
+    const edgesToRemove: string[] = [];
+    for (const [id, edge] of this.edgesMap) {
+      if (nodeIdsToRemove.has(edge.source) || nodeIdsToRemove.has(edge.target)) {
+        edgesToRemove.push(id);
+      }
+    }
+    
+    if (edgesToRemove.length > 0) {
+      this.edges.value = this.edges.value.filter(e => !edgesToRemove.includes(e.id));
+      edgesToRemove.forEach(id => {
+        this.edgeIdsSet.delete(id);
+        this.edgesMap.delete(id);
+      });
+    }
+
+    // 从选中列表中移除
+    this.selectedNodeIds.value = this.selectedNodeIds.value.filter(
+      id => !nodeIdsToRemove.has(id)
+    );
   }
 
   /**
@@ -157,7 +249,8 @@ export class FlowStateManager {
    * @returns 节点数据，如果不存在则返回 undefined
    */
   getNode(nodeId: string): FlowNode | undefined {
-    return this.nodes.value.find(n => n.id === nodeId);
+    // ✅ O(1) 查找
+    return this.nodesMap.get(nodeId);
   }
 
   /**
@@ -167,7 +260,8 @@ export class FlowStateManager {
    * @returns 是否存在
    */
   hasNode(nodeId: string): boolean {
-    return this.nodes.value.some(n => n.id === nodeId);
+    // ✅ O(1) 查找
+    return this.nodeIdsSet.has(nodeId);
   }
 
   // ==================== 连接线操作 ====================
@@ -178,24 +272,26 @@ export class FlowStateManager {
    * @param edge 连接线数据
    */
   addEdge(edge: FlowEdge): void {
-    // 检查连接线 ID 是否已存在
-    if (this.edges.value.some(e => e.id === edge.id)) {
+    // ✅ O(1) 查找
+    if (this.edgeIdsSet.has(edge.id)) {
       console.warn(`Edge with id "${edge.id}" already exists`);
       return;
     }
 
-    // 检查源节点和目标节点是否存在
-    if (!this.hasNode(edge.source)) {
+    // ✅ O(1) 查找节点
+    if (!this.nodeIdsSet.has(edge.source)) {
       console.warn(`Source node "${edge.source}" not found`);
       return;
     }
 
-    if (!this.hasNode(edge.target)) {
+    if (!this.nodeIdsSet.has(edge.target)) {
       console.warn(`Target node "${edge.target}" not found`);
       return;
     }
 
     this.edges.value.push(edge);
+    this.edgeIdsSet.add(edge.id);
+    this.edgesMap.set(edge.id, edge);
   }
 
   /**
@@ -204,7 +300,22 @@ export class FlowStateManager {
    * @param edges 连接线数据数组
    */
   addEdges(edges: FlowEdge[]): void {
-    edges.forEach(edge => this.addEdge(edge));
+    // ✅ 批量操作优化
+    const validEdges = edges.filter(e => 
+      !this.edgeIdsSet.has(e.id) &&
+      this.nodeIdsSet.has(e.source) &&
+      this.nodeIdsSet.has(e.target)
+    );
+    
+    if (validEdges.length === 0) return;
+    
+    this.edges.value.push(...validEdges);
+    
+    for (let i = 0; i < validEdges.length; i++) {
+      const edge = validEdges[i];
+      this.edgeIdsSet.add(edge.id);
+      this.edgesMap.set(edge.id, edge);
+    }
   }
 
   /**
@@ -214,16 +325,21 @@ export class FlowStateManager {
    * @param updates 要更新的数据
    */
   updateEdge(edgeId: string, updates: Partial<FlowEdge>): void {
-    const index = this.edges.value.findIndex(e => e.id === edgeId);
-    if (index === -1) {
+    // ✅ O(1) 查找
+    const edge = this.edgesMap.get(edgeId);
+    if (!edge) {
       console.warn(`Edge with id "${edgeId}" not found`);
       return;
     }
 
-    this.edges.value[index] = {
-      ...this.edges.value[index],
-      ...updates
-    };
+    // 更新连接线
+    Object.assign(edge, updates);
+    
+    // 触发响应式更新
+    this.edges.value = [...this.edges.value];
+    
+    // 更新 Map
+    this.edgesMap.set(edgeId, edge);
   }
 
   /**

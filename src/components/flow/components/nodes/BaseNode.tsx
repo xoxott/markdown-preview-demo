@@ -66,8 +66,20 @@ export default defineComponent({
   },
   emits: ['port-mousedown', 'port-mouseup', 'port-mouseenter', 'port-mouseleave'],
   setup(props, { emit, slots }) {
+    // ✅ 性能优化：缓存样式对象，避免不必要的重新渲染
+    const styleCache = new Map<string, Record<string, any>>();
+
     // 计算节点样式
     const nodeStyle = computed(() => {
+      // ✅ 生成缓存键（包含所有影响样式的状态）
+      const cacheKey = `${props.selected}-${props.dragging}-${props.hovered}-${props.locked}-${props.node.size?.width || 150}-${props.node.size?.height || 60}`;
+      
+      // ✅ 检查缓存
+      const cached = styleCache.get(cacheKey);
+      if (cached) {
+        return cached; // 返回相同引用，Vue 不会触发重新渲染
+      }
+
       const baseStyle: Record<string, any> = {
         position: 'relative',
         width: props.node.size?.width ? `${props.node.size.width}px` : '150px',
@@ -87,7 +99,8 @@ export default defineComponent({
         alignItems: 'center',
         minWidth: '100px',
         minHeight: '40px',
-        transition: 'all 0.2s ease',
+        // ✅ 性能优化：只对需要动画的属性添加过渡，避免 zIndex 变化触发动画
+        transition: 'border 0.2s ease, box-shadow 0.2s ease, opacity 0.15s ease',
         ...props.node.style,
         ...props.style
       };
@@ -107,8 +120,20 @@ export default defineComponent({
       // 拖拽状态样式
       if (props.dragging) {
         baseStyle.opacity = 0.8;
-        baseStyle.transform = 'scale(1.05)';
-        baseStyle.zIndex = 1000;
+        // ✅ 性能优化：移除 transform 和 zIndex
+        // zIndex 由外层 FlowNodes.tsx 统一管理，避免重复设置和层叠上下文冲突
+        // transform 会触发 GPU 重绘，且在拖拽时不需要缩放效果
+      }
+
+      // ✅ 缓存样式对象
+      styleCache.set(cacheKey, baseStyle);
+      
+      // ✅ 清理旧缓存（防止内存泄漏）
+      if (styleCache.size > 50) {
+        const keys = Array.from(styleCache.keys());
+        for (let i = 0; i < 10; i++) {
+          styleCache.delete(keys[i]);
+        }
       }
 
       return baseStyle;
