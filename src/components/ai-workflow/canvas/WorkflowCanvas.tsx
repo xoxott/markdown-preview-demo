@@ -1,18 +1,18 @@
-import { defineComponent, computed, ref, watch, onMounted, onUnmounted, type PropType } from 'vue';
-import { useWorkflowCanvas } from '../hooks/useWorkflowCanvas';
-import { useConnectionPositions } from '../hooks/useConnectionPositions';
-import { useCanvasSettings } from '../hooks/useCanvasSettings';
+import { computed, defineComponent, onMounted, onUnmounted, ref, type PropType } from 'vue';
 import { NODE_DIMENSIONS } from '../constants/node-dimensions';
-import CanvasGrid from './CanvasGrid';
-import CanvasToolbar from './CanvasToolbar';
-import CanvasConnections from './CanvasConnections';
-import CanvasNodes from './CanvasNodes';
-import CanvasEmptyState from './CanvasEmptyState';
-import CanvasSelectionBox from './CanvasSelectionBox';
-import Minimap from './Minimap';
-import NodeConfigDrawer from '../panels/NodeConfigDrawer';
-import ConnectionLineSettingsDialog from '../dialogs/ConnectionLineSettingsDialog';
 import BackgroundSettingsDialog from '../dialogs/BackgroundSettingsDialog';
+import ConnectionLineSettingsDialog from '../dialogs/ConnectionLineSettingsDialog';
+import { useCanvasSettings } from '../hooks/useCanvasSettings';
+import { useConnectionPositions } from '../hooks/useConnectionPositions';
+import { useWorkflowCanvas } from '../hooks/useWorkflowCanvas';
+import NodeConfigDrawer from '../panels/NodeConfigDrawer';
+import CanvasConnections from './CanvasConnections';
+import CanvasEmptyState from './CanvasEmptyState';
+import CanvasGrid from './CanvasGrid';
+import CanvasNodes from './CanvasNodes';
+import CanvasSelectionBox from './CanvasSelectionBox';
+import CanvasToolbar from './CanvasToolbar';
+import Minimap from './Minimap';
 
 export default defineComponent({
   name: 'WorkflowCanvas',
