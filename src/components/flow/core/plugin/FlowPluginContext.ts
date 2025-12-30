@@ -4,11 +4,10 @@
  * 提供插件使用的 API 和工具
  */
 
-import type { FlowPluginContext } from '../../types/flow-plugin';
-import type { FlowConfig } from '../../types/flow-config';
-import type { FlowEvents } from '../../types/flow-events';
-import { FlowEventEmitter } from '../events/FlowEventEmitter';
 import { FlowConfigManager } from '../../config/FlowConfigManager';
+import type { FlowEvents } from '../../types/flow-events';
+import type { FlowPluginContext } from '../../types/flow-plugin';
+import { FlowEventEmitter } from '../events/FlowEventEmitter';
 
 /**
  * Flow 插件上下文实现

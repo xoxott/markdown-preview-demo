@@ -25,7 +25,7 @@ import type { FileItem } from '@/components/file-explorer/types/file-explorer';
 import NSelectionRect from '@/components/file-explorer/interaction/NSelectionRect';
 import CustomUpload from '@/components/custom-upload';
 import CountdownTimer from '@/components/custom/countdown-timer.vue';
-import EditableText from '@/components/custom/editable-text.vue';
+import EditableText from '@/components/custom/editableText';
 
 // Flow 组件导入
 import FlowCanvas from '@/components/flow/components/FlowCanvas';

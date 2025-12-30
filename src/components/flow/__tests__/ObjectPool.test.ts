@@ -2,7 +2,6 @@
  * ObjectPool 测试
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
 import { ObjectPool, createPositionPool } from '../core/performance/ObjectPool';
 
 describe('ObjectPool', () => {
@@ -93,7 +92,7 @@ describe('createPositionPool', () => {
   it('应该创建位置对象池', () => {
     const pool = createPositionPool(10, 100);
     const pos = pool.acquire();
-    
+
     expect(pos).toBeDefined();
     expect(pos.x).toBe(0);
     expect(pos.y).toBe(0);

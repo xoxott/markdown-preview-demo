@@ -2,9 +2,8 @@
  * CommandManager 测试
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { CommandManager } from '../core/commands/CommandManager';
 import { BaseCommand } from '../core/commands/Command';
+import { CommandManager } from '../core/commands/CommandManager';
 
 class TestCommand extends BaseCommand {
   private executed = false;

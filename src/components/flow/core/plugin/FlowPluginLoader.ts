@@ -4,11 +4,10 @@
  * 负责插件的注册、加载、卸载、依赖管理等功能
  */
 
-import type { FlowPlugin, FlowPluginConfig } from '../../types/flow-plugin';
-import { FlowPluginContextImpl } from './FlowPluginContext';
-import type { FlowPluginContext } from '../../types/flow-plugin';
-import { FlowEventEmitter } from '../events/FlowEventEmitter';
 import { FlowConfigManager } from '../../config/FlowConfigManager';
+import type { FlowPluginConfig, FlowPluginContext } from '../../types/flow-plugin';
+import { FlowEventEmitter } from '../events/FlowEventEmitter';
+import { FlowPluginContextImpl } from './FlowPluginContext';
 
 /**
  * 插件实例

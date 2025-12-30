@@ -11,7 +11,7 @@
       "~/*": ["./*"]
     },
     "resolveJsonModule": true,
-    "types": ["vite/client", "node", "unplugin-icons/types/vue", "naive-ui/volar"],
+    "types": ["vite/client", "node", "unplugin-icons/types/vue", "naive-ui/volar", "vitest/globals"],
     "strict": true,
     "strictNullChecks": true,
     "noUnusedLocals": false,

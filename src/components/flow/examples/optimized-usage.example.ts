@@ -25,7 +25,7 @@ import {
   // 命令模式
   CommandManager,
   MoveNodeCommand,
-  
+
   // Zod 运行时验证
   zodValidateNode,
   zodSafeValidateNode,
@@ -247,7 +247,12 @@ export function useSafeDataImport() {
       const result = zodSafeValidateNode(item);
 
       if (result.success) {
-        validNodes.push(result.data);
+        // Ensure data property exists (schema requires it, but TypeScript may not infer correctly)
+        const node: FlowNode = {
+          ...result.data,
+          data: result.data.data ?? {},
+        };
+        validNodes.push(node);
       } else {
         console.warn('Invalid node data:', result.error);
         // 可以选择跳过或使用默认值
@@ -265,7 +270,12 @@ export function useSafeDataImport() {
 
     return data.map((item, index) => {
       try {
-        return zodValidateNode(item);
+        const validated = zodValidateNode(item);
+        // Ensure data property exists (schema requires it, but TypeScript may not infer correctly)
+        return {
+          ...validated,
+          data: validated.data ?? {},
+        } as FlowNode;
       } catch (error) {
         throw new Error(`Invalid node at index ${index}: ${error}`);
       }

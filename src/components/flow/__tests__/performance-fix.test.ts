@@ -1,10 +1,9 @@
 /**
  * 性能修复验证测试
- * 
+ *
  * 验证关键性能优化是否生效
  */
 
-import { describe, it, expect } from 'vitest';
 import { ref, computed } from 'vue';
 import type { FlowNode } from '../types';
 
@@ -25,13 +24,13 @@ describe('Performance Fixes', () => {
       const nodesMap = new Map(nodes.map(n => [n.id, n]));
 
       const startTime = performance.now();
-      
+
       // 查找 100 次
       for (let i = 0; i < 100; i++) {
         const node = nodesMap.get(`node-${Math.floor(Math.random() * 1000)}`);
         expect(node).toBeDefined();
       }
-      
+
       const mapTime = performance.now() - startTime;
 
       // Map 查找应该非常快（< 1ms）
@@ -101,9 +100,9 @@ describe('Performance Fixes', () => {
 
       // 精确缓存键
       const preciseKey = (x: number, y: number) => `${x}-${y}`;
-      
+
       // 简化缓存键（容忍5px误差）
-      const simplifiedKey = (x: number, y: number) => 
+      const simplifiedKey = (x: number, y: number) =>
         `${Math.round(x/5)}-${Math.round(y/5)}`;
 
       // 测试精确缓存
@@ -113,7 +112,7 @@ describe('Performance Fixes', () => {
         const x = 100 + Math.random() * 10; // 100-110 范围
         const y = 200 + Math.random() * 10; // 200-210 范围
         const key = preciseKey(x, y);
-        
+
         if (cache.has(key)) {
           preciseHits++;
         } else {
@@ -128,7 +127,7 @@ describe('Performance Fixes', () => {
         const x = 100 + Math.random() * 10;
         const y = 200 + Math.random() * 10;
         const key = simplifiedKey(x, y);
-        
+
         if (cache.has(key)) {
           simplifiedHits++;
         } else {
@@ -159,13 +158,13 @@ describe('Performance Fixes', () => {
       const nodesMap = new Map(nodes.map(n => [n.id, n]));
 
       const startTime = performance.now();
-      
+
       // 查找 1000 次
       for (let i = 0; i < 1000; i++) {
         const node = nodesMap.get(`node-${i}`);
         expect(node?.id).toBe(`node-${i}`);
       }
-      
+
       const queryTime = performance.now() - startTime;
 
       // 1000 次查找应该 < 10ms
