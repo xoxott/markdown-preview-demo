@@ -48,6 +48,8 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:ui": "vitest --ui",
+    "bench": "vitest bench",
+    "bench:flow": "vitest bench src/components/flow/__tests__/performance.bench.ts",
     "typecheck": "vue-tsc --noEmit --skipLibCheck",
     "update-pkg": "sa update-pkg"
   },
