@@ -127,14 +127,40 @@ export default defineComponent({
       return props.viewport.y % patternSize.value;
     });
 
+    /**
+     * 判断是否需要 GPU 加速优化
+     *
+     * 网格背景在视口变化时可能需要频繁更新，启用 GPU 加速可以提升性能
+     * 但考虑到内存占用，可以根据缩放级别决定是否启用
+     */
+    const shouldOptimize = computed(() => {
+      return props.viewport.zoom > 1 || Math.abs(props.viewport.x) > 0 || Math.abs(props.viewport.y) > 0;
+    });
+
+    /**
+     * 计算 SVG 容器样式（条件性应用 GPU 加速）
+     */
+    const svgContainerStyle = computed(() => {
+      const baseStyle: CSSProperties = {
+        ...gridStyle.value as CSSProperties
+      };
+
+      // 仅在需要时应用 GPU 加速优化
+      if (shouldOptimize.value) {
+        baseStyle.willChange = 'transform';
+        baseStyle.transform = 'translateZ(0)';
+        // 注意：backfaceVisibility 在 SVG 中效果有限，已移除
+      }
+
+      return baseStyle;
+    });
+
     // 计算网格图案（根据缩放动态调整，使用 <use> 优化）
     const gridPattern = computed(() => {
       if (!props.showGrid || props.gridType === 'none') {
         return null;
       }
 
-      const zoom = props.viewport.zoom;
-      const color = props.gridColor;
       const size = patternSize.value;
       const prefix = idPrefix.value;
 
@@ -205,16 +231,9 @@ export default defineComponent({
           {props.showGrid && props.gridType !== 'none' && gridPattern.value && (
             <svg
               class="flow-grid"
-              style={{
-                ...gridStyle.value as CSSProperties,
-                // ✅ GPU 加速优化
-                willChange: 'transform',
-                transform: 'translateZ(0)',
-                backfaceVisibility: 'hidden' as const
-              }}
+              style={svgContainerStyle.value}
             >
               <defs>
-                {/* ✅ 共享的图形定义（使用 <use> 引用，带唯一 ID） */}
                 {props.gridType === 'dots' && (
                   <circle
                     id={`${prefix}-dot-shape`}
@@ -277,11 +296,6 @@ export default defineComponent({
                 width="100%"
                 height="100%"
                 fill={`url(#${prefix}-${props.gridType})`}
-                // ✅ GPU 加速
-                style={{
-                  willChange: 'transform',
-                  transform: 'translateZ(0)'
-                }}
               />
             </svg>
           )}

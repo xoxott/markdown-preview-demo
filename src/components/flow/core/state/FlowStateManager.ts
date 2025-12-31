@@ -1,6 +1,6 @@
 /**
  * Flow 状态管理器
- * 
+ *
  * 管理图形编辑器的所有状态：节点、连接线、视口、选择、历史记录等
  */
 
@@ -29,7 +29,7 @@ export interface FlowStateSnapshot {
 
 /**
  * Flow 状态管理器
- * 
+ *
  * 管理图形编辑器的所有状态
  */
 export class FlowStateManager {
@@ -84,16 +84,16 @@ export class FlowStateManager {
   private rebuildIndexes(): void {
     this.nodeIdsSet.clear();
     this.nodesMap.clear();
-    
+
     for (let i = 0; i < this.nodes.value.length; i++) {
       const node = this.nodes.value[i];
       this.nodeIdsSet.add(node.id);
       this.nodesMap.set(node.id, node);
     }
-    
+
     this.edgeIdsSet.clear();
     this.edgesMap.clear();
-    
+
     for (let i = 0; i < this.edges.value.length; i++) {
       const edge = this.edges.value[i];
       this.edgeIdsSet.add(edge.id);
@@ -105,7 +105,7 @@ export class FlowStateManager {
 
   /**
    * 添加节点
-   * 
+   *
    * @param node 节点数据
    */
   addNode(node: FlowNode): void {
@@ -122,17 +122,17 @@ export class FlowStateManager {
 
   /**
    * 批量添加节点
-   * 
+   *
    * @param nodes 节点数据数组
    */
   addNodes(nodes: FlowNode[]): void {
     // ✅ 批量操作优化：过滤 + 一次性更新
     const validNodes = nodes.filter(n => !this.nodeIdsSet.has(n.id));
-    
+
     if (validNodes.length === 0) return;
-    
+
     this.nodes.value.push(...validNodes);
-    
+
     for (let i = 0; i < validNodes.length; i++) {
       const node = validNodes[i];
       this.nodeIdsSet.add(node.id);
@@ -142,7 +142,7 @@ export class FlowStateManager {
 
   /**
    * 更新节点
-   * 
+   *
    * @param nodeId 节点 ID
    * @param updates 要更新的数据
    */
@@ -156,17 +156,17 @@ export class FlowStateManager {
 
     // 更新节点
     Object.assign(node, updates);
-    
+
     // 触发响应式更新
     this.nodes.value = [...this.nodes.value];
-    
+
     // 更新 Map
     this.nodesMap.set(nodeId, node);
   }
 
   /**
    * 删除节点
-   * 
+   *
    * @param nodeId 节点 ID
    */
   removeNode(nodeId: string): void {
@@ -186,7 +186,7 @@ export class FlowStateManager {
         edgesToRemove.push(id);
       }
     }
-    
+
     if (edgesToRemove.length > 0) {
       this.edges.value = this.edges.value.filter(e => !edgesToRemove.includes(e.id));
       edgesToRemove.forEach(id => {
@@ -204,17 +204,17 @@ export class FlowStateManager {
 
   /**
    * 批量删除节点
-   * 
+   *
    * @param nodeIds 节点 ID 数组
    */
   removeNodes(nodeIds: string[]): void {
     // ✅ 批量操作优化：一次性过滤
     const nodeIdsToRemove = new Set(nodeIds.filter(id => this.nodeIdsSet.has(id)));
-    
+
     if (nodeIdsToRemove.size === 0) return;
-    
+
     this.nodes.value = this.nodes.value.filter(n => !nodeIdsToRemove.has(n.id));
-    
+
     nodeIdsToRemove.forEach(id => {
       this.nodeIdsSet.delete(id);
       this.nodesMap.delete(id);
@@ -227,7 +227,7 @@ export class FlowStateManager {
         edgesToRemove.push(id);
       }
     }
-    
+
     if (edgesToRemove.length > 0) {
       this.edges.value = this.edges.value.filter(e => !edgesToRemove.includes(e.id));
       edgesToRemove.forEach(id => {
@@ -244,7 +244,7 @@ export class FlowStateManager {
 
   /**
    * 获取节点
-   * 
+   *
    * @param nodeId 节点 ID
    * @returns 节点数据，如果不存在则返回 undefined
    */
@@ -255,7 +255,7 @@ export class FlowStateManager {
 
   /**
    * 检查节点是否存在
-   * 
+   *
    * @param nodeId 节点 ID
    * @returns 是否存在
    */
@@ -268,7 +268,7 @@ export class FlowStateManager {
 
   /**
    * 添加连接线
-   * 
+   *
    * @param edge 连接线数据
    */
   addEdge(edge: FlowEdge): void {
@@ -296,21 +296,21 @@ export class FlowStateManager {
 
   /**
    * 批量添加连接线
-   * 
+   *
    * @param edges 连接线数据数组
    */
   addEdges(edges: FlowEdge[]): void {
     // ✅ 批量操作优化
-    const validEdges = edges.filter(e => 
+    const validEdges = edges.filter(e =>
       !this.edgeIdsSet.has(e.id) &&
       this.nodeIdsSet.has(e.source) &&
       this.nodeIdsSet.has(e.target)
     );
-    
+
     if (validEdges.length === 0) return;
-    
+
     this.edges.value.push(...validEdges);
-    
+
     for (let i = 0; i < validEdges.length; i++) {
       const edge = validEdges[i];
       this.edgeIdsSet.add(edge.id);
@@ -320,7 +320,7 @@ export class FlowStateManager {
 
   /**
    * 更新连接线
-   * 
+   *
    * @param edgeId 连接线 ID
    * @param updates 要更新的数据
    */
@@ -334,17 +334,17 @@ export class FlowStateManager {
 
     // 更新连接线
     Object.assign(edge, updates);
-    
+
     // 触发响应式更新
     this.edges.value = [...this.edges.value];
-    
+
     // 更新 Map
     this.edgesMap.set(edgeId, edge);
   }
 
   /**
    * 删除连接线
-   * 
+   *
    * @param edgeId 连接线 ID
    */
   removeEdge(edgeId: string): void {
@@ -364,7 +364,7 @@ export class FlowStateManager {
 
   /**
    * 批量删除连接线
-   * 
+   *
    * @param edgeIds 连接线 ID 数组
    */
   removeEdges(edgeIds: string[]): void {
@@ -373,7 +373,7 @@ export class FlowStateManager {
 
   /**
    * 获取连接线
-   * 
+   *
    * @param edgeId 连接线 ID
    * @returns 连接线数据，如果不存在则返回 undefined
    */
@@ -383,7 +383,7 @@ export class FlowStateManager {
 
   /**
    * 获取节点的所有连接线
-   * 
+   *
    * @param nodeId 节点 ID
    * @returns 连接线数组
    */
@@ -397,7 +397,7 @@ export class FlowStateManager {
 
   /**
    * 更新视口
-   * 
+   *
    * @param viewport 视口数据
    */
   setViewport(viewport: Partial<FlowViewport>): void {
@@ -409,7 +409,7 @@ export class FlowStateManager {
 
   /**
    * 平移视口
-   * 
+   *
    * @param deltaX 水平偏移
    * @param deltaY 垂直偏移
    */
@@ -420,7 +420,7 @@ export class FlowStateManager {
 
   /**
    * 缩放视口
-   * 
+   *
    * @param zoom 缩放比例
    * @param centerX 缩放中心 X（可选）
    * @param centerY 缩放中心 Y（可选）
@@ -441,7 +441,7 @@ export class FlowStateManager {
 
   /**
    * 选择节点
-   * 
+   *
    * @param nodeId 节点 ID
    * @param addToSelection 是否添加到当前选择（多选）
    */
@@ -462,7 +462,7 @@ export class FlowStateManager {
 
   /**
    * 选择多个节点
-   * 
+   *
    * @param nodeIds 节点 ID 数组
    */
   selectNodes(nodeIds: string[]): void {
@@ -472,7 +472,7 @@ export class FlowStateManager {
 
   /**
    * 选择连接线
-   * 
+   *
    * @param edgeId 连接线 ID
    * @param addToSelection 是否添加到当前选择（多选）
    */
@@ -501,7 +501,7 @@ export class FlowStateManager {
 
   /**
    * 获取选中的节点
-   * 
+   *
    * @returns 选中的节点数组
    */
   getSelectedNodes(): FlowNode[] {
@@ -512,7 +512,7 @@ export class FlowStateManager {
 
   /**
    * 获取选中的连接线
-   * 
+   *
    * @returns 选中的连接线数组
    */
   getSelectedEdges(): FlowEdge[] {
@@ -554,7 +554,7 @@ export class FlowStateManager {
 
   /**
    * 撤销操作
-   * 
+   *
    * @returns 是否成功撤销
    */
   undo(): boolean {
@@ -569,7 +569,7 @@ export class FlowStateManager {
 
   /**
    * 重做操作
-   * 
+   *
    * @returns 是否成功重做
    */
   redo(): boolean {
@@ -584,7 +584,7 @@ export class FlowStateManager {
 
   /**
    * 检查是否可以撤销
-   * 
+   *
    * @returns 是否可以撤销
    */
   canUndo(): boolean {
@@ -593,7 +593,7 @@ export class FlowStateManager {
 
   /**
    * 检查是否可以重做
-   * 
+   *
    * @returns 是否可以重做
    */
   canRedo(): boolean {
@@ -602,7 +602,7 @@ export class FlowStateManager {
 
   /**
    * 恢复状态快照（内部方法）
-   * 
+   *
    * @param snapshot 状态快照
    */
   private restoreSnapshotInternal(snapshot: FlowStateSnapshot): void {
@@ -623,7 +623,7 @@ export class FlowStateManager {
 
   /**
    * 获取历史记录数量
-   * 
+   *
    * @returns 历史记录数量
    */
   getHistorySize(): number {
@@ -634,7 +634,7 @@ export class FlowStateManager {
 
   /**
    * 创建状态快照
-   * 
+   *
    * @returns 状态快照
    */
   createSnapshot(): FlowStateSnapshot {
@@ -650,7 +650,7 @@ export class FlowStateManager {
 
   /**
    * 恢复状态快照
-   * 
+   *
    * @param snapshot 状态快照
    */
   restoreSnapshot(snapshot: FlowStateSnapshot): void {

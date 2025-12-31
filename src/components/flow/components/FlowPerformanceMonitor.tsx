@@ -4,7 +4,8 @@
  * 显示实时 FPS、节点数量、渲染时间等性能指标
  */
 
-import { defineComponent, ref, onMounted, onUnmounted, computed, type PropType, type CSSProperties } from 'vue';
+import { defineComponent, ref, computed, type PropType, type CSSProperties } from 'vue';
+import { useRafLoop } from '../hooks/useRafLoop';
 
 export interface PerformanceMetrics {
   fps: number;
@@ -51,15 +52,19 @@ export default defineComponent({
 
     let frameCount = 0;
     let lastTime = performance.now();
-    let rafId: number | null = null;
 
-    // FPS 计算
+    /**
+     * 更新 FPS 和性能指标
+     * 
+     * 在 RAF 循环中持续执行，每秒计算一次 FPS
+     */
     const updateFPS = () => {
       const now = performance.now();
       frameCount++;
 
       const elapsed = now - lastTime;
       if (elapsed >= 1000) {
+        // 计算 FPS 和帧时间
         fps.value = Math.round((frameCount * 1000) / elapsed);
         frameTime.value = parseFloat((elapsed / frameCount).toFixed(2));
         frameCount = 0;
@@ -71,9 +76,10 @@ export default defineComponent({
           memoryUsage.value = Math.round(memory.usedJSHeapSize / 1024 / 1024);
         }
       }
-
-      rafId = requestAnimationFrame(updateFPS);
     };
+
+    // ✅ 使用 RAF 循环持续更新 FPS
+    useRafLoop(updateFPS);
 
     // 性能等级
     const performanceLevel = computed(() => {
@@ -124,15 +130,6 @@ export default defineComponent({
       }
     });
 
-    onMounted(() => {
-      rafId = requestAnimationFrame(updateFPS);
-    });
-
-    onUnmounted(() => {
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-      }
-    });
 
     return () => (
       <div style={{ ...positionStyle.value, ...props.style }}>

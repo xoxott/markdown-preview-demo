@@ -5,6 +5,7 @@
  */
 
 import { computed, defineComponent, onMounted, watch, ref, shallowReactive, type PropType } from 'vue';
+import { useRafThrottle } from '../hooks/useRafThrottle';
 import type { FlowEdge, FlowNode, FlowViewport } from '../types';
 import BaseEdge from './edges/BaseEdge';
 
@@ -388,19 +389,19 @@ export default defineComponent({
       });
     };
 
-    // ✅ 优化：使用 RAF 节流渲染，避免过度渲染
-    let rafId: number | null = null;
-    const scheduleRender = () => {
-      if (rafId) {
-        cancelAnimationFrame(rafId);
+    /**
+     * 渲染 Canvas
+     *
+     * 在 RAF 节流中执行，确保每帧最多渲染一次
+     */
+    const renderCanvasThrottled = () => {
+      if (useCanvas.value && canvasRef.value) {
+        renderCanvas();
       }
-      rafId = requestAnimationFrame(() => {
-        if (useCanvas.value && canvasRef.value) {
-          renderCanvas();
-        }
-        rafId = null;
-      });
     };
+
+    // ✅ 使用 RAF 节流渲染，避免过度渲染
+    const { throttled: scheduleRender } = useRafThrottle(renderCanvasThrottled);
 
     // 监听视口变化和连接线变化，重新渲染 Canvas
     onMounted(() => {
@@ -409,7 +410,13 @@ export default defineComponent({
 
     // ✅ 优化：移除 deep watch，使用浅监听 + RAF 节流
     watch(
-      [() => visibleEdges.value.length, () => props.viewport.zoom, () => props.viewport.x, () => props.viewport.y, () => useCanvas.value],
+      [
+        () => visibleEdges.value.length,
+        () => props.viewport?.zoom,
+        () => props.viewport?.x,
+        () => props.viewport?.y,
+        () => useCanvas.value
+      ],
       () => {
         scheduleRender();
       },

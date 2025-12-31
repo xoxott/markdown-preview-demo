@@ -2,7 +2,7 @@
  * CommandManager 测试
  */
 
-import { BaseCommand } from '../core/commands/Command';
+import { BaseCommand, type Command } from '../core/commands/Command';
 import { CommandManager } from '../core/commands/CommandManager';
 
 class TestCommand extends BaseCommand {
@@ -123,7 +123,7 @@ describe('CommandManager', () => {
       execute(): void {}
       undo(): void {}
 
-      merge(other: any): boolean {
+      merge(other: Command): boolean {
         if (other instanceof MergeableCommand) {
           this.value = other.value;
           return true;

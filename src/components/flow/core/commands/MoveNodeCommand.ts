@@ -2,7 +2,7 @@
  * 移动节点命令
  */
 
-import { BaseCommand } from './Command';
+import { BaseCommand, type Command } from './Command';
 import type { FlowPosition } from '../../types/flow-node';
 import type { FlowStateManager } from '../state/FlowStateManager';
 
@@ -36,7 +36,7 @@ export class MoveNodeCommand extends BaseCommand {
     this.stateManager.updateNode(this.nodeId, { position: this.oldPosition });
   }
 
-  merge(other: any): boolean {
+  merge(other: Command): boolean {
     // 只合并同一节点的移动命令
     if (other instanceof MoveNodeCommand && other.nodeId === this.nodeId) {
       // 更新新位置为最新的位置

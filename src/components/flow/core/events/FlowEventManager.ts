@@ -131,15 +131,34 @@ export class FlowEventManager {
     const unsubscribes: (() => void)[] = [];
 
     events.forEach(event => {
-      // 使用类型断言来处理事件转发
-      const handler = ((...args: any[]) => {
-        (toEmitter.emit as any)(event, ...args);
-      }) as any;
-      const unsubscribe = (fromEmitter.on as any)(event, handler);
+      // 创建一个通用的事件处理器，将事件从源发射器转发到目标发射器
+      const handler = <T extends keyof FlowEvents>(
+        ...args: Parameters<NonNullable<FlowEvents[T]>>
+      ): void => {
+        const typedEmit = toEmitter.emit as <E extends keyof FlowEvents>(
+          event: E,
+          ...args: Parameters<NonNullable<FlowEvents[E]>>
+        ) => boolean;
+        typedEmit(event, ...(args as Parameters<NonNullable<FlowEvents[typeof event]>>));
+      };
+
+      const typedOn = fromEmitter.on as <T extends keyof FlowEvents>(
+        event: T,
+        listener: FlowEvents[T] extends (...args: unknown[]) => unknown
+          ? FlowEvents[T]
+          : never,
+        options?: { once?: boolean; priority?: number; capture?: boolean }
+      ) => () => void;
+
+      const unsubscribe = typedOn(
+        event,
+        handler as unknown as (FlowEvents[typeof event] extends (...args: unknown[]) => unknown
+          ? FlowEvents[typeof event]
+          : never)
+      );
       unsubscribes.push(unsubscribe);
     });
 
-    // 返回取消转发的函数
     return () => {
       unsubscribes.forEach(unsubscribe => unsubscribe());
     };

@@ -6,6 +6,7 @@
 
 import { defineComponent, computed, ref, shallowRef, watch, onUnmounted, type PropType } from 'vue';
 import BaseNode from './nodes/BaseNode';
+import { useRafThrottle } from '../hooks/useRafThrottle';
 import type { FlowNode, FlowViewport } from '../types';
 import { SpatialIndex } from '../core/performance/SpatialIndex';
 
@@ -159,24 +160,71 @@ export default defineComponent({
       return hash;
     };
 
-    // ✅ 性能优化：使用 RAF 节流代替 setTimeout
-    let updateRafId: number | null = null;
+    // ✅ 性能优化：增量更新空间索引（拖拽时只更新变化的节点）
+    const lastNodePositions = new Map<string, { x: number; y: number }>();
     let lastHash = 0;
 
+    /**
+     * 更新空间索引
+     * 
+     * 检测变化的节点，智能选择增量更新或全量更新
+     */
+    const updateSpatialIndex = () => {
+      if (!props.enableViewportCulling || props.nodes.length === 0) {
+        return;
+      }
+
+      // ✅ 关键优化：检测变化的节点，只更新这些节点
+      const changedNodeIds = new Set<string>();
+
+      for (const node of props.nodes) {
+        const lastPos = lastNodePositions.get(node.id);
+        if (!lastPos || lastPos.x !== node.position.x || lastPos.y !== node.position.y) {
+          changedNodeIds.add(node.id);
+          lastNodePositions.set(node.id, { x: node.position.x, y: node.position.y });
+        }
+      }
+
+      // ✅ 如果变化的节点很少（< 10%），使用增量更新
+      if (changedNodeIds.size > 0 && changedNodeIds.size < props.nodes.length * 0.1) {
+        // 增量更新：只更新变化的节点
+        for (const nodeId of changedNodeIds) {
+          const node = props.nodes.find(n => n.id === nodeId);
+          if (node) {
+            spatialIndex.value.updateNode(node);
+          }
+        }
+      } else if (changedNodeIds.size > 0) {
+        // 全量更新：变化太多时，全量更新更快
+        spatialIndex.value.updateNodes(props.nodes);
+        // 更新位置缓存
+        lastNodePositions.clear();
+        for (const node of props.nodes) {
+          lastNodePositions.set(node.id, { x: node.position.x, y: node.position.y });
+        }
+      }
+    };
+
+    // ✅ 使用 RAF 节流更新空间索引
+    const { throttled: throttledUpdateSpatialIndex } = useRafThrottle(updateSpatialIndex);
+
+    // 监听节点数量变化（立即更新空间索引）
     watch(
-      () => props.nodes.length, // 只监听数量变化
+      () => props.nodes.length,
       () => {
         // 节点数量变化时立即更新空间索引
         if (props.enableViewportCulling && props.nodes.length > 0) {
           spatialIndex.value.updateNodes(props.nodes);
           lastHash = getNodesPositionHash(props.nodes);
+          // 更新位置缓存
+          lastNodePositions.clear();
+          for (const node of props.nodes) {
+            lastNodePositions.set(node.id, { x: node.position.x, y: node.position.y });
+          }
         }
       },
       { immediate: true }
     );
-
-    // ✅ 性能优化：增量更新空间索引（拖拽时只更新变化的节点）
-    const lastNodePositions = new Map<string, { x: number; y: number }>();
 
     // 监听节点位置变化（使用 RAF 节流优化性能）
     watch(
@@ -189,56 +237,11 @@ export default defineComponent({
 
         lastHash = newHash;
 
-        // ✅ 使用 RAF 节流，比 setTimeout 更流畅
-        if (updateRafId !== null) {
-          cancelAnimationFrame(updateRafId);
-        }
-
-        updateRafId = requestAnimationFrame(() => {
-          if (props.enableViewportCulling && props.nodes.length > 0) {
-            // ✅ 关键优化：检测变化的节点，只更新这些节点
-            const changedNodeIds = new Set<string>();
-
-            for (const node of props.nodes) {
-              const lastPos = lastNodePositions.get(node.id);
-              if (!lastPos || lastPos.x !== node.position.x || lastPos.y !== node.position.y) {
-                changedNodeIds.add(node.id);
-                lastNodePositions.set(node.id, { x: node.position.x, y: node.position.y });
-              }
-            }
-
-            // ✅ 如果变化的节点很少（< 10%），使用增量更新
-            if (changedNodeIds.size > 0 && changedNodeIds.size < props.nodes.length * 0.1) {
-              // 增量更新：只更新变化的节点
-              for (const nodeId of changedNodeIds) {
-                const node = props.nodes.find(n => n.id === nodeId);
-                if (node) {
-                  spatialIndex.value.updateNode(node);
-                }
-              }
-            } else {
-              // 全量更新：变化太多时，全量更新更快
-              spatialIndex.value.updateNodes(props.nodes);
-              // 更新位置缓存
-              lastNodePositions.clear();
-              for (const node of props.nodes) {
-                lastNodePositions.set(node.id, { x: node.position.x, y: node.position.y });
-              }
-            }
-          }
-          updateRafId = null;
-        });
+        // ✅ 使用 RAF 节流更新空间索引
+        throttledUpdateSpatialIndex();
       },
       { deep: false }
     );
-
-    // ✅ 清理 RAF
-    onUnmounted(() => {
-      if (updateRafId !== null) {
-        cancelAnimationFrame(updateRafId);
-        updateRafId = null;
-      }
-    });
 
     // ✅ 性能优化：稳定 visibleNodes 数组引用，避免不必要的重新渲染
     const visibleNodesRef = shallowRef<FlowNode[]>([]);

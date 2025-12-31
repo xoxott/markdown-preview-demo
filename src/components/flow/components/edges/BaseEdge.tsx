@@ -114,8 +114,9 @@ export default defineComponent({
   },
   emits: ['click', 'double-click', 'mouseenter', 'mouseleave', 'contextmenu'],
   setup(props, { emit, slots }) {
-    // ✅ 生成唯一的箭头标记 ID 前缀
+
     const arrowIdPrefix = computed(() => `flow-arrow-${props.instanceId}`);
+
     // 计算实际起点和终点（如果有端口位置，使用端口位置）
     const startX = computed(() => props.sourceHandleX ?? props.sourceX);
     const startY = computed(() => props.sourceHandleY ?? props.sourceY);
@@ -228,27 +229,46 @@ export default defineComponent({
       return props.edge.showArrow !== false;
     });
 
+    /**
+     * 判断是否需要 GPU 加速优化
+     *
+     * 仅在以下情况启用优化：
+     * - 连接线被选中（可能频繁更新样式）
+     * - 连接线被悬停（交互状态变化）
+     * - 连接线有动画（持续变化）
+     *
+     * 这样可以减少不必要的内存占用，同时保证需要时的性能
+     */
+    const shouldOptimize = computed(() => {
+      return props.selected || props.hovered || props.edge.animated === true;
+    });
+
+    /**
+     * 计算容器样式（仅在需要时应用 GPU 加速）
+     */
+    const containerStyle = computed(() => {
+      const baseStyle: Record<string, any> = {};
+
+      // 仅在需要时应用 GPU 加速优化  注意：backfaceVisibility 在 SVG 中效果有限，已移除
+      if (shouldOptimize.value) {
+        baseStyle.willChange = 'transform';
+        baseStyle.transform = 'translateZ(0)';
+      }
+
+      return baseStyle;
+    });
+
     return () => {
       return (
         <g
           class={edgeClass.value}
           data-edge-id={props.edge.id}
-          style={{
-            // GPU 加速优化（在 g 元素上应用）
-            willChange: 'transform',
-            transform: 'translateZ(0)',
-            backfaceVisibility: 'hidden'
-          }}
+          style={containerStyle.value}
         >
         {/* 连接线路径（使用共享的箭头标记） */}
         <path
           d={pathData.value}
-          style={{
-            ...edgeStyle.value,
-            // ✅ GPU 加速优化
-            willChange: 'transform',
-            transform: 'translateZ(0)'
-          }}
+          style={edgeStyle.value}
           marker-end={showArrow.value && markerEndId.value ? `url(#${markerEndId.value})` : undefined}
           onClick={handleClick}
           onDblclick={handleDoubleClick}

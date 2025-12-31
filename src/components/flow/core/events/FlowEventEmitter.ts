@@ -11,8 +11,8 @@ import type { FlowEvents } from '../../types/flow-events';
  * 事件监听器类型
  */
 type EventListener<T extends keyof FlowEvents> = FlowEvents[T] extends (
-  ...args: any[]
-) => any
+  ...args: unknown[]
+) => unknown
   ? FlowEvents[T]
   : never;
 
@@ -53,6 +53,21 @@ export class FlowEventEmitter {
   > = new Map();
 
   /**
+   * 获取指定事件的监听器包装数组
+   *
+   * @param event 事件名称
+   * @returns 监听器包装数组
+   */
+  private getWrappers<T extends keyof FlowEvents>(
+    event: T
+  ): EventListenerWrapper<keyof FlowEvents>[] {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, []);
+    }
+    return this.listeners.get(event)!;
+  }
+
+  /**
    * 注册事件监听器
    *
    * @param event 事件名称
@@ -78,13 +93,11 @@ export class FlowEventEmitter {
     listener: EventListener<T>,
     options: EventListenerOptions = {}
   ): () => void {
-    if (!this.listeners.has(event)) {
-      this.listeners.set(event, []);
-    }
+    const wrappers = this.getWrappers(event);
 
-    const wrappers = this.listeners.get(event)!;
-    const wrapper: EventListenerWrapper<T> = {
-      listener: listener as any,
+    // 创建包装器，使用类型断言确保类型安全
+    const wrapper: EventListenerWrapper<keyof FlowEvents> = {
+      listener: listener as EventListener<keyof FlowEvents>,
       options: {
         once: false,
         priority: 0,
@@ -94,7 +107,7 @@ export class FlowEventEmitter {
       removed: false
     };
 
-    wrappers.push(wrapper as any);
+    wrappers.push(wrapper);
 
     // 按优先级排序（优先级高的在前）
     wrappers.sort((a, b) => (b.options.priority || 0) - (a.options.priority || 0));
@@ -102,7 +115,7 @@ export class FlowEventEmitter {
     // 返回取消监听的函数
     return () => {
       wrapper.removed = true;
-      const index = wrappers.indexOf(wrapper as any);
+      const index = wrappers.indexOf(wrapper);
       if (index > -1) {
         wrappers.splice(index, 1);
       }
@@ -182,7 +195,7 @@ export class FlowEventEmitter {
       return false;
     }
 
-    const wrappers = this.listeners.get(event)!;
+    const wrappers = this.getWrappers(event);
     const validWrappers = wrappers.filter(w => !w.removed);
 
     if (validWrappers.length === 0) {
@@ -190,15 +203,14 @@ export class FlowEventEmitter {
     }
 
     // 执行监听器
-    const toRemove: EventListenerWrapper<T>[] = [];
+    const toRemove: EventListenerWrapper<keyof FlowEvents>[] = [];
 
     for (const wrapper of validWrappers) {
       try {
-        (wrapper.listener as any)(...args);
-
-        // 如果是一次性监听器，标记为待移除
+        const listener = wrapper.listener as unknown as EventListener<T>;
+        listener(...args);
         if (wrapper.options.once) {
-          toRemove.push(wrapper as any);
+          toRemove.push(wrapper);
         }
       } catch (error) {
         console.error(`Error in event listener for "${String(event)}":`, error);
@@ -208,7 +220,7 @@ export class FlowEventEmitter {
     // 移除一次性监听器
     toRemove.forEach(wrapper => {
       wrapper.removed = true;
-      const index = wrappers.indexOf(wrapper as any);
+      const index = wrappers.indexOf(wrapper);
       if (index > -1) {
         wrappers.splice(index, 1);
       }
