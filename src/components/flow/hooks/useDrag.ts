@@ -2,6 +2,7 @@
  * 通用拖拽基础 Hook
  *
  * 提供通用的拖拽功能，通过配置和回调适配不同场景。
+ * 基于 FlowDragHandler 核心逻辑，提供 Vue 响应式封装。
  * 内置 RAF（requestAnimationFrame）节流优化，确保高性能的拖拽体验。
  *
  * 适用场景：
@@ -60,23 +61,10 @@
  * ```
  */
 
-import { ref, computed, type Ref } from 'vue';
+import { ref, onUnmounted, type Ref } from 'vue';
 import { isFunction as isFunctionType } from '../utils/type-utils';
-import { useRafThrottle } from './useRafThrottle';
-
-/**
- * 拖拽坐标转换结果
- */
-export interface DragTransformResult {
-  /** 目标坐标 X（转换后的坐标） */
-  x: number;
-  /** 目标坐标 Y（转换后的坐标） */
-  y: number;
-  /** 屏幕坐标偏移量 X（原始偏移） */
-  deltaX: number;
-  /** 屏幕坐标偏移量 Y（原始偏移） */
-  deltaY: number;
-}
+import { FlowDragHandler } from '../core/interaction/FlowDragHandler';
+import type { DragTransformResult, CoordinateTransform } from '../types/flow-interaction';
 
 /**
  * 拖拽配置选项
@@ -238,20 +226,48 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
     incremental = false
   } = options;
 
-  /** 是否正在拖拽 */
+  /** 是否正在拖拽（响应式） */
   const isDragging = ref(false);
 
-  /** 是否已移动（超过阈值） */
+  /** 是否已移动（超过阈值，响应式） */
   const hasMoved = ref(false);
 
-  /** 拖拽状态数据 */
-  let dragState: {
-    startScreenX: number;
-    startScreenY: number;
-    startTargetX: number;
-    startTargetY: number;
-  } | null = null;
+  /** 创建拖拽处理器实例 */
+  const dragHandler = new FlowDragHandler();
 
+  /** 配置拖拽处理器选项 */
+  dragHandler.setOptions({
+    threshold: dragThreshold,
+    useRAF,
+    incremental,
+    transformCoordinates: transformCoordinates as CoordinateTransform | undefined,
+    onDrag: (result: DragTransformResult, event: MouseEvent) => {
+      // 同步 hasMoved 状态
+      if (dragHandler.hasMoved()) {
+        hasMoved.value = true;
+      }
+      // 调用用户回调
+      onDrag(result, event);
+    },
+    onDragStart: (event: MouseEvent, startTargetX?: number, startTargetY?: number) => {
+      // 同步 isDragging 状态
+      isDragging.value = true;
+      hasMoved.value = false;
+      // 调用用户回调
+      if (onDragStart) {
+        onDragStart(event, startTargetX, startTargetY);
+      }
+    },
+    onDragEnd: (wasMoved: boolean) => {
+      // 同步状态
+      isDragging.value = false;
+      hasMoved.value = wasMoved;
+      // 调用用户回调
+      if (onDragEnd) {
+        onDragEnd(wasMoved);
+      }
+    }
+  });
 
   /**
    * 处理鼠标按下事件
@@ -270,28 +286,14 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
     // 检查是否启用
     const isEnabled = isFunctionType(enabled) ? enabled() : enabled.value;
     if (!isEnabled) return;
-    // 检查是否可以开始拖拽
-    if (canStart && !canStart(event)) return;
 
-    // 初始化拖拽状态
-    isDragging.value = true;
-    hasMoved.value = false;
-
-    dragState = {
-      startScreenX: event.clientX,
-      startScreenY: event.clientY,
-      startTargetX,
-      startTargetY
-    };
-
-    // 触发开始回调
-    if (onDragStart) {
-      onDragStart(event, startTargetX, startTargetY);
+    // 调用处理器的 startDrag 方法
+    const started = dragHandler.startDrag(event, startTargetX, startTargetY, canStart);
+    if (started) {
+      // 阻止默认行为和事件冒泡
+      event.preventDefault();
+      event.stopPropagation();
     }
-
-    // 阻止默认行为和事件冒泡
-    event.preventDefault();
-    event.stopPropagation();
   };
 
   /**
@@ -302,95 +304,16 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
    * @param event 鼠标移动事件
    */
   const handleMouseMove = (event: MouseEvent) => {
-    if (!isDragging.value || !dragState) {
+    if (!isDragging.value) {
       return;
     }
-    // 如果使用 RAF 节流，使用节流版本
-    if (useRAF) {
-      throttledProcessDrag(event);
-    } else {
-      // 不使用 RAF，直接处理
-      processDrag(event);
-    }
-  };
-
-  /**
-   * 处理拖拽更新
-   *
-   * 计算坐标偏移，执行坐标转换，调用更新回调
-   *
-   * @param event 鼠标移动事件
-   */
-  const processDrag = (event: MouseEvent) => {
-    if (!dragState) return;
-
-    // 计算屏幕坐标偏移
-    const screenDeltaX = event.clientX - dragState.startScreenX;
-    const screenDeltaY = event.clientY - dragState.startScreenY;
-
-    // 计算移动距离（用于判断是否超过阈值）
-    const distance = Math.sqrt(screenDeltaX * screenDeltaX + screenDeltaY * screenDeltaY);
-
-    // 检查是否超过阈值
-    if (distance >= dragThreshold) {
+    // 调用处理器的 updateDrag 方法（内部处理 RAF 节流）
+    dragHandler.updateDrag(event);
+    // 同步状态
+    if (dragHandler.hasMoved()) {
       hasMoved.value = true;
     }
-
-    // 执行坐标转换
-    let result: DragTransformResult;
-    if (transformCoordinates) {
-      // 使用自定义转换函数
-      result = transformCoordinates(
-        event.clientX,
-        event.clientY,
-        dragState.startScreenX,
-        dragState.startScreenY,
-        dragState.startTargetX,
-        dragState.startTargetY
-      );
-    } else {
-      // 默认：直接使用屏幕坐标偏移
-      result = {
-        x: dragState.startTargetX + screenDeltaX,
-        y: dragState.startTargetY + screenDeltaY,
-        deltaX: screenDeltaX,
-        deltaY: screenDeltaY
-      };
-    }
-
-    // 调用更新回调
-    onDrag(result, event);
-
-    // 如果使用增量模式，重置起始位置（使得下次计算的是增量）
-    if (incremental && dragState) {
-      // 更新屏幕坐标起始位置（用于计算增量）
-      dragState.startScreenX = event.clientX;
-      dragState.startScreenY = event.clientY;
-
-      // 如果有坐标转换函数，更新目标坐标起始位置
-      // 对于画布平移等不需要坐标转换的场景，不需要更新目标坐标
-      if (transformCoordinates) {
-        dragState.startTargetX = result.x;
-        dragState.startTargetY = result.y;
-      }
-    }
   };
-
-  /**
-   * 处理拖拽更新（节流版本）
-   *
-   * 使用 useRafThrottle 进行节流，确保每帧最多执行一次
-   */
-  const { throttled: throttledProcessDrag, cancel: cancelRaf } = useRafThrottle(
-    (event: MouseEvent) => {
-      // 检查状态是否仍然有效
-      if (!dragState || !isDragging.value) return;
-      processDrag(event);
-    },
-    {
-      enabled: computed(() => useRAF && isDragging.value)
-    }
-  );
 
   /**
    * 处理鼠标抬起事件
@@ -398,19 +321,7 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
    * 结束拖拽，清理状态，触发结束回调
    */
   const handleMouseUp = () => {
-    const wasMoved = hasMoved.value;
-
-    // 重置状态
-    isDragging.value = false;
-    dragState = null;
-
-    // 触发结束回调
-    if (onDragEnd) {
-      onDragEnd(wasMoved);
-    }
-
-    // 清理 RAF（取消待执行的节流）
-    cancelRaf();
+    dragHandler.endDrag();
   };
 
   /**
@@ -419,15 +330,15 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
    * 取消 RAF、重置状态，用于组件卸载时调用
    */
   const cleanup = () => {
-    // 取消 RAF（取消待执行的节流）
-    cancelRaf();
-
-    // 清理状态
+    dragHandler.cleanup();
     isDragging.value = false;
     hasMoved.value = false;
-    dragState = null;
   };
 
+  // 组件卸载时自动清理
+  onUnmounted(() => {
+    cleanup();
+  });
 
   return {
     isDragging,

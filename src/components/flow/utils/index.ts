@@ -12,4 +12,5 @@ export * from './path-utils';
 export * from './style-utils';
 export * from './type-utils';
 export * from './validation-utils';
+export * from './raf-throttle';
 

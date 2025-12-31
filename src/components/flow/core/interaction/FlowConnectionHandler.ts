@@ -2,12 +2,14 @@
  * Flow 连接处理器
  *
  * 处理连接线的创建、验证、预览等功能
+ * 支持 RAF 节流的预览位置更新
  */
 
 import type { FlowEdge } from '../../types/flow-edge';
 import type { FlowNode } from '../../types/flow-node';
 import type { FlowConfig } from '../../types/flow-config';
 import { validateConnection } from '../../utils/validation-utils';
+import { RafThrottle } from '../../utils/raf-throttle';
 
 /**
  * 连接草稿状态
@@ -28,6 +30,16 @@ export interface ConnectionDraft {
 }
 
 /**
+ * 预览位置
+ */
+export interface PreviewPosition {
+  /** X 坐标（屏幕坐标） */
+  x: number;
+  /** Y 坐标（屏幕坐标） */
+  y: number;
+}
+
+/**
  * 连接选项
  */
 export interface ConnectionOptions {
@@ -37,6 +49,12 @@ export interface ConnectionOptions {
   showPreview?: boolean;
   /** 预览连接线样式 */
   previewStyle?: Record<string, any>;
+  /** 是否使用 RAF 节流更新预览位置 */
+  useRAF?: boolean;
+  /** 创建连接的回调 */
+  onCreateEdge?: (edge: FlowEdge) => void;
+  /** 连接创建事件 */
+  onConnect?: (edge: FlowEdge) => void;
 }
 
 /**
@@ -48,10 +66,15 @@ export class FlowConnectionHandler {
   /** 连接选项 */
   private options: ConnectionOptions = {
     mode: 'loose',
-    showPreview: true
+    showPreview: true,
+    useRAF: true
   };
   /** 配置（用于验证） */
   private config: FlowConfig | null = null;
+  /** 预览位置 */
+  private previewPosition: PreviewPosition | null = null;
+  /** RAF 节流工具 */
+  private rafThrottle = new RafThrottle<MouseEvent>();
 
   /**
    * 设置连接选项
@@ -89,18 +112,71 @@ export class FlowConnectionHandler {
       currentX: startX,
       currentY: startY
     };
+
+    // 初始化预览位置（立即更新，不使用节流）
+    this.previewPosition = {
+      x: startX,
+      y: startY
+    };
   }
 
   /**
-   * 更新连接预览位置
+   * 更新连接预览位置（支持 RAF 节流）
+   *
+   * @param event 鼠标移动事件
+   */
+  updatePreviewPosition(event: MouseEvent): void {
+    if (!this.draft) {
+      return;
+    }
+
+    // 配置 RAF 节流工具的启用状态
+    this.rafThrottle.setEnabled(this.options.useRAF ?? true);
+
+    // 如果使用 RAF 节流，使用节流版本
+    if (this.options.useRAF) {
+      this.rafThrottle.throttle(event, (e) => {
+        this.processPreviewUpdate(e);
+      });
+    } else {
+      // 不使用 RAF，直接处理
+      this.processPreviewUpdate(event);
+    }
+  }
+
+  /**
+   * 处理预览位置更新（核心逻辑）
+   *
+   * @param event 鼠标移动事件
+   */
+  private processPreviewUpdate(event: MouseEvent): void {
+    if (!this.draft) {
+      return;
+    }
+
+    this.draft.currentX = event.clientX;
+    this.draft.currentY = event.clientY;
+    this.previewPosition = {
+      x: event.clientX,
+      y: event.clientY
+    };
+  }
+
+  /**
+   * 更新连接预览位置（兼容旧 API）
    *
    * @param currentX 当前 X 坐标（屏幕坐标）
    * @param currentY 当前 Y 坐标（屏幕坐标）
+   * @deprecated 使用 updatePreviewPosition(event) 替代
    */
   updateConnection(currentX: number, currentY: number): void {
     if (this.draft) {
       this.draft.currentX = currentX;
       this.draft.currentY = currentY;
+      this.previewPosition = {
+        x: currentX,
+        y: currentY
+      };
     }
   }
 
@@ -166,17 +242,87 @@ export class FlowConnectionHandler {
       type: this.config?.edges?.defaultType || 'bezier'
     };
 
-    // 清除草稿
-    this.draft = null;
+    // 触发回调
+    if (this.options.onCreateEdge) {
+      this.options.onCreateEdge(edge);
+    }
+    if (this.options.onConnect) {
+      this.options.onConnect(edge);
+    }
+
+    // 清除草稿和预览位置
+    this.cancelConnection();
 
     return edge;
+  }
+
+  /**
+   * 完成连接（从 DOM 事件中提取目标信息）
+   *
+   * 从鼠标抬起事件中提取目标端口信息，然后完成连接
+   *
+   * @param event 鼠标抬起事件
+   * @param nodes 所有节点列表（用于验证）
+   * @returns 连接数据，如果验证失败或未找到目标则返回 null
+   */
+  async finishConnectionFromEvent(
+    event: MouseEvent,
+    nodes: FlowNode[]
+  ): Promise<FlowEdge | null> {
+    if (!this.draft) {
+      return null;
+    }
+
+    const target = event.target as HTMLElement;
+    const handleElement = target.closest('.flow-handle');
+
+    if (handleElement) {
+      const handleId = handleElement.getAttribute('data-handle-id');
+      const handleType = handleElement.getAttribute('data-handle-type');
+      const nodeId = handleElement.closest('.flow-node')?.getAttribute('data-node-id');
+
+      if (
+        nodeId &&
+        handleId &&
+        handleType === 'target' &&
+        nodeId !== this.draft.sourceNodeId
+      ) {
+        return await this.finishConnection(nodeId, handleId, nodes);
+      }
+    }
+
+    // 未找到有效的目标端口，取消连接
+    this.cancelConnection();
+    return null;
   }
 
   /**
    * 取消连接
    */
   cancelConnection(): void {
+    // 取消待执行的 RAF
+    this.cancelRaf();
+
+    // 清除草稿和预览位置
     this.draft = null;
+    this.previewPosition = null;
+  }
+
+  /**
+   * 取消 RAF（清理资源）
+   */
+  private cancelRaf(): void {
+    this.rafThrottle.cancel();
+  }
+
+  /**
+   * 清理资源
+   *
+   * 取消 RAF、重置状态，用于组件卸载时调用
+   */
+  cleanup(): void {
+    this.cancelRaf();
+    this.cancelConnection();
   }
 
   /**
@@ -186,6 +332,15 @@ export class FlowConnectionHandler {
    */
   getDraft(): Readonly<ConnectionDraft> | null {
     return this.draft ? { ...this.draft } : null;
+  }
+
+  /**
+   * 获取预览位置
+   *
+   * @returns 预览位置，如果不存在则返回 null
+   */
+  getPreviewPosition(): Readonly<PreviewPosition> | null {
+    return this.previewPosition ? { ...this.previewPosition } : null;
   }
 
   /**

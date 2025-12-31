@@ -56,6 +56,12 @@ export type {
   FlowPluginConfig
 } from './flow-plugin';
 
+// 交互类型
+export type {
+  DragTransformResult,
+  CoordinateTransform
+} from './flow-interaction';
+
 // Zod Schemas 和验证函数
 export {
   FlowPositionSchema,

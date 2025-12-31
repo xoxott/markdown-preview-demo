@@ -2,21 +2,13 @@
  * 连接创建 Hook
  *
  * 处理连接线的创建和预览
+ * 基于 FlowConnectionHandler 核心逻辑，提供 Vue 响应式封装
  */
 
-import { ref, type Ref } from 'vue';
-import { useRafThrottle } from './useRafThrottle';
+import { ref, watch, onUnmounted, type Ref } from 'vue';
+import { FlowConnectionHandler } from '../core/interaction/FlowConnectionHandler';
 import type { FlowConfig, FlowEdge, FlowNode } from '../types';
-
-/**
- * 连接草稿状态（内部使用，不导出以避免与 core/interaction 中的 ConnectionDraft 冲突）
- */
-interface ConnectionDraft {
-  sourceNodeId: string;
-  sourceHandleId: string;
-  startX: number;
-  startY: number;
-}
+import type { ConnectionDraft, PreviewPosition } from '../core/interaction/FlowConnectionHandler';
 
 export interface UseConnectionCreationOptions {
   /** 画布配置 */
@@ -30,10 +22,10 @@ export interface UseConnectionCreationOptions {
 }
 
 export interface UseConnectionCreationReturn {
-  /** 连接草稿状态 */
+  /** 连接草稿状态（响应式） */
   connectionDraft: Ref<ConnectionDraft | null>;
-  /** 连接预览位置 */
-  connectionPreviewPos: Ref<{ x: number; y: number } | null>;
+  /** 连接预览位置（响应式） */
+  connectionPreviewPos: Ref<PreviewPosition | null>;
   /** 处理端口鼠标按下事件 */
   handlePortMouseDown: (
     nodeId: string,
@@ -55,25 +47,42 @@ export function useConnectionCreation(
 ): UseConnectionCreationReturn {
   const { config, nodes, onCreateEdge, onConnect } = options;
 
+  /** 连接草稿状态（响应式） */
   const connectionDraft = ref<ConnectionDraft | null>(null);
-  const connectionPreviewPos = ref<{ x: number; y: number } | null>(null);
+  /** 连接预览位置（响应式） */
+  const connectionPreviewPos = ref<PreviewPosition | null>(null);
 
-  /**
-   * 更新预览位置（RAF 节流版本）
-   *
-   * 使用 RAF 节流确保预览线更新不会过度渲染
-   */
-  const { throttled: throttledUpdatePreview, cancel: cancelPreviewUpdate } = useRafThrottle(
-    (event: MouseEvent) => {
-      if (connectionDraft.value) {
-        connectionPreviewPos.value = {
-          x: event.clientX,
-          y: event.clientY
-        };
-      }
-    }
+  /** 创建连接处理器实例 */
+  const connectionHandler = new FlowConnectionHandler();
+
+  /** 配置连接处理器 */
+  connectionHandler.setConfig(config.value);
+  connectionHandler.setOptions({
+    useRAF: true,
+    onCreateEdge,
+    onConnect
+  });
+
+  /** 同步处理器状态到响应式 ref */
+  const syncState = () => {
+    const draft = connectionHandler.getDraft();
+    const preview = connectionHandler.getPreviewPosition();
+    connectionDraft.value = draft;
+    connectionPreviewPos.value = preview;
+  };
+
+  /** 监听配置变化，更新处理器配置 */
+  watch(
+    () => config.value,
+    (newConfig) => {
+      connectionHandler.setConfig(newConfig);
+    },
+    { deep: true }
   );
 
+  /**
+   * 处理端口鼠标按下事件
+   */
   const handlePortMouseDown = (
     nodeId: string,
     handleId: string,
@@ -82,18 +91,13 @@ export function useConnectionCreation(
   ) => {
     // 只有 source 端口可以开始连接
     if (handleType === 'source') {
-      connectionDraft.value = {
-        sourceNodeId: nodeId,
-        sourceHandleId: handleId,
-        startX: event.clientX,
-        startY: event.clientY
-      };
-
-      // 初始化预览位置（立即更新，不使用节流）
-      connectionPreviewPos.value = {
-        x: event.clientX,
-        y: event.clientY
-      };
+      connectionHandler.startConnection(
+        nodeId,
+        handleId,
+        event.clientX,
+        event.clientY
+      );
+      syncState();
 
       // 阻止节点拖拽和其他事件
       event.stopPropagation();
@@ -101,55 +105,36 @@ export function useConnectionCreation(
     }
   };
 
+  /**
+   * 处理鼠标移动事件（更新预览位置）
+   */
   const handleMouseMove = (event: MouseEvent) => {
-    if (connectionDraft.value) {
-      // 使用 RAF 节流更新预览位置
-      throttledUpdatePreview(event);
+    if (connectionHandler.isConnecting()) {
+      connectionHandler.updatePreviewPosition(event);
+      syncState();
     }
   };
 
-  const handleMouseUp = (event: MouseEvent) => {
-    if (!connectionDraft.value) {
+  /**
+   * 处理鼠标抬起事件（完成连接）
+   */
+  const handleMouseUp = async (event: MouseEvent) => {
+    if (!connectionHandler.isConnecting()) {
       return;
     }
 
-    const target = event.target as HTMLElement;
-    const handleElement = target.closest('.flow-handle');
+    // 从事件中提取目标信息并完成连接
+    const edge = await connectionHandler.finishConnectionFromEvent(event, nodes.value);
+    syncState();
 
-    if (handleElement) {
-      const handleId = handleElement.getAttribute('data-handle-id');
-      const handleType = handleElement.getAttribute('data-handle-type');
-      const nodeId = handleElement.closest('.flow-node')?.getAttribute('data-node-id');
-
-      if (
-        nodeId &&
-        handleId &&
-        handleType === 'target' &&
-        nodeId !== connectionDraft.value.sourceNodeId
-      ) {
-        // 创建连接
-        const newEdge: FlowEdge = {
-          id: `edge-${connectionDraft.value.sourceNodeId}-${nodeId}-${Date.now()}`,
-          source: connectionDraft.value.sourceNodeId,
-          target: nodeId,
-          sourceHandle: connectionDraft.value.sourceHandleId,
-          targetHandle: handleId,
-          type: config.value.edges?.defaultType || 'bezier'
-        };
-
-        onCreateEdge(newEdge);
-        if (onConnect) {
-          onConnect(newEdge);
-        }
-      }
-    }
-
-    connectionDraft.value = null;
-    connectionPreviewPos.value = null;
-
-    // 取消待执行的预览更新
-    cancelPreviewUpdate();
+    // 如果连接成功，edge 已经在 finishConnectionFromEvent 中通过回调处理
+    // 这里只需要确保状态已同步
   };
+
+  // 组件卸载时自动清理
+  onUnmounted(() => {
+    connectionHandler.cleanup();
+  });
 
   return {
     connectionDraft,

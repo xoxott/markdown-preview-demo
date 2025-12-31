@@ -9,6 +9,8 @@ export * from './useCanvasPan';
 export * from './useCanvasZoom';
 export * from './useNodeDrag';
 export * from './useConnectionCreation';
+export * from './useSelection';
+export * from './useKeyboard';
 export * from './useRafThrottle';
 export * from './useRafLoop';
 export * from './useSpatialIndex';
