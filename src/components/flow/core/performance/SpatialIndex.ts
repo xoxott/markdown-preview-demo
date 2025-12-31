@@ -90,11 +90,8 @@ export class SpatialIndex {
   }
 
   /**
-   * ✅ 性能优化：增量更新单个节点
-   *
    * 只更新变化的节点，不重建整个索引
    * 性能: O(log n) vs O(n log n)
-   *
    * @param node 要更新的节点
    */
   updateNode(node: FlowNode): void {
@@ -123,7 +120,7 @@ export class SpatialIndex {
   }
 
   /**
-   * ✅ 性能优化：批量增量更新多个节点
+   *  批量增量更新多个节点
    *
    * @param nodes 所有节点列表
    * @param changedNodeIds 变化的节点 ID 集合（如果为空则全量更新）

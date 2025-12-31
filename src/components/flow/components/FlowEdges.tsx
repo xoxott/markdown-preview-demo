@@ -4,9 +4,14 @@
  * 负责渲染所有连接线，支持 Canvas/SVG 混合渲染、视口裁剪等性能优化
  */
 
-import { computed, defineComponent, onMounted, watch, ref, shallowReactive, type PropType } from 'vue';
+import { computed, defineComponent, onMounted, watch, ref, type PropType, CSSProperties } from 'vue';
 import { useRafThrottle } from '../hooks/useRafThrottle';
+import { useNodesMap } from '../hooks/useNodesMap';
+import { createCache } from '../utils/cache-utils';
+import { getGpuAccelerationStyle } from '../utils/style-utils';
+import { getNodeCenterScreen, getHandlePositionScreen } from '../utils/node-utils';
 import type { FlowEdge, FlowNode, FlowViewport } from '../types';
+import type { FlowPosition } from '../types/flow-node';
 import BaseEdge from './edges/BaseEdge';
 
 /**
@@ -39,73 +44,6 @@ export interface FlowEdgesProps {
   onEdgeMouseLeave?: (edge: FlowEdge, event: MouseEvent) => void;
 }
 
-/**
- * 计算节点中心位置
- */
-function getNodeCenter(node: FlowNode, viewport: FlowViewport): { x: number; y: number } {
-  const nodeX = node.position.x;
-  const nodeY = node.position.y;
-  const nodeWidth = node.size?.width || 220;
-  const nodeHeight = node.size?.height || 72;
-
-  // 节点中心（画布坐标）
-  const centerX = nodeX + nodeWidth / 2;
-  const centerY = nodeY + nodeHeight / 2;
-
-  // 转换为屏幕坐标
-  const screenX = centerX * viewport.zoom + viewport.x;
-  const screenY = centerY * viewport.zoom + viewport.y;
-
-  return { x: screenX, y: screenY };
-}
-
-/**
- * 计算端口位置
- */
-function getHandlePosition(
-  node: FlowNode,
-  handleId: string,
-  viewport: FlowViewport
-): { x: number; y: number } | null {
-  const handle = node.handles?.find(h => h.id === handleId);
-  if (!handle) {
-    return null;
-  }
-
-  const nodeX = node.position.x;
-  const nodeY = node.position.y;
-  const nodeWidth = node.size?.width || 220;
-  const nodeHeight = node.size?.height || 72;
-
-  let handleX = 0;
-  let handleY = 0;
-
-  // 根据端口位置计算坐标（画布坐标）
-  switch (handle.position) {
-    case 'top':
-      handleX = nodeX + nodeWidth / 2;
-      handleY = nodeY;
-      break;
-    case 'bottom':
-      handleX = nodeX + nodeWidth / 2;
-      handleY = nodeY + nodeHeight;
-      break;
-    case 'left':
-      handleX = nodeX;
-      handleY = nodeY + nodeHeight / 2;
-      break;
-    case 'right':
-      handleX = nodeX + nodeWidth;
-      handleY = nodeY + nodeHeight / 2;
-      break;
-  }
-
-  // 转换为屏幕坐标
-  const screenX = handleX * viewport.zoom + viewport.x;
-  const screenY = handleY * viewport.zoom + viewport.y;
-
-  return { x: screenX, y: screenY };
-}
 
 /**
  * Flow 连接线列表组件
@@ -174,36 +112,20 @@ export default defineComponent({
     // ✅ 生成唯一 ID 前缀，避免多实例冲突
     const idPrefix = computed(() => `flow-arrow-${props.instanceId}`);
 
-    // ✅ 性能优化：使用 shallowReactive 避免每次都重新创建 Map
-    const nodesMap = shallowReactive(new Map<string, FlowNode>());
+    // 节点 Map 管理（使用封装的 hook）
+    const nodesRef = computed(() => props.nodes);
+    const { nodesMap } = useNodesMap({ nodes: nodesRef });
 
-    // 监听 nodes 变化，智能更新 Map
-    watch(
-      () => props.nodes,
-      (newNodes) => {
-        // 检查是否需要完全重建
-        if (nodesMap.size !== newNodes.length) {
-          nodesMap.clear();
-          for (let i = 0; i < newNodes.length; i++) {
-            nodesMap.set(newNodes[i].id, newNodes[i]);
-          }
-        } else {
-          // 只更新变化的节点（拖拽时）
-          for (let i = 0; i < newNodes.length; i++) {
-            const node = newNodes[i];
-            nodesMap.set(node.id, node);
-          }
-        }
-      },
-      { immediate: true }
-    );
-
-    // 路径计算缓存（性能优化）
-    const pathCache = ref(new Map<string, {
+    // 路径计算缓存（使用封装的缓存工具）
+    interface PathCacheItem {
       path: string;
       positions: any;
       timestamp: number;
-    }>());
+    }
+    const pathCache = createCache<string, PathCacheItem>({
+      maxSize: 500,
+      cleanupSize: 250
+    });
 
     // 计算可见连接线（视口裁剪，使用 Map 优化）
     const visibleEdges = computed(() => {
@@ -211,7 +133,7 @@ export default defineComponent({
         return props.edges;
       }
 
-      const map = nodesMap; // shallowReactive 不需要 .value
+      const map = nodesMap.value;
 
       // 获取视口区域
       const viewportX = -props.viewport.x / props.viewport.zoom;
@@ -228,8 +150,8 @@ export default defineComponent({
           return false;
         }
 
-        const sourceCenter = getNodeCenter(sourceNode, props.viewport);
-        const targetCenter = getNodeCenter(targetNode, props.viewport);
+        const sourceCenter = getNodeCenterScreen(sourceNode, props.viewport);
+        const targetCenter = getNodeCenterScreen(targetNode, props.viewport);
 
         // 检查连接线的起点和终点是否在视口内
         return (
@@ -244,7 +166,7 @@ export default defineComponent({
     // 计算连接线位置（带缓存，使用 Map 优化）
     const getEdgePositions = (edge: FlowEdge) => {
       // 性能优化：使用 Map 查找，O(1) 复杂度
-      const map = nodesMap; // shallowReactive 不需要 .value
+      const map = nodesMap.value;
       const sourceNode = map.get(edge.source);
       const targetNode = map.get(edge.target);
 
@@ -260,7 +182,7 @@ export default defineComponent({
       const zoomKey = Math.round(zoom * 100); // 精确到小数点后2位
 
       const cacheKey = `${edge.id}-${Math.round(sourceNode.position.x/2)}-${Math.round(sourceNode.position.y/2)}-${Math.round(targetNode.position.x/2)}-${Math.round(targetNode.position.y/2)}-${viewportX}-${viewportY}-${zoomKey}`;
-      const cached = pathCache.value.get(cacheKey);
+      const cached = pathCache.get(cacheKey);
       const now = Date.now();
 
       // ✅ 优化：缩短缓存有效期到 16ms（约1帧），确保缩放/拖拽时实时更新
@@ -269,21 +191,21 @@ export default defineComponent({
       }
 
       // 如果有端口 ID，使用端口位置；否则使用节点中心
-      let sourcePos: { x: number; y: number };
-      let targetPos: { x: number; y: number };
+      let sourcePos: FlowPosition;
+      let targetPos: FlowPosition;
 
       if (edge.sourceHandle) {
-        const handlePos = getHandlePosition(sourceNode, edge.sourceHandle, props.viewport);
-        sourcePos = handlePos || getNodeCenter(sourceNode, props.viewport);
+        const handlePos = getHandlePositionScreen(sourceNode, edge.sourceHandle, props.viewport);
+        sourcePos = handlePos || getNodeCenterScreen(sourceNode, props.viewport);
       } else {
-        sourcePos = getNodeCenter(sourceNode, props.viewport);
+        sourcePos = getNodeCenterScreen(sourceNode, props.viewport);
       }
 
       if (edge.targetHandle) {
-        const handlePos = getHandlePosition(targetNode, edge.targetHandle, props.viewport);
-        targetPos = handlePos || getNodeCenter(targetNode, props.viewport);
+        const handlePos = getHandlePositionScreen(targetNode, edge.targetHandle, props.viewport);
+        targetPos = handlePos || getNodeCenterScreen(targetNode, props.viewport);
       } else {
-        targetPos = getNodeCenter(targetNode, props.viewport);
+        targetPos = getNodeCenterScreen(targetNode, props.viewport);
       }
 
       const positions = {
@@ -298,19 +220,12 @@ export default defineComponent({
         targetHandleY: edge.targetHandle ? targetPos.y : undefined
       };
 
-      // 更新缓存
-      pathCache.value.set(cacheKey, {
+      // 更新缓存（使用封装的缓存工具，自动清理）
+      pathCache.set(cacheKey, {
         path: '', // 路径将在后续计算
         positions,
         timestamp: now
       });
-
-      // ✅ 优化：更积极地清理缓存，避免内存占用过高
-      if (pathCache.value.size > 500) {
-        const entries = Array.from(pathCache.value.entries());
-        entries.sort((a, b) => b[1].timestamp - a[1].timestamp);
-        pathCache.value = new Map(entries.slice(0, 250));
-      }
 
       return positions;
     };
@@ -395,9 +310,9 @@ export default defineComponent({
      * 在 RAF 节流中执行，确保每帧最多渲染一次
      */
     const renderCanvasThrottled = () => {
-      if (useCanvas.value && canvasRef.value) {
-        renderCanvas();
-      }
+        if (useCanvas.value && canvasRef.value) {
+          renderCanvas();
+        }
     };
 
     // ✅ 使用 RAF 节流渲染，避免过度渲染
@@ -459,10 +374,8 @@ export default defineComponent({
       // 箭头路径定义 - 使用更简洁的路径
       const arrowPath = `M${refX},${refX} L${refX},${refX + pathSize} L${refX + pathSize},${refY} z`;
 
-      return (
-        <svg
-          class="flow-edges"
-          style={{
+      // GPU 加速样式（统一处理）
+      const svgStyle = computed<CSSProperties>(() => ({
             position: 'absolute',
             top: 0,
             left: 0,
@@ -471,12 +384,17 @@ export default defineComponent({
             overflow: 'visible',
             pointerEvents: 'none',
             zIndex: 1,
-            // ✅ GPU 加速优化
-            willChange: 'transform',
-            transform: 'translateZ(0)',
-            backfaceVisibility: 'hidden',
-            perspective: '1000px'
-          }}
+        ...getGpuAccelerationStyle({
+          enabled: true,
+          includeBackfaceVisibility: true,
+          includePerspective: true
+        })
+      }));
+
+      return (
+        <svg
+          class="flow-edges"
+          style={svgStyle.value}
         >
           {/* ✅ 共享的箭头标记定义 - 使用 <use> 优化，带唯一 ID */}
           <defs>
@@ -630,26 +548,10 @@ export default defineComponent({
                 viewport={props.viewport}
                 instanceId={props.instanceId}
                 selected={isSelected}
-                onClick={(event: MouseEvent) => {
-                  if (props.onEdgeClick) {
-                    props.onEdgeClick(edge, event);
-                  }
-                }}
-                onDouble-click={(event: MouseEvent) => {
-                  if (props.onEdgeDoubleClick) {
-                    props.onEdgeDoubleClick(edge, event);
-                  }
-                }}
-                onMouseenter={(event: MouseEvent) => {
-                  if (props.onEdgeMouseEnter) {
-                    props.onEdgeMouseEnter(edge, event);
-                  }
-                }}
-                onMouseleave={(event: MouseEvent) => {
-                  if (props.onEdgeMouseLeave) {
-                    props.onEdgeMouseLeave(edge, event);
-                  }
-                }}
+                onClick={props.onEdgeClick ? (event: MouseEvent) => props.onEdgeClick!(edge, event) : undefined}
+                onDouble-click={props.onEdgeDoubleClick ? (event: MouseEvent) => props.onEdgeDoubleClick!(edge, event) : undefined}
+                onMouseenter={props.onEdgeMouseEnter ? (event: MouseEvent) => props.onEdgeMouseEnter!(edge, event) : undefined}
+                onMouseleave={props.onEdgeMouseLeave ? (event: MouseEvent) => props.onEdgeMouseLeave!(edge, event) : undefined}
               />
             );
           })}

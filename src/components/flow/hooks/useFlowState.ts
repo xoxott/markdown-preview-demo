@@ -1,11 +1,12 @@
 /**
  * Flow 状态管理 Hook
- * 
+ *
  * 提供 Vue 3 Composition API 的状态管理 Hook
  * 封装状态管理器的使用方式
  */
 
-import { computed, watch, onUnmounted, type Ref } from 'vue';
+import { computed, watch, type Ref } from 'vue';
+import { useDebounceFn } from '@vueuse/core';
 import { FlowStateManager } from '../core/state/FlowStateManager';
 import type { FlowNode } from '../types/flow-node';
 import type { FlowEdge } from '../types/flow-edge';
@@ -91,12 +92,12 @@ export interface UseFlowStateReturn {
 
 /**
  * Flow 状态管理 Hook
- * 
+ *
  * 提供响应式的状态管理功能
- * 
+ *
  * @param options Hook 选项
  * @returns 状态相关的响应式数据和方法
- * 
+ *
  * @example
  * ```typescript
  * const {
@@ -109,10 +110,10 @@ export interface UseFlowStateReturn {
  *   initialNodes: [node1, node2],
  *   initialEdges: [edge1]
  * });
- * 
+ *
  * // 响应式访问
  * console.log(nodes.value);
- * 
+ *
  * // 操作状态
  * addNode(newNode);
  * selectNode('node-1');
@@ -141,25 +142,16 @@ export function useFlowState(
   const canUndo = computed(() => stateManager.canUndo());
   const canRedo = computed(() => stateManager.canRedo());
 
-  // 自动保存历史记录（监听关键状态变化）
+  // 自动保存历史记录
   if (autoSaveHistory) {
-    let saveTimer: number | null = null;
+    const debouncedPushHistory = useDebounceFn(() => {
+      stateManager.pushHistory();
+    }, 300);
 
-    const scheduleHistorySave = () => {
-      if (saveTimer !== null) {
-        clearTimeout(saveTimer);
-      }
-      saveTimer = window.setTimeout(() => {
-        stateManager.pushHistory();
-        saveTimer = null;
-      }, 300); // 防抖 300ms
-    };
-
-    // 监听节点变化
     watch(
       () => stateManager.nodes.value,
       () => {
-        scheduleHistorySave();
+        debouncedPushHistory();
       },
       { deep: true }
     );
@@ -168,17 +160,10 @@ export function useFlowState(
     watch(
       () => stateManager.edges.value,
       () => {
-        scheduleHistorySave();
+        debouncedPushHistory();
       },
       { deep: true }
     );
-
-    // 清理定时器
-    onUnmounted(() => {
-      if (saveTimer !== null) {
-        clearTimeout(saveTimer);
-      }
-    });
   }
 
   return {

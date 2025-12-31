@@ -5,6 +5,7 @@
  */
 
 import { defineComponent, computed, type PropType } from 'vue';
+import { getConditionalGpuAccelerationStyle } from '../../utils/style-utils';
 import type { FlowEdge } from '../../types/flow-edge';
 
 /**
@@ -247,15 +248,9 @@ export default defineComponent({
      * 计算容器样式（仅在需要时应用 GPU 加速）
      */
     const containerStyle = computed(() => {
-      const baseStyle: Record<string, any> = {};
-
-      // 仅在需要时应用 GPU 加速优化  注意：backfaceVisibility 在 SVG 中效果有限，已移除
-      if (shouldOptimize.value) {
-        baseStyle.willChange = 'transform';
-        baseStyle.transform = 'translateZ(0)';
-      }
-
-      return baseStyle;
+      return getConditionalGpuAccelerationStyle(shouldOptimize.value, {
+        includeBackfaceVisibility: false // SVG 中效果有限
+      });
     });
 
     return () => {

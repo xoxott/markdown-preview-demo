@@ -1,6 +1,6 @@
 /**
  * Flow 性能监控组件
- * 
+ *
  * 显示实时 FPS、节点数量、渲染时间等性能指标
  */
 
@@ -55,7 +55,7 @@ export default defineComponent({
 
     /**
      * 更新 FPS 和性能指标
-     * 
+     *
      * 在 RAF 循环中持续执行，每秒计算一次 FPS
      */
     const updateFPS = () => {
@@ -78,7 +78,6 @@ export default defineComponent({
       }
     };
 
-    // ✅ 使用 RAF 循环持续更新 FPS
     useRafLoop(updateFPS);
 
     // 性能等级
@@ -136,13 +135,13 @@ export default defineComponent({
         <div style={{ marginBottom: '8px', fontSize: '13px', fontWeight: 'bold', borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '6px' }}>
           性能监控
         </div>
-        
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {/* FPS */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ opacity: 0.8 }}>FPS:</span>
-            <span style={{ 
-              fontWeight: 'bold', 
+            <span style={{
+              fontWeight: 'bold',
               color: performanceColor.value,
               fontSize: '14px'
             }}>
@@ -191,9 +190,9 @@ export default defineComponent({
           )}
 
           {/* 性能等级 */}
-          <div style={{ 
-            marginTop: '6px', 
-            paddingTop: '6px', 
+          <div style={{
+            marginTop: '6px',
+            paddingTop: '6px',
             borderTop: '1px solid rgba(255,255,255,0.2)',
             textAlign: 'center',
             fontSize: '11px',

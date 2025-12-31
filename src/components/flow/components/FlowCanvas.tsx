@@ -12,11 +12,13 @@ import { useCanvasPan } from '../hooks/useCanvasPan';
 import { useCanvasZoom } from '../hooks/useCanvasZoom';
 import { useNodeDrag } from '../hooks/useNodeDrag';
 import { useConnectionCreation } from '../hooks/useConnectionCreation';
+import { useNodesMap } from '../hooks/useNodesMap';
 import { FlowEventEmitter } from '../core/events/FlowEventEmitter';
 import { compareIds } from '../utils/array-utils';
 import FlowNodes from './FlowNodes';
 import FlowEdges from './FlowEdges';
 import FlowBackground from './FlowBackground';
+import FlowViewportContainer from './FlowViewportContainer';
 import ConnectionPreview from './ConnectionPreview';
 import type { FlowConfig, FlowViewport, FlowNode, FlowEdge } from '../types';
 
@@ -127,10 +129,8 @@ export default defineComponent({
       maxHistorySize: config.value.performance?.maxHistorySize || 50
     });
 
-    // ✅ 性能优化：使用 computed 但避免在拖拽时重建
-    const nodesMap = computed(() => {
-      return new Map(nodes.value.map(n => [n.id, n]));
-    });
+    // 节点 Map 管理（O(1) 查找）
+    const { nodesMap } = useNodesMap({ nodes });
 
     // 监听 props 变化，同步到内部状态
     watch(
@@ -312,23 +312,12 @@ export default defineComponent({
     // 节点事件处理
     const handleNodeClick = (node: FlowNode, event: MouseEvent) => {
       // 如果点击被阻止（因为发生了拖拽），则不处理点击事件
-      if (nodeClickBlocked.value) {
-        return;
-      }
+      if (nodeClickBlocked.value) return;
 
-      // 阻止事件冒泡到画布，避免触发画布点击事件
       event.stopPropagation();
 
       // 处理选择逻辑
-      handleSelection(event, node.id, (id, multi) => {
-        if (multi) {
-          // 多选模式：添加到当前选择
-          selectNode(id, true);
-        } else {
-          // 单选模式：选中当前节点，取消其他所有选中（包括其他节点和连接线）
-          selectNode(id, false);
-        }
-      });
+      handleSelection(event, node.id, (id, multi) =>  multi ? selectNode(id, true) : selectNode(id, false));
 
       emit('node-click', node, event);
       eventEmitter.emit('onNodeClick', node, event);
@@ -358,15 +347,7 @@ export default defineComponent({
       event.stopPropagation();
 
       // 处理选择逻辑
-      handleSelection(event, edge.id, (id, multi) => {
-        if (multi) {
-          // 多选模式：添加到当前选择
-          selectEdge(id, true);
-        } else {
-          // 单选模式：选中当前连接线，取消其他所有选中（包括所有节点和其他连接线）
-          selectEdge(id, false);
-        }
-      });
+      handleSelection(event, edge.id, (id, multi) =>  multi ? selectEdge(id, true) : selectEdge(id, false));
 
       emit('edge-click', edge, event);
       eventEmitter.emit('onEdgeClick', edge, event);
@@ -470,18 +451,7 @@ export default defineComponent({
         />
 
         {/* 节点容器（使用 CSS transform 缩放） */}
-        <div
-          style={{
-            transform: `translate(${viewport.value.x}px, ${viewport.value.y}px) scale(${viewport.value.zoom})`,
-            transformOrigin: '0 0',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            pointerEvents: 'none'
-          }}
-        >
+        <FlowViewportContainer viewport={viewport.value}>
           <FlowNodes
             nodes={nodes.value}
             selectedNodeIds={selectedNodeIds.value}
@@ -495,7 +465,7 @@ export default defineComponent({
             onNodeMouseDown={handleNodeMouseDown}
             onPortMouseDown={handlePortMouseDown}
           />
-        </div>
+        </FlowViewportContainer>
 
         {/* 连接预览线 */}
         {connectionDraft.value && connectionPreviewPos.value && (

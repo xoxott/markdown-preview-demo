@@ -11,4 +11,9 @@ export * from './useNodeDrag';
 export * from './useConnectionCreation';
 export * from './useRafThrottle';
 export * from './useRafLoop';
+export * from './useSpatialIndex';
+export * from './useViewportCulling';
+export * from './useNodeState';
+export * from './useNodeStyle';
+export * from './useNodesMap';
 

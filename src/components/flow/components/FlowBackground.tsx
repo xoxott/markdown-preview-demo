@@ -5,6 +5,7 @@
  */
 
 import { defineComponent, computed, type PropType, CSSProperties } from 'vue';
+import { getConditionalGpuAccelerationStyle } from '../utils/style-utils';
 import type { FlowGridType, FlowViewport } from '../types';
 
 /**
@@ -141,18 +142,12 @@ export default defineComponent({
      * 计算 SVG 容器样式（条件性应用 GPU 加速）
      */
     const svgContainerStyle = computed(() => {
-      const baseStyle: CSSProperties = {
-        ...gridStyle.value as CSSProperties
+      return {
+        ...gridStyle.value as CSSProperties,
+        ...getConditionalGpuAccelerationStyle(shouldOptimize.value, {
+          includeBackfaceVisibility: false // SVG 中效果有限
+        })
       };
-
-      // 仅在需要时应用 GPU 加速优化
-      if (shouldOptimize.value) {
-        baseStyle.willChange = 'transform';
-        baseStyle.transform = 'translateZ(0)';
-        // 注意：backfaceVisibility 在 SVG 中效果有限，已移除
-      }
-
-      return baseStyle;
     });
 
     // 计算网格图案（根据缩放动态调整，使用 <use> 优化）

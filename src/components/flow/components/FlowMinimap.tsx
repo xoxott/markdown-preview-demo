@@ -4,7 +4,10 @@
  * 提供画布的缩略图视图，支持快速导航
  */
 
-import { defineComponent, computed, ref, onMounted, onUnmounted, type PropType } from 'vue';
+import { defineComponent, computed, ref, type PropType, CSSProperties } from 'vue';
+import { useEventListener } from '@vueuse/core';
+import { getGpuAccelerationStyle } from '../utils/style-utils';
+import { calculateBounds } from '../utils/math-utils';
 import type { FlowViewport, FlowNode } from '../types';
 
 /**
@@ -74,20 +77,7 @@ export default defineComponent({
     const dragStartX = ref(0);
     const dragStartY = ref(0);
 
-    // ✅ 性能优化：边界计算缓存
-    const boundsCache = ref<{
-      nodesHash: string;
-      bounds: {
-        minX: number;
-        minY: number;
-        maxX: number;
-        maxY: number;
-        width: number;
-        height: number;
-      };
-    } | null>(null);
-
-    // 计算节点边界（带缓存）
+    // 计算节点边界（复用工具函数）
     const bounds = computed(() => {
       if (props.nodes.length === 0) {
         return {
@@ -100,43 +90,17 @@ export default defineComponent({
         };
       }
 
-      // ✅ 生成节点哈希（只包含位置和大小）
-      const nodesHash = props.nodes
-        .map(n => `${n.id}-${n.position.x}-${n.position.y}-${n.size?.width || 220}-${n.size?.height || 72}`)
-        .join('|');
-
-      // ✅ 如果哈希相同，返回缓存
-      if (boundsCache.value && boundsCache.value.nodesHash === nodesHash) {
-        return boundsCache.value.bounds;
-      }
-
-      // 计算新边界（使用 for 循环代替 forEach，性能更好）
-      let minX = Infinity;
-      let minY = Infinity;
-      let maxX = -Infinity;
-      let maxY = -Infinity;
-
-      for (let i = 0; i < props.nodes.length; i++) {
-        const node = props.nodes[i];
-        const nodeX = node.position.x;
-        const nodeY = node.position.y;
-        const nodeWidth = node.size?.width || 220;
-        const nodeHeight = node.size?.height || 72;
-
-        minX = Math.min(minX, nodeX);
-        minY = Math.min(minY, nodeY);
-        maxX = Math.max(maxX, nodeX + nodeWidth);
-        maxY = Math.max(maxY, nodeY + nodeHeight);
-      }
+      // 使用工具函数计算边界
+      const calculatedBounds = calculateBounds(props.nodes);
 
       // 添加边距
       const padding = 100;
-      minX -= padding;
-      minY -= padding;
-      maxX += padding;
-      maxY += padding;
+      const minX = calculatedBounds.x - padding;
+      const minY = calculatedBounds.y - padding;
+      const maxX = calculatedBounds.x + calculatedBounds.width + padding;
+      const maxY = calculatedBounds.y + calculatedBounds.height + padding;
 
-      const result = {
+      return {
         minX,
         minY,
         maxX,
@@ -144,11 +108,6 @@ export default defineComponent({
         width: maxX - minX,
         height: maxY - minY
       };
-
-      // ✅ 更新缓存
-      boundsCache.value = { nodesHash, bounds: result };
-
-      return result;
     });
 
     // 计算缩放比例
@@ -275,15 +234,8 @@ export default defineComponent({
       isDragging.value = false;
     };
 
-    onMounted(() => {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-    });
-
-    onUnmounted(() => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    });
+    useEventListener(document, 'mousemove', handleMouseMove);
+    useEventListener(document, 'mouseup', handleMouseUp);
 
     return () => {
       if (!props.visible) {
@@ -316,11 +268,11 @@ export default defineComponent({
             height={height}
             style={{
               display: 'block',
-              // ✅ GPU 加速优化
-              willChange: 'transform',
-              transform: 'translateZ(0)',
-              backfaceVisibility: 'hidden'
-            }}
+              ...getGpuAccelerationStyle({
+                enabled: true,
+                includeBackfaceVisibility: true
+              })
+            } as CSSProperties}
           >
             <defs>
               {/* ✅ 共享的节点矩形定义（使用 <use> 引用） */}
@@ -330,11 +282,7 @@ export default defineComponent({
                 opacity={0.3}
                 stroke="#2080f0"
                 stroke-width={1}
-                // ✅ GPU 加速
-                style={{
-                  willChange: 'transform',
-                  transform: 'translateZ(0)'
-                }}
+                style={getGpuAccelerationStyle({ enabled: true }) as CSSProperties}
               />
             </defs>
 
@@ -368,10 +316,8 @@ export default defineComponent({
               stroke-width={2}
               style={{
                 cursor: 'move',
-                // ✅ GPU 加速
-                willChange: 'transform',
-                transform: 'translateZ(0)'
-              }}
+                ...getGpuAccelerationStyle({ enabled: true })
+              } as CSSProperties}
               onMousedown={handleViewportBoxMouseDown}
             />
           </svg>
