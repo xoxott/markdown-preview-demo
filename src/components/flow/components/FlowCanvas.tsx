@@ -170,9 +170,10 @@ export default defineComponent({
 
     const emptyLockedNodeIds: string[] = [];
 
+    const defaultInstanceId = computed(() => props.id || 'default');
+
     // 事件系统
     const eventEmitter = new FlowEventEmitter();
-
 
     // 连接创建
     const {
@@ -423,7 +424,7 @@ export default defineComponent({
               gridOpacity={config.value.canvas?.gridOpacity}
               backgroundColor={config.value.canvas?.backgroundColor}
               viewport={viewport.value}
-              instanceId={props.id || 'default'}
+              instanceId={defaultInstanceId.value}
             />
           )
         )}
@@ -434,7 +435,7 @@ export default defineComponent({
           nodes={nodes.value}
           selectedEdgeIds={selectedEdgeIds.value}
           viewport={viewport.value}
-          instanceId={props.id || 'default'}
+          instanceId={defaultInstanceId.value}
           enableViewportCulling={config.value.performance?.enableViewportCulling}
           enableCanvasRendering={config.value.performance?.enableEdgeCanvasRendering}
           canvasThreshold={config.value.performance?.edgeCanvasThreshold}
