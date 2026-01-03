@@ -168,6 +168,8 @@ export default defineComponent({
     // 画布容器引用
     const canvasRef = ref<HTMLElement | null>(null);
 
+    const emptyLockedNodeIds: string[] = [];
+
     // 事件系统
     const eventEmitter = new FlowEventEmitter();
 
@@ -445,7 +447,7 @@ export default defineComponent({
           <FlowNodes
             nodes={nodes.value}
             selectedNodeIds={selectedNodeIds.value}
-            lockedNodeIds={[]}
+            lockedNodeIds={emptyLockedNodeIds}
             draggingNodeId={draggingNodeId.value}
             viewport={viewport.value}
             enableViewportCulling={config.value.performance?.enableViewportCulling}

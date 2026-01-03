@@ -100,8 +100,7 @@ export default defineComponent({
     }
   },
   setup(props) {
-    // 使用 toRef 创建响应式引用，比 computed 更轻量
-    // 对于需要默认值的情况，使用 computed
+
     const edgesRef = toRef(props, 'edges');
     const nodesRef = toRef(props, 'nodes');
     const viewportRef = computed(() => props.viewport || { x: 0, y: 0, zoom: 1 });
@@ -114,6 +113,8 @@ export default defineComponent({
     const selectedEdgeIdsRef = computed(() => props.selectedEdgeIds || []);
     const selectedEdgeIdsSet = useCachedSet(selectedEdgeIdsRef);
 
+    const defaultInstanceId = computed(() => props.instanceId || 'default');
+
     // 视口裁剪
     const { visibleEdges } = useEdgeViewportCulling({
       edges: edgesRef,
@@ -123,7 +124,6 @@ export default defineComponent({
     });
 
     // 位置计算
-
     const { getEdgePositions } = useEdgePositions({
       edges: edgesRef,
       nodes: nodesRef,
@@ -151,7 +151,7 @@ export default defineComponent({
           getEdgePositions={getEdgePositions}
           selectedEdgeIdsSet={selectedEdgeIdsSet.value}
           viewport={viewportRef.value}
-          instanceId={props.instanceId || 'default'}
+          instanceId={defaultInstanceId.value}
           onEdgeClick={props.onEdgeClick}
           onEdgeDoubleClick={props.onEdgeDoubleClick}
           onEdgeMouseEnter={props.onEdgeMouseEnter}
