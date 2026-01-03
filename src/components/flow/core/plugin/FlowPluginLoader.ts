@@ -5,6 +5,7 @@
  */
 
 import { FlowConfigManager } from '../../config/FlowConfigManager';
+import { logger } from '../../utils/logger';
 import type { FlowPluginConfig, FlowPluginContext } from '../../types/flow-plugin';
 import { FlowEventEmitter } from '../events/FlowEventEmitter';
 import { FlowPluginContextImpl } from './FlowPluginContext';
@@ -57,7 +58,7 @@ export class FlowPluginLoader {
 
     // 检查插件是否已注册
     if (this.plugins.has(plugin.name)) {
-      console.warn(`Plugin "${plugin.name}" is already registered`);
+      logger.warn(`Plugin "${plugin.name}" is already registered`);
       return false;
     }
 
@@ -103,7 +104,7 @@ export class FlowPluginLoader {
     }
 
     if (instance.installed) {
-      console.warn(`Plugin "${pluginName}" is already installed`);
+      logger.warn(`Plugin "${pluginName}" is already installed`);
       return false;
     }
 
@@ -114,7 +115,7 @@ export class FlowPluginLoader {
       instance.installedAt = Date.now();
       return true;
     } catch (error) {
-      console.error(`Failed to install plugin "${pluginName}":`, error);
+      logger.error(`Failed to install plugin "${pluginName}":`, error);
       return false;
     }
   }
@@ -133,7 +134,7 @@ export class FlowPluginLoader {
     }
 
     if (!instance.installed) {
-      console.warn(`Plugin "${pluginName}" is not installed`);
+      logger.warn(`Plugin "${pluginName}" is not installed`);
       return false;
     }
 
@@ -152,7 +153,7 @@ export class FlowPluginLoader {
       instance.installedAt = undefined;
       return true;
     } catch (error) {
-      console.error(`Failed to uninstall plugin "${pluginName}":`, error);
+      logger.error(`Failed to uninstall plugin "${pluginName}":`, error);
       return false;
     }
   }

@@ -31,13 +31,8 @@ import {
   zodSafeValidateNode,
 } from '../index';
 
-// 简化的 StateManager 接口（用于示例）
-interface IStateManager {
-  getNodeById(id: string): FlowNode | undefined;
-  updateNode(id: string, updates: Partial<FlowNode>): void;
-  setNodes(nodes: FlowNode[]): void;
-  getNodes(): FlowNode[];
-}
+// 状态管理接口
+import type { IStateStore } from '../core/state/interfaces/IStateStore';
 
 // ============================================
 // 示例 1: 使用空间索引优化视口裁剪
@@ -160,7 +155,7 @@ export function useObjectPools() {
 // 示例 3: 使用命令模式实现撤销/重做
 // ============================================
 
-export function useCommandBasedHistory(stateManager: IStateManager) {
+export function useCommandBasedHistory(stateStore: IStateStore) {
   const commandManager = new CommandManager({
     maxSize: 50,
     enableMerge: true, // 启用命令合并
@@ -168,7 +163,7 @@ export function useCommandBasedHistory(stateManager: IStateManager) {
 
   // 移动节点（支持撤销/重做）
   function moveNode(nodeId: string, newPosition: { x: number; y: number }) {
-    const node = stateManager.getNodeById(nodeId);
+    const node = stateStore.getNode(nodeId);
     if (!node) return;
 
     const oldPosition = { ...node.position };
@@ -177,7 +172,7 @@ export function useCommandBasedHistory(stateManager: IStateManager) {
       nodeId,
       oldPosition,
       newPosition,
-      stateManager as any // 示例代码，实际使用时需要完整的 FlowStateManager
+      stateStore // 使用 IStateStore 接口
     );
 
     commandManager.execute(command);
@@ -293,32 +288,62 @@ export function useSafeDataImport() {
 // ============================================
 
 export function useOptimizedFlowCanvas() {
-  // 初始化所有优化功能
-  const spatialIndex = new SpatialIndex();
-  const positionPool = createPositionPool();
-  // 简化的 StateManager 实现（用于示例）
-  const stateManager: IStateManager = {
-    getNodeById: (id: string) => nodes.value.find(n => n.id === id),
-    updateNode: (id: string, updates: Partial<FlowNode>) => {
-      const index = nodes.value.findIndex(n => n.id === id);
-      if (index !== -1) {
-        nodes.value[index] = { ...nodes.value[index], ...updates };
-      }
-    },
-    setNodes: (newNodes: FlowNode[]) => { nodes.value = newNodes; },
-    getNodes: () => nodes.value,
-  };
-  const commandManager = new CommandManager({ maxSize: 50, enableMerge: true });
-
+  // 状态
   const nodes = ref<FlowNode[]>([]);
   const edges = ref<FlowEdge[]>([]);
   const viewport = ref<FlowViewport>({ x: 0, y: 0, zoom: 1 });
+
+  // 初始化所有优化功能
+  const spatialIndex = new SpatialIndex();
+  const positionPool = createPositionPool();
+  const commandManager = new CommandManager({ maxSize: 50, enableMerge: true });
+
+  // 创建状态存储适配器（将 Vue ref 适配为 IStateStore）
+  const stateStore: IStateStore = {
+    getNodes: () => nodes.value,
+    setNodes: (newNodes: FlowNode[]) => {
+      nodes.value = newNodes;
+    },
+    addNode: (node: FlowNode) => {
+      nodes.value.push(node);
+    },
+    addNodes: (newNodes: FlowNode[]) => {
+      nodes.value.push(...newNodes);
+    },
+    updateNode: (id: string, updates: Partial<FlowNode>) => {
+      const index = nodes.value.findIndex(n => n.id === id);
+      if (index > -1) {
+        Object.assign(nodes.value[index], updates);
+      }
+    },
+    removeNode: (id: string) => {
+      nodes.value = nodes.value.filter(n => n.id !== id);
+    },
+    removeNodes: (ids: string[]) => {
+      nodes.value = nodes.value.filter(n => !ids.includes(n.id));
+    },
+    getNode: (id: string) => nodes.value.find(n => n.id === id),
+    hasNode: (id: string) => nodes.value.some(n => n.id === id),
+    getEdges: () => [],
+    setEdges: () => {},
+    addEdge: () => {},
+    addEdges: () => {},
+    updateEdge: () => {},
+    removeEdge: () => {},
+    removeEdges: () => {},
+    getEdge: () => undefined,
+    getNodeEdges: () => [],
+    getViewport: () => viewport.value,
+    setViewport: (vp: Partial<FlowViewport>) => {
+      viewport.value = { ...viewport.value, ...vp };
+    }
+  };
 
   // 更新节点并刷新空间索引
   function setNodes(newNodes: FlowNode[]) {
     nodes.value = newNodes;
     spatialIndex.updateNodes(newNodes);
-    stateManager.setNodes(newNodes);
+    stateStore.setNodes(newNodes);
   }
 
   // 优化的视口裁剪
@@ -338,7 +363,7 @@ export function useOptimizedFlowCanvas() {
 
   // 优化的节点移动（使用对象池和命令模式）
   function moveNodeOptimized(nodeId: string, deltaX: number, deltaY: number) {
-    const node = stateManager.getNodeById(nodeId);
+    const node = stateStore.getNode(nodeId);
     if (!node) return;
 
     const oldPos = positionPool.acquire();
@@ -354,13 +379,13 @@ export function useOptimizedFlowCanvas() {
         nodeId,
         { x: oldPos.x, y: oldPos.y },
         { x: newPos.x, y: newPos.y },
-        stateManager as any // 示例代码，实际使用时需要完整的 FlowStateManager
+        stateStore // 使用 IStateStore 接口
       );
 
       commandManager.execute(command);
 
       // 更新空间索引
-      spatialIndex.updateNodes(stateManager.getNodes());
+      spatialIndex.updateNodes(stateStore.getNodes());
     } finally {
       positionPool.release(oldPos);
       positionPool.release(newPos);
@@ -371,14 +396,14 @@ export function useOptimizedFlowCanvas() {
   function undo() {
     if (commandManager.canUndo()) {
       commandManager.undo();
-      spatialIndex.updateNodes(stateManager.getNodes());
+      spatialIndex.updateNodes(stateStore.getNodes());
     }
   }
 
   function redo() {
     if (commandManager.canRedo()) {
       commandManager.redo();
-      spatialIndex.updateNodes(stateManager.getNodes());
+      spatialIndex.updateNodes(stateStore.getNodes());
     }
   }
 

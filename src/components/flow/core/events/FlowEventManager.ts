@@ -4,6 +4,7 @@
  * 提供多实例事件管理、事件命名空间、事件转发等功能
  */
 
+import { logger } from '../../utils/logger';
 import { FlowEventEmitter } from './FlowEventEmitter';
 import type { FlowEvents } from '../../types/flow-events';
 
@@ -39,7 +40,7 @@ export class FlowEventManager {
    */
   createInstance(id: string): FlowEventEmitter {
     if (this.instances.has(id)) {
-      console.warn(`Event manager instance with id "${id}" already exists`);
+      logger.warn(`Event manager instance with id "${id}" already exists`);
       return this.instances.get(id)!.emitter;
     }
 
@@ -119,7 +120,7 @@ export class FlowEventManager {
   ): () => void {
     const fromEmitter = this.getInstance(fromId);
     if (!fromEmitter) {
-      console.warn(`Event manager instance "${fromId}" not found`);
+      logger.warn(`Event manager instance "${fromId}" not found`);
       return () => {};
     }
 

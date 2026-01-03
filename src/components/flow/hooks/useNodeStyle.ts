@@ -4,10 +4,12 @@
  * 提供节点样式计算和缓存功能，避免不必要的 DOM 更新
  */
 
-import { computed, type Ref } from 'vue';
-import { createCache } from '../utils/cache-utils';
-import type { FlowNode } from '../types';
 import type { CSSProperties } from 'vue';
+import { type Ref } from 'vue';
+import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
+import type { FlowNode } from '../types';
+import { createCache } from '../utils/cache-utils';
+import { useCachedSet } from '../utils/set-utils';
 
 /**
  * 节点样式 Hook 选项
@@ -59,13 +61,13 @@ export function useNodeStyle(
     draggingNodeId
   } = options;
 
-  // 使用 Set 进行 O(1) 查找
-  const selectedNodeIdsSet = computed(() => new Set(selectedNodeIds.value));
+  // 性能优化：使用缓存的 Set，避免每次计算都创建新 Set
+  const selectedNodeIdsSet = useCachedSet(selectedNodeIds);
 
   // 样式缓存（使用通用缓存工具）
   const styleCache = createCache<string, CSSProperties>({
-    maxSize: 500,
-    cleanupSize: 100
+    maxSize: PERFORMANCE_CONSTANTS.CACHE_MAX_SIZE,
+    cleanupSize: PERFORMANCE_CONSTANTS.CACHE_CLEANUP_SIZE
   });
 
   /**
@@ -91,24 +93,18 @@ export function useNodeStyle(
     }
     // 普通节点不设置 z-index，使用默认的 DOM 顺序（性能最优）
 
-    // 生成缓存键（包含所有影响样式的因素）
-    // 使用 Math.round 减少因微小位置变化导致的缓存失效
-    const width = node.size?.width || 220;
-    const height = node.size?.height || 72;
-    const cacheKey = `${node.id}-${Math.round(x)}-${Math.round(y)}-${width}-${height}-${zIndex ?? 'none'}`;
+    const width = node.size?.width ?? PERFORMANCE_CONSTANTS.DEFAULT_NODE_WIDTH;
+    const height = node.size?.height ?? PERFORMANCE_CONSTANTS.DEFAULT_NODE_HEIGHT;
+    const cacheKey = `${node.id}-${x}-${y}-${width}-${height}-${zIndex ?? 'none'}`;
 
-    // 检查缓存，如果样式没变则返回相同对象引用
     const cached = styleCache.get(cacheKey);
-    if (cached) {
-      return cached; // Vue 不会检测到变化，不会触发 DOM 更新
-    }
+    if (cached) return cached;
 
     // 创建新样式对象
     const style: CSSProperties = {
       position: 'absolute',
       left: `${x}px`,
       top: `${y}px`,
-      // 节点大小使用原始尺寸，由 CSS transform scale 自动缩放
       width: `${width}px`,
       height: `${height}px`,
       pointerEvents: 'auto',

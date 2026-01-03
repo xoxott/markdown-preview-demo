@@ -5,6 +5,7 @@
  * 支持事件监听器管理、一次性监听器、事件优先级等
  */
 
+import { logger } from '../../utils/logger';
 import type { FlowEvents } from '../../types/flow-events';
 
 /**
@@ -213,7 +214,7 @@ export class FlowEventEmitter {
           toRemove.push(wrapper);
         }
       } catch (error) {
-        console.error(`Error in event listener for "${String(event)}":`, error);
+        logger.error(`Error in event listener for "${String(event)}":`, error);
       }
     }
 

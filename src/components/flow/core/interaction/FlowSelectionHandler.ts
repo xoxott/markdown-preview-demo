@@ -38,7 +38,20 @@ export interface SelectionOptions {
 }
 
 /**
+ * 选择处理器选项
+ */
+export interface FlowSelectionHandlerOptions {
+  /** 选择选项 */
+  options?: Partial<SelectionOptions>;
+  /** 选择变化回调 */
+  onSelectionChange?: (nodeIds: string[], edgeIds: string[]) => void;
+}
+
+/**
  * Flow 选择处理器
+ *
+ * 完全独立的选择逻辑处理器，不依赖任何状态管理器
+ * 通过回调函数通知选择变化
  */
 export class FlowSelectionHandler {
   /** 选中的节点 ID 列表 */
@@ -60,12 +73,42 @@ export class FlowSelectionHandler {
     enableBoxSelection: true,
     boxSelectionKey: 'shift'
   };
+  /** 选择变化回调 */
+  private onSelectionChange?: (nodeIds: string[], edgeIds: string[]) => void;
+
+  constructor(handlerOptions?: FlowSelectionHandlerOptions) {
+    if (handlerOptions?.options) {
+      this.options = { ...this.options, ...handlerOptions.options };
+    }
+    this.onSelectionChange = handlerOptions?.onSelectionChange;
+  }
 
   /**
    * 设置选择选项
    */
   setOptions(options: Partial<SelectionOptions>): void {
     this.options = { ...this.options, ...options };
+  }
+
+  /**
+   * 设置选择变化回调
+   *
+   * @param callback 回调函数
+   */
+  setOnSelectionChange(callback: (nodeIds: string[], edgeIds: string[]) => void): void {
+    this.onSelectionChange = callback;
+  }
+
+  /**
+   * 通知选择变化
+   */
+  private notifySelectionChange(): void {
+    if (this.onSelectionChange) {
+      this.onSelectionChange(
+        Array.from(this.selectedNodeIds),
+        Array.from(this.selectedEdgeIds)
+      );
+    }
   }
 
   /**
@@ -82,6 +125,7 @@ export class FlowSelectionHandler {
       this.selectedEdgeIds.clear();
       this.selectedNodeIds.add(nodeId);
     }
+    this.notifySelectionChange();
   }
 
   /**
@@ -93,6 +137,7 @@ export class FlowSelectionHandler {
     this.selectedNodeIds.clear();
     this.selectedEdgeIds.clear();
     nodeIds.forEach(id => this.selectedNodeIds.add(id));
+    this.notifySelectionChange();
   }
 
   /**
@@ -109,6 +154,7 @@ export class FlowSelectionHandler {
       this.selectedEdgeIds.clear();
       this.selectedEdgeIds.add(edgeId);
     }
+    this.notifySelectionChange();
   }
 
   /**
@@ -118,6 +164,7 @@ export class FlowSelectionHandler {
    */
   deselectNode(nodeId: string): void {
     this.selectedNodeIds.delete(nodeId);
+    this.notifySelectionChange();
   }
 
   /**
@@ -127,6 +174,7 @@ export class FlowSelectionHandler {
    */
   deselectEdge(edgeId: string): void {
     this.selectedEdgeIds.delete(edgeId);
+    this.notifySelectionChange();
   }
 
   /**
@@ -135,6 +183,7 @@ export class FlowSelectionHandler {
   deselectAll(): void {
     this.selectedNodeIds.clear();
     this.selectedEdgeIds.clear();
+    this.notifySelectionChange();
   }
 
   /**

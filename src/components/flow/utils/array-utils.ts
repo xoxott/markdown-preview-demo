@@ -5,8 +5,6 @@
 /**
  * 比较两个数组是否包含相同的 ID
  *
- * 性能优化：O(n log n) → O(n)
- *
  * @param arr1 第一个数组
  * @param arr2 第二个数组
  * @returns 如果两个数组包含相同的 ID，返回 true

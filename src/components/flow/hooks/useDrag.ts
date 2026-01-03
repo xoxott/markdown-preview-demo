@@ -64,6 +64,7 @@
 import { ref, onUnmounted, type Ref } from 'vue';
 import { isFunction as isFunctionType } from '../utils/type-utils';
 import { FlowDragHandler } from '../core/interaction/FlowDragHandler';
+import { logger } from '../utils/logger';
 import type { DragTransformResult, CoordinateTransform } from '../types/flow-interaction';
 
 /**
@@ -240,6 +241,10 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
     threshold: dragThreshold,
     useRAF,
     incremental,
+    enabled: () => {
+      // 将 Vue 响应式状态转换为函数
+      return isFunctionType(enabled) ? enabled() : enabled.value;
+    },
     transformCoordinates: transformCoordinates as CoordinateTransform | undefined,
     onDrag: (result: DragTransformResult, event: MouseEvent) => {
       // 同步 hasMoved 状态
@@ -283,9 +288,13 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
     startTargetX: number = 0,
     startTargetY: number = 0
   ) => {
+
     // 检查是否启用
     const isEnabled = isFunctionType(enabled) ? enabled() : enabled.value;
-    if (!isEnabled) return;
+    if (!isEnabled) {
+      logger.warn('[useDrag] 拖拽未启用');
+      return;
+    }
 
     // 调用处理器的 startDrag 方法
     const started = dragHandler.startDrag(event, startTargetX, startTargetY, canStart);

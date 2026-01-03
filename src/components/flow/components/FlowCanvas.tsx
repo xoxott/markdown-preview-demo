@@ -4,19 +4,19 @@
  * 整合所有功能的核心画布组件，提供完整的图形编辑器功能
  */
 
-import { defineComponent, ref, computed, watch, onUnmounted, type PropType, CSSProperties } from 'vue';
-import { useEventListener } from '@vueuse/core';
+import { defineComponent, ref, computed, onMounted, onUnmounted, type PropType, CSSProperties } from 'vue';
 import { useFlowConfig } from '../hooks/useFlowConfig';
 import { useFlowState } from '../hooks/useFlowState';
-import { useSelection } from '../hooks/useSelection';
 import { useKeyboard } from '../hooks/useKeyboard';
 import { useCanvasPan } from '../hooks/useCanvasPan';
 import { useCanvasZoom } from '../hooks/useCanvasZoom';
 import { useNodeDrag } from '../hooks/useNodeDrag';
 import { useConnectionCreation } from '../hooks/useConnectionCreation';
 import { useNodesMap } from '../hooks/useNodesMap';
+import { useFlowCanvasPropsSync } from '../hooks/useFlowCanvasPropsSync';
+import { useFlowCanvasConfigSync } from '../hooks/useFlowCanvasConfigSync';
+import { useFlowCanvasEvents } from '../hooks/useFlowCanvasEvents';
 import { FlowEventEmitter } from '../core/events/FlowEventEmitter';
-import { compareIds } from '../utils/array-utils';
 import { registerFlowCanvasShortcuts } from './useFlowCanvasKeyboard';
 import FlowNodes from './FlowNodes';
 import FlowEdges from './FlowEdges';
@@ -109,7 +109,7 @@ export default defineComponent({
       initialConfig: props.config
     });
 
-    // 状态管理（负责状态存储）
+    // 状态管理（负责状态存储和选择逻辑）
     const {
       nodes,
       edges,
@@ -124,46 +124,44 @@ export default defineComponent({
       setViewport,
       panViewport,
       zoomViewport,
-      stateManager
+      // 选择操作
+      selectNode,
+      selectNodes,
+      selectEdge,
+      deselectAll,
+      getSelectedNodes,
+      getSelectedEdges,
+      isNodeSelected,
+      isEdgeSelected,
+      shouldMultiSelect,
+      shouldBoxSelect,
+      startBoxSelection,
+      updateBoxSelection,
+      finishBoxSelection,
+      cancelBoxSelection,
+      isBoxSelecting,
+      setSelectionOptions,
+      // 内部实现，不对外暴露
+      stateStore,
+      historyManager
     } = useFlowState({
       initialNodes: props.initialNodes,
       initialEdges: props.initialEdges,
       initialViewport: props.initialViewport,
-      maxHistorySize: config.value.performance?.maxHistorySize || 50
-    });
-
-    // 选择管理（负责选择逻辑：多选判断、框选等）
-    // 采用单向数据流：useSelection 作为单一数据源，useFlowState 只负责读取
-    const selection = useSelection({
-      initialSelectedNodeIds: selectedNodeIds.value,
-      initialSelectedEdgeIds: selectedEdgeIds.value,
-      nodes,
-      viewport,
+      maxHistorySize: config.value.performance?.maxHistorySize || 50,
       selectionOptions: {
         enableMultiSelection: config.value.interaction?.enableMultiSelection !== false,
         multiSelectKey: config.value.interaction?.multiSelectKey || 'ctrl',
         enableBoxSelection: config.value.interaction?.enableBoxSelection !== false,
         boxSelectionKey: config.value.interaction?.boxSelectionKey || 'shift'
-      },
-      onSelectionChange: undefined
+      }
     });
 
-    // 单向同步：从 useSelection 同步到 useFlowState
-    watch(
-      () => selection.selectedNodeIds.value,
-      (newIds) => {
-        stateManager.selectedNodeIds.value = newIds;
-      },
-      { immediate: true, deep: true }
-    );
-
-    watch(
-      () => selection.selectedEdgeIds.value,
-      (newIds) => {
-        stateManager.selectedEdgeIds.value = newIds;
-      },
-      { immediate: true, deep: true }
-    );
+    // 配置同步
+    const { start: startConfigSync, stop: stopConfigSync } = useFlowCanvasConfigSync({
+      config,
+      setSelectionOptions
+    });
 
     const { nodesMap } = useNodesMap({ nodes });
 
@@ -173,9 +171,8 @@ export default defineComponent({
     // 事件系统
     const eventEmitter = new FlowEventEmitter();
 
-    // ==================== 二、Hooks 初始化 ====================
 
-    // 连接创建 Hook
+    // 连接创建
     const {
       connectionDraft,
       connectionPreviewPos,
@@ -196,7 +193,7 @@ export default defineComponent({
       }
     });
 
-    // 节点拖拽 Hook
+    // 节点拖拽
     const {
       draggingNodeId,
       nodeClickBlocked,
@@ -209,15 +206,13 @@ export default defineComponent({
       nodes,
       nodesMap,
       onNodePositionUpdate: (nodeId, x, y) => {
-        const node = nodesMap.value.get(nodeId);
-        if (node) {
-          node.position.x = x;
-          node.position.y = y;
-        }
+        updateNode(nodeId, {
+          position: { x, y }
+        });
       }
     });
 
-    // 画布平移 Hook
+    // 画布平移
     const {
       isPanning,
       handleMouseDown: handlePanMouseDown,
@@ -236,7 +231,7 @@ export default defineComponent({
       }
     });
 
-    // 画布缩放 Hook
+    // 画布缩放
     const { handleWheel } = useCanvasZoom({
       config,
       viewport,
@@ -259,44 +254,34 @@ export default defineComponent({
     // 注册默认快捷键
     const unregisterShortcuts = registerFlowCanvasShortcuts(keyboard, {
       selection: {
-        getSelectedNodes: selection.getSelectedNodes,
-        getSelectedEdges: selection.getSelectedEdges,
-        selectNodes: selection.selectNodes,
-        selectEdge: selection.selectEdge,
-        deselectAll: selection.deselectAll,
-        isEdgeSelected: selection.isEdgeSelected
+        getSelectedNodes,
+        getSelectedEdges,
+        selectNodes,
+        selectEdge,
+        deselectAll,
+        isEdgeSelected
       },
-      stateManager,
+      historyOperations: {
+        undo: () => historyManager.undo(),
+        redo: () => historyManager.redo(),
+        canUndo: () => historyManager.canUndo(),
+        canRedo: () => historyManager.canRedo()
+      },
+      selectedNodeIds,
+      selectedEdgeIds,
       nodes,
       edges,
       removeNode,
       removeEdge
     });
 
-    // ==================== 三、Props 监听和样式计算 ====================
-
-    // 监听 props 变化，同步到内部状态
-    watch(
-      () => props.initialNodes,
-      (newNodes) => {
-        if (newNodes && newNodes.length > 0) {
-          if (!compareIds(nodes.value, newNodes)) {
-            nodes.value = [...newNodes];
-          }
-        }
-      }
-    );
-
-    watch(
-      () => props.initialEdges,
-      (newEdges) => {
-        if (newEdges && newEdges.length > 0) {
-          if (!compareIds(edges.value, newEdges)) {
-            edges.value = [...newEdges];
-          }
-        }
-      }
-    );
+    const { start: startPropsSync, stop: stopPropsSync } = useFlowCanvasPropsSync({
+      initialNodes: computed(() => props.initialNodes),
+      initialEdges: computed(() => props.initialEdges),
+      stateStore,
+      nodes,
+      edges
+    });
 
     // 计算画布样式
     const canvasStyle = computed(() => {
@@ -310,71 +295,51 @@ export default defineComponent({
       };
     });
 
-    // ==================== 四、事件处理函数 ====================
-
-    // 统一的鼠标事件处理（优先级：连接创建 > 节点拖拽 > 画布平移）
-    const handleMouseDown = (event: MouseEvent) => {
-      // 优先处理连接创建（如果正在创建连接，不处理平移）
-      if (connectionDraft.value) {
-        return;
+    const {
+      handleNodeClick,
+      handleNodeMouseDown,
+      handleNodeDoubleClick,
+      handleEdgeClick,
+      handleEdgeDoubleClick,
+      cleanup: cleanupEvents
+    } = useFlowCanvasEvents({
+      canvasRef,
+      connection: {
+        connectionDraft,
+        handleMouseMove: handleConnectionMouseMove,
+        handleMouseUp: handleConnectionMouseUp
+      },
+      nodeDrag: {
+        draggingNodeId,
+        handleNodeMouseDown: handleNodeMouseDownHook,
+        handleMouseMove: handleNodeMouseMoveHook,
+        handleMouseUp: handleNodeMouseUpHook,
+        nodeClickBlocked
+      },
+      canvasPan: {
+        handleMouseDown: handlePanMouseDown,
+        handleMouseMove: handlePanMouseMove,
+        handleMouseUp: handlePanMouseUp
+      },
+      handleWheel,
+      viewport,
+      eventEmitter,
+      selection: {
+        shouldMultiSelect,
+        selectNode,
+        selectEdge,
+        deselectAll
+      },
+      emit: {
+        'node-click': (node, event) => emit('node-click', node, event),
+        'node-double-click': (node, event) => emit('node-double-click', node, event),
+        'edge-click': (edge, event) => emit('edge-click', edge, event),
+        'edge-double-click': (edge, event) => emit('edge-double-click', edge, event),
+        'viewport-change': (vp) => emit('viewport-change', vp)
       }
+    });
 
-      // 处理画布平移
-      handlePanMouseDown(event);
-    };
-
-    const handleMouseMove = (event: MouseEvent) => {
-      // 优先处理连接创建
-      if (connectionDraft.value) {
-        handleConnectionMouseMove(event);
-        return;
-      }
-
-      // 处理节点拖拽
-      if (draggingNodeId.value) {
-        handleNodeMouseMoveHook(event);
-        return;
-      }
-
-      // 处理画布平移
-      handlePanMouseMove(event);
-    };
-
-    const handleMouseUp = (event: MouseEvent) => {
-      // 优先处理连接创建
-      if (connectionDraft.value) {
-        handleConnectionMouseUp(event);
-        return;
-      }
-
-      // 处理节点拖拽
-      if (draggingNodeId.value) {
-        handleNodeMouseUpHook();
-      }
-
-      // 处理画布平移
-      handlePanMouseUp();
-    };
-
-    // 节点事件处理
-    const handleNodeClick = (node: FlowNode, event: MouseEvent) => {
-      // 如果点击被阻止（因为发生了拖拽），则不处理点击事件
-      if (nodeClickBlocked.value) return;
-
-      event.stopPropagation();
-
-      // 使用 useSelection 处理选择逻辑（自动判断多选）
-      const isMultiSelect = selection.shouldMultiSelect(event);
-      selection.selectNode(node.id, isMultiSelect);
-
-      emit('node-click', node, event);
-      eventEmitter.emit('onNodeClick', node, event);
-    };
-
-    const handleNodeMouseDown = (node: FlowNode, event: MouseEvent) => {
-      handleNodeMouseDownHook(node, event);
-    };
-
+    // 端口鼠标按下处理（需要直接使用连接创建 hook 的方法）
     const handlePortMouseDown = (
       nodeId: string,
       handleId: string,
@@ -384,55 +349,18 @@ export default defineComponent({
       handlePortMouseDownHook(nodeId, handleId, handleType, event);
     };
 
-    const handleNodeDoubleClick = (node: FlowNode, event: MouseEvent) => {
-      emit('node-double-click', node, event);
-      eventEmitter.emit('onNodeDoubleClick', node, event);
-    };
 
-    // 连接线事件处理
-    const handleEdgeClick = (edge: FlowEdge, event: MouseEvent) => {
-      // 阻止事件冒泡到画布，避免触发画布点击事件
-      event.stopPropagation();
-
-      // 使用 useSelection 处理选择逻辑（自动判断多选）
-      const isMultiSelect = selection.shouldMultiSelect(event);
-      selection.selectEdge(edge.id, isMultiSelect);
-
-      emit('edge-click', edge, event);
-      eventEmitter.emit('onEdgeClick', edge, event);
-    };
-
-    const handleEdgeDoubleClick = (edge: FlowEdge, event: MouseEvent) => {
-      emit('edge-double-click', edge, event);
-      eventEmitter.emit('onEdgeDoubleClick', edge, event);
-    };
-
-    // 画布点击（取消选择）
-    const handleCanvasClick = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      // 检查点击目标是否是节点、连接线或端口 注意：由于背景和连接线 SVG 设置了 pointerEvents: 'none'，点击它们时事件会穿透
-      const isNode = target.closest('.flow-node');
-      const isEdge = target.closest('.flow-edge') || target.closest('path[stroke]');
-      const isHandle = target.closest('.flow-handle');
-
-      // 如果点击的不是节点、连接线或端口，则取消选中
-      if (!isNode && !isEdge && !isHandle) {
-        selection.deselectAll();
-        emit('viewport-change', viewport.value);
-        eventEmitter.emit('onCanvasClick', event);
-      }
-    };
-
-    useEventListener(canvasRef, 'mousedown', handleMouseDown);
-    useEventListener(canvasRef, 'wheel', handleWheel);
-    useEventListener(canvasRef, 'click', handleCanvasClick);
-    useEventListener(document, 'mousemove', handleMouseMove);
-    useEventListener(document, 'mouseup', handleMouseUp);
-
-    // ==================== 六、清理和暴露 ====================
+    // 启动同步
+    onMounted(() => {
+      startPropsSync();
+      startConfigSync();
+    });
 
     onUnmounted(() => {
+      stopPropsSync();
+      stopConfigSync();
       cleanupPan();
+      cleanupEvents();
       unregisterShortcuts();
     });
 
@@ -456,17 +384,17 @@ export default defineComponent({
       setViewport,
       panViewport,
       zoomViewport,
-      // 选择操作（使用 useSelection 的方法）
-      selectNode: selection.selectNode,
-      selectNodes: selection.selectNodes,
-      selectEdge: selection.selectEdge,
-      deselectAll: selection.deselectAll,
+      // 选择操作
+      selectNode,
+      selectNodes,
+      selectEdge,
+      deselectAll,
       // 框选相关方法
-      startBoxSelection: selection.startBoxSelection,
-      updateBoxSelection: selection.updateBoxSelection,
-      finishBoxSelection: selection.finishBoxSelection,
-      cancelBoxSelection: selection.cancelBoxSelection,
-      isBoxSelecting: selection.isBoxSelecting,
+      startBoxSelection,
+      updateBoxSelection,
+      finishBoxSelection,
+      cancelBoxSelection,
+      isBoxSelecting,
       // 键盘快捷键
       registerKeyboardShortcut: keyboard.register,
       unregisterKeyboardShortcut: keyboard.unregister,

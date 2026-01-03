@@ -2,6 +2,65 @@
 
 All notable changes to the Flow component library will be documented in this file.
 
+## [2.1.0] - 2024-12-30
+
+### 🏗️ Major Architecture Refactoring
+
+#### Added
+
+- **框架无关的核心层** - `core/interaction/` 和 `core/state/`
+  - Core 层完全独立于 Vue，可在 React、Angular 等其他框架中使用
+  - 清晰的职责分离：核心逻辑与响应式封装分离
+  - 统一的交互处理架构
+
+- **可插拔状态管理** - `core/state/interfaces/` 和 `core/state/stores/`
+  - `IStateStore` 接口：定义状态存储标准接口
+  - `IHistoryManager` 接口：定义历史记录管理标准接口
+  - `DefaultStateStore`：默认状态存储实现（框架无关）
+  - `DefaultHistoryManager`：默认历史记录管理器实现
+  - 支持自定义状态存储（Pinia、Vuex、Zustand 等）
+
+- **统一的交互处理** - `core/interaction/`
+  - `FlowDragHandler`：统一的拖拽处理，支持 RAF 节流、增量模式、坐标转换
+  - `FlowConnectionHandler`：连接创建处理，支持 RAF 节流的预览位置更新
+  - `FlowSelectionHandler`：选择管理（已完善）
+  - `FlowKeyboardHandler`：键盘快捷键处理（已完善）
+
+#### Changed
+
+- **状态管理架构重构**
+  - 移除了 `FlowStateManager`，拆分为 `IStateStore` 和 `IHistoryManager`
+  - `useFlowState` 现在使用 `DefaultStateStore` 和 `DefaultHistoryManager`
+  - 所有状态操作通过接口进行，支持自定义实现
+
+- **交互处理架构重构**
+  - `useDrag`、`useCanvasPan`、`useNodeDrag` 现在基于 `FlowDragHandler`
+  - `useConnectionCreation` 现在基于 `FlowConnectionHandler`
+  - `useSelection` 现在基于 `FlowSelectionHandler`
+  - `useKeyboard` 现在基于 `FlowKeyboardHandler`
+
+- **FlowCanvas 组件优化**
+  - 移除了不必要的内部实现暴露（`stateStore`、`historyManager`、`selectionHandler`）
+  - 使用接口而不是直接依赖实现
+  - 更好的封装和可维护性
+
+#### Documentation
+
+- **更新 README.md**
+  - 更新目录结构，反映新的状态管理架构
+  - 添加架构重构说明
+  - 更新状态管理使用示例
+
+- **更新迁移计划**
+  - 标记已完成的重构任务
+  - 记录架构重构进度
+
+#### Breaking Changes
+
+**无破坏性变更** - 所有重构都保持向后兼容，现有代码无需修改。
+
+---
+
 ## [2.0.0] - 2024-12-29
 
 ### 🚀 Major Performance Optimizations

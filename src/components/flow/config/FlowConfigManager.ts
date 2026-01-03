@@ -6,6 +6,7 @@
  */
 
 import type { FlowConfig, PartialFlowConfig } from '../types/flow-config';
+import { logger } from '../utils';
 import { normalizeConfig, mergeConfig, cloneConfig } from '../utils/config-utils';
 import { FlowConfigValidator } from './FlowConfigValidator';
 import { DEFAULT_FLOW_CONFIG } from './default-config';
@@ -54,7 +55,7 @@ export class FlowConfigManager {
     initialConfig?: PartialFlowConfig
   ): string {
     if (this.instances.has(id)) {
-      console.warn(`Config instance with id "${id}" already exists, updating instead`);
+      logger.warn(`Config instance with id "${id}" already exists, updating instead`);
       this.updateConfig(id, initialConfig);
       return id;
     }
@@ -65,7 +66,7 @@ export class FlowConfigManager {
     // 验证配置
     const validation = this.validator.validate(normalizedConfig);
     if (!validation.valid) {
-      console.warn(
+      logger.warn(
         `Invalid config for instance "${id}":`,
         validation.errors.join(', ')
       );
@@ -104,7 +105,7 @@ export class FlowConfigManager {
   getConfig(id: string): Readonly<FlowConfig> {
     const instance = this.instances.get(id);
     if (!instance) {
-      console.warn(`Config instance with id "${id}" not found, returning default config`);
+      logger.warn(`Config instance with id "${id}" not found, returning default config`);
       return Object.freeze(cloneConfig(DEFAULT_FLOW_CONFIG));
     }
 
@@ -120,7 +121,7 @@ export class FlowConfigManager {
   updateConfig(id: string, partialConfig?: PartialFlowConfig): void {
     const instance = this.instances.get(id);
     if (!instance) {
-      console.warn(
+      logger.warn(
         `Config instance with id "${id}" not found, creating new instance`
       );
       this.createInstance(id, partialConfig);
@@ -133,7 +134,7 @@ export class FlowConfigManager {
     // 验证配置
     const validation = this.validator.validate(updatedConfig);
     if (!validation.valid) {
-      console.warn(
+      logger.warn(
         `Invalid config update for instance "${id}":`,
         validation.errors.join(', ')
       );
@@ -161,7 +162,7 @@ export class FlowConfigManager {
   ): () => void {
     const instance = this.instances.get(id);
     if (!instance) {
-      console.warn(
+      logger.warn(
         `Config instance with id "${id}" not found, cannot subscribe`
       );
       return () => {}; // 返回空函数
@@ -186,7 +187,7 @@ export class FlowConfigManager {
   resetConfig(id: string): void {
     const instance = this.instances.get(id);
     if (!instance) {
-      console.warn(`Config instance with id "${id}" not found`);
+      logger.warn(`Config instance with id "${id}" not found`);
       return;
     }
 
@@ -244,7 +245,7 @@ export class FlowConfigManager {
       try {
         listener(configCopy);
       } catch (error) {
-        console.error(
+        logger.error(
           `Error in config listener for instance "${id}":`,
           error
         );

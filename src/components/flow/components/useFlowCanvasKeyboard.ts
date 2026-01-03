@@ -5,8 +5,7 @@
  */
 
 import type { Ref } from 'vue';
-import type { FlowNode, FlowEdge } from '../types';
-import type { FlowStateManager } from '../core/state/FlowStateManager';
+import type { FlowEdge, FlowNode } from '../types';
 
 export interface FlowCanvasKeyboardDeps {
   /** 选择处理器 */
@@ -18,8 +17,17 @@ export interface FlowCanvasKeyboardDeps {
     deselectAll: () => void;
     isEdgeSelected: (edgeId: string) => boolean;
   };
-  /** 状态管理器 */
-  stateManager: FlowStateManager;
+  /** 历史记录操作（使用接口而不是直接依赖实现） */
+  historyOperations: {
+    undo: () => boolean;
+    redo: () => boolean;
+    canUndo: () => boolean;
+    canRedo: () => boolean;
+  };
+  /** 选中的节点 ID 列表（响应式） */
+  selectedNodeIds: Ref<string[]>;
+  /** 选中的连接线 ID 列表（响应式） */
+  selectedEdgeIds: Ref<string[]>;
   /** 节点列表 */
   nodes: Ref<FlowNode[]>;
   /** 连接线列表 */
@@ -47,7 +55,16 @@ export function registerFlowCanvasShortcuts(
   },
   deps: FlowCanvasKeyboardDeps
 ): () => void {
-  const { selection, stateManager, nodes, edges, removeNode, removeEdge } = deps;
+  const {
+    selection,
+    historyOperations,
+    selectedNodeIds,
+    selectedEdgeIds,
+    nodes,
+    edges,
+    removeNode,
+    removeEdge
+  } = deps;
 
   const unregisters: (() => void)[] = [];
 
@@ -70,8 +87,8 @@ export function registerFlowCanvasShortcuts(
    * 同步选择状态到 selection
    */
   const syncSelectionAfterUndoRedo = () => {
-    selection.selectNodes(stateManager.selectedNodeIds.value);
-    stateManager.selectedEdgeIds.value.forEach(id => {
+    selection.selectNodes(selectedNodeIds.value);
+    selectedEdgeIds.value.forEach((id: string) => {
       if (!selection.isEdgeSelected(id)) {
         selection.selectEdge(id, true);
       }
@@ -82,7 +99,7 @@ export function registerFlowCanvasShortcuts(
    * 撤销操作
    */
   const handleUndo = () => {
-    if (stateManager.undo()) {
+    if (historyOperations.undo()) {
       syncSelectionAfterUndoRedo();
     }
   };
@@ -91,7 +108,7 @@ export function registerFlowCanvasShortcuts(
    * 重做操作
    */
   const handleRedo = () => {
-    if (stateManager.redo()) {
+    if (historyOperations.redo()) {
       syncSelectionAfterUndoRedo();
     }
   };

@@ -4,7 +4,7 @@
 
 import { BaseCommand, type Command } from './Command';
 import type { FlowPosition } from '../../types/flow-node';
-import type { FlowStateManager } from '../state/FlowStateManager';
+import type { IStateStore } from '../state/interfaces/IStateStore';
 
 /**
  * 移动节点命令
@@ -13,27 +13,27 @@ export class MoveNodeCommand extends BaseCommand {
   private nodeId: string;
   private oldPosition: FlowPosition;
   private newPosition: FlowPosition;
-  private stateManager: FlowStateManager;
+  private stateStore: IStateStore;
 
   constructor(
     nodeId: string,
     oldPosition: FlowPosition,
     newPosition: FlowPosition,
-    stateManager: FlowStateManager
+    stateStore: IStateStore
   ) {
     super();
     this.nodeId = nodeId;
     this.oldPosition = { ...oldPosition };
     this.newPosition = { ...newPosition };
-    this.stateManager = stateManager;
+    this.stateStore = stateStore;
   }
 
   execute(): void {
-    this.stateManager.updateNode(this.nodeId, { position: this.newPosition });
+    this.stateStore.updateNode(this.nodeId, { position: this.newPosition });
   }
 
   undo(): void {
-    this.stateManager.updateNode(this.nodeId, { position: this.oldPosition });
+    this.stateStore.updateNode(this.nodeId, { position: this.oldPosition });
   }
 
   merge(other: Command): boolean {

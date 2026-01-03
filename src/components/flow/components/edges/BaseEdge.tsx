@@ -7,6 +7,15 @@
 import { defineComponent, computed, type PropType } from 'vue';
 import { getConditionalGpuAccelerationStyle } from '../../utils/style-utils';
 import type { FlowEdge } from '../../types/flow-edge';
+import {
+  ANIMATION_CONSTANTS,
+  EDGE_CLASS_NAMES,
+  EDGE_COLORS,
+  ID_PREFIXES,
+  LABEL_STYLES,
+  MARKER_SUFFIXES,
+  STROKE_WIDTHS
+} from '../../constants/edge-constants';
 
 /**
  * BaseEdge 组件属性
@@ -116,7 +125,7 @@ export default defineComponent({
   emits: ['click', 'double-click', 'mouseenter', 'mouseleave', 'contextmenu'],
   setup(props, { emit, slots }) {
 
-    const arrowIdPrefix = computed(() => `flow-arrow-${props.instanceId}`);
+    const arrowIdPrefix = computed(() => `${ID_PREFIXES.ARROW}${props.instanceId}`);
 
     // 计算实际起点和终点（如果有端口位置，使用端口位置）
     const startX = computed(() => props.sourceHandleX ?? props.sourceX);
@@ -139,15 +148,15 @@ export default defineComponent({
       const zoom = props.viewport?.zoom || 1;
 
       // 基础线条宽度（随缩放调整，但限制最小和最大值）
-      const baseStrokeWidth = 2.5;
-      const minStrokeWidth = 1;
-      const maxStrokeWidth = 5;
-      const scaledStrokeWidth = Math.max(minStrokeWidth, Math.min(maxStrokeWidth, baseStrokeWidth * zoom));
+      const scaledStrokeWidth = Math.max(
+        STROKE_WIDTHS.MIN,
+        Math.min(STROKE_WIDTHS.MAX, STROKE_WIDTHS.BASE * zoom)
+      );
 
       const baseStyle: Record<string, any> = {
         fill: 'none',
         strokeWidth: scaledStrokeWidth,
-        stroke: '#cbd5e1',
+        stroke: EDGE_COLORS.DEFAULT,
         pointerEvents: 'stroke',
         cursor: 'pointer',
         ...props.edge.style,
@@ -156,22 +165,26 @@ export default defineComponent({
 
       // 选中状态样式
       if (props.selected) {
-        const baseSelectedWidth = 3.5;
-        baseStyle.strokeWidth = Math.max(minStrokeWidth, Math.min(maxStrokeWidth, baseSelectedWidth * zoom));
-        baseStyle.stroke = '#f5576c';
+        baseStyle.strokeWidth = Math.max(
+          STROKE_WIDTHS.MIN,
+          Math.min(STROKE_WIDTHS.MAX, STROKE_WIDTHS.SELECTED * zoom)
+        );
+        baseStyle.stroke = EDGE_COLORS.SELECTED;
       }
 
       // 悬停状态样式
       if (props.hovered) {
-        const baseHoverWidth = 3;
-        baseStyle.strokeWidth = Math.max(minStrokeWidth, Math.min(maxStrokeWidth, baseHoverWidth * zoom));
-        baseStyle.stroke = '#94a3b8';
+        baseStyle.strokeWidth = Math.max(
+          STROKE_WIDTHS.MIN,
+          Math.min(STROKE_WIDTHS.MAX, STROKE_WIDTHS.HOVERED * zoom)
+        );
+        baseStyle.stroke = EDGE_COLORS.HOVERED;
       }
 
       // 动画
       if (props.edge.animated) {
-        baseStyle.strokeDasharray = '5,5';
-        baseStyle.animation = 'flow-edge-dash 1.5s linear infinite';
+        baseStyle.strokeDasharray = ANIMATION_CONSTANTS.DASH_ARRAY;
+        baseStyle.animation = `${ANIMATION_CONSTANTS.NAME} ${ANIMATION_CONSTANTS.DURATION} ${ANIMATION_CONSTANTS.TIMING_FUNCTION} ${ANIMATION_CONSTANTS.ITERATION_COUNT}`;
       }
 
       return baseStyle;
@@ -179,11 +192,11 @@ export default defineComponent({
 
     // 计算连接线类名
     const edgeClass = computed(() => {
-      const classes = ['flow-edge', props.edge.class, props.class];
+      const classes = [EDGE_CLASS_NAMES.BASE, props.edge.class, props.class];
 
-      if (props.selected) classes.push('flow-edge-selected');
-      if (props.hovered) classes.push('flow-edge-hovered');
-      if (props.edge.animated) classes.push('flow-edge-animated');
+      if (props.selected) classes.push(EDGE_CLASS_NAMES.SELECTED);
+      if (props.hovered) classes.push(EDGE_CLASS_NAMES.HOVERED);
+      if (props.edge.animated) classes.push(EDGE_CLASS_NAMES.ANIMATED);
 
       return classes.filter(Boolean).join(' ');
     });
@@ -217,12 +230,12 @@ export default defineComponent({
       const prefix = arrowIdPrefix.value;
       // 根据状态选择对应的共享标记
       if (props.selected) {
-        return `${prefix}-marker-selected`;
+        return `${prefix}${MARKER_SUFFIXES.SELECTED}`;
       }
       if (props.hovered) {
-        return `${prefix}-marker-hovered`;
+        return `${prefix}${MARKER_SUFFIXES.HOVERED}`;
       }
-      return `${prefix}-marker-default`;
+      return `${prefix}${MARKER_SUFFIXES.DEFAULT}`;
     });
 
     // 检查是否显示箭头（默认显示）
@@ -277,11 +290,11 @@ export default defineComponent({
           <text
             x={(startX.value + endX.value) / 2}
             y={(startY.value + endY.value) / 2}
-            text-anchor="middle"
-            dominant-baseline="middle"
+            text-anchor={LABEL_STYLES.TEXT_ANCHOR}
+            dominant-baseline={LABEL_STYLES.DOMINANT_BASELINE}
             style={{
-              fontSize: '12px',
-              fill: '#64748b',
+              fontSize: LABEL_STYLES.FONT_SIZE,
+              fill: EDGE_COLORS.LABEL,
               pointerEvents: 'none',
               ...props.edge.labelStyle
             }}

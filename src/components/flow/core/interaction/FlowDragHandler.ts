@@ -57,6 +57,8 @@ export interface DragOptions {
   useRAF?: boolean;
   /** 是否使用增量模式 */
   incremental?: boolean;
+  /** 是否启用拖拽（框架无关，使用函数检查） */
+  enabled?: () => boolean;
   /** 坐标转换函数 */
   transformCoordinates?: CoordinateTransform;
   /** 拖拽更新回调 */
@@ -96,7 +98,8 @@ export class FlowDragHandler {
     constrainToBounds: false,
     threshold: 3,
     useRAF: true,
-    incremental: false
+    incremental: false,
+    enabled: () => true
   };
 
   /** RAF 节流工具 */
@@ -126,7 +129,12 @@ export class FlowDragHandler {
     startTargetY: number = 0,
     canStart?: (event: MouseEvent) => boolean
   ): boolean {
-    // 检查是否可以开始拖拽
+    // 检查是否启用拖拽
+    if (this.options.enabled && !this.options.enabled()) {
+      return false;
+    }
+
+    // 检查是否可以开始拖拽（额外检查函数）
     if (canStart && !canStart(event)) {
       return false;
     }

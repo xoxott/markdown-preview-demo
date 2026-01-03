@@ -6,6 +6,8 @@
 
 import { computed, type Ref } from 'vue';
 import { createCache } from '../utils/cache-utils';
+import { useCachedSet } from '../utils/set-utils';
+import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
 import type { FlowNode } from '../types';
 
 /**
@@ -76,13 +78,13 @@ export function useNodeState(
     draggingNodeId
   } = options;
 
-  const selectedNodeIdsSet = computed(() => new Set(selectedNodeIds.value));
-  const lockedNodeIdsSet = computed(() =>
-    lockedNodeIds ? new Set(lockedNodeIds.value) : new Set<string>()
-  );
+  // 性能优化：使用缓存的 Set，避免每次计算都创建新 Set
+  const selectedNodeIdsSet = useCachedSet(selectedNodeIds);
+  const lockedNodeIdsSet = lockedNodeIds ? useCachedSet(lockedNodeIds) : computed(() => new Set<string>());
+
   const stateCache = createCache<string, NodeState>({
-    maxSize: 500,
-    cleanupSize: 100
+    maxSize: PERFORMANCE_CONSTANTS.CACHE_MAX_SIZE,
+    cleanupSize: PERFORMANCE_CONSTANTS.CACHE_CLEANUP_SIZE
   });
 
   /**

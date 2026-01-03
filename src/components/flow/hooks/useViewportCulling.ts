@@ -4,9 +4,11 @@
  * 提供视口裁剪功能，支持空间索引优化和线性查找回退
  */
 
-import { shallowRef, watch, computed, type Ref } from 'vue';
-import type { FlowNode, FlowViewport } from '../types';
+import { shallowRef, watch, type Ref } from 'vue';
+import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
 import type { SpatialIndex } from '../core/performance/SpatialIndex';
+import type { FlowNode, FlowViewport } from '../types';
+import { filterNodesByOriginalOrder } from '../utils/node-order-utils';
 
 /**
  * 视口裁剪 Hook 选项
@@ -118,11 +120,11 @@ export function useViewportCulling(
     nodes,
     viewport,
     enabled,
-    buffer = 200,
+    buffer = PERFORMANCE_CONSTANTS.VIEWPORT_CULLING_BUFFER,
     spatialIndex,
-    spatialIndexThreshold = 50,
-    defaultNodeWidth = 220,
-    defaultNodeHeight = 72
+    spatialIndexThreshold = PERFORMANCE_CONSTANTS.SPATIAL_INDEX_THRESHOLD,
+    defaultNodeWidth = PERFORMANCE_CONSTANTS.DEFAULT_NODE_WIDTH,
+    defaultNodeHeight = PERFORMANCE_CONSTANTS.DEFAULT_NODE_HEIGHT
   } = options;
 
   // 稳定引用，避免不必要的重新渲染
@@ -160,8 +162,8 @@ export function useViewportCulling(
     let newVisibleNodes: FlowNode[];
 
     if (useSpatialIndex) {
-      // 使用空间索引查询（性能提升 10-20 倍）
-      newVisibleNodes = spatialIndex.value!.query({
+      // 使用空间索引查询（O(log n)）
+      const queriedNodes = spatialIndex.value!.query({
         minX: bounds.minX,
         minY: bounds.minY,
         maxX: bounds.maxX,
@@ -169,8 +171,15 @@ export function useViewportCulling(
         width: bounds.maxX - bounds.minX,
         height: bounds.maxY - bounds.minY
       });
+
+      // 按照原始数组顺序过滤，确保 DOM 节点顺序不变
+      newVisibleNodes = filterNodesByOriginalOrder(
+        nodes.value,
+        queriedNodes,
+        (node) => isNodeVisible(node, bounds, defaultNodeWidth, defaultNodeHeight)
+      );
     } else {
-      // 节点数量少时使用线性查找（避免索引开销）
+      // 线性查找（节点数量少时使用）
       newVisibleNodes = nodes.value.filter(node =>
         isNodeVisible(node, bounds, defaultNodeWidth, defaultNodeHeight)
       );
@@ -180,36 +189,42 @@ export function useViewportCulling(
   };
 
   /**
-   * 更新可见节点（只有真正变化时才更新引用）
+   * 检查节点 ID 集合是否相同
+   *
+   * @param ids1 第一个 ID 集合
+   * @param ids2 第二个 ID 集合
+   * @returns 是否相同
+   */
+  const areNodeIdSetsEqual = (ids1: Set<string>, ids2: Set<string>): boolean => {
+    if (ids1.size !== ids2.size) return false;
+    for (const id of ids1) {
+      if (!ids2.has(id)) return false;
+    }
+    return true;
+  };
+
+  /**
+   * 更新可见节点
+   *
+   * 注意：即使节点集合没有变化，只要 nodes.value 引用变化了，也应该更新
+   * 因为节点位置可能已经更新，需要返回最新的节点对象
    */
   const updateVisibleNodes = () => {
     const newVisibleNodes = calculateVisibleNodes();
     const newIds = new Set(newVisibleNodes.map(n => n.id));
 
-    // 如果数量不同，肯定变了
-    if (newIds.size !== lastVisibleNodeIds.size) {
-      visibleNodesRef.value = newVisibleNodes;
-      lastVisibleNodeIds.clear();
-      newIds.forEach(id => lastVisibleNodeIds.add(id));
-      return;
-    }
+    // 检查节点 ID 集合是否变化
+    const idsChanged = !areNodeIdSetsEqual(newIds, lastVisibleNodeIds);
 
-    // 检查是否有不同的节点 ID
-    let hasChange = false;
-    for (const id of newIds) {
-      if (!lastVisibleNodeIds.has(id)) {
-        hasChange = true;
-        break;
-      }
-    }
+    // 检查数组引用是否变化（节点对象可能已更新）
+    const arrayRefChanged = visibleNodesRef.value !== newVisibleNodes;
 
-    // 只有节点集合真正变化时才更新数组引用
-    if (hasChange) {
+    // 如果节点集合或数组引用变化，更新
+    if (idsChanged || arrayRefChanged) {
       visibleNodesRef.value = newVisibleNodes;
       lastVisibleNodeIds.clear();
       newIds.forEach(id => lastVisibleNodeIds.add(id));
     }
-    // 否则保持 visibleNodesRef.value 不变，Vue 不会触发 v-for 重新渲染
   };
 
   // 监听相关变化，更新可见节点

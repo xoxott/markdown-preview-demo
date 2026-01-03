@@ -7,6 +7,7 @@
 
 import { ref, type Ref } from 'vue';
 import { useDrag } from './useDrag';
+import { logger } from '../utils/logger';
 import type { FlowConfig, FlowViewport, FlowNode } from '../types';
 
 export interface UseNodeDragOptions {
@@ -33,6 +34,8 @@ export interface UseNodeDragReturn {
   handleNodeMouseMove: (event: MouseEvent) => void;
   /** 处理节点鼠标抬起事件 */
   handleNodeMouseUp: () => void;
+  /** 清除样式缓存的回调（用于在拖拽时清除缓存） */
+  clearStyleCache?: () => void;
 }
 
 /**
@@ -88,6 +91,8 @@ export function useNodeDrag(options: UseNodeDragOptions): UseNodeDragReturn {
     onDrag: (result) => {
       if (currentNodeId) {
         onNodePositionUpdate(currentNodeId, result.x, result.y);
+      } else {
+        logger.warn('[useNodeDrag] onDrag: currentNodeId 为空，无法更新节点位置');
       }
     },
 

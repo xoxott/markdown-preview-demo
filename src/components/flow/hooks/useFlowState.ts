@@ -2,15 +2,19 @@
  * Flow 状态管理 Hook
  *
  * 提供 Vue 3 Composition API 的状态管理 Hook
- * 封装状态管理器的使用方式
+ * 使用新的架构：DefaultStateStore + DefaultHistoryManager + FlowSelectionHandler
  */
 
-import { computed, watch, type Ref } from 'vue';
+import { ref, computed, nextTick, onUnmounted, type Ref } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
-import { FlowStateManager } from '../core/state/FlowStateManager';
+import { DefaultStateStore } from '../core/state/stores/DefaultStateStore';
+import { DefaultHistoryManager } from '../core/state/stores/DefaultHistoryManager';
+import { FlowSelectionHandler, type SelectionOptions } from '../core/interaction/FlowSelectionHandler';
+import { safeUpdateRef, shallowUpdateRef } from '../utils/ref-utils';
 import type { FlowNode } from '../types/flow-node';
 import type { FlowEdge } from '../types/flow-edge';
 import type { FlowViewport } from '../types/flow-config';
+import type { FlowStateSnapshot } from '../core/state/types';
 
 /**
  * useFlowState 选项
@@ -26,6 +30,8 @@ export interface UseFlowStateOptions {
   maxHistorySize?: number;
   /** 是否自动保存历史记录（默认 true） */
   autoSaveHistory?: boolean;
+  /** 选择选项 */
+  selectionOptions?: SelectionOptions;
 }
 
 /**
@@ -42,8 +48,12 @@ export interface UseFlowStateReturn {
   selectedNodeIds: Ref<string[]>;
   /** 选中的连接线 ID 列表（响应式） */
   selectedEdgeIds: Ref<string[]>;
-  /** 状态管理器实例 */
-  stateManager: FlowStateManager;
+  /** 状态存储实例（内部使用） */
+  stateStore: DefaultStateStore;
+  /** 历史记录管理器实例（内部使用） */
+  historyManager: DefaultHistoryManager;
+  /** 选择处理器实例（内部使用） */
+  selectionHandler: FlowSelectionHandler;
 
   // 节点操作
   addNode: (node: FlowNode) => void;
@@ -75,6 +85,17 @@ export interface UseFlowStateReturn {
   deselectAll: () => void;
   getSelectedNodes: () => FlowNode[];
   getSelectedEdges: () => FlowEdge[];
+  isNodeSelected: (nodeId: string) => boolean;
+  isEdgeSelected: (edgeId: string) => boolean;
+  shouldMultiSelect: (event: MouseEvent | KeyboardEvent) => boolean;
+  shouldBoxSelect: (event: MouseEvent | KeyboardEvent) => boolean;
+  startBoxSelection: (startX: number, startY: number) => void;
+  updateBoxSelection: (currentX: number, currentY: number) => void;
+  finishBoxSelection: () => string[];
+  cancelBoxSelection: () => void;
+  isBoxSelecting: () => boolean;
+  getSelectionBox: () => Readonly<import('../core/interaction/FlowSelectionHandler').SelectionBox>;
+  setSelectionOptions: (options: Partial<SelectionOptions>) => void;
 
   // 历史记录操作
   pushHistory: () => void;
@@ -85,8 +106,8 @@ export interface UseFlowStateReturn {
   clearHistory: () => void;
 
   // 状态快照
-  createSnapshot: () => import('../core/state/FlowStateManager').FlowStateSnapshot;
-  restoreSnapshot: (snapshot: import('../core/state/FlowStateManager').FlowStateSnapshot) => void;
+  createSnapshot: () => FlowStateSnapshot;
+  restoreSnapshot: (snapshot: FlowStateSnapshot) => void;
   reset: () => void;
 }
 
@@ -127,97 +148,290 @@ export function useFlowState(
     initialEdges,
     initialViewport,
     maxHistorySize,
-    autoSaveHistory = true
+    autoSaveHistory = true,
+    selectionOptions
   } = options;
 
-  // 创建状态管理器
-  const stateManager = new FlowStateManager({
+  // ==================== 创建状态存储（框架无关）====================
+
+  // 恢复初始选择状态
+  const initialSelectedNodeIds = initialNodes
+    ?.filter(node => node.selected)
+    .map(node => node.id) || [];
+
+  const store = new DefaultStateStore({
     nodes: initialNodes,
     edges: initialEdges,
     viewport: initialViewport,
+    selectedNodeIds: initialSelectedNodeIds,
+    selectedEdgeIds: []
+  });
+
+  // ==================== 使用 Vue Ref 包装状态，提供响应式 ====================
+
+  const nodesRef = ref(store.getNodes());
+  const edgesRef = ref(store.getEdges());
+  const viewportRef = ref(store.getViewport());
+  const selectedNodeIdsRef = ref(store.getSelectedNodeIds());
+  const selectedEdgeIdsRef = ref(store.getSelectedEdgeIds());
+
+  // ==================== 订阅状态变化，同步到 Ref（性能优化：移除深度监听）====================
+
+  /**
+   * 批量更新标志，用于在 nextTick 中批量更新
+   */
+  let pendingUpdates: Set<string> = new Set();
+  let updateScheduled = false;
+
+  /**
+   * 批量更新响应式引用
+   */
+  const flushUpdates = () => {
+    if (pendingUpdates.size === 0) {
+      updateScheduled = false;
+      return;
+    }
+
+    // 根据变化类型，只更新相关的 Ref
+    if (pendingUpdates.has('nodes') || pendingUpdates.has('all')) {
+      safeUpdateRef(nodesRef, store.getNodes());
+    }
+
+    if (pendingUpdates.has('edges') || pendingUpdates.has('all')) {
+      safeUpdateRef(edgesRef, store.getEdges());
+    }
+
+    if (pendingUpdates.has('viewport') || pendingUpdates.has('all')) {
+      shallowUpdateRef(viewportRef, store.getViewport(), ['x', 'y', 'zoom']);
+    }
+
+    if (pendingUpdates.has('selectedNodeIds') || pendingUpdates.has('all')) {
+      safeUpdateRef(selectedNodeIdsRef, store.getSelectedNodeIds());
+    }
+
+    if (pendingUpdates.has('selectedEdgeIds') || pendingUpdates.has('all')) {
+      safeUpdateRef(selectedEdgeIdsRef, store.getSelectedEdgeIds());
+    }
+
+    pendingUpdates.clear();
+    updateScheduled = false;
+  };
+
+  /**
+   * 订阅状态变化（细粒度更新，避免深度监听）
+   */
+  store.subscribe((changeType) => {
+    pendingUpdates.add(changeType);
+
+    // 使用 nextTick 批量更新，避免频繁触发响应式更新
+    if (!updateScheduled) {
+      updateScheduled = true;
+      nextTick(() => {
+        flushUpdates();
+      });
+    }
+  });
+
+  // ==================== 创建历史记录管理器 ====================
+
+  const historyManager = new DefaultHistoryManager(store, {
     maxHistorySize
   });
 
-  // 计算属性：是否可以撤销/重做
-  const canUndo = computed(() => stateManager.canUndo());
-  const canRedo = computed(() => stateManager.canRedo());
+  // ==================== 创建选择处理器（独立）====================
 
-  // 自动保存历史记录
+  const selectionHandler = new FlowSelectionHandler({
+    options: selectionOptions,
+    onSelectionChange: (nodeIds, edgeIds) => {
+      // 同步到状态存储
+      store.setSelectedNodeIds(nodeIds);
+      store.setSelectedEdgeIds(edgeIds);
+    }
+  });
+
+  // 初始化选择状态
+  if (initialSelectedNodeIds.length > 0) {
+    selectionHandler.selectNodes(initialSelectedNodeIds);
+  }
+
+  // ==================== 自动保存历史记录 ====================
+
   if (autoSaveHistory) {
     const debouncedPushHistory = useDebounceFn(() => {
-      stateManager.pushHistory();
+      historyManager.pushHistory();
     }, 300);
 
-    watch(
-      () => stateManager.nodes.value,
-      () => {
+    // 使用订阅机制替代深度监听，只监听节点和连接线的变化
+    const historyUnsubscribe = store.subscribe((changeType) => {
+      if (changeType === 'nodes' || changeType === 'edges' || changeType === 'all') {
         debouncedPushHistory();
-      },
-      { deep: true }
-    );
+      }
+    });
 
-    // 监听连接线变化
-    watch(
-      () => stateManager.edges.value,
-      () => {
-        debouncedPushHistory();
-      },
-      { deep: true }
-    );
+    // 组件卸载时取消订阅
+    onUnmounted(() => {
+      historyUnsubscribe();
+    });
   }
+
+  // ==================== 计算属性：是否可以撤销/重做 ====================
+
+  const canUndo = computed(() => historyManager.canUndo());
+  const canRedo = computed(() => historyManager.canRedo());
+
+  // ==================== 返回统一接口 ====================
 
   return {
     // 响应式状态
-    nodes: stateManager.nodes,
-    edges: stateManager.edges,
-    viewport: stateManager.viewport,
-    selectedNodeIds: stateManager.selectedNodeIds,
-    selectedEdgeIds: stateManager.selectedEdgeIds,
-    stateManager,
+    nodes: nodesRef,
+    edges: edgesRef,
+    viewport: viewportRef,
+    selectedNodeIds: selectedNodeIdsRef,
+    selectedEdgeIds: selectedEdgeIdsRef,
+    stateStore: store,
+    historyManager,
+    selectionHandler,
 
     // 节点操作
-    addNode: stateManager.addNode.bind(stateManager),
-    addNodes: stateManager.addNodes.bind(stateManager),
-    updateNode: stateManager.updateNode.bind(stateManager),
-    removeNode: stateManager.removeNode.bind(stateManager),
-    removeNodes: stateManager.removeNodes.bind(stateManager),
-    getNode: stateManager.getNode.bind(stateManager),
-    hasNode: stateManager.hasNode.bind(stateManager),
+    addNode: (node: FlowNode) => {
+      store.addNode(node);
+    },
+    addNodes: (nodes: FlowNode[]) => {
+      store.addNodes(nodes);
+    },
+    updateNode: (nodeId: string, updates: Partial<FlowNode>) => {
+      store.updateNode(nodeId, updates);
+    },
+    removeNode: (nodeId: string) => {
+      store.removeNode(nodeId);
+    },
+    removeNodes: (nodeIds: string[]) => {
+      store.removeNodes(nodeIds);
+    },
+    getNode: (nodeId: string) => {
+      return store.getNode(nodeId);
+    },
+    hasNode: (nodeId: string) => {
+      return store.hasNode(nodeId);
+    },
 
     // 连接线操作
-    addEdge: stateManager.addEdge.bind(stateManager),
-    addEdges: stateManager.addEdges.bind(stateManager),
-    updateEdge: stateManager.updateEdge.bind(stateManager),
-    removeEdge: stateManager.removeEdge.bind(stateManager),
-    removeEdges: stateManager.removeEdges.bind(stateManager),
-    getEdge: stateManager.getEdge.bind(stateManager),
-    getNodeEdges: stateManager.getNodeEdges.bind(stateManager),
+    addEdge: (edge: FlowEdge) => {
+      store.addEdge(edge);
+    },
+    addEdges: (edges: FlowEdge[]) => {
+      store.addEdges(edges);
+    },
+    updateEdge: (edgeId: string, updates: Partial<FlowEdge>) => {
+      store.updateEdge(edgeId, updates);
+    },
+    removeEdge: (edgeId: string) => {
+      store.removeEdge(edgeId);
+    },
+    removeEdges: (edgeIds: string[]) => {
+      store.removeEdges(edgeIds);
+    },
+    getEdge: (edgeId: string) => {
+      return store.getEdge(edgeId);
+    },
+    getNodeEdges: (nodeId: string) => {
+      return store.getNodeEdges(nodeId);
+    },
 
     // 视口操作
-    setViewport: stateManager.setViewport.bind(stateManager),
-    panViewport: stateManager.panViewport.bind(stateManager),
-    zoomViewport: stateManager.zoomViewport.bind(stateManager),
+    setViewport: (viewport: Partial<FlowViewport>) => {
+      store.setViewport(viewport);
+    },
+    panViewport: (deltaX: number, deltaY: number) => {
+      store.panViewport(deltaX, deltaY);
+    },
+    zoomViewport: (zoom: number, centerX?: number, centerY?: number) => {
+      store.zoomViewport(zoom, centerX, centerY);
+    },
 
     // 选择操作
-    selectNode: stateManager.selectNode.bind(stateManager),
-    selectNodes: stateManager.selectNodes.bind(stateManager),
-    selectEdge: stateManager.selectEdge.bind(stateManager),
-    deselectAll: stateManager.deselectAll.bind(stateManager),
-    getSelectedNodes: stateManager.getSelectedNodes.bind(stateManager),
-    getSelectedEdges: stateManager.getSelectedEdges.bind(stateManager),
+    selectNode: (nodeId: string, addToSelection?: boolean) => {
+      selectionHandler.selectNode(nodeId, addToSelection || false);
+    },
+    selectNodes: (nodeIds: string[]) => {
+      selectionHandler.selectNodes(nodeIds);
+    },
+    selectEdge: (edgeId: string, addToSelection?: boolean) => {
+      selectionHandler.selectEdge(edgeId, addToSelection || false);
+    },
+    deselectAll: () => {
+      selectionHandler.deselectAll();
+    },
+    getSelectedNodes: () => {
+      return selectionHandler.getSelectedNodes(store.getNodes());
+    },
+    getSelectedEdges: () => {
+      return selectionHandler.getSelectedEdges(store.getEdges());
+    },
+    isNodeSelected: (nodeId: string) => {
+      return selectionHandler.isNodeSelected(nodeId);
+    },
+    isEdgeSelected: (edgeId: string) => {
+      return selectionHandler.isEdgeSelected(edgeId);
+    },
+    shouldMultiSelect: (event: MouseEvent | KeyboardEvent) => {
+      return selectionHandler.shouldMultiSelect(event);
+    },
+    shouldBoxSelect: (event: MouseEvent | KeyboardEvent) => {
+      return selectionHandler.shouldBoxSelect(event);
+    },
+    startBoxSelection: (startX: number, startY: number) => {
+      selectionHandler.startBoxSelection(startX, startY);
+    },
+    updateBoxSelection: (currentX: number, currentY: number) => {
+      selectionHandler.updateBoxSelection(currentX, currentY);
+    },
+    finishBoxSelection: () => {
+      const selectedIds = selectionHandler.finishBoxSelection(
+        store.getNodes(),
+        store.getViewport()
+      );
+      return selectedIds;
+    },
+    cancelBoxSelection: () => {
+      selectionHandler.cancelBoxSelection();
+    },
+    isBoxSelecting: () => {
+      return selectionHandler.isBoxSelecting();
+    },
+    getSelectionBox: () => {
+      return selectionHandler.getSelectionBox();
+    },
+    setSelectionOptions: (options: Partial<SelectionOptions>) => {
+      selectionHandler.setOptions(options);
+    },
 
     // 历史记录操作
-    pushHistory: stateManager.pushHistory.bind(stateManager),
-    undo: stateManager.undo.bind(stateManager),
-    redo: stateManager.redo.bind(stateManager),
+    pushHistory: () => {
+      historyManager.pushHistory();
+    },
+    undo: () => {
+      return historyManager.undo();
+    },
+    redo: () => {
+      return historyManager.redo();
+    },
     canUndo,
     canRedo,
-    clearHistory: stateManager.clearHistory.bind(stateManager),
+    clearHistory: () => {
+      historyManager.clearHistory();
+    },
 
     // 状态快照
-    createSnapshot: stateManager.createSnapshot.bind(stateManager),
-    restoreSnapshot: stateManager.restoreSnapshot.bind(stateManager),
-    reset: stateManager.reset.bind(stateManager)
+    createSnapshot: () => {
+      return historyManager.createSnapshot();
+    },
+    restoreSnapshot: (snapshot: FlowStateSnapshot) => {
+      historyManager.restoreSnapshot(snapshot);
+    },
+    reset: () => {
+      historyManager.reset();
+    }
   };
 }
 

@@ -4,8 +4,8 @@
 
 ## 版本信息
 
-- **当前版本**: 2.0.0 (优化版)
-- **状态**: ✅ 核心功能已完成 + 性能优化
+- **当前版本**: 2.1.0 (架构重构版)
+- **状态**: ✅ 核心功能已完成 + 性能优化 + 架构重构
 - **框架**: Vue 3 + TypeScript
 
 ## 特性
@@ -53,7 +53,13 @@ src/components/flow/
 │   │   ├── FlowEventManager.ts
 │   │   └── index.ts
 │   ├── state/          # 状态管理 ✅
-│   │   ├── FlowStateManager.ts
+│   │   ├── interfaces/ # 状态管理接口
+│   │   │   ├── IStateStore.ts
+│   │   │   └── IHistoryManager.ts
+│   │   ├── stores/     # 状态存储实现
+│   │   │   ├── DefaultStateStore.ts
+│   │   │   └── DefaultHistoryManager.ts
+│   │   ├── types.ts    # 状态类型定义
 │   │   └── index.ts
 │   ├── interaction/    # 交互系统 ✅
 │   │   ├── FlowDragHandler.ts
@@ -646,28 +652,68 @@ const unsubscribe = manager.subscribe('canvas-1', (config) => {
 });
 ```
 
-#### FlowStateManager
-状态管理器，管理节点、连接线、视口、选择等状态。
+#### 状态管理
+
+Flow 使用新的状态管理架构，支持框架无关的状态存储和可插拔的历史记录管理。
+
+**使用 useFlowState Hook（推荐）**：
 
 ```typescript
-const stateManager = new FlowStateManager({
+import { useFlowState } from '@/components/flow/hooks/useFlowState';
+
+const {
+  nodes,
+  edges,
+  addNode,
+  updateNode,
+  selectNode,
+  undo,
+  redo
+} = useFlowState({
   initialNodes: [],
   initialEdges: [],
   maxHistorySize: 50
 });
 
 // 添加节点
-stateManager.addNode(node);
+addNode(node);
 
 // 更新节点
-stateManager.updateNode('node-1', { position: { x: 100, y: 100 } });
+updateNode('node-1', { position: { x: 100, y: 100 } });
 
 // 选择节点
-stateManager.selectNode('node-1');
+selectNode('node-1');
 
 // 撤销/重做
-stateManager.undo();
-stateManager.redo();
+undo();
+redo();
+```
+
+**使用核心类（框架无关）**：
+
+```typescript
+import { DefaultStateStore } from '@/components/flow/core/state/stores/DefaultStateStore';
+import { DefaultHistoryManager } from '@/components/flow/core/state/stores/DefaultHistoryManager';
+
+const stateStore = new DefaultStateStore({
+  nodes: [],
+  edges: [],
+  viewport: { x: 0, y: 0, zoom: 1 }
+});
+
+const historyManager = new DefaultHistoryManager(stateStore, {
+  maxHistorySize: 50
+});
+
+// 添加节点
+stateStore.addNode(node);
+
+// 更新节点
+stateStore.updateNode('node-1', { position: { x: 100, y: 100 } });
+
+// 撤销/重做
+historyManager.undo();
+historyManager.redo();
 ```
 
 #### FlowEventEmitter

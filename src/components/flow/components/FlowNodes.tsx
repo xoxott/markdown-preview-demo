@@ -4,13 +4,15 @@
  * 负责渲染所有节点，支持视口裁剪、虚拟滚动等性能优化
  */
 
-import { defineComponent, computed, ref, type PropType } from 'vue';
-import BaseNode from './nodes/BaseNode';
-import { useSpatialIndex } from '../hooks/useSpatialIndex';
-import { useViewportCulling } from '../hooks/useViewportCulling';
+import { computed, defineComponent, type PropType } from 'vue';
 import { useNodeState } from '../hooks/useNodeState';
 import { useNodeStyle } from '../hooks/useNodeStyle';
+import { useSpatialIndex } from '../hooks/useSpatialIndex';
+import { useViewportCulling } from '../hooks/useViewportCulling';
+import { createNodeEventDelegation } from '../utils/event-utils';
+import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
 import type { FlowNode, FlowViewport } from '../types';
+import BaseNode from './nodes/BaseNode';
 
 /**
  * FlowNodes 组件属性
@@ -133,7 +135,7 @@ export default defineComponent({
     const selectedNodeIdsRef = computed(() => props.selectedNodeIds || []);
     const lockedNodeIdsRef = computed(() => props.lockedNodeIds || []);
     const draggingNodeIdRef = computed(() => props.draggingNodeId);
-    const viewportRef = computed(() => props.viewport);
+    const viewportRef = computed(() => props.viewport || { x: 0, y: 0, zoom: 1 });
     const enableViewportCullingRef = computed(() => props.enableViewportCulling ?? true);
 
     // 空间索引管理
@@ -149,7 +151,7 @@ export default defineComponent({
       enabled: enableViewportCullingRef,
       buffer: props.viewportCullingBuffer,
       spatialIndex,
-      spatialIndexThreshold: 50
+      spatialIndexThreshold: PERFORMANCE_CONSTANTS.SPATIAL_INDEX_THRESHOLD
     });
 
     // 节点状态管理
@@ -166,8 +168,32 @@ export default defineComponent({
       selectedNodeIds: selectedNodeIdsRef,
       draggingNodeId: draggingNodeIdRef
     });
+
+    // 性能优化：使用事件委托，避免为每个节点创建新函数
+    const handleNodeClick = createNodeEventDelegation(
+      visibleNodes,
+      props.onNodeClick
+    );
+
+    const handleNodeDoubleClick = createNodeEventDelegation(
+      visibleNodes,
+      props.onNodeDoubleClick
+    );
+
+    const handleNodeMouseDown = createNodeEventDelegation(
+      visibleNodes,
+      props.onNodeMouseDown,
+      { excludeSelector: '.flow-handle' } // 排除端口点击
+    );
+
     return () => (
-      <div class="flow-nodes" style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <div
+        class="flow-nodes"
+        style={{ position: 'relative', width: '100%', height: '100%', pointerEvents: 'auto' }}
+        onClick={props.onNodeClick ? handleNodeClick : undefined}
+        onDblclick={props.onNodeDoubleClick ? handleNodeDoubleClick : undefined}
+        onMousedown={props.onNodeMouseDown ? handleNodeMouseDown : undefined}
+      >
         {visibleNodes.value.map((node: FlowNode) => {
           const state = getNodeState(node);
           const style = getNodeStyle(node);
@@ -175,10 +201,8 @@ export default defineComponent({
           return (
             <div
               key={node.id}
+              data-node-id={node.id}
               style={style}
-              onClick={props.onNodeClick ? (event: MouseEvent) => props.onNodeClick!(node, event) : undefined}
-              onDblclick={props.onNodeDoubleClick ? (event: MouseEvent) => props.onNodeDoubleClick!(node, event) : undefined}
-              onMousedown={props.onNodeMouseDown ? (event: MouseEvent) => props.onNodeMouseDown!(node, event) : undefined}
             >
               <BaseNode
                 node={node}
