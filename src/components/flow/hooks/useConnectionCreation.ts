@@ -76,8 +76,7 @@ export function useConnectionCreation(
     () => config.value,
     (newConfig) => {
       connectionHandler.setConfig(newConfig);
-    },
-    { deep: true }
+    }
   );
 
   /**

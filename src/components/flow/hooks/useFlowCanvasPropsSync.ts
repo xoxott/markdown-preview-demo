@@ -49,8 +49,7 @@ function createSyncWatcher<T extends { id: string }>(
       if (newItems && newItems.length > 0 && !compareIds(current.value, newItems)) {
         setter(newItems);
       }
-    },
-    { immediate: false }
+    }
   );
 }
 

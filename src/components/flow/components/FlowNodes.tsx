@@ -4,7 +4,7 @@
  * 负责渲染所有节点，支持视口裁剪、虚拟滚动等性能优化
  */
 
-import { computed, defineComponent, type PropType } from 'vue';
+import { computed, toRef, defineComponent, type PropType } from 'vue';
 import { useNodeState } from '../hooks/useNodeState';
 import { useNodeStyle } from '../hooks/useNodeStyle';
 import { useSpatialIndex } from '../hooks/useSpatialIndex';
@@ -130,11 +130,12 @@ export default defineComponent({
     }
   },
   setup(props) {
-    // 创建响应式引用
-    const nodesRef = computed(() => props.nodes);
+    // 使用 toRef 创建响应式引用，比 computed 更轻量
+    // 对于需要默认值或计算的情况，使用 computed
+    const nodesRef = toRef(props, 'nodes');
     const selectedNodeIdsRef = computed(() => props.selectedNodeIds || []);
     const lockedNodeIdsRef = computed(() => props.lockedNodeIds || []);
-    const draggingNodeIdRef = computed(() => props.draggingNodeId);
+    const draggingNodeIdRef = toRef(props, 'draggingNodeId');
     const viewportRef = computed(() => props.viewport || { x: 0, y: 0, zoom: 1 });
     const enableViewportCullingRef = computed(() => props.enableViewportCulling ?? true);
 

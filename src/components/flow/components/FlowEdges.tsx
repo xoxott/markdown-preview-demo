@@ -5,7 +5,7 @@
  * 重构后：逻辑解耦，性能优化
  */
 
-import { computed, defineComponent, type PropType } from 'vue';
+import { computed, toRef, defineComponent, type PropType } from 'vue';
 import { useEdgeViewportCulling } from '../hooks/useEdgeViewportCulling';
 import { useEdgePositions } from '../hooks/useEdgePositions';
 import { useCachedSet } from '../utils/set-utils';
@@ -100,9 +100,10 @@ export default defineComponent({
     }
   },
   setup(props) {
-
-    const edgesRef = computed(() => props.edges);
-    const nodesRef = computed(() => props.nodes);
+    // 使用 toRef 创建响应式引用，比 computed 更轻量
+    // 对于需要默认值的情况，使用 computed
+    const edgesRef = toRef(props, 'edges');
+    const nodesRef = toRef(props, 'nodes');
     const viewportRef = computed(() => props.viewport || { x: 0, y: 0, zoom: 1 });
 
     // 是否使用 Canvas 渲染
