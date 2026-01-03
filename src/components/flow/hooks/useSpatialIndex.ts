@@ -4,7 +4,7 @@
  * 提供空间索引的创建、更新和管理功能，支持增量更新优化
  */
 
-import { ref, watch, onUnmounted, type Ref } from 'vue';
+import { ref, markRaw, watch, onUnmounted, type Ref } from 'vue';
 import { useRafThrottle } from './useRafThrottle';
 import { SpatialIndex } from '../core/performance/SpatialIndex';
 import type { FlowNode } from '../types';
@@ -84,7 +84,9 @@ export function useSpatialIndex(
     incrementalThreshold = 0.1
   } = options;
 
-  const spatialIndex = ref(new SpatialIndex({ defaultWidth, defaultHeight })) as Ref<SpatialIndex>;
+  // 使用 markRaw 标记 SpatialIndex 实例，避免 Vue 对其进行深度响应式处理
+  // SpatialIndex 是一个纯数据结构和算法类，不需要响应式
+  const spatialIndex = ref(markRaw(new SpatialIndex({ defaultWidth, defaultHeight }))) as Ref<SpatialIndex>;
 
   // 位置缓存，用于检测变化的节点
   const lastNodePositions = new Map<string, { x: number; y: number }>();

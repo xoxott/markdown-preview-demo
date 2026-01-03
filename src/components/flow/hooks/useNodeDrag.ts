@@ -5,7 +5,7 @@
  * 支持坐标转换（屏幕坐标 -> 画布坐标）、点击/拖拽区分等。
  */
 
-import { ref, type Ref } from 'vue';
+import { ref, onUnmounted, type Ref } from 'vue';
 import { useDrag } from './useDrag';
 import { logger } from '../utils/logger';
 import type { FlowConfig, FlowViewport, FlowNode } from '../types';
@@ -150,6 +150,21 @@ export function useNodeDrag(options: UseNodeDragOptions): UseNodeDragReturn {
 
     event.stopPropagation();
   };
+
+  /**
+   * 清理资源（清理定时器等）
+   */
+  const cleanup = () => {
+    if (nodeClickBlockTimeout) {
+      clearTimeout(nodeClickBlockTimeout);
+      nodeClickBlockTimeout = null;
+    }
+  };
+
+  // 组件卸载时清理定时器，防止内存泄漏
+  onUnmounted(() => {
+    cleanup();
+  });
 
   return {
     draggingNodeId,

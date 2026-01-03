@@ -5,7 +5,7 @@
  * 使用新的架构：DefaultStateStore + DefaultHistoryManager + FlowSelectionHandler
  */
 
-import { ref, computed, nextTick, onUnmounted, type Ref } from 'vue';
+import { ref, shallowRef, computed, onUnmounted, markRaw, type Ref } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
 import { DefaultStateStore } from '../core/state/stores/DefaultStateStore';
 import { DefaultHistoryManager } from '../core/state/stores/DefaultHistoryManager';
@@ -159,29 +159,36 @@ export function useFlowState(
     ?.filter(node => node.selected)
     .map(node => node.id) || [];
 
-  const store = new DefaultStateStore({
+  // 使用 markRaw 标记 store 实例，避免 Vue 对其进行深度响应式处理
+  // store 是框架无关的状态管理类，不需要响应式
+  const store = markRaw(new DefaultStateStore({
     nodes: initialNodes,
     edges: initialEdges,
     viewport: initialViewport,
     selectedNodeIds: initialSelectedNodeIds,
     selectedEdgeIds: []
-  });
+  }));
 
   // ==================== 使用 Vue Ref 包装状态，提供响应式 ====================
 
-  const nodesRef = ref(store.getNodes());
-  const edgesRef = ref(store.getEdges());
+  // 使用 shallowRef 优化大型数组的性能，避免深度响应式监听
+  // 数组的添加/删除操作仍会触发更新（因为数组引用会变化）
+  // 数组内部对象的属性变化不会触发更新（由 store 订阅机制同步）
+  const nodesRef = shallowRef(store.getNodes());
+  const edgesRef = shallowRef(store.getEdges());
   const viewportRef = ref(store.getViewport());
-  const selectedNodeIdsRef = ref(store.getSelectedNodeIds());
-  const selectedEdgeIdsRef = ref(store.getSelectedEdgeIds());
+  const selectedNodeIdsRef = shallowRef(store.getSelectedNodeIds());
+  const selectedEdgeIdsRef = shallowRef(store.getSelectedEdgeIds());
 
   // ==================== 订阅状态变化，同步到 Ref（性能优化：移除深度监听）====================
 
   /**
-   * 批量更新标志，用于在 nextTick 中批量更新
+   * 批量更新标志，用于在 requestAnimationFrame 中批量更新
+   * 使用 RAF 替代 nextTick，可以更好地与浏览器渲染周期同步，提升性能
    */
   let pendingUpdates: Set<string> = new Set();
   let updateScheduled = false;
+  let rafId: number | null = null;
 
   /**
    * 批量更新响应式引用
@@ -189,6 +196,7 @@ export function useFlowState(
   const flushUpdates = () => {
     if (pendingUpdates.size === 0) {
       updateScheduled = false;
+      rafId = null;
       return;
     }
 
@@ -215,6 +223,7 @@ export function useFlowState(
 
     pendingUpdates.clear();
     updateScheduled = false;
+    rafId = null;
   };
 
   /**
@@ -223,10 +232,14 @@ export function useFlowState(
   store.subscribe((changeType) => {
     pendingUpdates.add(changeType);
 
-    // 使用 nextTick 批量更新，避免频繁触发响应式更新
+    // 使用 requestAnimationFrame 批量更新，与浏览器渲染周期同步，提升性能
+    // 如果已经有待处理的更新，取消之前的 RAF，避免重复调度
     if (!updateScheduled) {
       updateScheduled = true;
-      nextTick(() => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+      rafId = requestAnimationFrame(() => {
         flushUpdates();
       });
     }
@@ -234,20 +247,22 @@ export function useFlowState(
 
   // ==================== 创建历史记录管理器 ====================
 
-  const historyManager = new DefaultHistoryManager(store, {
+  // 使用 markRaw 标记 historyManager 实例，避免 Vue 对其进行深度响应式处理
+  const historyManager = markRaw(new DefaultHistoryManager(store, {
     maxHistorySize
-  });
+  }));
 
   // ==================== 创建选择处理器（独立）====================
 
-  const selectionHandler = new FlowSelectionHandler({
+  // 使用 markRaw 标记 selectionHandler 实例，避免 Vue 对其进行深度响应式处理
+  const selectionHandler = markRaw(new FlowSelectionHandler({
     options: selectionOptions,
     onSelectionChange: (nodeIds, edgeIds) => {
       // 同步到状态存储
       store.setSelectedNodeIds(nodeIds);
       store.setSelectedEdgeIds(edgeIds);
     }
-  });
+  }));
 
   // 初始化选择状态
   if (initialSelectedNodeIds.length > 0) {
@@ -268,9 +283,13 @@ export function useFlowState(
       }
     });
 
-    // 组件卸载时取消订阅
+    // 组件卸载时取消订阅和清理 RAF
     onUnmounted(() => {
       historyUnsubscribe();
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
     });
   }
 

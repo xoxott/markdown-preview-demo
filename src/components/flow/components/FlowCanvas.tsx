@@ -84,7 +84,7 @@ export default defineComponent({
       default: '100%'
     },
     style: {
-      type: Object as PropType<Record<string, any>>,
+      type: Object as PropType<CSSProperties | Record<string, string | number>>,
       default: () => ({})
     },
     class: {
