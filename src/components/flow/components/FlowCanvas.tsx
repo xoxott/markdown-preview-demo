@@ -7,7 +7,7 @@
 // 导入 Flow 主题样式（在使用 FlowCanvas 时自动加载）
 import '../styles/index.scss';
 
-import { defineComponent, ref, computed, onMounted, onUnmounted, type PropType, CSSProperties } from 'vue';
+import { defineComponent, ref, computed, onMounted, onUnmounted, type PropType, CSSProperties, h } from 'vue';
 import { useFlowConfig } from '../hooks/useFlowConfig';
 import { useFlowState } from '../hooks/useFlowState';
 import { useKeyboard } from '../hooks/useKeyboard';
@@ -416,7 +416,7 @@ export default defineComponent({
       >
         {/* 背景层（最底层） */}
         {slots.background ? (
-          slots.background()
+          slots.background({ viewport: viewport.value })
         ) : (
           config.value.canvas?.showGrid !== false && (
             <FlowBackground

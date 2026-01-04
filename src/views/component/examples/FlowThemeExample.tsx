@@ -4,7 +4,7 @@
  * 展示如何使用 Flow 的主题系统，包括 light、dark、auto 三种主题模式
  */
 
-import { defineComponent, ref, computed } from 'vue';
+import { defineComponent, ref, computed, h } from 'vue';
 import { NCard, NH3, NText, NSpace, NButton, NRadioGroup, NRadio } from 'naive-ui';
 import { useMessage } from 'naive-ui';
 // 导入 Flow 主题样式
@@ -90,11 +90,18 @@ export default defineComponent({
       }
     ]);
 
+    // FlowCanvas 内部会管理自己的 viewport，需要通过事件同步
     const themeViewport = ref<FlowViewport>({
       x: 0,
       y: 0,
       zoom: 1
     });
+
+    // 处理视口变化（同步 FlowCanvas 内部的 viewport）
+    const handleViewportChange = (newViewport: FlowViewport) => {
+      console.log('handleViewportChange', newViewport);
+      themeViewport.value = newViewport;
+    };
 
     // 处理主题切换
     const handleThemeChange = (newTheme: 'light' | 'dark' | 'auto') => {
@@ -161,15 +168,20 @@ export default defineComponent({
             id="theme-flow-example"
             initialNodes={themeNodes.value}
             initialEdges={themeEdges.value}
-            initialViewport={themeViewport.value}
             width="100%"
             height="100%"
+            onViewport-change={handleViewportChange}
           >
-            <FlowBackground
-              gridType="dots"
-              gridSize={20}
-              viewport={themeViewport.value}
-            />
+            {{
+              background: () => (
+                   <FlowBackground
+                  gridType="dots"
+                  gridSize={20}
+                  viewport={themeViewport.value}
+                  key={`background-${themeViewport.value.x}-${themeViewport.value.y}-${themeViewport.value.zoom}`}
+                />
+              )
+            }}
           </FlowCanvas>
         </div>
 
@@ -197,6 +209,7 @@ export default defineComponent({
 
         {/* 代码示例 */}
         <NSpace vertical class="mt-4">
+        {themeViewport.value}
           <NH3 class="text-base font-semibold">代码示例：</NH3>
           <pre class="bg-gray-100 p-4 rounded text-sm overflow-x-auto">
             <code>{`import { useFlowTheme } from '@/components/flow/hooks/useFlowTheme';
@@ -215,7 +228,7 @@ export default defineComponent({
 
                     // 检查是否为深色模式
                     console.log(isDark.value); // true or false`}
-                    </code>
+            </code>
           </pre>
         </NSpace>
       </NCard>
