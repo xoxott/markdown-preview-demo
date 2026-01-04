@@ -172,7 +172,7 @@ export default defineComponent({
               style={{
                 fontSize: '14px',
                 fontWeight: 500,
-                color: '#333333',
+                color: 'var(--flow-node-text, #333333)',
                 lineHeight: '1.4',
                 wordBreak: 'break-word',
                 overflow: 'hidden',
@@ -189,7 +189,7 @@ export default defineComponent({
                 class="flow-node-description"
                 style={{
                   fontSize: '12px',
-                  color: '#666666',
+                  color: 'var(--flow-node-text-secondary, #666666)',
                   marginTop: '4px',
                   lineHeight: '1.3',
                   wordBreak: 'break-word',

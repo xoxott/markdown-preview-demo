@@ -4,6 +4,9 @@
  * 整合所有功能的核心画布组件，提供完整的图形编辑器功能
  */
 
+// 导入 Flow 主题样式（在使用 FlowCanvas 时自动加载）
+import '../styles/index.scss';
+
 import { defineComponent, ref, computed, onMounted, onUnmounted, type PropType, CSSProperties } from 'vue';
 import { useFlowConfig } from '../hooks/useFlowConfig';
 import { useFlowState } from '../hooks/useFlowState';
@@ -443,7 +446,7 @@ export default defineComponent({
           onEdgeDoubleClick={handleEdgeDoubleClick}
         />
 
-        {/* 节点容器（使用 CSS transform 缩放） */}
+        {/* 节点容器 */}
         <FlowViewportContainer viewport={viewport.value}>
           <FlowNodes
             nodes={nodes.value}

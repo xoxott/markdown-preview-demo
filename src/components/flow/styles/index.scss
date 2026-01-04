@@ -1,0 +1,95 @@
+/**
+ * Flow 样式入口文件
+ *
+ * 导入所有主题和变量
+ * 用户可以在自己的 SCSS 文件中导入此文件来自定义主题
+ */
+
+// 导入变量定义
+@import './variables';
+
+// 导入主题（默认使用 light 主题）
+@import './themes/light';
+@import './themes/dark';
+@import './themes/auto';
+
+// ==================== 基础样式 ====================
+
+.flow-canvas {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: $flow-background-color;
+}
+
+.flow-node {
+  background-color: $flow-node-bg;
+  border: 1px solid $flow-node-border;
+  border-radius: $flow-node-border-radius;
+  color: $flow-node-text;
+  transition: border $flow-transition-duration $flow-transition-timing,
+              box-shadow $flow-transition-duration $flow-transition-timing,
+              opacity $flow-transition-opacity $flow-transition-timing;
+
+  &.flow-node-selected {
+    border: 2px solid $flow-node-border-selected;
+    box-shadow: $flow-shadow-selected;
+  }
+
+  &.flow-node-hovered:not(.flow-node-selected) {
+    border-color: $flow-node-border-hover;
+    box-shadow: $flow-shadow-md;
+  }
+
+  &.flow-node-dragging {
+    opacity: 0.8;
+  }
+
+  &.flow-node-locked {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.flow-handle {
+  background-color: $flow-handle-bg;
+  border: $flow-handle-border-width solid $flow-handle-border-default;
+  border-radius: 50%;
+  width: $flow-handle-width;
+  height: $flow-handle-height;
+  transition: all $flow-transition-duration $flow-transition-timing;
+
+  &.flow-handle-source {
+    border-color: $flow-handle-border-source;
+  }
+
+  &.flow-handle-target {
+    border-color: $flow-handle-border-target;
+  }
+}
+
+.flow-edge {
+  stroke: $flow-edge-default;
+  stroke-width: $flow-edge-stroke-width-base;
+
+  &.flow-edge-selected {
+    stroke: $flow-edge-selected;
+    stroke-width: $flow-edge-stroke-width-selected;
+  }
+
+  &.flow-edge-hovered {
+    stroke: $flow-edge-hovered;
+    stroke-width: $flow-edge-stroke-width-hovered;
+  }
+}
+
+.flow-grid {
+  pointer-events: none;
+  z-index: $flow-z-index-base;
+}
+
+.flow-background {
+  background-color: $flow-background-color;
+}
+

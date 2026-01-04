@@ -20,7 +20,8 @@ import {
   FlowStateExample,
   FlowFullFeatureExample,
   FlowPerformanceExample,
-  FlowEmptyExample
+  FlowEmptyExample,
+  FlowThemeExample
 } from './examples';
 
 export default defineComponent({
@@ -41,6 +42,7 @@ export default defineComponent({
         <FlowFullFeatureExample />
         <FlowPerformanceExample />
         <FlowEmptyExample />
+        <FlowThemeExample />
       </div>
     );
   }

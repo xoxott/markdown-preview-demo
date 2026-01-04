@@ -1,0 +1,42 @@
+/**
+ * Flow Dark 主题
+ *
+ * 深色主题配置
+ */
+
+@import '../variables';
+
+:root[data-flow-theme='dark'] {
+  // 节点颜色
+  --flow-node-bg: #1e1e1e;
+  --flow-node-border: #404040;
+  --flow-node-border-selected: #4a9eff;
+  --flow-node-border-hover: #4a9eff;
+  --flow-node-shadow-selected: rgba(74, 158, 255, 0.3);
+  --flow-node-shadow-hover: rgba(0, 0, 0, 0.3);
+  --flow-node-shadow-selected-value: rgba(74, 158, 255, 0.3);
+  --flow-node-shadow-hover-value: rgba(0, 0, 0, 0.3);
+  --flow-node-text: #e0e0e0;
+  --flow-node-text-secondary: #a0a0a0;
+
+  // 端口颜色
+  --flow-handle-bg: #2a2a2a;
+  --flow-handle-border-source: #4ade80;
+  --flow-handle-border-target: #4a9eff;
+  --flow-handle-border-default: #4a9eff;
+
+  // 连接线颜色
+  --flow-edge-default: #4a5568;
+  --flow-edge-selected: #f87171;
+  --flow-edge-hovered: #64748b;
+  --flow-edge-label: #94a3b8;
+
+  // 网格背景颜色
+  --flow-grid-color: #3a3a3a;
+  --flow-grid-opacity: 0.6;
+  --flow-background-color: #1a1a1a;
+
+  // 预览线颜色
+  --flow-preview-color: #4a9eff;
+}
+

@@ -132,7 +132,6 @@ export default defineComponent({
       })
     }));
 
-    // 性能优化：使用事件处理函数缓存 Hook，避免每次渲染都创建新函数
     const { eventHandlers } = useEventHandlers({
       items: computed(() => props.visibleEdges),
       getId: (edge) => edge.id,
@@ -218,6 +217,7 @@ export default defineComponent({
 
           const isSelected = props.selectedEdgeIdsSet.has(edge.id);
           const path = generateEdgePath(edge, positions, {
+            showArrow: edge.showArrow !== false,
             viewport: props.viewport
           });
 

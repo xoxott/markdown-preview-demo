@@ -4,6 +4,7 @@
 
 export * from './array-utils';
 export * from './cache-utils';
+export * from './cache-key-utils';
 export * from './config-utils';
 export * from './edge-path-generator';
 export * from './event-utils';
@@ -22,4 +23,5 @@ export * from './style-utils';
 export * from './type-utils';
 export * from './validation-utils';
 export * from './raf-throttle';
+export * from './theme-utils';
 

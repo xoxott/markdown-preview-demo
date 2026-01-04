@@ -4,6 +4,8 @@
  * 提供节点样式计算相关的工具函数
  */
 
+import { getCssVariable } from './theme-utils';
+import { CSS_VARIABLES } from '../constants/theme-constants';
 import type { FlowNode } from '../types';
 
 /**
@@ -31,9 +33,18 @@ export interface NodeContainerStyleOptions {
  * @returns 节点容器样式对象
  */
 export function calculateNodeContainerStyle(
-  options: NodeContainerStyleOptions
+  options: NodeContainerStyleOptions,
+  element?: HTMLElement
 ): Record<string, any> {
   const { node, selected, locked, hovered, dragging, customStyle } = options;
+
+  // 从 CSS 变量获取颜色值
+  const nodeBg = getCssVariable(CSS_VARIABLES.NODE_BG, element, '#ffffff');
+  const nodeBorder = getCssVariable(CSS_VARIABLES.NODE_BORDER, element, '#d9d9d9');
+  const nodeBorderSelected = getCssVariable(CSS_VARIABLES.NODE_BORDER_SELECTED, element, '#2080f0');
+  const nodeBorderHover = getCssVariable(CSS_VARIABLES.NODE_BORDER_HOVER, element, '#2080f0');
+  const nodeShadowSelected = getCssVariable('flow-node-shadow-selected-value', element, 'rgba(32, 128, 240, 0.2)');
+  const nodeShadowHover = getCssVariable('flow-node-shadow-hover-value', element, 'rgba(0, 0, 0, 0.1)');
 
   const baseStyle: Record<string, any> = {
     position: 'relative',
@@ -42,9 +53,9 @@ export function calculateNodeContainerStyle(
     cursor: locked ? 'not-allowed' : dragging ? 'grabbing' : 'grab',
     userSelect: 'none',
     pointerEvents: 'auto',
-    // 基础节点样式
-    backgroundColor: '#ffffff',
-    border: '1px solid #d9d9d9',
+    // 基础节点样式（使用 CSS 变量）
+    backgroundColor: nodeBg,
+    border: `1px solid ${nodeBorder}`,
     borderRadius: '8px',
     padding: '12px',
     boxSizing: 'border-box',
@@ -61,14 +72,14 @@ export function calculateNodeContainerStyle(
 
   // 选中状态样式
   if (selected) {
-    baseStyle.border = '2px solid #2080f0';
-    baseStyle.boxShadow = '0 0 0 2px rgba(32, 128, 240, 0.2)';
+    baseStyle.border = `2px solid ${nodeBorderSelected}`;
+    baseStyle.boxShadow = `0 0 0 2px ${nodeShadowSelected}`;
   }
 
   // 悬停状态样式
   if (hovered && !selected) {
-    baseStyle.borderColor = '#2080f0';
-    baseStyle.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+    baseStyle.borderColor = nodeBorderHover;
+    baseStyle.boxShadow = `0 2px 8px ${nodeShadowHover}`;
   }
 
   // 拖拽状态样式

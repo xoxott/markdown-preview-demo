@@ -9,4 +9,5 @@ export { default as FlowStateExample } from './FlowStateExample';
 export { default as FlowFullFeatureExample } from './FlowFullFeatureExample';
 export { default as FlowPerformanceExample } from './FlowPerformanceExample';
 export { default as FlowEmptyExample } from './FlowEmptyExample';
+export { default as FlowThemeExample } from './FlowThemeExample';
 

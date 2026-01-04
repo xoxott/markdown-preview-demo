@@ -8,8 +8,10 @@ import { computed, type Ref } from 'vue';
 import { useNodesMap } from './useNodesMap';
 import { getNodeCenterScreen, getHandlePositionScreen } from '../utils/node-utils';
 import { createCache } from '../utils/cache-utils';
+import { floorCoordinate, roundZoomKey } from '../utils/cache-key-utils';
 import type { FlowEdge, FlowNode, FlowViewport } from '../types';
 import type { FlowPosition } from '../types/flow-node';
+import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
 
 /**
  * 连接线位置信息
@@ -49,6 +51,8 @@ export interface UseEdgePositionsOptions {
   cleanupSize?: number;
   /** 缓存有效期（毫秒，默认 16，约 1 帧） */
   cacheTTL?: number;
+  /** 正在拖拽的节点 ID 集合（用于动态调整缓存 TTL） */
+  draggingNodeIds?: Ref<Set<string>>;
 }
 
 /**
@@ -76,17 +80,41 @@ function generateCacheKey(
   targetNode: FlowNode,
   viewport: FlowViewport
 ): string {
-  // 使用整数坐标和视口信息生成缓存键
-  // 使用较大的容差（10px）以提高缓存命中率
-  const sourceX = Math.round(sourceNode.position.x / 10);
-  const sourceY = Math.round(sourceNode.position.y / 10);
-  const targetX = Math.round(targetNode.position.x / 10);
-  const targetY = Math.round(targetNode.position.y / 10);
-  const viewportX = Math.round(viewport.x / 10);
-  const viewportY = Math.round(viewport.y / 10);
-  const zoomKey = Math.round(viewport.zoom * 100); // 精确到小数点后 2 位
+  // 使用整数坐标（精确到像素）生成缓存键
+  // 提高缓存命中率，同时保持足够的精度
+  const sourceX = floorCoordinate(sourceNode.position.x);
+  const sourceY = floorCoordinate(sourceNode.position.y);
+  const targetX = floorCoordinate(targetNode.position.x);
+  const targetY = floorCoordinate(targetNode.position.y);
+
+  // 视口坐标也使用整数
+  const viewportX = floorCoordinate(viewport.x);
+  const viewportY = floorCoordinate(viewport.y);
+
+  // 缩放值精确到小数点后 3 位（0.001 精度）
+  const zoomKey = roundZoomKey(viewport.zoom);
 
   return `${edge.id}-${sourceX}-${sourceY}-${targetX}-${targetY}-${viewportX}-${viewportY}-${zoomKey}-${edge.sourceHandle || ''}-${edge.targetHandle || ''}`;
+}
+
+/**
+ * 获取节点或端口的屏幕位置
+ *
+ * @param node 节点
+ * @param handleId 端口 ID（可选）
+ * @param viewport 视口状态
+ * @returns 屏幕坐标位置
+ */
+function getNodeOrHandlePosition(
+  node: FlowNode,
+  handleId: string | undefined,
+  viewport: FlowViewport
+): FlowPosition {
+  if (handleId) {
+    const handlePos = getHandlePositionScreen(node, handleId, viewport);
+    return handlePos || getNodeCenterScreen(node, viewport);
+  }
+  return getNodeCenterScreen(node, viewport);
 }
 
 /**
@@ -106,23 +134,11 @@ function calculateEdgePositions(
   targetNode: FlowNode,
   viewport: FlowViewport
 ): EdgePositions {
-  // 如果有端口 ID，使用端口位置；否则使用节点中心
-  let sourcePos: FlowPosition;
-  let targetPos: FlowPosition;
+  // 获取源节点/端口位置
+  const sourcePos = getNodeOrHandlePosition(sourceNode, edge.sourceHandle, viewport);
 
-  if (edge.sourceHandle) {
-    const handlePos = getHandlePositionScreen(sourceNode, edge.sourceHandle, viewport);
-    sourcePos = handlePos || getNodeCenterScreen(sourceNode, viewport);
-  } else {
-    sourcePos = getNodeCenterScreen(sourceNode, viewport);
-  }
-
-  if (edge.targetHandle) {
-    const handlePos = getHandlePositionScreen(targetNode, edge.targetHandle, viewport);
-    targetPos = handlePos || getNodeCenterScreen(targetNode, viewport);
-  } else {
-    targetPos = getNodeCenterScreen(targetNode, viewport);
-  }
+  // 获取目标节点/端口位置
+  const targetPos = getNodeOrHandlePosition(targetNode, edge.targetHandle, viewport);
 
   return {
     sourceX: sourcePos.x,
@@ -163,10 +179,40 @@ export function useEdgePositions(
     edges,
     nodes,
     viewport,
-    maxCacheSize = 500,
-    cleanupSize = 250,
-    cacheTTL = 16 // 约 1 帧
+    maxCacheSize = PERFORMANCE_CONSTANTS.EDGE_POSITION_CACHE_MAX_SIZE,
+    cleanupSize = PERFORMANCE_CONSTANTS.EDGE_POSITION_CACHE_CLEANUP_SIZE,
+    cacheTTL,
+    draggingNodeIds
   } = options;
+
+  /**
+   * 根据节点数量动态调整缓存 TTL
+   *
+   * 小规模场景（< 50 节点）：使用较长的 TTL，减少计算
+   * 中规模场景（50-500 节点）：使用标准 TTL
+   * 大规模场景（>= 500 节点）：使用较短的 TTL，确保实时性
+   */
+  const dynamicCacheTTL = computed(() => {
+    if (cacheTTL !== undefined) {
+      return cacheTTL;
+    }
+    const nodeCount = nodes.value.length;
+    const {
+      EDGE_POSITION_CACHE_TTL_SMALL,
+      EDGE_POSITION_CACHE_TTL_MEDIUM,
+      EDGE_POSITION_CACHE_TTL_LARGE,
+      EDGE_POSITION_CACHE_NODE_THRESHOLD_SMALL,
+      EDGE_POSITION_CACHE_NODE_THRESHOLD_MEDIUM
+    } = PERFORMANCE_CONSTANTS;
+
+    if (nodeCount < EDGE_POSITION_CACHE_NODE_THRESHOLD_SMALL) {
+      return EDGE_POSITION_CACHE_TTL_SMALL;
+    }
+    if (nodeCount < EDGE_POSITION_CACHE_NODE_THRESHOLD_MEDIUM) {
+      return EDGE_POSITION_CACHE_TTL_MEDIUM;
+    }
+    return EDGE_POSITION_CACHE_TTL_LARGE;
+  });
 
   // 节点 Map（用于快速查找）
   const nodesRef = computed(() => nodes.value);
@@ -202,7 +248,16 @@ export function useEdgePositions(
     const cached = positionCache.get(cacheKey);
     const now = Date.now();
 
-    if (cached && now - cached.timestamp < cacheTTL) {
+    // 如果节点正在拖拽，降低缓存 TTL 以确保实时更新
+    const isDragging = draggingNodeIds?.value && (
+      draggingNodeIds.value.has(edge.source) ||
+      draggingNodeIds.value.has(edge.target)
+    );
+    const effectiveTTL = isDragging
+      ? dynamicCacheTTL.value / PERFORMANCE_CONSTANTS.EDGE_POSITION_CACHE_DRAGGING_TTL_DIVISOR
+      : dynamicCacheTTL.value;
+
+    if (cached && now - cached.timestamp < effectiveTTL) {
       return cached.positions;
     }
 

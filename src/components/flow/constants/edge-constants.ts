@@ -6,6 +6,10 @@
 
 /**
  * 连接线颜色常量
+ *
+ * 注意：这些值仅作为默认值，实际颜色应该从 CSS 变量中获取
+ * 使用 getCssVariable() 函数可以获取当前主题的颜色值
+ * CSS 变量名：--flow-edge-default, --flow-edge-selected, --flow-edge-hovered, --flow-edge-label
  */
 export const EDGE_COLORS = {
   /** 默认连接线颜色 */

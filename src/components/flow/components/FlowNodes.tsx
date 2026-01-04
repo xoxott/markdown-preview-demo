@@ -169,7 +169,6 @@ export default defineComponent({
       draggingNodeId: draggingNodeIdRef
     });
 
-    // 性能优化：使用事件委托，避免为每个节点创建新函数
     const handleNodeClick = createNodeEventDelegation(
       visibleNodes,
       props.onNodeClick

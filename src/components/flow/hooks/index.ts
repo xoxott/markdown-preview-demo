@@ -15,6 +15,7 @@ export * from './useRafThrottle';
 export * from './useRafLoop';
 export * from './useSpatialIndex';
 export * from './useViewportCulling';
+export * from './useFlowTheme';
 export * from './useEdgeViewportCulling';
 export * from './useEdgePositions';
 export * from './useFlowCanvasPropsSync';

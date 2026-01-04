@@ -5,15 +5,41 @@
  */
 
 import type { FlowHandle } from '../types/flow-node';
+import { getCssVariable } from './theme-utils';
+import { CSS_VARIABLES } from '../constants/theme-constants';
 
 /**
  * 端口颜色常量
+ *
+ * 注意：这些值仅作为默认值，实际颜色应该从 CSS 变量中获取
+ * 使用 getCssVariable() 函数可以获取当前主题的颜色值
+ * CSS 变量名：--flow-handle-border-source, --flow-handle-border-target, --flow-handle-border-default
  */
 export const HANDLE_COLORS = {
   SOURCE: '#18a058', // 绿色表示输出端口
   TARGET: '#2080f0', // 蓝色表示输入端口
   DEFAULT: '#2080f0'
 } as const;
+
+/**
+ * 获取端口颜色（从 CSS 变量）
+ *
+ * @param type 端口类型
+ * @param element 元素（用于获取 CSS 变量）
+ * @returns 端口颜色值
+ */
+export function getHandleColor(
+  type: 'source' | 'target' | 'default',
+  element?: HTMLElement
+): string {
+  const variableName = type === 'source'
+    ? CSS_VARIABLES.HANDLE_BORDER_SOURCE
+    : type === 'target'
+    ? CSS_VARIABLES.HANDLE_BORDER_TARGET
+    : CSS_VARIABLES.HANDLE_BORDER_DEFAULT;
+
+  return getCssVariable(variableName, element, HANDLE_COLORS[type.toUpperCase() as keyof typeof HANDLE_COLORS]);
+}
 
 /**
  * 端口尺寸常量
@@ -33,15 +59,20 @@ export const HANDLE_SIZES = {
  */
 export function calculateHandleStyle(
   handle: FlowHandle,
-  customStyle?: Record<string, any>
+  customStyle?: Record<string, any>,
+  element?: HTMLElement
 ): Record<string, any> {
+  // 获取端口颜色（从 CSS 变量）
+  const borderColor = getHandleColor(handle.type || 'default', element);
+  const bgColor = getCssVariable(CSS_VARIABLES.HANDLE_BG, element, '#fff');
+
   const handleStyle: Record<string, any> = {
     position: 'absolute',
     width: `${HANDLE_SIZES.WIDTH}px`,
     height: `${HANDLE_SIZES.HEIGHT}px`,
     borderRadius: '50%',
-    backgroundColor: '#fff',
-    border: `${HANDLE_SIZES.BORDER_WIDTH}px solid ${HANDLE_COLORS.DEFAULT}`,
+    backgroundColor: bgColor,
+    border: `${HANDLE_SIZES.BORDER_WIDTH}px solid ${borderColor}`,
     cursor: 'crosshair',
     zIndex: 10,
     boxSizing: 'border-box',
@@ -49,13 +80,6 @@ export function calculateHandleStyle(
     ...handle.style,
     ...customStyle
   };
-
-  // 根据端口类型设置不同的颜色
-  if (handle.type === 'source') {
-    handleStyle.borderColor = HANDLE_COLORS.SOURCE;
-  } else if (handle.type === 'target') {
-    handleStyle.borderColor = HANDLE_COLORS.TARGET;
-  }
 
   return handleStyle;
 }

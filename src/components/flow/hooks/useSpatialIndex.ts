@@ -4,9 +4,11 @@
  * 提供空间索引的创建、更新和管理功能，支持增量更新优化
  */
 
-import { ref, markRaw, watch, onUnmounted, type Ref } from 'vue';
+import { ref, markRaw, watch, onUnmounted, type Ref, computed } from 'vue';
 import { useRafThrottle } from './useRafThrottle';
 import { SpatialIndex } from '../core/performance/SpatialIndex';
+import { floorCoordinate } from '../utils/cache-key-utils';
+import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
 import type { FlowNode } from '../types';
 
 /**
@@ -41,19 +43,31 @@ export interface UseSpatialIndexReturn {
  * 计算节点位置哈希值
  *
  * 使用位运算快速计算哈希，用于检测节点位置变化
+ * 优化：只计算前 N 个节点，提升大规模场景下的性能
  *
  * @param nodes 节点列表
  * @returns 哈希值
  */
 function getNodesPositionHash(nodes: FlowNode[]): number {
   let hash = 0;
-  for (let i = 0; i < nodes.length; i++) {
+  const { SPATIAL_INDEX_HASH_MAX_NODES, HASH_SHIFT_BITS } = PERFORMANCE_CONSTANTS;
+
+  // 只计算前 N 个节点，对于大规模场景性能更好
+  // 如果节点数量变化，哈希值也会变化，足以检测到变化
+  const len = Math.min(nodes.length, SPATIAL_INDEX_HASH_MAX_NODES);
+  for (let i = 0; i < len; i++) {
     const n = nodes[i];
-    // 使用位运算计算哈希
-    hash = ((hash << 5) - hash) + n.position.x;
-    hash = ((hash << 5) - hash) + n.position.y;
+    // 使用整数坐标计算哈希，减少精度变化的影响
+    const x = floorCoordinate(n.position.x);
+    const y = floorCoordinate(n.position.y);
+    // 使用位运算计算哈希（标准哈希算法：hash = hash * 31 + value）
+    hash = ((hash << HASH_SHIFT_BITS) - hash) + x;
+    hash = ((hash << HASH_SHIFT_BITS) - hash) + y;
     hash = hash | 0; // Convert to 32bit integer
   }
+  // 将节点数量也加入哈希，确保节点数量变化时哈希值变化
+  hash = ((hash << HASH_SHIFT_BITS) - hash) + nodes.length;
+  hash = hash | 0;
   return hash;
 }
 
@@ -79,10 +93,39 @@ export function useSpatialIndex(
   const {
     nodes,
     enabled = true,
-    defaultWidth = 220,
-    defaultHeight = 72,
-    incrementalThreshold = 0.1
+    defaultWidth = PERFORMANCE_CONSTANTS.DEFAULT_NODE_WIDTH,
+    defaultHeight = PERFORMANCE_CONSTANTS.DEFAULT_NODE_HEIGHT,
+    incrementalThreshold
   } = options;
+
+  /**
+   * 动态调整增量更新阈值，根据节点数量智能选择策略
+   *
+   * 小规模场景（< 100 节点）：使用较高的阈值（20%），减少全量更新
+   * 中规模场景（100-1000 节点）：使用标准阈值（10%）
+   * 大规模场景（>= 1000 节点）：使用较低的阈值（5%），更频繁地使用增量更新
+   */
+  const dynamicIncrementalThreshold = computed(() => {
+    if (incrementalThreshold !== undefined) {
+      return incrementalThreshold;
+    }
+    const nodeCount = nodes.value.length;
+    const {
+      SPATIAL_INDEX_INCREMENTAL_THRESHOLD_SMALL,
+      SPATIAL_INDEX_INCREMENTAL_THRESHOLD_MEDIUM,
+      SPATIAL_INDEX_INCREMENTAL_THRESHOLD_LARGE,
+      SPATIAL_INDEX_NODE_THRESHOLD_SMALL,
+      SPATIAL_INDEX_NODE_THRESHOLD_MEDIUM
+    } = PERFORMANCE_CONSTANTS;
+
+    if (nodeCount < SPATIAL_INDEX_NODE_THRESHOLD_SMALL) {
+      return SPATIAL_INDEX_INCREMENTAL_THRESHOLD_SMALL;
+    }
+    if (nodeCount < SPATIAL_INDEX_NODE_THRESHOLD_MEDIUM) {
+      return SPATIAL_INDEX_INCREMENTAL_THRESHOLD_MEDIUM;
+    }
+    return SPATIAL_INDEX_INCREMENTAL_THRESHOLD_LARGE;
+  });
 
   // 使用 markRaw 标记 SpatialIndex 实例，避免 Vue 对其进行深度响应式处理
   // SpatialIndex 是一个纯数据结构和算法类，不需要响应式
@@ -99,6 +142,20 @@ export function useSpatialIndex(
     if (typeof enabled === 'boolean') return enabled;
     if (typeof enabled === 'function') return enabled();
     return enabled.value;
+  };
+
+  /**
+   * 更新节点位置缓存
+   *
+   * 抽象重复的位置缓存更新逻辑
+   *
+   * @param nodesToUpdate 要更新的节点列表
+   */
+  const updateNodePositionsCache = (nodesToUpdate: FlowNode[]): void => {
+    lastNodePositions.clear();
+    for (const node of nodesToUpdate) {
+      lastNodePositions.set(node.id, { x: node.position.x, y: node.position.y });
+    }
   };
 
   /**
@@ -125,7 +182,8 @@ export function useSpatialIndex(
     }
 
     // 如果变化的节点很少（< 阈值），使用增量更新
-    if (changedNodeIds.size > 0 && changedNodeIds.size < nodes.value.length * incrementalThreshold) {
+    const threshold = dynamicIncrementalThreshold.value;
+    if (changedNodeIds.size > 0 && changedNodeIds.size < nodes.value.length * threshold) {
       // 增量更新：只更新变化的节点
       for (const nodeId of changedNodeIds) {
         const node = nodes.value.find(n => n.id === nodeId);
@@ -137,10 +195,7 @@ export function useSpatialIndex(
       // 全量更新：变化太多时，全量更新更快
       spatialIndex.value.updateNodes(nodes.value);
       // 更新位置缓存
-      lastNodePositions.clear();
-      for (const node of nodes.value) {
-        lastNodePositions.set(node.id, { x: node.position.x, y: node.position.y });
-      }
+      updateNodePositionsCache(nodes.value);
     }
   };
 
@@ -158,10 +213,7 @@ export function useSpatialIndex(
         spatialIndex.value.updateNodes(nodes.value);
         lastHash = getNodesPositionHash(nodes.value);
         // 更新位置缓存
-        lastNodePositions.clear();
-        for (const node of nodes.value) {
-          lastNodePositions.set(node.id, { x: node.position.x, y: node.position.y });
-        }
+        updateNodePositionsCache(nodes.value);
       }
     },
     { immediate: true }
@@ -190,10 +242,7 @@ export function useSpatialIndex(
     if (isEnabled() && nodes.value.length > 0) {
       spatialIndex.value.updateNodes(nodes.value);
       lastHash = getNodesPositionHash(nodes.value);
-      lastNodePositions.clear();
-      for (const node of nodes.value) {
-        lastNodePositions.set(node.id, { x: node.position.x, y: node.position.y });
-      }
+      updateNodePositionsCache(nodes.value);
     }
   };
 

@@ -1,0 +1,75 @@
+/**
+ * Flow Auto 主题
+ *
+ * 自动主题（跟随系统主题）
+ */
+
+@import '../variables';
+
+:root[data-flow-theme='auto'] {
+  // 使用 CSS 媒体查询自动切换
+  @media (prefers-color-scheme: light) {
+    // 节点颜色
+    --flow-node-bg: #ffffff;
+    --flow-node-border: #d9d9d9;
+    --flow-node-border-selected: #2080f0;
+    --flow-node-border-hover: #2080f0;
+    --flow-node-shadow-selected: rgba(32, 128, 240, 0.2);
+    --flow-node-shadow-hover: rgba(0, 0, 0, 0.1);
+    --flow-node-text: #333333;
+    --flow-node-text-secondary: #666666;
+
+    // 端口颜色
+    --flow-handle-bg: #ffffff;
+    --flow-handle-border-source: #18a058;
+    --flow-handle-border-target: #2080f0;
+    --flow-handle-border-default: #2080f0;
+
+    // 连接线颜色
+    --flow-edge-default: #cbd5e1;
+    --flow-edge-selected: #f5576c;
+    --flow-edge-hovered: #94a3b8;
+    --flow-edge-label: #64748b;
+
+    // 网格背景颜色
+    --flow-grid-color: #d1d5db;
+    --flow-grid-opacity: 0.8;
+    --flow-background-color: #ffffff;
+
+    // 预览线颜色
+    --flow-preview-color: #2080f0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    // 节点颜色
+    --flow-node-bg: #1e1e1e;
+    --flow-node-border: #404040;
+    --flow-node-border-selected: #4a9eff;
+    --flow-node-border-hover: #4a9eff;
+    --flow-node-shadow-selected: rgba(74, 158, 255, 0.3);
+    --flow-node-shadow-hover: rgba(0, 0, 0, 0.3);
+    --flow-node-text: #e0e0e0;
+    --flow-node-text-secondary: #a0a0a0;
+
+    // 端口颜色
+    --flow-handle-bg: #2a2a2a;
+    --flow-handle-border-source: #4ade80;
+    --flow-handle-border-target: #4a9eff;
+    --flow-handle-border-default: #4a9eff;
+
+    // 连接线颜色
+    --flow-edge-default: #4a5568;
+    --flow-edge-selected: #f87171;
+    --flow-edge-hovered: #64748b;
+    --flow-edge-label: #94a3b8;
+
+    // 网格背景颜色
+    --flow-grid-color: #3a3a3a;
+    --flow-grid-opacity: 0.6;
+    --flow-background-color: #1a1a1a;
+
+    // 预览线颜色
+    --flow-preview-color: #4a9eff;
+  }
+}
+

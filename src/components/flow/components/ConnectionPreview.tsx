@@ -5,7 +5,17 @@
  */
 
 import { defineComponent, computed, ref, watch, type PropType } from 'vue';
-import type { FlowNode, FlowViewport } from '../types';
+import { getHandlePositionScreen } from '../utils/node-utils';
+import { generateEdgePath } from '../utils/edge-path-generator';
+import {
+  ARROW_SIZES,
+  ARROW_PATH_RATIOS,
+  EDGE_COLORS,
+  STROKE_WIDTHS,
+  ANIMATION_CONSTANTS
+} from '../constants/edge-constants';
+import type { FlowNode, FlowViewport, FlowEdge } from '../types';
+import type { EdgePositions } from '../hooks/useEdgePositions';
 
 export interface ConnectionPreviewProps {
   /** 源节点 ID */
@@ -67,63 +77,69 @@ export default defineComponent({
     );
 
     /**
-     * 缓存源节点和端口信息
+     * 缓存源端口位置（屏幕坐标）
      *
-     * 在连接创建过程中，源节点和端口信息不会变化，
-     * 因此可以缓存这些信息，避免重复查找
+     * 使用 watch 替代 computed，只在节点/端口变化时重新计算
+     * 避免每次 nodes 数组变化都重新计算
+     * 直接使用工具函数获取屏幕坐标，避免重复计算
      */
-    const sourceNodeInfo = computed(() => {
+    const sourceHandlePosition = ref<{ x: number; y: number } | null>(null);
+
+    /**
+     * 更新源端口位置
+     */
+    const updateSourceHandlePosition = () => {
       const sourceNode = props.nodes.find(n => n.id === props.sourceNodeId);
-      if (!sourceNode) return null;
-
-      const sourceHandle = sourceNode.handles?.find(h => h.id === props.sourceHandleId);
-      if (!sourceHandle) return null;
-
-      const nodeX = sourceNode.position.x;
-      const nodeY = sourceNode.position.y;
-      const nodeWidth = sourceNode.size?.width || 220;
-      const nodeHeight = sourceNode.size?.height || 72;
-
-      let sourceX = 0;
-      let sourceY = 0;
-
-      switch (sourceHandle.position) {
-        case 'top':
-          sourceX = nodeX + nodeWidth / 2;
-          sourceY = nodeY;
-          break;
-        case 'bottom':
-          sourceX = nodeX + nodeWidth / 2;
-          sourceY = nodeY + nodeHeight;
-          break;
-        case 'left':
-          sourceX = nodeX;
-          sourceY = nodeY + nodeHeight / 2;
-          break;
-        case 'right':
-          sourceX = nodeX + nodeWidth;
-          sourceY = nodeY + nodeHeight / 2;
-          break;
+      if (!sourceNode) {
+        sourceHandlePosition.value = null;
+        return;
       }
 
-      return {
-        sourceX,
-        sourceY
-      };
-    });
+      // 使用工具函数直接获取屏幕坐标
+      const position = getHandlePositionScreen(sourceNode, props.sourceHandleId, props.viewport);
+      sourceHandlePosition.value = position;
+    };
+
+    // 只在节点 ID、端口 ID 变化时重新计算
+    watch(
+      () => [props.sourceNodeId, props.sourceHandleId] as const,
+      () => {
+        updateSourceHandlePosition();
+      },
+      { immediate: true }
+    );
+
+    // 监听源节点位置变化（如果节点被拖拽）
+    watch(
+      () => {
+        const sourceNode = props.nodes.find(n => n.id === props.sourceNodeId);
+        return sourceNode ? [sourceNode.position.x, sourceNode.position.y] : null;
+      },
+      () => {
+        if (props.sourceNodeId && props.sourceHandleId) {
+          updateSourceHandlePosition();
+        }
+      },
+      { immediate: false }
+    );
 
     /**
      * 计算箭头标记配置
      *
-     * 缓存箭头尺寸计算，避免重复计算
+     * 使用常量替代魔术数字，复用连接线的箭头配置逻辑
+     * 使用 Math.round 减少精度变化导致的重新计算
      */
     const arrowMarkerConfig = computed(() => {
-      const zoom = props.viewport.zoom;
-      const baseArrowSize = 12;
-      const previewArrowSize = Math.max(6, Math.min(24, baseArrowSize * zoom));
-      const refX = (2 / baseArrowSize) * previewArrowSize;
-      const refY = (6 / baseArrowSize) * previewArrowSize;
-      const pathSize = (8 / baseArrowSize) * previewArrowSize;
+      const zoom = Math.round(props.viewport.zoom * 100) / 100;
+
+      const previewArrowSize = Math.max(
+        ARROW_SIZES.MIN,
+        Math.min(ARROW_SIZES.MAX, ARROW_SIZES.BASE * zoom)
+      );
+
+      const refX = ARROW_PATH_RATIOS.REF_X * previewArrowSize;
+      const refY = ARROW_PATH_RATIOS.REF_Y * previewArrowSize;
+      const pathSize = ARROW_PATH_RATIOS.PATH_SIZE * previewArrowSize;
 
       return {
         arrowSize: previewArrowSize,
@@ -137,34 +153,56 @@ export default defineComponent({
     /**
      * 计算预览路径
      *
-     * 使用缓存的源节点信息和画布位置，减少重复计算
+     * 复用连接线的路径生成逻辑，使用工具函数生成贝塞尔曲线路径
      */
     const previewPath = computed(() => {
-      const sourceInfo = sourceNodeInfo.value;
-      if (!sourceInfo) return null;
+      const sourcePos = sourceHandlePosition.value;
+      if (!sourcePos) return null;
 
       const rect = canvasRect.value;
       if (!rect) return null;
 
-      // 转换为屏幕坐标（相对于画布容器）
-      const screenSourceX = sourceInfo.sourceX * props.viewport.zoom + props.viewport.x;
-      const screenSourceY = sourceInfo.sourceY * props.viewport.zoom + props.viewport.y;
-
-      // 鼠标位置需要转换为相对于画布容器的坐标
+      // 鼠标位置需要转换为相对于画布容器的坐标（屏幕坐标）
       const screenTargetX = props.previewPos.x - rect.left;
       const screenTargetY = props.previewPos.y - rect.top;
 
-      // 生成预览路径（贝塞尔曲线）
-      const dx = screenTargetX - screenSourceX;
-      const controlOffset = 0.5;
-      const controlX1 = screenSourceX + dx * controlOffset;
-      const controlY1 = screenSourceY;
-      const controlX2 = screenTargetX - dx * controlOffset;
-      const controlY2 = screenTargetY;
+      // 构造 EdgePositions 对象，用于复用路径生成逻辑
+      const positions: EdgePositions = {
+        sourceX: sourcePos.x,
+        sourceY: sourcePos.y,
+        targetX: screenTargetX,
+        targetY: screenTargetY,
+        sourceHandleX: sourcePos.x,
+        sourceHandleY: sourcePos.y
+      };
+
+      // 构造临时 Edge 对象，使用贝塞尔曲线类型
+      const previewEdge: FlowEdge = {
+        id: 'preview',
+        source: props.sourceNodeId,
+        target: 'preview-target',
+        type: 'bezier',
+        sourceHandle: props.sourceHandleId
+      };
+
+      // 预览线默认显示箭头
+      const showArrow = true;
+
+      // 使用工具函数生成路径
+      const path = generateEdgePath(previewEdge, positions, {
+        showArrow,
+        viewport: props.viewport
+      });
+
+      const strokeWidth = Math.max(
+        STROKE_WIDTHS.MIN,
+        Math.min(STROKE_WIDTHS.MAX, STROKE_WIDTHS.BASE * props.viewport.zoom)
+      );
 
       return {
-        path: `M ${screenSourceX},${screenSourceY} C ${controlX1},${controlY1} ${controlX2},${controlY2} ${screenTargetX},${screenTargetY}`,
-        strokeWidth: Math.max(1, Math.min(5, 2.5 * props.viewport.zoom))
+        path,
+        strokeWidth,
+        showArrow
       };
     });
 
@@ -173,6 +211,7 @@ export default defineComponent({
       if (!pathData) return null;
 
       const arrowConfig = arrowMarkerConfig.value;
+      const showArrow = pathData.showArrow;
 
       return (
         <svg
@@ -187,31 +226,32 @@ export default defineComponent({
             overflow: 'visible'
           }}
         >
-          <defs>
-            {/* 使用 key 确保箭头标记在尺寸变化时正确更新，避免不必要的重新创建 */}
-            <marker
-              key={`preview-arrow-${arrowConfig.arrowSize}`}
-              id="flow-preview-arrow"
-              markerWidth={arrowConfig.arrowSize}
-              markerHeight={arrowConfig.arrowSize}
-              refX={arrowConfig.refX}
-              refY={arrowConfig.refY}
-              orient="auto"
-              markerUnits="userSpaceOnUse"
-            >
-              <path
-                d={arrowConfig.path}
-                fill="#2080f0"
-              />
-            </marker>
-          </defs>
+          {showArrow && (
+            <defs>
+              <marker
+                key={`preview-arrow-${arrowConfig.arrowSize}`}
+                id="flow-preview-arrow"
+                markerWidth={arrowConfig.arrowSize}
+                markerHeight={arrowConfig.arrowSize}
+                refX={arrowConfig.refX}
+                refY={arrowConfig.refY}
+                orient="auto"
+                markerUnits="userSpaceOnUse"
+              >
+                <path
+                  d={arrowConfig.path}
+                  fill={EDGE_COLORS.DEFAULT}
+                />
+              </marker>
+            </defs>
+          )}
           <path
             d={pathData.path}
-            stroke="#2080f0"
+            stroke={EDGE_COLORS.DEFAULT}
             stroke-width={pathData.strokeWidth}
             fill="none"
-            stroke-dasharray="5,5"
-            marker-end="url(#flow-preview-arrow)"
+            stroke-dasharray={ANIMATION_CONSTANTS.DASH_ARRAY}
+            marker-end={showArrow ? "url(#flow-preview-arrow)" : undefined}
           />
         </svg>
       );

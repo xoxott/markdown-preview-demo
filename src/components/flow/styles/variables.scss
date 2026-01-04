@@ -1,0 +1,96 @@
+/**
+ * Flow 主题变量定义
+ *
+ * 所有主题相关的颜色、尺寸、间距等变量
+ * 用户可以通过覆盖这些变量来自定义主题
+ */
+
+// ==================== 颜色变量 ====================
+
+// 节点相关颜色
+$flow-node-bg: var(--flow-node-bg, #ffffff) !default;
+$flow-node-border: var(--flow-node-border, #d9d9d9) !default;
+$flow-node-border-selected: var(--flow-node-border-selected, #2080f0) !default;
+$flow-node-border-hover: var(--flow-node-border-hover, #2080f0) !default;
+$flow-node-shadow-selected: var(--flow-node-shadow-selected, rgba(32, 128, 240, 0.2)) !default;
+$flow-node-shadow-hover: var(--flow-node-shadow-hover, rgba(0, 0, 0, 0.1)) !default;
+$flow-node-text: var(--flow-node-text, #333333) !default;
+$flow-node-text-secondary: var(--flow-node-text-secondary, #666666) !default;
+
+// 端口（Handle）相关颜色
+$flow-handle-bg: var(--flow-handle-bg, #ffffff) !default;
+$flow-handle-border-source: var(--flow-handle-border-source, #18a058) !default;
+$flow-handle-border-target: var(--flow-handle-border-target, #2080f0) !default;
+$flow-handle-border-default: var(--flow-handle-border-default, #2080f0) !default;
+
+// 连接线相关颜色
+$flow-edge-default: var(--flow-edge-default, #cbd5e1) !default;
+$flow-edge-selected: var(--flow-edge-selected, #f5576c) !default;
+$flow-edge-hovered: var(--flow-edge-hovered, #94a3b8) !default;
+$flow-edge-label: var(--flow-edge-label, #64748b) !default;
+
+// 网格背景相关颜色
+$flow-grid-color: var(--flow-grid-color, #d1d5db) !default;
+$flow-grid-opacity: var(--flow-grid-opacity, 0.8) !default;
+$flow-background-color: var(--flow-background-color, #ffffff) !default;
+
+// 预览线颜色
+$flow-preview-color: var(--flow-preview-color, #2080f0) !default;
+
+// ==================== 尺寸变量 ====================
+
+// 节点尺寸
+$flow-node-border-radius: var(--flow-node-border-radius, 8px) !default;
+$flow-node-padding: var(--flow-node-padding, 12px) !default;
+$flow-node-min-width: var(--flow-node-min-width, 100px) !default;
+$flow-node-min-height: var(--flow-node-min-height, 40px) !default;
+
+// 端口尺寸
+$flow-handle-width: var(--flow-handle-width, 12px) !default;
+$flow-handle-height: var(--flow-handle-height, 12px) !default;
+$flow-handle-border-width: var(--flow-handle-border-width, 2px) !default;
+
+// 连接线尺寸
+$flow-edge-stroke-width-base: var(--flow-edge-stroke-width-base, 2.5px) !default;
+$flow-edge-stroke-width-selected: var(--flow-edge-stroke-width-selected, 3.5px) !default;
+$flow-edge-stroke-width-hovered: var(--flow-edge-stroke-width-hovered, 3px) !default;
+$flow-edge-stroke-width-min: var(--flow-edge-stroke-width-min, 1px) !default;
+$flow-edge-stroke-width-max: var(--flow-edge-stroke-width-max, 5px) !default;
+
+// 箭头尺寸
+$flow-arrow-size-base: var(--flow-arrow-size-base, 12px) !default;
+$flow-arrow-size-min: var(--flow-arrow-size-min, 6px) !default;
+$flow-arrow-size-max: var(--flow-arrow-size-max, 24px) !default;
+
+// 网格尺寸
+$flow-grid-size: var(--flow-grid-size, 20px) !default;
+$flow-grid-dot-radius-multiplier: var(--flow-grid-dot-radius-multiplier, 1.5) !default;
+$flow-grid-line-stroke-width-multiplier: var(--flow-grid-line-stroke-width-multiplier, 1) !default;
+
+// ==================== 间距变量 ====================
+
+$flow-spacing-xs: var(--flow-spacing-xs, 4px) !default;
+$flow-spacing-sm: var(--flow-spacing-sm, 8px) !default;
+$flow-spacing-md: var(--flow-spacing-md, 12px) !default;
+$flow-spacing-lg: var(--flow-spacing-lg, 16px) !default;
+$flow-spacing-xl: var(--flow-spacing-xl, 24px) !default;
+
+// ==================== 过渡动画变量 ====================
+
+$flow-transition-duration: var(--flow-transition-duration, 0.2s) !default;
+$flow-transition-timing: var(--flow-transition-timing, ease) !default;
+$flow-transition-opacity: var(--flow-transition-opacity, 0.15s) !default;
+
+// ==================== 阴影变量 ====================
+
+$flow-shadow-sm: var(--flow-shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.1)) !default;
+$flow-shadow-md: var(--flow-shadow-md, 0 2px 8px rgba(0, 0, 0, 0.1)) !default;
+$flow-shadow-lg: var(--flow-shadow-lg, 0 4px 16px rgba(0, 0, 0, 0.15)) !default;
+$flow-shadow-selected: var(--flow-shadow-selected, 0 0 0 2px rgba(32, 128, 240, 0.2)) !default;
+
+// ==================== Z-index 变量 ====================
+
+$flow-z-index-base: var(--flow-z-index-base, 0) !default;
+$flow-z-index-handle: var(--flow-z-index-handle, 10) !default;
+$flow-z-index-preview: var(--flow-z-index-preview, 1000) !default;
+

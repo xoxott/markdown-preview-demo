@@ -6,6 +6,8 @@
 
 import { defineComponent, computed, type PropType, CSSProperties } from 'vue';
 import { getConditionalGpuAccelerationStyle } from '../utils/style-utils';
+import { GRID_CONSTANTS } from '../constants/grid-constants';
+import { generateGridPattern } from './background/GridPatternGenerator';
 import type { FlowGridType, FlowViewport } from '../types';
 
 /**
@@ -50,19 +52,19 @@ export default defineComponent({
     },
     gridSize: {
       type: Number,
-      default: 20
+      default: GRID_CONSTANTS.DEFAULT_GRID_SIZE
     },
     gridColor: {
       type: String,
-      default: '#d1d5db'
+      default: GRID_CONSTANTS.DEFAULT_GRID_COLOR
     },
     gridOpacity: {
       type: Number,
-      default: 0.8
+      default: GRID_CONSTANTS.DEFAULT_GRID_OPACITY
     },
     backgroundColor: {
       type: String,
-      default: '#ffffff'
+      default: GRID_CONSTANTS.DEFAULT_BACKGROUND_COLOR
     },
     viewport: {
       type: Object as PropType<FlowViewport>,
@@ -82,13 +84,10 @@ export default defineComponent({
     }
   },
   setup(props) {
-    // 生成唯一的 ID 前缀，避免多实例冲突
     const idPrefix = computed(() => `flow-grid-${props.instanceId}`);
     // 计算网格样式
     const gridStyle = computed(() => {
-      if (!props.showGrid || props.gridType === 'none') {
-        return { display: 'none' };
-      }
+      if (!props.showGrid || props.gridType === 'none')  return { display: 'none' };
 
       return {
         position: 'absolute',
@@ -97,13 +96,12 @@ export default defineComponent({
         width: '100%',
         height: '100%',
         pointerEvents: 'none',
-        zIndex: 0
+        zIndex: GRID_CONSTANTS.GRID_Z_INDEX
       };
     });
 
     // 计算背景样式
-    const backgroundStyle = computed(() => {
-      return {
+    const backgroundStyle = computed(() => ({
         position: 'absolute',
         top: 0,
         left: 0,
@@ -111,31 +109,35 @@ export default defineComponent({
         height: '100%',
         backgroundColor: props.backgroundColor,
         ...props.style
-      };
-    });
+    }));
 
     // 计算网格图案大小（根据缩放动态调整）
-    const patternSize = computed(() => {
-      return props.gridSize * props.viewport.zoom;
-    });
+    const patternSize = computed(() => props.gridSize * props.viewport.zoom);
 
-    // 计算网格图案的偏移（使用取模运算实现连续滚动）
+    /**
+     * 计算网格图案的偏移（使用取模运算实现连续滚动）
+     */
     const patternX = computed(() => {
-      return props.viewport.x % patternSize.value;
+      const size = patternSize.value;
+      if (size <= 0) return 0;
+      const mod = props.viewport.x % size;
+      return mod < 0 ? mod + size : mod;
     });
 
     const patternY = computed(() => {
-      return props.viewport.y % patternSize.value;
+      const size = patternSize.value;
+      if (size <= 0) return 0;
+      const mod = props.viewport.y % size;
+      return mod < 0 ? mod + size : mod;
     });
 
     /**
      * 判断是否需要 GPU 加速优化
-     *
-     * 网格背景在视口变化时可能需要频繁更新，启用 GPU 加速可以提升性能
-     * 但考虑到内存占用，可以根据缩放级别决定是否启用
      */
     const shouldOptimize = computed(() => {
-      return props.viewport.zoom > 1 || Math.abs(props.viewport.x) > 0 || Math.abs(props.viewport.y) > 0;
+      return props.viewport.zoom > GRID_CONSTANTS.GPU_ACCELERATION_ZOOM_THRESHOLD ||
+             props.viewport.x !== 0 ||
+             props.viewport.y !== 0;
     });
 
     /**
@@ -150,72 +152,44 @@ export default defineComponent({
       };
     });
 
-    // 计算网格图案（根据缩放动态调整，使用 <use> 优化）
-    const gridPattern = computed(() => {
-      if (!props.showGrid || props.gridType === 'none') {
+    /**
+     * 检查是否应该显示网格
+     */
+    const shouldShowGrid = computed(() => {
+      return props.showGrid && props.gridType !== 'none';
+    });
+
+    /**
+     * 计算网格图案中心位置
+     */
+    const patternCenter = computed(() => {
+      return patternSize.value * GRID_CONSTANTS.PATTERN_CENTER_RATIO;
+    });
+
+    /**
+     * 计算网格图案（使用策略模式，支持扩展）
+     */
+    const gridPatternResult = computed(() => {
+      if (!shouldShowGrid.value) {
         return null;
       }
 
-      const size = patternSize.value;
-      const prefix = idPrefix.value;
-
-      switch (props.gridType) {
-        case 'dots':
-          return (
-            <pattern
-              id={`${prefix}-dots`}
-              x={patternX.value}
-              y={patternY.value}
-              width={size}
-              height={size}
-              patternUnits="userSpaceOnUse"
-            >
-              {/* 使用 <use> 引用共享的圆形定义 */}
-              <use href={`#${prefix}-dot-shape`} x={size / 2} y={size / 2} />
-            </pattern>
-          );
-
-        case 'lines':
-          return (
-            <pattern
-              id={`${prefix}-lines`}
-              x={patternX.value}
-              y={patternY.value}
-              width={size}
-              height={size}
-              patternUnits="userSpaceOnUse"
-            >
-              {/* 使用 <use> 引用共享的线条定义 */}
-              <use href={`#${prefix}-line-v`} height={size} />
-              <use href={`#${prefix}-line-h`} width={size} />
-            </pattern>
-          );
-
-        case 'cross':
-          return (
-            <pattern
-              id={`${prefix}-cross`}
-              x={patternX.value}
-              y={patternY.value}
-              width={size}
-              height={size}
-              patternUnits="userSpaceOnUse"
-            >
-              {/* 使用 <use> 引用共享的十字线定义 */}
-              <use href={`#${prefix}-cross-v`} x={size / 2} height={size} />
-              <use href={`#${prefix}-cross-h`} y={size / 2} width={size} />
-            </pattern>
-          );
-
-        default:
-          return null;
-      }
+      return generateGridPattern(props.gridType, {
+        patternSize: patternSize.value,
+        gridColor: props.gridColor,
+        gridOpacity: props.gridOpacity,
+        zoom: props.viewport.zoom,
+        idPrefix: idPrefix.value,
+        patternX: patternX.value,
+        patternY: patternY.value,
+        patternCenter: patternCenter.value
+      });
     });
 
 
+
     return () => {
-      const zoom = props.viewport.zoom;
-      const color = props.gridColor;
+      const result = gridPatternResult.value;
       const prefix = idPrefix.value;
 
       return (
@@ -223,69 +197,14 @@ export default defineComponent({
           class={`flow-background ${props.class}`}
           style={backgroundStyle.value as CSSProperties}
         >
-          {props.showGrid && props.gridType !== 'none' && gridPattern.value && (
+          {shouldShowGrid.value && result && (
             <svg
               class="flow-grid"
               style={svgContainerStyle.value}
             >
               <defs>
-                {props.gridType === 'dots' && (
-                  <circle
-                    id={`${prefix}-dot-shape`}
-                    r={1.5 * zoom}
-                    fill={color}
-                    opacity={props.gridOpacity}
-                  />
-                )}
-                {props.gridType === 'lines' && (
-                  <>
-                    <line
-                      id={`${prefix}-line-v`}
-                      x1={0}
-                      y1={0}
-                      x2={0}
-                      y2="100%"
-                      stroke={color}
-                      stroke-width={1 * zoom}
-                      opacity={props.gridOpacity}
-                    />
-                    <line
-                      id={`${prefix}-line-h`}
-                      x1={0}
-                      y1={0}
-                      x2="100%"
-                      y2={0}
-                      stroke={color}
-                      stroke-width={1 * zoom}
-                      opacity={props.gridOpacity}
-                    />
-                  </>
-                )}
-                {props.gridType === 'cross' && (
-                  <>
-                    <line
-                      id={`${prefix}-cross-v`}
-                      x1={0}
-                      y1={0}
-                      x2={0}
-                      y2="100%"
-                      stroke={color}
-                      stroke-width={1 * zoom}
-                      opacity={props.gridOpacity}
-                    />
-                    <line
-                      id={`${prefix}-cross-h`}
-                      x1={0}
-                      y1={0}
-                      x2="100%"
-                      y2={0}
-                      stroke={color}
-                      stroke-width={1 * zoom}
-                      opacity={props.gridOpacity}
-                    />
-                  </>
-                )}
-                {gridPattern.value}
+                {result.defs}
+                {result.pattern}
               </defs>
               <rect
                 width="100%"
