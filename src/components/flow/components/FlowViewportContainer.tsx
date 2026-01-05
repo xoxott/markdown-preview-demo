@@ -45,10 +45,17 @@ export default defineComponent({
      * 计算容器样式
      *
      * 应用视口的平移和缩放变换
+     * 性能优化：
+     * 1. 使用 translate3d 替代 translate，触发 GPU 加速
      */
+    const transformValue = computed(() => {
+      const { x, y, zoom } = props.viewport;
+      return `translate3d(${x}px, ${y}px, 0) scale(${zoom})`;
+    });
+
     const containerStyle = computed<CSSProperties>(() => {
       return {
-        transform: `translate(${props.viewport.x}px, ${props.viewport.y}px) scale(${props.viewport.zoom})`,
+        transform: transformValue.value,
         transformOrigin: '0 0',
         position: 'absolute',
         top: 0,
@@ -56,6 +63,7 @@ export default defineComponent({
         width: '100%',
         height: '100%',
         pointerEvents: 'none',
+        willChange: 'transform',
         ...props.style
       };
     });

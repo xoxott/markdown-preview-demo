@@ -78,10 +78,8 @@ export function useCanvasPan(options: UseCanvasPanOptions): UseCanvasPanReturn {
     },
     // 启用增量模式：每次更新后重置起始位置，使得 deltaX/deltaY 是增量偏移
     incremental: true,
-    // 拖拽更新回调：直接使用屏幕坐标偏移（增量模式）
     onDrag: (result) => {
       onPan(result.deltaX, result.deltaY);
-      // 触发视口变化事件
       if (onViewportChange) {
         onViewportChange(viewport.value);
       }
