@@ -9,6 +9,7 @@ import { ref, onUnmounted, type Ref } from 'vue';
 import { useDrag } from './useDrag';
 import { logger } from '../utils/logger';
 import type { FlowConfig, FlowViewport, FlowNode } from '../types';
+import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
 
 export interface UseNodeDragOptions {
   /** 画布配置 */
@@ -26,6 +27,8 @@ export interface UseNodeDragOptions {
 export interface UseNodeDragReturn {
   /** 正在拖拽的节点 ID */
   draggingNodeId: Ref<string | null>;
+  /** 已提升层级的节点 ID 映射（节点 ID -> z-index 值） */
+  elevatedNodeIds: Ref<Map<string, number>>;
   /** 是否点击被阻止（用于区分拖拽和点击） */
   nodeClickBlocked: Ref<boolean>;
   /** 处理节点鼠标按下事件 */
@@ -52,6 +55,12 @@ export function useNodeDrag(options: UseNodeDragOptions): UseNodeDragReturn {
 
   /** 正在拖拽的节点 ID（用于 z-index 管理） */
   const draggingNodeId = ref<string | null>(null);
+
+  /** 已提升层级的节点 ID 映射（节点 ID -> z-index 值） */
+  const elevatedNodeIds = ref<Map<string, number>>(new Map());
+
+  /** 层级计数器（用于分配递增的 z-index） */
+  let elevationCounter = PERFORMANCE_CONSTANTS.Z_INDEX_BASE;
 
   /** 是否点击被阻止（用于区分拖拽和点击） */
   const nodeClickBlocked = ref(false);
@@ -112,9 +121,34 @@ export function useNodeDrag(options: UseNodeDragOptions): UseNodeDragReturn {
           nodeClickBlocked.value = false;
           nodeClickBlockTimeout = null;
         }, 300);
+
+        // 记录拖拽的节点（用于保持 z-index）
+        // 只有在配置启用时才记录
+        if (config.value.nodes?.elevateOnDragEnd !== false && currentNodeId) {
+          // 为节点分配递增的 z-index，确保后拖拽的节点层级更高
+          elevationCounter += 1;
+          elevatedNodeIds.value.set(currentNodeId, elevationCounter);
+
+          // 如果 Map 太大，清理最旧的节点（保留最近 N 个）
+          const MAX_ELEVATED_NODES = 50;
+          if (elevatedNodeIds.value.size > MAX_ELEVATED_NODES) {
+            // 找到最小的 z-index 值并删除
+            let minZIndex = Infinity;
+            let minNodeId: string | null = null;
+            for (const [nodeId, zIndex] of elevatedNodeIds.value.entries()) {
+              if (zIndex < minZIndex) {
+                minZIndex = zIndex;
+                minNodeId = nodeId;
+              }
+            }
+            if (minNodeId) {
+              elevatedNodeIds.value.delete(minNodeId);
+            }
+          }
+        }
       }
 
-      // 清除拖拽节点 ID（恢复 z-index）
+      // 清除拖拽节点 ID
       draggingNodeId.value = null;
       currentNodeId = null;
     }
@@ -168,6 +202,7 @@ export function useNodeDrag(options: UseNodeDragOptions): UseNodeDragReturn {
 
   return {
     draggingNodeId,
+    elevatedNodeIds,
     nodeClickBlocked,
     handleNodeMouseDown,
     handleNodeMouseMove: drag.handleMouseMove,

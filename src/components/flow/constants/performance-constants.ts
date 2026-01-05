@@ -59,6 +59,18 @@ export const PERFORMANCE_CONSTANTS = {
   /** 空间索引节点数量阈值 - 中规模 */
   SPATIAL_INDEX_NODE_THRESHOLD_MEDIUM: 1000,
   /** 哈希计算位运算位移量（标准哈希算法使用 5） */
-  HASH_SHIFT_BITS: 5
+  HASH_SHIFT_BITS: 5,
+
+  // ==================== Z-index 层级相关 ====================
+  /** 拖拽节点的 z-index（最高层级，使用 CSS z-index 的最大值） */
+  Z_INDEX_DRAGGING: 2147483647, // CSS z-index 的最大值（32位整数）
+  /** 选中节点的 z-index */
+  Z_INDEX_SELECTED: 2,
+  /** 普通节点的 z-index（基础层级，确保在连接线之上） */
+  Z_INDEX_NODE_BASE: 1,
+  /** 连接线的 z-index（在节点下方） */
+  Z_INDEX_EDGE: 0,
+  /** z-index 基础值（用于递增分配） */
+  Z_INDEX_BASE: 1000
 } as const;
 

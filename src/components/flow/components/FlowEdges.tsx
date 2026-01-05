@@ -11,7 +11,8 @@ import { useEdgePositions } from '../hooks/useEdgePositions';
 import { useCachedSet } from '../utils/set-utils';
 import EdgeCanvasRenderer from './edges/EdgeCanvasRenderer';
 import EdgeSvgRenderer from './edges/EdgeSvgRenderer';
-import type { FlowEdge, FlowNode, FlowViewport } from '../types';
+import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
+import type { FlowEdge, FlowNode, FlowViewport, FlowConfig } from '../types';
 
 /**
  * FlowEdges 组件属性
@@ -41,6 +42,8 @@ export interface FlowEdgesProps {
   onEdgeMouseEnter?: (edge: FlowEdge, event: MouseEvent) => void;
   /** 连接线鼠标离开 */
   onEdgeMouseLeave?: (edge: FlowEdge, event: MouseEvent) => void;
+  /** 配置（用于判断连接线是否在节点后面） */
+  config?: Readonly<FlowConfig>;
 }
 
 
@@ -97,6 +100,10 @@ export default defineComponent({
     onEdgeMouseLeave: {
       type: Function as PropType<(edge: FlowEdge, event: MouseEvent) => void>,
       default: undefined
+    },
+    config: {
+      type: Object as PropType<Readonly<FlowConfig>>,
+      default: undefined
     }
   },
   setup(props) {
@@ -130,6 +137,13 @@ export default defineComponent({
       viewport: viewportRef
     });
 
+    // 计算连接线的 z-index（根据配置决定是否在节点后面）
+    const edgeZIndex = computed(() => {
+      const renderBehindNodes = props.config?.edges?.renderBehindNodes !== false;
+      return renderBehindNodes
+        ? PERFORMANCE_CONSTANTS.Z_INDEX_EDGE
+        : PERFORMANCE_CONSTANTS.Z_INDEX_NODE_BASE + 1;
+    });
 
     return () => {
       // 使用 Canvas 渲染
@@ -140,6 +154,7 @@ export default defineComponent({
             getEdgePositions={getEdgePositions}
             selectedEdgeIdsSet={selectedEdgeIdsSet.value}
             viewport={viewportRef.value}
+            zIndex={edgeZIndex.value}
           />
         );
       }
@@ -152,6 +167,7 @@ export default defineComponent({
           selectedEdgeIdsSet={selectedEdgeIdsSet.value}
           viewport={viewportRef.value}
           instanceId={defaultInstanceId.value}
+          zIndex={edgeZIndex.value}
           onEdgeClick={props.onEdgeClick}
           onEdgeDoubleClick={props.onEdgeDoubleClick}
           onEdgeMouseEnter={props.onEdgeMouseEnter}

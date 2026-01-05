@@ -27,6 +27,8 @@ export interface EdgeCanvasRendererProps {
   selectedEdgeIdsSet: Set<string>;
   /** 视口状态 */
   viewport: FlowViewport;
+  /** z-index 值 */
+  zIndex?: number;
 }
 
 /**
@@ -50,6 +52,10 @@ export default defineComponent({
     viewport: {
       type: Object as PropType<FlowViewport>,
       required: true
+    },
+    zIndex: {
+      type: Number,
+      default: 0
     }
   },
   setup(props) {
@@ -172,7 +178,7 @@ export default defineComponent({
           width: '100%',
           height: '100%',
           pointerEvents: 'none',
-          zIndex: 1
+          zIndex: props.zIndex
         }}
       />
     );

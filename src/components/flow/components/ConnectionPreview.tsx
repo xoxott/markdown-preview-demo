@@ -222,7 +222,7 @@ export default defineComponent({
             width: '100%',
             height: '100%',
             pointerEvents: 'none',
-            zIndex: 1000,
+            zIndex: Infinity,
             overflow: 'visible'
           }}
         >

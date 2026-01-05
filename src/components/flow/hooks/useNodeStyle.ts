@@ -5,9 +5,9 @@
  */
 
 import type { CSSProperties } from 'vue';
-import { type Ref } from 'vue';
+import { type Ref, computed } from 'vue';
 import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
-import type { FlowNode } from '../types';
+import type { FlowNode, FlowConfig } from '../types';
 import { createCache } from '../utils/cache-utils';
 import { useCachedSet } from '../utils/set-utils';
 
@@ -21,6 +21,10 @@ export interface UseNodeStyleOptions {
   selectedNodeIds: Ref<string[]>;
   /** 正在拖拽的节点 ID */
   draggingNodeId?: Ref<string | null>;
+  /** 已提升层级的节点 ID 映射（节点 ID -> z-index 值） */
+  elevatedNodeIds?: Ref<Map<string, number>>;
+  /** 配置（用于判断是否启用拖拽后提升层级） */
+  config?: Ref<Readonly<FlowConfig> | undefined>;
 }
 
 /**
@@ -58,11 +62,18 @@ export function useNodeStyle(
   const {
     nodes,
     selectedNodeIds,
-    draggingNodeId
+    draggingNodeId,
+    elevatedNodeIds,
+    config
   } = options;
 
   // 性能优化：使用缓存的 Set，避免每次计算都创建新 Set
   const selectedNodeIdsSet = useCachedSet(selectedNodeIds);
+
+  // 是否启用拖拽后提升层级（默认启用，节点过多时可禁用）
+  const elevateOnDragEnd = computed(() =>
+    config?.value?.nodes?.elevateOnDragEnd !== false
+  );
 
   // 样式缓存（使用通用缓存工具）
   const styleCache = createCache<string, CSSProperties>({
@@ -85,13 +96,24 @@ export function useNodeStyle(
     const isSelected = selectedNodeIdsSet.value.has(node.id);
     const isDragging = draggingNodeId?.value === node.id;
 
+    // 获取节点的提升层级值（如果存在）
+    const elevatedZIndex = elevateOnDragEnd.value
+      ? elevatedNodeIds?.value.get(node.id)
+      : undefined;
+
     let zIndex: number | undefined;
     if (isDragging) {
-      zIndex = 1000; // 拖拽节点最高层级
+      zIndex = PERFORMANCE_CONSTANTS.Z_INDEX_DRAGGING;
+    } else if (elevatedZIndex !== undefined) {
+      zIndex = elevatedZIndex;
     } else if (isSelected) {
-      zIndex = 2; // 选中节点次之
+      zIndex = PERFORMANCE_CONSTANTS.Z_INDEX_SELECTED;
+    } else {
+      const renderBehindNodes = config?.value?.edges?.renderBehindNodes !== false;
+      if (renderBehindNodes) {
+        zIndex = PERFORMANCE_CONSTANTS.Z_INDEX_NODE_BASE;
+      }
     }
-    // 普通节点不设置 z-index，使用默认的 DOM 顺序（性能最优）
 
     const width = node.size?.width ?? PERFORMANCE_CONSTANTS.DEFAULT_NODE_WIDTH;
     const height = node.size?.height ?? PERFORMANCE_CONSTANTS.DEFAULT_NODE_HEIGHT;

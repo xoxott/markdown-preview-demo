@@ -46,7 +46,8 @@ export const DEFAULT_NODE_CONFIG: FlowNodeConfig = {
   portSize: 20,
   portSpacing: 10,
   portOffset: 10,
-  nodeTypes: {}
+  nodeTypes: {},
+  elevateOnDragEnd: true // 默认启用，节点过多时可禁用以提升性能
 };
 
 /**
@@ -70,7 +71,8 @@ export const DEFAULT_EDGE_CONFIG: FlowEdgeConfig = {
   deletable: true,
   animated: false,
   edgeTypes: {},
-  edgePathGenerators: {}
+  edgePathGenerators: {},
+  renderBehindNodes: true // 默认连接线在节点后面
 };
 
 /**

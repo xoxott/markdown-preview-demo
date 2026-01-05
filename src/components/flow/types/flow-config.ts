@@ -100,6 +100,8 @@ export interface FlowNodeConfig {
   nodeTypes?: Record<string, FlowNodeType | Component>;
   /** 节点样式类名 */
   nodeClassName?: string;
+  /** 是否在拖拽结束后保持节点在最顶层（性能优化：节点过多时可禁用） */
+  elevateOnDragEnd?: boolean;
 }
 
 /**
@@ -149,6 +151,8 @@ export interface FlowEdgeConfig {
   edgePathGenerators?: Record<string, FlowEdgePathGenerator>;
   /** 连接线样式类名 */
   edgeClassName?: string;
+  /** 连接线是否渲染在节点后面（z-index 更低），默认为 true */
+  renderBehindNodes?: boolean;
 }
 
 /**

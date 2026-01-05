@@ -11,7 +11,7 @@ import { useSpatialIndex } from '../hooks/useSpatialIndex';
 import { useViewportCulling } from '../hooks/useViewportCulling';
 import { createNodeEventDelegation } from '../utils/event-utils';
 import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
-import type { FlowNode, FlowViewport } from '../types';
+import type { FlowNode, FlowViewport, FlowConfig } from '../types';
 import BaseNode from './nodes/BaseNode';
 
 /**
@@ -26,8 +26,12 @@ export interface FlowNodesProps {
   lockedNodeIds?: string[];
   /** 正在拖拽的节点 ID（用于 z-index 层级管理） */
   draggingNodeId?: string | null;
+  /** 已提升层级的节点 ID 映射（节点 ID -> z-index 值） */
+  elevatedNodeIds?: Map<string, number>;
   /** 视口状态 */
   viewport?: FlowViewport;
+  /** 配置（用于判断是否启用拖拽后提升层级） */
+  config?: Readonly<FlowConfig>;
   /** 是否启用视口裁剪 */
   enableViewportCulling?: boolean;
   /** 视口裁剪缓冲区（像素） */
@@ -76,9 +80,17 @@ export default defineComponent({
       type: String as PropType<string | null>,
       default: null
     },
+    elevatedNodeIds: {
+      type: Object as PropType<Map<string, number>>,
+      default: () => new Map()
+    },
     viewport: {
       type: Object as PropType<FlowViewport>,
       default: () => ({ x: 0, y: 0, zoom: 1 })
+    },
+    config: {
+      type: Object as PropType<Readonly<FlowConfig>>,
+      default: undefined
     },
     enableViewportCulling: {
       type: Boolean,
@@ -135,6 +147,8 @@ export default defineComponent({
     const selectedNodeIdsRef = computed(() => props.selectedNodeIds || []);
     const lockedNodeIdsRef = computed(() => props.lockedNodeIds || []);
     const draggingNodeIdRef = toRef(props, 'draggingNodeId');
+    const elevatedNodeIdsRef = computed(() => props.elevatedNodeIds || new Map());
+    const configRef = computed(() => props.config);
     const viewportRef = computed(() => props.viewport || { x: 0, y: 0, zoom: 1 });
     const enableViewportCullingRef = computed(() => props.enableViewportCulling ?? true);
 
@@ -166,7 +180,9 @@ export default defineComponent({
     const { getNodeStyle } = useNodeStyle({
       nodes: nodesRef,
       selectedNodeIds: selectedNodeIdsRef,
-      draggingNodeId: draggingNodeIdRef
+      draggingNodeId: draggingNodeIdRef,
+      elevatedNodeIds: elevatedNodeIdsRef,
+      config: configRef
     });
 
     const handleNodeClick = createNodeEventDelegation(

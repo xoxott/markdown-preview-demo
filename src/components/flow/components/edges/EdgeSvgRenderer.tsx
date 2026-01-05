@@ -96,6 +96,10 @@ export default defineComponent({
     onEdgeMouseLeave: {
       type: Function as PropType<(edge: FlowEdge, event: MouseEvent) => void>,
       default: undefined
+    },
+    zIndex: {
+      type: Number,
+      default: 0
     }
   },
   setup(props) {
@@ -124,7 +128,7 @@ export default defineComponent({
       height: '100%',
       overflow: 'visible',
       pointerEvents: 'none',
-      zIndex: 1,
+      zIndex: props.zIndex,
       ...getGpuAccelerationStyle({
         enabled: true,
         includeBackfaceVisibility: true,

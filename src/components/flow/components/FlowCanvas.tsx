@@ -202,6 +202,7 @@ export default defineComponent({
     // 节点拖拽
     const {
       draggingNodeId,
+      elevatedNodeIds,
       nodeClickBlocked,
       handleNodeMouseDown: handleNodeMouseDownHook,
       handleNodeMouseMove: handleNodeMouseMoveHook,
@@ -442,6 +443,7 @@ export default defineComponent({
           enableViewportCulling={config.value.performance?.enableViewportCulling}
           enableCanvasRendering={config.value.performance?.enableEdgeCanvasRendering}
           canvasThreshold={config.value.performance?.edgeCanvasThreshold}
+          config={config.value}
           onEdgeClick={handleEdgeClick}
           onEdgeDoubleClick={handleEdgeDoubleClick}
         />
@@ -453,9 +455,11 @@ export default defineComponent({
             selectedNodeIds={selectedNodeIds.value}
             lockedNodeIds={emptyLockedNodeIds}
             draggingNodeId={draggingNodeId.value}
+            elevatedNodeIds={elevatedNodeIds.value}
             viewport={viewport.value}
             enableViewportCulling={config.value.performance?.enableViewportCulling}
             viewportCullingBuffer={config.value.performance?.virtualScrollBuffer}
+            config={config.value}
             onNodeClick={handleNodeClick}
             onNodeDoubleClick={handleNodeDoubleClick}
             onNodeMouseDown={handleNodeMouseDown}
