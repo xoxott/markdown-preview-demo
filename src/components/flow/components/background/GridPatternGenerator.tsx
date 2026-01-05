@@ -5,7 +5,12 @@
  */
 
 import type { VNode } from 'vue';
-import { GRID_CONSTANTS } from '../../constants/grid-constants';
+import {
+  GRID_CONSTANTS,
+  GRID_TYPES,
+  GRID_ELEMENT_ID_SUFFIXES,
+  SVG_PATTERN_UNITS
+} from '../../constants/grid-constants';
 import type { FlowGridType } from '../../types';
 
 /**
@@ -61,26 +66,26 @@ class DotsGridGenerator implements GridPatternGenerator {
     const { patternSize, gridColor, gridOpacity, zoom, idPrefix, patternX, patternY, patternCenter } = options;
     const dotRadius = GRID_CONSTANTS.DOT_RADIUS_MULTIPLIER * zoom;
 
-    const pattern = (
-      <pattern
-        id={`${idPrefix}-dots`}
-        x={patternX}
-        y={patternY}
-        width={patternSize}
-        height={patternSize}
-        patternUnits="userSpaceOnUse"
-      >
-        <use href={`#${idPrefix}-dot-shape`} x={patternCenter} y={patternCenter} />
-      </pattern>
-    );
-
     const defs = (
       <circle
-        id={`${idPrefix}-dot-shape`}
+        id={`${idPrefix}-${GRID_ELEMENT_ID_SUFFIXES.DOT_SHAPE}`}
         r={dotRadius}
         fill={gridColor}
         opacity={gridOpacity}
       />
+    );
+    const pattern = (
+      <pattern
+        id={`${idPrefix}-${GRID_TYPES.DOTS}`}
+        x={patternX}
+        y={patternY}
+        width={patternSize}
+        height={patternSize}
+        patternUnits={SVG_PATTERN_UNITS.USER_SPACE_ON_USE}
+        patternContentUnits={SVG_PATTERN_UNITS.USER_SPACE_ON_USE}
+      >
+        <use href={`#${idPrefix}-${GRID_ELEMENT_ID_SUFFIXES.DOT_SHAPE}`} x={patternCenter} y={patternCenter} />
+      </pattern>
     );
 
     return { pattern, defs };
@@ -95,43 +100,44 @@ class LinesGridGenerator implements GridPatternGenerator {
     const { patternSize, gridColor, gridOpacity, zoom, idPrefix, patternX, patternY } = options;
     const strokeWidth = GRID_CONSTANTS.LINE_STROKE_WIDTH_MULTIPLIER * zoom;
 
-    const pattern = (
-      <pattern
-        id={`${idPrefix}-lines`}
-        x={patternX}
-        y={patternY}
-        width={patternSize}
-        height={patternSize}
-        patternUnits="userSpaceOnUse"
-      >
-        <use href={`#${idPrefix}-line-v`} height={patternSize} />
-        <use href={`#${idPrefix}-line-h`} width={patternSize} />
-      </pattern>
-    );
-
     const defs = (
       <>
         <line
-          id={`${idPrefix}-line-v`}
+          id={`${idPrefix}-${GRID_ELEMENT_ID_SUFFIXES.LINE_V}`}
           x1={0}
           y1={0}
           x2={0}
-          y2="100%"
+          y2={patternSize}
           stroke={gridColor}
           stroke-width={strokeWidth}
           opacity={gridOpacity}
         />
         <line
-          id={`${idPrefix}-line-h`}
+          id={`${idPrefix}-${GRID_ELEMENT_ID_SUFFIXES.LINE_H}`}
           x1={0}
           y1={0}
-          x2="100%"
+          x2={patternSize}
           y2={0}
           stroke={gridColor}
           stroke-width={strokeWidth}
           opacity={gridOpacity}
         />
       </>
+    );
+
+    const pattern = (
+      <pattern
+        id={`${idPrefix}-${GRID_TYPES.LINES}`}
+        x={patternX}
+        y={patternY}
+        width={patternSize}
+        height={patternSize}
+        patternUnits={SVG_PATTERN_UNITS.USER_SPACE_ON_USE}
+        patternContentUnits={SVG_PATTERN_UNITS.USER_SPACE_ON_USE}
+      >
+        <use href={`#${idPrefix}-${GRID_ELEMENT_ID_SUFFIXES.LINE_V}`} />
+        <use href={`#${idPrefix}-${GRID_ELEMENT_ID_SUFFIXES.LINE_H}`} />
+      </pattern>
     );
 
     return { pattern, defs };
@@ -145,44 +151,47 @@ class CrossGridGenerator implements GridPatternGenerator {
   generate(options: GridPatternGeneratorOptions): GridPatternResult {
     const { patternSize, gridColor, gridOpacity, zoom, idPrefix, patternX, patternY, patternCenter } = options;
     const strokeWidth = GRID_CONSTANTS.LINE_STROKE_WIDTH_MULTIPLIER * zoom;
-
-    const pattern = (
-      <pattern
-        id={`${idPrefix}-cross`}
-        x={patternX}
-        y={patternY}
-        width={patternSize}
-        height={patternSize}
-        patternUnits="userSpaceOnUse"
-      >
-        <use href={`#${idPrefix}-cross-v`} x={patternCenter} height={patternSize} />
-        <use href={`#${idPrefix}-cross-h`} y={patternCenter} width={patternSize} />
-      </pattern>
-    );
+    const crossLength = patternSize * GRID_CONSTANTS.CROSS_LENGTH_RATIO;
+    const halfLength = crossLength / 2;
 
     const defs = (
       <>
         <line
-          id={`${idPrefix}-cross-v`}
+          id={`${idPrefix}-${GRID_ELEMENT_ID_SUFFIXES.CROSS_V}`}
           x1={0}
-          y1={0}
+          y1={-halfLength}
           x2={0}
-          y2="100%"
+          y2={halfLength}
           stroke={gridColor}
           stroke-width={strokeWidth}
           opacity={gridOpacity}
         />
         <line
-          id={`${idPrefix}-cross-h`}
-          x1={0}
+          id={`${idPrefix}-${GRID_ELEMENT_ID_SUFFIXES.CROSS_H}`}
+          x1={-halfLength}
           y1={0}
-          x2="100%"
+          x2={halfLength}
           y2={0}
           stroke={gridColor}
           stroke-width={strokeWidth}
           opacity={gridOpacity}
         />
       </>
+    );
+
+    const pattern = (
+      <pattern
+        id={`${idPrefix}-${GRID_TYPES.CROSS}`}
+        x={patternX}
+        y={patternY}
+        width={patternSize}
+        height={patternSize}
+        patternUnits={SVG_PATTERN_UNITS.USER_SPACE_ON_USE}
+        patternContentUnits={SVG_PATTERN_UNITS.USER_SPACE_ON_USE}
+      >
+        <use href={`#${idPrefix}-${GRID_ELEMENT_ID_SUFFIXES.CROSS_V}`} x={patternCenter} y={patternCenter} />
+        <use href={`#${idPrefix}-${GRID_ELEMENT_ID_SUFFIXES.CROSS_H}`} x={patternCenter} y={patternCenter} />
+      </pattern>
     );
 
     return { pattern, defs };
@@ -193,9 +202,9 @@ class CrossGridGenerator implements GridPatternGenerator {
  * 网格图案生成器注册表
  */
 const gridGenerators = new Map<FlowGridType, GridPatternGenerator>([
-  ['dots', new DotsGridGenerator()],
-  ['lines', new LinesGridGenerator()],
-  ['cross', new CrossGridGenerator()]
+  [GRID_TYPES.DOTS, new DotsGridGenerator()],
+  [GRID_TYPES.LINES, new LinesGridGenerator()],
+  [GRID_TYPES.CROSS, new CrossGridGenerator()]
 ]);
 
 /**
@@ -224,7 +233,7 @@ export function registerGridGenerator(
  * @returns 网格图案生成器，如果不存在则返回 null
  */
 export function getGridGenerator(type?: FlowGridType): GridPatternGenerator | null {
-  if (!type || type === 'none') {
+  if (!type || type === GRID_TYPES.NONE) {
     return null;
   }
   return gridGenerators.get(type) || null;

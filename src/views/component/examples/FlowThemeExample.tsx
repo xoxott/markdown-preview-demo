@@ -173,17 +173,27 @@ export default defineComponent({
             onViewport-change={handleViewportChange}
           >
             {{
-              background: () => (
+              background: ({viewport}: {viewport: FlowViewport}) => (
                    <FlowBackground
-                  gridType="dots"
-                  gridSize={20}
-                  viewport={themeViewport.value}
-                  key={`background-${themeViewport.value.x}-${themeViewport.value.y}-${themeViewport.value.zoom}`}
+                    gridType="dots"
+                    gridSize={20}
+                    viewport={viewport}
+                    instanceId='theme-flow-example'
                 />
               )
             }}
           </FlowCanvas>
         </div>
+
+        <div class={'w-500px h-200px border-1px border-gray-300 rounded-md relative'}>
+          <FlowBackground
+            gridType="dots"
+            gridSize={12}
+            viewport={themeViewport.value}
+            instanceId='theme-flow-example1'
+          />
+        </div>
+
 
         {/* 使用说明 */}
         <NSpace vertical class="mt-4">

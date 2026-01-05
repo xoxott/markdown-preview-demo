@@ -34,6 +34,8 @@ export interface FlowBackgroundProps {
   style?: Record<string, any>;
   /** CSS 类名 */
   class?: string;
+  /** 是否填充父容器（使用绝对定位），默认为 true */
+  fillContainer?: boolean;
 }
 
 /**
@@ -81,6 +83,10 @@ export default defineComponent({
     class: {
       type: String,
       default: ''
+    },
+    fillContainer: {
+      type: Boolean,
+      default: true
     }
   },
   setup(props) {
@@ -89,27 +95,50 @@ export default defineComponent({
     const gridStyle = computed(() => {
       if (!props.showGrid || props.gridType === 'none')  return { display: 'none' };
 
-      return {
-        position: 'absolute',
-        top: 0,
-        left: 0,
+      const baseStyle: Record<string, any> = {
         width: '100%',
         height: '100%',
         pointerEvents: 'none',
         zIndex: GRID_CONSTANTS.GRID_Z_INDEX
       };
+
+      if (props.fillContainer) {
+        // 填充父容器（绝对定位）
+        baseStyle.position = 'absolute';
+        baseStyle.top = 0;
+        baseStyle.left = 0;
+      } else {
+        // 自适应父容器（相对定位）
+        baseStyle.position = 'relative';
+      }
+
+      return baseStyle;
     });
 
     // 计算背景样式
-    const backgroundStyle = computed(() => ({
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
+    const backgroundStyle = computed(() => {
+      const baseStyle: Record<string, any> = {
         backgroundColor: props.backgroundColor,
         ...props.style
-    }));
+      };
+
+      if (props.fillContainer) {
+        // 填充父容器（绝对定位）
+        baseStyle.position = 'absolute';
+        baseStyle.top = 0;
+        baseStyle.left = 0;
+        baseStyle.width = '100%';
+        baseStyle.height = '100%';
+      } else {
+        // 自适应父容器（相对定位）
+        baseStyle.position = 'relative';
+        baseStyle.width = '100%';
+        baseStyle.height = '100%';
+        baseStyle.minHeight = '100%';
+      }
+
+      return baseStyle;
+    });
 
     // 计算网格图案大小（根据缩放动态调整）
     const patternSize = computed(() => props.gridSize * props.viewport.zoom);
@@ -201,6 +230,7 @@ export default defineComponent({
             <svg
               class="flow-grid"
               style={svgContainerStyle.value}
+              key={`grid-svg-${props.gridType}-${props.gridSize}-${props.viewport.zoom}`}
             >
               <defs>
                 {result.defs}

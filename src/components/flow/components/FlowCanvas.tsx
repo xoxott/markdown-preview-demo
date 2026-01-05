@@ -416,7 +416,7 @@ export default defineComponent({
       >
         {/* 背景层（最底层） */}
         {slots.background ? (
-          slots.background({ viewport: viewport.value })
+          slots.background({ viewport:viewport.value })
         ) : (
           config.value.canvas?.showGrid !== false && (
             <FlowBackground
