@@ -64,13 +64,13 @@ export const PERFORMANCE_CONSTANTS = {
   // ==================== Z-index 层级相关 ====================
   /** 拖拽节点的 z-index（最高层级，使用 CSS z-index 的最大值） */
   Z_INDEX_DRAGGING: 2147483647, // CSS z-index 的最大值（32位整数）
-  /** 选中节点的 z-index */
-  Z_INDEX_SELECTED: 2,
+  /** 选中节点的 z-index（高于普通节点，但低于拖拽和已提升的节点） */
+  Z_INDEX_SELECTED: 100,
   /** 普通节点的 z-index（基础层级，确保在连接线之上） */
   Z_INDEX_NODE_BASE: 1,
   /** 连接线的 z-index（在节点下方） */
   Z_INDEX_EDGE: 0,
-  /** z-index 基础值（用于递增分配） */
+  /** z-index 基础值（用于递增分配，拖拽结束后提升的节点从此值开始，需高于选中节点） */
   Z_INDEX_BASE: 1000
 } as const;
 

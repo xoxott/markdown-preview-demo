@@ -5,7 +5,7 @@
  */
 
 import type { CSSProperties } from 'vue';
-import { type Ref, computed } from 'vue';
+import { type Ref, computed, watch } from 'vue';
 import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
 import type { FlowNode, FlowConfig } from '../types';
 import { createCache } from '../utils/cache-utils';
@@ -21,8 +21,12 @@ export interface UseNodeStyleOptions {
   selectedNodeIds: Ref<string[]>;
   /** 正在拖拽的节点 ID */
   draggingNodeId?: Ref<string | null>;
-  /** 已提升层级的节点 ID 映射（节点 ID -> z-index 值） */
+  /** 已提升层级的节点 ID 映射（节点 ID -> z-index 值，包括拖拽释放和选中的节点） */
   elevatedNodeIds?: Ref<Map<string, number>>;
+  /** 分配递增的 z-index（用于拖拽释放和选中节点） */
+  allocateZIndex?: (nodeId: string) => number;
+  /** 移除节点的 z-index */
+  removeZIndex?: (nodeId: string) => void;
   /** 配置（用于判断是否启用拖拽后提升层级） */
   config?: Ref<Readonly<FlowConfig> | undefined>;
 }
@@ -64,6 +68,8 @@ export function useNodeStyle(
     selectedNodeIds,
     draggingNodeId,
     elevatedNodeIds,
+    allocateZIndex,
+    removeZIndex,
     config
   } = options;
 
@@ -73,6 +79,34 @@ export function useNodeStyle(
   // 是否启用拖拽后提升层级（默认启用，节点过多时可禁用）
   const elevateOnDragEnd = computed(() =>
     config?.value?.nodes?.elevateOnDragEnd !== false
+  );
+
+  // 监听选中节点变化，自动分配递增的 z-index（使用共享的计数器）
+  watch(
+    selectedNodeIds,
+    (newSelectedIds, oldSelectedIds) => {
+      if (!allocateZIndex || !removeZIndex) return;
+
+      const oldSet = new Set(oldSelectedIds || []);
+      const newSet = new Set(newSelectedIds || []);
+
+      // 处理新增的选中节点
+      for (const nodeId of newSet) {
+        if (!oldSet.has(nodeId)) {
+          // 新选中的节点，使用共享的分配函数
+          allocateZIndex(nodeId);
+        }
+      }
+
+      // 处理取消选中的节点
+      for (const nodeId of oldSet) {
+        if (!newSet.has(nodeId)) {
+          // 取消选中的节点，移除 z-index
+          removeZIndex(nodeId);
+        }
+      }
+    },
+    { immediate: true }
   );
 
   // 样式缓存（使用通用缓存工具）
@@ -96,19 +130,19 @@ export function useNodeStyle(
     const isSelected = selectedNodeIdsSet.value.has(node.id);
     const isDragging = draggingNodeId?.value === node.id;
 
-    // 获取节点的提升层级值（如果存在）
-    const elevatedZIndex = elevateOnDragEnd.value
-      ? elevatedNodeIds?.value.get(node.id)
-      : undefined;
+    // 获取节点的提升层级值（如果存在，包括拖拽释放和选中的节点）
+    const elevatedZIndex = elevatedNodeIds?.value.get(node.id);
 
+    // 计算节点的 z-index（按优先级：拖拽 > 已提升（包括选中和拖拽释放）> 普通）
     let zIndex: number | undefined;
     if (isDragging) {
+      // 拖拽节点使用最高层级
       zIndex = PERFORMANCE_CONSTANTS.Z_INDEX_DRAGGING;
     } else if (elevatedZIndex !== undefined) {
+      // 已提升层级的节点（包括拖拽结束后提升的节点和选中的节点）使用分配的递增 z-index
       zIndex = elevatedZIndex;
-    } else if (isSelected) {
-      zIndex = PERFORMANCE_CONSTANTS.Z_INDEX_SELECTED;
     } else {
+      // 普通节点使用基础层级
       const renderBehindNodes = config?.value?.edges?.renderBehindNodes !== false;
       if (renderBehindNodes) {
         zIndex = PERFORMANCE_CONSTANTS.Z_INDEX_NODE_BASE;

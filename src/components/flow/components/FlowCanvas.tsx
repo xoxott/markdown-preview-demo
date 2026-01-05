@@ -203,6 +203,8 @@ export default defineComponent({
     const {
       draggingNodeId,
       elevatedNodeIds,
+      allocateZIndex,
+      removeZIndex,
       nodeClickBlocked,
       handleNodeMouseDown: handleNodeMouseDownHook,
       handleNodeMouseMove: handleNodeMouseMoveHook,
@@ -456,6 +458,8 @@ export default defineComponent({
             lockedNodeIds={emptyLockedNodeIds}
             draggingNodeId={draggingNodeId.value}
             elevatedNodeIds={elevatedNodeIds.value}
+            allocateZIndex={allocateZIndex}
+            removeZIndex={removeZIndex}
             viewport={viewport.value}
             enableViewportCulling={config.value.performance?.enableViewportCulling}
             viewportCullingBuffer={config.value.performance?.virtualScrollBuffer}

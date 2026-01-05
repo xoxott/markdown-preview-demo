@@ -26,8 +26,12 @@ export interface FlowNodesProps {
   lockedNodeIds?: string[];
   /** 正在拖拽的节点 ID（用于 z-index 层级管理） */
   draggingNodeId?: string | null;
-  /** 已提升层级的节点 ID 映射（节点 ID -> z-index 值） */
+  /** 已提升层级的节点 ID 映射（节点 ID -> z-index 值，包括拖拽释放和选中的节点） */
   elevatedNodeIds?: Map<string, number>;
+  /** 分配递增的 z-index（用于拖拽释放和选中节点） */
+  allocateZIndex?: (nodeId: string) => number;
+  /** 移除节点的 z-index */
+  removeZIndex?: (nodeId: string) => void;
   /** 视口状态 */
   viewport?: FlowViewport;
   /** 配置（用于判断是否启用拖拽后提升层级） */
@@ -139,6 +143,14 @@ export default defineComponent({
     onNodeMouseDown: {
       type: Function as PropType<(node: FlowNode, event: MouseEvent) => void>,
       default: undefined
+    },
+    allocateZIndex: {
+      type: Function as PropType<(nodeId: string) => number>,
+      default: undefined
+    },
+    removeZIndex: {
+      type: Function as PropType<(nodeId: string) => void>,
+      default: undefined
     }
   },
   setup(props) {
@@ -182,6 +194,8 @@ export default defineComponent({
       selectedNodeIds: selectedNodeIdsRef,
       draggingNodeId: draggingNodeIdRef,
       elevatedNodeIds: elevatedNodeIdsRef,
+      allocateZIndex: props.allocateZIndex,
+      removeZIndex: props.removeZIndex,
       config: configRef
     });
 

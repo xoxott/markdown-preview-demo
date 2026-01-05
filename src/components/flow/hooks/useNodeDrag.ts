@@ -5,11 +5,12 @@
  * 支持坐标转换（屏幕坐标 -> 画布坐标）、点击/拖拽区分等。
  */
 
-import { ref, onUnmounted, type Ref } from 'vue';
+import { ref, type Ref } from 'vue';
 import { useDrag } from './useDrag';
+import { useClickDragDistinction } from './useClickDragDistinction';
+import { useZIndexAllocator } from './useZIndexAllocator';
 import { logger } from '../utils/logger';
 import type { FlowConfig, FlowViewport, FlowNode } from '../types';
-import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
 
 export interface UseNodeDragOptions {
   /** 画布配置 */
@@ -27,8 +28,12 @@ export interface UseNodeDragOptions {
 export interface UseNodeDragReturn {
   /** 正在拖拽的节点 ID */
   draggingNodeId: Ref<string | null>;
-  /** 已提升层级的节点 ID 映射（节点 ID -> z-index 值） */
+  /** 已提升层级的节点 ID 映射（节点 ID -> z-index 值，包括拖拽释放和选中的节点） */
   elevatedNodeIds: Ref<Map<string, number>>;
+  /** 分配递增的 z-index（用于拖拽释放和选中节点） */
+  allocateZIndex: (nodeId: string) => number;
+  /** 移除节点的 z-index */
+  removeZIndex: (nodeId: string) => void;
   /** 是否点击被阻止（用于区分拖拽和点击） */
   nodeClickBlocked: Ref<boolean>;
   /** 处理节点鼠标按下事件 */
@@ -56,34 +61,31 @@ export function useNodeDrag(options: UseNodeDragOptions): UseNodeDragReturn {
   /** 正在拖拽的节点 ID（用于 z-index 管理） */
   const draggingNodeId = ref<string | null>(null);
 
-  /** 已提升层级的节点 ID 映射（节点 ID -> z-index 值） */
-  const elevatedNodeIds = ref<Map<string, number>>(new Map());
-
-  /** 层级计数器（用于分配递增的 z-index） */
-  let elevationCounter = PERFORMANCE_CONSTANTS.Z_INDEX_BASE;
-
-  /** 是否点击被阻止（用于区分拖拽和点击） */
-  const nodeClickBlocked = ref(false);
-
   /** 当前拖拽的节点 ID（内部使用） */
   let currentNodeId: string | null = null;
 
-  /** 点击阻止定时器 */
-  let nodeClickBlockTimeout: number | null = null;
+  // 使用点击/拖拽区分 Hook
+  const { isClickBlocked: nodeClickBlocked, markDragOccurred } = useClickDragDistinction({
+    blockDuration: 300
+  });
+
+  // 使用 Z-index 分配器 Hook
+  const {
+    allocatedZIndexes: elevatedNodeIds,
+    allocate: allocateZIndex,
+    remove: removeZIndex
+  } = useZIndexAllocator();
 
   // 使用通用的拖拽 hook
   const drag = useDrag({
 
     // 坐标转换：屏幕坐标偏移 -> 画布坐标偏移
-    // 对于节点拖拽，只需要将屏幕坐标偏移量除以缩放比例即可
     transformCoordinates: (screenX, screenY, startScreenX, startScreenY, startNodeX, startNodeY) => {
-
       // 计算屏幕坐标偏移
       const screenDeltaX = screenX - startScreenX;
       const screenDeltaY = screenY - startScreenY;
 
       // 将屏幕坐标偏移转换为画布坐标偏移（除以缩放比例）
-      // 注意：节点位置已经是画布坐标，所以只需要转换偏移量
       const deltaX = screenDeltaX / viewport.value.zoom;
       const deltaY = screenDeltaY / viewport.value.zoom;
 
@@ -108,43 +110,13 @@ export function useNodeDrag(options: UseNodeDragOptions): UseNodeDragReturn {
     // 拖拽结束回调：处理点击/拖拽区分
     onDragEnd: (hasMoved) => {
       if (hasMoved) {
-        // 如果发生了拖拽移动，阻止后续的点击事件
-        nodeClickBlocked.value = true;
-
-        // 清除之前的定时器
-        if (nodeClickBlockTimeout) {
-          clearTimeout(nodeClickBlockTimeout);
-        }
-
-        // 在短时间内清除阻止标志（300ms 后清除）
-        nodeClickBlockTimeout = window.setTimeout(() => {
-          nodeClickBlocked.value = false;
-          nodeClickBlockTimeout = null;
-        }, 300);
+        // 标记拖拽发生，阻止后续的点击事件
+        markDragOccurred();
 
         // 记录拖拽的节点（用于保持 z-index）
         // 只有在配置启用时才记录
         if (config.value.nodes?.elevateOnDragEnd !== false && currentNodeId) {
-          // 为节点分配递增的 z-index，确保后拖拽的节点层级更高
-          elevationCounter += 1;
-          elevatedNodeIds.value.set(currentNodeId, elevationCounter);
-
-          // 如果 Map 太大，清理最旧的节点（保留最近 N 个）
-          const MAX_ELEVATED_NODES = 50;
-          if (elevatedNodeIds.value.size > MAX_ELEVATED_NODES) {
-            // 找到最小的 z-index 值并删除
-            let minZIndex = Infinity;
-            let minNodeId: string | null = null;
-            for (const [nodeId, zIndex] of elevatedNodeIds.value.entries()) {
-              if (zIndex < minZIndex) {
-                minZIndex = zIndex;
-                minNodeId = nodeId;
-              }
-            }
-            if (minNodeId) {
-              elevatedNodeIds.value.delete(minNodeId);
-            }
-          }
+          allocateZIndex(currentNodeId);
         }
       }
 
@@ -185,24 +157,12 @@ export function useNodeDrag(options: UseNodeDragOptions): UseNodeDragReturn {
     event.stopPropagation();
   };
 
-  /**
-   * 清理资源（清理定时器等）
-   */
-  const cleanup = () => {
-    if (nodeClickBlockTimeout) {
-      clearTimeout(nodeClickBlockTimeout);
-      nodeClickBlockTimeout = null;
-    }
-  };
-
-  // 组件卸载时清理定时器，防止内存泄漏
-  onUnmounted(() => {
-    cleanup();
-  });
 
   return {
     draggingNodeId,
     elevatedNodeIds,
+    allocateZIndex,
+    removeZIndex,
     nodeClickBlocked,
     handleNodeMouseDown,
     handleNodeMouseMove: drag.handleMouseMove,
