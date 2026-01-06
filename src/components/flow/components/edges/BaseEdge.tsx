@@ -16,6 +16,9 @@ import {
   MARKER_SUFFIXES,
   STROKE_WIDTHS
 } from '../../constants/edge-constants';
+import {
+  calculateStrokeWidth
+} from '../../utils/edge-style-utils';
 
 /**
  * BaseEdge 组件属性
@@ -47,8 +50,10 @@ export interface BaseEdgeProps {
   instanceId?: string;
   /** 自定义样式 */
   style?: Record<string, any>;
-  /** CSS 类名 */
-  class?: string;
+    /** CSS 类名 */
+    class?: string;
+    /** 自定义箭头标记 ID（覆盖默认的标记 ID） */
+    markerEnd?: string;
 }
 
 /**
@@ -120,6 +125,10 @@ export default defineComponent({
     class: {
       type: String,
       default: ''
+    },
+    markerEnd: {
+      type: String,
+      default: undefined
     }
   },
   emits: ['click', 'double-click', 'mouseenter', 'mouseleave', 'contextmenu'],
@@ -147,11 +156,8 @@ export default defineComponent({
     const edgeStyle = computed(() => {
       const zoom = props.viewport?.zoom || 1;
 
-      // 基础线条宽度（随缩放调整，但限制最小和最大值）
-      const scaledStrokeWidth = Math.max(
-        STROKE_WIDTHS.MIN,
-        Math.min(STROKE_WIDTHS.MAX, STROKE_WIDTHS.BASE * zoom)
-      );
+      // 使用工具函数计算基础线条宽度
+      const scaledStrokeWidth = calculateStrokeWidth(STROKE_WIDTHS.BASE, zoom);
 
       const baseStyle: Record<string, any> = {
         fill: 'none',
@@ -165,19 +171,13 @@ export default defineComponent({
 
       // 选中状态样式
       if (props.selected) {
-        baseStyle.strokeWidth = Math.max(
-          STROKE_WIDTHS.MIN,
-          Math.min(STROKE_WIDTHS.MAX, STROKE_WIDTHS.SELECTED * zoom)
-        );
+        baseStyle.strokeWidth = calculateStrokeWidth(STROKE_WIDTHS.SELECTED, zoom);
         baseStyle.stroke = EDGE_COLORS.SELECTED;
       }
 
       // 悬停状态样式
       if (props.hovered) {
-        baseStyle.strokeWidth = Math.max(
-          STROKE_WIDTHS.MIN,
-          Math.min(STROKE_WIDTHS.MAX, STROKE_WIDTHS.HOVERED * zoom)
-        );
+        baseStyle.strokeWidth = calculateStrokeWidth(STROKE_WIDTHS.HOVERED, zoom);
         baseStyle.stroke = EDGE_COLORS.HOVERED;
       }
 
@@ -223,7 +223,13 @@ export default defineComponent({
     };
 
     // 计算箭头标记 ID（使用共享标记，带实例 ID）
+    // 如果提供了自定义 markerEnd，优先使用它
     const markerEndId = computed(() => {
+      // 如果提供了自定义 markerEnd，直接使用
+      if (props.markerEnd !== undefined) {
+        return props.markerEnd;
+      }
+
       if (props.edge.showArrow === false) {
         return undefined;
       }
@@ -277,7 +283,7 @@ export default defineComponent({
         <path
           d={pathData.value}
           style={edgeStyle.value}
-          marker-end={showArrow.value && markerEndId.value ? `url(#${markerEndId.value})` : undefined}
+          marker-end={showArrow.value && markerEndId.value ? (markerEndId.value.startsWith('url(') ? markerEndId.value : `url(#${markerEndId.value})`) : undefined}
           onClick={handleClick}
           onDblclick={handleDoubleClick}
           onMouseenter={handleMouseEnter}

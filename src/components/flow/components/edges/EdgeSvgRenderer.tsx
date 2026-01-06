@@ -12,14 +12,15 @@ import BaseEdge from './BaseEdge';
 import type { FlowEdge, FlowViewport } from '../../types';
 import type { EdgePositions } from '../../hooks/useEdgePositions';
 import {
-  ARROW_PATH_RATIOS,
-  ARROW_SIZES,
   EDGE_CLASS_NAMES,
   EDGE_COLORS,
   ID_PREFIXES,
   MARKER_PATH_SUFFIXES,
   MARKER_SUFFIXES
 } from '../../constants/edge-constants';
+import {
+  calculateArrowMarkerConfig
+} from '../../utils/edge-style-utils';
 
 /**
  * EdgeSvgRenderer 组件属性
@@ -43,16 +44,6 @@ export interface EdgeSvgRendererProps {
   onEdgeMouseEnter?: (edge: FlowEdge, event: MouseEvent) => void;
   /** 连接线鼠标离开 */
   onEdgeMouseLeave?: (edge: FlowEdge, event: MouseEvent) => void;
-}
-
-/**
- * 计算箭头大小
- */
-function calculateArrowSize(zoom: number): number {
-  return Math.max(
-    ARROW_SIZES.MIN,
-    Math.min(ARROW_SIZES.MAX, ARROW_SIZES.BASE * zoom)
-  );
 }
 
 /**
@@ -109,19 +100,9 @@ export default defineComponent({
   setup(props) {
     const idPrefix = computed(() => `${ID_PREFIXES.ARROW}${props.instanceId}`);
     const zoom = computed(() => props.viewport?.zoom ?? 1);
-    const arrowSize = computed(() => calculateArrowSize(zoom.value));
 
-    // 箭头参考点和路径大小（按比例缩放）
-    const refX = computed(() => ARROW_PATH_RATIOS.REF_X * arrowSize.value);
-    const refY = computed(() => ARROW_PATH_RATIOS.REF_Y * arrowSize.value);
-    const pathSize = computed(() => ARROW_PATH_RATIOS.PATH_SIZE * arrowSize.value);
-
-    // 箭头路径定义
-    const arrowPath = computed(() => {
-      const rx = refX.value;
-      const ps = pathSize.value;
-      return `M${rx},${rx} L${rx},${rx + ps} L${rx + ps},${refY.value} z`;
-    });
+    // 使用工具函数计算箭头标记配置
+    const arrowConfig = computed(() => calculateArrowMarkerConfig(zoom.value));
 
     // GPU 加速样式
     const svgStyle = computed<CSSProperties>(() => ({
@@ -164,27 +145,27 @@ export default defineComponent({
           {/* 共享的箭头路径定义 */}
           <path
             id={`${idPrefix.value}${MARKER_PATH_SUFFIXES.DEFAULT}`}
-            d={arrowPath.value}
+            d={arrowConfig.value.path}
             fill={EDGE_COLORS.DEFAULT}
           />
           <path
             id={`${idPrefix.value}${MARKER_PATH_SUFFIXES.SELECTED}`}
-            d={arrowPath.value}
+            d={arrowConfig.value.path}
             fill={EDGE_COLORS.SELECTED}
           />
           <path
             id={`${idPrefix.value}${MARKER_PATH_SUFFIXES.HOVERED}`}
-            d={arrowPath.value}
+            d={arrowConfig.value.path}
             fill={EDGE_COLORS.HOVERED}
           />
 
           {/* 箭头标记 */}
           <marker
             id={`${idPrefix.value}${MARKER_SUFFIXES.DEFAULT}`}
-            markerWidth={arrowSize.value}
-            markerHeight={arrowSize.value}
-            refX={refX.value}
-            refY={refY.value}
+            markerWidth={arrowConfig.value.arrowSize}
+            markerHeight={arrowConfig.value.arrowSize}
+            refX={arrowConfig.value.refX}
+            refY={arrowConfig.value.refY}
             orient="auto"
             markerUnits="userSpaceOnUse"
           >
@@ -193,10 +174,10 @@ export default defineComponent({
 
           <marker
             id={`${idPrefix.value}${MARKER_SUFFIXES.SELECTED}`}
-            markerWidth={arrowSize.value}
-            markerHeight={arrowSize.value}
-            refX={refX.value}
-            refY={refY.value}
+            markerWidth={arrowConfig.value.arrowSize}
+            markerHeight={arrowConfig.value.arrowSize}
+            refX={arrowConfig.value.refX}
+            refY={arrowConfig.value.refY}
             orient="auto"
             markerUnits="userSpaceOnUse"
           >
@@ -205,10 +186,10 @@ export default defineComponent({
 
           <marker
             id={`${idPrefix.value}${MARKER_SUFFIXES.HOVERED}`}
-            markerWidth={arrowSize.value}
-            markerHeight={arrowSize.value}
-            refX={refX.value}
-            refY={refY.value}
+            markerWidth={arrowConfig.value.arrowSize}
+            markerHeight={arrowConfig.value.arrowSize}
+            refX={arrowConfig.value.refX}
+            refY={arrowConfig.value.refY}
             orient="auto"
             markerUnits="userSpaceOnUse"
           >

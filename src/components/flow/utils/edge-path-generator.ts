@@ -9,6 +9,9 @@ import {
   BEZIER_CONSTANTS,
   EDGE_TYPES
 } from '../constants/edge-constants';
+import {
+  calculateArrowSize
+} from './edge-style-utils';
 import type { EdgePositions } from '../hooks/useEdgePositions';
 import type { FlowEdge, FlowViewport } from '../types';
 
@@ -47,10 +50,8 @@ export interface EdgePathGenerator {
  */
 function calculateArrowLength(viewport?: FlowViewport): number {
   const zoom = viewport?.zoom || 1;
-  const arrowSize = Math.max(
-    ARROW_SIZES.MIN,
-    Math.min(ARROW_SIZES.MAX, ARROW_SIZES.BASE * zoom)
-  );
+  // 使用工具函数计算箭头大小
+  const arrowSize = calculateArrowSize(zoom);
   return (arrowSize / ARROW_SIZES.BASE) * ARROW_SIZES.LENGTH_RATIO;
 }
 

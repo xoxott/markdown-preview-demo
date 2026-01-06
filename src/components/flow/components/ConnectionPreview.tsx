@@ -2,18 +2,22 @@
  * 连接预览线组件
  *
  * 显示正在创建连接时的预览线
+ * 复用 BaseEdge 组件，减少重复代码
  */
 
 import { defineComponent, computed, ref, watch, type PropType } from 'vue';
 import { getHandlePositionScreen } from '../utils/node-utils';
 import { generateEdgePath } from '../utils/edge-path-generator';
 import {
-  ARROW_SIZES,
-  ARROW_PATH_RATIOS,
   EDGE_COLORS,
-  STROKE_WIDTHS,
-  ANIMATION_CONSTANTS
+  ANIMATION_CONSTANTS,
+  ID_PREFIXES,
+  MARKER_SUFFIXES
 } from '../constants/edge-constants';
+import {
+  calculateArrowMarkerConfig
+} from '../utils/edge-style-utils';
+import BaseEdge from './edges/BaseEdge';
 import type { FlowNode, FlowViewport, FlowEdge } from '../types';
 import type { EdgePositions } from '../hooks/useEdgePositions';
 
@@ -126,36 +130,20 @@ export default defineComponent({
     /**
      * 计算箭头标记配置
      *
-     * 使用常量替代魔术数字，复用连接线的箭头配置逻辑
+     * 使用工具函数统一计算箭头配置
      * 使用 Math.round 减少精度变化导致的重新计算
      */
     const arrowMarkerConfig = computed(() => {
       const zoom = Math.round(props.viewport.zoom * 100) / 100;
-
-      const previewArrowSize = Math.max(
-        ARROW_SIZES.MIN,
-        Math.min(ARROW_SIZES.MAX, ARROW_SIZES.BASE * zoom)
-      );
-
-      const refX = ARROW_PATH_RATIOS.REF_X * previewArrowSize;
-      const refY = ARROW_PATH_RATIOS.REF_Y * previewArrowSize;
-      const pathSize = ARROW_PATH_RATIOS.PATH_SIZE * previewArrowSize;
-
-      return {
-        arrowSize: previewArrowSize,
-        refX,
-        refY,
-        pathSize,
-        path: `M${refX},${refX} L${refX},${refX + pathSize} L${refX + pathSize},${refY} z`
-      };
+      return calculateArrowMarkerConfig(zoom);
     });
 
     /**
-     * 计算预览路径
+     * 计算预览路径和位置信息
      *
      * 复用连接线的路径生成逻辑，使用工具函数生成贝塞尔曲线路径
      */
-    const previewPath = computed(() => {
+    const previewData = computed(() => {
       const sourcePos = sourceHandlePosition.value;
       if (!sourcePos) return null;
 
@@ -182,36 +170,35 @@ export default defineComponent({
         source: props.sourceNodeId,
         target: 'preview-target',
         type: 'bezier',
-        sourceHandle: props.sourceHandleId
+        sourceHandle: props.sourceHandleId,
+        showArrow: true
+        // 注意：预览线不使用 animated，只通过 style 设置虚线样式
       };
-
-      // 预览线默认显示箭头
-      const showArrow = true;
 
       // 使用工具函数生成路径
       const path = generateEdgePath(previewEdge, positions, {
-        showArrow,
+        showArrow: true,
         viewport: props.viewport
       });
 
-      const strokeWidth = Math.max(
-        STROKE_WIDTHS.MIN,
-        Math.min(STROKE_WIDTHS.MAX, STROKE_WIDTHS.BASE * props.viewport.zoom)
-      );
-
       return {
-        path,
-        strokeWidth,
-        showArrow
+        edge: previewEdge,
+        positions,
+        path
       };
     });
 
+    // 预览专用的箭头标记 ID
+    const previewMarkerId = computed(() => {
+      const prefix = `${ID_PREFIXES.ARROW}preview`;
+      return `${prefix}${MARKER_SUFFIXES.DEFAULT}`;
+    });
+
     return () => {
-      const pathData = previewPath.value;
-      if (!pathData) return null;
+      const data = previewData.value;
+      if (!data) return null;
 
       const arrowConfig = arrowMarkerConfig.value;
-      const showArrow = pathData.showArrow;
 
       return (
         <svg
@@ -226,32 +213,43 @@ export default defineComponent({
             overflow: 'visible'
           }}
         >
-          {showArrow && (
-            <defs>
-              <marker
-                key={`preview-arrow-${arrowConfig.arrowSize}`}
-                id="flow-preview-arrow"
-                markerWidth={arrowConfig.arrowSize}
-                markerHeight={arrowConfig.arrowSize}
-                refX={arrowConfig.refX}
-                refY={arrowConfig.refY}
-                orient="auto"
-                markerUnits="userSpaceOnUse"
-              >
-                <path
-                  d={arrowConfig.path}
-                  fill={EDGE_COLORS.DEFAULT}
-                />
-              </marker>
-            </defs>
-          )}
-          <path
-            d={pathData.path}
-            stroke={EDGE_COLORS.DEFAULT}
-            stroke-width={pathData.strokeWidth}
-            fill="none"
-            stroke-dasharray={ANIMATION_CONSTANTS.DASH_ARRAY}
-            marker-end={showArrow ? "url(#flow-preview-arrow)" : undefined}
+          {/* 预览专用的箭头标记定义 */}
+          <defs>
+            <marker
+              key={`preview-arrow-${arrowConfig.arrowSize}`}
+              id={previewMarkerId.value}
+              markerWidth={arrowConfig.arrowSize}
+              markerHeight={arrowConfig.arrowSize}
+              refX={arrowConfig.refX}
+              refY={arrowConfig.refY}
+              orient="auto"
+              markerUnits="userSpaceOnUse"
+            >
+              <path
+                d={arrowConfig.path}
+                fill={EDGE_COLORS.DEFAULT}
+              />
+            </marker>
+          </defs>
+
+          {/* 复用 BaseEdge 组件渲染预览线 */}
+          <BaseEdge
+            edge={data.edge}
+            sourceX={data.positions.sourceX}
+            sourceY={data.positions.sourceY}
+            targetX={data.positions.targetX}
+            targetY={data.positions.targetY}
+            sourceHandleX={data.positions.sourceHandleX}
+            sourceHandleY={data.positions.sourceHandleY}
+            path={data.path}
+            viewport={props.viewport}
+            instanceId="preview"
+            markerEnd={previewMarkerId.value}
+            style={{
+              // 预览线使用虚线样式
+              strokeDasharray: ANIMATION_CONSTANTS.DASH_ARRAY
+            }}
+            class="flow-edge-preview"
           />
         </svg>
       );

@@ -14,6 +14,10 @@ import {
   EDGE_COLORS,
   STROKE_WIDTHS
 } from '../../constants/edge-constants';
+import {
+  calculateArrowSize,
+  calculateStrokeWidth
+} from '../../utils/edge-style-utils';
 
 /**
  * EdgeCanvasRenderer 组件属性
@@ -98,10 +102,8 @@ export default defineComponent({
         ctx.strokeStyle = isSelected ? EDGE_COLORS.SELECTED : EDGE_COLORS.DEFAULT;
         const zoom = props.viewport.zoom;
         const baseLineWidth = isSelected ? STROKE_WIDTHS.SELECTED : STROKE_WIDTHS.BASE;
-        ctx.lineWidth = Math.max(
-          STROKE_WIDTHS.MIN,
-          Math.min(STROKE_WIDTHS.MAX, baseLineWidth * zoom)
-        );
+        // 使用工具函数计算线条宽度
+        ctx.lineWidth = calculateStrokeWidth(baseLineWidth, zoom);
         ctx.lineCap = CANVAS_CONSTANTS.LINE_CAP;
         ctx.lineJoin = CANVAS_CONSTANTS.LINE_JOIN;
 
@@ -114,11 +116,8 @@ export default defineComponent({
         // 如果显示箭头，缩短路径终点
         const showArrow = edge.showArrow !== false;
         if (showArrow) {
-          const currentZoom = props.viewport.zoom;
-          const currentArrowSize = Math.max(
-            ARROW_SIZES.MIN,
-            Math.min(ARROW_SIZES.MAX, ARROW_SIZES.BASE * currentZoom)
-          );
+          // 使用工具函数计算箭头大小
+          const currentArrowSize = calculateArrowSize(zoom);
           const ARROW_LENGTH = (currentArrowSize / ARROW_SIZES.BASE) * ARROW_SIZES.LENGTH_RATIO;
 
           const dx = endX - startX;
