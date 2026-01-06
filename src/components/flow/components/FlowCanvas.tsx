@@ -435,21 +435,6 @@ export default defineComponent({
           )
         )}
 
-        {/* 连接线层（在节点下方，使用屏幕坐标） */}
-        <FlowEdges
-          edges={edges.value}
-          nodes={nodes.value}
-          selectedEdgeIds={selectedEdgeIds.value}
-          viewport={viewport.value}
-          instanceId={defaultInstanceId.value}
-          enableViewportCulling={config.value.performance?.enableViewportCulling}
-          enableCanvasRendering={config.value.performance?.enableEdgeCanvasRendering}
-          canvasThreshold={config.value.performance?.edgeCanvasThreshold}
-          config={config.value}
-          onEdgeClick={handleEdgeClick}
-          onEdgeDoubleClick={handleEdgeDoubleClick}
-        />
-
         {/* 节点容器 */}
         <FlowViewportContainer viewport={viewport.value}>
           <FlowNodes
@@ -470,6 +455,21 @@ export default defineComponent({
             onPortMouseDown={handlePortMouseDown}
           />
         </FlowViewportContainer>
+
+        {/* 连接线层（在 DOM 中位于节点之后，但 z-index=0 确保视觉上在节点下方） */}
+        <FlowEdges
+          edges={edges.value}
+          nodes={nodes.value}
+          selectedEdgeIds={selectedEdgeIds.value}
+          viewport={viewport.value}
+          instanceId={defaultInstanceId.value}
+          enableViewportCulling={config.value.performance?.enableViewportCulling}
+          enableCanvasRendering={config.value.performance?.enableEdgeCanvasRendering}
+          canvasThreshold={config.value.performance?.edgeCanvasThreshold}
+          config={config.value}
+          onEdgeClick={handleEdgeClick}
+          onEdgeDoubleClick={handleEdgeDoubleClick}
+        />
 
         {/* 连接预览线 */}
         {connectionDraft.value && connectionPreviewPos.value && (

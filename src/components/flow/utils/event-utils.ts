@@ -68,26 +68,21 @@ export function createEventDelegation<T>(
   });
 
   return (event: MouseEvent) => {
-    // 检查是否应该排除
-    if (excludeSelector) {
-      const target = event.target as HTMLElement;
-      if (target.closest(excludeSelector)) {
-        return;
-      }
-    }
+    const target = event.target as HTMLElement;
+    if (excludeSelector && target.closest(excludeSelector)) return;
 
     // 查找包含 data 属性的元素
-    const target = event.target as HTMLElement;
     const element = target.closest(`[${dataAttribute}]`);
-    if (element) {
-      const id = element.getAttribute(dataAttribute);
-      if (id) {
-        const item = itemsMap.value.get(id);
-        if (item) {
-          handler(item, event);
-        }
-      }
-    }
+    if (!element) return;
+
+    // 获取 ID 并查找对应的数据项
+    const id = element.getAttribute(dataAttribute);
+    if (!id) return;
+
+    const item = itemsMap.value.get(id);
+    if (!item) return;
+
+    handler(item, event);
   };
 }
 

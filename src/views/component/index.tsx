@@ -21,7 +21,8 @@ import {
   FlowFullFeatureExample,
   FlowPerformanceExample,
   FlowEmptyExample,
-  FlowThemeExample
+  FlowThemeExample,
+  FlowBezierExample
 } from './examples';
 
 export default defineComponent({
@@ -43,6 +44,7 @@ export default defineComponent({
         <FlowPerformanceExample />
         <FlowEmptyExample />
         <FlowThemeExample />
+        <FlowBezierExample />
       </div>
     );
   }

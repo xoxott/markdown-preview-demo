@@ -133,7 +133,7 @@ export interface FlowEdgeConfig {
   arrowSize?: number;
   /** 点击区域宽度（用于提高点击体验） */
   clickAreaWidth?: number;
-  /** 贝塞尔曲线控制点偏移比例 */
+  /** 贝塞尔曲线控制点偏移比例（0-1之间，用于 bezier 类型，值越大弧度越大） */
   bezierControlOffset?: number;
   /** 步进线圆角半径 */
   stepRadius?: number;

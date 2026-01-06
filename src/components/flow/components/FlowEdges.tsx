@@ -172,6 +172,7 @@ export default defineComponent({
           onEdgeDoubleClick={props.onEdgeDoubleClick}
           onEdgeMouseEnter={props.onEdgeMouseEnter}
           onEdgeMouseLeave={props.onEdgeMouseLeave}
+          bezierControlOffset={props.config?.edges?.bezierControlOffset}
         />
       );
     };

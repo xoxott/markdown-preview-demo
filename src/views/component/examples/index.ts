@@ -10,4 +10,5 @@ export { default as FlowFullFeatureExample } from './FlowFullFeatureExample';
 export { default as FlowPerformanceExample } from './FlowPerformanceExample';
 export { default as FlowEmptyExample } from './FlowEmptyExample';
 export { default as FlowThemeExample } from './FlowThemeExample';
+export { default as FlowBezierExample } from './FlowBezierExample';
 

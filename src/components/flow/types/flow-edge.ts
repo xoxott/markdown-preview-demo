@@ -40,6 +40,8 @@ export interface FlowEdge<T = any> {
   label?: string;
   /** 标签样式 */
   labelStyle?: Record<string, any>;
+  /** 贝塞尔曲线控制点偏移比例（用于 bezier 类型，0-1之间，值越大弧度越大，默认从配置读取） */
+  bezierControlOffset?: number;
   /** 自定义属性 */
   [key: string]: any;
 }

@@ -100,6 +100,10 @@ export default defineComponent({
     zIndex: {
       type: Number,
       default: 0
+    },
+    bezierControlOffset:{
+      type: Number,
+      default: 0.5
     }
   },
   setup(props) {
@@ -222,7 +226,8 @@ export default defineComponent({
           const isSelected = props.selectedEdgeIdsSet.has(edge.id);
           const path = generateEdgePath(edge, positions, {
             showArrow: edge.showArrow !== false,
-            viewport: props.viewport
+            viewport: props.viewport,
+            bezierControlOffset: props?.bezierControlOffset
           });
 
           const handler = handlers?.get(edge.id);

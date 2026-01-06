@@ -20,6 +20,8 @@ export interface EdgePathGeneratorOptions {
   showArrow?: boolean;
   /** 视口状态（用于计算缩放） */
   viewport?: FlowViewport;
+  /** 贝塞尔曲线控制点偏移比例（0-1之间，用于 bezier 类型） */
+  bezierControlOffset?: number;
 }
 
 /**
@@ -140,8 +142,13 @@ class BezierPathGenerator implements EdgePathGenerator {
     const zoom = options.viewport?.zoom || 1;
     const dx = originalEndX - startX;
     const minOffset = BEZIER_CONSTANTS.BASE_MIN_OFFSET * zoom;
+
+    // 获取贝塞尔控制点偏移比例：优先使用边自身配置，然后使用全局配置，最后使用默认值
+    const offsetRatio = edge.bezierControlOffset ?? options.bezierControlOffset ?? BEZIER_CONSTANTS.CONTROL_OFFSET_RATIO;
+
+    // 根据偏移比例计算控制点偏移
     const controlOffset = Math.max(
-      Math.abs(dx) * BEZIER_CONSTANTS.CONTROL_OFFSET_RATIO,
+      Math.abs(dx) * offsetRatio,
       minOffset
     );
 

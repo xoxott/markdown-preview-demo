@@ -64,7 +64,7 @@ export const DEFAULT_EDGE_CONFIG: FlowEdgeConfig = {
   showArrow: true,
   arrowSize: 10,
   clickAreaWidth: 24,
-  bezierControlOffset: 0.5,
+  bezierControlOffset: 0.5, // 贝塞尔曲线控制点偏移比例（0-1之间，值越大弧度越大）
   stepRadius: 10,
   animationDuration: 1.5,
   selectable: true,
