@@ -11,6 +11,7 @@
  */
 import { defineComponent } from 'vue';
 import { NDivider } from 'naive-ui';
+import ClockLoading from '@/components/clockLoading';
 
 // 导入示例组件
 import {
@@ -32,6 +33,7 @@ export default defineComponent({
     return () => (
       <div class="p-4 space-y-4">
         {/* 基础组件示例 */}
+        <ClockLoading />
         <BasicComponentsExample />
 
         <NDivider />
