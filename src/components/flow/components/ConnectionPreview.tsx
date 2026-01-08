@@ -214,23 +214,23 @@ export default defineComponent({
           }}
         >
           {/* 预览专用的箭头标记定义 */}
-          <defs>
-            <marker
-              key={`preview-arrow-${arrowConfig.arrowSize}`}
+            <defs>
+              <marker
+                key={`preview-arrow-${arrowConfig.arrowSize}`}
               id={previewMarkerId.value}
-              markerWidth={arrowConfig.arrowSize}
-              markerHeight={arrowConfig.arrowSize}
-              refX={arrowConfig.refX}
-              refY={arrowConfig.refY}
-              orient="auto"
-              markerUnits="userSpaceOnUse"
-            >
-              <path
-                d={arrowConfig.path}
-                fill={EDGE_COLORS.DEFAULT}
-              />
-            </marker>
-          </defs>
+                markerWidth={arrowConfig.arrowSize}
+                markerHeight={arrowConfig.arrowSize}
+                refX={arrowConfig.refX}
+                refY={arrowConfig.refY}
+                orient="auto"
+                markerUnits="userSpaceOnUse"
+              >
+                <path
+                  d={arrowConfig.path}
+                  fill={EDGE_COLORS.DEFAULT}
+                />
+              </marker>
+            </defs>
 
           {/* 复用 BaseEdge 组件渲染预览线 */}
           <BaseEdge
