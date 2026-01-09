@@ -61,7 +61,6 @@ export function useFlowCanvasConfigSync(
    * 开始同步
    */
   const start = () => {
-    // 监听配置变化，更新选择选项（性能优化：只监听需要的属性，避免深度监听）
     stopWatch = watch(
       () => [
         config.value.interaction?.enableMultiSelection,
@@ -77,7 +76,7 @@ export function useFlowCanvasConfigSync(
           boxSelectionKey: boxSelectionKey || 'shift'
         });
       },
-      { immediate: true } // 立即执行一次，确保初始配置生效
+      { immediate: true }
     );
   };
 

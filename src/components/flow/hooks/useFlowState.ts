@@ -8,6 +8,7 @@
 import { ref, shallowRef, computed, onUnmounted, markRaw, type Ref } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
 import { DefaultStateStore } from '../core/state/stores/DefaultStateStore';
+import { performanceMonitor } from '../utils/performance-monitor';
 import { DefaultHistoryManager } from '../core/state/stores/DefaultHistoryManager';
 import { FlowSelectionHandler, type SelectionOptions } from '../core/interaction/FlowSelectionHandler';
 import { safeUpdateRef, shallowUpdateRef } from '../utils/ref-utils';
@@ -194,11 +195,16 @@ export function useFlowState(
    * 批量更新响应式引用
    */
   const flushUpdates = () => {
+    const perfStart = performance.now();
+
     if (pendingUpdates.size === 0) {
       updateScheduled = false;
       rafId = null;
       return;
     }
+
+    const updateTypes = Array.from(pendingUpdates);
+    const nodesStart = performance.now();
 
     // 根据变化类型，只更新相关的 Ref
     if (pendingUpdates.has('nodes') || pendingUpdates.has('all')) {
@@ -209,9 +215,11 @@ export function useFlowState(
       safeUpdateRef(edgesRef, store.getEdges());
     }
 
+    const viewportStart = performance.now();
     if (pendingUpdates.has('viewport') || pendingUpdates.has('all')) {
       shallowUpdateRef(viewportRef, store.getViewport(), ['x', 'y', 'zoom']);
     }
+    const viewportTime = performance.now() - viewportStart;
 
     if (pendingUpdates.has('selectedNodeIds') || pendingUpdates.has('all')) {
       safeUpdateRef(selectedNodeIdsRef, store.getSelectedNodeIds());
@@ -224,6 +232,15 @@ export function useFlowState(
     pendingUpdates.clear();
     updateScheduled = false;
     rafId = null;
+
+    const totalTime = performance.now() - perfStart;
+    const nodesTime = viewportStart - nodesStart;
+
+    performanceMonitor.record('stateFlush', totalTime, {
+      updateTypes,
+      nodesTime,
+      viewportTime
+    });
   };
 
   /**
@@ -231,9 +248,6 @@ export function useFlowState(
    */
   store.subscribe((changeType) => {
     pendingUpdates.add(changeType);
-
-    // 使用 requestAnimationFrame 批量更新，与浏览器渲染周期同步，提升性能
-    // 如果已经有待处理的更新，取消之前的 RAF，避免重复调度
     if (!updateScheduled) {
       updateScheduled = true;
       if (rafId !== null) {

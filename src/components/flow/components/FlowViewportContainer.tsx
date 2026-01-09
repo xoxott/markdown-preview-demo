@@ -6,6 +6,7 @@
 
 import { defineComponent, computed, type PropType, CSSProperties } from 'vue';
 import type { FlowViewport } from '../types';
+import { performanceMonitor } from '../utils/performance-monitor';
 
 /**
  * FlowViewportContainer 组件属性
@@ -54,16 +55,26 @@ export default defineComponent({
     });
 
     const containerStyle = computed<CSSProperties>(() => {
-      return {
+      const perfStart = performance.now();
+
+      const style = {
         transform: transformValue.value,
         transformOrigin: '0 0',
-        position: 'absolute',
+        position: 'absolute' as const,
         top: 0,
         left: 0,
-        zIndex:1,
+        zIndex: 1,
         willChange: 'transform',
         ...props.style
       };
+
+      const duration = performance.now() - perfStart;
+      performanceMonitor.record('viewportTransform', duration, {
+        x: props.viewport.x,
+        y: props.viewport.y,
+        zoom: props.viewport.zoom
+      });
+      return style;
     });
 
     return () => (

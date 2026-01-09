@@ -121,6 +121,9 @@ export function useNodeStyle(
    * @param node 节点
    * @returns 节点样式
    */
+  // 性能优化：使用 WeakMap 缓存节点样式，避免字符串拼接开销
+  const nodeStyleCache = new WeakMap<FlowNode, Map<string, CSSProperties>>();
+
   const getNodeStyle = (node: FlowNode): CSSProperties => {
     // 节点使用原始画布坐标，缩放由父容器的 CSS transform 处理
     const x = node.position.x;
@@ -151,10 +154,29 @@ export function useNodeStyle(
 
     const width = node.size?.width ?? PERFORMANCE_CONSTANTS.DEFAULT_NODE_WIDTH;
     const height = node.size?.height ?? PERFORMANCE_CONSTANTS.DEFAULT_NODE_HEIGHT;
-    const cacheKey = `${node.id}-${x}-${y}-${width}-${height}-${zIndex ?? 'none'}`;
 
+    // 性能优化：使用更高效的缓存键生成方式
+    // 如果位置和尺寸没变化，使用简化的缓存键
+    // 使用数字拼接，减少字符串模板开销
+    const cacheKey = `${node.id}|${x}|${y}|${width}|${height}|${zIndex ?? 0}`;
+
+    // 先检查通用缓存
     const cached = styleCache.get(cacheKey);
     if (cached) return cached;
+
+    // 检查节点级别的缓存
+    let nodeCache = nodeStyleCache.get(node);
+    if (!nodeCache) {
+      nodeCache = new Map();
+      nodeStyleCache.set(node, nodeCache);
+    }
+
+    const nodeCached = nodeCache.get(cacheKey);
+    if (nodeCached) {
+      // 同时更新通用缓存
+      styleCache.set(cacheKey, nodeCached);
+      return nodeCached;
+    }
 
     // 创建新样式对象
     const style: CSSProperties = {

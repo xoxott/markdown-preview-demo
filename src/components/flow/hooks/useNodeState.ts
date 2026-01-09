@@ -93,6 +93,10 @@ export function useNodeState(
    * @param node 节点
    * @returns 节点状态
    */
+  // 性能优化：使用 WeakMap 缓存节点状态，避免字符串拼接开销
+  // 使用节点对象本身作为键的一部分，结合状态标志
+  const nodeStateCache = new WeakMap<FlowNode, Map<string, NodeState>>();
+
   const getNodeState = (node: FlowNode): NodeState => {
     const isSelected = selectedNodeIdsSet.value.has(node.id);
     const isLocked = lockedNodeIdsSet.value.has(node.id);
@@ -101,13 +105,29 @@ export function useNodeState(
     const selected = isSelected || node.selected === true;
     const locked = isLocked || node.locked === true;
 
-    // 生成缓存键
-    const cacheKey = `${node.id}-${selected}-${locked}-${isDragging}`;
+    // 性能优化：使用数字位标志作为缓存键，避免字符串拼接
+    // 使用位运算组合状态标志：selected(1) | locked(2) | dragging(4)
+    const stateFlags = (selected ? 1 : 0) | (locked ? 2 : 0) | (isDragging ? 4 : 0);
+    const cacheKey = `${node.id}|${stateFlags}`;
 
-    // 检查缓存
+    // 先检查通用缓存
     const cached = stateCache.get(cacheKey);
     if (cached) {
       return cached; // 返回相同引用，避免重新渲染
+    }
+
+    // 检查节点级别的缓存
+    let nodeCache = nodeStateCache.get(node);
+    if (!nodeCache) {
+      nodeCache = new Map();
+      nodeStateCache.set(node, nodeCache);
+    }
+
+    const nodeCached = nodeCache.get(cacheKey);
+    if (nodeCached) {
+      // 同时更新通用缓存
+      stateCache.set(cacheKey, nodeCached);
+      return nodeCached;
     }
 
     const state: NodeState = {
@@ -117,7 +137,9 @@ export function useNodeState(
       dragging: isDragging
     };
 
+    // 同时更新两个缓存
     stateCache.set(cacheKey, state);
+    nodeCache.set(cacheKey, state);
 
     return state;
   };

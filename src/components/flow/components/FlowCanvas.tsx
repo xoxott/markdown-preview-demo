@@ -7,7 +7,7 @@
 // 导入 Flow 主题样式（在使用 FlowCanvas 时自动加载）
 import '../styles/index.scss';
 
-import { defineComponent, ref, computed, onMounted, onUnmounted, type PropType, CSSProperties, h } from 'vue';
+import { defineComponent, ref, computed, watch, onMounted, onUnmounted, type PropType, CSSProperties, h } from 'vue';
 import { useFlowConfig } from '../hooks/useFlowConfig';
 import { useFlowState } from '../hooks/useFlowState';
 import { useKeyboard } from '../hooks/useKeyboard';
@@ -240,6 +240,25 @@ export default defineComponent({
       }
     });
 
+    // 性能优化：在平移时使用稳定的 viewport 引用，避免 FlowNodes 不必要的重新渲染
+    // 因为节点位置是通过 FlowViewportContainer 的 CSS transform 控制的，不需要重新渲染节点
+    const stableViewportRef = ref<FlowViewport>(viewport.value);
+
+    // 监听平移状态变化，更新稳定的 viewport
+    watch(isPanning, (isPanningNow, wasPanning) => {
+      if (!isPanningNow && wasPanning) {
+        // 平移结束时，更新稳定的 viewport
+        stableViewportRef.value = viewport.value;
+      }
+    });
+
+    // 非平移时，保持稳定的 viewport 与当前 viewport 同步
+    watch(viewport, () => {
+      if (!isPanning.value) {
+        stableViewportRef.value = viewport.value;
+      }
+    }, { immediate: true });
+
     // 画布缩放
     const { handleWheel } = useCanvasZoom({
       config,
@@ -445,9 +464,11 @@ export default defineComponent({
             elevatedNodeIds={elevatedNodeIds.value}
             allocateZIndex={allocateZIndex}
             removeZIndex={removeZIndex}
-            viewport={viewport.value}
+            // 性能优化：平移时使用稳定的 viewport，避免不必要的重新渲染
+            viewport={stableViewportRef.value}
             enableViewportCulling={config.value.performance?.enableViewportCulling}
             viewportCullingBuffer={config.value.performance?.virtualScrollBuffer}
+            isPanning={isPanning.value}
             config={config.value}
             onNodeClick={handleNodeClick}
             onNodeDoubleClick={handleNodeDoubleClick}

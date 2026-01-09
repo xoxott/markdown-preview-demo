@@ -5,9 +5,10 @@
  * 支持配置鼠标按键、检查拖拽条件等。
  */
 
-import { type Ref } from 'vue';
+import { watch, type Ref } from 'vue';
 import type { FlowConfig, FlowViewport } from '../types';
 import { useDrag } from './useDrag';
+import { performanceMonitor } from '../utils/performance-monitor';
 
 export interface UseCanvasPanOptions {
   /** 画布配置 */
@@ -79,12 +80,31 @@ export function useCanvasPan(options: UseCanvasPanOptions): UseCanvasPanReturn {
     // 启用增量模式：每次更新后重置起始位置，使得 deltaX/deltaY 是增量偏移
     incremental: true,
     onDrag: (result) => {
+      const perfStart = performance.now();
+
+      const panStart = performance.now();
       onPan(result.deltaX, result.deltaY);
+      const panTime = performance.now() - panStart;
+
+      const changeStart = performance.now();
       if (onViewportChange) {
         onViewportChange(viewport.value);
       }
+      const changeTime = performance.now() - changeStart;
+
+      const totalTime = performance.now() - perfStart;
+
+      // 总是记录性能数据
+      performanceMonitor.record('canvasPan', totalTime, {
+        deltaX: result.deltaX,
+        deltaY: result.deltaY,
+        panTime,
+        changeTime
+      });
+
     }
   });
+
 
   return {
     isPanning: drag.isDragging,
