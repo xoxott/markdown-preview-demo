@@ -1,11 +1,3 @@
-/**
- * API模块导出入口
- */
-
-// 旧版 API 已移除，请使用新的基于 Step 的架构
-
-// 导出新架构（基于 Step 的请求系统）
-// 从 request-core 重新导出核心类型和类
 export type {
   RequestContext,
   RequestState,
@@ -23,9 +15,9 @@ export {
 } from '@suga/request-core';
 
 // 导出业务层步骤和客户端
-export { TransportStep } from './core/steps/TransportStep';
-export { ApiRequestClient } from './core/client/ApiRequestClient';
-export { createRequestClient } from './core/client/createRequestClient';
+export { TransportStep } from './steps/TransportStep';
+export { ApiRequestClient } from './client/ApiRequestClient';
+export { createRequestClient } from './client/createRequestClient';
 
 // 重新导出各个功能包的 Step（方便使用）
 export { CacheReadStep, CacheWriteStep } from '@suga/request-cache';
@@ -36,17 +28,18 @@ export { QueueStep } from '@suga/request-queue';
 export { EventStep } from '@suga/request-events';
 
 // 导出 Axios 相关（在 api 包中实现，不独立成包）
-export { AbortStep } from './core/steps/AbortStep';
-export { AxiosTransport } from './core/transport/AxiosTransport';
-export type { AxiosTransportOptions } from './core/transport/AxiosTransport';
+export { AbortStep } from './steps/AbortStep';
+export { AxiosTransport } from './transport/AxiosTransport';
+export type { AxiosTransportOptions } from './transport/AxiosTransport';
 
 // 导出类型
 export type {
   RequestConfig,
   RequestMethod,
+  RequestOptions,
+  TimeoutStrategy,
 } from './types';
 
-// 注意：ApiResponse、ErrorResponse 等业务响应类型已移除，应由应用层定义
 
 // 导出工具函数
 export { cancelTokenManager, generateRequestId } from './utils/request/cancel';
@@ -62,8 +55,7 @@ export {
   enhanceError,
   type EnhancedAxiosError,
 } from './utils/errors/errorEnhancer';
-// 注意：Loading、错误消息处理、Token 刷新等业务逻辑已移除，应由应用层实现
-// 重新导出缓存相关（从新包）
+
 export { RequestCacheManager } from '@suga/request-cache';
 export {
   DefaultCachePolicy,
@@ -75,43 +67,34 @@ export type {
   CachePolicy,
 } from '@suga/request-cache';
 
-// 重新导出去重相关（从新包）
 export { DedupeManager } from '@suga/request-dedupe';
 export type {
   DedupeOptions,
   DedupeStrategy,
 } from '@suga/request-dedupe';
 
-// 重新导出队列相关（从新包）
 export { QueueManager, createRequestQueue } from '@suga/request-queue';
 export type {
   QueueConfig,
   RequestPriority,
 } from '@suga/request-queue';
-// 重新导出进度相关（从新包）
+
 export {
   calculateProgress,
   formatFileSize,
   formatSpeed,
   createProgressTracker,
 } from '@suga/request-progress';
-// 重新导出存储适配器（从 @suga/storage）
+
 export type { StorageAdapter } from '@suga/storage';
+
 export {
   LocalStorageAdapter,
   SessionStorageAdapter,
   MemoryStorageAdapter,
   defaultStorageAdapter,
 } from '@suga/storage';
-export {
-  environmentAdapter,
-  isBrowser,
-  isNode,
-  isSSR,
-  isDevelopment,
-  isProduction,
-} from './utils/common/env';
-// 重新导出日志相关（从新包）
+
 export {
   loggerManager,
   logRequestWithManager,
@@ -126,7 +109,6 @@ export {
 } from '@suga/request-logger';
 export type { LoggerOptions } from '@suga/request-logger';
 
-// 重新导出事件相关（从新包）
 export {
   eventManager,
   onRequestStart,
@@ -147,7 +129,6 @@ export type {
   RequestCompleteEventData,
 } from '@suga/request-events';
 
-// 重新导出性能监控相关（从新包）
 export {
   performanceMonitor,
 } from '@suga/request-performance';
@@ -155,7 +136,7 @@ export type {
   PerformanceMonitor,
   PerformanceMetrics,
 } from '@suga/request-performance';
-// 重新导出熔断器相关（从新包）
+
 export {
   CircuitBreaker,
   createCircuitBreaker,

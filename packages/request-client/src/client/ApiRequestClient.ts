@@ -4,7 +4,7 @@
  */
 
 import { RequestClient } from '@suga/request-core';
-import type { RequestConfig } from '../../types';
+import type { RequestConfig } from '../types';
 import { adaptRequestConfigToCore } from '../utils/configAdapter';
 
 /**

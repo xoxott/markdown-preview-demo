@@ -4,7 +4,7 @@
  */
 
 import type { NormalizedRequestConfig } from '@suga/request-core';
-import type { RequestConfig } from '../../types';
+import type { RequestConfig } from '../types';
 
 /**
  * 将业务层配置转换为标准化配置和元数据

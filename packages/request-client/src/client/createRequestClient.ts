@@ -18,7 +18,7 @@ import { QueueStep } from '@suga/request-queue';
 import { EventStep } from '@suga/request-events';
 import { AxiosTransport } from '../transport/AxiosTransport';
 import type { RequestOptions } from '../types';
-import { DEFAULT_TIMEOUT } from '../../constants';
+import { DEFAULT_TIMEOUT } from '../constants';
 import { TransportStep } from '../steps/TransportStep';
 import { ApiRequestClient } from './ApiRequestClient';
 
