@@ -4,7 +4,6 @@
  */
 
 // 导出缓存管理器
-export { CacheManager } from './managers/CacheManager';
 export { RequestCacheManager } from './managers/RequestCacheManager';
 
 // 导出缓存策略
@@ -18,9 +17,7 @@ export {
 export { CacheReadStep } from './steps/CacheReadStep';
 export { CacheWriteStep } from './steps/CacheWriteStep';
 
-// 导出缓存实现
-export { MemoryCache } from './caches/MemoryCache';
-export { StorageCache } from './caches/StorageCache';
+// 注意：MemoryCache 和 StorageCache 已内联到 RequestCacheManager 中
 
 // 导出缓存策略管理器
 export { CacheStrategyManager } from './strategies/CacheStrategyManager';
@@ -38,10 +35,11 @@ export {
   getCacheStats,
 } from './utils/cache-utils';
 
-// 导出存储适配器
-export type { StorageAdapter } from './adapters';
+// 重新导出存储适配器（从 @suga/storage）
+export type { StorageAdapter } from '@suga/storage';
 export {
   LocalStorageAdapter,
+  SessionStorageAdapter,
   MemoryStorageAdapter,
   defaultStorageAdapter,
-} from './adapters';
+} from '@suga/storage';

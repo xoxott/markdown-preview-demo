@@ -2,7 +2,7 @@
  * 缓存策略类型定义
  */
 
-import type { CacheItem } from '../caches/MemoryCache';
+import type { CacheItem } from './cache-item';
 
 /**
  * 缓存策略类型

@@ -1,36 +1,40 @@
 /**
  * 请求缓存管理器
- * 协调者：组合 MemoryCache、StorageCache、CacheStrategyManager 等模块
+ * 协调者：组合内存缓存、存储缓存、CacheStrategyManager 等模块
  */
 
-import { generateKey } from '@suga/utils';
+import { generateKey, safeParseJSON, safeStringify } from '@suga/utils';
 import type { NormalizedRequestConfig } from '@suga/request-core';
-import { MemoryCache, type CacheItem } from '../caches/MemoryCache';
-import { StorageCache } from '../caches/StorageCache';
+import type { StorageAdapter } from '@suga/storage';
+import { defaultStorageAdapter } from '@suga/storage';
 import { CacheStrategyManager } from '../strategies/CacheStrategyManager';
 import { isValidCacheItem, isCacheItemExpired, getCacheStats } from '../utils/cache-utils';
+import type { CacheItem } from '../types/cache-item';
 import type { CacheStrategy, CustomCacheStrategy } from '../types/strategy';
 import type { RequestCacheOptions } from '../types/request-cache';
 import { DEFAULT_CACHE_CONFIG } from '../constants';
-
 
 /**
  * 请求缓存管理器
  */
 export class RequestCacheManager {
-  private memoryCache: MemoryCache;
-  private storageCache: StorageCache | null;
+  // 内存缓存（直接使用 Map）
+  private memoryCache = new Map<string, CacheItem>();
+  // 存储缓存（使用 StorageAdapter）
+  private storageCache: {
+    prefix: string;
+    adapter: StorageAdapter;
+  } | null = null;
   private strategyManager: CacheStrategyManager;
   private defaultExpireTime: number;
 
   constructor(options: RequestCacheOptions = {}) {
     this.defaultExpireTime = options.defaultExpireTime ?? DEFAULT_CACHE_CONFIG.DEFAULT_EXPIRE_TIME;
-    this.memoryCache = new MemoryCache();
     this.storageCache = options.useStorage
-      ? new StorageCache(
-          options.storagePrefix ?? DEFAULT_CACHE_CONFIG.STORAGE_PREFIX,
-          options.storageAdapter,
-        )
+      ? {
+          prefix: options.storagePrefix ?? DEFAULT_CACHE_CONFIG.STORAGE_PREFIX,
+          adapter: options.storageAdapter ?? defaultStorageAdapter,
+        }
       : null;
     this.strategyManager = new CacheStrategyManager(
       options.strategy ?? 'time',
@@ -48,11 +52,18 @@ export class RequestCacheManager {
   }
 
   /**
+   * 获取存储键名（带前缀）
+   */
+  private getStorageKey(key: string): string {
+    return this.storageCache ? `${this.storageCache.prefix}${key}` : key;
+  }
+
+  /**
    * 从内存缓存获取有效数据
    */
   private getFromMemoryCache<T>(key: string): T | null {
     const now = Date.now();
-    const item = this.memoryCache.get<T>(key);
+    const item = this.memoryCache.get(key) as CacheItem<T> | undefined;
 
     if (!item) {
       return null;
@@ -77,17 +88,19 @@ export class RequestCacheManager {
     }
 
     const now = Date.now();
-    const item = this.storageCache.get<T>(key);
+    const cached = this.storageCache.adapter.getItem(this.getStorageKey(key));
+    const item = safeParseJSON<CacheItem<T> | null>(cached, null);
 
     if (!item) {
       return null;
     }
 
     if (!isValidCacheItem(item, now)) {
-      this.storageCache.delete(key);
+      this.storageCache.adapter.removeItem(this.getStorageKey(key));
       return null;
     }
 
+    // 将存储缓存的数据同步到内存缓存
     this.memoryCache.set(key, item);
     return item.data;
   }
@@ -110,13 +123,16 @@ export class RequestCacheManager {
    * 应用缓存策略，清理超出限制的缓存
    */
   private applyCacheStrategy(key: string): void {
-    const currentSize = this.memoryCache.size();
-    const cacheEntries = this.memoryCache.entries();
+    const currentSize = this.memoryCache.size;
+    const cacheEntries = Array.from(this.memoryCache.entries());
     const keysToDelete = this.strategyManager.applyStrategy(currentSize, key, cacheEntries);
 
     for (const deleteKey of keysToDelete) {
       this.memoryCache.delete(deleteKey);
       this.strategyManager.removeFromAccessOrder(deleteKey);
+      if (this.storageCache) {
+        this.storageCache.adapter.removeItem(this.getStorageKey(deleteKey));
+      }
     }
   }
 
@@ -144,8 +160,10 @@ export class RequestCacheManager {
       this.strategyManager.addToAccessOrder(key);
     }
 
+    // 同步到存储缓存
     if (this.storageCache) {
-      this.storageCache.set(key, cacheItem);
+      const json = safeStringify(cacheItem, false);
+      this.storageCache.adapter.setItem(this.getStorageKey(key), json);
     }
   }
 
@@ -158,7 +176,7 @@ export class RequestCacheManager {
     this.strategyManager.removeFromAccessOrder(key);
 
     if (this.storageCache) {
-      this.storageCache.delete(key);
+      this.storageCache.adapter.removeItem(this.getStorageKey(key));
     }
   }
 
@@ -173,7 +191,12 @@ export class RequestCacheManager {
     );
 
     if (this.storageCache) {
-      this.storageCache.clear();
+      const allKeys = this.storageCache.adapter.getAllKeys();
+      for (const storageKey of allKeys) {
+        if (storageKey.startsWith(this.storageCache.prefix)) {
+          this.storageCache.adapter.removeItem(storageKey);
+        }
+      }
     }
   }
 
@@ -181,13 +204,16 @@ export class RequestCacheManager {
    * 清理过期缓存
    */
   cleanup(_force: boolean = false): void {
-    const cacheEntries = this.memoryCache.entries();
+    const cacheEntries = Array.from(this.memoryCache.entries());
     const now = Date.now();
 
     for (const [key, item] of cacheEntries) {
       if (isCacheItemExpired(item, now)) {
         this.memoryCache.delete(key);
         this.strategyManager.removeFromAccessOrder(key);
+        if (this.storageCache) {
+          this.storageCache.adapter.removeItem(this.getStorageKey(key));
+        }
       }
     }
   }
@@ -196,8 +222,12 @@ export class RequestCacheManager {
    * 获取缓存统计信息
    */
   getStats(): { memoryCount: number; storageCount: number } {
-    const memoryCount = this.memoryCache.size();
-    const storageCount = this.storageCache?.size() ?? 0;
+    const memoryCount = this.memoryCache.size;
+    const storageCount = this.storageCache
+      ? this.storageCache.adapter
+          .getAllKeys()
+          .filter((key: string) => key.startsWith(this.storageCache!.prefix)).length
+      : 0;
     return getCacheStats(memoryCount, storageCount);
   }
 
@@ -219,7 +249,7 @@ export class RequestCacheManager {
    * 设置最大缓存数量
    */
   setMaxSize(maxSize: number): void {
-    const currentSize = this.memoryCache.size();
+    const currentSize = this.memoryCache.size;
     const strategy = this.strategyManager.getStrategy();
 
     this.strategyManager.setMaxSize(maxSize);
@@ -229,12 +259,15 @@ export class RequestCacheManager {
     }
 
     if (strategy === 'lru' || strategy === 'fifo') {
-      const cacheEntries = this.memoryCache.entries();
+      const cacheEntries = Array.from(this.memoryCache.entries());
       const keysToDelete = this.strategyManager.applyStrategy(currentSize, '', cacheEntries);
 
       for (const deleteKey of keysToDelete) {
         this.memoryCache.delete(deleteKey);
         this.strategyManager.removeFromAccessOrder(deleteKey);
+        if (this.storageCache) {
+          this.storageCache.adapter.removeItem(this.getStorageKey(deleteKey));
+        }
       }
     }
   }
@@ -246,4 +279,3 @@ export class RequestCacheManager {
     this.strategyManager.setCustomStrategy(strategy);
   }
 }
-

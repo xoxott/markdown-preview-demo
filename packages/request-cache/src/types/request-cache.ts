@@ -3,7 +3,7 @@
  */
 
 import type { CacheStrategy, CustomCacheStrategy } from './strategy';
-import type { StorageAdapter } from '../adapters';
+import type { StorageAdapter } from '@suga/storage';
 
 /**
  * 请求缓存配置

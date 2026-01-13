@@ -3,7 +3,7 @@
  * 单一职责：提供缓存清理和统计等工具函数
  */
 
-import type { CacheItem } from '../caches/MemoryCache';
+import type { CacheItem } from '../types/cache-item';
 
 /**
  * 检查缓存项是否有效（未过期）

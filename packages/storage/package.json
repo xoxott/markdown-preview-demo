@@ -1,7 +1,7 @@
 {
-  "name": "@suga/request-cache",
+  "name": "@suga/storage",
   "version": "1.3.13",
-  "description": "Request cache management for @suga/request-core",
+  "description": "Storage adapter abstraction for browser and Node.js environments",
   "author": {
     "name": "yangtao",
     "email": "212920320@qq.com"
@@ -18,17 +18,19 @@
     }
   },
   "keywords": [
-    "request",
-    "cache",
-    "http",
+    "storage",
+    "adapter",
+    "localStorage",
+    "sessionStorage",
+    "memory",
     "suga"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/xoxott/suga-tools.git",
-    "directory": "packages/request-cache"
+    "directory": "packages/storage"
   },
-  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/request-cache",
+  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/storage",
   "bugs": {
     "url": "https://github.com/xoxott/suga-tools/issues"
   },
@@ -36,11 +38,7 @@
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "dependencies": {
-    "@suga/request-core": "workspace:*",
-    "@suga/storage": "workspace:*",
-    "@suga/utils": "workspace:*"
-  },
+  "dependencies": {},
   "devDependencies": {
     "typescript": "^5.6.3"
   },

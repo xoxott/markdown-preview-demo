@@ -23,12 +23,14 @@
     "api",
     "fetch"
   ],
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
-    ".": "./index.ts"
+    ".": "./src/index.ts"
   },
   "typesVersions": {
     "*": {
-      "*": ["./*"]
+      "*": ["./src/*"]
     }
   },
   "dependencies": {
@@ -42,6 +44,7 @@
     "@suga/request-performance": "workspace:*",
     "@suga/request-logger": "workspace:*",
     "@suga/request-progress": "workspace:*",
+    "@suga/storage": "workspace:*",
     "axios": "^1.7.9"
   },
   "devDependencies": {

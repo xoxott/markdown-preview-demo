@@ -3,7 +3,7 @@
  * 单一职责：管理缓存淘汰策略（LRU、FIFO、自定义等）
  */
 
-import type { CacheItem } from '../caches/MemoryCache';
+import type { CacheItem } from '../types/cache-item';
 import type { CacheStrategy, CustomCacheStrategy } from '../types/strategy';
 
 /**
