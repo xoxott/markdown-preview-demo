@@ -1,0 +1,49 @@
+{
+  "name": "@suga/request-performance",
+  "version": "1.0.0",
+  "description": "Request performance monitoring for @suga/request-core",
+  "author": {
+    "name": "yangtao",
+    "email": "212920320@qq.com"
+  },
+  "license": "MIT",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "typesVersions": {
+    "*": {
+      "*": ["./src/*"]
+    }
+  },
+  "keywords": [
+    "request",
+    "performance",
+    "monitoring",
+    "metrics",
+    "http",
+    "suga"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xoxott/suga-tools.git",
+    "directory": "packages/request-performance"
+  },
+  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/request-performance",
+  "bugs": {
+    "url": "https://github.com/xoxott/suga-tools/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "dependencies": {
+    "@suga/request-core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  },
+  "peerDependencies": {}
+}
+

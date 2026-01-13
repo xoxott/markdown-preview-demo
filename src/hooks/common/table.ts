@@ -1,8 +1,8 @@
 import { computed, effectScope, onScopeDispose, reactive, ref, watch } from 'vue';
 import type { Ref } from 'vue';
 import type { PaginationProps } from 'naive-ui';
-import { jsonClone } from '@sa/utils';
-import { useBoolean, useHookTable } from '@sa/hooks';
+import { jsonClone } from '@suga/utils';
+import { useBoolean, useHookTable } from '@suga/hooks';
 import { useAppStore } from '@/store/modules/app';
 import { $t } from '@/locales';
 

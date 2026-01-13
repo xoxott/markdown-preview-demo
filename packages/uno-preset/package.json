@@ -1,5 +1,5 @@
 {
-  "name": "@sa/uno-preset",
+  "name": "@suga/uno-preset",
   "version": "1.3.13",
   "exports": {
     ".": "./src/index.ts"

@@ -7,10 +7,10 @@ declare namespace NaiveUI {
   type DataTableSelectionColumn<T> = import('naive-ui').DataTableSelectionColumn<T>;
   type TableColumnGroup<T> = import('naive-ui/es/data-table/src/interface').TableColumnGroup<T>;
   type PaginationProps = import('naive-ui').PaginationProps;
-  type TableColumnCheck = import('@sa/hooks').TableColumnCheck;
-  type TableDataWithIndex<T> = import('@sa/hooks').TableDataWithIndex<T>;
-  type FlatResponseData<T> = import('@sa/axios').FlatResponseData<T>;
-  type ExtractResponseData<T> = import('@sa/axios').ExtractResponseData<T>;
+  type TableColumnCheck = import('@suga/hooks').TableColumnCheck;
+  type TableDataWithIndex<T> = import('@suga/hooks').TableDataWithIndex<T>;
+  type FlatResponseData<T> = import('@suga/axios').FlatResponseData<T>;
+  type ExtractResponseData<T> = import('@suga/axios').ExtractResponseData<T>;
 
   /**
    * the custom column key
@@ -44,7 +44,7 @@ declare namespace NaiveUI {
     : never;
 
   type NaiveTableConfig<A extends TableApiFn> = Pick<
-    import('@sa/hooks').TableConfig<A, GetTableData<A>, TableColumn<TableDataWithIndex<GetTableData<A>>>>,
+    import('@suga/hooks').TableConfig<A, GetTableData<A>, TableColumn<TableDataWithIndex<GetTableData<A>>>>,
     'apiFn' | 'apiParams' | 'columns' | 'immediate'
   > & {
     /**

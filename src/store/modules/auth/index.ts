@@ -14,7 +14,7 @@ import {
   fetchEmailCodeLogin
 } from '@/service/api';
 import { localStg } from '@/utils/storage';
-import { useLoading } from '@sa/hooks';
+import { useLoading } from '@suga/hooks';
 import { defineStore } from 'pinia';
 import { computed, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';

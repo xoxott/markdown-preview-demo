@@ -1,6 +1,27 @@
 {
-  "name": "@sa/axios",
+  "name": "@suga/axios",
   "version": "1.3.13",
+  "description": "Axios wrapper with enhanced features",
+  "author": {
+    "name": "yangtao",
+    "email": "212920320@qq.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xoxott/suga-tools.git",
+    "directory": "packages/axios"
+  },
+  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/axios",
+  "bugs": {
+    "url": "https://github.com/xoxott/suga-tools/issues"
+  },
+  "keywords": [
+    "axios",
+    "http",
+    "request",
+    "fetch"
+  ],
   "exports": {
     ".": "./src/index.ts"
   },
@@ -10,12 +31,16 @@
     }
   },
   "dependencies": {
-    "@sa/utils": "workspace:*",
+    "@suga/utils": "workspace:*",
     "axios": "1.9.0",
     "axios-retry": "4.5.0",
     "qs": "6.14.0"
   },
   "devDependencies": {
     "@types/qs": "6.9.18"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }

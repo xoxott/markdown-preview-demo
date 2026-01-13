@@ -1,5 +1,5 @@
 import { computed } from 'vue';
-import { useCountDown, useLoading } from '@sa/hooks';
+import { useCountDown, useLoading } from '@suga/hooks';
 import { REG_PHONE } from '@/constants/reg';
 import { $t } from '@/locales';
 

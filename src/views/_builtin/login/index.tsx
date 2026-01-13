@@ -1,6 +1,6 @@
 import { defineComponent, computed, Transition, type PropType } from 'vue';
 import { NCard } from 'naive-ui';
-import { getPaletteColorByNumber, mixColor } from '@sa/color';
+import { getPaletteColorByNumber, mixColor } from '@suga/color';
 import { loginModuleRecord } from '@/constants/app';
 import { useAppStore } from '@/store/modules/app';
 import { useThemeStore } from '@/store/modules/theme';

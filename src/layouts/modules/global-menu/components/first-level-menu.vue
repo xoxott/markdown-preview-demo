@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { createReusableTemplate } from '@vueuse/core';
-import { SimpleScrollbar } from '@sa/materials';
-import { transformColorWithOpacity } from '@sa/color';
+import { SimpleScrollbar } from '@suga/materials';
+import { transformColorWithOpacity } from '@suga/color';
 
 defineOptions({
   name: 'FirstLevelMenu'
