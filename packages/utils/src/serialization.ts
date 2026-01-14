@@ -87,8 +87,8 @@ export function safeParseJSON<T>(json: string | null, defaultValue: T): T {
 export function generateKey(method: string, url: string, params?: unknown, data?: unknown): string {
   const methodUpper = method.toUpperCase();
 
-  const paramsStr = safeStringify(params, true);
-  const dataStr = data !== undefined ? safeStringify(data, true) : '';
+  const paramsStr = safeStringify(params);
+  const dataStr = data !== undefined ? safeStringify(data) : '';
 
   if (dataStr) {
     return `${methodUpper}_${url}_${paramsStr}_${dataStr}`;

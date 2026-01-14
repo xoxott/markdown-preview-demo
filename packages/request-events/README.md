@@ -15,9 +15,8 @@ pnpm add @suga/request-events
 ```typescript
 import { RequestClient } from '@suga/request-core';
 import { EventStep, onRequestStart, onRequestSuccess, onRequestError } from '@suga/request-events';
-import { AxiosTransport } from '@suga/request-axios';
 
-const transport = new AxiosTransport();
+// 创建请求客户端（需要提供 transport）
 const client = new RequestClient(transport)
   .with(new EventStep());
 
@@ -37,12 +36,16 @@ onRequestError((data) => {
 });
 
 // 发送请求
-await client.get('/api/users');
+await client.request({
+  url: '/api/users',
+  method: 'GET',
+});
 ```
 
 ### 使用自定义事件管理器
 
 ```typescript
+import { RequestClient } from '@suga/request-core';
 import { EventManager, EventStep } from '@suga/request-events';
 
 const eventManager = new EventManager();
@@ -266,7 +269,7 @@ eventManager.on('request:start', (data) => {
 ### 示例 5：取消监听
 
 ```typescript
-import { onRequestStart, offRequestStart } from '@suga/request-events';
+import { onRequestStart, offRequestStart, type RequestStartEventData } from '@suga/request-events';
 
 const handler = (data: RequestStartEventData) => {
   console.log('Request started:', data.config.url);

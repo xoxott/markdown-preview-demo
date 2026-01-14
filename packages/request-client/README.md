@@ -346,86 +346,41 @@ const config: RequestConfig = {
 const data = await client.request(config);
 ```
 
-## 全局配置方案
+## 全局配置
 
-目前 `@suga/request-client` 不支持在创建客户端时设置全局默认配置（如全局重试、缓存等）。如果需要全局配置，可以在应用层封装一个包装函数：
-
-### 方案：应用层封装全局配置
+`@suga/request-client` 支持在创建客户端时设置全局默认配置。所有请求会自动应用全局配置，单个请求的配置会覆盖全局配置：
 
 ```typescript
-import { createRequestClient, type ApiRequestClient, type RequestConfig } from '@suga/request-client';
+import { createRequestClient, type RequestConfig } from '@suga/request-client';
 
-// 定义全局默认配置
-const globalDefaultConfig: Partial<RequestConfig> = {
-  retry: true,
-  retryCount: 3,
-  retryOnTimeout: false,
-  dedupe: true,
-  logEnabled: true,
-  logger: {
-    level: 'info',
-    enableRequest: true,
-    enableResponse: true,
-    enableError: true,
-  },
-};
-
-// 创建基础客户端
-const baseClient = createRequestClient(undefined, {
-  baseURL: '/api',
-  timeout: 10000,
-});
-
-// 封装带全局配置的客户端
-class ClientWithDefaults {
-  constructor(
-    private client: ApiRequestClient,
-    private defaults: Partial<RequestConfig>
-  ) {}
-
-  private mergeConfig(config?: RequestConfig): RequestConfig {
-    return {
-      ...this.defaults,
-      ...config,
-      // 深度合并嵌套对象
+// 创建客户端并设置全局默认配置
+const client = createRequestClient(
+  undefined,
+  {
+    baseURL: '/api',
+    timeout: 10000,
+    defaultConfig: {
+      // 全局重试配置
+      retry: true,
+      retryCount: 3,
+      retryOnTimeout: false,
+      // 全局去重配置
+      dedupe: true,
+      // 全局日志配置
+      logEnabled: true,
       logger: {
-        ...this.defaults.logger,
-        ...config?.logger,
-      } as typeof config?.logger,
-      queue: {
-        ...this.defaults.queue,
-        ...config?.queue,
-      } as typeof config?.queue,
-    };
+        level: 'info',
+        enableRequest: true,
+        enableResponse: true,
+        enableError: true,
+      },
+      // 全局 headers
+      headers: {
+        'X-Custom-Header': 'value',
+      },
+    },
   }
-
-  request<T = unknown>(config: RequestConfig): Promise<T> {
-    return this.client.request<T>(this.mergeConfig(config));
-  }
-
-  get<T = unknown>(url: string, params?: unknown, config?: RequestConfig): Promise<T> {
-    return this.client.get<T>(url, params, this.mergeConfig(config));
-  }
-
-  post<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<T> {
-    return this.client.post<T>(url, data, this.mergeConfig(config));
-  }
-
-  put<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<T> {
-    return this.client.put<T>(url, data, this.mergeConfig(config));
-  }
-
-  delete<T = unknown>(url: string, config?: RequestConfig): Promise<T> {
-    return this.client.delete<T>(url, this.mergeConfig(config));
-  }
-
-  patch<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<T> {
-    return this.client.patch<T>(url, data, this.mergeConfig(config));
-  }
-}
-
-// 使用带全局配置的客户端
-const client = new ClientWithDefaults(baseClient, globalDefaultConfig);
+);
 
 // 现在所有请求都会自动应用全局配置
 const data = await client.get('/data'); // 自动启用重试、去重、日志
@@ -433,39 +388,23 @@ const data = await client.get('/data'); // 自动启用重试、去重、日志
 // 单个请求可以覆盖全局配置
 const data2 = await client.get('/data', undefined, {
   retry: false, // 覆盖全局配置，禁用重试
+  retryCount: 5, // 覆盖全局重试次数
+});
+
+// 嵌套对象（如 logger）会被深度合并
+const data3 = await client.get('/data', undefined, {
+  logger: {
+    level: 'debug', // 只覆盖 level，其他 logger 配置保留
+  },
 });
 ```
 
-### 更简单的方案：使用工具函数
+### 配置合并规则
 
-```typescript
-import { createRequestClient, type RequestConfig } from '@suga/request-client';
-
-// 全局默认配置
-const globalDefaults: Partial<RequestConfig> = {
-  retry: true,
-  retryCount: 3,
-  dedupe: true,
-};
-
-// 创建客户端
-const client = createRequestClient(undefined, {
-  baseURL: '/api',
-  timeout: 10000,
-});
-
-// 工具函数：合并配置
-function withDefaults(config?: RequestConfig): RequestConfig {
-  return {
-    ...globalDefaults,
-    ...config,
-  };
-}
-
-// 使用方式
-const data = await client.get('/data', undefined, withDefaults());
-const data2 = await client.get('/data', undefined, withDefaults({ retry: false }));
-```
+- **浅层属性**：单个请求的配置会完全覆盖全局配置
+- **嵌套对象**（`headers`、`logger`、`queue`、`circuitBreaker`）：会被深度合并
+  - 全局配置和请求配置的嵌套对象会被合并
+  - 请求配置中的属性会覆盖全局配置中的相同属性
 
 ## API 参考
 
@@ -481,6 +420,7 @@ const data2 = await client.get('/data', undefined, withDefaults({ retry: false }
   - `timeout?: number` - 请求超时时间（默认：`10000` 毫秒）
   - `timeoutStrategy?: Partial<TimeoutStrategy>` - 超时策略
   - `queueConfig?: QueueConfig` - 队列配置
+  - `defaultConfig?: Partial<RequestConfig>` - 全局默认配置（会被单个请求配置覆盖）
 
 **返回：** `ApiRequestClient` 实例
 

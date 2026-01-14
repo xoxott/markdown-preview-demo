@@ -3,8 +3,7 @@
  * 协调者：组合内存缓存、存储缓存、CacheStrategyManager 等模块
  */
 
-import { generateKey, safeParseJSON, safeStringify } from '@suga/utils';
-import type { NormalizedRequestConfig } from '@suga/request-core';
+import { safeParseJSON, safeStringify } from '@suga/utils';
 import type { StorageAdapter } from '@suga/storage';
 import { defaultStorageAdapter } from '@suga/storage';
 import { CacheStrategyManager } from '../strategies/CacheStrategyManager';
@@ -41,14 +40,6 @@ export class RequestCacheManager {
       options.maxSize ?? DEFAULT_CACHE_CONFIG.DEFAULT_MAX_SIZE,
       options.customStrategy,
     );
-  }
-
-  /**
-   * 生成缓存键
-   */
-  private generateCacheKey(config: NormalizedRequestConfig): string {
-    const { url, method, params, data } = config;
-    return generateKey(method || 'GET', url || '', params, data);
   }
 
   /**
@@ -106,10 +97,9 @@ export class RequestCacheManager {
   }
 
   /**
-   * 获取缓存
+   * 通过键获取缓存（直接使用 ctx.id）
    */
-  get<T = unknown>(config: NormalizedRequestConfig): T | null {
-    const key = this.generateCacheKey(config);
+  getByKey<T = unknown>(key: string): T | null {
     const memoryData = this.getFromMemoryCache<T>(key);
 
     if (memoryData !== null) {
@@ -137,10 +127,9 @@ export class RequestCacheManager {
   }
 
   /**
-   * 设置缓存
+   * 通过键设置缓存（直接使用 ctx.id）
    */
-  set<T = unknown>(config: NormalizedRequestConfig, data: T, expireTime?: number): void {
-    const key = this.generateCacheKey(config);
+  setByKey<T = unknown>(key: string, data: T, expireTime?: number): void {
     const now = Date.now();
     const expire = expireTime ?? this.defaultExpireTime;
 
@@ -168,10 +157,9 @@ export class RequestCacheManager {
   }
 
   /**
-   * 删除缓存
+   * 通过键删除缓存（直接使用 ctx.id）
    */
-  delete(config: NormalizedRequestConfig): void {
-    const key = this.generateCacheKey(config);
+  deleteByKey(key: string): void {
     this.memoryCache.delete(key);
     this.strategyManager.removeFromAccessOrder(key);
 

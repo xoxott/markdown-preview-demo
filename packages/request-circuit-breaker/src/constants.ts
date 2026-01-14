@@ -44,3 +44,15 @@ export const NETWORK_ERROR_KEYWORDS: readonly string[] = [
 export const SERVER_ERROR_STATUS_MIN = 500;
 export const SERVER_ERROR_STATUS_MAX = 599;
 
+/**
+ * 熔断器管理器默认配置
+ */
+export const DEFAULT_CIRCUIT_BREAKER_MANAGER_CONFIG = {
+  /** 默认清理间隔（5 分钟，毫秒） */
+  DEFAULT_CLEANUP_INTERVAL: 5 * 60 * 1000,
+  /** 默认最大数量（0 表示无限制） */
+  DEFAULT_MAX_SIZE: 0,
+  /** 默认空闲超时时间（30 分钟，毫秒） */
+  DEFAULT_IDLE_TIMEOUT: 30 * 60 * 1000,
+} as const;
+

@@ -54,14 +54,6 @@ export interface CachePolicy {
   shouldWrite(config: NormalizedRequestConfig, data: unknown, meta?: CacheMeta): boolean;
 
   /**
-   * 生成缓存键
-   * @param config 请求配置
-   * @param meta 缓存元数据
-   * @returns 缓存键
-   */
-  getKey(config: NormalizedRequestConfig, meta?: CacheMeta): string;
-
-  /**
    * 获取缓存 TTL（过期时间，毫秒）
    * @param config 请求配置
    * @param meta 缓存元数据

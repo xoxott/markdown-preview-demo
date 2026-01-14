@@ -59,11 +59,6 @@ class CustomCachePolicy implements CachePolicy {
     return data !== null;
   }
 
-  getKey(config: NormalizedRequestConfig, meta?: CacheMeta): string {
-    // 自定义键生成
-    return `${config.method}:${config.url}`;
-  }
-
   getTTL(config: NormalizedRequestConfig, meta?: CacheMeta): number | undefined {
     // 自定义 TTL
     return 10 * 60 * 1000; // 10 分钟
@@ -254,11 +249,6 @@ interface CachePolicy {
    * 判断是否应该写入缓存
    */
   shouldWrite(config: NormalizedRequestConfig, data: unknown, meta?: CacheMeta): boolean;
-
-  /**
-   * 生成缓存键
-   */
-  getKey(config: NormalizedRequestConfig, meta?: CacheMeta): string;
 
   /**
    * 获取缓存 TTL（过期时间，毫秒）

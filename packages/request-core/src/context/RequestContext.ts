@@ -2,6 +2,8 @@
  * 请求上下文（Request Context）
  * 请求的唯一事实来源，所有 Step 通过 Context 通信
  */
+
+import { generateKey } from '@suga/utils';
 export interface NormalizedRequestConfig {
   readonly url: string;
   readonly method: string;
@@ -61,9 +63,8 @@ export function createRequestContext<T = unknown>(
   id?: string,
   meta?: Record<string, unknown>,
 ): RequestContext<T> {
-  const requestId =
-    id ||
-    `${config.method || 'GET'}:${config.url || ''}:${JSON.stringify(config.params || config.data || {})}`;
+  // 使用统一的键生成函数，确保格式一致且包含完整的 params 和 data
+  const requestId = id || generateKey(config.method || 'GET', config.url || '', config.params, config.data);
 
   return {
     id: requestId,

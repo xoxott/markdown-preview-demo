@@ -3,8 +3,7 @@
  */
 
 import type { NormalizedRequestConfig } from '@suga/request-core';
-import { generateKey } from '@suga/utils';
-import type { CachePolicy, CacheConfig, CacheMeta } from '../types';
+import type { CacheConfig, CacheMeta, CachePolicy } from '../types';
 
 export class DefaultCachePolicy implements CachePolicy {
   shouldRead(config: NormalizedRequestConfig, meta?: CacheMeta): boolean {
@@ -34,18 +33,12 @@ export class DefaultCachePolicy implements CachePolicy {
     return data !== null && data !== undefined;
   }
 
-  getKey(config: NormalizedRequestConfig, _meta?: CacheMeta): string {
-    const { url = '', method = 'GET', params, data } = config;
-    return generateKey(method || 'GET', url || '', params, data);
-  }
-
   getTTL(_config: NormalizedRequestConfig, meta?: CacheMeta): number | undefined {
     // 当前实现仅从 meta 中获取 TTL，不使用 config
     // 保留 config 参数以支持未来扩展（如根据 URL、method 等动态决定 TTL）
     if (meta?.cacheExpireTime !== undefined) {
       return meta.cacheExpireTime as number;
     }
-
     // 如果 cache 是对象且包含 ttl，使用对象中的 ttl
     const cache = meta?.cache;
     if (typeof cache === 'object' && cache !== null && 'ttl' in cache) {

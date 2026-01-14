@@ -10,12 +10,6 @@ export type { DedupeStepOptions } from './steps/DedupeStep';
 // 导出去重管理器
 export { DedupeManager } from './managers/DedupeManager';
 
-// 导出工具函数
-export {
-  generateRequestKey,
-  type KeyGeneratorOptions,
-} from './utils/key-generator';
-
 // 导出类型
 export type * from './types';
 

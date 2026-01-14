@@ -16,9 +16,8 @@ pnpm add @suga/request-logger
 import { RequestClient } from '@suga/request-core';
 import { EventStep } from '@suga/request-events';
 import { logRequestWithManager, logResponseWithManager, logErrorWithManager } from '@suga/request-logger';
-import { AxiosTransport } from '@suga/request-axios';
 
-const transport = new AxiosTransport();
+// 创建请求客户端（需要提供 transport）
 const client = new RequestClient(transport)
   .with(new EventStep());
 
@@ -38,7 +37,10 @@ onRequestError((data) => {
 });
 
 // 发送请求
-await client.get('/api/users');
+await client.request({
+  url: '/api/users',
+  method: 'GET',
+});
 ```
 
 ### 配置日志选项
@@ -72,9 +74,16 @@ const customLogger = new LoggerManager({
 });
 
 // 使用自定义管理器
+import type { NormalizedRequestConfig } from '@suga/request-core';
+
+const config: NormalizedRequestConfig = {
+  url: '/api/users',
+  method: 'GET',
+};
+
 logRequest(config, customLogger);
-logResponse(config, result, duration, customLogger);
-logError(config, error, duration, customLogger);
+logResponse(config, { data: 'result' }, 150, customLogger);
+logError(config, new Error('Request failed'), 200, customLogger);
 ```
 
 ## 📚 API
@@ -87,7 +96,7 @@ logError(config, error, duration, customLogger);
 
 ```typescript
 interface LoggerOptions {
-  /** 是否启用日志（默认：开发环境启用，生产环境禁用） */
+  /** 是否启用日志（默认：false，需要明确设置为 true 才会启用） */
   enabled?: boolean;
   /** 是否记录请求日志 */
   logRequest?: boolean;
@@ -95,9 +104,10 @@ interface LoggerOptions {
   logResponse?: boolean;
   /** 是否记录错误日志 */
   logError?: boolean;
-  /** 日志输出函数 */
-  output?: (message: string, ...args: unknown[]) => void;
 }
+
+// 注意：output 选项在 LoggerManager 构造函数中可用，但不在 LoggerOptions 接口中
+// 使用 LoggerManager 时可以传入 output 选项
 ```
 
 #### 方法
@@ -176,7 +186,10 @@ configureLogger({
 ```typescript
 import { LoggerManager, logRequest } from '@suga/request-logger';
 
+import type { NormalizedRequestConfig } from '@suga/request-core';
+
 const logger = new LoggerManager({
+  enabled: true,
   output: (message, ...args) => {
     // 发送到日志服务
     logService.send({
@@ -187,6 +200,11 @@ const logger = new LoggerManager({
     });
   },
 });
+
+const config: NormalizedRequestConfig = {
+  url: '/api/users',
+  method: 'GET',
+};
 
 logRequest(config, logger);
 ```
@@ -230,7 +248,7 @@ request-logger/
 
 ## 🔧 实现细节
 
-1. **环境检测**：自动检测开发/生产环境，默认开发环境启用日志
+1. **明确启用**：默认禁用日志，需要使用者明确设置 `enabled: true` 才会启用（不耦合环境判断）
 2. **灵活配置**：支持全局配置和单次请求配置
 3. **自定义输出**：支持自定义日志输出函数
 4. **选择性记录**：可以单独控制请求、响应、错误的日志记录

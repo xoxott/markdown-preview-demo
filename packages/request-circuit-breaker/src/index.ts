@@ -20,6 +20,7 @@ export function createCircuitBreaker<T = unknown>(
 
 // 导出熔断器管理器
 export { CircuitBreakerManager } from './managers/CircuitBreakerManager';
+export type { CircuitBreakerManagerOptions } from './managers/CircuitBreakerManager';
 
 // 导出熔断步骤
 export { CircuitBreakerStep } from './steps/CircuitBreakerStep';
@@ -38,6 +39,7 @@ export type * from './types';
 // 导出常量
 export {
   DEFAULT_CIRCUIT_BREAKER_CONFIG,
+  DEFAULT_CIRCUIT_BREAKER_MANAGER_CONFIG,
   NETWORK_ERROR_CODES,
   NETWORK_ERROR_KEYWORDS,
 } from './constants';

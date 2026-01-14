@@ -38,6 +38,8 @@ export interface RequestOptions {
   timeoutStrategy?: Partial<TimeoutStrategy>;
   /** 队列配置（用于并发控制） */
   queueConfig?: QueueConfig;
+  /** 全局默认配置（会被单个请求配置覆盖） */
+  defaultConfig?: Partial<RequestConfig>;
 }
 
 /**

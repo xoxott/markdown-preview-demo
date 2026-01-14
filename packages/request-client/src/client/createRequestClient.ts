@@ -78,7 +78,7 @@ export function createRequestClient(
   // 创建自定义客户端
   const coreClient = new CustomRequestClient(transport, steps);
 
-  // 返回业务层包装的客户端
-  return new ApiRequestClient(coreClient);
+  // 返回业务层包装的客户端（传递全局默认配置）
+  return new ApiRequestClient(coreClient, options?.defaultConfig);
 }
 

@@ -11,6 +11,9 @@ export type {
 } from './context/RequestContext';
 export { createRequestContext } from './context/RequestContext';
 
+// Utils
+export { generateRequestKey } from './utils/key-generator';
+
 // Transport
 export type { Transport, TransportResponse } from './transport/Transport';
 

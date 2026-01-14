@@ -3,6 +3,7 @@
  */
 
 import type { NormalizedRequestConfig } from '@suga/request-core';
+import { generateRequestKey as generateCoreRequestKey } from '@suga/request-core';
 import { generateKey } from '@suga/utils';
 import type { DedupeStrategy } from '../types';
 
@@ -39,10 +40,10 @@ function filterIgnoredParams(obj: unknown, ignoreParams: string[]): unknown {
 
 /**
  * 生成请求唯一标识（精确匹配）
+ * 复用 request-core 的键生成函数，确保格式一致
  */
 function generateExactKey(config: NormalizedRequestConfig): string {
-  const { url, method, params, data } = config;
-  return generateKey(method || 'GET', url || '', params, data);
+  return generateCoreRequestKey(config);
 }
 
 /**

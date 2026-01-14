@@ -15,9 +15,8 @@ pnpm add @suga/request-queue
 ```typescript
 import { RequestClient } from '@suga/request-core';
 import { QueueStep } from '@suga/request-queue';
-import { AxiosTransport } from '@suga/request-axios';
 
-const transport = new AxiosTransport();
+// 创建请求客户端（需要提供 transport）
 const client = new RequestClient(transport)
   .with(new QueueStep({
     defaultConfig: {
@@ -27,7 +26,9 @@ const client = new RequestClient(transport)
   }));
 
 // 在 meta 中启用队列
-await client.get('/api/users', {}, {
+await client.request({
+  url: '/api/users',
+  method: 'GET',
   meta: {
     queue: true, // 启用队列
   },
@@ -37,6 +38,7 @@ await client.get('/api/users', {}, {
 ### 配置队列选项
 
 ```typescript
+import { RequestClient } from '@suga/request-core';
 import { QueueStep } from '@suga/request-queue';
 
 const queueStep = new QueueStep({
@@ -53,6 +55,7 @@ const client = new RequestClient(transport)
 ### 使用自定义管理器
 
 ```typescript
+import { RequestClient } from '@suga/request-core';
 import { QueueManager, QueueStep } from '@suga/request-queue';
 
 const queueManager = new QueueManager({
@@ -72,7 +75,9 @@ const client = new RequestClient(transport)
 
 ```typescript
 // 高优先级请求
-await client.get('/api/important', {}, {
+await client.request({
+  url: '/api/important',
+  method: 'GET',
   meta: {
     queue: true,
     priority: 'high',
@@ -80,7 +85,9 @@ await client.get('/api/important', {}, {
 });
 
 // 低优先级请求
-await client.get('/api/background', {}, {
+await client.request({
+  url: '/api/background',
+  method: 'GET',
   meta: {
     queue: true,
     priority: 'low',
@@ -122,11 +129,11 @@ interface QueueConfig {
 
 #### 方法
 
-- `enqueue<T>(config, requestFn, priority?)`: 添加请求到队列
+- `enqueue<T>(config: NormalizedRequestConfig, requestFn: () => Promise<T>, priority?: RequestPriority): Promise<T>`: 添加请求到队列
 - `getQueueLength()`: 获取队列长度
 - `getRunningCount()`: 获取运行中的请求数量
 - `clear()`: 清空队列
-- `updateConfig(config)`: 更新配置
+- `updateConfig(config: Partial<QueueConfig>)`: 更新配置
 
 ### createRequestQueue
 
@@ -173,6 +180,9 @@ const queueManager = createRequestQueue({
 ### 示例 1：控制并发数量
 
 ```typescript
+import { RequestClient } from '@suga/request-core';
+import { QueueStep } from '@suga/request-queue';
+
 // 限制最多同时发送 3 个请求
 const client = new RequestClient(transport)
   .with(new QueueStep({
@@ -184,7 +194,9 @@ const client = new RequestClient(transport)
 
 // 发送多个请求，最多同时执行 3 个
 for (let i = 0; i < 10; i++) {
-  client.get(`/api/data/${i}`, {}, {
+  client.request({
+    url: `/api/data/${i}`,
+    method: 'GET',
     meta: { queue: true },
   });
 }
@@ -193,6 +205,9 @@ for (let i = 0; i < 10; i++) {
 ### 示例 2：优先级队列
 
 ```typescript
+import { RequestClient } from '@suga/request-core';
+import { QueueStep } from '@suga/request-queue';
+
 const client = new RequestClient(transport)
   .with(new QueueStep({
     defaultConfig: {
@@ -202,7 +217,9 @@ const client = new RequestClient(transport)
   }));
 
 // 高优先级请求会优先执行
-await client.get('/api/important', {}, {
+await client.request({
+  url: '/api/important',
+  method: 'GET',
   meta: {
     queue: true,
     priority: 'high',
@@ -210,7 +227,9 @@ await client.get('/api/important', {}, {
 });
 
 // 低优先级请求会等待高优先级请求完成
-await client.get('/api/background', {}, {
+await client.request({
+  url: '/api/background',
+  method: 'GET',
   meta: {
     queue: true,
     priority: 'low',
@@ -222,7 +241,9 @@ await client.get('/api/background', {}, {
 
 ```typescript
 // 在 meta 中显式禁用队列
-await client.get('/api/data', {}, {
+await client.request({
+  url: '/api/data',
+  method: 'GET',
   meta: {
     queue: false, // 禁用队列
   },
@@ -233,7 +254,9 @@ await client.get('/api/data', {}, {
 
 ```typescript
 // 为特定请求配置不同的队列参数
-await client.get('/api/data', {}, {
+await client.request({
+  url: '/api/data',
+  method: 'GET',
   meta: {
     queue: {
       maxConcurrent: 2, // 使用更小的并发数

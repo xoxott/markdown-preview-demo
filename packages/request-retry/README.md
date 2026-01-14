@@ -27,10 +27,8 @@ import { RetryStep } from '@suga/request-retry';
 import { RequestClient } from '@suga/request-core';
 
 // 创建带重试步骤的请求客户端
-const client = new RequestClient(transport, [
-  new RetryStep(),
-  // ... 其他步骤
-]);
+const client = new RequestClient(transport)
+  .with(new RetryStep());
 
 // 在请求中使用重试
 const result = await client.request({
@@ -128,6 +126,17 @@ const strategy: RetryStrategy = {
 ### RetryStep
 
 重试步骤类，用于请求管道。
+
+#### 构造函数选项
+
+```typescript
+interface RetryStepOptions {
+  /** 默认重试策略 */
+  defaultStrategy?: RetryStrategy;
+}
+```
+
+#### 使用示例
 
 ```typescript
 class RetryStep implements RequestStep {

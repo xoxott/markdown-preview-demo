@@ -77,7 +77,7 @@ constructor(onProgress?: ProgressCallback)
 
 #### 方法
 
-- `update(progressEvent)`: 更新进度
+- `update(progressEvent: ProgressEvent)`: 更新进度
 - `reset()`: 重置追踪器
 
 ### createProgressTracker
@@ -90,16 +90,38 @@ function createProgressTracker(onProgress?: ProgressCallback): (progressEvent: P
 
 ### 工具函数
 
-- `calculateProgress(progressEvent)`: 计算进度百分比 (0-100)
-- `formatFileSize(bytes)`: 格式化文件大小（如 "1.5 MB"）
-- `formatSpeed(bytes, elapsedTime)`: 格式化传输速度（如 "1.5 MB/s"）
+- `calculateProgress(progressEvent: ProgressEvent)`: 计算进度百分比 (0-100)
+- `formatFileSize(bytes: number)`: 格式化文件大小（如 "1.5 MB"）
+- `formatSpeed(bytes: number, elapsedTime: number)`: 格式化传输速度（如 "1.5 MB/s"）
+
+### 类型定义
+
+```typescript
+// 进度事件数据
+interface ProgressEvent {
+  loaded: number;  // 已传输字节数
+  total: number;   // 总字节数（如果未知则为 0）
+}
+
+// 进度信息
+interface ProgressInfo {
+  percent: number;  // 进度百分比 (0-100)
+  loaded: number;   // 已传输字节数
+  total: number;    // 总字节数
+  speed: string;    // 传输速度（格式化字符串，如 "1.5 MB/s"）
+  elapsed: number;  // 已用时间（毫秒）
+}
+
+// 进度回调函数
+type ProgressCallback = (progress: ProgressInfo) => void;
+```
 
 ## 📝 使用示例
 
 ### 示例 1：上传进度跟踪
 
 ```typescript
-import { createProgressTracker } from '@suga/request-progress';
+import { createProgressTracker, formatFileSize } from '@suga/request-progress';
 
 const uploadTracker = createProgressTracker((progress) => {
   console.log(`上传进度: ${progress.percent}%`);
@@ -119,7 +141,7 @@ const config = {
 ### 示例 2：下载进度跟踪
 
 ```typescript
-import { createProgressTracker } from '@suga/request-progress';
+import { createProgressTracker, formatFileSize } from '@suga/request-progress';
 
 const downloadTracker = createProgressTracker((progress) => {
   console.log(`下载进度: ${progress.percent}%`);
@@ -161,6 +183,7 @@ const trackers = files.map((file, index) => {
 });
 
 // 为每个文件使用对应的追踪器
+// 注意：uploadFile 是一个示例函数，实际使用时需要根据你的请求库进行适配
 files.forEach((file, index) => {
   uploadFile(file, {
     onUploadProgress: (event) => trackers[index].update(event),

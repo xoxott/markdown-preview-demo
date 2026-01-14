@@ -6,6 +6,7 @@
 import type { RequestStep, RequestContext } from '@suga/request-core';
 import type { DedupeOptions, DedupeMeta } from '../types';
 import { DedupeManager } from '../managers/DedupeManager';
+import { generateRequestKey } from '../utils/key-generator';
 
 /**
  * 去重步骤配置
@@ -70,6 +71,10 @@ export class DedupeStep implements RequestStep {
       return next();
     }
 
+    // 判断是否需要自定义键生成（ignore-params 或 custom 策略）
+    const needsCustomKey =
+      parsedConfig.strategy === 'ignore-params' || parsedConfig.strategy === 'custom';
+
     // 如果配置了自定义选项，创建临时管理器
     let manager = this.dedupeManager;
     if (
@@ -82,8 +87,20 @@ export class DedupeStep implements RequestStep {
       manager = new DedupeManager(parsedConfig);
     }
 
-    // 使用去重管理器执行请求
-    await manager.getOrCreateRequest(ctx.config, async () => {
+    let key: string;
+    if (needsCustomKey) {
+      // 自定义策略，需要重新计算键
+      key = generateRequestKey(ctx.config, {
+        strategy: parsedConfig.strategy ?? 'exact',
+        ignoreParams: parsedConfig.ignoreParams ?? [],
+        customKeyGenerator: parsedConfig.customKeyGenerator,
+      });
+    } else {
+      // 精确匹配，直接使用 ctx.id
+      key = ctx.id;
+    }
+
+    await manager.getOrCreateRequestByKey(key, async () => {
       await next();
       if (ctx.error) {
         throw ctx.error;

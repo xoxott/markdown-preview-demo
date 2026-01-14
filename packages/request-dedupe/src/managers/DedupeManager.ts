@@ -2,10 +2,8 @@
  * 请求去重管理器
  */
 
-import type { NormalizedRequestConfig } from '@suga/request-core';
 import type { DedupeOptions, PendingRequest } from '../types';
 import { DEFAULT_DEDUPE_CONFIG } from '../constants';
-import { generateRequestKey } from '../utils/key-generator';
 
 /**
  * 请求去重管理器
@@ -13,15 +11,9 @@ import { generateRequestKey } from '../utils/key-generator';
 export class DedupeManager {
   private pendingRequests = new Map<string, PendingRequest>();
   private dedupeWindow: number;
-  private strategy: DedupeOptions['strategy'];
-  private ignoreParams: string[];
-  private customKeyGenerator?: DedupeOptions['customKeyGenerator'];
 
   constructor(options: DedupeOptions = {}) {
     this.dedupeWindow = options.dedupeWindow ?? DEFAULT_DEDUPE_CONFIG.DEFAULT_DEDUPE_WINDOW;
-    this.strategy = options.strategy ?? DEFAULT_DEDUPE_CONFIG.DEFAULT_STRATEGY;
-    this.ignoreParams = options.ignoreParams ?? [];
-    this.customKeyGenerator = options.customKeyGenerator;
   }
 
   /**
@@ -78,25 +70,14 @@ export class DedupeManager {
   }
 
   /**
-   * 生成请求键
+   * 通过键获取或创建请求（直接使用 ctx.id）
    */
-  private generateKey(config: NormalizedRequestConfig): string {
-    return generateRequestKey(config, {
-      strategy: this.strategy ?? 'exact',
-      ignoreParams: this.ignoreParams,
-      customKeyGenerator: this.customKeyGenerator,
-    });
-  }
-
-  /**
-   * 获取或创建请求
-   */
-  getOrCreateRequest<T>(config: NormalizedRequestConfig, requestFn: () => Promise<T>): Promise<T> {
+  getOrCreateRequestByKey<T>(
+    key: string,
+    requestFn: () => Promise<T>,
+  ): Promise<T> {
     // 清理过期请求
     this.cleanupExpiredRequests();
-
-    // 生成请求唯一标识
-    const key = this.generateKey(config);
 
     // 检查是否有相同的请求正在进行
     const pendingRequest = this.pendingRequests.get(key);
@@ -151,27 +132,6 @@ export class DedupeManager {
    */
   setDedupeWindow(window: number): void {
     this.dedupeWindow = window;
-  }
-
-  /**
-   * 设置去重策略
-   */
-  setStrategy(strategy: DedupeOptions['strategy']): void {
-    this.strategy = strategy;
-  }
-
-  /**
-   * 设置忽略的参数列表
-   */
-  setIgnoreParams(params: string[]): void {
-    this.ignoreParams = params;
-  }
-
-  /**
-   * 设置自定义键生成函数
-   */
-  setCustomKeyGenerator(generator: DedupeOptions['customKeyGenerator']): void {
-    this.customKeyGenerator = generator;
   }
 }
 

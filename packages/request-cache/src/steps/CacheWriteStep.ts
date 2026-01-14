@@ -45,9 +45,9 @@ export class CacheWriteStep implements RequestStep {
         return;
       }
 
-      // 写入缓存
+      // 写入缓存（直接使用 ctx.id，避免重复计算）
       const ttl = policy.getTTL(ctx.config, ctx.meta);
-      this.requestCacheManager.set(ctx.config, ctx.result, ttl);
+      this.requestCacheManager.setByKey(ctx.id, ctx.result, ttl);
     });
   }
 }

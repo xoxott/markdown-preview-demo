@@ -15,14 +15,17 @@ pnpm add @suga/request-dedupe
 ```typescript
 import { RequestClient } from '@suga/request-core';
 import { DedupeStep } from '@suga/request-dedupe';
-import { AxiosTransport } from '@suga/request-axios';
 
-const transport = new AxiosTransport();
-const client = new RequestClient(transport)
-  .with(new DedupeStep());
+// 创建带去重步骤的请求客户端
+const client = new RequestClient(transport, [
+  new DedupeStep(),
+  // ... 其他步骤
+]);
 
 // 在 meta 中启用去重
-await client.get('/api/users', {}, {
+await client.request({
+  url: '/api/users',
+  method: 'GET',
   meta: {
     dedupe: true, // 启用去重
   },
@@ -51,18 +54,22 @@ const client = new RequestClient(transport)
 import { DedupeManager, DedupeStep } from '@suga/request-dedupe';
 
 const dedupeManager = new DedupeManager({
-  dedupeWindow: 1000,
-  strategy: 'ignore-params',
-  ignoreParams: ['timestamp'],
+  dedupeWindow: 1000, // 只设置时间窗口
 });
 
 const dedupeStep = new DedupeStep({
   dedupeManager,
+  defaultOptions: {
+    strategy: 'ignore-params',
+    ignoreParams: ['timestamp'],
+  },
 });
 
 const client = new RequestClient(transport)
   .with(dedupeStep);
 ```
+
+注意：`DedupeManager` 构造函数只使用 `dedupeWindow` 选项，策略相关的配置（`strategy`、`ignoreParams`、`customKeyGenerator`）应在 `DedupeStep` 的 `defaultOptions` 中配置。
 
 ## 📚 API
 
@@ -102,13 +109,12 @@ interface DedupeOptions {
 
 #### 方法
 
-- `getOrCreateRequest<T>(config, requestFn)`: 获取或创建请求
+- `getOrCreateRequestByKey<T>(key, requestFn)`: 通过键获取或创建请求
+  - `key`: 请求唯一标识（通常使用 `ctx.id`）
+  - `requestFn`: 请求函数，返回 Promise
 - `clear()`: 清除所有待处理的请求
 - `getPendingCount()`: 获取当前待处理的请求数量
 - `setDedupeWindow(window)`: 设置去重时间窗口
-- `setStrategy(strategy)`: 设置去重策略
-- `setIgnoreParams(params)`: 设置忽略的参数列表
-- `setCustomKeyGenerator(generator)`: 设置自定义键生成函数
 
 ## 🎯 去重策略
 
@@ -164,10 +170,16 @@ const client = new RequestClient(transport)
   }));
 
 // 多次快速调用，只会发送一次请求
-await client.get('/api/search', { keyword: 'test' }, {
+await client.request({
+  url: '/api/search',
+  method: 'GET',
+  params: { keyword: 'test' },
   meta: { dedupe: true },
 });
-await client.get('/api/search', { keyword: 'test' }, {
+await client.request({
+  url: '/api/search',
+  method: 'GET',
+  params: { keyword: 'test' },
   meta: { dedupe: true },
 });
 ```

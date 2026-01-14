@@ -16,9 +16,8 @@ pnpm add @suga/request-performance
 import { RequestClient } from '@suga/request-core';
 import { EventStep } from '@suga/request-events';
 import { performanceMonitor } from '@suga/request-performance';
-import { AxiosTransport } from '@suga/request-axios';
 
-const transport = new AxiosTransport();
+// 创建请求客户端（需要提供 transport）
 const client = new RequestClient(transport)
   .with(new EventStep());
 
@@ -38,7 +37,10 @@ onRequestError((data) => {
 });
 
 // 发送请求
-await client.get('/api/users');
+await client.request({
+  url: '/api/users',
+  method: 'GET',
+});
 
 // 获取性能指标
 const metrics = performanceMonitor.getMetrics();
@@ -51,13 +53,19 @@ console.log('Average response time:', metrics.averageResponseTime, 'ms');
 
 ```typescript
 import { PerformanceMonitorManager } from '@suga/request-performance';
+import type { NormalizedRequestConfig } from '@suga/request-core';
 
 const customMonitor = new PerformanceMonitorManager();
 
 // 使用自定义监控器
+const config: NormalizedRequestConfig = {
+  url: '/api/users',
+  method: 'GET',
+};
+
 customMonitor.onRequestStart(config);
-customMonitor.onRequestSuccess(config, duration);
-customMonitor.onRequestError(config, error, duration);
+customMonitor.onRequestSuccess(config, 150); // duration in ms
+customMonitor.onRequestError(config, new Error('Request failed'), 200); // error, duration
 
 // 获取指标
 const metrics = customMonitor.getMetrics();
@@ -156,7 +164,7 @@ import { performanceMonitor } from '@suga/request-performance';
 
 function generatePerformanceReport() {
   const metrics = performanceMonitor.getMetrics();
-  
+
   console.log('=== Performance Report ===');
   console.log(`Total Requests: ${metrics.totalRequests}`);
   console.log(`Success Requests: ${metrics.successRequests}`);
@@ -165,7 +173,7 @@ function generatePerformanceReport() {
   console.log(`Average Response Time: ${metrics.averageResponseTime.toFixed(2)}ms`);
   console.log(`Min Response Time: ${metrics.minResponseTime}ms`);
   console.log(`Max Response Time: ${metrics.maxResponseTime}ms`);
-  
+
   console.log('\n=== URL Statistics ===');
   Object.entries(metrics.urlStats).forEach(([url, stats]) => {
     console.log(`${url}:`);

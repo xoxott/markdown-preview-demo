@@ -39,8 +39,8 @@ export class CacheReadStep implements RequestStep {
       return next();
     }
 
-    // 尝试从缓存读取
-    const cachedData = this.requestCacheManager.get<T>(ctx.config);
+    // 尝试从缓存读取（直接使用 ctx.id，避免重复计算）
+    const cachedData = this.requestCacheManager.getByKey<T>(ctx.id);
 
     if (cachedData !== null) {
       // 命中缓存
