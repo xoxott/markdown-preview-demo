@@ -41,8 +41,12 @@ export type {
 } from './types';
 
 
-// 导出工具函数
-export { cancelTokenManager, generateRequestId } from './utils/request/cancel';
+// 导出取消相关工具（从 request-cancel 包）
+export { CancelTokenManager } from '@suga/request-cancel';
+export type {
+  CancelTokenManagerOptions,
+  CancelableRequestConfig,
+} from '@suga/request-cancel';
 export {
   createErrorContext,
   createErrorContextFromError,
@@ -187,7 +191,9 @@ export {
  *   },
  * });
  *
- * // 取消请求
+ * // 取消请求（需要先获取 CancelTokenManager 实例）
+ * import { CancelTokenManager } from '@suga/request-cancel';
+ * const cancelTokenManager = new CancelTokenManager();
  * cancelTokenManager.cancel('request_id');
  *
  * 注意：

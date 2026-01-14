@@ -25,7 +25,9 @@ export class RequestExecutor {
     meta?: Record<string, unknown>,
   ): Promise<T> {
     // 创建请求上下文
-    const ctx = createRequestContext<T>(config, undefined, meta);
+    // 如果 meta 中有 requestId，使用它；否则自动生成
+    const requestId = meta?.requestId as string | undefined;
+    const ctx = createRequestContext<T>(config, requestId, meta);
 
     // 组合步骤链
     const composed = composeSteps(this.steps);

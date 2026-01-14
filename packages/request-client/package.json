@@ -44,6 +44,7 @@
     "@suga/request-performance": "workspace:*",
     "@suga/request-logger": "workspace:*",
     "@suga/request-progress": "workspace:*",
+    "@suga/request-cancel": "workspace:*",
     "@suga/storage": "workspace:*",
     "axios": "^1.7.9"
   },

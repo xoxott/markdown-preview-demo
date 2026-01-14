@@ -1,19 +1,33 @@
 /**
- * 请求取消工具
+ * 请求取消Token管理器
  */
 
 import axios from 'axios';
 import type { CancelTokenSource } from 'axios';
-import { generateKey } from '@suga/utils';
-import { internalWarn } from '../common/internalLogger';
-import type { RequestConfig } from '../../types';
+import type { CancelableRequestConfig, CancelTokenManagerOptions } from '../types';
+import { DEFAULT_CANCEL_MESSAGE } from '../constants';
+
+/**
+ * 内部日志工具
+ */
+function internalWarn(message: string, ...args: unknown[]): void {
+  console.warn(`[request-cancel] ${message}`, ...args);
+}
 
 /**
  * 请求取消Token管理器
  */
-class CancelTokenManager {
+export class CancelTokenManager {
   private cancelTokenMap = new Map<string, CancelTokenSource>();
-  private requestConfigMap = new Map<string, RequestConfig>();
+  private requestConfigMap = new Map<string, CancelableRequestConfig>();
+  private options: Required<CancelTokenManagerOptions>;
+
+  constructor(options: CancelTokenManagerOptions = {}) {
+    this.options = {
+      autoCancelPrevious: options.autoCancelPrevious ?? true,
+      defaultCancelMessage: options.defaultCancelMessage ?? DEFAULT_CANCEL_MESSAGE,
+    };
+  }
 
   /**
    * 创建取消Token
@@ -21,9 +35,14 @@ class CancelTokenManager {
    * @param config 请求配置（可选，用于按条件取消）
    * @returns CancelTokenSource
    */
-  createCancelToken(requestId: string, config?: RequestConfig): CancelTokenSource {
-    // 如果已存在，先取消之前的请求
-    this.cancel(requestId);
+  createCancelToken(
+    requestId: string,
+    config?: CancelableRequestConfig,
+  ): CancelTokenSource {
+    // 如果启用了自动取消，且已存在相同 requestId 的请求，先取消之前的请求
+    if (this.options.autoCancelPrevious) {
+      this.cancel(requestId);
+    }
 
     const source = axios.CancelToken.source();
     this.cancelTokenMap.set(requestId, source);
@@ -41,7 +60,7 @@ class CancelTokenManager {
   cancel(requestId: string, message?: string): void {
     const source = this.cancelTokenMap.get(requestId);
     if (source) {
-      source.cancel(message || '请求已取消');
+      source.cancel(message || this.options.defaultCancelMessage);
       this.cancelTokenMap.delete(requestId);
       this.requestConfigMap.delete(requestId);
     }
@@ -52,7 +71,7 @@ class CancelTokenManager {
    * @param message 取消原因
    */
   cancelAll(message?: string): void {
-    const cancelMessage = message || '请求已取消';
+    const cancelMessage = message || this.options.defaultCancelMessage;
     this.cancelTokenMap.forEach(source => {
       try {
         source.cancel(cancelMessage);
@@ -81,8 +100,11 @@ class CancelTokenManager {
    * @param message 取消原因
    * @returns 取消的请求数量
    */
-  cancelBy(predicate: (config: RequestConfig) => boolean, message?: string): number {
-    const cancelMessage = message || '请求已取消';
+  cancelBy(
+    predicate: (config: CancelableRequestConfig) => boolean,
+    message?: string,
+  ): number {
+    const cancelMessage = message || this.options.defaultCancelMessage;
     let cancelledCount = 0;
 
     const requestIdsToCancel: string[] = [];
@@ -111,18 +133,30 @@ class CancelTokenManager {
   get(requestId: string): CancelTokenSource | undefined {
     return this.cancelTokenMap.get(requestId);
   }
-}
 
-export const cancelTokenManager = new CancelTokenManager();
+  /**
+   * 检查请求是否存在
+   * @param requestId 请求标识
+   * @returns 是否存在
+   */
+  has(requestId: string): boolean {
+    return this.cancelTokenMap.has(requestId);
+  }
 
-/**
- * 生成请求ID
- * @param url 请求URL
- * @param method 请求方法
- * @param params 请求参数
- * @returns 请求ID
- */
-export function generateRequestId(url: string, method: string, params?: unknown): string {
-  return generateKey(method, url, params);
+  /**
+   * 获取当前待取消的请求数量
+   * @returns 请求数量
+   */
+  getPendingCount(): number {
+    return this.cancelTokenMap.size;
+  }
+
+  /**
+   * 清除所有请求记录（不取消请求）
+   */
+  clear(): void {
+    this.cancelTokenMap.clear();
+    this.requestConfigMap.clear();
+  }
 }
 

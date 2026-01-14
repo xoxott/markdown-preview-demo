@@ -4,8 +4,13 @@
  */
 
 import type { AxiosRequestConfig, AxiosProgressEvent } from 'axios';
-import type { CircuitBreakerOptions } from '@suga/request-circuit-breaker';
+import type { CircuitBreakerOptions, CircuitBreakerManagerOptions } from '@suga/request-circuit-breaker';
 import type { QueueConfig } from '@suga/request-queue';
+import type { RetryConfig, RetryStrategy } from '@suga/request-retry';
+import type { CacheConfig, CacheReadStepOptions, CacheWriteStepOptions } from '@suga/request-cache';
+import type { DedupeOptions } from '@suga/request-dedupe';
+import type { CancelOptions } from '@suga/request-cancel';
+import type { LoggerOptions, LoggerManager } from '@suga/request-logger';
 
 /**
  * 请求方法类型
@@ -27,7 +32,7 @@ export interface TimeoutStrategy {
 }
 
 /**
- * 请求配置选项
+ * 请求配置选项（业务层配置）
  */
 export interface RequestOptions {
   /** API基础URL */
@@ -36,10 +41,46 @@ export interface RequestOptions {
   timeout?: number;
   /** 超时策略 */
   timeoutStrategy?: Partial<TimeoutStrategy>;
-  /** 队列配置（用于并发控制） */
+
+  /** 队列配置（传递给 QueueStep 作为默认配置） */
   queueConfig?: QueueConfig;
+
+  /** 去重配置（传递给 DedupeStep 作为默认配置） */
+  dedupeConfig?: DedupeOptions;
+
+  /** 取消配置（传递给 CancelStep 作为默认配置） */
+  cancelConfig?: CancelOptions;
+
+  /** 重试策略（传递给 RetryStep 作为默认策略） */
+  retryStrategy?: RetryStrategy;
+
+  /** 熔断器管理器选项（传递给 CircuitBreakerStep） */
+  circuitBreakerManagerOptions?: CircuitBreakerManagerOptions;
+
+  /** 日志管理器实例（用于全局日志配置） */
+  loggerManager?: LoggerManager;
+
+  /** 日志配置（传递给 LoggerManager，如果未提供 loggerManager） */
+  loggerConfig?: LoggerOptions;
+
+  /** 缓存读取步骤配置（传递给 CacheReadStep） */
+  cacheReadStepOptions?: CacheReadStepOptions;
+
+  /** 缓存写入步骤配置（传递给 CacheWriteStep） */
+  cacheWriteStepOptions?: CacheWriteStepOptions;
+
   /** 全局默认配置（会被单个请求配置覆盖） */
   defaultConfig?: Partial<RequestConfig>;
+}
+
+/**
+ * 创建请求客户端的配置
+ * 完整继承 AxiosRequestConfig 的所有字段，并扩展业务层配置
+ * 所有配置都可以放在一个对象中，TypeScript 会自动区分哪些是 Axios 配置，哪些是业务层配置
+ */
+export interface CreateRequestClientConfig extends RequestOptions, AxiosRequestConfig {
+  // baseURL 和 timeout 在 RequestOptions 中已定义，会覆盖 AxiosRequestConfig 中的定义
+  // 所有 AxiosRequestConfig 的其他字段都可以直接使用
 }
 
 /**
@@ -47,60 +88,41 @@ export interface RequestOptions {
  * 扩展了 AxiosRequestConfig，添加了自定义功能配置
  */
 export interface RequestConfig extends Omit<AxiosRequestConfig, 'method' | 'responseType'> {
+
   /** 请求方法（支持字符串类型） */
   method?: RequestMethod | string;
   /** 响应类型（支持字符串类型） */
   responseType?: AxiosRequestConfig['responseType'] | string;
 
-
   /**
-   * 是否启用自动重试
-   * @default false - 默认不重试
+   * 重试配置（完整类型，对应 RetryStep）
    */
-  retry?: boolean;
+  retry?: RetryConfig;
 
   /**
-   * 重试次数
-   * @default 3 - 仅在 retry 为 true 时有效
-   */
-  retryCount?: number;
-
-  /**
-   * 超时时是否重试
-   * @default false - 默认超时不重试
-   * @description 仅在 retry 为 true 时有效，如果设置为 true，超时错误也会触发重试
-   */
-  retryOnTimeout?: boolean;
-
-  /**
-   * 熔断器配置
-   * @description 用于在服务异常时自动降级或阻止请求
+   * 熔断器配置（完整类型，对应 CircuitBreakerStep）
    */
   circuitBreaker?: CircuitBreakerOptions<unknown>;
 
   /**
-   * 是否可取消请求
-   * @default true - 默认可取消
+   * 取消配置（完整类型，对应 CancelStep）
    */
-  cancelable?: boolean;
+  cancelable?: boolean | CancelOptions;
 
   /**
    * 请求标识（用于取消请求）
    */
   requestId?: string;
 
+  /**
+   * 去重配置（完整类型，对应 DedupeStep）
+   */
+  dedupe?: boolean | DedupeOptions;
 
   /**
-   * 是否启用去重
-   * @default false - 默认不去重
+   * 缓存配置（完整类型，对应 CacheReadStep/CacheWriteStep）
    */
-  dedupe?: boolean;
-
-  /**
-   * 是否使用缓存（仅 GET 请求）
-   * @default false - 默认不使用缓存
-   */
-  cache?: boolean;
+  cache?: CacheConfig;
 
   /**
    * 缓存过期时间（毫秒）
@@ -112,6 +134,11 @@ export interface RequestConfig extends Omit<AxiosRequestConfig, 'method' | 'resp
    * @default false - 默认不启用
    */
   logEnabled?: boolean;
+
+  /**
+   * 日志配置（完整类型，对应 Logger）
+   */
+  logger?: LoggerOptions;
 
   /**
    * 请求优先级（用于队列管理）
@@ -129,13 +156,8 @@ export interface RequestConfig extends Omit<AxiosRequestConfig, 'method' | 'resp
   onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void;
 
   /**
-   * 队列配置（用于并发控制）
+   * 队列配置（完整类型，对应 QueueStep）
    */
-  queue?: import('@suga/request-queue').QueueConfig;
-
-  /**
-   * 日志配置
-   */
-  logger?: import('@suga/request-logger').LoggerOptions;
+  queue?: QueueConfig;
 }
 

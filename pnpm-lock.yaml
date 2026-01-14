@@ -368,6 +368,19 @@ importers:
         specifier: ^5.6.3
         version: 5.6.3
 
+  packages/request-cancel:
+    dependencies:
+      '@suga/utils':
+        specifier: workspace:*
+        version: link:../utils
+      axios:
+        specifier: ^1.9.0
+        version: 1.9.0
+    devDependencies:
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+
   packages/request-circuit-breaker:
     dependencies:
       '@suga/request-core':
@@ -383,6 +396,9 @@ importers:
       '@suga/request-cache':
         specifier: workspace:*
         version: link:../request-cache
+      '@suga/request-cancel':
+        specifier: workspace:*
+        version: link:../request-cancel
       '@suga/request-circuit-breaker':
         specifier: workspace:*
         version: link:../request-circuit-breaker
@@ -425,6 +441,10 @@ importers:
         version: 5.6.3
 
   packages/request-core:
+    dependencies:
+      '@suga/utils':
+        specifier: workspace:*
+        version: link:../utils
     devDependencies:
       typescript:
         specifier: ^5.6.3

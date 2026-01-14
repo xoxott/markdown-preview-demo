@@ -6,7 +6,6 @@
 import { RequestClient } from '@suga/request-core';
 import type { RequestConfig } from '../types';
 import { adaptRequestConfigToCore } from '../utils/configAdapter';
-import { cancelTokenManager, generateRequestId } from '../utils/request/cancel';
 
 /**
  * API 请求客户端
@@ -23,6 +22,32 @@ export class ApiRequestClient {
   private readonly client: RequestClient;
 
   /**
+   * 判断是否为普通对象（非 null、非数组）
+   */
+  private isPlainObject(value: unknown): value is Record<string, unknown> {
+    return (
+      typeof value === 'object' &&
+      value !== null &&
+      !Array.isArray(value)
+    );
+  }
+
+  /**
+   * 深度合并对象字段
+   */
+  private deepMergeObject<T extends Record<string, unknown>>(
+    target: T | undefined,
+    source: T | undefined,
+  ): T | undefined {
+    if (!target) return source;
+    if (!source) return target;
+    if (!this.isPlainObject(target) || !this.isPlainObject(source)) {
+      return source;
+    }
+    return { ...target, ...source } as T;
+  }
+
+  /**
    * 合并全局默认配置和请求配置
    */
   private mergeConfig(config?: RequestConfig): RequestConfig {
@@ -30,41 +55,29 @@ export class ApiRequestClient {
       return this.defaultConfig as RequestConfig;
     }
 
+    // 需要深度合并的字段（对象类型）
+    const deepMergeKeys: Array<keyof RequestConfig> = [
+      'headers',
+      'logger',
+      'queue',
+      'circuitBreaker',
+      'retry',
+    ];
+
     const merged: RequestConfig = {
       ...this.defaultConfig,
       ...config,
     };
 
-    // 深度合并 headers
-    if (this.defaultConfig.headers || config.headers) {
-      merged.headers = {
-        ...(this.defaultConfig.headers as Record<string, string> | undefined),
-        ...(config.headers as Record<string, string> | undefined),
-      } as RequestConfig['headers'];
-    }
-
-    // 深度合并 logger
-    if (this.defaultConfig.logger || config.logger) {
-      merged.logger = {
-        ...(this.defaultConfig.logger as RequestConfig['logger']),
-        ...(config.logger as RequestConfig['logger']),
-      } as RequestConfig['logger'];
-    }
-
-    // 深度合并 queue
-    if (this.defaultConfig.queue || config.queue) {
-      merged.queue = {
-        ...(this.defaultConfig.queue as RequestConfig['queue']),
-        ...(config.queue as RequestConfig['queue']),
-      } as RequestConfig['queue'];
-    }
-
-    // 深度合并 circuitBreaker
-    if (this.defaultConfig.circuitBreaker || config.circuitBreaker) {
-      merged.circuitBreaker = {
-        ...(this.defaultConfig.circuitBreaker as RequestConfig['circuitBreaker']),
-        ...(config.circuitBreaker as RequestConfig['circuitBreaker']),
-      } as RequestConfig['circuitBreaker'];
+    // 深度合并对象字段
+    for (const key of deepMergeKeys) {
+      const mergedValue = this.deepMergeObject(
+        this.defaultConfig[key] as Record<string, unknown> | undefined,
+        config[key] as Record<string, unknown> | undefined,
+      );
+      if (mergedValue !== undefined) {
+        merged[key] = mergedValue as RequestConfig[typeof key];
+      }
     }
 
     return merged;
@@ -75,52 +88,8 @@ export class ApiRequestClient {
    */
   async request<T = unknown>(config: RequestConfig): Promise<T> {
     const mergedConfig = this.mergeConfig(config);
-
-    // 集成 cancel token 管理
-    let requestId: string | undefined = mergedConfig.requestId;
-
-    // 如果启用了取消功能（默认启用）
-    const cancelable = mergedConfig.cancelable !== false;
-
-    if (cancelable) {
-      // 如果没有提供 requestId，自动生成
-      if (!requestId) {
-        requestId = generateRequestId(
-          mergedConfig.url || '',
-          mergedConfig.method || 'GET',
-          mergedConfig.params || mergedConfig.data
-        );
-      }
-
-      // 创建 cancel token
-      const cancelTokenSource = cancelTokenManager.createCancelToken(requestId, mergedConfig);
-
-      // 将 cancel token 添加到配置中（Axios 使用 cancelToken）
-      mergedConfig.cancelToken = cancelTokenSource.token;
-    }
-
-    try {
       const { normalized, meta } = adaptRequestConfigToCore(mergedConfig);
-      const result = await this.client.request<T>(normalized, meta);
-
-      // 请求成功，清理 cancel token
-      if (requestId) {
-        cancelTokenManager.remove(requestId);
-      }
-
-      return result;
-    } catch (error) {
-      // 请求失败，清理 cancel token（除非是取消错误，cancel 方法已清理）
-      if (requestId) {
-        // 检查 token 是否还存在（如果已被取消，cancel 方法已经清理了）
-        const tokenExists = cancelTokenManager.get(requestId) !== undefined;
-        if (tokenExists) {
-          cancelTokenManager.remove(requestId);
-        }
-      }
-
-      throw error;
-    }
+    return this.client.request<T>(normalized, meta);
   }
 
   /**
