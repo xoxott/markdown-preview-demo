@@ -28,7 +28,12 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "unocss.root": ["./"],
   "vitest.enable": true,
-  "vitest.commandLine": "npm run test",
-  "vitest.include": ["**/__tests__/**/*.test.ts"],
-  "vitest.exclude": ["**/node_modules/**", "**/dist/**"]
+  "vitest.commandLine": "pnpm vitest",
+  "vitest.include": [
+    "**/__tests__/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
+    "packages/**/__tests__/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
+    "src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"
+  ],
+  "vitest.exclude": ["**/node_modules/**", "**/dist/**"],
+  "vitest.configPath": "./vitest.config.ts"
 }

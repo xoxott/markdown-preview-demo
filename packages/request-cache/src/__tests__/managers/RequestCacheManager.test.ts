@@ -5,7 +5,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { RequestCacheManager } from '../../managers/RequestCacheManager';
 import { MockStorageAdapter } from '../mocks/MockStorageAdapter';
-import { DEFAULT_CACHE_CONFIG } from '../../constants';
 
 describe('RequestCacheManager', () => {
   let cacheManager: RequestCacheManager;
