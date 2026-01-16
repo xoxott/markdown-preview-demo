@@ -3,18 +3,19 @@
  * 始终返回 false，用于明确禁用缓存
  */
 
-import type { CachePolicy } from '../types';
+import type { NormalizedRequestConfig } from '@suga/request-core';
+import type { CachePolicy, CacheMeta } from '../types';
 
 export class NoCachePolicy implements CachePolicy {
-  shouldRead(): boolean {
+  shouldRead(_config: NormalizedRequestConfig, _meta?: CacheMeta): boolean {
     return false;
   }
 
-  shouldWrite(): boolean {
+  shouldWrite(_config: NormalizedRequestConfig, _data: unknown, _meta?: CacheMeta): boolean {
     return false;
   }
 
-  getTTL(): number | undefined {
+  getTTL(_config: NormalizedRequestConfig, _meta?: CacheMeta): number | undefined {
     return undefined;
   }
 }

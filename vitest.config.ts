@@ -27,7 +27,20 @@ export default defineConfig({
         statements: 80,
       },
     },
-    include: ['src/components/flow/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    projects: [
+      {
+        test: {
+          include: ['packages/**/__tests__/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+          environment: 'node',
+        },
+      },
+      {
+        test: {
+          include: ['src/components/flow/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+          environment: 'happy-dom',
+        },
+      },
+    ],
   },
   resolve: {
     alias: {

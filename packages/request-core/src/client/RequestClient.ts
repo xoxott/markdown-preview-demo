@@ -33,7 +33,18 @@ export class RequestClient {
    * @returns RequestClient
    */
   with(step: RequestStep): RequestClient {
-    this.steps.push(step);
+    // 将步骤插入到 TransportStep 之前
+    // 默认步骤是 [PrepareContextStep, TransportStep]
+    // 新步骤应该插入到 TransportStep 之前
+    const transportStepIndex = this.steps.findIndex(
+      s => s instanceof TransportStep,
+    );
+    if (transportStepIndex >= 0) {
+      this.steps.splice(transportStepIndex, 0, step);
+    } else {
+      // 如果没有找到 TransportStep，添加到末尾
+      this.steps.push(step);
+    }
     this.executor = new RequestExecutor(this.steps);
     return this;
   }
