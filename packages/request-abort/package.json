@@ -1,7 +1,7 @@
 {
-  "name": "@suga/request-cancel",
+  "name": "@suga/request-abort",
   "version": "1.0.0",
-  "description": "Request cancellation for @suga/request-core",
+  "description": "Request abort controller for @suga/request-core",
   "author": {
     "name": "yangtao",
     "email": "212920320@qq.com"
@@ -19,17 +19,17 @@
   },
   "keywords": [
     "request",
-    "cancel",
-    "cancellation",
+    "abort",
+    "abortcontroller",
     "http",
     "suga"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/xoxott/suga-tools.git",
-    "directory": "packages/request-cancel"
+    "directory": "packages/request-abort"
   },
-  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/request-cancel",
+  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/request-abort",
   "bugs": {
     "url": "https://github.com/xoxott/suga-tools/issues"
   },
@@ -38,7 +38,6 @@
     "registry": "https://registry.npmjs.org/"
   },
   "dependencies": {
-    "axios": "^1.9.0",
     "@suga/utils": "workspace:*"
   },
   "devDependencies": {

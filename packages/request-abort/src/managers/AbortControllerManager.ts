@@ -1,28 +1,35 @@
 /**
- * 请求取消Token管理器
+ * AbortController 管理器
+ * 使用原生 AbortController 替代废弃的 axios.CancelToken
  */
 
-import axios from 'axios';
-import type { CancelTokenSource } from 'axios';
-import type { CancelableRequestConfig, CancelTokenManagerOptions } from '../types';
+import type { CancelableRequestConfig, AbortControllerManagerOptions } from '../types';
 import { DEFAULT_CANCEL_MESSAGE } from '../constants';
 
 /**
  * 内部日志工具
  */
 function internalWarn(message: string, ...args: unknown[]): void {
-  console.warn(`[request-cancel] ${message}`, ...args);
+  console.warn(`[request-abort] ${message}`, ...args);
 }
 
 /**
- * 请求取消Token管理器
+ * AbortController 封装，包含取消消息
  */
-export class CancelTokenManager {
-  private cancelTokenMap = new Map<string, CancelTokenSource>();
-  private requestConfigMap = new Map<string, CancelableRequestConfig>();
-  private options: Required<CancelTokenManagerOptions>;
+interface AbortControllerWithMessage {
+  controller: AbortController;
+  message: string;
+}
 
-  constructor(options: CancelTokenManagerOptions = {}) {
+/**
+ * AbortController 管理器
+ */
+export class AbortControllerManager {
+  private controllerMap = new Map<string, AbortControllerWithMessage>();
+  private requestConfigMap = new Map<string, CancelableRequestConfig>();
+  private options: Required<AbortControllerManagerOptions>;
+
+  constructor(options: AbortControllerManagerOptions = {}) {
     this.options = {
       autoCancelPrevious: options.autoCancelPrevious ?? true,
       defaultCancelMessage: options.defaultCancelMessage ?? DEFAULT_CANCEL_MESSAGE,
@@ -30,74 +37,88 @@ export class CancelTokenManager {
   }
 
   /**
-   * 创建取消Token
+   * 创建 AbortController
    * @param requestId 请求标识
    * @param config 请求配置（可选，用于按条件取消）
-   * @returns CancelTokenSource
+   * @returns AbortController
    */
-  createCancelToken(
+  createAbortController(
     requestId: string,
     config?: CancelableRequestConfig,
-  ): CancelTokenSource {
+  ): AbortController {
     // 如果启用了自动取消，且已存在相同 requestId 的请求，先取消之前的请求
     if (this.options.autoCancelPrevious) {
       this.cancel(requestId);
     }
 
-    const source = axios.CancelToken.source();
-    this.cancelTokenMap.set(requestId, source);
+    const controller = new AbortController();
+    this.controllerMap.set(requestId, {
+      controller,
+      message: this.options.defaultCancelMessage,
+    });
     if (config) {
       this.requestConfigMap.set(requestId, config);
     }
-    return source;
+    return controller;
   }
 
   /**
    * 取消请求
    * @param requestId 请求标识
-   * @param message 取消原因
+   * @param message 取消原因（注意：AbortController 不支持自定义消息，消息仅用于日志）
    */
   cancel(requestId: string, message?: string): void {
-    const source = this.cancelTokenMap.get(requestId);
-    if (source) {
-      source.cancel(message || this.options.defaultCancelMessage);
-      this.cancelTokenMap.delete(requestId);
+    const entry = this.controllerMap.get(requestId);
+    if (entry) {
+      try {
+        entry.controller.abort(message || entry.message);
+        if (message) {
+          // 更新取消消息（虽然 AbortController 不支持，但我们存储用于日志）
+          entry.message = message;
+        }
+      } catch (error) {
+        // AbortController.abort() 如果已取消会抛出错误，忽略即可
+        internalWarn('取消请求时出错:', error);
+      }
+      this.controllerMap.delete(requestId);
       this.requestConfigMap.delete(requestId);
     }
   }
 
   /**
    * 取消所有请求
-   * @param message 取消原因
+   * @param message 取消原因（注意：AbortController 不支持自定义消息，消息仅用于日志）
    */
   cancelAll(message?: string): void {
     const cancelMessage = message || this.options.defaultCancelMessage;
-    this.cancelTokenMap.forEach(source => {
+    this.controllerMap.forEach(entry => {
       try {
-        source.cancel(cancelMessage);
-      } catch (error) {
-        if (!axios.isCancel(error)) {
-          internalWarn('取消请求时出错:', error);
+        entry.controller.abort(cancelMessage);
+        if (message) {
+          entry.message = cancelMessage;
         }
+      } catch (error) {
+        // AbortController.abort() 如果已取消会抛出错误，忽略即可
+        internalWarn('取消请求时出错:', error);
       }
     });
-    this.cancelTokenMap.clear();
+    this.controllerMap.clear();
     this.requestConfigMap.clear();
   }
 
   /**
-   * 移除取消Token（请求完成后调用）
+   * 移除 AbortController（请求完成后调用）
    * @param requestId 请求标识
    */
   remove(requestId: string): void {
-    this.cancelTokenMap.delete(requestId);
+    this.controllerMap.delete(requestId);
     this.requestConfigMap.delete(requestId);
   }
 
   /**
    * 按条件取消请求
    * @param predicate 取消条件函数
-   * @param message 取消原因
+   * @param message 取消原因（注意：AbortController 不支持自定义消息，消息仅用于日志）
    * @returns 取消的请求数量
    */
   cancelBy(
@@ -126,12 +147,12 @@ export class CancelTokenManager {
   }
 
   /**
-   * 获取取消Token
+   * 获取 AbortController
    * @param requestId 请求标识
-   * @returns CancelTokenSource | undefined
+   * @returns AbortController | undefined
    */
-  get(requestId: string): CancelTokenSource | undefined {
-    return this.cancelTokenMap.get(requestId);
+  get(requestId: string): AbortController | undefined {
+    return this.controllerMap.get(requestId)?.controller;
   }
 
   /**
@@ -140,7 +161,7 @@ export class CancelTokenManager {
    * @returns 是否存在
    */
   has(requestId: string): boolean {
-    return this.cancelTokenMap.has(requestId);
+    return this.controllerMap.has(requestId);
   }
 
   /**
@@ -148,14 +169,14 @@ export class CancelTokenManager {
    * @returns 请求数量
    */
   getPendingCount(): number {
-    return this.cancelTokenMap.size;
+    return this.controllerMap.size;
   }
 
   /**
    * 清除所有请求记录（不取消请求）
    */
   clear(): void {
-    this.cancelTokenMap.clear();
+    this.controllerMap.clear();
     this.requestConfigMap.clear();
   }
 }

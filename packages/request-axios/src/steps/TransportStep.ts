@@ -9,7 +9,7 @@ import type { RequestStep, RequestContext, Transport, NormalizedRequestConfig } 
 
 /**
  * 传输步骤
- * 扩展核心 TransportStep，支持从 meta 读取 cancelToken（用于 Axios）
+ * 扩展核心 TransportStep，支持从 meta 读取 signal（用于 Axios）
  */
 export class TransportStep implements RequestStep {
   private transport: Transport;
@@ -24,21 +24,24 @@ export class TransportStep implements RequestStep {
       return Promise.resolve();
     }
 
-    // 从 meta 读取 cancelToken（由 CancelStep 设置）
-    // 优先使用 CancelStep 创建的 cancelToken，如果没有则使用 config 中可能存在的 cancelToken
-    const cancelToken = (ctx.meta._cancelToken as unknown) || (ctx.config.cancelToken as unknown);
+    // 从 meta 读取 signal（使用原生 AbortController）
+    // - 如果使用了 CancelStep，CancelStep 会在 meta.signal 中设置
+    // - 如果业务层直接传入了 signal，configAdapter 会将其放到 meta.signal 中
+    // - 如果业务层在 config 中直接传入了 signal，优先使用
+    // 统一使用 signal，符合 Web 标准
+    const signal = (ctx.meta.signal as AbortSignal | undefined) || ctx.config.signal;
 
-    // 如果存在 cancelToken，创建新的 config 对象（不修改原 config）
+    // 如果存在 signal，创建新的 config 对象（不修改原 config）
     let config: NormalizedRequestConfig = ctx.config;
-    if (cancelToken) {
+    if (signal) {
       config = {
         ...ctx.config,
-        cancelToken, // Axios 使用 cancelToken
+        signal, // Axios 和原生 fetch 都支持 signal
       };
     }
 
     try {
-      // 使用可能包含 cancelToken 的 config 调用 Transport
+      // 使用可能包含 signal 的 config 调用 Transport
       const response = await this.transport.request<T>(config);
 
       // 更新上下文
@@ -51,4 +54,3 @@ export class TransportStep implements RequestStep {
     }
   }
 }
-

@@ -1,8 +1,6 @@
 /**
- * 请求取消类型定义
+ * 请求中止类型定义
  */
-
-import type { CancelTokenSource } from 'axios';
 
 /**
  * 请求配置接口（用于按条件取消）
@@ -15,28 +13,28 @@ export interface CancelableRequestConfig {
 }
 
 /**
- * 取消Token管理器选项
+ * AbortController 管理器选项
  */
-export interface CancelTokenManagerOptions {
-  /** 是否在创建新token时自动取消旧请求，默认 true */
+export interface AbortControllerManagerOptions {
+  /** 是否在创建新 controller 时自动取消旧请求，默认 true */
   autoCancelPrevious?: boolean;
   /** 默认取消消息 */
   defaultCancelMessage?: string;
 }
 
 /**
- * 取消配置选项
+ * 中止配置选项
  */
 export interface CancelOptions {
   /** 是否启用取消功能，默认 true */
   enabled?: boolean;
-  /** 是否在创建新token时自动取消旧请求，默认 true */
+  /** 是否在创建新 controller 时自动取消旧请求，默认 true */
   autoCancelPrevious?: boolean;
 }
 
 /**
- * 取消元数据接口
- * 定义取消相关的元数据字段
+ * 中止元数据接口
+ * 定义中止相关的元数据字段
  */
 export interface CancelMeta {
   /**
@@ -49,16 +47,22 @@ export interface CancelMeta {
   cancelable?: boolean | CancelOptions;
 
   /**
-   * 内部字段：取消Token源（由 CancelStep 设置）
+   * AbortController（由 CancelStep 设置，用于外部取消）
    * @internal
    */
-  _cancelTokenSource?: CancelTokenSource;
+  _abortController?: AbortController;
 
   /**
-   * 内部字段：取消Token（由 CancelStep 设置）
+   * AbortSignal（由 CancelStep 设置，或业务层直接传入）
+   * 统一使用此字段传递 signal，最终传给请求
+   */
+  signal?: AbortSignal;
+
+  /**
+   * 取消消息（用于存储取消原因，AbortController 不支持自定义消息）
    * @internal
    */
-  _cancelToken?: CancelTokenSource['token'];
+  _cancelMessage?: string;
 
   /**
    * 其他扩展字段

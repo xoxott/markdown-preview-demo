@@ -14,10 +14,15 @@ export {
   createRequestContext,
 } from '@suga/request-core';
 
-// 导出业务层步骤和客户端
-export { TransportStep } from './steps/TransportStep';
+// 导出业务层客户端
 export { ApiRequestClient } from './client/ApiRequestClient';
+
+// 导出示例函数（推荐业务层按需组装，而不是使用固定组合）
 export { createRequestClient } from './client/createRequestClient';
+export { createDefaultClient } from './examples/createDefaultClient';
+export { createMinimalClient } from './examples/createMinimalClient';
+export { createCustomClient } from './examples/createCustomClient';
+export type { CustomClientOptions } from './examples/createCustomClient';
 
 // 重新导出各个功能包的 Step（方便使用）
 export { CacheReadStep, CacheWriteStep } from '@suga/request-cache';
@@ -27,10 +32,9 @@ export { DedupeStep } from '@suga/request-dedupe';
 export { QueueStep } from '@suga/request-queue';
 export { EventStep } from '@suga/request-events';
 
-// 导出 Axios 相关（在 api 包中实现，不独立成包）
-export { AbortStep } from './steps/AbortStep';
-export { AxiosTransport } from './transport/AxiosTransport';
-export type { AxiosTransportOptions } from './transport/AxiosTransport';
+// 导出 Axios 相关（从 request-axios 包导出）
+export { AxiosTransport, TransportStep, AbortStep } from '@suga/request-axios';
+export type { AxiosTransportOptions } from '@suga/request-axios';
 
 // 导出类型
 export type {
@@ -41,12 +45,12 @@ export type {
 } from './types';
 
 
-// 导出取消相关工具（从 request-cancel 包）
-export { CancelTokenManager } from '@suga/request-cancel';
+// 导出中止相关工具（从 request-abort 包）
+export { AbortControllerManager } from '@suga/request-abort';
 export type {
-  CancelTokenManagerOptions,
+  AbortControllerManagerOptions,
   CancelableRequestConfig,
-} from '@suga/request-cancel';
+} from '@suga/request-abort';
 export {
   createErrorContext,
   createErrorContextFromError,
@@ -191,9 +195,9 @@ export {
  *   },
  * });
  *
- * // 取消请求（需要先获取 CancelTokenManager 实例）
- * import { CancelTokenManager } from '@suga/request-cancel';
- * const cancelTokenManager = new CancelTokenManager();
+ * // 中止请求（需要先获取 AbortControllerManager 实例）
+ * import { AbortControllerManager } from '@suga/request-abort';
+ * const abortControllerManager = new AbortControllerManager();
  * cancelTokenManager.cancel('request_id');
  *
  * 注意：

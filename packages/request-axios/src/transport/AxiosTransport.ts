@@ -73,7 +73,7 @@ export class AxiosTransport implements Transport {
         headers: normalizeHeaders(response.headers),
         config,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       // 如果是 Axios 错误，提取响应信息
       if (axios.isAxiosError(error) && error.response) {
         throw {
@@ -91,4 +91,3 @@ export class AxiosTransport implements Transport {
     }
   }
 }
-

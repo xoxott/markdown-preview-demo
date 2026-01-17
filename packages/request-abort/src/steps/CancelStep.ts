@@ -1,18 +1,18 @@
 /**
- * 取消步骤
- * 职责：管理请求取消Token，支持按条件取消请求
+ * 中止步骤
+ * 职责：管理请求中止，使用 AbortController 支持按条件中止请求
  */
 
 import type { RequestStep, RequestContext } from '@suga/request-core';
 import type { CancelOptions, CancelMeta } from '../types';
-import { CancelTokenManager } from '../managers/CancelTokenManager';
+import { AbortControllerManager } from '../managers/AbortControllerManager';
 
 /**
- * 取消步骤配置
+ * 中止步骤配置
  */
 export interface CancelStepOptions {
-  /** 取消Token管理器实例 */
-  cancelTokenManager?: CancelTokenManager;
+  /** AbortController 管理器实例 */
+  abortControllerManager?: AbortControllerManager;
   /** 默认取消配置 */
   defaultOptions?: CancelOptions;
 }
@@ -47,14 +47,14 @@ function parseCancelConfig(
 }
 
 /**
- * 取消步骤
+ * 中止步骤
  */
 export class CancelStep implements RequestStep {
-  private cancelTokenManager: CancelTokenManager;
+  private abortControllerManager: AbortControllerManager;
   private defaultOptions?: CancelOptions;
 
   constructor(options: CancelStepOptions = {}) {
-    this.cancelTokenManager = options.cancelTokenManager ?? new CancelTokenManager();
+    this.abortControllerManager = options.abortControllerManager ?? new AbortControllerManager();
     this.defaultOptions = options.defaultOptions;
   }
 
@@ -75,8 +75,8 @@ export class CancelStep implements RequestStep {
     // 使用 ctx.id 作为 requestId（ctx.id 在 core 中已经生成好了）
     const requestId = ctx.id;
 
-    // 创建 cancel token
-    const cancelTokenSource = this.cancelTokenManager.createCancelToken(
+    // 创建 AbortController
+    const abortController = this.abortControllerManager.createAbortController(
       requestId,
       {
         url: ctx.config.url,
@@ -84,20 +84,20 @@ export class CancelStep implements RequestStep {
       },
     );
 
-    // 将 cancel token 存储到 meta 中，供 TransportStep 使用
-    // TransportStep 会从 meta 读取 cancelToken 并添加到请求配置中
-    ctx.meta._cancelTokenSource = cancelTokenSource;
-    ctx.meta._cancelToken = cancelTokenSource.token;
+    // 将 AbortController 和 signal 存储到 meta 中，供 TransportStep 使用
+    // TransportStep 会从 meta.signal 读取并添加到请求配置中
+    ctx.meta._abortController = abortController;
+    ctx.meta.signal = abortController.signal;
 
     try {
       await next();
 
-      // 请求成功，清理 cancel token
-      this.cancelTokenManager.remove(requestId);
+      // 请求成功，清理 AbortController
+      this.abortControllerManager.remove(requestId);
     } catch (error) {
-      // 请求失败，清理 cancel token（除非是取消错误，cancel 方法已清理）
-      if (this.cancelTokenManager.has(requestId)) {
-        this.cancelTokenManager.remove(requestId);
+      // 请求失败，清理 AbortController（除非是取消错误，cancel 方法已清理）
+      if (this.abortControllerManager.has(requestId)) {
+        this.abortControllerManager.remove(requestId);
       }
 
       throw error;
@@ -105,10 +105,10 @@ export class CancelStep implements RequestStep {
   }
 
   /**
-   * 获取取消Token管理器（用于外部取消请求）
+   * 获取 AbortController 管理器（用于外部取消请求）
    */
-  getCancelTokenManager(): CancelTokenManager {
-    return this.cancelTokenManager;
+  getAbortControllerManager(): AbortControllerManager {
+    return this.abortControllerManager;
   }
 }
 

@@ -9,7 +9,7 @@ import type { QueueConfig } from '@suga/request-queue';
 import type { RetryConfig, RetryStrategy } from '@suga/request-retry';
 import type { CacheConfig, CacheReadStepOptions, CacheWriteStepOptions } from '@suga/request-cache';
 import type { DedupeOptions } from '@suga/request-dedupe';
-import type { CancelOptions } from '@suga/request-cancel';
+import type { CancelOptions } from '@suga/request-abort';
 import type { LoggerOptions, LoggerManager } from '@suga/request-logger';
 
 /**
@@ -37,8 +37,10 @@ export interface TimeoutStrategy {
 export interface RequestOptions {
   /** API基础URL */
   baseURL?: string;
+
   /** 请求超时时间 */
   timeout?: number;
+
   /** 超时策略 */
   timeoutStrategy?: Partial<TimeoutStrategy>;
 
@@ -75,24 +77,19 @@ export interface RequestOptions {
 
 /**
  * 创建请求客户端的配置
- * 完整继承 AxiosRequestConfig 的所有字段，并扩展业务层配置
- * 所有配置都可以放在一个对象中，TypeScript 会自动区分哪些是 Axios 配置，哪些是业务层配置
  */
-export interface CreateRequestClientConfig extends RequestOptions, AxiosRequestConfig {
-  // baseURL 和 timeout 在 RequestOptions 中已定义，会覆盖 AxiosRequestConfig 中的定义
-  // 所有 AxiosRequestConfig 的其他字段都可以直接使用
-}
-
+export interface CreateRequestClientConfig extends RequestOptions, AxiosRequestConfig {}
 /**
  * 请求配置接口
  * 扩展了 AxiosRequestConfig，添加了自定义功能配置
  */
 export interface RequestConfig extends Omit<AxiosRequestConfig, 'method' | 'responseType'> {
 
-  /** 请求方法（支持字符串类型） */
-  method?: RequestMethod | string;
-  /** 响应类型（支持字符串类型） */
-  responseType?: AxiosRequestConfig['responseType'] | string;
+  /** 请求方法 */
+  method?: RequestMethod;
+
+  /** 响应类型 */
+  responseType?: AxiosRequestConfig['responseType'];
 
   /**
    * 重试配置（完整类型，对应 RetryStep）

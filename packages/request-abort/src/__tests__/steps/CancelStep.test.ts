@@ -3,33 +3,31 @@
  */
 
 import { beforeEach, describe, expect, it } from 'vitest';
-import axios from 'axios';
-import type { CancelToken } from 'axios';
 import { CancelStep } from '../../steps/CancelStep';
-import { CancelTokenManager } from '../../managers/CancelTokenManager';
+import { AbortControllerManager } from '../../managers/AbortControllerManager';
 import { createRequestContext } from '@suga/request-core';
 import type { NormalizedRequestConfig } from '@suga/request-core';
 
 describe('CancelStep', () => {
   let step: CancelStep;
-  let cancelTokenManager: CancelTokenManager;
+  let abortControllerManager: AbortControllerManager;
 
   beforeEach(() => {
-    cancelTokenManager = new CancelTokenManager();
-    step = new CancelStep({ cancelTokenManager });
+    abortControllerManager = new AbortControllerManager();
+    step = new CancelStep({ abortControllerManager });
   });
 
   describe('构造函数', () => {
-    it('应该使用默认 CancelTokenManager', () => {
+    it('应该使用默认 AbortControllerManager', () => {
       const defaultStep = new CancelStep();
       expect(defaultStep).toBeInstanceOf(CancelStep);
-      expect(defaultStep.getCancelTokenManager()).toBeInstanceOf(CancelTokenManager);
+      expect(defaultStep.getAbortControllerManager()).toBeInstanceOf(AbortControllerManager);
     });
 
-    it('应该使用自定义 CancelTokenManager', () => {
-      const customManager = new CancelTokenManager();
-      const customStep = new CancelStep({ cancelTokenManager: customManager });
-      expect(customStep.getCancelTokenManager()).toBe(customManager);
+    it('应该使用自定义 AbortControllerManager', () => {
+      const customManager = new AbortControllerManager();
+      const customStep = new CancelStep({ abortControllerManager: customManager });
+      expect(customStep.getAbortControllerManager()).toBe(customManager);
     });
 
     it('应该使用默认配置', () => {
@@ -57,8 +55,9 @@ describe('CancelStep', () => {
 
       await step.execute(ctx, next);
 
-      // 根据实现，cancelable 默认为 true，所以应该创建 token
-      expect(ctx.meta._cancelTokenSource).toBeDefined();
+      // 根据实现，cancelable 默认为 true，所以应该创建 controller
+      expect(ctx.meta._abortController).toBeDefined();
+      expect(ctx.meta.signal).toBeDefined();
     });
 
     it('应该在 cancelable=false 时跳过', async () => {
@@ -78,7 +77,8 @@ describe('CancelStep', () => {
       await step.execute(ctx, next);
 
       expect(nextCalled).toBe(true);
-      expect(ctx.meta._cancelTokenSource).toBeUndefined();
+      expect(ctx.meta._abortController).toBeUndefined();
+      expect(ctx.meta.signal).toBeUndefined();
     });
 
     it('应该在 cancelable=undefined 时默认启用', async () => {
@@ -96,9 +96,9 @@ describe('CancelStep', () => {
 
       await step.execute(ctx, next);
 
-      expect(ctx.meta._cancelTokenSource).toBeDefined();
-      expect(ctx.meta._cancelToken).toBeDefined();
-      expect(cancelTokenManager.has(ctx.id)).toBe(false); // 请求成功后已清理
+      expect(ctx.meta._abortController).toBeDefined();
+      expect(ctx.meta.signal).toBeDefined();
+      expect(abortControllerManager.has(ctx.id)).toBe(false); // 请求成功后已清理
     });
 
     it('应该在 cancelable=true 时创建取消Token', async () => {
@@ -116,9 +116,9 @@ describe('CancelStep', () => {
 
       await step.execute(ctx, next);
 
-      expect(ctx.meta._cancelTokenSource).toBeDefined();
-      expect(ctx.meta._cancelToken).toBeDefined();
-      expect(cancelTokenManager.has(ctx.id)).toBe(false); // 请求成功后已清理
+      expect(ctx.meta._abortController).toBeDefined();
+      expect(ctx.meta.signal).toBeDefined();
+      expect(abortControllerManager.has(ctx.id)).toBe(false); // 请求成功后已清理
     });
 
     it('应该在请求成功时清理取消Token', async () => {
@@ -136,7 +136,7 @@ describe('CancelStep', () => {
 
       await step.execute(ctx, next);
 
-      expect(cancelTokenManager.has(ctx.id)).toBe(false);
+      expect(abortControllerManager.has(ctx.id)).toBe(false);
     });
 
     it('应该在请求失败时清理取消Token', async () => {
@@ -155,7 +155,7 @@ describe('CancelStep', () => {
 
       await expect(step.execute(ctx, next)).rejects.toThrow('Test error');
 
-      expect(cancelTokenManager.has(ctx.id)).toBe(false);
+      expect(abortControllerManager.has(ctx.id)).toBe(false);
     });
 
     it('应该在请求被取消时不重复清理', async () => {
@@ -170,18 +170,33 @@ describe('CancelStep', () => {
       const next = async (): Promise<void> => {
         // 等待 token 创建
         await new Promise((resolve) => setTimeout(resolve, 10));
-        // 模拟请求被取消 - 使用 ctx 中的 token
-        const token = ctx.meta._cancelToken as CancelToken | undefined;
-        if (token) {
-          // 取消 token
-          cancelTokenManager.cancel(ctx.id);
-          // 等待取消完成并抛出错误
-          await token.promise.catch((error: unknown) => {
-            // 预期的取消错误
-            if (axios.isCancel(error)) {
-              throw error;
+        // 模拟请求被取消 - 使用 ctx 中的 signal
+        const signal = ctx.meta.signal as AbortSignal | undefined;
+        if (signal) {
+          // 取消请求
+          abortControllerManager.cancel(ctx.id);
+          // 等待取消完成
+          if (signal.aborted) {
+            throw new DOMException('请求已取消', 'AbortError');
+          }
+          // 监听取消事件
+          await new Promise<void>((resolve, reject) => {
+            signal.addEventListener('abort', () => {
+              reject(new DOMException('请求已取消', 'AbortError'));
+            });
+            // 如果已经取消，立即拒绝
+            if (signal.aborted) {
+              reject(new DOMException('请求已取消', 'AbortError'));
+            } else {
+              // 等待取消或超时
+              setTimeout(() => {
+                if (signal.aborted) {
+                  reject(new DOMException('请求已取消', 'AbortError'));
+                } else {
+                  resolve();
+                }
+              }, 50);
             }
-            throw error;
           });
         }
       };
@@ -189,7 +204,7 @@ describe('CancelStep', () => {
       await expect(step.execute(ctx, next)).rejects.toBeDefined();
 
       // 取消时已经清理，所以不应该存在
-      expect(cancelTokenManager.has(ctx.id)).toBe(false);
+      expect(abortControllerManager.has(ctx.id)).toBe(false);
     });
 
     it('应该使用 ctx.id 作为 requestId', async () => {
@@ -207,11 +222,12 @@ describe('CancelStep', () => {
 
       await step.execute(ctx, next);
 
-      // 验证 token 已创建（虽然请求成功后已清理）
-      expect(ctx.meta._cancelTokenSource).toBeDefined();
+      // 验证 controller 已创建（虽然请求成功后已清理）
+      expect(ctx.meta._abortController).toBeDefined();
+      expect(ctx.meta.signal).toBeDefined();
     });
 
-    it('应该存储请求配置到 CancelTokenManager', async () => {
+    it('应该存储请求配置到 AbortControllerManager', async () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
@@ -226,21 +242,22 @@ describe('CancelStep', () => {
 
       await step.execute(ctx, next);
 
-      // 验证 token 已创建（虽然请求成功后已清理）
-      expect(ctx.meta._cancelTokenSource).toBeDefined();
+      // 验证 controller 已创建（虽然请求成功后已清理）
+      expect(ctx.meta._abortController).toBeDefined();
+      expect(ctx.meta.signal).toBeDefined();
     });
   });
 
-  describe('getCancelTokenManager', () => {
-    it('应该返回 CancelTokenManager 实例', () => {
-      const manager = step.getCancelTokenManager();
-      expect(manager).toBeInstanceOf(CancelTokenManager);
-      expect(manager).toBe(cancelTokenManager);
+  describe('getAbortControllerManager', () => {
+    it('应该返回 AbortControllerManager 实例', () => {
+      const manager = step.getAbortControllerManager();
+      expect(manager).toBeInstanceOf(AbortControllerManager);
+      expect(manager).toBe(abortControllerManager);
     });
   });
 
   describe('取消功能集成', () => {
-    it('应该能够通过 CancelTokenManager 取消请求', async () => {
+    it('应该能够通过 AbortControllerManager 取消请求', async () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
@@ -251,21 +268,31 @@ describe('CancelStep', () => {
 
       let cancelled = false;
       const next = async (): Promise<void> => {
-        // 等待 token 创建
+        // 等待 controller 创建
         await new Promise((resolve) => setTimeout(resolve, 10));
 
         // 模拟异步请求
-        const token = ctx.meta._cancelToken as CancelToken | undefined;
-        if (token) {
-          try {
-            await token.promise;
-          } catch (error) {
-            if (axios.isCancel(error)) {
+        const signal = ctx.meta.signal as AbortSignal | undefined;
+        if (signal) {
+          // 监听取消事件
+          await new Promise<void>((resolve, reject) => {
+            signal.addEventListener('abort', () => {
               cancelled = true;
-              throw error;
+              reject(new DOMException('请求已取消', 'AbortError'));
+            });
+            // 如果已经取消，立即拒绝
+            if (signal.aborted) {
+              cancelled = true;
+              reject(new DOMException('请求已取消', 'AbortError'));
+              return;
             }
-            throw error;
-          }
+            // 等待取消或超时
+            setTimeout(() => {
+              if (!signal.aborted) {
+                resolve();
+              }
+            }, 100);
+          });
         }
         ctx.result = 'success';
       };
@@ -273,15 +300,15 @@ describe('CancelStep', () => {
       // 启动请求
       const requestPromise = step.execute(ctx, next);
 
-      // 等待 token 创建
+      // 等待 controller 创建
       await new Promise((resolve) => setTimeout(resolve, 20));
 
       // 立即取消请求
-      cancelTokenManager.cancel(ctx.id, '用户取消');
+      abortControllerManager.cancel(ctx.id, '用户取消');
 
       await expect(requestPromise).rejects.toBeDefined();
 
-      // 等待取消完成（promise reject 的回调是异步的）
+      // 等待取消完成
       await new Promise((resolve) => setTimeout(resolve, 50));
 
       expect(cancelled).toBe(true);
@@ -312,20 +339,30 @@ describe('CancelStep', () => {
 
       let cancelled1 = false;
       const next1 = async (): Promise<void> => {
-        // 等待 token 创建
+        // 等待 controller 创建
         await new Promise((resolve) => setTimeout(resolve, 10));
 
-        const token = ctx1.meta._cancelToken as CancelToken | undefined;
-        if (token) {
-          try {
-            await token.promise;
-          } catch (error) {
-            if (axios.isCancel(error)) {
+        const signal = ctx1.meta.signal as AbortSignal | undefined;
+        if (signal) {
+          // 监听取消事件
+          await new Promise<void>((resolve, reject) => {
+            signal.addEventListener('abort', () => {
               cancelled1 = true;
-              throw error;
+              reject(new DOMException('请求已取消', 'AbortError'));
+            });
+            // 如果已经取消，立即拒绝
+            if (signal.aborted) {
+              cancelled1 = true;
+              reject(new DOMException('请求已取消', 'AbortError'));
+              return;
             }
-            throw error;
-          }
+            // 等待取消或超时
+            setTimeout(() => {
+              if (!signal.aborted) {
+                resolve();
+              }
+            }, 100);
+          });
         }
         ctx1.result = 'success';
       };
@@ -337,7 +374,7 @@ describe('CancelStep', () => {
       // 启动第一个请求
       const request1Promise = step.execute(ctx1, next1);
 
-      // 等待第一个请求的 token 创建
+      // 等待第一个请求的 controller 创建
       await new Promise((resolve) => setTimeout(resolve, 20));
 
       // 立即启动第二个请求（应该自动取消第一个）

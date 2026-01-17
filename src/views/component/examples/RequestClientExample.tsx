@@ -49,10 +49,14 @@ const client = createRequestClient({
   retryStrategy: {
     enabled: true,
     maxRetries: 3,
-    retryDelay: (attempt) => attempt * 1000,
-    shouldRetry: (error) => {
+    retryDelay: (attempt: number) => attempt * 1000,
+    shouldRetry: (error: unknown) => {
       // 网络错误或 5xx 错误时重试
-      return !error.response || (error.response.status >= 500 && error.response.status < 600);
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number } };
+        return !axiosError.response || (axiosError.response.status !== undefined && axiosError.response.status >= 500 && axiosError.response.status < 600);
+      }
+      return false;
     },
   },
 

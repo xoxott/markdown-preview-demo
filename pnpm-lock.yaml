@@ -43,7 +43,7 @@ importers:
         version: 0.13.0
       '@vue/repl':
         specifier: git+https://github.com/xoxott/repl.git#swich-npm-registry
-        version: git+https://git@github.com:xoxott/repl.git#f7a0d5eecd1830e0be47bd81847594d166736eb1
+        version: https://codeload.github.com/xoxott/repl/tar.gz/f7a0d5eecd1830e0be47bd81847594d166736eb1
       '@vueuse/core':
         specifier: 13.1.0
         version: 13.1.0(vue@3.5.13(typescript@5.6.3))
@@ -352,6 +352,32 @@ importers:
         specifier: 1.4.1
         version: 1.4.1
 
+  packages/request-abort:
+    dependencies:
+      '@suga/utils':
+        specifier: workspace:*
+        version: link:../utils
+    devDependencies:
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+
+  packages/request-axios:
+    dependencies:
+      '@suga/request-core':
+        specifier: workspace:*
+        version: link:../request-core
+      axios:
+        specifier: ^1.9.0
+        version: 1.9.0
+    devDependencies:
+      '@types/node':
+        specifier: ^22.15.17
+        version: 22.15.17
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+
   packages/request-cache:
     dependencies:
       '@suga/request-core':
@@ -363,19 +389,6 @@ importers:
       '@suga/utils':
         specifier: workspace:*
         version: link:../utils
-    devDependencies:
-      typescript:
-        specifier: ^5.6.3
-        version: 5.6.3
-
-  packages/request-cancel:
-    dependencies:
-      '@suga/utils':
-        specifier: workspace:*
-        version: link:../utils
-      axios:
-        specifier: ^1.9.0
-        version: 1.9.0
     devDependencies:
       typescript:
         specifier: ^5.6.3
@@ -393,12 +406,15 @@ importers:
 
   packages/request-client:
     dependencies:
+      '@suga/request-abort':
+        specifier: workspace:*
+        version: link:../request-abort
+      '@suga/request-axios':
+        specifier: workspace:*
+        version: link:../request-axios
       '@suga/request-cache':
         specifier: workspace:*
         version: link:../request-cache
-      '@suga/request-cancel':
-        specifier: workspace:*
-        version: link:../request-cancel
       '@suga/request-circuit-breaker':
         specifier: workspace:*
         version: link:../request-circuit-breaker
@@ -430,7 +446,7 @@ importers:
         specifier: workspace:*
         version: link:../storage
       axios:
-        specifier: ^1.7.9
+        specifier: ^1.9.0
         version: 1.9.0
     devDependencies:
       '@types/node':
@@ -1932,8 +1948,8 @@ packages:
   '@vue/reactivity@3.5.13':
     resolution: {integrity: sha512-NaCwtw8o48B9I6L1zl2p41OHo/2Z4wqYGGIK1Khu5T7yxrn+ATOixn/Udn2m+6kZKB/J7cuT9DbWWhRxqixACg==}
 
-  '@vue/repl@git+https://git@github.com:xoxott/repl.git#f7a0d5eecd1830e0be47bd81847594d166736eb1':
-    resolution: {commit: f7a0d5eecd1830e0be47bd81847594d166736eb1, repo: git@github.com:xoxott/repl.git, type: git}
+  '@vue/repl@https://codeload.github.com/xoxott/repl/tar.gz/f7a0d5eecd1830e0be47bd81847594d166736eb1':
+    resolution: {tarball: https://codeload.github.com/xoxott/repl/tar.gz/f7a0d5eecd1830e0be47bd81847594d166736eb1}
     version: 4.5.1
 
   '@vue/runtime-core@3.5.13':
@@ -7178,7 +7194,7 @@ snapshots:
     dependencies:
       '@vue/shared': 3.5.13
 
-  '@vue/repl@git+https://git@github.com:xoxott/repl.git#f7a0d5eecd1830e0be47bd81847594d166736eb1': {}
+  '@vue/repl@https://codeload.github.com/xoxott/repl/tar.gz/f7a0d5eecd1830e0be47bd81847594d166736eb1': {}
 
   '@vue/runtime-core@3.5.13':
     dependencies:
