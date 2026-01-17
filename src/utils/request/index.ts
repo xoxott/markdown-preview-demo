@@ -6,5 +6,4 @@
 export { AxiosTransport } from './AxiosTransport';
 export type { AxiosTransportOptions } from './AxiosTransport';
 export { TransportStep } from './TransportStep';
-export { AbortStep } from './AbortStep';
 

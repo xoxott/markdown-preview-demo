@@ -1,8 +1,6 @@
 /**
  * Axios 传输层适配器
  * 将 Axios 实例适配为 request-core 的 Transport 接口
- *
- * 注意：这是业务层封装，可以根据需要修改或替换
  */
 
 import type { Transport, TransportResponse, NormalizedRequestConfig } from '@suga/request-core';
@@ -11,7 +9,6 @@ import axios from 'axios';
 
 /**
  * Axios 传输层选项
- * 注意：instance 接受任何具有 request 方法的对象，内部会进行类型适配
  */
 export interface AxiosTransportOptions {
   /** HTTP 请求实例（必需，通常是通过 axios.create() 创建的实例） */
@@ -50,14 +47,11 @@ function isAxiosInstance(instance: unknown): instance is AxiosInstance {
 
 /**
  * Axios 传输层适配器
- * 将 Axios 实例适配为 Transport 接口
- * 注意：内部使用类型适配，不强制依赖 axios 类型
  */
 export class AxiosTransport implements Transport {
   private readonly instance: AxiosInstance;
 
   constructor(options: AxiosTransportOptions) {
-    // 类型检查：确保传入的实例是 Axios 实例
     if (!isAxiosInstance(options.instance)) {
       throw new TypeError('AxiosTransport: instance must be an AxiosInstance (created by axios.create())');
     }
@@ -66,8 +60,7 @@ export class AxiosTransport implements Transport {
 
   async request<T = unknown>(config: NormalizedRequestConfig): Promise<TransportResponse<T>> {
     try {
-      // NormalizedRequestConfig 可以直接作为 AxiosRequestConfig 使用
-      // 因为它们有兼容的字段结构
+
       const axiosConfig = config as unknown as Parameters<AxiosInstance['request']>[0];
 
       // 执行请求
@@ -81,7 +74,6 @@ export class AxiosTransport implements Transport {
         config,
       };
     } catch (error: unknown) {
-      // 如果是 Axios 错误，提取响应信息
       if (axios.isAxiosError(error) && error.response) {
         throw {
           message: error.message,
@@ -92,8 +84,6 @@ export class AxiosTransport implements Transport {
           config: error.config,
         };
       }
-
-      // 其他错误直接抛出
       throw error;
     }
   }

@@ -3,96 +3,19 @@
  * 展示所有功能的使用方法，确保功能正常
  */
 
-import { RequestCacheManager } from '@suga/request-cache';
 import { onRequestComplete, onRequestError, onRequestStart, onRequestSuccess } from '@suga/request-events';
-import { LoggerManager, configureLogger, logErrorWithManager, logRequestWithManager, logResponseWithManager } from '@suga/request-logger';
+import { configureLogger, logErrorWithManager, logRequestWithManager, logResponseWithManager } from '@suga/request-logger';
 import { createRequestClient } from '@/utils/request/createRequestClient';
 import type { AxiosProgressEvent } from 'axios';
 import { NAlert, NButton, NCard, NCode, NDivider, NH3, NProgress, NScrollbar, NSpace, NText } from 'naive-ui';
 import { defineComponent, onMounted, ref } from 'vue';
 
-// 创建缓存管理器
-const cacheManager = new RequestCacheManager();
-
-// 创建日志管理器
-const loggerManager = new LoggerManager({
-  enabled: true,
-  logRequest: true,
-  logResponse: true,
-  logError: true,
-});
-
-// 创建请求客户端（配置所有功能）
+// 创建请求客户端（仅配置 Axios 基础配置，步骤配置已写死在 createRequestClient 内部）
 const client = createRequestClient({
-  // Axios 配置
   baseURL: 'https://jsonplaceholder.typicode.com',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
-  },
-
-  // 步骤配置（全局默认配置）
-  queueConfig: {
-    maxConcurrent: 5,
-    queueStrategy: 'fifo',
-  },
-
-  dedupeConfig: {
-    dedupeWindow: 1000,
-    strategy: 'exact',
-  },
-
-  abortConfig: {
-    enabled: true,
-    autoAbortPrevious: true,
-  },
-
-  retryStrategy: {
-    enabled: true,
-    maxRetries: 3,
-    retryDelay: (attempt: number) => attempt * 1000,
-    shouldRetry: (error: unknown) => {
-      // 网络错误或 5xx 错误时重试
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { status?: number } };
-        return !axiosError.response || (axiosError.response.status !== undefined && axiosError.response.status >= 500 && axiosError.response.status < 600);
-      }
-      return false;
-    },
-  },
-
-  circuitBreakerManagerOptions: {
-    cleanupInterval: 300000, // 5分钟
-    maxSize: 100,
-    idleTimeout: 1800000, // 30分钟
-  },
-
-  // 日志配置（同时提供 loggerManager 和 loggerConfig，确保日志功能启用）
-  loggerManager,
-  loggerConfig: {
-    enabled: true,
-    logRequest: true,
-    logResponse: true,
-    logError: true,
-  },
-
-  cacheReadStepOptions: {
-    requestCacheManager: cacheManager,
-  },
-  cacheWriteStepOptions: {
-    requestCacheManager: cacheManager,
-  },
-
-  // 全局默认配置
-  defaultConfig: {
-    retry: {
-      retry: true,
-      retryCount: 3,
-      retryOnTimeout: false,
-    },
-    dedupe: true,
-    abortable: true,
-    logEnabled: true,
   },
 });
 
