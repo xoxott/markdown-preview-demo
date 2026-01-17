@@ -35,13 +35,19 @@ function normalizeHeaders(headers: AxiosResponse['headers']): Record<string, str
 
 /**
  * 类型守卫：检查是否为 Axios 实例
+ * 注意：AxiosInstance 实际上是一个函数对象，所以 typeof 是 'function' 而不是 'object'
  */
 function isAxiosInstance(instance: unknown): instance is AxiosInstance {
+  if (!instance) {
+    return false;
+  }
+
+  // AxiosInstance 是一个函数对象，typeof 是 'function'
+  // 但它也有 request、get、post 等方法属性
   return (
-    instance !== null &&
-    typeof instance === 'object' &&
-    'request' in instance &&
-    typeof (instance as { request?: unknown }).request === 'function'
+    (typeof instance === 'object' || typeof instance === 'function') &&
+    typeof (instance as { request?: unknown }).request === 'function' &&
+    typeof (instance as { get?: unknown }).get === 'function'
   );
 }
 

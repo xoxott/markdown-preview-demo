@@ -7,7 +7,7 @@ import { onRequestComplete, onRequestError, onRequestStart, onRequestSuccess } f
 import { configureLogger, logErrorWithManager, logRequestWithManager, logResponseWithManager } from '@suga/request-logger';
 import { createRequestClient } from '@/utils/request/createRequestClient';
 import type { AxiosProgressEvent } from 'axios';
-import { NAlert, NButton, NCard, NCode, NDivider, NH3, NProgress, NScrollbar, NSpace, NText } from 'naive-ui';
+import { NAlert, NButton, NCard, NCode, NConfigProvider, NDivider, NH3, NProgress, NScrollbar, NSpace, NText } from 'naive-ui';
 import { defineComponent, onMounted, ref } from 'vue';
 
 // 创建请求客户端（仅配置 Axios 基础配置，步骤配置已写死在 createRequestClient 内部）
@@ -40,46 +40,6 @@ export default defineComponent({
         logs.value.pop();
       }
     };
-
-    // 监听事件
-    onMounted(() => {
-      // 确保日志功能已启用
-      configureLogger({
-        enabled: true,
-        logRequest: true,
-        logResponse: true,
-        logError: true,
-      });
-
-      // 监听请求事件并记录日志
-      onRequestStart((event) => {
-        addLog(`请求开始: ${event.config.url}`);
-        // 调用日志函数记录请求日志
-        logRequestWithManager(event.config);
-      });
-
-      onRequestSuccess((event) => {
-        addLog(`请求成功: ${event.config.url}`);
-        // 调用日志函数记录响应日志
-        logResponseWithManager(event.config, event.result, event.duration);
-      });
-
-      onRequestError((event) => {
-        const errorMessage = event.error instanceof Error
-          ? event.error.message
-          : typeof event.error === 'object' && event.error !== null && 'message' in event.error
-          ? String((event.error as { message: unknown }).message)
-          : 'Unknown error';
-        addLog(`请求失败: ${event.config.url} - ${errorMessage}`);
-        // 调用日志函数记录错误日志
-        logErrorWithManager(event.config, event.error, event.duration);
-      });
-
-      onRequestComplete((event) => {
-        addLog(`请求完成: ${event.config.url} (${event.success ? '成功' : '失败'}, 耗时: ${event.duration}ms)`);
-      });
-    });
-
     // 1. 基础请求示例
     const handleBasicRequest = async () => {
       loading.value = true;

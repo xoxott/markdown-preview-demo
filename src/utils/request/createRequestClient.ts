@@ -16,6 +16,19 @@ import { CircuitBreakerStep } from '@suga/request-circuit-breaker';
 import { DedupeStep } from '@suga/request-dedupe';
 import { QueueStep } from '@suga/request-queue';
 import { AbortStep } from '@suga/request-abort';
+import {
+  EventStep,
+  eventManager,
+  onRequestError,
+  onRequestStart,
+  onRequestSuccess
+} from '@suga/request-events';
+import {
+  configureLogger,
+  logRequestWithManager,
+  logResponseWithManager,
+  logErrorWithManager
+} from '@suga/request-logger';
 import { AxiosTransport, TransportStep } from './index';
 
 /**
@@ -28,6 +41,26 @@ class CustomRequestClient extends RequestClient {
     (this as unknown as { executor: RequestExecutor }).executor = new RequestExecutor(steps);
   }
 }
+
+// 1. 日志配置
+configureLogger({
+  enabled: true,
+  // logRequest: true,
+  // logResponse: true,
+  // logError: true,
+});
+
+onRequestStart((data) => {
+  logRequestWithManager(data.config);
+});
+
+onRequestSuccess((data) => {
+  logResponseWithManager(data.config, data.result, data.duration);
+});
+
+onRequestError((data) => {
+  logErrorWithManager(data.config, data.error, data.duration);
+});
 
 /**
  * 创建请求客户端
@@ -52,29 +85,25 @@ export function createRequestClient(config?: AxiosRequestConfig) {
 
   // ==================== 步骤配置====================
 
-  // 1. 缓存配置（可选，默认不启用缓存管理器）
-  // 如需启用缓存，请在此处创建 RequestCacheManager 实例
-  // const cacheManager = new RequestCacheManager();
-
-  // 2. 去重配置
+  // 3. 去重配置
   const dedupeConfig = {
     dedupeWindow: 1000, // 1秒内的相同请求会被去重
     strategy: 'exact' as const, // 精确匹配
   };
 
-  // 3. 中止配置
+  // 4. 中止配置
   const abortConfig = {
     enabled: true,
     autoAbortPrevious: true, // 自动中止相同 requestId 的旧请求
   };
 
-  // 4. 队列配置
+  // 5. 队列配置
   const queueConfig = {
     maxConcurrent: 5, // 最大并发数
     queueStrategy: 'fifo' as const, // 先进先出
   };
 
-  // 5. 重试配置
+  // 6. 重试配置
   const retryStrategy: RetryStrategy = {
     enabled: true,
     maxRetries: 3, // 最大重试次数
@@ -94,7 +123,7 @@ export function createRequestClient(config?: AxiosRequestConfig) {
     },
   };
 
-  // 6. 熔断器配置
+  // 7. 熔断器配置
   const circuitBreakerConfig = {
     cleanupInterval: 300000, // 5分钟清理一次
     maxSize: 100, // 最大缓存断路器数量
@@ -105,10 +134,7 @@ export function createRequestClient(config?: AxiosRequestConfig) {
 
   const steps: RequestStep[] = [
     new PrepareContextStep(),
-    // 缓存读取（如需启用缓存，请取消注释并传入 cacheManager）
-    // new CacheReadStep({
-    //   requestCacheManager: cacheManager,
-    // }),
+    new CacheReadStep(),
     new DedupeStep({
       defaultOptions: dedupeConfig,
     }),
@@ -118,6 +144,7 @@ export function createRequestClient(config?: AxiosRequestConfig) {
     new QueueStep({
       defaultConfig: queueConfig,
     }),
+    new EventStep({ eventManager }),
     new RetryStep({
       defaultStrategy: retryStrategy,
     }),
@@ -125,10 +152,7 @@ export function createRequestClient(config?: AxiosRequestConfig) {
       managerOptions: circuitBreakerConfig,
     }),
     new TransportStep(transport),
-    // 缓存写入（如需启用缓存，请取消注释并传入 cacheManager）
-    // new CacheWriteStep({
-    //   requestCacheManager: cacheManager,
-    // }),
+    new CacheWriteStep(),
   ];
 
   // 创建自定义客户端
