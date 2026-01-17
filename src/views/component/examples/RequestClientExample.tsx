@@ -4,8 +4,9 @@
  */
 
 import { RequestCacheManager } from '@suga/request-cache';
-import { createRequestClient, onRequestComplete, onRequestError, onRequestStart, onRequestSuccess } from '@suga/request-client';
+import { onRequestComplete, onRequestError, onRequestStart, onRequestSuccess } from '@suga/request-events';
 import { LoggerManager, configureLogger, logErrorWithManager, logRequestWithManager, logResponseWithManager } from '@suga/request-logger';
+import { createRequestClient } from '@/utils/request/createRequestClient';
 import type { AxiosProgressEvent } from 'axios';
 import { NAlert, NButton, NCard, NCode, NDivider, NH3, NProgress, NScrollbar, NSpace, NText } from 'naive-ui';
 import { defineComponent, onMounted, ref } from 'vue';
@@ -41,9 +42,9 @@ const client = createRequestClient({
     strategy: 'exact',
   },
 
-  cancelConfig: {
+  abortConfig: {
     enabled: true,
-    autoCancelPrevious: true,
+    autoAbortPrevious: true,
   },
 
   retryStrategy: {
@@ -90,7 +91,7 @@ const client = createRequestClient({
       retryOnTimeout: false,
     },
     dedupe: true,
-    cancelable: true,
+    abortable: true,
     logEnabled: true,
   },
 });
@@ -314,15 +315,17 @@ export default defineComponent({
           body: 'This is a test post',
           userId: 1,
         }, {
-          onUploadProgress: (progressEvent: AxiosProgressEvent) => {
-            if (progressEvent.total) {
-              uploadProgress.value = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onUploadProgress: (progressEvent: unknown) => {
+            const event = progressEvent as AxiosProgressEvent;
+            if (event.total) {
+              uploadProgress.value = Math.round((event.loaded * 100) / event.total);
               addLog(`上传进度: ${uploadProgress.value}%`);
             }
           },
-          onDownloadProgress: (progressEvent: AxiosProgressEvent) => {
-            if (progressEvent.total) {
-              downloadProgress.value = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onDownloadProgress: (progressEvent: unknown) => {
+            const event = progressEvent as AxiosProgressEvent;
+            if (event.total) {
+              downloadProgress.value = Math.round((event.loaded * 100) / event.total);
               addLog(`下载进度: ${downloadProgress.value}%`);
             }
           },
@@ -337,12 +340,12 @@ export default defineComponent({
       }
     };
 
-    // 7. 请求取消示例
+    // 7. 请求中止示例
     const handleCancelRequest = async () => {
       loading.value = true;
       error.value = null;
       result.value = null;
-      addLog('开始可取消请求...');
+      addLog('开始可中止请求...');
 
       // 创建 AbortController
       const controller = new AbortController();
@@ -352,27 +355,27 @@ export default defineComponent({
       try {
         // 发送一个长时间运行的请求
         const promise = client.get('/posts', undefined, {
-          cancelable: true,
+          abortable: true,
           requestId: requestId.value,
           signal: controller.signal,
         });
 
-        // 3秒后取消请求
+        // 3秒后中止请求
         setTimeout(() => {
-          addLog('取消请求...');
+          addLog('中止请求...');
           controller.abort();
         }, 3000);
 
         const data = await promise;
         result.value = data;
-        addLog('可取消请求成功');
+        addLog('可中止请求成功');
       } catch (err: any) {
-        if (err.name === 'AbortError' || err.message?.includes('canceled')) {
-          error.value = '请求已被取消';
-          addLog('请求已被取消');
+        if (err.name === 'AbortError' || err.message?.includes('canceled') || err.message?.includes('aborted')) {
+          error.value = '请求已被中止';
+          addLog('请求已被中止');
         } else {
           error.value = err.message || '请求失败';
-          addLog(`可取消请求失败: ${error.value}`);
+          addLog(`可中止请求失败: ${error.value}`);
         }
       } finally {
         loading.value = false;
@@ -380,11 +383,11 @@ export default defineComponent({
       }
     };
 
-    // 8. 手动取消请求
+    // 8. 手动中止请求
     const handleManualCancel = () => {
       if (cancelController.value) {
         cancelController.value.abort();
-        addLog('手动取消请求');
+        addLog('手动中止请求');
       }
     };
 
@@ -477,8 +480,8 @@ export default defineComponent({
           // 去重
           dedupe: true,
 
-          // 取消
-          cancelable: true,
+          // 中止
+          abortable: true,
 
           // 日志
           logEnabled: true,
@@ -517,7 +520,7 @@ export default defineComponent({
         <NCard bordered>
           <NH3 class="border-b pb-2 text-lg font-semibold mb-4">RequestClient 功能示例</NH3>
           <NText class="text-gray-500 mb-4 block">
-            展示 @suga/request-client 的所有功能，包括缓存、重试、熔断、去重、队列、日志、进度监控、请求取消等。
+            展示业务层封装的请求客户端功能，包括缓存、重试、熔断、去重、队列、日志、进度监控、请求取消等。
           </NText>
 
           {/* 功能按钮 */}
@@ -560,11 +563,11 @@ export default defineComponent({
                 进度监控
               </NButton>
               <NButton type="error" onClick={handleCancelRequest} loading={loading.value}>
-                可取消请求
+                可中止请求
               </NButton>
               {cancelController.value && (
                 <NButton type="error" onClick={handleManualCancel}>
-                  手动取消
+                  手动中止
                 </NButton>
               )}
               <NButton type="primary" onClick={handleFullConfigRequest} loading={loading.value}>

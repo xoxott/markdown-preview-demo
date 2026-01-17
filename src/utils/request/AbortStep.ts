@@ -1,6 +1,8 @@
 /**
  * 取消步骤（Abort Step）
  * 职责：检查取消状态、使用 AbortController
+ *
+ * 注意：这是业务层封装，可以根据需要修改或替换
  */
 
 import type { RequestStep, RequestContext } from '@suga/request-core';
@@ -27,3 +29,4 @@ export class AbortStep implements RequestStep {
     return next();
   }
 }
+

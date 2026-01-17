@@ -3,8 +3,8 @@
  * 使用原生 AbortController 替代废弃的 axios.CancelToken
  */
 
-import type { CancelableRequestConfig, AbortControllerManagerOptions } from '../types';
-import { DEFAULT_CANCEL_MESSAGE } from '../constants';
+import type { AbortableRequestConfig, AbortControllerManagerOptions } from '../types';
+import { DEFAULT_ABORT_MESSAGE } from '../constants';
 
 /**
  * 内部日志工具
@@ -26,35 +26,35 @@ interface AbortControllerWithMessage {
  */
 export class AbortControllerManager {
   private controllerMap = new Map<string, AbortControllerWithMessage>();
-  private requestConfigMap = new Map<string, CancelableRequestConfig>();
+  private requestConfigMap = new Map<string, AbortableRequestConfig>();
   private options: Required<AbortControllerManagerOptions>;
 
   constructor(options: AbortControllerManagerOptions = {}) {
     this.options = {
-      autoCancelPrevious: options.autoCancelPrevious ?? true,
-      defaultCancelMessage: options.defaultCancelMessage ?? DEFAULT_CANCEL_MESSAGE,
+      autoAbortPrevious: options.autoAbortPrevious ?? true,
+      defaultAbortMessage: options.defaultAbortMessage ?? DEFAULT_ABORT_MESSAGE,
     };
   }
 
   /**
    * 创建 AbortController
    * @param requestId 请求标识
-   * @param config 请求配置（可选，用于按条件取消）
+   * @param config 请求配置（可选，用于按条件中止）
    * @returns AbortController
    */
   createAbortController(
     requestId: string,
-    config?: CancelableRequestConfig,
+    config?: AbortableRequestConfig,
   ): AbortController {
-    // 如果启用了自动取消，且已存在相同 requestId 的请求，先取消之前的请求
-    if (this.options.autoCancelPrevious) {
-      this.cancel(requestId);
+    // 如果启用了自动中止，且已存在相同 requestId 的请求，先中止之前的请求
+    if (this.options.autoAbortPrevious) {
+      this.abort(requestId);
     }
 
     const controller = new AbortController();
     this.controllerMap.set(requestId, {
       controller,
-      message: this.options.defaultCancelMessage,
+      message: this.options.defaultAbortMessage,
     });
     if (config) {
       this.requestConfigMap.set(requestId, config);
@@ -63,22 +63,22 @@ export class AbortControllerManager {
   }
 
   /**
-   * 取消请求
+   * 中止请求
    * @param requestId 请求标识
-   * @param message 取消原因（注意：AbortController 不支持自定义消息，消息仅用于日志）
+   * @param message 中止原因（注意：AbortController 不支持自定义消息，消息仅用于日志）
    */
-  cancel(requestId: string, message?: string): void {
+  abort(requestId: string, message?: string): void {
     const entry = this.controllerMap.get(requestId);
     if (entry) {
       try {
         entry.controller.abort(message || entry.message);
         if (message) {
-          // 更新取消消息（虽然 AbortController 不支持，但我们存储用于日志）
+          // 更新中止消息（虽然 AbortController 不支持，但我们存储用于日志）
           entry.message = message;
         }
       } catch (error) {
-        // AbortController.abort() 如果已取消会抛出错误，忽略即可
-        internalWarn('取消请求时出错:', error);
+        // AbortController.abort() 如果已中止会抛出错误，忽略即可
+        internalWarn('中止请求时出错:', error);
       }
       this.controllerMap.delete(requestId);
       this.requestConfigMap.delete(requestId);
@@ -86,20 +86,20 @@ export class AbortControllerManager {
   }
 
   /**
-   * 取消所有请求
-   * @param message 取消原因（注意：AbortController 不支持自定义消息，消息仅用于日志）
+   * 中止所有请求
+   * @param message 中止原因（注意：AbortController 不支持自定义消息，消息仅用于日志）
    */
-  cancelAll(message?: string): void {
-    const cancelMessage = message || this.options.defaultCancelMessage;
+  abortAll(message?: string): void {
+    const abortMessage = message || this.options.defaultAbortMessage;
     this.controllerMap.forEach(entry => {
       try {
-        entry.controller.abort(cancelMessage);
+        entry.controller.abort(abortMessage);
         if (message) {
-          entry.message = cancelMessage;
+          entry.message = abortMessage;
         }
       } catch (error) {
-        // AbortController.abort() 如果已取消会抛出错误，忽略即可
-        internalWarn('取消请求时出错:', error);
+        // AbortController.abort() 如果已中止会抛出错误，忽略即可
+        internalWarn('中止请求时出错:', error);
       }
     });
     this.controllerMap.clear();
@@ -116,34 +116,34 @@ export class AbortControllerManager {
   }
 
   /**
-   * 按条件取消请求
-   * @param predicate 取消条件函数
-   * @param message 取消原因（注意：AbortController 不支持自定义消息，消息仅用于日志）
-   * @returns 取消的请求数量
+   * 按条件中止请求
+   * @param predicate 中止条件函数
+   * @param message 中止原因（注意：AbortController 不支持自定义消息，消息仅用于日志）
+   * @returns 中止的请求数量
    */
-  cancelBy(
-    predicate: (config: CancelableRequestConfig) => boolean,
+  abortBy(
+    predicate: (config: AbortableRequestConfig) => boolean,
     message?: string,
   ): number {
-    const cancelMessage = message || this.options.defaultCancelMessage;
-    let cancelledCount = 0;
+    const abortMessage = message || this.options.defaultAbortMessage;
+    let abortedCount = 0;
 
-    const requestIdsToCancel: string[] = [];
+    const requestIdsToAbort: string[] = [];
 
     // 遍历所有请求配置，找出匹配的请求
     this.requestConfigMap.forEach((config, requestId) => {
       if (predicate(config)) {
-        requestIdsToCancel.push(requestId);
+        requestIdsToAbort.push(requestId);
       }
     });
 
-    // 取消匹配的请求
-    requestIdsToCancel.forEach(requestId => {
-      this.cancel(requestId, cancelMessage);
-      cancelledCount++;
+    // 中止匹配的请求
+    requestIdsToAbort.forEach(requestId => {
+      this.abort(requestId, abortMessage);
+      abortedCount++;
     });
 
-    return cancelledCount;
+    return abortedCount;
   }
 
   /**

@@ -15,10 +15,11 @@ pnpm add @suga/request-abort
 ```typescript
 import { RequestClient } from '@suga/request-core';
 import { CancelStep } from '@suga/request-abort';
-import { AxiosTransport } from '@suga/request-axios';
+// 注意：AxiosTransport 应该在业务层实现，这里仅作示例
+// 业务层需要创建 Transport 实例，实现 Transport 接口
 
-// 创建传输层
-const transport = new AxiosTransport({ instance: axios.create() });
+// 创建传输层（示例：需要业务层实现 AxiosTransport）
+// const transport = new AxiosTransport({ instance: axios.create() });
 
 // 创建客户端并添加中止步骤
 const client = new RequestClient(transport)
@@ -185,11 +186,11 @@ new AbortControllerManager(options?: AbortControllerManagerOptions)
 ```typescript
 import { RequestClient } from '@suga/request-core';
 import { CancelStep } from '@suga/request-abort';
-import { AxiosTransport } from '@suga/request-axios';
+// 注意：AxiosTransport 应该在业务层实现
+// const transport = new AxiosTransport({ instance: axios.create() });
 
-const transport = new AxiosTransport({ instance: axios.create() });
 const cancelStep = new CancelStep();
-const client = new RequestClient(transport).with(cancelStep);
+// const client = new RequestClient(transport).with(cancelStep);
 
 // 发起请求
 const requestPromise = client.request({

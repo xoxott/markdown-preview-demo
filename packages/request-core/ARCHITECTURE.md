@@ -452,16 +452,25 @@ describe('RequestContext', () => {
 ### 业务层包装
 
 ```typescript
-// 业务层：packages/request-client
+// 业务层封装示例
 import { RequestClient, NormalizedRequestConfig } from '@suga/request-core';
-import { AxiosTransport } from './AxiosTransport';
+// 注意：AxiosTransport 应该在业务层实现，实现 Transport 接口
+// import { AxiosTransport } from '../utils/AxiosTransport';
 import { CacheStep, RetryStep } from './business-steps';
+import axios from 'axios';
 
 export class ApiClient {
   private client: RequestClient;
 
   constructor() {
-    const transport = new AxiosTransport();
+    // 创建 Axios 实例（业务层负责）
+    const axiosInstance = axios.create({
+      baseURL: '/api',
+      timeout: 10000,
+    });
+
+    // 创建 Transport（业务层实现，实现 Transport 接口）
+    // const transport = new AxiosTransport({ instance: axiosInstance });
     this.client = new RequestClient(transport)
       .with(new CacheStep())
       .with(new RetryStep());

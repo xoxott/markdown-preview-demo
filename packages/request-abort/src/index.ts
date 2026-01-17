@@ -3,9 +3,9 @@
  * Request abort controller for @suga/request-core
  */
 
-// 导出取消步骤
-export { CancelStep } from './steps/CancelStep';
-export type { CancelStepOptions } from './steps/CancelStep';
+// 导出中止步骤
+export { AbortStep } from './steps/AbortStep';
+export type { AbortStepOptions } from './steps/AbortStep';
 
 // 导出 AbortController 管理器
 export { AbortControllerManager } from './managers/AbortControllerManager';
@@ -14,5 +14,5 @@ export { AbortControllerManager } from './managers/AbortControllerManager';
 export type * from './types';
 
 // 导出常量
-export { DEFAULT_CANCEL_MESSAGE } from './constants';
+export { DEFAULT_ABORT_MESSAGE } from './constants';
 

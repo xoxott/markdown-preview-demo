@@ -362,22 +362,6 @@ importers:
         specifier: ^5.6.3
         version: 5.6.3
 
-  packages/request-axios:
-    dependencies:
-      '@suga/request-core':
-        specifier: workspace:*
-        version: link:../request-core
-      axios:
-        specifier: ^1.9.0
-        version: 1.9.0
-    devDependencies:
-      '@types/node':
-        specifier: ^22.15.17
-        version: 22.15.17
-      typescript:
-        specifier: ^5.6.3
-        version: 5.6.3
-
   packages/request-cache:
     dependencies:
       '@suga/request-core':
@@ -400,58 +384,6 @@ importers:
         specifier: workspace:*
         version: link:../request-core
     devDependencies:
-      typescript:
-        specifier: ^5.6.3
-        version: 5.6.3
-
-  packages/request-client:
-    dependencies:
-      '@suga/request-abort':
-        specifier: workspace:*
-        version: link:../request-abort
-      '@suga/request-axios':
-        specifier: workspace:*
-        version: link:../request-axios
-      '@suga/request-cache':
-        specifier: workspace:*
-        version: link:../request-cache
-      '@suga/request-circuit-breaker':
-        specifier: workspace:*
-        version: link:../request-circuit-breaker
-      '@suga/request-core':
-        specifier: workspace:*
-        version: link:../request-core
-      '@suga/request-dedupe':
-        specifier: workspace:*
-        version: link:../request-dedupe
-      '@suga/request-events':
-        specifier: workspace:*
-        version: link:../request-events
-      '@suga/request-logger':
-        specifier: workspace:*
-        version: link:../request-logger
-      '@suga/request-performance':
-        specifier: workspace:*
-        version: link:../request-performance
-      '@suga/request-progress':
-        specifier: workspace:*
-        version: link:../request-progress
-      '@suga/request-queue':
-        specifier: workspace:*
-        version: link:../request-queue
-      '@suga/request-retry':
-        specifier: workspace:*
-        version: link:../request-retry
-      '@suga/storage':
-        specifier: workspace:*
-        version: link:../storage
-      axios:
-        specifier: ^1.9.0
-        version: 1.9.0
-    devDependencies:
-      '@types/node':
-        specifier: ^22.15.17
-        version: 22.15.17
       typescript:
         specifier: ^5.6.3
         version: 5.6.3
