@@ -118,16 +118,16 @@ export const SvgRenderer = defineComponent({
     // ==================== 渲染 ====================
     return () => {
       // 无效的 SVG 内容
-      if (!isValid.value) {
-        return (
-          <NCard bordered={props.bordered} class="mb-2 mt-4">
-            <div class="flex flex-col items-center justify-center p-12 text-gray-400">
-              <div class="mb-4 text-5xl opacity-50">⚠️</div>
-              <div class="text-sm">无效的 SVG 内容</div>
-            </div>
-          </NCard>
-        );
-      }
+      // if (!isValid.value) {
+      //   return (
+      //     <NCard bordered={props.bordered} class="mb-2 mt-4">
+      //       <div class="flex flex-col items-center justify-center p-12 text-gray-400">
+      //         <div class="mb-4 text-5xl opacity-50">⚠️</div>
+      //         <div class="text-sm">无效的 SVG 内容</div>
+      //       </div>
+      //     </NCard>
+      //   );
+      // }
 
       return (
         <NCard

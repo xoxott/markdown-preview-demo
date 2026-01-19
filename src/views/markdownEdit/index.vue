@@ -19,8 +19,6 @@ async function typewriterEffect(fullText: string, onUpdate: (current: string) =>
   for (let i = 0; i < fullText.length; i++) {
     currentText += fullText[i];
     onUpdate(currentText);
-    // eslint-disable-next-line no-await-in-loop
-    // eslint-disable-next-line no-promise-executor-return
     await new Promise(resolve => setTimeout(resolve, delay));
   }
 }
@@ -31,7 +29,7 @@ const clickHandle = () => {
     currentText => {
       content.value = currentText;
     },
-    60
+    30
   );
 };
 const editorStyle = computed(() => ({

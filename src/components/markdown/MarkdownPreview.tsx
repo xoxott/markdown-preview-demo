@@ -17,6 +17,15 @@ import { EchartsRenderer } from './components/EchartsRenderer';
 import { SvgRenderer } from './components/SvgRenderer';
 import type { CodeBlockMeta } from '@suga/markdown-it-render-vnode';
 import { DOM_ATTR_NAME } from '@suga/markdown-it-render-vnode';
+import type { Component } from 'vue';
+
+// 代码块组件映射表
+const CODE_BLOCK_COMPONENTS: Record<string, Component> = {
+  mermaid: MermaidRenderer,
+  markmap: MindmapRenderer,
+  echarts: EchartsRenderer,
+  svg: SvgRenderer
+};
 
 export default defineComponent({
   name: 'MarkdownPreview',
@@ -41,19 +50,7 @@ export default defineComponent({
     md.use(markdownVuePlugin, {
       components: {
         codeBlock: (meta: CodeBlockMeta) => {
-          if (meta.langName === 'mermaid') {
-            return MermaidRenderer;
-          }
-          if (meta.langName === 'markmap') {
-            return MindmapRenderer;
-          }
-          if (meta.langName === 'echarts') {
-            return EchartsRenderer;
-          }
-          if (meta.langName === 'svg') {
-            return SvgRenderer;
-          }
-          return CodeBlock;
+          return CODE_BLOCK_COMPONENTS[meta.langName] || CodeBlock;
         }
       }
     }).use(markdownItMultimdTable);
@@ -61,7 +58,7 @@ export default defineComponent({
     const vnodes = ref<VNode[]>([]);
 
     // 监听内容变化
-    // 全量渲染，依赖 Vue 的 key-based diff 进行优化
+    // 依赖 Vue 的 key-based diff 进行优化
     watch(
       () => props.content,
       newContent => {
