@@ -4,9 +4,9 @@
  * @module types
  */
 
-import type { Component, VNode } from 'vue';
 import type Token from 'markdown-it/lib/token.mjs';
 import type Renderer from 'markdown-it/lib/renderer.mjs';
+import type { FrameworkNode, FrameworkComponent } from './adapters/types';
 
 /** 导出 Token 类型 */
 export type { Token, Renderer };
@@ -39,7 +39,7 @@ export type RenderRule = (
   options: RenderOptions,
   env: RenderEnv,
   renderer: MarkdownRenderer
-) => VNode | VNode[] | string | null;
+) => FrameworkNode | FrameworkNode[] | string | null;
 
 /** 渲染规则集合 */
 export interface RenderRules {
@@ -48,135 +48,95 @@ export interface RenderRules {
 
 /** 渲染选项 */
 export interface RenderOptions {
-  /** 是否启用换行符转 <br> */
   breaks?: boolean;
-
-  /** 语言前缀 */
   langPrefix?: string;
-
-  /** 高亮函数 */
   highlight?: (code: string, lang: string, attrs: string) => string;
-
-  /** 插件选项 */
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /** 渲染环境 */
 export interface RenderEnv {
-  /** 是否安全模式 */
   safeMode?: boolean;
-
-  /** 宏定义行 */
   macroLines?: Array<{
     matchPos: number;
     lineOffset: number;
     posOffset: number;
     currentPosOffset: number;
   }>;
-
-  /** 行起始位置 */
   bMarks?: number[];
-
-  /** 行结束位置 */
   eMarks?: number[];
-
-  /** 其他环境变量 */
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /** Markdown 渲染器接口 */
 export interface MarkdownRenderer {
-  /** 渲染规则 */
   rules: RenderRules;
-
-  /** 渲染 Token 数组 */
-  render(tokens: Token[], options: RenderOptions, env: RenderEnv): VNode[];
-
-  /** 渲染行内内容 */
-  renderInline(tokens: Token[], options: RenderOptions, env: RenderEnv): VNode[];
-
-  /** 渲染行内文本 */
+  options: RenderOptions;
+  render(tokens: Token[], options: RenderOptions, env: RenderEnv): FrameworkNode[];
+  renderInline(tokens: Token[], options: RenderOptions, env: RenderEnv): FrameworkNode[];
   renderInlineAsText(tokens: Token[], options: RenderOptions, env: RenderEnv): string;
+  renderAttrs(token: Token): Record<string, string>;
+  renderToken(tokens: Token[], idx: number, options: RenderOptions, env: RenderEnv): FrameworkNode | null;
+}
 
-  /** 渲染属性 */
-  renderAttrs(token: Token): Record<string, any>;
+/** 错误处理模式 */
+export type ErrorHandlingMode = 'silent' | 'warn' | 'strict';
 
-  /** 渲染单个 Token */
-  renderToken(tokens: Token[], idx: number, options: RenderOptions, env: RenderEnv): VNode | null;
+/** 错误处理配置 */
+export interface ErrorHandlerConfig {
+  /** 错误处理模式 */
+  mode?: ErrorHandlingMode;
+  /** 自定义错误消息前缀 */
+  errorPrefix?: string;
 }
 
 /** 插件配置选项 */
-export interface VueMarkdownPluginOptions {
+export interface FrameworkPluginOptions {
+  /** 框架适配器（必需） */
+  adapter: import('./adapters/types').FrameworkAdapter;
+
   /** 自定义组件 */
   components?: {
     /** 代码块组件工厂 */
-    codeBlock?: (meta: CodeBlockMeta) => Component | Promise<Component> | null;
+    codeBlock?: (meta: CodeBlockMeta) => FrameworkComponent | Promise<FrameworkComponent> | null;
+    /** 表格组件工厂 */
+    table?: (meta: { token: Token }) => FrameworkComponent | Promise<FrameworkComponent> | null;
+    /** 链接组件工厂 */
+    link?: (meta: { token: Token; href: string; title?: string }) => FrameworkComponent | Promise<FrameworkComponent> | null;
+    /** 图片组件工厂 */
+    image?: (meta: { token: Token; src: string; alt: string; title?: string }) => FrameworkComponent | Promise<FrameworkComponent> | null;
   };
 
   /** 性能配置 */
   performance?: {
     /** 是否启用缓存 */
     enableCache?: boolean;
-
     /** 缓存大小 */
     cacheSize?: number;
   };
+
+  /** 错误处理配置 */
+  errorHandler?: ErrorHandlerConfig;
+
+  /** 自定义渲染规则（可覆盖默认规则） */
+  customRules?: Partial<RenderRules>;
 }
 
 /** 异步组件选项 */
 export interface AsyncComponentOptions {
   /** 组件加载器 */
-  loader: () => Promise<any>;
-
+  loader: () => Promise<FrameworkComponent>;
   /** 加载中组件 */
-  loadingComponent?: any;
-
+  loadingComponent?: FrameworkComponent;
   /** 错误组件 */
-  errorComponent?: any;
-
+  errorComponent?: FrameworkComponent;
   /** 延迟时间 */
   delay?: number;
-
   /** 超时时间 */
   timeout?: number;
-
   /** 是否可挂起 */
   suspensible?: boolean;
-
   /** 错误回调 */
-  onError?: () => any;
+  onError?: (error: Error) => void;
 }
 
-/** VNode 父节点栈项 */
-export interface VNodeParentItem {
-  vnode: VNode;
-  depth: number;
-}
-
-/** 渲染上下文 */
-export interface RenderContext {
-  /** 当前选项 */
-  options: RenderOptions;
-
-  /** 当前环境 */
-  env: RenderEnv;
-
-  /** 渲染器实例 */
-  renderer: MarkdownRenderer;
-
-  /** 父节点栈 */
-  parentStack: VNode[];
-}
-
-/** 属性对象池项 */
-export interface PooledAttrs {
-  attrs: Record<string, any>;
-  inUse: boolean;
-}
-
-/** 缓存项 */
-export interface CacheItem<T> {
-  key: string;
-  value: T;
-  timestamp: number;
-}

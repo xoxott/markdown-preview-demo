@@ -11,7 +11,7 @@ import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
 import { useMermaid } from '../hooks/useMermaid';
 import { useCodeTools, useSvgTools } from '../hooks/useToolbar';
 import { debounce } from '../utils';
-import type { CodeBlockMeta } from '../plugins/types';
+import type { CodeBlockMeta } from '@suga/markdown-it-render-vnode';
 import { ToolBar } from './ToolBar';
 import { ErrorMessage } from './ErrorMessage';
 

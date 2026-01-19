@@ -19,8 +19,9 @@ export { useMermaid } from './hooks/useMermaid';
 export { useMindmap } from './hooks/useMindmap';
 export { useCodeTools, useSvgTools } from './hooks/useToolbar';
 
-// 类型
-export type { Token, Renderer, CodeBlockMeta, SvgMeta, RenderRule, MarkdownPluginOptions } from './plugins/types';
+// 类型（从包中导入基础类型，从本地导入组件特有类型）
+export type { Token, MarkdownRenderer as Renderer, CodeBlockMeta, RenderRule } from '@suga/markdown-it-render-vnode';
+export type { SvgMeta } from './plugins/types';
 
 export type { MermaidRendererProps } from './components/MermaidRenderer';
 export type { MindmapRendererProps } from './components/MindmapRenderer';
@@ -30,8 +31,9 @@ export type { ToolBarProps, ToolBarEmits, ZoomDirection } from './components/Too
 export type { SandBoxProps, CodeMode } from './components/SandBox';
 export type { ErrorMessageProps } from './components/ErrorMessage';
 
-// 工具函数
-export { escapeHtml, unescapeAll, validateAttrName, isUrlSafe, sanitizeSvg, sanitizeHtml } from './utils/security';
+// 工具函数（从包中导入基础函数，从本地导入组件特有函数）
+export { escapeHtml, unescapeAll, validateAttrName, isUrlSafe } from '@suga/markdown-it-render-vnode';
+export { sanitizeSvg, sanitizeHtml } from './utils/security';
 
 export {
   isSvgContent,
@@ -44,9 +46,9 @@ export {
   isValidSvg
 } from './utils/svg-utils';
 
-// 常量
+// 常量（从包中导入基础常量，从本地导入组件特有常量）
+export { DOM_ATTR_NAME } from '@suga/markdown-it-render-vnode';
 export {
-  DOM_ATTR_NAME,
   RUN_CODE_LANGS,
   CHART_LANGS,
   HIGHLIGHT_LANGS,

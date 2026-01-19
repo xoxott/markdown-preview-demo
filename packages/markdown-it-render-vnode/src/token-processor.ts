@@ -68,7 +68,7 @@ export function processToken(token: Token, env?: RenderEnv): void {
  * @param tokens - Token 数组
  * @param env - 渲染环境
  */
-export function processTokens(tokens: Token[], env?: RenderEnv): void {
+export function preprocessTokens(tokens: Token[], env?: RenderEnv): void {
   for (let i = 0; i < tokens.length; i++) {
     processToken(tokens[i], env);
 
@@ -79,7 +79,8 @@ export function processTokens(tokens: Token[], env?: RenderEnv): void {
 
     // 递归处理子 Token
     if (tokens[i].children) {
-      processTokens(tokens[i].children!, env);
+      preprocessTokens(tokens[i].children!, env);
     }
   }
 }
+

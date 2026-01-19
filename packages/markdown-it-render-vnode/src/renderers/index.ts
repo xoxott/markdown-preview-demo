@@ -6,7 +6,7 @@
 
 import type { RenderRules } from '../types';
 import { renderCodeBlock, renderCodeInline, renderFence, setCodeRendererOptions } from './code-renderer';
-import { renderHtmlBlock, renderHtmlInline } from './html-renderer';
+import { renderHtml } from './html-renderer';
 import { renderHardBreak, renderSoftBreak, renderText } from './text-renderer';
 import { renderImage, renderMedia } from './media-renderer';
 
@@ -18,8 +18,8 @@ export const defaultRenderRules: RenderRules = {
   fence: renderFence,
 
   // HTML 相关
-  html_block: renderHtmlBlock,
-  html_inline: renderHtmlInline,
+  html_block: renderHtml,
+  html_inline: renderHtml,
 
   // 文本相关
   text: renderText,
@@ -39,3 +39,4 @@ export * from './code-renderer';
 export * from './html-renderer';
 export * from './text-renderer';
 export * from './media-renderer';
+

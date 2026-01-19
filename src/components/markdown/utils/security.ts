@@ -1,73 +1,30 @@
-/** 安全工具函数 用于防止 XSS 攻击和其他安全问题 */
+/**
+ * 安全工具函数
+ *
+ * 从包中导入基础工具函数，保留组件特有的安全函数
+ */
+
+// 从包中导入基础工具函数
+export {
+  escapeHtml,
+  unescapeAll,
+  validateAttrName,
+  isUrlSafe
+} from '@suga/markdown-it-render-vnode';
+
+// 导入 isUrlSafe 用于函数内部使用
+import { isUrlSafe } from '@suga/markdown-it-render-vnode';
+
+// 组件特有的安全函数
 
 /** 敏感 URL 协议正则 */
-export const SENSITIVE_URL_REG = /^javascript:|vbscript:|file:|data:/i;
+const SENSITIVE_URL_REG = /^javascript:|vbscript:|file:|data:/i;
 
 /** 敏感属性正则 */
-export const SENSITIVE_ATTR_REG = /^href|src|xlink:href|poster|srcset$/i;
-
-/** 属性名称验证正则 */
-export const ATTR_NAME_REG = /^[a-zA-Z_:][a-zA-Z0-9:._-]*$/;
+const SENSITIVE_ATTR_REG = /^href|src|xlink:href|poster|srcset$/i;
 
 /** 事件属性正则 */
-export const ATTR_EVENT_REG = /^on/i;
-
-/**
- * HTML 转义
- *
- * @param str - 原始字符串
- * @returns 转义后的字符串
- */
-export function escapeHtml(str: string): string {
-  return str.replace(
-    /[&<>"']/g,
-    match =>
-      ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;'
-      })[match] || match
-  );
-}
-
-/**
- * HTML 反转义
- *
- * @param str - 转义后的字符串
- * @returns 原始字符串
- */
-export function unescapeAll(str: string): string {
-  const htmlUnescapes: Record<string, string> = {
-    '&amp;': '&',
-    '&lt;': '<',
-    '&gt;': '>',
-    '&quot;': '"',
-    '&#39;': "'"
-  };
-  return str.replace(/&(amp|lt|gt|quot|#39);/g, (_, code) => htmlUnescapes[`&${code};`] || _);
-}
-
-/**
- * 验证属性名称合法性
- *
- * @param name - 属性名称
- * @returns 是否合法
- */
-export function validateAttrName(name: string): boolean {
-  return ATTR_NAME_REG.test(name) && !ATTR_EVENT_REG.test(name);
-}
-
-/**
- * 验证 URL 安全性
- *
- * @param url - URL 字符串
- * @returns 是否安全
- */
-export function isUrlSafe(url: string): boolean {
-  return !SENSITIVE_URL_REG.test(url.trim());
-}
+const ATTR_EVENT_REG = /^on/i;
 
 /**
  * 清理 SVG 内容，移除危险元素和属性

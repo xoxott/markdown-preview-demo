@@ -9,13 +9,13 @@ import 'github-markdown-css/github-markdown.css';
 import 'highlight.js/styles/github.css';
 import 'highlight.js/styles/github-dark.css';
 import { useMarkdownTheme } from './hooks/useMarkdownTheme';
-import markdownVuePlugin from './plugins/v2/markdown-render-vnode-v2';
+import markdownVuePlugin from './plugins';
 import { CodeBlock } from './components/CodeBlock';
 import { MermaidRenderer } from './components/MermaidRenderer';
 import { MindmapRenderer } from './components/MindmapRenderer';
 import { EchartsRenderer } from './components/EchartsRenderer';
 import { SvgRenderer } from './components/SvgRenderer';
-import type { CodeBlockMeta } from './plugins/types';
+import type { CodeBlockMeta } from '@suga/markdown-it-render-vnode';
 
 export default defineComponent({
   name: 'MarkdownPreview',

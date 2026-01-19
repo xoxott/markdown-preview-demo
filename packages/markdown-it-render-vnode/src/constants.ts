@@ -85,5 +85,21 @@ export const PERFORMANCE_CONFIG = {
   CACHE_MAX_SIZE: 100,
 
   /** 是否启用属性对象池 */
-  ENABLE_OBJECT_POOL: true
+  ENABLE_OBJECT_POOL: true,
+
+  /** 对象池大小 */
+  POOL_SIZE: 20,
+
+  /** 缓存清理间隔（毫秒） */
+  CACHE_CLEANUP_INTERVAL: 60000,
+
+  /** HTML VNode key 截取长度 */
+  HTML_KEY_SUBSTRING_LENGTH: 20
 } as const;
+
+/** 性能监控配置 */
+export const PERFORMANCE_MONITOR_CONFIG = {
+  /** 性能阈值（毫秒） */
+  THRESHOLD: 50
+} as const;
+

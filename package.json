@@ -61,6 +61,8 @@
     "@suga/axios": "workspace:*",
     "@suga/color": "workspace:*",
     "@suga/hooks": "workspace:*",
+    "@suga/markdown-it-render-vnode": "workspace:*",
+    "@suga/markdown-it-render-vnode-vue": "workspace:*",
     "@suga/materials": "workspace:*",
     "@suga/utils": "workspace:*",
     "@vicons/ionicons5": "^0.13.0",

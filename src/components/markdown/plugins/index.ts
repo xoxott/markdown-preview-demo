@@ -4,17 +4,22 @@
  * @module plugins
  */
 
-// 导出 V2 版本作为默认版本
-export { default as MarkdownVuePlugin } from './v2/markdown-render-vnode-v2';
-export { default } from './v2/markdown-render-vnode-v2';
+import markdownItRenderVnode from '@suga/markdown-it-render-vnode';
+import { vueAdapter } from '@suga/markdown-it-render-vnode-vue';
+
+// 导出插件（使用 Vue 适配器）
+export const MarkdownVuePlugin = (md: any, options?: any) => {
+  return markdownItRenderVnode(md, { adapter: vueAdapter, ...options });
+};
+
+export default MarkdownVuePlugin;
 
 // 导出类型
 export type {
   Token,
-  Renderer,
   RenderOptions,
   RenderEnv,
   MarkdownRenderer,
-  VueMarkdownPluginOptions,
+  FrameworkPluginOptions as VueMarkdownPluginOptions,
   CodeBlockMeta
-} from './v2/types';
+} from '@suga/markdown-it-render-vnode';

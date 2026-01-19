@@ -30,7 +30,7 @@ import {
 import { CanvasRenderer } from 'echarts/renderers';
 import type { EChartsOption } from 'echarts';
 import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
-import type { CodeBlockMeta } from '../plugins/types';
+import type { CodeBlockMeta } from '@suga/markdown-it-render-vnode';
 import { ErrorMessage } from './ErrorMessage';
 
 // 注册 ECharts 组件

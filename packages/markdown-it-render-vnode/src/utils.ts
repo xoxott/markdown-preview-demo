@@ -4,22 +4,25 @@
  * @module utils
  */
 
-import type { Component, VNode } from 'vue';
-import { Comment, Fragment, Text, createVNode } from 'vue';
 import type { RenderEnv, Token } from './types';
+import type { FrameworkNode } from './adapters/types';
 import { HTML_ESCAPE_MAP, HTML_UNESCAPE_MAP, PERFORMANCE_CONFIG, SECURITY_PATTERNS } from './constants';
+import { getAdapter } from './adapters/manager';
+import { handleError } from './utils/error-handler';
+
+/** 属性记录类型 */
+export type AttrRecord = Record<string, string>;
 
 /** 属性对象池 */
-const attrPool: Array<Record<string, any>> = [];
-const POOL_SIZE = 20;
+const attrPool: Array<AttrRecord> = [];
 
 // 初始化对象池
-for (let i = 0; i < POOL_SIZE; i++) {
+for (let i = 0; i < PERFORMANCE_CONFIG.POOL_SIZE; i++) {
   attrPool.push({});
 }
 
 /** 从对象池获取属性对象（性能优化） */
-export function getAttrsFromPool(): Record<string, any> {
+export function getAttrsFromPool(): AttrRecord {
   if (!PERFORMANCE_CONFIG.ENABLE_OBJECT_POOL) {
     return {};
   }
@@ -27,12 +30,12 @@ export function getAttrsFromPool(): Record<string, any> {
 }
 
 /** 归还属性对象到池中 */
-export function returnAttrsToPool(attrs: Record<string, any>): void {
-  if (!PERFORMANCE_CONFIG.ENABLE_OBJECT_POOL || attrPool.length >= POOL_SIZE) {
+export function returnAttrsToPool(attrs: AttrRecord): void {
+  if (!PERFORMANCE_CONFIG.ENABLE_OBJECT_POOL || attrPool.length >= PERFORMANCE_CONFIG.POOL_SIZE) {
     return;
   }
-  // 清空对象
-  Object.keys(attrs).forEach(key => delete attrs[key]);
+  // 使用 Object.assign 清空对象（性能优于 forEach + delete）
+  Object.assign(attrs, {});
   attrPool.push(attrs);
 }
 
@@ -63,7 +66,7 @@ export function unescapeAll(str: string): string {
     return str;
   }
 
-  return str.replace(/&(amp|lt|gt|quot|#39);/g, (match, code) => {
+  return str.replace(/&(amp|lt|gt|quot|#39);/g, (match) => {
     return HTML_UNESCAPE_MAP[match] || match;
   });
 }
@@ -100,11 +103,21 @@ export function validateAttrValue(name: string, value: string): boolean {
 }
 
 /**
+ * 验证 URL 安全性
+ *
+ * @param url - URL 字符串
+ * @returns 是否安全
+ */
+export function isUrlSafe(url: string): boolean {
+  return !SECURITY_PATTERNS.SENSITIVE_URL.test(url.trim());
+}
+
+/**
  * 获取 Token 对应的源码行号范围
  *
  * @param token - Markdown Token
  * @param env - 渲染环境变量
- * @returns {undefined} 起始行号, 结束行号
+ * @returns 起始行号, 结束行号
  */
 export function getSourceLineRange(token: Token, env?: RenderEnv): [number, number] {
   const [lineStart, lineEnd] = token.map || [0, 1];
@@ -125,35 +138,43 @@ export function getSourceLineRange(token: Token, env?: RenderEnv): [number, numb
 }
 
 /**
- * 判断是否为组件选项对象
+ * 判断是否为组件选项对象（框架无关）
  *
  * @param obj - 待检测对象
  * @returns 是否为组件
  */
-export function isComponentOptions(obj: any): obj is Component {
+export function isComponentOptions(obj: unknown): boolean {
   if (!obj || typeof obj !== 'object') {
     return false;
   }
-  return 'setup' in obj || 'render' in obj || 'template' in obj;
+  // 通用组件检测：检查是否有常见的组件属性
+  return 'setup' in obj || 'render' in obj || 'template' in obj || 'component' in obj || typeof obj === 'function';
 }
 
 /**
- * 创建 HTML 内容的 VNode（带错误处理）
+ * 创建 HTML 内容的节点（带错误处理和 SSR 兼容）
  *
  * @param html - HTML 字符串
- * @returns 对应的 VNode
+ * @returns 对应的节点
  */
-export function createHtmlVNode(html: string): VNode {
+export function createHtmlVNode(html: string): FrameworkNode {
+  const adapter = getAdapter();
+
+  // SSR 环境检测：在服务端直接返回文本节点
+  if (typeof document === 'undefined') {
+    return adapter.createText(html);
+  }
+
   try {
     const template = document.createElement('template');
     template.innerHTML = html;
     const elements = template.content.children;
 
     if (elements.length === 0) {
-      return createVNode(Text, {}, '');
+      return adapter.createText('');
     }
 
-    const children: VNode[] = [];
+    const children: FrameworkNode[] = [];
 
     for (let i = 0; i < elements.length; i++) {
       const element = elements[i];
@@ -167,15 +188,17 @@ export function createHtmlVNode(html: string): VNode {
       }
 
       attrs.innerHTML = element.innerHTML;
-      attrs.key = `html-${i}-${element.innerHTML.substring(0, 20)}`;
+      const keySubstring = element.innerHTML.substring(0, PERFORMANCE_CONFIG.HTML_KEY_SUBSTRING_LENGTH);
+      attrs.key = `html-${i}-${keySubstring}`;
 
-      children.push(createVNode(tagName, attrs, []));
+      children.push(adapter.createElement(tagName, attrs, []));
     }
 
-    return children.length === 1 ? children[0] : createVNode(Fragment, {}, children);
+    return children.length === 1 ? children[0] : adapter.createFragment(children);
   } catch (error) {
-    console.error('[Markdown Renderer] Failed to create HTML VNode:', error);
-    return createVNode(Text, {}, '[HTML Parse Error]');
+    // 使用统一的错误处理
+    const errorText = adapter.createText('[HTML Parse Error]');
+    return handleError(error, 'Failed to create HTML VNode', errorText as FrameworkNode);
   }
 }
 
@@ -205,7 +228,7 @@ export function mergeClasses(...classes: (string | string[] | undefined)[]): str
  * 安全地分割 info 字符串
  *
  * @param info - info 字符串
- * @returns {undefined} 语言名, 属性字符串
+ * @returns 语言名, 属性字符串
  */
 export function parseInfoString(info: string): [string, string] {
   if (!info) {
@@ -235,7 +258,8 @@ export function onLeavePictureInPicture(e: Event): void {
   if (!target.isConnected) {
     target.pause();
   } else {
-    const scrollIntoView = (target as any).scrollIntoViewIfNeeded;
+    // 使用类型断言访问非标准 API
+    const scrollIntoView = (target as HTMLMediaElement & { scrollIntoViewIfNeeded?: () => void }).scrollIntoViewIfNeeded;
     if (typeof scrollIntoView === 'function') {
       scrollIntoView.call(target);
     }
@@ -243,17 +267,19 @@ export function onLeavePictureInPicture(e: Event): void {
 }
 
 /**
- * 移除指定的属性键
+ * 移除指定的属性键（使用 Set 优化查找性能）
  *
  * @param attrs - 属性对象
  * @param keysToRemove - 要移除的键数组
  * @returns 新的属性对象
  */
-export function omitAttrs(attrs: Record<string, any>, keysToRemove: string[]): Record<string, any> {
+export function omitAttrs(attrs: AttrRecord, keysToRemove: string[]): AttrRecord {
   const result = getAttrsFromPool();
+  // 使用 Set 进行 O(1) 查找，而不是数组的 O(n) 查找
+  const keysSet = new Set(keysToRemove);
 
   for (const key in attrs) {
-    if (!keysToRemove.includes(key)) {
+    if (!keysSet.has(key)) {
       result[key] = attrs[key];
     }
   }
@@ -262,16 +288,20 @@ export function omitAttrs(attrs: Record<string, any>, keysToRemove: string[]): R
 }
 
 /** 创建注释节点 */
-export function createCommentNode(): VNode {
-  return createVNode(Comment);
+export function createCommentNode(): FrameworkNode {
+  const adapter = getAdapter();
+  return adapter.createComment() || adapter.createText('');
 }
 
 /** 创建文本节点 */
-export function createTextNode(text: string): VNode {
-  return createVNode(Text, {}, text);
+export function createTextNode(text: string): FrameworkNode | string {
+  const adapter = getAdapter();
+  return adapter.createText(text);
 }
 
 /** 创建片段节点 */
-export function createFragmentNode(children: VNode[]): VNode {
-  return createVNode(Fragment, {}, children);
+export function createFragmentNode(children: FrameworkNode[]): FrameworkNode {
+  const adapter = getAdapter();
+  return adapter.createFragment(children);
 }
+

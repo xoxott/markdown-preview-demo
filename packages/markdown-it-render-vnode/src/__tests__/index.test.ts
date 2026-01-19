@@ -1,11 +1,12 @@
-/** Markdown 渲染插件 V2 单元测试 */
+/** Markdown 渲染插件单元测试 */
 
 import type { VNode } from 'vue';
 import MarkdownIt from 'markdown-it';
 import { beforeEach, describe, expect, it } from 'vitest';
-import MarkdownVuePluginV2 from '../v2/markdown-render-vnode-v2';
+import markdownItRenderVnode from '../index';
+import { vueAdapter } from '@suga/markdown-it-render-vnode-vue';
 
-describe('MarkdownVuePluginV2', () => {
+describe('markdownItRenderVnode', () => {
   let md: MarkdownIt;
 
   beforeEach(() => {
@@ -14,7 +15,7 @@ describe('MarkdownVuePluginV2', () => {
       linkify: true,
       typographer: true
     });
-    md.use(MarkdownVuePluginV2);
+    md.use(markdownItRenderVnode, { adapter: vueAdapter });
   });
 
   describe('基础文本渲染', () => {
@@ -185,7 +186,7 @@ describe('MarkdownVuePluginV2', () => {
 
     it('应该正确处理 breaks 选项', () => {
       const mdWithBreaks = new MarkdownIt({ breaks: true });
-      mdWithBreaks.use(MarkdownVuePluginV2);
+      mdWithBreaks.use(markdownItRenderVnode, { adapter: vueAdapter });
 
       const content = 'Line 1\nLine 2';
       const tokens = mdWithBreaks.parse(content, {});
@@ -255,4 +256,136 @@ console.log(code);
       expect(vnodes).toBeDefined();
     });
   });
+
+  describe('配置选项测试', () => {
+    it('应该要求提供适配器', () => {
+      const mdEmpty = new MarkdownIt();
+      expect(() => {
+        // 测试缺少适配器的情况
+        mdEmpty.use(markdownItRenderVnode, {} as any);
+      }).toThrow();
+    });
+
+    it('应该接受自定义组件配置', () => {
+      const mdCustom = new MarkdownIt();
+      const customComponent = () => null;
+
+      expect(() => {
+        mdCustom.use(markdownItRenderVnode, {
+          adapter: vueAdapter,
+          components: {
+            codeBlock: customComponent
+          }
+        });
+      }).not.toThrow();
+    });
+
+    it('应该接受性能配置', () => {
+      const mdPerf = new MarkdownIt();
+      expect(() => {
+        mdPerf.use(markdownItRenderVnode, {
+          adapter: vueAdapter,
+          performance: {
+            enableCache: true,
+            cacheSize: 200
+          }
+        });
+      }).not.toThrow();
+    });
+
+    it('应该接受错误处理配置', () => {
+      const mdError = new MarkdownIt();
+      expect(() => {
+        mdError.use(markdownItRenderVnode, {
+          adapter: vueAdapter,
+          errorHandler: {
+            mode: 'warn',
+            errorPrefix: '[Test]'
+          }
+        });
+      }).not.toThrow();
+    });
+
+    it('应该接受自定义渲染规则', () => {
+      const mdCustom = new MarkdownIt();
+      expect(() => {
+        mdCustom.use(markdownItRenderVnode, {
+          adapter: vueAdapter,
+          customRules: {
+            heading_open: () => null
+          }
+        });
+      }).not.toThrow();
+    });
+  });
+
+  describe('自定义组件测试', () => {
+    it('应该支持自定义代码块组件', () => {
+      const mdCustom = new MarkdownIt();
+      let customComponentCalled = false;
+
+      mdCustom.use(markdownItRenderVnode, {
+        adapter: vueAdapter,
+        components: {
+          codeBlock: () => {
+            customComponentCalled = true;
+            return null;
+          }
+        }
+      });
+
+      const content = '```javascript\nconsole.log("test");\n```';
+      const tokens = mdCustom.parse(content, {});
+      mdCustom.renderer.render(tokens, mdCustom.options, {}) as unknown as VNode[];
+
+      expect(customComponentCalled).toBe(true);
+    });
+  });
+
+  describe('自定义规则测试', () => {
+    it('应该支持覆盖默认规则', () => {
+      const mdCustom = new MarkdownIt();
+      let customRuleCalled = false;
+
+      mdCustom.use(markdownItRenderVnode, {
+        adapter: vueAdapter,
+        customRules: {
+          text: () => {
+            customRuleCalled = true;
+            return null;
+          }
+        }
+      });
+
+      const tokens = mdCustom.parse('Hello', {});
+      mdCustom.renderer.render(tokens, mdCustom.options, {}) as unknown as VNode[];
+
+      expect(customRuleCalled).toBe(true);
+    });
+  });
+
+  describe('SSR 兼容性测试', () => {
+    it('应该在 SSR 环境中正常工作', () => {
+      // 模拟 SSR 环境（document 未定义）
+      const originalDocument = global.document;
+      // @ts-expect-error - 模拟 SSR 环境
+      delete global.document;
+
+      try {
+        const mdSSR = new MarkdownIt();
+        mdSSR.use(markdownItRenderVnode, { adapter: vueAdapter });
+
+        const content = '<div>HTML content</div>';
+        const tokens = mdSSR.parse(content, {});
+        const vnodes = mdSSR.renderer.render(tokens, mdSSR.options, {}) as unknown as VNode[];
+
+        expect(vnodes).toBeDefined();
+        expect(vnodes.length).toBeGreaterThan(0);
+      } finally {
+        // 恢复 document
+        global.document = originalDocument;
+      }
+    });
+  });
 });
+

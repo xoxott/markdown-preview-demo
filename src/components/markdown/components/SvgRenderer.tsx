@@ -4,7 +4,8 @@ import { useToggle } from '@/hooks/customer/useToggle';
 import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
 import { useCodeTools, useSvgTools } from '../hooks/useToolbar';
 import { extractSvgMeta, isValidSvg } from '../utils/svg-utils';
-import type { CodeBlockMeta, SvgMeta } from '../plugins/types';
+import type { CodeBlockMeta } from '@suga/markdown-it-render-vnode';
+import type { SvgMeta } from '../plugins/types';
 import { ToolBar } from './ToolBar';
 import { ErrorMessage } from './ErrorMessage';
 

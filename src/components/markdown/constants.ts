@@ -1,22 +1,11 @@
-/** DOM 属性名称常量 */
-export const DOM_ATTR_NAME = {
-  /** 源代码起始行号 (1-based) */
-  SOURCE_LINE_START: 'data-source-line-start',
-  /** 源代码结束行号 (1-based) */
-  SOURCE_LINE_END: 'data-source-line-end',
-  /** 原始未处理内容 */
-  ORIGIN_CONTENT: 'data-origin-content',
-  /** 语法块类型标识 */
-  SYNTAX_TYPE: 'data-syntax-type',
-  /** Token 索引标识 */
-  TOKEN_IDX: 'data-token-idx',
-  /** 代码块语言类型 */
-  CODE_LANG: 'data-code-lang',
-  /** 是否折叠状态 */
-  COLLAPSE_STATE: 'data-collapse-state',
-  /** 安全渲染标识 */
-  SANITIZED: 'data-sanitized'
-} as const;
+/**
+ * Markdown 组件常量定义
+ *
+ * 从包中导入基础常量，保留组件特有的常量
+ */
+
+// 从包中导入 DOM_ATTR_NAME
+export { DOM_ATTR_NAME } from '@suga/markdown-it-render-vnode';
 
 /** 支持运行的代码语言 */
 export const RUN_CODE_LANGS = ['vue', 'javascript', 'typescript', 'js', 'ts', 'vue3'] as const;
