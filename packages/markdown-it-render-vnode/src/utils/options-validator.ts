@@ -4,7 +4,6 @@
  * @module utils/options-validator
  */
 
-import { PERFORMANCE_CONFIG } from '../constants';
 import type { FrameworkPluginOptions } from '../types';
 
 /** 验证结果 */
@@ -32,24 +31,8 @@ function validatePerformanceConfig(
     return undefined;
   }
 
-  const normalized: FrameworkPluginOptions['performance'] = { ...performance };
-
-  // 验证 cacheSize
-  if (performance.cacheSize !== undefined) {
-    if (typeof performance.cacheSize !== 'number' || performance.cacheSize < 0) {
-      errors.push('performance.cacheSize must be a non-negative number');
-    } else {
-      // 限制最大值为 10000
-      normalized.cacheSize = Math.max(0, Math.min(performance.cacheSize, 10000));
-    }
-  }
-
-  // 验证 enableCache
-  if (performance.enableCache !== undefined && typeof performance.enableCache !== 'boolean') {
-    errors.push('performance.enableCache must be a boolean');
-  }
-
-  return normalized;
+  // 性能配置当前为预留字段，暂无需验证
+  return performance;
 }
 
 /**
@@ -190,12 +173,8 @@ export function validateOptions(options: FrameworkPluginOptions): ValidationResu
  */
 export function mergeDefaultOptions(options: FrameworkPluginOptions): FrameworkPluginOptions {
   return {
-    ...options,
-    performance: {
-      enableCache: PERFORMANCE_CONFIG.ENABLE_VNODE_CACHE,
-      cacheSize: PERFORMANCE_CONFIG.CACHE_MAX_SIZE,
-      ...options.performance
-    }
+    ...options
+    // 性能配置当前无默认值需要合并
   };
 }
 

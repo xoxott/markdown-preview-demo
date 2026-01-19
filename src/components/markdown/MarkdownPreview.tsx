@@ -1,4 +1,4 @@
-import { type VNode, cloneVNode, defineComponent, onMounted, ref, watch } from 'vue';
+import { type VNode, defineComponent, onMounted, ref, watch } from 'vue';
 import MarkdownIt from 'markdown-it';
 import markdownItMultimdTable from 'markdown-it-multimd-table';
 import '@primer/css/core/index.scss';
@@ -16,6 +16,7 @@ import { MindmapRenderer } from './components/MindmapRenderer';
 import { EchartsRenderer } from './components/EchartsRenderer';
 import { SvgRenderer } from './components/SvgRenderer';
 import type { CodeBlockMeta } from '@suga/markdown-it-render-vnode';
+import { DOM_ATTR_NAME } from '@suga/markdown-it-render-vnode';
 
 export default defineComponent({
   name: 'MarkdownPreview',
@@ -58,16 +59,15 @@ export default defineComponent({
     }).use(markdownItMultimdTable);
 
     const vnodes = ref<VNode[]>([]);
-    const renderKey = ref(0);
 
-    // 监听内容变化，重新解析
+    // 监听内容变化
+    // 全量渲染，依赖 Vue 的 key-based diff 进行优化
     watch(
       () => props.content,
       newContent => {
         if (newContent) {
           const tokens = md.parse(newContent, {});
-          const newVnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
-          vnodes.value = newVnodes;
+          vnodes.value = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
         }
       },
       { immediate: true }
@@ -275,7 +275,13 @@ export default defineComponent({
     return () => (
       <div style={cssVars.value} class={['markdown-container', themeClass.value]}>
         <article class={['markdown-body', darkMode.value && 'markdown-body-dark']}>
-          {vnodes.value.map((vnode, index) => cloneVNode(vnode, { key: `vnode-${renderKey.value}-${index}` }))}
+          {vnodes.value.map((vnode, index) => {
+            const props = vnode.props as Record<string, unknown> | null | undefined;
+            const tokenKey = (props?.['data-token-key'] as string | undefined) ||
+                           (props?.[DOM_ATTR_NAME.TOKEN_IDX] as string | undefined) ||
+                           `vnode-${index}`;
+            return { ...vnode, key: tokenKey };
+          })}
         </article>
       </div>
     );

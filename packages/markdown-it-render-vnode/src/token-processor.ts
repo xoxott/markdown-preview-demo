@@ -9,6 +9,20 @@ import { DOM_ATTR_NAME } from './constants';
 import { getSourceLineRange, validateAttrValue } from './utils';
 
 /**
+ * 生成 Token 的唯一 key
+ *
+ * @param token - Token 对象
+ * @param index - Token 索引
+ * @param parentKey - 父级 key（可选）
+ * @returns 唯一 key 字符串
+ */
+function generateTokenKey(token: Token, index: number, parentKey?: string): string {
+  // 基于 token 类型、索引、nesting 和位置生成唯一 key
+  const baseKey = `${token.type}-${index}-${token.nesting}-${token.map?.[0] || 0}`;
+  return parentKey ? `${parentKey}/${baseKey}` : baseKey;
+}
+
+/**
  * 预处理 Token，添加元数据和安全检查
  *
  * @param token - 需要处理的 Token
@@ -63,23 +77,34 @@ export function processToken(token: Token, env?: RenderEnv): void {
 }
 
 /**
- * 批量预处理 Token 数组
+ * 批量预处理 Token 数组（递归处理，生成 key）
  *
  * @param tokens - Token 数组
  * @param env - 渲染环境
+ * @param parentKey - 父级 key（用于嵌套结构）
  */
-export function preprocessTokens(tokens: Token[], env?: RenderEnv): void {
+export function preprocessTokens(tokens: Token[], env?: RenderEnv, parentKey?: string): void {
   for (let i = 0; i < tokens.length; i++) {
-    processToken(tokens[i], env);
+    const token = tokens[i];
+    processToken(token, env);
 
-    // 设置 Token 索引
-    if (tokens[i].block) {
-      tokens[i].attrSet(DOM_ATTR_NAME.TOKEN_IDX, i.toString());
+    // 生成并存储 Token key
+    const tokenKey = generateTokenKey(token, i, parentKey);
+    if (!token.meta) {
+      token.meta = {};
+    }
+    token.meta.key = tokenKey;
+
+    // 设置 Token 索引（用于 DOM 属性）
+    if (token.block) {
+      token.attrSet(DOM_ATTR_NAME.TOKEN_IDX, i.toString());
+      // 同时设置 key 到属性中（用于 Vue/React 的 key）
+      token.attrSet('data-token-key', tokenKey);
     }
 
     // 递归处理子 Token
-    if (tokens[i].children) {
-      preprocessTokens(tokens[i].children!, env);
+    if (token.children) {
+      preprocessTokens(token.children, env, tokenKey);
     }
   }
 }

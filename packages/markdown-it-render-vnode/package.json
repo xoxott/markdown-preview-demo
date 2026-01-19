@@ -11,8 +11,14 @@
   "types": "./src/index.ts",
   "sideEffects": false,
   "exports": {
-    ".": "./src/index.ts",
-    "./adapters": "./src/adapters/types.ts"
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./adapters": {
+      "types": "./src/adapters/types.ts",
+      "default": "./src/adapters/types.ts"
+    }
   },
   "typesVersions": {
     "*": {

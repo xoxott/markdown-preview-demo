@@ -205,6 +205,7 @@ describe('markdownItRenderVnode', () => {
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
       const duration = performance.now() - start;
 
+      console.log('渲染时间',duration)
       expect(vnodes).toBeDefined();
       expect(duration).toBeLessThan(1000); // 应在 1 秒内完成
     });
@@ -286,8 +287,7 @@ console.log(code);
         mdPerf.use(markdownItRenderVnode, {
           adapter: vueAdapter,
           performance: {
-            enableCache: true,
-            cacheSize: 200
+            // 性能配置当前为预留字段，确保不会抛出错误
           }
         });
       }).not.toThrow();

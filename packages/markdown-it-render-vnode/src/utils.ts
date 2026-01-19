@@ -34,8 +34,13 @@ export function returnAttrsToPool(attrs: AttrRecord): void {
   if (!PERFORMANCE_CONFIG.ENABLE_OBJECT_POOL || attrPool.length >= PERFORMANCE_CONFIG.POOL_SIZE) {
     return;
   }
-  // 使用 Object.assign 清空对象（性能优于 forEach + delete）
-  Object.assign(attrs, {});
+  // 清空对象的所有属性
+  for (const key in attrs) {
+    if (Object.prototype.hasOwnProperty.call(attrs, key)) {
+      delete attrs[key];
+    }
+  }
+
   attrPool.push(attrs);
 }
 

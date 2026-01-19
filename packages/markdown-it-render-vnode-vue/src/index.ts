@@ -4,9 +4,15 @@
  * @module markdown-it-render-vnode-vue
  */
 
+import type {
+  FrameworkAdapter,
+  FrameworkComponent,
+  FrameworkNode,
+  NodeChildren,
+  NodeProps
+} from '@suga/markdown-it-render-vnode/adapters';
 import type { Component, VNode } from 'vue';
 import { Comment, Fragment, Text, createVNode } from 'vue';
-import type { FrameworkAdapter, FrameworkComponent, FrameworkNode, NodeChildren, NodeProps } from '@suga/markdown-it-render-vnode/adapters';
 
 /**
  * 规范化子节点
@@ -36,7 +42,23 @@ export const vueAdapter: FrameworkAdapter = {
   createElement(tag: string | FrameworkComponent, props: NodeProps | null, children: NodeChildren): FrameworkNode {
     // 处理子节点：扁平化数组，过滤 null/undefined
     const normalizedChildren = normalizeChildren(children);
-    return createVNode(tag as string | Component, props || {}, normalizedChildren);
+
+    // 提取 Vue 的 key（如果存在 data-token-key）
+    const vueProps = props ? { ...props } : {};
+    let key: string | undefined;
+
+    if (vueProps['data-token-key']) {
+      key = vueProps['data-token-key'] as string;
+      // 保留 data-token-key 作为属性，便于调试
+    }
+
+    // 创建 VNode，带上 key
+    const vnode = createVNode(tag as string | Component, vueProps, normalizedChildren);
+    if (key) {
+      vnode.key = key;
+    }
+
+    return vnode;
   },
 
   createText(text: string): FrameworkNode {

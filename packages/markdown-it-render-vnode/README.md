@@ -1,17 +1,18 @@
 # @suga/markdown-it-render-vnode
 
-一个用于将 Markdown 渲染为框架无关虚拟节点的 markdown-it 插件。支持 Vue、React 或任何其他框架，通过适配器模式实现跨框架兼容。
+一个强大的 markdown-it 插件，将 Markdown 渲染为框架无关的虚拟节点。通过适配器模式，轻松支持 Vue、React 或任何自定义框架。
 
 ## ✨ 特性
 
-- 🎯 **框架无关**: 通过适配器模式支持 Vue、React 或任何自定义框架
-- 📦 **模块化设计**: 适配器作为独立包，按需引入，减少打包体积
+- 🎯 **框架无关**: 一套代码，支持 Vue、React 或任何自定义框架
+- ⚡ **高性能**: 通过 key 优化，让框架高效进行 diff 和 DOM 复用
+- 🎨 **自定义组件**: 为代码块、表格、链接、图片等提供自定义组件支持
+- 🛡️ **类型安全**: 完整的 TypeScript 类型定义，开发体验友好
+- 🔒 **安全可靠**: 内置 XSS 防护和属性验证
+- 📦 **按需引入**: 适配器独立包，减少打包体积
 - 🔧 **高度可扩展**: 轻松创建自定义适配器或渲染规则
-- ⚡ **性能优化**: 内置缓存机制、对象池、性能监控等优化
-- 🛡️ **类型安全**: 完整的 TypeScript 类型定义
-- 🔒 **安全渲染**: 内置 XSS 防护和属性验证
-- 🎨 **自定义组件**: 支持为代码块、表格、链接、图片等提供自定义组件
-- 📝 **SSR 兼容**: 支持服务端渲染场景
+- 📝 **SSR 友好**: 完美支持服务端渲染
+- 🔍 **实例隔离**: 多实例独立管理，无全局状态污染
 
 ## 📦 安装
 
@@ -28,13 +29,13 @@ yarn add @suga/markdown-it-render-vnode markdown-it
 ### Vue 适配器（可选）
 
 ```bash
-npm install @suga/markdown-it-render-vnode-vue vue
+npm install @suga/markdown-it-render-vnode-vue
 ```
 
 ### React 适配器（可选）
 
 ```bash
-npm install @suga/markdown-it-render-vnode-react react
+npm install @suga/markdown-it-render-vnode-react
 ```
 
 ## 🚀 快速开始
@@ -57,113 +58,111 @@ export default defineComponent({
     }
   },
   setup(props) {
-    // 初始化 MarkdownIt 实例
+    // 初始化 Markdown 解析器
     const md = new MarkdownIt({
-      html: true,        // 允许 HTML
-      linkify: true,     // 自动识别链接
-      typographer: true, // 启用排版优化
-      breaks: true       // 将换行符转换为 <br>
+      html: true,
+      linkify: true,
+      typographer: true
     });
 
-    // 使用插件（必须提供适配器）
+    // 使用插件，传入 Vue 适配器
     md.use(markdownItRenderVnode, {
       adapter: vueAdapter
     });
 
-    // 渲染结果
     const vnodes = ref<VNode[]>([]);
 
-    // 监听内容变化并重新渲染
+    // 监听内容变化，重新渲染
     watch(
       () => props.content,
       (newContent) => {
         if (newContent) {
           const tokens = md.parse(newContent, {});
-          const result = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
-          vnodes.value = result;
+          vnodes.value = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
         }
       },
       { immediate: true }
     );
 
-    return () => vnodes.value;
+    return () => (
+      <div class="markdown-body">
+        {vnodes.value}
+      </div>
+    );
   }
 });
 ```
 
 ### React 使用示例
 
-```typescript
-import { useEffect, useState } from 'react';
-import type { ReactElement } from 'react';
+```tsx
+import React, { useMemo } from 'react';
 import MarkdownIt from 'markdown-it';
 import markdownItRenderVnode from '@suga/markdown-it-render-vnode';
 import { reactAdapter } from '@suga/markdown-it-render-vnode-react';
+
+// 初始化 Markdown 解析器（只需初始化一次）
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  typographer: true
+});
+
+md.use(markdownItRenderVnode, {
+  adapter: reactAdapter
+});
 
 interface MarkdownPreviewProps {
   content: string;
 }
 
-function MarkdownPreview({ content }: MarkdownPreviewProps) {
-  const [elements, setElements] = useState<ReactElement[]>([]);
-
-  useEffect(() => {
-    // 初始化 MarkdownIt 实例
-    const md = new MarkdownIt({
-      html: true,
-      linkify: true,
-      typographer: true,
-      breaks: true
-    });
-
-    // 使用插件
-    md.use(markdownItRenderVnode, {
-      adapter: reactAdapter
-    });
-
-    // 解析并渲染
+export const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({ content }) => {
+  const vnodes = useMemo(() => {
+    if (!content) return [];
     const tokens = md.parse(content, {});
-    const result = md.renderer.render(tokens, md.options, {}) as unknown as ReactElement[];
-    setElements(result);
+    return md.renderer.render(tokens, md.options, {}) as React.ReactNode[];
   }, [content]);
 
-  return <>{elements}</>;
-}
-
-export default MarkdownPreview;
+  return (
+    <div className="markdown-body">
+      {vnodes}
+    </div>
+  );
+};
 ```
 
 ## ⚙️ 配置选项
 
-插件支持丰富的配置选项，用于自定义渲染行为：
-
 ```typescript
 interface FrameworkPluginOptions {
-  // 必需：框架适配器
+  /** 框架适配器（必需） */
   adapter: FrameworkAdapter;
 
-  // 可选：自定义组件
+  /** 自定义组件配置 */
   components?: {
-    codeBlock?: (meta: CodeBlockMeta) => FrameworkComponent | Promise<FrameworkComponent> | null;
-    table?: (meta: { token: Token }) => FrameworkComponent | Promise<FrameworkComponent> | null;
-    link?: (meta: { token: Token; href: string; title?: string }) => FrameworkComponent | Promise<FrameworkComponent> | null;
-    image?: (meta: { token: Token; src: string; alt: string; title?: string }) => FrameworkComponent | Promise<FrameworkComponent> | null;
+    /** 代码块组件 */
+    codeBlock?: FrameworkComponent | ((meta: CodeBlockMeta) => FrameworkComponent);
+    /** 表格组件 */
+    table?: FrameworkComponent;
+    /** 链接组件 */
+    link?: FrameworkComponent;
+    /** 图片组件 */
+    image?: FrameworkComponent;
   };
 
-  // 可选：性能配置
+  /** 性能监控配置 */
   performance?: {
-    enableCache?: boolean;  // 是否启用缓存（默认: true）
-    cacheSize?: number;     // 缓存大小（默认: 100）
+    /** 性能回调函数 */
+    onMetrics?: (metrics: PerformanceMetrics) => void;
   };
 
-  // 可选：错误处理配置
+  /** 错误处理配置 */
   errorHandler?: {
-    mode?: 'silent' | 'warn' | 'strict';  // 错误处理模式（默认: 'warn'）
-    errorPrefix?: string;                  // 错误消息前缀（默认: '[Markdown Renderer]'）
+    /** 错误处理模式 */
+    mode?: 'throw' | 'log' | 'silent';
+    /** 错误回调 */
+    onError?: (error: Error) => void;
   };
-
-  // 可选：自定义渲染规则
-  customRules?: Partial<RenderRules>;
 }
 ```
 
@@ -176,32 +175,30 @@ md.use(markdownItRenderVnode, {
   // 自定义组件
   components: {
     codeBlock: (meta) => {
-      // 根据语言返回不同的组件
       if (meta.langName === 'mermaid') {
-        return MermaidChart;
+        return MermaidRenderer;
       }
-      if (meta.langName === 'echarts') {
-        return EchartsChart;
-      }
-      return DefaultCodeBlock;
+      return CodeBlock;
     },
-
-    image: (meta) => {
-      // 自定义图片组件，支持懒加载等
-      return LazyImage;
-    }
+    table: CustomTable,
+    link: CustomLink,
+    image: CustomImage
   },
 
-  // 性能配置
+  // 性能监控
   performance: {
-    enableCache: true,
-    cacheSize: 200
+    onMetrics: (metrics) => {
+      console.log('渲染耗时:', metrics.duration, 'ms');
+      console.log('Token 数量:', metrics.tokenCount);
+    }
   },
 
   // 错误处理
   errorHandler: {
-    mode: 'warn',  // 'silent' | 'warn' | 'strict'
-    errorPrefix: '[Markdown]'
+    mode: 'log',
+    onError: (error) => {
+      console.error('渲染错误:', error);
+    }
   }
 });
 ```
@@ -210,365 +207,331 @@ md.use(markdownItRenderVnode, {
 
 ### 代码块组件
 
-代码块组件接收 `CodeBlockMeta` 对象，包含以下信息：
-
-```typescript
-interface CodeBlockMeta {
-  langName: string;              // 语言名称（如 'javascript', 'python'）
-  content: string;               // 代码内容
-  attrs: Record<string, string>; // 属性对象
-  info: string;                  // 完整的 info 字符串（如 'javascript:1:10'）
-  token: Token;                  // 原始 Token 对象
-}
-```
-
-**示例：自定义代码块组件**
-
 ```typescript
 import { defineComponent } from 'vue';
 import type { CodeBlockMeta } from '@suga/markdown-it-render-vnode';
 
-const CustomCodeBlock = defineComponent({
+export const CodeBlock = defineComponent({
+  name: 'CodeBlock',
   props: {
-    meta: {
-      type: Object as PropType<CodeBlockMeta>,
-      required: true
-    }
+    code: String,
+    language: String,
+    meta: Object as () => CodeBlockMeta
   },
   setup(props) {
     return () => (
-      <div class="custom-code-block">
-        <div class="code-header">
-          <span>{props.meta.langName}</span>
-          <button onClick={handleCopy}>复制</button>
-        </div>
-        <pre><code>{props.meta.content}</code></pre>
-      </div>
+      <pre class={`language-${props.language}`}>
+        <code>{props.code}</code>
+      </pre>
     );
   }
 });
 
+// 使用
 md.use(markdownItRenderVnode, {
   adapter: vueAdapter,
   components: {
-    codeBlock: () => CustomCodeBlock
+    codeBlock: CodeBlock
+  }
+});
+```
+
+### 动态组件选择
+
+```typescript
+md.use(markdownItRenderVnode, {
+  adapter: vueAdapter,
+  components: {
+    codeBlock: (meta: CodeBlockMeta) => {
+      // 根据语言类型返回不同组件
+      switch (meta.langName) {
+        case 'mermaid':
+          return MermaidRenderer;
+        case 'echarts':
+          return EchartsRenderer;
+        case 'markmap':
+          return MindmapRenderer;
+        default:
+          return CodeBlock;
+      }
+    }
   }
 });
 ```
 
 ### 异步组件支持
 
-组件工厂函数可以返回 Promise，支持异步加载组件：
-
 ```typescript
+import { defineAsyncComponent } from 'vue';
+
+const AsyncCodeBlock = defineAsyncComponent(() =>
+  import('./components/CodeBlock.vue')
+);
+
 md.use(markdownItRenderVnode, {
   adapter: vueAdapter,
   components: {
-    codeBlock: async (meta) => {
-      if (meta.langName === 'mermaid') {
-        // 动态导入 Mermaid 组件
-        const { MermaidChart } = await import('./components/MermaidChart.vue');
-        return MermaidChart;
-      }
-      return null; // 使用默认渲染
-    }
+    codeBlock: AsyncCodeBlock
   }
 });
 ```
 
 ## 🔧 自定义适配器
 
-如果需要在其他框架中使用，或需要自定义渲染行为，可以创建自己的适配器：
+创建自定义框架适配器：
 
 ```typescript
-import type { FrameworkAdapter } from '@suga/markdown-it-render-vnode/adapters';
+import type { FrameworkAdapter } from '@suga/markdown-it-render-vnode';
 
-const myAdapter: FrameworkAdapter = {
+export const myAdapter: FrameworkAdapter = {
   // 创建元素节点
   createElement(tag, props, children) {
-    // tag: 标签名（如 'div', 'span'）或组件
-    // props: 属性对象
-    // children: 子节点（可能是数组、单个节点或字符串）
-    return YourFramework.createElement(tag, props, children);
+    // 实现你的创建逻辑
+    return {
+      type: tag,
+      props: props || {},
+      children: Array.isArray(children) ? children : [children]
+    };
   },
 
   // 创建文本节点
   createText(text) {
-    return YourFramework.createTextNode(text);
+    return { type: 'text', value: text };
   },
 
-  // 创建片段（用于包装多个根节点）
+  // 创建片段节点
   createFragment(children) {
-    return YourFramework.createFragment(children);
+    return { type: 'fragment', children };
   },
 
-  // 创建注释节点（可选）
+  // 创建注释节点
   createComment() {
-    return YourFramework.createComment();
+    return { type: 'comment' };
   },
 
-  // 判断是否为片段（可选）
+  // 判断是否为片段节点（可选）
   isFragment(node) {
-    return YourFramework.isFragment(node);
+    return node.type === 'fragment';
   },
 
   // 获取子节点（可选）
   getChildren(node) {
-    return YourFramework.getChildren(node);
+    return node.children || [];
   },
 
   // 设置子节点（可选）
   setChildren(node, children) {
-    YourFramework.setChildren(node, children);
+    node.children = children;
   }
 };
-
-// 使用自定义适配器
-md.use(markdownItRenderVnode, {
-  adapter: myAdapter
-});
 ```
-
-### 适配器接口说明
-
-| 方法 | 必需 | 说明 |
-|------|------|------|
-| `createElement` | ✅ | 创建元素节点，接收标签名/组件、属性对象、子节点 |
-| `createText` | ✅ | 创建文本节点，接收文本内容 |
-| `createFragment` | ✅ | 创建片段节点，用于包装多个根节点 |
-| `createComment` | ✅ | 创建注释节点（某些框架可能返回 null） |
-| `isFragment` | ❌ | 判断节点是否为片段（用于优化） |
-| `getChildren` | ❌ | 获取节点的子节点（用于优化） |
-| `setChildren` | ❌ | 设置节点的子节点（用于优化） |
 
 ## 📝 自定义渲染规则
 
-如果需要自定义特定 Token 类型的渲染方式，可以提供 `customRules`：
-
 ```typescript
-import type { RenderRule } from '@suga/markdown-it-render-vnode';
+import type { Token, RenderOptions, RenderEnv } from '@suga/markdown-it-render-vnode';
 
-const customHeadingRule: RenderRule = (tokens, idx, options, env, renderer) => {
+// 自定义段落渲染
+md.renderer.rules.paragraph_open = (tokens: Token[], idx: number, options: RenderOptions, env: RenderEnv) => {
   const token = tokens[idx];
-  const adapter = getAdapter();
+  const adapter = getAdapter(md.renderer);
 
-  // 自定义标题渲染逻辑
-  const level = token.tag.replace('h', '');
   return adapter.createElement(
-    `h${level}`,
-    { class: `custom-heading heading-${level}` },
-    renderer.renderToken(tokens, idx, options, env)
+    'p',
+    { class: 'custom-paragraph' },
+    null
   );
 };
 
-md.use(markdownItRenderVnode, {
-  adapter: vueAdapter,
-  customRules: {
-    heading_open: customHeadingRule,
-    // 可以覆盖多个规则
-    blockquote_open: customBlockquoteRule
-  }
-});
+// 自定义链接渲染
+md.renderer.rules.link_open = (tokens: Token[], idx: number, options: RenderOptions, env: RenderEnv) => {
+  const token = tokens[idx];
+  const adapter = getAdapter(md.renderer);
+  const href = token.attrGet('href');
+
+  return adapter.createElement(
+    'a',
+    {
+      href,
+      target: '_blank',
+      rel: 'noopener noreferrer'
+    },
+    null
+  );
+};
 ```
-
-### 可用的渲染规则
-
-插件内置了以下渲染规则，都可以被覆盖：
-
-- `code_inline` - 行内代码
-- `code_block` - 代码块
-- `fence` - 围栏代码块（```）
-- `html_block` - HTML 块
-- `html_inline` - 行内 HTML
-- `text` - 文本
-- `hardbreak` - 硬换行
-- `softbreak` - 软换行
-- `image` - 图片
-- `media` - 媒体元素
 
 ## 🛡️ 错误处理
 
-插件提供了三种错误处理模式：
-
-### 1. silent（静默模式）
-
-错误发生时，不输出任何信息，返回降级节点或空节点：
+插件提供三种错误处理模式：
 
 ```typescript
 md.use(markdownItRenderVnode, {
   adapter: vueAdapter,
   errorHandler: {
-    mode: 'silent'
-  }
-});
-```
+    // throw: 抛出错误（默认，适合开发环境）
+    // log: 记录错误并继续（适合生产环境）
+    // silent: 静默处理（不推荐）
+    mode: 'log',
 
-### 2. warn（警告模式，默认）
-
-错误发生时，在控制台输出警告信息，并返回降级节点：
-
-```typescript
-md.use(markdownItRenderVnode, {
-  adapter: vueAdapter,
-  errorHandler: {
-    mode: 'warn',
-    errorPrefix: '[Markdown]'  // 自定义错误前缀
-  }
-});
-```
-
-### 3. strict（严格模式）
-
-错误发生时，直接抛出异常：
-
-```typescript
-md.use(markdownItRenderVnode, {
-  adapter: vueAdapter,
-  errorHandler: {
-    mode: 'strict'
+    onError: (error) => {
+      // 自定义错误处理
+      console.error('渲染失败:', error);
+      // 可以上报到监控系统
+      reportError(error);
+    }
   }
 });
 ```
 
 ## ⚡ 性能优化
 
-### 缓存机制
-
-插件内置了 VNode 缓存机制，可以显著提升重复渲染的性能：
+### 性能监控
 
 ```typescript
 md.use(markdownItRenderVnode, {
   adapter: vueAdapter,
   performance: {
-    enableCache: true,  // 启用缓存（默认: true）
-    cacheSize: 200      // 缓存大小（默认: 100）
+    onMetrics: (metrics) => {
+      console.log({
+        duration: metrics.duration,      // 渲染耗时（ms）
+        tokenCount: metrics.tokenCount,  // Token 数量
+        vnodeCount: metrics.vnodeCount,  // VNode 数量
+        timestamp: metrics.timestamp     // 时间戳
+      });
+    }
   }
 });
 ```
 
-### 性能监控
+### Key 优化
 
-在开发模式下，插件会自动监控渲染性能，如果渲染时间超过阈值（50ms），会在控制台输出警告。
-
-### 对象池
-
-插件使用对象池技术来减少对象创建和垃圾回收，提升性能。
-
-## 📚 API 参考
-
-### 类型定义
-
-#### `FrameworkPluginOptions`
-
-插件配置选项：
+插件自动为每个渲染的节点生成唯一的 `key` 属性（通过 `data-token-key`），确保框架能够高效地进行 diff 和 DOM 复用：
 
 ```typescript
-interface FrameworkPluginOptions {
-  adapter: FrameworkAdapter;
-  components?: ComponentConfig;
-  performance?: PerformanceConfig;
-  errorHandler?: ErrorHandlerConfig;
-  customRules?: Partial<RenderRules>;
-}
+// Vue 示例：确保 VNode 有正确的 key
+return () => (
+  <div class="markdown-body">
+    {vnodes.value.map((vnode, index) => {
+      const tokenKey = vnode.props?.['data-token-key'] || `vnode-${index}`;
+      return { ...vnode, key: tokenKey };
+    })}
+  </div>
+);
 ```
 
-#### `CodeBlockMeta`
+## 📎 API 参考
 
-代码块元数据：
+### 插件选项
+
+#### `adapter` (必需)
+
+框架适配器实例。
+
+#### `components`
+
+自定义组件配置对象：
+
+- `codeBlock`: 代码块组件
+- `table`: 表格组件
+- `link`: 链接组件
+- `image`: 图片组件
+
+#### `performance`
+
+性能监控配置：
+
+- `onMetrics`: 性能数据回调函数
+
+#### `errorHandler`
+
+错误处理配置：
+
+- `mode`: 错误处理模式（`'throw'` | `'log'` | `'silent'`）
+- `onError`: 错误回调函数
+
+### 渲染方法
+
+#### `md.renderer.render(tokens, options, env)`
+
+渲染 Token 数组为 VNode 数组：
 
 ```typescript
-interface CodeBlockMeta {
-  langName: string;
-  content: string;
-  attrs: Record<string, string>;
-  info: string;
-  token: Token;
-}
+const tokens = md.parse(markdownContent, {});
+const vnodes = md.renderer.render(tokens, md.options, {});
 ```
 
-#### `FrameworkAdapter`
+## 🧪 测试
 
-框架适配器接口：
+```bash
+# 运行所有测试
+pnpm test
 
-```typescript
-interface FrameworkAdapter {
-  createElement(tag: string | FrameworkComponent, props: NodeProps | null, children: NodeChildren): FrameworkNode;
-  createText(text: string): FrameworkNode | string;
-  createFragment(children: FrameworkNode[]): FrameworkNode;
-  createComment(): FrameworkNode | null;
-  isFragment?(node: FrameworkNode): boolean;
-  getChildren?(node: FrameworkNode): FrameworkNode[];
-  setChildren?(node: FrameworkNode, children: FrameworkNode[]): void;
-}
+# 运行特定包的测试
+pnpm test -- packages/markdown-it-render-vnode
+
+# 监听模式
+pnpm test -- --watch
+
+# 覆盖率报告
+pnpm test -- --coverage
 ```
-
-### 工具函数
-
-#### `setAdapter(adapter: FrameworkAdapter)`
-
-设置全局适配器（通常不需要手动调用，插件会自动设置）。
-
-#### `getAdapter(): FrameworkAdapter`
-
-获取当前使用的适配器。
-
-#### `hasAdapter(): boolean`
-
-检查是否已设置适配器。
-
-#### `handleError(error: unknown, context: string, fallback?: FrameworkNode): FrameworkNode`
-
-处理错误并返回降级节点。
-
-#### `safeExecute<T>(fn: () => T, context: string, fallback: T): T`
-
-安全执行函数，捕获错误并返回降级值。
 
 ## 🔍 常见问题
 
-### Q: 为什么必须提供适配器？
+### 1. 为什么要使用适配器模式？
 
-A: 插件本身是框架无关的，需要通过适配器来适配不同的框架。这样可以保持核心包的轻量，并支持任意框架。
+适配器模式让核心渲染逻辑与具体框架解耦，一套代码可以支持多个框架，同时也方便扩展到新的框架。
 
-### Q: 可以在同一个项目中使用多个适配器吗？
+### 2. 如何处理流式渲染？
 
-A: 每个 MarkdownIt 实例只能使用一个适配器。如果需要同时支持多个框架，需要创建多个 MarkdownIt 实例。
-
-### Q: 如何禁用缓存？
-
-A: 设置 `performance.enableCache` 为 `false`：
+对于流式渲染场景，直接使用 `md.renderer.render()` 进行全量渲染，配合 `key` 属性让框架自己进行高效的 diff：
 
 ```typescript
-md.use(markdownItRenderVnode, {
-  adapter: vueAdapter,
-  performance: {
-    enableCache: false
+watch(
+  () => props.content,
+  (newContent) => {
+    const tokens = md.parse(newContent, {});
+    vnodes.value = md.renderer.render(tokens, md.options, {});
   }
-});
+);
 ```
 
-### Q: 自定义组件返回 null 会怎样？
+### 3. 如何优化大文档的渲染性能？
 
-A: 如果组件工厂函数返回 `null`，插件会使用默认的渲染规则。
+- 确保每个 VNode 都有唯一的 `key`（插件自动生成）
+- 使用虚拟滚动（如 `vue-virtual-scroller`）
+- 按需加载异步组件
+- 使用 Web Worker 进行解析（markdown-it 支持）
 
-### Q: 支持服务端渲染（SSR）吗？
+### 4. 支持 SSR 吗？
 
-A: 是的，插件完全支持 SSR。只需确保在服务端和客户端使用相同的适配器即可。
+完全支持！适配器模式天然支持 SSR，在服务端和客户端使用相同的代码即可。
 
-### Q: 如何调试渲染问题？
+### 5. 如何处理 XSS 安全问题？
 
-A: 在开发模式下，插件会自动输出性能警告。你也可以通过 `errorHandler.mode` 设置为 `'strict'` 来让错误直接抛出，便于调试。
+插件内置了属性验证和 XSS 防护：
+
+- 自动过滤危险属性（如 `onerror`, `onclick` 等）
+- 验证 URL 协议（只允许 `http:`, `https:`, `mailto:` 等安全协议）
+- 所有用户输入都会被转义
 
 ## 📦 相关包
 
-- **@suga/markdown-it-render-vnode**: 核心渲染逻辑（无框架依赖）
-- **@suga/markdown-it-render-vnode-vue**: Vue 适配器
-- **@suga/markdown-it-render-vnode-react**: React 适配器
+- [@suga/markdown-it-render-vnode](https://www.npmjs.com/package/@suga/markdown-it-render-vnode) - 核心包
+- [@suga/markdown-it-render-vnode-vue](https://www.npmjs.com/package/@suga/markdown-it-render-vnode-vue) - Vue 适配器
+- [@suga/markdown-it-render-vnode-react](https://www.npmjs.com/package/@suga/markdown-it-render-vnode-react) - React 适配器
+
+## 📚 相关资源
+
+- [markdown-it](https://github.com/markdown-it/markdown-it) - Markdown 解析器
+- [Vue 3](https://vuejs.org/) - 渐进式 JavaScript 框架
+- [React](https://react.dev/) - 用于构建用户界面的 JavaScript 库
 
 ## 🤝 贡献
 
-欢迎提交 Issue 和 Pull Request！
+欢迎贡献代码、报告问题或提出建议！
 
 ## 📄 许可证
 
-MIT
+MIT License

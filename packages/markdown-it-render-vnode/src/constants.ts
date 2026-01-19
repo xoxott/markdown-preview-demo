@@ -78,21 +78,10 @@ export const HTML_UNESCAPE_MAP: Record<string, string> = {
 
 /** 性能优化配置 */
 export const PERFORMANCE_CONFIG = {
-  /** 是否启用 VNode 缓存 */
-  ENABLE_VNODE_CACHE: true,
-
-  /** 缓存最大数量 */
-  CACHE_MAX_SIZE: 100,
-
   /** 是否启用属性对象池 */
   ENABLE_OBJECT_POOL: true,
-
   /** 对象池大小 */
   POOL_SIZE: 20,
-
-  /** 缓存清理间隔（毫秒） */
-  CACHE_CLEANUP_INTERVAL: 60000,
-
   /** HTML VNode key 截取长度 */
   HTML_KEY_SUBSTRING_LENGTH: 20
 } as const;

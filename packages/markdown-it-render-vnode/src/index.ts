@@ -5,14 +5,12 @@
  */
 
 import type MarkdownIt from 'markdown-it';
-import { PERFORMANCE_CONFIG } from './constants';
-import { defaultRenderRules, setCodeRendererOptions } from './renderers';
+import { defaultRenderRules } from './renderers';
 import { render, renderAttrs, renderToken } from './core';
-import { startCacheCleanup } from './cache';
 import { createPerformanceMonitor } from './performance';
 import { mergeDefaultOptions, validateOptions } from './utils/options-validator';
-import { setErrorHandlerConfig } from './utils/error-handler';
 import { setAdapter } from './adapters/manager';
+import { setCodeRendererOptions } from './renderers/code-renderer';
 import type { FrameworkPluginOptions } from './types';
 
 /**
@@ -34,15 +32,13 @@ const markdownItRenderVnode = (md: MarkdownIt, options: FrameworkPluginOptions):
   // 合并默认选项
   const normalizedOptions = mergeDefaultOptions(validation.normalized);
 
-  // 设置适配器（必需）
-  setAdapter(normalizedOptions.adapter);
+  // 将适配器存储在 renderer 实例上（避免全局状态）
+  setAdapter(md.renderer as any, normalizedOptions.adapter);
 
-  // 设置错误处理配置（从选项中读取，如果有）
-  if (normalizedOptions.errorHandler) {
-    setErrorHandlerConfig(normalizedOptions.errorHandler);
-  }
+  // 将选项存储在 renderer 实例上（避免全局状态）
+  (md.renderer as any).__vnodeOptions = normalizedOptions;
 
-  // 设置代码渲染器选项
+  // 设置代码渲染器选项（用于自定义组件）
   setCodeRendererOptions(normalizedOptions);
 
   // 应用渲染规则（先应用默认规则，再应用自定义规则）
@@ -61,11 +57,6 @@ const markdownItRenderVnode = (md: MarkdownIt, options: FrameworkPluginOptions):
   if (process.env.NODE_ENV === 'development') {
     const originalRender = md.renderer.render as unknown as typeof render;
     md.renderer.render = createPerformanceMonitor(originalRender) as unknown as typeof md.renderer.render;
-  }
-
-  // 启动缓存清理（如果启用）
-  if (normalizedOptions.performance?.enableCache ?? PERFORMANCE_CONFIG.ENABLE_VNODE_CACHE) {
-    startCacheCleanup();
   }
 };
 

@@ -107,12 +107,10 @@ export interface FrameworkPluginOptions {
     image?: (meta: { token: Token; src: string; alt: string; title?: string }) => FrameworkComponent | Promise<FrameworkComponent> | null;
   };
 
-  /** 性能配置 */
+  /** 性能配置（预留用于未来扩展） */
   performance?: {
-    /** 是否启用缓存 */
-    enableCache?: boolean;
-    /** 缓存大小 */
-    cacheSize?: number;
+    /** 预留字段，暂无使用 */
+    _reserved?: never;
   };
 
   /** 错误处理配置 */
@@ -139,4 +137,5 @@ export interface AsyncComponentOptions {
   /** 错误回调 */
   onError?: (error: Error) => void;
 }
+
 

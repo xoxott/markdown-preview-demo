@@ -42,16 +42,17 @@ export function handleError(error: unknown, context: string, fallback?: Framewor
   switch (errorConfig.mode) {
     case 'silent':
       return fallback || adapter.createText('');
+
     case 'warn':
       console.warn(fullMessage, error);
-      const errorText = adapter.createText(`[Error: ${context}]`);
-      return fallback || (typeof errorText === 'string' ? adapter.createText(errorText) : errorText);
+      return fallback || adapter.createText(`[Error: ${context}]`);
+
     case 'strict':
       throw new Error(fullMessage);
+
     default:
       console.warn(fullMessage, error);
-      const defaultErrorText = adapter.createText(`[Error: ${context}]`);
-      return fallback || (typeof defaultErrorText === 'string' ? adapter.createText(defaultErrorText) : defaultErrorText);
+      return fallback || adapter.createText(`[Error: ${context}]`);
   }
 }
 

@@ -20,7 +20,7 @@ export type NodeChildren = FrameworkNode | string | number | null | undefined | 
  * 框架适配器接口
  *
  * 定义统一的接口，用于在不同框架（Vue、React）中创建虚拟节点
- * 
+ *
  * @example
  * ```typescript
  * // 自定义适配器示例
