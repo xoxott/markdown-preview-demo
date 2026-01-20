@@ -35,6 +35,9 @@ importers:
       '@suga/markdown-it-render-vnode-vue':
         specifier: workspace:*
         version: link:packages/markdown-it-render-vnode-vue
+      '@suga/markdown-it-task-lists':
+        specifier: workspace:*
+        version: link:packages/markdown-it-task-lists
       '@suga/materials':
         specifier: workspace:*
         version: link:packages/materials
@@ -89,9 +92,6 @@ importers:
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
-      markdown-it-footnote:
-        specifier: ^4.0.0
-        version: 4.0.0
       markdown-it-multimd-table:
         specifier: ^4.2.3
         version: 4.2.3
@@ -171,9 +171,6 @@ importers:
       '@suga/uno-preset':
         specifier: workspace:*
         version: link:packages/uno-preset
-      '@types/katex':
-        specifier: ^0.16.7
-        version: 0.16.7
       '@types/markdown-it':
         specifier: ^14.1.2
         version: 14.1.2
@@ -407,6 +404,19 @@ importers:
         specifier: ^3.0.0
         version: 3.5.13(typescript@5.6.3)
     devDependencies:
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+
+  packages/markdown-it-task-lists:
+    dependencies:
+      markdown-it:
+        specifier: ^14.0.0
+        version: 14.1.0
+    devDependencies:
+      '@types/markdown-it':
+        specifier: ^14.1.2
+        version: 14.1.2
       typescript:
         specifier: ^5.6.3
         version: 5.6.3
@@ -3975,9 +3985,6 @@ packages:
   map-visit@1.0.0:
     resolution: {integrity: sha512-4y7uGv8bd2WdM9vpQsiQNo41Ln1NvhvDRuVt0k2JZQ+ezN2uaQes7lZeZ+QQUHOLQAtDaBJ+7wCbi+ab/KFs+w==}
     engines: {node: '>=0.10.0'}
-
-  markdown-it-footnote@4.0.0:
-    resolution: {integrity: sha512-WYJ7urf+khJYl3DqofQpYfEYkZKbmXmwxQV8c8mO/hGIhgZ1wOe7R4HLFNwqx7TjILbnC98fuyeSsin19JdFcQ==}
 
   markdown-it-ins@4.0.0:
     resolution: {integrity: sha512-sWbjK2DprrkINE4oYDhHdCijGT+MIDhEupjSHLXe5UXeVr5qmVxs/nTUVtgi0Oh/qtF+QKV0tNWDhQBEPxiMew==}
@@ -9471,8 +9478,6 @@ snapshots:
   map-visit@1.0.0:
     dependencies:
       object-visit: 1.0.1
-
-  markdown-it-footnote@4.0.0: {}
 
   markdown-it-ins@4.0.0: {}
 

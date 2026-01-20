@@ -3,7 +3,7 @@ import { computed, defineComponent } from 'vue';
 import type { FileItem } from '../types/file-explorer';
 import TextPreview from './TextPreview';
 import ImagePreview from './ImagePreview';
-import { MarkdownPreview } from '@/components/markdown';
+import Markdown from '@/components/markdown';
 
 export default defineComponent({
   name: 'FilePreview',
@@ -66,7 +66,7 @@ export default defineComponent({
       if (isMarkdownFile.value && typeof props.content === 'string') {
         return (
           <div class="h-full overflow-auto">
-            <MarkdownPreview content={props.content} />
+            <Markdown content={props.content} />
           </div>
         );
       }

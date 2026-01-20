@@ -11,7 +11,7 @@
 import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useThemeVars } from 'naive-ui';
-import { MarkdownPreview as MarkDown } from '@/components/markdown';
+import Markdown from '@/components/markdown';
 const docs = import.meta.glob('~/packages/changelog/docs/*.md', { as: 'raw' });
 const themeVars = useThemeVars();
 const previewStyle = computed(() => ({
@@ -49,6 +49,6 @@ watch(() => route.hash, fetchDocFromHash, { immediate: true });
     class="w-full w-full flex items-center justify-center border border-gray-200 rounded-md p-4 text-12px shadow"
     :style="previewStyle"
   >
-    <MarkDown :content="content" />
+    <Markdown :content="content" />
   </div>
 </template>

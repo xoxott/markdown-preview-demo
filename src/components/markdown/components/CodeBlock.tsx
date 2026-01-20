@@ -8,6 +8,7 @@ import type { CodeBlockMeta } from '@suga/markdown-it-render-vnode';
 import { RUN_CODE_LANGS } from '../constants';
 import { ToolBar } from './ToolBar';
 import { SandBox } from './SandBox';
+import './css/CodeBlock.scss';
 
 export const CodeBlock = defineComponent({
   name: 'CodeBlock',
@@ -73,38 +74,3 @@ export const CodeBlock = defineComponent({
     );
   }
 });
-
-// 添加样式
-const style = document.createElement('style');
-style.textContent = `
-/* 代码块基础样式 */
-.code-block-wrapper {
-  margin-top: 0.75rem;
-}
-
-.code-block-wrapper .n-code {
-  font-size: 14px !important;
-}
-
-/* 确保代码块内的文本在所有情况下都有正确的颜色 */
-.code-block-wrapper .n-code pre,
-.code-block-wrapper .n-code code {
-  /* background: transparent !important; */
-}
-
-/* 未高亮的代码文本颜色继承父元素 */
-.code-block-wrapper .__code__ {
-  color: inherit;
-  margin: 0!important;
-}
-
-/* 暗色模式下确保文本可见 */
-.n-config-provider[data-theme="dark"] .code-block-wrapper .n-code pre code {
-  color: inherit;
-}
-`;
-
-if (typeof document !== 'undefined' && !document.getElementById('code-block-styles')) {
-  style.id = 'code-block-styles';
-  document.head.appendChild(style);
-}

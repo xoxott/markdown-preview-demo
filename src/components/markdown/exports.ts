@@ -1,8 +1,3 @@
-/** Markdown 组件统一导出 支持独立使用或集成使用 */
-
-// 主组件
-export { default as MarkdownPreview } from './MarkdownPreview';
-
 // 渲染器组件（可独立使用）
 export { CodeBlock } from './components/CodeBlock';
 export { MermaidRenderer } from './components/MermaidRenderer';
@@ -20,7 +15,12 @@ export { useMindmap } from './hooks/useMindmap';
 export { useCodeTools, useSvgTools } from './hooks/useToolbar';
 
 // 类型（从包中导入基础类型，从本地导入组件特有类型）
-export type { Token, MarkdownRenderer as Renderer, CodeBlockMeta, RenderRule } from '@suga/markdown-it-render-vnode';
+export type {
+  Token,
+  MarkdownRenderer as Renderer,
+  CodeBlockMeta,
+  RenderRule
+} from '@suga/markdown-it-render-vnode';
 export type { SvgMeta } from './plugins/types';
 
 export type { MermaidRendererProps } from './components/MermaidRenderer';
@@ -55,3 +55,4 @@ export {
   SVG_SAFE_ATTRS,
   SVG_SAFE_TAGS
 } from './constants';
+

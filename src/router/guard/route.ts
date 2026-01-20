@@ -18,6 +18,35 @@ import { getRouteName } from '@/router/elegant/transform';
  */
 export function createRouteGuard(router: Router) {
   router.beforeEach(async (to, from, next) => {
+    // 临时跳过登录（开发模式）- 后端接口挂了时使用
+    // 设置为 true 来跳过登录，设置为 false 来恢复正常的登录流程
+    const SKIP_LOGIN = true; // TODO: 后端接口恢复后改为 false
+    if (SKIP_LOGIN && !localStg.get('token')) {
+      // 设置假的 token
+      localStg.set('token', 'dev-skip-login-token');
+      localStg.set('refreshToken', 'dev-skip-login-refresh-token');
+
+      // 设置假的用户信息到 store（避免调用接口）
+      const authStore = useAuthStore();
+      Object.assign(authStore.userInfo, {
+        id: 1,
+        username: 'dev-user',
+        email: 'dev@example.com',
+        avatar: null,
+        role: 'admin',
+        roles: [{ code: 'admin', name: '管理员' }],
+        buttons: [],
+        isActive: true,
+        lastLoginAt: new Date().toISOString(),
+        lastActivityAt: new Date().toISOString(),
+        isOnline: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+      // 更新 token ref
+      authStore.token = 'dev-skip-login-token';
+    }
+
     const location = await initRoute(to);
 
     if (location) {

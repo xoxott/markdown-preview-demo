@@ -2,7 +2,7 @@
 import { nextTick, ref } from 'vue';
 import { NButton, NInput, NScrollbar, NSpin } from 'naive-ui';
 import { callOllamaStream } from '@/hooks/customer/useOllamaStrem';
-import { MarkdownPreview } from '@/components/markdown';
+import Markdown from '@/components/markdown';
 
 interface Message {
   role: 'user' | 'ai';
@@ -149,7 +149,7 @@ const sendMessage = async () => {
     <div class="chat-container">
       <NScrollbar ref="scrollbarRef" class="chat-messages" trigger="none" @scroll="handleScroll">
         <div v-for="(msg, index) in messages" :key="index" class="message" :class="[msg.role]">
-          <MarkdownPreview :content="msg.content" />
+          <Markdown :content="msg.content" />
         </div>
         <div v-if="loading" class="message ai loading">
           <NSpin size="small" />

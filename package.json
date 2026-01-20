@@ -63,6 +63,7 @@
     "@suga/hooks": "workspace:*",
     "@suga/markdown-it-render-vnode": "workspace:*",
     "@suga/markdown-it-render-vnode-vue": "workspace:*",
+    "@suga/markdown-it-task-lists": "workspace:*",
     "@suga/materials": "workspace:*",
     "@suga/utils": "workspace:*",
     "@vicons/ionicons5": "^0.13.0",

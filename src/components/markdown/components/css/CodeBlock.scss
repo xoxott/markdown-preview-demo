@@ -1,0 +1,20 @@
+/* 代码块基础样式 */
+.code-block-wrapper {
+  margin-top: 0.75rem;
+}
+
+.code-block-wrapper .n-code {
+  font-size: 14px !important;
+}
+
+/* 未高亮的代码文本颜色继承父元素 */
+.code-block-wrapper .__code__ {
+  color: inherit;
+  margin: 0 !important;
+}
+
+/* 暗色模式下确保文本可见 */
+.n-config-provider[data-theme="dark"] .code-block-wrapper .n-code pre code {
+  color: inherit;
+}
+

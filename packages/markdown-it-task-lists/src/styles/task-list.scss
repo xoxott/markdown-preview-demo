@@ -1,0 +1,214 @@
+/**
+ * 任务列表样式
+ * 美化 checkbox 和列表项
+ */
+
+// 变量定义
+$checkbox-size: 18px;
+$checkbox-border-radius: 4px;
+$checkbox-border-color: #d1d5db;
+$checkbox-border-color-hover: #9ca3af;
+$checkbox-bg-checked: #3b82f6;
+$checkbox-bg-checked-hover: #2563eb;
+$checkbox-transition: all 0.2s ease;
+$list-item-hover-bg: #f9fafb;
+
+// 包含任务列表的 ul/ol
+.contains-task-list {
+  list-style: none;
+  padding-left: 0;
+
+  // 嵌套列表
+  .contains-task-list {
+    margin-top: 8px;
+    margin-bottom: 8px;
+    padding-left: 24px;
+  }
+}
+
+// 任务列表项
+.task-list-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 12px;
+  margin: 4px 0;
+  border-radius: 6px;
+  transition: $checkbox-transition;
+  list-style: none;
+
+  // 悬停效果
+  &:hover {
+    background-color: $list-item-hover-bg;
+  }
+
+  // 移除默认的列表标记
+  &::before {
+    display: none;
+  }
+
+  // 已完成任务的样式
+  &[data-checked="true"] {
+    // 文本删除线和半透明
+    > p,
+    > * {
+      color: #6b7280;
+      text-decoration: line-through;
+      opacity: 0.7;
+    }
+  }
+}
+
+// 任务列表 checkbox 样式
+.task-list-item-checkbox {
+  // 基础样式
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  flex-shrink: 0;
+  width: $checkbox-size;
+  height: $checkbox-size;
+  margin: 2px 0 0 0;
+  border: 2px solid $checkbox-border-color;
+  border-radius: $checkbox-border-radius;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: $checkbox-transition;
+  position: relative;
+
+  // 悬停效果
+  &:hover:not(:disabled) {
+    border-color: $checkbox-border-color-hover;
+    transform: scale(1.05);
+  }
+
+  // 聚焦效果
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  // 选中状态
+  &:checked {
+    background-color: $checkbox-bg-checked;
+    border-color: $checkbox-bg-checked;
+
+    // 对勾图标
+    &::after {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 2px;
+      width: 4px;
+      height: 8px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    &:hover:not(:disabled) {
+      background-color: $checkbox-bg-checked-hover;
+      border-color: $checkbox-bg-checked-hover;
+    }
+  }
+
+  // 禁用状态
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+// 暗色主题适配
+.markdown-body-dark {
+  .contains-task-list {
+    // 暗色主题下的变量覆盖
+    --checkbox-border-color: #4b5563;
+    --checkbox-border-color-hover: #6b7280;
+    --checkbox-bg-checked: #3b82f6;
+    --list-item-hover-bg: rgba(255, 255, 255, 0.05);
+  }
+
+  .task-list-item {
+    &:hover {
+      background-color: var(--list-item-hover-bg);
+    }
+
+    &[data-checked="true"] {
+      > p,
+      > * {
+        color: #9ca3af;
+      }
+    }
+  }
+
+  .task-list-item-checkbox {
+    border-color: var(--checkbox-border-color);
+    background-color: #1f2937;
+
+    &:hover:not(:disabled) {
+      border-color: var(--checkbox-border-color-hover);
+    }
+
+    &:checked {
+      background-color: var(--checkbox-bg-checked);
+      border-color: var(--checkbox-bg-checked);
+    }
+  }
+}
+
+// 响应式：移动端适配
+@media (max-width: 768px) {
+  .task-list-item {
+    padding: 6px 8px;
+    gap: 8px;
+  }
+
+  .task-list-item-checkbox {
+    width: 16px;
+    height: 16px;
+
+    &:checked::after {
+      left: 4px;
+      top: 1px;
+      width: 3px;
+      height: 7px;
+    }
+  }
+}
+
+// 打印样式
+@media print {
+  .task-list-item-checkbox {
+    // 打印时显示简单的方框
+    border: 1px solid #000;
+
+    &:checked {
+      background-color: #000;
+    }
+  }
+}
+
+// 可选：添加动画效果
+@keyframes checkboxPop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.task-list-item-checkbox:checked {
+  animation: checkboxPop 0.3s ease;
+}
+

@@ -17,6 +17,7 @@ import Monaco from '@/components/monaco/index';
 import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
 import { useRunJSCode } from '../hooks/useRunJSCode';
 import '@vue/repl/style.css';
+import './css/SandBox.scss';
 
 export type CodeMode = 'javascript' | 'vue';
 
@@ -140,7 +141,13 @@ export const SandBox = defineComponent({
       }
 
       // JavaScript 模式
-      const { run, result: res, error: err, duration: time, logs: logOutput } = useRunJSCode(currentCode.value);
+      const {
+         run,
+         result: res,
+         error: err,
+         duration: time,
+         logs: logOutput
+        } = useRunJSCode(currentCode.value);
 
       await run();
 
@@ -272,23 +279,3 @@ export const SandBox = defineComponent({
     );
   }
 });
-
-// 添加样式
-const style = document.createElement('style');
-style.textContent = `
-.vue-repl-wrapper {
-  max-height: 500px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.vue-repl-container {
-  min-height: 500px;
-}
-`;
-
-if (typeof document !== 'undefined' && !document.getElementById('sandbox-styles')) {
-  style.id = 'sandbox-styles';
-  document.head.appendChild(style);
-}

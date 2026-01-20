@@ -19,7 +19,10 @@ export const SECURITY_PATTERNS = {
   ATTR_EVENT: /^on/i
 } as const;
 
-/** 危险标签列表 */
+/**
+ * 危险标签列表
+ * 注意：input 标签需要特殊处理，允许 type="checkbox" 且 disabled 的安全 input
+ */
 export const DANGEROUS_TAGS: ReadonlySet<string> = new Set([
   'script',
   'iframe',
@@ -30,7 +33,7 @@ export const DANGEROUS_TAGS: ReadonlySet<string> = new Set([
   'base',
   'meta',
   'form',
-  'input',
+  // 'input', // input 需要特殊处理，在 utils.ts 中检查类型
   'textarea',
   'button',
   'select',

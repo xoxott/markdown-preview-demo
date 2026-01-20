@@ -1,0 +1,270 @@
+/* Markdown Preview 组件样式 */
+
+/* 基础容器样式 */
+.markdown-container {
+  width: 100%;
+  height: 100%;
+}
+
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 100%;
+  padding: 20px;
+}
+
+/* 亮色模式样式 */
+.markdown-container.color-mode-light .markdown-body {
+  color-scheme: light;
+  background-color: #ffffff;
+  color: #24292f !important;
+}
+
+.markdown-container.color-mode-light .markdown-body h1,
+.markdown-container.color-mode-light .markdown-body h2,
+.markdown-container.color-mode-light .markdown-body h3,
+.markdown-container.color-mode-light .markdown-body h4,
+.markdown-container.color-mode-light .markdown-body h5,
+.markdown-container.color-mode-light .markdown-body h6 {
+  color: #24292f !important;
+}
+
+.markdown-container.color-mode-light .markdown-body p,
+.markdown-container.color-mode-light .markdown-body li,
+.markdown-container.color-mode-light .markdown-body td,
+.markdown-container.color-mode-light .markdown-body th {
+  color: #24292f !important;
+}
+
+.markdown-container.color-mode-light .markdown-body a {
+  color: #0969da !important;
+}
+
+.markdown-container.color-mode-light .markdown-body a:hover {
+  color: #0550ae !important;
+}
+
+.markdown-container.color-mode-light .markdown-body code {
+  background-color: rgba(175, 184, 193, 0.2) !important;
+  color: #24292f !important;
+}
+
+.markdown-container.color-mode-light .markdown-body pre {
+  background-color: #f6f8fa !important;
+  border: 1px solid #d0d7de !important;
+}
+
+.markdown-container.color-mode-light .markdown-body pre code {
+  background-color: transparent !important;
+}
+
+.markdown-container.color-mode-light .markdown-body blockquote {
+  color: #57606a !important;
+  border-left-color: #d0d7de !important;
+}
+
+.markdown-container.color-mode-light .markdown-body table tr {
+  border-top-color: #d0d7de !important;
+}
+
+.markdown-container.color-mode-light .markdown-body table tr:nth-child(2n) {
+  background-color: #f6f8fa !important;
+}
+
+.markdown-container.color-mode-light .markdown-body table th,
+.markdown-container.color-mode-light .markdown-body table td {
+  border-color: #d0d7de !important;
+}
+
+.markdown-container.color-mode-light .markdown-body hr {
+  background-color: #d0d7de !important;
+}
+
+.markdown-container.color-mode-light .markdown-body strong {
+  color: #24292f !important;
+}
+
+.markdown-container.color-mode-light .markdown-body em {
+  color: #24292f !important;
+}
+
+.markdown-container.color-mode-light .markdown-body del {
+  color: #57606a !important;
+}
+
+.markdown-container.color-mode-light .markdown-body ul,
+.markdown-container.color-mode-light .markdown-body ol {
+  color: #24292f !important;
+}
+
+/* 暗色模式样式 */
+.markdown-container.color-mode-dark .markdown-body {
+  color-scheme: dark;
+  color: #e6edf3 !important;
+  background-color: transparent !important;
+}
+
+.markdown-container.color-mode-dark .markdown-body h1,
+.markdown-container.color-mode-dark .markdown-body h2,
+.markdown-container.color-mode-dark .markdown-body h3,
+.markdown-container.color-mode-dark .markdown-body h4,
+.markdown-container.color-mode-dark .markdown-body h5,
+.markdown-container.color-mode-dark .markdown-body h6 {
+  color: #e6edf3 !important;
+  border-bottom-color: #30363d !important;
+}
+
+.markdown-container.color-mode-dark .markdown-body p,
+.markdown-container.color-mode-dark .markdown-body li,
+.markdown-container.color-mode-dark .markdown-body td,
+.markdown-container.color-mode-dark .markdown-body th {
+  color: #c9d1d9 !important;
+}
+
+.markdown-container.color-mode-dark .markdown-body a {
+  color: #58a6ff !important;
+}
+
+.markdown-container.color-mode-dark .markdown-body a:hover {
+  color: #79c0ff !important;
+}
+
+.markdown-container.color-mode-dark .markdown-body code {
+  background-color: rgba(110, 118, 129, 0.4) !important;
+  color: #e6edf3 !important;
+}
+
+.markdown-container.color-mode-dark .markdown-body pre {
+  background-color: #161b22 !important;
+  border: 1px solid #30363d !important;
+}
+
+.markdown-container.color-mode-dark .markdown-body pre code {
+  background-color: transparent !important;
+}
+
+.markdown-container.color-mode-dark .markdown-body blockquote {
+  color: #8b949e !important;
+  border-left-color: #3b434b !important;
+}
+
+.markdown-container.color-mode-dark .markdown-body table tr {
+  background-color: transparent !important;
+  border-top-color: #30363d !important;
+}
+
+.markdown-container.color-mode-dark .markdown-body table tr:nth-child(2n) {
+  background-color: rgba(110, 118, 129, 0.05) !important;
+}
+
+.markdown-container.color-mode-dark .markdown-body table th,
+.markdown-container.color-mode-dark .markdown-body table td {
+  border-color: #30363d !important;
+}
+
+/* KaTeX 数学公式样式 */
+.markdown-body .katex {
+  font-size: 1.05em;
+}
+
+.markdown-body .katex-display {
+  margin: 1em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* 暗色模式下的 KaTeX 样式 */
+.markdown-container.color-mode-dark .markdown-body .katex {
+  color: #e6edf3;
+}
+
+.markdown-container.color-mode-dark .markdown-body .katex-display {
+  background-color: rgba(110, 118, 129, 0.1);
+  border-radius: 4px;
+  padding: 0.5em;
+}
+
+/* 脚注样式 */
+.markdown-body .footnote-ref {
+  color: var(--markdown-link-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.markdown-body .footnote-ref:hover {
+  text-decoration: underline;
+}
+
+.markdown-body .footnotes {
+  margin-top: 2em;
+  padding-top: 1em;
+  border-top: 1px solid var(--markdown-hr-color);
+  font-size: 0.9em;
+  color: var(--markdown-blockquote-color);
+}
+
+.markdown-body .footnotes ol {
+  padding-left: 1.5em;
+}
+
+.markdown-body .footnotes li {
+  margin: 0.5em 0;
+}
+
+.markdown-body .footnote-backref {
+  text-decoration: none;
+  color: var(--markdown-link-color);
+  margin-left: 0.3em;
+}
+
+/* 任务列表样式 */
+.markdown-body .task-list-item {
+  list-style-type: none;
+}
+
+.markdown-body .task-list-item input[type="checkbox"] {
+  margin-right: 0.5em;
+  margin-left: -1.5em;
+  cursor: pointer;
+}
+
+.markdown-body .task-list-item input[type="checkbox"]:checked + * {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* Emoji 样式 */
+.markdown-body .emoji {
+  height: 1.2em;
+  width: 1.2em;
+  margin: 0 0.1em;
+  vertical-align: -0.1em;
+  display: inline-block;
+}
+
+.markdown-container.color-mode-dark .markdown-body hr {
+  background-color: #30363d !important;
+  border: none !important;
+}
+
+.markdown-container.color-mode-dark .markdown-body img {
+  background-color: transparent !important;
+}
+
+.markdown-container.color-mode-dark .markdown-body strong {
+  color: #e6edf3 !important;
+}
+
+.markdown-container.color-mode-dark .markdown-body em {
+  color: #e6edf3 !important;
+}
+
+.markdown-container.color-mode-dark .markdown-body del {
+  color: #8b949e !important;
+}
+
+.markdown-container.color-mode-dark .markdown-body ul,
+.markdown-container.color-mode-dark .markdown-body ol {
+  color: #c9d1d9 !important;
+}
+

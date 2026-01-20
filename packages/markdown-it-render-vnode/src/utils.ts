@@ -195,6 +195,15 @@ export function sanitizeHtml(html: string, safeMode: boolean = true): string {
   // 移除 script 标签及其内容
   sanitized = sanitized.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
 
+  // 特殊处理 input 标签：只保留安全的 checkbox（disabled 且 type="checkbox"）
+  sanitized = sanitized.replace(/<input\b([^>]*)>/gi, (match, attrs) => {
+    const isCheckbox = /type\s*=\s*["']?checkbox["']?/i.test(attrs);
+    // 只保留 type="checkbox" 的 input
+    if (isCheckbox)return match;
+    // 其他 input 标签都移除
+    return '';
+  });
+
   // 移除其他危险标签
   DANGEROUS_TAGS.forEach(tag => {
     if (tag === 'script') return; // 已处理
@@ -286,10 +295,7 @@ export function createHtmlVNode(html: string, safeMode: boolean = true): Framewo
     const template = document.createElement('template');
     template.innerHTML = sanitizedHtml;
     const elements = template.content.children;
-
-    if (elements.length === 0) {
-      return adapter.createText('');
-    }
+    if (elements.length === 0) return adapter.createText('');
 
     const children: FrameworkNode[] = [];
 
@@ -298,9 +304,7 @@ export function createHtmlVNode(html: string, safeMode: boolean = true): Framewo
       const tagName = element.tagName.toLowerCase();
 
       // 检查标签安全性
-      if (safeMode && isDangerousTag(tagName)) {
-        continue;
-      }
+      if (safeMode && isDangerousTag(tagName)) continue;
 
       const attrs = getAttrsFromPool();
 
@@ -308,6 +312,13 @@ export function createHtmlVNode(html: string, safeMode: boolean = true): Framewo
       for (let j = 0; j < element.attributes.length; j++) {
         const attr = element.attributes[j];
         attrs[attr.name] = attr.value;
+      }
+
+      // 特殊处理：允许安全的 input checkbox（用于任务列表）
+      if (safeMode && tagName === 'input') {
+        const inputType = attrs.type?.toLowerCase();
+        const isCheckbox = inputType === 'checkbox';
+        if (!isCheckbox) continue;
       }
 
       // 应用属性安全过滤
@@ -401,13 +412,9 @@ export function onLeavePictureInPicture(e: Event): void {
  */
 export function omitAttrs(attrs: AttrRecord, keysToRemove: string[]): AttrRecord {
   const result = getAttrsFromPool();
-  // 使用 Set 进行 O(1) 查找，而不是数组的 O(n) 查找
   const keysSet = new Set(keysToRemove);
-
   for (const key in attrs) {
-    if (!keysSet.has(key)) {
-      result[key] = attrs[key];
-    }
+    if (!keysSet.has(key)) result[key] = attrs[key];
   }
 
   return result;

@@ -1,0 +1,64 @@
+{
+  "name": "@suga/markdown-it-task-lists",
+  "version": "1.0.0",
+  "description": "Markdown-it plugin for rendering task lists with checkboxes (TypeScript version)",
+  "author": {
+    "name": "yangtao",
+    "email": "212920320@qq.com"
+  },
+  "license": "MIT",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "*": ["./src/*"]
+    }
+  },
+  "keywords": [
+    "markdown",
+    "markdown-it",
+    "task-list",
+    "checkbox",
+    "plugin",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xoxott/suga-tools.git",
+    "directory": "packages/markdown-it-task-lists"
+  },
+  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/markdown-it-task-lists",
+  "bugs": {
+    "url": "https://github.com/xoxott/suga-tools/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "peerDependencies": {
+    "markdown-it": "^14.0.0"
+  },
+  "peerDependenciesMeta": {
+    "markdown-it": {
+      "optional": false
+    }
+  },
+  "scripts": {
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.1.2",
+    "markdown-it": "^14.1.0",
+    "typescript": "^5.6.3",
+    "vitest": "^4.0.8"
+  }
+}
+
