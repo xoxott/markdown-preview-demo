@@ -26,21 +26,15 @@ const TASK_LIST_ITEM_REGEX = /^\[([ xX])\]\s*/;
  * @returns 匹配结果：checked 状态或 null
  */
 function startsWithTaskListMarker(token: Token): boolean | null {
-  if (token.type !== 'inline') {
+  if (token.type !== 'inline' || !token.children || !token.children.length) {
     return null;
   }
-
   // 检查第一个 child 是否为 text 类型且匹配任务列表标记
-  if (token.children && token.children.length > 0) {
-    const firstChild = token.children[0];
-    if (firstChild.type === 'text') {
-      const match = firstChild.content.match(TASK_LIST_ITEM_REGEX);
-      if (match) {
-        return match[1].toLowerCase() === 'x';
-      }
-    }
+  const firstChild = token.children[0];
+  if (firstChild.type === 'text') {
+    const match = firstChild.content.match(TASK_LIST_ITEM_REGEX);
+    return match ? match[1].toLowerCase() === 'x' : null;
   }
-
   return null;
 }
 
