@@ -7,10 +7,10 @@
 /** 安全检测正则表达式 */
 export const SECURITY_PATTERNS = {
   /** 敏感 URL 协议检测 */
-  SENSITIVE_URL: /^javascript:|vbscript:|file:|data:/i,
+  SENSITIVE_URL: /^[\s\u0000-\u001F]*(?:javascript|vbscript|file|data):/i,
 
   /** 敏感属性名检测 */
-  SENSITIVE_ATTR: /^(href|src|xlink:href|poster|srcset)$/i,
+  SENSITIVE_ATTR: /^(href|src|xlink:href|poster|srcset|action|formaction|cite|code|codebase|background|lowsrc|ping)$/i,
 
   /** 属性名格式验证 */
   ATTR_NAME: /^[a-zA-Z_:][a-zA-Z0-9:._-]*$/,
@@ -18,6 +18,102 @@ export const SECURITY_PATTERNS = {
   /** 事件属性检测 */
   ATTR_EVENT: /^on/i
 } as const;
+
+/** 危险标签列表 */
+export const DANGEROUS_TAGS: ReadonlySet<string> = new Set([
+  'script',
+  'iframe',
+  'embed',
+  'object',
+  'style',
+  'link',
+  'base',
+  'meta',
+  'form',
+  'input',
+  'textarea',
+  'button',
+  'select',
+  'option',
+  'applet',
+  'frame',
+  'frameset',
+  'bgsound',
+  'keygen',
+  'layer',
+  'marquee',
+  'noscript',
+  'xml'
+]);
+
+/** 允许的安全标签列表 */
+export const SAFE_TAGS: ReadonlySet<string> = new Set([
+  'a',
+  'abbr',
+  'address',
+  'article',
+  'aside',
+  'b',
+  'blockquote',
+  'br',
+  'caption',
+  'cite',
+  'code',
+  'col',
+  'colgroup',
+  'dd',
+  'del',
+  'details',
+  'dfn',
+  'div',
+  'dl',
+  'dt',
+  'em',
+  'figcaption',
+  'figure',
+  'footer',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'header',
+  'hr',
+  'i',
+  'img',
+  'ins',
+  'kbd',
+  'li',
+  'main',
+  'mark',
+  'nav',
+  'ol',
+  'p',
+  'pre',
+  'q',
+  's',
+  'samp',
+  'section',
+  'small',
+  'span',
+  'strong',
+  'sub',
+  'summary',
+  'sup',
+  'table',
+  'tbody',
+  'td',
+  'tfoot',
+  'th',
+  'thead',
+  'time',
+  'tr',
+  'u',
+  'ul',
+  'var',
+  'wbr'
+]);
 
 /** DOM 属性名称常量 */
 export const DOM_ATTR_NAME = {

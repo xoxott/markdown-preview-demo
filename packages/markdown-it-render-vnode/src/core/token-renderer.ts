@@ -7,12 +7,12 @@
 import type { FrameworkNode } from '../adapters/types';
 import type { MarkdownRenderer, RenderEnv, RenderOptions, Token } from '../types';
 import { getAdapter } from '../adapters/manager';
-import { createCommentNode, createFragmentNode, validateAttrName } from '../utils';
+import { createCommentNode, createFragmentNode, validateAttrName, validateAttrValue } from '../utils';
 import { renderInlineContent } from './node-helpers';
 import { parseRuleResult } from './rule-parser';
 
 /**
- * 渲染 Token 属性（性能优化）
+ * 渲染 Token 属性（性能优化 + 安全验证）
  *
  * @param token - Token 对象
  * @returns 属性对象
@@ -27,9 +27,20 @@ export function renderAttrs(token: Token): Record<string, string> {
   // 使用 for 循环替代 forEach（性能优化）
   for (let i = 0; i < token.attrs.length; i++) {
     const [name, value] = token.attrs[i];
-    if (validateAttrName(name)) {
-      result[name] = value;
+
+    // 验证属性名称
+    if (!validateAttrName(name)) {
+      continue;
     }
+
+    // 验证属性值安全性
+    if (!validateAttrValue(name, value)) {
+      // 对于不安全的 URL，替换为安全的占位符
+      result[name] = '#';
+      continue;
+    }
+
+    result[name] = value;
   }
 
   return result;

@@ -63,7 +63,7 @@ export function getAdapter(renderer?: MarkdownRenderer): FrameworkAdapter {
     }
   }
 
-  throw new Error('Adapter is not set. Please provide an adapter in plugin options.');
+    throw new Error('Adapter is not set. Please provide an adapter in plugin options.');
 }
 
 /**

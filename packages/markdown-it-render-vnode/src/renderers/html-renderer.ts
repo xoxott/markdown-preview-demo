@@ -28,7 +28,10 @@ export function renderHtml(
     return token.contentVNode;
   }
 
-  // 创建 HTML 节点
-  return createHtmlVNode(token.content);
+  // 从环境变量获取安全模式配置（默认启用）
+  const safeMode = env.safeMode !== false;
+
+  // 创建 HTML 节点并应用安全过滤
+  return createHtmlVNode(token.content, safeMode);
 }
 

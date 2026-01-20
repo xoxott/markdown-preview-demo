@@ -6,7 +6,7 @@
 
 import type { RenderEnv, Token } from './types';
 import type { FrameworkNode } from './adapters/types';
-import { HTML_ESCAPE_MAP, HTML_UNESCAPE_MAP, PERFORMANCE_CONFIG, SECURITY_PATTERNS } from './constants';
+import { HTML_ESCAPE_MAP, HTML_UNESCAPE_MAP, PERFORMANCE_CONFIG, SECURITY_PATTERNS, DANGEROUS_TAGS, SAFE_TAGS } from './constants';
 import { getAdapter } from './adapters/manager';
 import { handleError } from './utils/error-handler';
 
@@ -118,6 +118,114 @@ export function isUrlSafe(url: string): boolean {
 }
 
 /**
+ * 检查标签是否为危险标签
+ *
+ * @param tagName - 标签名称
+ * @returns 是否为危险标签
+ */
+export function isDangerousTag(tagName: string): boolean {
+  return DANGEROUS_TAGS.has(tagName.toLowerCase());
+}
+
+/**
+ * 检查标签是否为安全标签
+ *
+ * @param tagName - 标签名称
+ * @returns 是否为安全标签
+ */
+export function isSafeTag(tagName: string): boolean {
+  return SAFE_TAGS.has(tagName.toLowerCase());
+}
+
+/**
+ * 过滤 HTML 属性，移除危险属性
+ *
+ * @param attrs - 属性对象
+ * @param safeMode - 是否启用安全模式
+ * @returns 过滤后的属性对象
+ */
+export function sanitizeAttributes(attrs: AttrRecord, safeMode: boolean = true): AttrRecord {
+  if (!safeMode) {
+    return attrs;
+  }
+
+  const sanitized = getAttrsFromPool();
+
+  for (const [name, value] of Object.entries(attrs)) {
+    const lowerName = name.toLowerCase();
+
+    // 移除事件处理器属性
+    if (SECURITY_PATTERNS.ATTR_EVENT.test(lowerName)) {
+      continue;
+    }
+
+    // 验证属性名称格式
+    if (!validateAttrName(name)) {
+      continue;
+    }
+
+    // 验证敏感属性的值
+    if (SECURITY_PATTERNS.SENSITIVE_ATTR.test(lowerName)) {
+      if (!validateAttrValue(name, value)) {
+        continue;
+      }
+    }
+
+    sanitized[name] = value;
+  }
+
+  return sanitized;
+}
+
+/**
+ * 安全地过滤 HTML 内容
+ *
+ * @param html - HTML 字符串
+ * @param safeMode - 是否启用安全模式
+ * @returns 过滤后的 HTML 字符串
+ */
+export function sanitizeHtml(html: string, safeMode: boolean = true): string {
+  if (!safeMode) {
+    return html;
+  }
+
+  // 移除危险标签
+  let sanitized = html;
+
+  // 移除 script 标签及其内容
+  sanitized = sanitized.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+
+  // 移除其他危险标签
+  DANGEROUS_TAGS.forEach(tag => {
+    if (tag === 'script') return; // 已处理
+
+    // 移除自闭合标签
+    const selfClosingRegex = new RegExp(`<${tag}\\b[^>]*?/>`, 'gi');
+    sanitized = sanitized.replace(selfClosingRegex, '');
+
+    // 移除成对标签
+    const pairRegex = new RegExp(`<${tag}\\b[^<]*(?:(?!<\\/${tag}>)<[^<]*)*<\\/${tag}>`, 'gi');
+    sanitized = sanitized.replace(pairRegex, '');
+
+    // 移除未闭合的开标签
+    const openRegex = new RegExp(`<${tag}\\b[^>]*>`, 'gi');
+    sanitized = sanitized.replace(openRegex, '');
+  });
+
+  // 移除所有事件处理器属性
+  sanitized = sanitized.replace(/\s+on\w+\s*=\s*["'][^"']*["']/gi, '');
+  sanitized = sanitized.replace(/\s+on\w+\s*=\s*[^\s>]*/gi, '');
+
+  // 移除危险协议
+  sanitized = sanitized.replace(
+    /(href|src|action|formaction|cite|code|codebase|background|lowsrc|ping)\s*=\s*["']?\s*(?:javascript|vbscript|file|data):[^"'\s>]*/gi,
+    '$1="#"'
+  );
+
+  return sanitized;
+}
+
+/**
  * 获取 Token 对应的源码行号范围
  *
  * @param token - Markdown Token
@@ -160,19 +268,23 @@ export function isComponentOptions(obj: unknown): boolean {
  * 创建 HTML 内容的节点（带错误处理和 SSR 兼容）
  *
  * @param html - HTML 字符串
+ * @param safeMode - 是否启用安全模式（默认 true）
  * @returns 对应的节点
  */
-export function createHtmlVNode(html: string): FrameworkNode {
+export function createHtmlVNode(html: string, safeMode: boolean = true): FrameworkNode {
   const adapter = getAdapter();
+
+  // 应用安全过滤
+  const sanitizedHtml = sanitizeHtml(html, safeMode);
 
   // SSR 环境检测：在服务端直接返回文本节点
   if (typeof document === 'undefined') {
-    return adapter.createText(html);
+    return adapter.createText(sanitizedHtml);
   }
 
   try {
     const template = document.createElement('template');
-    template.innerHTML = html;
+    template.innerHTML = sanitizedHtml;
     const elements = template.content.children;
 
     if (elements.length === 0) {
@@ -184,19 +296,28 @@ export function createHtmlVNode(html: string): FrameworkNode {
     for (let i = 0; i < elements.length; i++) {
       const element = elements[i];
       const tagName = element.tagName.toLowerCase();
+
+      // 检查标签安全性
+      if (safeMode && isDangerousTag(tagName)) {
+        continue;
+      }
+
       const attrs = getAttrsFromPool();
 
-      // 复制属性
+      // 复制并过滤属性
       for (let j = 0; j < element.attributes.length; j++) {
         const attr = element.attributes[j];
         attrs[attr.name] = attr.value;
       }
 
-      attrs.innerHTML = element.innerHTML;
-      const keySubstring = element.innerHTML.substring(0, PERFORMANCE_CONFIG.HTML_KEY_SUBSTRING_LENGTH);
-      attrs.key = `html-${i}-${keySubstring}`;
+      // 应用属性安全过滤
+      const sanitizedAttrs = sanitizeAttributes(attrs, safeMode);
 
-      children.push(adapter.createElement(tagName, attrs, []));
+      sanitizedAttrs.innerHTML = element.innerHTML;
+      const keySubstring = element.innerHTML.substring(0, PERFORMANCE_CONFIG.HTML_KEY_SUBSTRING_LENGTH);
+      sanitizedAttrs.key = `html-${i}-${keySubstring}`;
+
+      children.push(adapter.createElement(tagName, sanitizedAttrs, []));
     }
 
     return children.length === 1 ? children[0] : adapter.createFragment(children);

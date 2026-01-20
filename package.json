@@ -67,6 +67,7 @@
     "@suga/utils": "workspace:*",
     "@vicons/ionicons5": "^0.13.0",
     "@vicons/tabler": "^0.13.0",
+    "@vscode/markdown-it-katex": "^1.1.2",
     "@vue/repl": "git+https://github.com/xoxott/repl.git#swich-npm-registry",
     "@vueuse/core": "13.1.0",
     "clipboard": "2.0.11",

@@ -10,9 +10,64 @@
 - 支持 [超链接](https://example.com)
 - 支持图片、引用、列表等常规 Markdown 语法
 - 分隔线与标题：`---` 与 `#  ##  ###`
+- 支持数学公式：行内公式 $E = mc^2$ 和块级公式
 
 ---
 
+## 🔢 数学公式
+
+支持 LaTeX 数学公式渲染，基于 KaTeX 引擎：
+
+**行内公式**：使用单个 `$` 包裹，例如 $E = mc^2$，或 $\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$
+
+**块级公式**：使用双 `$$` 包裹：
+
+$$
+\begin{aligned}
+\nabla \times \vec{\mathbf{B}} -\, \frac1c\, \frac{\partial\vec{\mathbf{E}}}{\partial t} &= \frac{4\pi}{c}\vec{\mathbf{j}} \\
+\nabla \cdot \vec{\mathbf{E}} &= 4 \pi \rho \\
+\nabla \times \vec{\mathbf{E}}\, +\, \frac1c\, \frac{\partial\vec{\mathbf{B}}}{\partial t} &= \vec{\mathbf{0}} \\
+\nabla \cdot \vec{\mathbf{B}} &= 0
+\end{aligned}
+$$
+
+**常用公式示例**：
+
+$$
+\begin{matrix}
+a & b \\
+c & d
+\end{matrix}
+\quad
+\begin{pmatrix}
+a & b \\
+c & d
+\end{pmatrix}
+\quad
+\begin{bmatrix}
+a & b \\
+c & d
+\end{bmatrix}
+\quad
+\begin{vmatrix}
+a & b \\
+c & d
+\end{vmatrix}
+$$
+
+$$
+x = \frac{-b \pm \sqrt{b^2-4ac}}{2a}
+$$
+
+$$
+\sum_{i=1}^{n} i = \frac{n(n+1)}{2}
+$$
+
+$$
+\lim_{n \to \infty} \left(1 + \frac{1}{n}\right)^n = e
+$$
+
+---
 ## 🎨 Mermaid 图表
 
 支持流程图、时序图、状态图等，基于 Mermaid 渲染：
@@ -118,6 +173,7 @@ console.log("前 10 个斐波那契数列：", Array.from({ length: 10 }, (_, i)
 | :------------ | :--: | :-------------- |
 | Markdown 基础语法 |   ✅  | 支持标题、引用、列表等     |
 | 表格语法          |   ✅  | 自动样式美化          |
+| 数学公式          |   ✅  | LaTeX 语法，KaTeX 渲染 |
 | Mermaid 图     |   ✅  | 支持流程图、时序图       |
 | ECharts 图表    |   ✅  | JSON 一键渲染       |
 | Markmap 思维导图  |   ✅  | 自动解析大纲          |
