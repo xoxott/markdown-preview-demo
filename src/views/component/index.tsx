@@ -16,7 +16,8 @@ import {
   FlowExamples,
   RequestClientExample,
   StreamingPenExample,
-  StreamingPenDebugExample
+  StreamingPenDebugExample,
+  StreamingPenPositionCompareExample
 } from './examples';
 
 export default defineComponent({
@@ -75,6 +76,11 @@ export default defineComponent({
             <div class="h-1 w-12 bg-pink-500 rounded"></div>
             <h1 class="text-3xl font-bold text-gray-900">流式笔写效果</h1>
             <div class="h-1 flex-1 bg-gray-200 rounded"></div>
+          </div>
+
+          {/* 位置对比工具 */}
+          <div class="bg-white p-6 rounded-lg shadow-sm">
+            <StreamingPenPositionCompareExample />
           </div>
 
           {/* 调试工具 */}

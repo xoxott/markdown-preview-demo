@@ -17,9 +17,18 @@ export default defineComponent({
     // 可调节的参数
     const offsetX = ref(0.7);
     const offsetY = ref(0.25);
-    const penSize = ref(34);
+    const penSize = ref(24);
 
-    const sampleText = '这是一段测试文字，用于调试笔的位置。你可以通过下面的滑块实时调整笔的位置参数。';
+    const sampleText = `这是一段测试文字，用于调试笔的位置。你
+    可以通过下面的滑块实时调整笔的位置参数。这
+    是一段测试文字，用于调试笔的位置。你可以通过下面的
+    滑块实时调整笔的位置参数。这是一段测试文字，用于调试笔的位
+    置。你可以通过下面的滑块实时调整笔的位置参数。这是一段测试文
+    字，用于调试笔的位置。你可以通过下面的滑块实时调整笔的位置参
+    数。这是一段测试文字，用于调试笔的位置。你可以通过下面的滑块实时调整
+    笔的位置参数。这是一段测试文字，用于调试笔的位置。你可以通过下面的滑块实时调整
+    笔的位置参数。这是一段测试文字，用于调试笔的位置。你可以通过下面的滑块实时调整笔的位置
+    参数。这是一段测试文字，用于调试笔的位置。你可以通过下面的滑块实时调整笔的位置参数。这是一段测试文字，用于调试笔的位置。你 可以通过下面的滑块实时调整笔的位置参数。这 是一段测试文字，用于调试笔的位置。你可以通过下面的 滑块实时调整笔的位置参数。这是一段测试文字，用于调试笔的位 置。你可以通过下面的滑块实时调整笔的位置参数。这是一段测试文 字，用于调试笔的位置。你可以通过下面的滑块实时调整笔的位置参 数。这是一段测试文字，用于调试笔的位置。你可以通过下面的滑块实时调整 笔的位置参数。这是一段测试文字，用于调试笔的位置。你可以通过下面的滑块实时调整 笔的位置参数。这是一段测试文字，用于调试笔的位置。你可以通过下面的滑块实时调整笔的位置 参数。这是一段测试文字，用于调试笔的位置。你可以通过下面的滑块实时调整笔的位置参数。`;
 
     /**
      * 模拟流式打字效果
@@ -35,7 +44,7 @@ export default defineComponent({
         if (charIndex < sampleText.length) {
           displayText.value += sampleText.charAt(charIndex);
           charIndex++;
-          typingTimer = window.setTimeout(type, 90);
+          typingTimer = window.setTimeout(type, 50);
         } else {
           isTyping.value = false;
           if (typingTimer) {
@@ -173,28 +182,30 @@ export default defineComponent({
           <div
             class="text-box"
             style={{
-              position: 'relative',
+              // position: 'relative',
               padding: '20px',
-              backgroundColor: '#fef9c3',
               borderRadius: '8px',
-              minHeight: '120px',
+              // minHeight: '120px',
               lineHeight: '1.8',
               fontSize: '16px',
-              color: '#92400e'
+              color: '#581c87',
+              backgroundColor: '#f3e8ff'
             }}
           >
             <span ref={textRef}>{displayText.value}</span>
-            <StreamingPenEffect
-              isWriting={isTyping.value}
-              targetRef={textRef.value}
-              penColor="#f00"
-              size={penSize.value}
-              offsetX={offsetX.value}
-              offsetY={offsetY.value}
-            />
+            {textRef.value && (
+              <StreamingPenEffect
+                isWriting={isTyping.value}
+                targetRef={textRef.value}
+                penColor="#581c87"
+                size={penSize.value}
+                offsetX={offsetX.value}
+                offsetY={offsetY.value}
+              />
+            )}
 
             {/* 辅助线 - 显示文字底部位置 */}
-            {displayText.value && (
+            {/* {displayText.value && (
               <div
                 style={{
                   position: 'absolute',
@@ -203,14 +214,11 @@ export default defineComponent({
                   top: 0,
                   bottom: 0,
                   pointerEvents: 'none',
-                  border: '1px dashed rgba(146, 64, 14, 0.2)'
+                  border: '1px dashed red'
                 }}
               >
-                <div class="text-xs text-gray-400 absolute top-1 left-1">
-                  文字容器边界
-                </div>
               </div>
-            )}
+            )} */}
           </div>
         </div>
 

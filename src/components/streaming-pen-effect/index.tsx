@@ -27,7 +27,7 @@ const DEFAULT_CONFIG = {
   PEN_COLOR: '#92400e',
   PEN_SIZE: 24,
   OFFSET_X: 0.2,
-  OFFSET_Y: -0.8,
+  OFFSET_Y: - 0.2,
   POSITION_THRESHOLD: {
     X: 50,  // 超过 50px 认为是换行
     Y: 20   // 超过 20px 认为是换行
