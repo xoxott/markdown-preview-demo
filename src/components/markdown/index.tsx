@@ -9,8 +9,8 @@ import { DOM_ATTR_NAME } from '@suga/markdown-it-render-vnode';
 // 注意：这些插件需要先安装依赖
 // import markdownItFootnote from 'markdown-it-footnote';
 // import markdownItEmoji from 'markdown-it-emoji';
-import '@primer/css/core/index.scss';
-import '@primer/css/markdown/index.scss';
+// import '@primer/css/core/index.scss';
+// import '@primer/css/markdown/index.scss';
 import 'github-markdown-css/github-markdown.css';
 // 暗色主题自己调整 不要使用引入会冲突
 // import 'github-markdown-css/github-markdown-dark.css';

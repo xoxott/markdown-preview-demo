@@ -70,14 +70,14 @@ function startsWithTaskListMarker(token: Token): boolean | null {
     return null;
   }
 
-  const firstChild = token.children[0];
+    const firstChild = token.children[0];
   if (firstChild.type !== TOKEN_TYPES.TEXT) {
     return null;
   }
 
-  const match = firstChild.content.match(TASK_LIST_ITEM_REGEX);
+      const match = firstChild.content.match(TASK_LIST_ITEM_REGEX);
   return match ? match[1].toLowerCase() === 'x' : null;
-}
+      }
 
 /**
  * 在列表项内查找相关 token
@@ -171,14 +171,14 @@ function removeTaskListMarker(token: Token): void {
     return;
   }
 
-  const firstChild = token.children[0];
+    const firstChild = token.children[0];
   if (firstChild.type === TOKEN_TYPES.TEXT) {
-    firstChild.content = firstChild.content.replace(TASK_LIST_ITEM_REGEX, '');
-    // 如果替换后内容为空，则移除该 token
-    if (firstChild.content === '') {
-      token.children.shift();
+      firstChild.content = firstChild.content.replace(TASK_LIST_ITEM_REGEX, '');
+      // 如果替换后内容为空，则移除该 token
+      if (firstChild.content === '') {
+        token.children.shift();
+      }
     }
-  }
 }
 
 /**

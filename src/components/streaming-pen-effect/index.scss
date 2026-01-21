@@ -1,0 +1,33 @@
+.streaming-pen-wrapper {
+  position: absolute;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.streaming-pen {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  animation: writing 0.8s ease-in-out infinite;
+}
+
+.pen-icon {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+  transform-origin: bottom left;
+}
+
+@keyframes writing {
+  0%, 100% {
+    transform: translateY(0) translateX(0) rotate(-20deg);
+  }
+  25% {
+    transform: translateY(-2px) translateX(1px) rotate(-25deg);
+  }
+  50% {
+    transform: translateY(1px) translateX(-0.5px) rotate(-15deg);
+  }
+  75% {
+    transform: translateY(-1px) translateX(0.5px) rotate(-22deg);
+  }
+}

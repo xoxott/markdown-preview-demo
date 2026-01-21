@@ -14,7 +14,9 @@ import {
   ClockLoadingExample,
   BasicComponentsExample,
   FlowExamples,
-  RequestClientExample
+  RequestClientExample,
+  StreamingPenExample,
+  StreamingPenDebugExample
 } from './examples';
 
 export default defineComponent({
@@ -64,6 +66,25 @@ export default defineComponent({
           </div>
           <div class="bg-white p-6 rounded-lg shadow-sm">
             <RequestClientExample />
+          </div>
+        </section>
+
+        {/* ==================== 流式笔写效果 (Streaming Pen Effect) ==================== */}
+        <section class="space-y-4">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="h-1 w-12 bg-pink-500 rounded"></div>
+            <h1 class="text-3xl font-bold text-gray-900">流式笔写效果</h1>
+            <div class="h-1 flex-1 bg-gray-200 rounded"></div>
+          </div>
+
+          {/* 调试工具 */}
+          <div class="bg-white p-6 rounded-lg shadow-sm">
+            <StreamingPenDebugExample />
+          </div>
+
+          {/* 标准示例 */}
+          <div class="bg-white p-6 rounded-lg shadow-sm">
+            <StreamingPenExample />
           </div>
         </section>
       </div>
