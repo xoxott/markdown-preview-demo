@@ -35,7 +35,7 @@ export default defineComponent({
         if (charIndex < sampleText.length) {
           displayText.value += sampleText.charAt(charIndex);
           charIndex++;
-          typingTimer = window.setTimeout(type, 300);
+          typingTimer = window.setTimeout(type, 90);
         } else {
           isTyping.value = false;
           if (typingTimer) {
