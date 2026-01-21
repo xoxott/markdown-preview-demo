@@ -6,12 +6,12 @@
 
 - 🖊️ 精美的笔图标设计（SVG）
 - 📝 流畅的书写动画效果
-- 🎯 **智能位置追踪** - 笔跟随文字末尾实时移动
-- 🎨 可自定义颜色和大小
-- 💧 墨迹掉落动画
-- ⚡ 性能优化 - RAF + MutationObserver
-- 🧠 自动检测文字变化
-- 📱 响应式，支持窗口缩放
+- 🎯 **智能位置追踪** - 使用 Range API 精确追踪文字末尾位置
+- 🎨 可自定义颜色、大小和偏移量
+- ⚡ **高性能** - MutationObserver + requestAnimationFrame 组合
+- 🧠 自动检测文字变化，实时更新位置
+- 📱 响应式，支持窗口缩放和容器变化
+- 🔧 可配置的位置阈值和过渡动画
 
 ## 📦 使用方法
 
@@ -51,6 +51,21 @@ export default defineComponent({
 />
 ```
 
+### 高级配置
+
+```tsx
+<StreamingPenEffect
+  isWriting={isTyping.value}
+  targetRef={textRef.value}
+  penColor="#92400e"
+  size={24}
+  offsetX={0.3}        // 向右偏移更多
+  offsetY={-0.9}       // 向上偏移更多
+  positionChangeThreshold={{ x: 60, y: 25 }}  // 调整换行检测阈值
+  transitionDuration={0.08}  // 更快的过渡动画
+/>
+```
+
 ## 🎛️ Props
 
 | 属性 | 类型 | 默认值 | 说明 |
@@ -59,6 +74,10 @@ export default defineComponent({
 | `targetRef` | `HTMLElement \| null` | `null` | **必需** - 文字容器的 ref，用于追踪位置 |
 | `penColor` | `string` | `'#92400e'` | 笔的颜色（CSS 颜色值） |
 | `size` | `number` | `24` | 笔的大小（像素） |
+| `offsetX` | `number` | `0.2` | 笔相对于文字末尾的 X 轴偏移（相对于笔的大小） |
+| `offsetY` | `number` | `-0.8` | 笔相对于文字末尾的 Y 轴偏移（相对于笔的大小） |
+| `positionChangeThreshold` | `{ x: number, y: number }` | `{ x: 50, y: 20 }` | 位置变化阈值，用于检测换行等大幅位置变化 |
+| `transitionDuration` | `number` | `0.05` | 位置过渡动画时长（秒） |
 
 ## 🎨 动画效果
 
@@ -141,14 +160,14 @@ export default defineComponent({
    - 自动处理多行文本
 
 3. **变化监听**
-   - `MutationObserver` 监听 DOM 变化
+   - `MutationObserver` 监听 DOM 变化（childList, subtree, characterData）
    - 自动检测文字内容更新
-   - 实时更新笔的位置
+   - 使用 `requestAnimationFrame` 进行流畅的位置更新
 
 4. **性能优化**
-   - `requestAnimationFrame` 节流更新
-   - 避免重复计算
-   - 自动清理监听器
+   - `MutationObserver` + `requestAnimationFrame` 组合，确保流畅的 60fps 更新
+   - 避免重复计算和无效更新
+   - 自动清理所有监听器和资源
 
 ## 🎨 颜色建议
 
@@ -176,23 +195,25 @@ pen-color: #581c87;
 
 ```
 streaming-pen-effect/
-├── index.vue       # 组件主文件
+├── index.tsx       # 组件主文件（TSX）
+├── index.scss      # 样式文件
 └── README.md       # 本文档
 ```
 
 ## ⚡ 性能说明
 
-- ✅ **位置计算**：使用 `requestAnimationFrame` 节流
+- ✅ **位置计算**：使用 `requestAnimationFrame` 进行流畅更新（约 60fps）
 - ✅ **CSS 动画**：书写动作使用纯 CSS，GPU 加速
-- ✅ **智能监听**：仅在必要时更新位置
-- ✅ **自动清理**：组件卸载时清理所有监听器
-- ✅ **内存优化**：及时取消 RAF 和 MutationObserver
+- ✅ **智能监听**：`MutationObserver` 仅在 DOM 变化时触发更新
+- ✅ **自动清理**：组件卸载时自动清理所有监听器和资源
+- ✅ **内存优化**：及时取消 RAF 和 MutationObserver，避免内存泄漏
 
 ### 性能建议
 
 1. **容器大小**：建议文字容器不要过大，减少计算量
-2. **更新频率**：RAF 自动限制在 60fps
-3. **批量更新**：MutationObserver 会自动合并多次变化
+2. **更新频率**：`requestAnimationFrame` 自动限制在 60fps，与浏览器刷新率同步
+3. **批量更新**：`MutationObserver` 会自动合并多次 DOM 变化，减少不必要的更新
+4. **过渡时长**：可通过 `transitionDuration` 调整位置过渡动画，较短的时长（如 0.05s）能提供更即时的响应
 
 ## 🔧 技术细节
 
@@ -225,6 +246,13 @@ observer.observe(targetElement, {
 5. **多行优化**：更好的多行文本处理
 
 ## 📝 更新日志
+
+### v2.1.0 (2026-01-21) - 🚀 简化优化版本
+- ✅ **简化更新机制**：移除冗余的连续更新逻辑，仅使用 `MutationObserver` + `requestAnimationFrame`
+- ✅ **性能优化**：减少不必要的 `setInterval` 调用，降低性能开销
+- ✅ **新增 Props**：`offsetX`、`offsetY`、`positionChangeThreshold`、`transitionDuration`
+- ✅ **样式分离**：将样式从 TSX 移到独立的 SCSS 文件
+- ✅ **代码清理**：移除未使用的类型定义和配置项
 
 ### v2.0.0 (2026-01-21) - 🎯 智能追踪版本
 - ✅ **重大更新**：从 Vue 模板改为 TSX 实现
