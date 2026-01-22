@@ -52,8 +52,17 @@ export const vueAdapter: FrameworkAdapter = {
       // 保留 data-token-key 作为属性，便于调试
     }
 
-    // 创建 VNode，带上 key
-    const vnode = createVNode(tag as string | Component, vueProps, normalizedChildren);
+    // 判断 tag 是 HTML 元素还是 Vue 组件
+    const isComponent = typeof tag !== 'string';
+
+    let vnodeChildren: VNode[] | undefined;
+    if (normalizedChildren.length === 0) {
+      vnodeChildren = isComponent ? undefined : [];
+    } else {
+      vnodeChildren = normalizedChildren;
+    }
+
+    const vnode = createVNode(tag as string | Component, vueProps, vnodeChildren);
     if (key) {
       vnode.key = key;
     }

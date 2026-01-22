@@ -29,5 +29,4 @@ export { default as RequestClientExample } from './RequestClientExample';
 // 流式笔写效果示例
 export { default as StreamingPenExample } from './StreamingPenExample';
 export { default as StreamingPenDebugExample } from './StreamingPenDebugExample';
-export { default as StreamingTextExample } from './StreamingTextExample';
 export { default as StreamingPenPositionCompareExample } from './StreamingPenPositionCompareExample';

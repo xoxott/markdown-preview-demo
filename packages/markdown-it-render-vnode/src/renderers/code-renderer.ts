@@ -231,12 +231,14 @@ function createCustomComponentVNode(
   }
 
   // 普通组件
+  // 注意：传递 undefined 而不是空数组，避免 Vue 3 的插槽警告
+  // 空数组会被当作非函数值传递给默认插槽，导致警告
   return adapter.createElement(component, {
     key: `${langName}-${uuid()}`,
     meta,
     class: 'code-block-transition',
     onRenderFallback: defaultRender
-  } as any, []);
+  }, undefined);
 }
 
 /**

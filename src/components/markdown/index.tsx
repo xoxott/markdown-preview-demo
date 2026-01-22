@@ -1,10 +1,11 @@
-import { type VNode, defineComponent, ref, watch,Component } from 'vue';
+import { type VNode, defineComponent, ref, watch, nextTick, onMounted, Component, type PropType } from 'vue';
 import MarkdownIt from 'markdown-it';
 import markdownItMultimdTable from 'markdown-it-multimd-table';
 import markdownItKatex from '@vscode/markdown-it-katex';
 import markdownItTaskLists from '@suga/markdown-it-task-lists';
 import type { CodeBlockMeta } from '@suga/markdown-it-render-vnode';
 import { DOM_ATTR_NAME } from '@suga/markdown-it-render-vnode';
+import StreamingPenEffect from '@/components/streaming-pen-effect';
 
 // 注意：这些插件需要先安装依赖
 // import markdownItFootnote from 'markdown-it-footnote';
@@ -41,6 +42,26 @@ export default defineComponent({
     content: {
       type: String,
       required: true
+    },
+    // 是否启用笔写效果
+    showPenEffect: {
+      type: Boolean,
+      default: false
+    },
+    // 笔写效果配置
+    penEffectConfig: {
+      type: Object as PropType<{
+        penColor?: string;
+        size?: number;
+        offsetX?: number;
+        offsetY?: number;
+      }>,
+      default: () => ({
+        penColor: '#15803d',
+        size: 30,
+        offsetX: 0.65,
+        offsetY: -1
+      })
     }
   },
   setup(props) {
@@ -77,6 +98,7 @@ export default defineComponent({
       // .use(markdownItEmoji);
 
     const vnodes = ref<VNode[]>([]);
+    const markdownBodyRef = ref<HTMLElement | null>(null);
 
     // 监听内容变化
     // 依赖 Vue 的 key-based diff 进行优化
@@ -93,7 +115,11 @@ export default defineComponent({
 
     return () => (
       <div style={cssVars.value} class={['markdown-container', themeClass.value]}>
-        <article class={['markdown-body', darkMode.value && 'markdown-body-dark']}>
+        <article
+          ref={markdownBodyRef}
+          class={['markdown-body', darkMode.value && 'markdown-body-dark']}
+          style={{ position: 'relative' }}
+        >
           {vnodes.value.map((vnode, index) => {
             const props = vnode.props as Record<string, unknown> | null | undefined;
             const tokenKey = (props?.['data-token-key'] as string | undefined) ||
@@ -101,6 +127,16 @@ export default defineComponent({
                            `vnode-${index}`;
             return { ...vnode, key: tokenKey };
           })}
+          {/* {props.showPenEffect  && markdownBodyRef.value && (
+            <StreamingPenEffect
+              isWriting={props.showPenEffect}
+              targetRef={markdownBodyRef.value}
+              penColor={props.penEffectConfig.penColor}
+              size={props.penEffectConfig.size}
+              offsetX={props.penEffectConfig.offsetX}
+              offsetY={props.penEffectConfig.offsetY}
+            />
+          )} */}
         </article>
       </div>
     );

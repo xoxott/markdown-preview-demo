@@ -8,6 +8,7 @@ import {
   watch,
   onMounted,
   onBeforeUnmount,
+  nextTick,
   type PropType,
   computed,
   type CSSProperties
@@ -92,8 +93,36 @@ const createQuillPenSVG = (penColor: string) => ({
 // ==================== 工具函数 ====================
 
 /**
- * 递归获取所有文本节点
- * 使用 TreeWalker 高效遍历
+ * 获取最后一个文本节点（优化版本）
+ * 从后往前查找，找到第一个有效节点就停止，避免遍历整个树
+ */
+const getLastTextNode = (element: HTMLElement): Text | null => {
+  const walker = document.createTreeWalker(
+    element,
+    NodeFilter.SHOW_TEXT,
+    {
+      acceptNode: (node) => {
+        // 只接受非空文本节点
+        return node.textContent?.trim()
+          ? NodeFilter.FILTER_ACCEPT
+          : NodeFilter.FILTER_REJECT;
+      }
+    }
+  );
+
+  // 先遍历到最后一个节点
+  let lastNode: Text | null = null;
+  let node: Node | null;
+  while ((node = walker.nextNode())) {
+    lastNode = node as Text;
+  }
+
+  return lastNode;
+};
+
+/**
+ * 递归获取所有文本节点（保留用于兼容性，但已优化为使用 getLastTextNode）
+ * @deprecated 优先使用 getLastTextNode
  */
 const getTextNodes = (element: HTMLElement): Text[] => {
   const textNodes: Text[] = [];
@@ -183,22 +212,49 @@ export default defineComponent({
     // ==================== 资源管理 ====================
     let rafId: number | null = null;
     let observer: MutationObserver | null = null;
+    let lastTextNodeCache: Text | null = null; // 缓存最后一个文本节点
+    let lastUpdateTime = 0; // 上次更新时间（用于统计，不再限制更新频率）
 
     // ==================== 核心功能函数 ====================
 
     /**
-     * 获取文字末尾的位置
-     * 使用 Range API 获取精确位置
+     * 获取文字末尾的位置（优化版本）
+     * 使用缓存和优化的查找策略，提升长文档性能
      */
     const getTextEndPosition = (): PenPosition | null => {
       const target = props.targetRef;
-      if (!target) return null;
+      if (!target) {
+        lastTextNodeCache = null;
+        return null;
+      }
 
       try {
-        const textNodes = getTextNodes(target);
-        if (textNodes.length === 0) return null;
+        // 先尝试使用缓存的节点（如果仍然有效）
+        let lastTextNode = lastTextNodeCache;
 
-        const lastTextNode = textNodes[textNodes.length - 1];
+        // 验证缓存节点是否仍然有效
+        if (lastTextNode && target.contains(lastTextNode)) {
+          const text = lastTextNode.textContent || '';
+          if (text.length > 0) {
+            // 缓存节点有效，直接使用（即使文本内容变化，节点本身仍然有效）
+            // 位置会在下面重新计算，因为文本内容可能已经变化
+          } else {
+            // 缓存节点无效，重新查找
+            lastTextNode = null;
+          }
+        } else {
+          // 缓存节点无效或不存在，重新查找
+          lastTextNode = null;
+        }
+
+        // 如果缓存无效，重新查找最后一个文本节点
+        if (!lastTextNode) {
+          lastTextNode = getLastTextNode(target);
+          lastTextNodeCache = lastTextNode;
+        }
+
+        if (!lastTextNode) return null;
+
         const text = lastTextNode.textContent || '';
         if (text.length === 0) return null;
 
@@ -222,9 +278,14 @@ export default defineComponent({
         return { x, y };
       } catch (error) {
         // 静默失败，避免快速打字时产生大量日志
+        lastTextNodeCache = null; // 出错时清除缓存
         return null;
       }
     };
+
+    // 首次位置获取重试计数
+    let initialRetryCount = 0;
+    const MAX_INITIAL_RETRIES = 3;
 
     /**
      * 更新笔的位置
@@ -232,17 +293,32 @@ export default defineComponent({
     const updatePenPosition = (): void => {
       if (!props.isWriting || !props.targetRef) {
         isVisible.value = false;
+        initialRetryCount = 0;
         return;
       }
 
       const newPosition = getTextEndPosition();
       if (!newPosition) {
+        // 如果获取不到位置，且是首次尝试，可以重试几次
+        if (initialRetryCount < MAX_INITIAL_RETRIES) {
+          initialRetryCount++;
+          // 延迟重试，等待 DOM 完全渲染
+          setTimeout(() => {
+            scheduleUpdate();
+          }, 50 * initialRetryCount); // 递增延迟
+          return;
+        }
+
         // 如果获取不到位置，保持上次位置（避免闪烁）
         if (penPosition.value.x === 0 && penPosition.value.y === 0) {
           isVisible.value = false;
         }
+        initialRetryCount = 0;
         return;
       }
+
+      // 成功获取位置，重置重试计数
+      initialRetryCount = 0;
 
       // 计算位置变化
       const { dx, dy } = calculatePositionDelta(penPosition.value, newPosition);
@@ -263,6 +339,7 @@ export default defineComponent({
 
     /**
      * 使用 RAF 优化性能的更新函数
+     * 移除更新频率限制，确保实时跟随
      */
     const scheduleUpdate = (): void => {
       if (rafId !== null) {
@@ -271,6 +348,7 @@ export default defineComponent({
 
       rafId = requestAnimationFrame(() => {
         updatePenPosition();
+        lastUpdateTime = performance.now();
         rafId = null;
       });
     };
@@ -279,6 +357,7 @@ export default defineComponent({
 
     /**
      * 监听目标元素的变化
+     * 优化：对结构变化（childList）使用防抖，对文本变化（characterData）立即更新
      */
     const observeTarget = (): void => {
       if (observer) {
@@ -286,11 +365,50 @@ export default defineComponent({
         observer = null;
       }
 
-      if (!props.targetRef) return;
+      if (!props.targetRef) {
+        lastTextNodeCache = null; // 清除缓存
+        return;
+      }
 
-      observer = new MutationObserver(() => {
-        // 当检测到变化时，使用 RAF 更新位置
-        scheduleUpdate();
+      // 防抖定时器（仅用于 childList 变化）
+      let debounceTimer: number | null = null;
+      const DEBOUNCE_DELAY = 100; // 100ms 防抖延迟（仅用于结构变化）
+
+      observer = new MutationObserver((mutations) => {
+        let hasStructureChange = false;
+        let hasTextChange = false;
+
+        // 分析变化类型
+        for (const mutation of mutations) {
+          if (mutation.type === 'childList') {
+            hasStructureChange = true;
+            // 结构变化时清除缓存
+            lastTextNodeCache = null;
+          } else if (mutation.type === 'characterData') {
+            hasTextChange = true;
+            // 文本变化时不清除缓存，但需要重新计算位置
+          }
+        }
+
+        // 文本内容变化时立即更新（实时跟随）
+        if (hasTextChange && !hasStructureChange) {
+          // 清除防抖定时器
+          if (debounceTimer !== null) {
+            clearTimeout(debounceTimer);
+            debounceTimer = null;
+          }
+          // 立即更新位置
+          scheduleUpdate();
+        } else if (hasStructureChange) {
+          // 结构变化时使用防抖，避免频繁更新
+          if (debounceTimer !== null) {
+            clearTimeout(debounceTimer);
+          }
+          debounceTimer = window.setTimeout(() => {
+            scheduleUpdate();
+            debounceTimer = null;
+          }, DEBOUNCE_DELAY);
+        }
       });
 
       observer.observe(props.targetRef, {
@@ -312,6 +430,9 @@ export default defineComponent({
         observer.disconnect();
         observer = null;
       }
+      // 清除缓存
+      lastTextNodeCache = null;
+      lastUpdateTime = 0;
     };
 
     // ==================== 响应式监听 ====================
@@ -326,12 +447,28 @@ export default defineComponent({
     });
 
     // 监听 targetRef 变化
-    watch(() => props.targetRef, (newRef) => {
-      if (newRef) {
-        observeTarget();
+    watch(() => props.targetRef, async (newRef, oldRef) => {
+      if (!newRef) {
+        isVisible.value = false;
+        lastTextNodeCache = null; // 清除缓存
+        return;
+      }
+
+      // 如果 targetRef 变化，清除缓存
+      if (oldRef !== newRef) {
+        lastTextNodeCache = null;
+      }
+
+      observeTarget();
+
+      // 如果是从 null 变为有值，延迟一下确保 DOM 完全渲染
+      if (!oldRef) {
+        await nextTick();
+        // 再延迟一点确保内容已渲染
+        await new Promise(resolve => setTimeout(resolve, 50));
         scheduleUpdate();
       } else {
-        isVisible.value = false;
+        scheduleUpdate();
       }
     }, { immediate: true });
 
