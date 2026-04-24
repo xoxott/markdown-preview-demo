@@ -3,8 +3,12 @@
     "source.fixAll.eslint": "explicit",
     "source.organizeImports": "never"
   },
-  "editor.formatOnSave": false,
-  "eslint.validate": ["html", "css", "scss", "json", "jsonc"],
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.enable": true,
+  "prettier.configPath": "./.prettierrc",
+  "prettier.requireConfig": true,
+  "eslint.validate": ["html", "css", "scss", "json", "jsonc", "vue", "ts", "tsx"],
   "i18n-ally.displayLanguage": "zh-CN",
   "i18n-ally.enabledParsers": ["json"],
   "i18n-ally.enabledFrameworks": ["vue", "vue-sfc"],
@@ -24,12 +28,13 @@
   ],
   "i18n-ally.annotation.inPlace": true,
   "i18n-ally.annotation.maxLength": 100,
-  "prettier.enable": false,
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.preferences.includePackageJsonAutoImports": "auto",
   "typescript.disableAutomaticTypeAcquisition": false,
   "typescript.suggest.autoImports": true,
   "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.preferences.quoteStyle": "single",
+  "typescript.preferences.importModuleSpecifier": "relative",
   "vue.codeActions.enabled": true,
   "vue.complete.casing.props": "camel",
   "vue.server.hybridMode": true,
@@ -43,5 +48,29 @@
     "src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"
   ],
   "vitest.exclude": ["**/node_modules/**", "**/dist/**"],
-  "vitest.configPath": "./vitest.config.ts"
+  "vitest.configPath": "./vitest.config.ts",
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
