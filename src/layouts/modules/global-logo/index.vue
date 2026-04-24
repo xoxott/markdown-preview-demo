@@ -10,9 +10,7 @@ interface Props {
   showTitle?: boolean;
 }
 
-withDefaults(defineProps<Props>(), {
-  showTitle: true
-});
+const { showTitle = true } = defineProps<Props>();
 </script>
 
 <template>

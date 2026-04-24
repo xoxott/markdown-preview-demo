@@ -15,26 +15,30 @@ interface Props {
   itemSize?: number;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  tagType: 'info',
-  defaultCollapsed: false,
-  maxHeight: '400px',
-  itemSize: 48
-});
-const itemsWithIndex = computed(() => props.items.map((item, i) => ({ ...item, _index: i })));
+const {
+  title,
+  icon,
+  count,
+  items,
+  tagType = 'info',
+  defaultCollapsed = false,
+  maxHeight = '400px',
+  itemSize = 48
+} = defineProps<Props>();
+const itemsWithIndex = computed(() => items.map((item, i) => ({ ...item, _index: i })));
 
-const isCollapsed = ref(props.defaultCollapsed);
+const isCollapsed = ref(defaultCollapsed);
 const contentRef = ref<HTMLElement>();
 
 // TODO: 计算实际高度，限制最大高度
 // const computedHeight = computed(() => {
-//   const realHeight = props.items.length * props.itemSize; // 16px padding
-//   const max = Number.parseInt(props.maxHeight);
+//   const realHeight = items.length * itemSize; // 16px padding
+//   const max = Number.parseInt(maxHeight);
 //   return `${Math.min(realHeight, max)}px`;
 // });
 
 const toggleCollapse = () => {
-  if (props.items.length === 0) return;
+  if (items.length === 0) return;
   isCollapsed.value = !isCollapsed.value;
 };
 

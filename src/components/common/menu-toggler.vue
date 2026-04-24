@@ -12,10 +12,7 @@ interface Props {
   zIndex?: number;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  arrowIcon: false,
-  zIndex: 98
-});
+const { collapsed, arrowIcon = false, zIndex = 98 } = defineProps<Props>();
 
 type NumberBool = 0 | 1;
 
@@ -31,11 +28,11 @@ const icon = computed(() => {
     }
   };
 
-  const arrowIcon = Number(props.arrowIcon || false) as NumberBool;
+  const arrowIconNum = Number(arrowIcon || false) as NumberBool;
 
-  const collapsed = Number(props.collapsed || false) as NumberBool;
+  const collapsedNum = Number(collapsed || false) as NumberBool;
 
-  return icons[arrowIcon][collapsed];
+  return icons[arrowIconNum][collapsedNum];
 });
 </script>
 

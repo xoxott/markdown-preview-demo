@@ -14,10 +14,7 @@ interface Props {
   tooltipPlacement?: PopoverPlacement;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  showTooltip: true,
-  tooltipPlacement: 'bottom'
-});
+const { themeSchema, showTooltip = true, tooltipPlacement = 'bottom' } = defineProps<Props>();
 
 interface Emits {
   (e: 'switch'): void;
@@ -35,10 +32,10 @@ const icons: Record<UnionKey.ThemeScheme, string> = {
   auto: 'material-symbols:hdr-auto'
 };
 
-const icon = computed(() => icons[props.themeSchema]);
+const icon = computed(() => icons[themeSchema]);
 
 const tooltipContent = computed(() => {
-  if (!props.showTooltip) return '';
+  if (!showTooltip) return '';
 
   return $t('icon.themeSchema');
 });

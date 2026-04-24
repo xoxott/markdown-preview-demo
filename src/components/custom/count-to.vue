@@ -20,43 +20,41 @@ interface Props {
   transition?: keyof typeof TransitionPresets;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  startValue: 0,
-  endValue: 2021,
-  duration: 1500,
-  autoplay: true,
-  decimals: 0,
-  prefix: '',
-  suffix: '',
-  separator: ',',
-  decimal: '.',
-  useEasing: true,
-  transition: 'linear'
-});
+const {
+  startValue = 0,
+  endValue = 2021,
+  duration = 1500,
+  autoplay = true,
+  decimals = 0,
+  prefix = '',
+  suffix = '',
+  separator = ',',
+  decimal: decimalProp = '.',
+  useEasing = true,
+  transition: transitionProp = 'linear'
+} = defineProps<Props>();
 
-const source = ref(props.startValue);
+const source = ref(startValue);
 
-const transition = computed(() =>
-  props.useEasing ? TransitionPresets[props.transition] : undefined
+const easingTransition = computed(() =>
+  useEasing ? TransitionPresets[transitionProp] : undefined
 );
 
 const outputValue = useTransition(source, {
   disabled: false,
-  duration: props.duration,
-  transition: transition.value
+  duration,
+  transition: easingTransition.value
 });
 
 const value = computed(() => formatValue(outputValue.value));
 
 function formatValue(num: number) {
-  const { decimals, decimal, separator, suffix, prefix } = props;
-
   let number = num.toFixed(decimals);
   number = String(number);
 
   const x = number.split('.');
   let x1 = x[0];
-  const x2 = x.length > 1 ? decimal + x[1] : '';
+  const x2 = x.length > 1 ? decimalProp + x[1] : '';
   const rgx = /(\d+)(\d{3})/;
   if (separator) {
     while (rgx.test(x1)) {
@@ -69,13 +67,13 @@ function formatValue(num: number) {
 
 async function start() {
   await nextTick();
-  source.value = props.endValue;
+  source.value = endValue;
 }
 
 watch(
-  [() => props.startValue, () => props.endValue],
+  [() => startValue, () => endValue],
   () => {
-    if (props.autoplay) {
+    if (autoplay) {
       start();
     }
   },

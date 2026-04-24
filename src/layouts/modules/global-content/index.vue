@@ -15,9 +15,7 @@ interface Props {
   showPadding?: boolean;
 }
 
-withDefaults(defineProps<Props>(), {
-  showPadding: true
-});
+const { showPadding = true } = defineProps<Props>();
 
 const appStore = useAppStore();
 const themeStore = useThemeStore();

@@ -21,10 +21,7 @@ interface Props {
   showActions?: boolean;
 }
 
-const { task, showProgress, showActions } = withDefaults(defineProps<Props>(), {
-  showProgress: false,
-  showActions: false
-});
+const { task, showProgress = false, showActions = false } = defineProps<Props>();
 
 const emit = defineEmits<{
   remove: [];

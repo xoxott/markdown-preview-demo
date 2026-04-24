@@ -19,13 +19,13 @@ interface Props {
   zIndex?: number;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  class: '',
-  icon: '',
-  tooltipContent: '',
-  tooltipPlacement: 'bottom',
-  zIndex: 98
-});
+const {
+  class: klass = '',
+  icon = '',
+  tooltipContent = '',
+  tooltipPlacement = 'bottom',
+  zIndex = 98
+} = defineProps<Props>();
 
 const DEFAULT_CLASS = 'h-[36px] text-icon';
 </script>
@@ -33,7 +33,7 @@ const DEFAULT_CLASS = 'h-[36px] text-icon';
 <template>
   <NTooltip :placement="tooltipPlacement" :z-index="zIndex" :disabled="!tooltipContent">
     <template #trigger>
-      <NButton quaternary :class="twMerge(DEFAULT_CLASS, props.class)" v-bind="$attrs">
+      <NButton quaternary :class="twMerge(DEFAULT_CLASS, klass)" v-bind="$attrs">
         <div class="flex-center gap-8px">
           <slot>
             <SvgIcon :icon="icon" />

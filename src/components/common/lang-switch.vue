@@ -15,24 +15,22 @@ interface Props {
   showTooltip?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  showTooltip: true
-});
-
 type Emits = {
   (e: 'changeLang', lang: App.I18n.LangType): void;
 };
 
+const { lang, langOptions, showTooltip = true } = defineProps<Props>();
+
 const emit = defineEmits<Emits>();
 
 const tooltipContent = computed(() => {
-  if (!props.showTooltip) return '';
+  if (!showTooltip) return '';
 
   return $t('icon.lang');
 });
 
-function changeLang(lang: App.I18n.LangType) {
-  emit('changeLang', lang);
+function changeLang(selectedLang: App.I18n.LangType) {
+  emit('changeLang', selectedLang);
 }
 </script>
 

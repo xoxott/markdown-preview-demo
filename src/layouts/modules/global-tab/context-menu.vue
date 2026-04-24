@@ -19,10 +19,7 @@ interface Props {
   disabledKeys?: App.Global.DropdownKey[];
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  excludeKeys: () => [],
-  disabledKeys: () => []
-});
+const { x, y, tabId, excludeKeys = [], disabledKeys = [] } = defineProps<Props>();
 
 const visible = defineModel<boolean>('visible');
 
@@ -64,11 +61,9 @@ const options = computed(() => {
       icon: SvgIconVNode({ icon: 'ant-design:line-outlined', fontSize: 18 })
     }
   ];
-  const { excludeKeys, disabledKeys } = props;
-
   const result = opts.filter(opt => !excludeKeys.includes(opt.key));
 
-  disabledKeys.forEach(key => {
+  disabledKeys.forEach((key: App.Global.DropdownKey) => {
     const opt = result.find(item => item.key === key);
 
     if (opt) {
@@ -85,16 +80,16 @@ function hideDropdown() {
 
 const dropdownAction: Record<App.Global.DropdownKey, () => void> = {
   closeCurrent() {
-    removeTab(props.tabId);
+    removeTab(tabId);
   },
   closeOther() {
-    clearTabs([props.tabId]);
+    clearTabs([tabId]);
   },
   closeLeft() {
-    clearLeftTabs(props.tabId);
+    clearLeftTabs(tabId);
   },
   closeRight() {
-    clearRightTabs(props.tabId);
+    clearRightTabs(tabId);
   },
   closeAll() {
     clearTabs();
