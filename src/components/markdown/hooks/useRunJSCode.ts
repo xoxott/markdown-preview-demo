@@ -6,6 +6,7 @@
 
 import type { Ref } from 'vue';
 import { computed, onUnmounted, ref } from 'vue';
+import { formatError } from '../utils';
 
 /** Worker 消息类型 */
 interface WorkerMessage {
@@ -193,14 +194,6 @@ export function useRunJSCode(code: string): RunResult {
     }
   };
 
-  /** 格式化错误信息 */
-  const formatError = (err: unknown): string => {
-    if (err instanceof Error) {
-      return err.message;
-    }
-    return String(err);
-  };
-
   /** 限制日志数量 */
   const limitLogs = (logArray: string[]): string[] => {
     if (logArray.length > RUN_CODE_CONFIG.MAX_LOGS) {
@@ -297,7 +290,7 @@ export function useRunJSCode(code: string): RunResult {
       runState.value.runCount++;
       runState.value.lastRunTime = Date.now();
     } catch (err) {
-      error.value = formatError(err);
+      error.value = formatError(err, '代码运行失败');
       console.error('代码运行错误:', err);
     } finally {
       runState.value.isRunning = false;

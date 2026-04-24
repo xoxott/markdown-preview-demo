@@ -10,6 +10,7 @@ import { Transformer } from 'markmap-lib';
 import { Markmap } from 'markmap-view';
 import type { IMarkmapOptions } from 'markmap-view';
 import * as d3 from 'd3';
+import { formatError } from '../utils';
 
 /** 缩放方向类型 */
 type ZoomDirection = 'in' | 'out' | 'reset';
@@ -71,20 +72,6 @@ export const useMindmap = (content: Ref<string>, svgRef: Ref<SVGElement | null>)
   const generateRenderId = (): string => {
     renderCounter++;
     return `markmap-${Date.now()}-${renderCounter}`;
-  };
-
-  /**
-   * 格式化错误信息
-   *
-   * @param error - 错误对象
-   * @param context - 错误上下文
-   * @returns 格式化后的错误信息
-   */
-  const formatError = (error: unknown, context: string): string => {
-    if (error instanceof Error) {
-      return `${context}: ${error.message}`;
-    }
-    return `${context}: 未知错误`;
   };
 
   /**
@@ -240,10 +227,15 @@ export const useMindmap = (content: Ref<string>, svgRef: Ref<SVGElement | null>)
       k = Math.max(0.1, Math.min(10, k));
 
       // 创建新的变换
-      const newTransform = d3.zoomIdentity.translate(currentTransform.x, currentTransform.y).scale(k);
+      const newTransform = d3.zoomIdentity
+        .translate(currentTransform.x, currentTransform.y)
+        .scale(k);
 
       // 应用变换动画
-      d3.select(gNode).transition().duration(ZOOM_DURATION).attr('transform', newTransform.toString());
+      d3.select(gNode)
+        .transition()
+        .duration(ZOOM_DURATION)
+        .attr('transform', newTransform.toString());
 
       // 同步内部状态
       (svgNode as any).__zoom = newTransform;

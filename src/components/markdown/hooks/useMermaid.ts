@@ -8,6 +8,7 @@ import type { Ref } from 'vue';
 import { computed, onUnmounted, ref, shallowRef, watch } from 'vue';
 import type { MermaidConfig } from 'mermaid';
 import mermaid from 'mermaid';
+import { formatError } from '../utils';
 
 /** SVG 信息接口 */
 interface SVGInfo {
@@ -163,20 +164,6 @@ export const useMermaid = (content: Ref<string>, darkMode: Ref<boolean> | boolea
     }
   };
 
-  /**
-   * 格式化错误信息
-   *
-   * @param error - 错误对象
-   * @param context - 错误上下文
-   * @returns 格式化后的错误信息
-   */
-  const formatError = (error: unknown, context: string): string => {
-    if (error instanceof Error) {
-      return `${context}: ${error.message}`;
-    }
-    return `${context}: 未知错误`;
-  };
-
   // ==================== 核心功能 ====================
   /** 初始化 Mermaid */
   const initMermaid = (): void => {
@@ -201,6 +188,11 @@ export const useMermaid = (content: Ref<string>, darkMode: Ref<boolean> | boolea
     if (!content.value || !content.value.trim()) {
       errorMessage.value = '图表内容为空';
       return;
+    }
+
+    // 延迟初始化：仅在需要时初始化（如主题变更后）
+    if (!renderState.value.isInitialized) {
+      initMermaid();
     }
 
     const renderId = generateRenderId();
@@ -277,9 +269,9 @@ export const useMermaid = (content: Ref<string>, darkMode: Ref<boolean> | boolea
   const isLoading = computed(() => renderState.value.isRendering);
 
   // ==================== 生命周期 ====================
-  // 监听主题变化，自动重新初始化并渲染
+  // 监听主题变化，延迟初始化到下次实际渲染（避免无内容变化时的 50-100ms 重初始化）
   watch(isDarkMode, () => {
-    initMermaid();
+    renderState.value.isInitialized = false;
   });
 
   onUnmounted(() => {
