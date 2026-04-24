@@ -1,13 +1,11 @@
 {
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit",
-    "source.organizeImports": "never"
+    "source.fixAll.eslint": true,
+    "source.organizeImports": false
   },
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "prettier.enable": true,
   "prettier.configPath": "./.prettierrc",
-  "prettier.requireConfig": true,
   "eslint.validate": ["html", "css", "scss", "json", "jsonc", "vue", "ts", "tsx"],
   "i18n-ally.displayLanguage": "zh-CN",
   "i18n-ally.enabledParsers": ["json"],
@@ -22,15 +20,14 @@
   "i18n-ally.extract.autoDetect": true,
   "i18n-ally.refactor.templates": [
     {
-      "templates": ["$t('{key}')"],
-      "source": "**/*.vue"
+      "template": ["$t('{key}')"],
+      "target": "**/*.vue"
     }
   ],
   "i18n-ally.annotation.inPlace": true,
   "i18n-ally.annotation.maxLength": 100,
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.preferences.includePackageJsonAutoImports": "auto",
-  "typescript.disableAutomaticTypeAcquisition": false,
   "typescript.suggest.autoImports": true,
   "typescript.updateImportsOnFileMove.enabled": "always",
   "typescript.preferences.quoteStyle": "single",
@@ -40,7 +37,7 @@
   "vue.server.hybridMode": true,
   "vue.server.maxOldSpaceSize": 4096,
   "unocss.root": ["./"],
-  "vitest.enable": true,
+  "vitest.enabled": true,
   "vitest.commandLine": "pnpm vitest",
   "vitest.include": [
     "**/__tests__/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
