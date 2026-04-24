@@ -294,7 +294,6 @@ describe('XSS 安全防护测试', () => {
       const tokens = md.parse(content, {});
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
 
-      const vnodeString = JSON.stringify(vnodes);
       // 代码块中的 script 应该作为文本，而不是标签
       // 检查是否包含转义的 script（通过组件渲染）
       expect(vnodes.length).toBeGreaterThan(0);
