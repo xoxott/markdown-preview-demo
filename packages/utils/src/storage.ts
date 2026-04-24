@@ -4,7 +4,11 @@ import localforage from 'localforage';
 export type StorageType = 'local' | 'session';
 
 export function createStorage<T extends object>(type: StorageType, storagePrefix: string) {
-  const stg = type === 'session' ? window.sessionStorage : window.localStorage;
+  // 检查是否在浏览器环境中
+  const isBrowser = typeof window !== 'undefined' && window.localStorage && window.sessionStorage;
+  const stg = isBrowser
+    ? (type === 'session' ? window.sessionStorage : window.localStorage)
+    : null;
 
   const storage = {
     /**
@@ -14,6 +18,8 @@ export function createStorage<T extends object>(type: StorageType, storagePrefix
      * @param value Session value
      */
     set<K extends keyof T>(key: K, value: T[K]) {
+      if (!stg) return; // 非浏览器环境，直接返回
+
       const json = JSON.stringify(value);
 
       stg.setItem(`${storagePrefix}${key as string}`, json);
@@ -24,6 +30,8 @@ export function createStorage<T extends object>(type: StorageType, storagePrefix
      * @param key Session key
      */
     get<K extends keyof T>(key: K): T[K] | null {
+      if (!stg) return null; // 非浏览器环境，返回 null
+
       const json = stg.getItem(`${storagePrefix}${key as string}`);
       if (json) {
         let storageData: T[K] | null = null;
@@ -37,14 +45,21 @@ export function createStorage<T extends object>(type: StorageType, storagePrefix
         }
       }
 
-      stg.removeItem(`${storagePrefix}${key as string}`);
+      // 如果解析失败，移除无效项（但仅在浏览器环境中）
+      if (stg) {
+        stg.removeItem(`${storagePrefix}${key as string}`);
+      }
 
       return null;
     },
     remove(key: keyof T) {
+      if (!stg) return; // 非浏览器环境，直接返回
+
       stg.removeItem(`${storagePrefix}${key as string}`);
     },
     clear() {
+      if (!stg) return; // 非浏览器环境，直接返回
+
       stg.clear();
     }
   };
