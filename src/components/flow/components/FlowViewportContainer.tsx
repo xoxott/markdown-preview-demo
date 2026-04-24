@@ -4,7 +4,8 @@
  * 提供视口变换（平移和缩放）的容器，用于包裹需要应用视口变换的子组件
  */
 
-import type { CSSProperties, type PropType, computed, defineComponent } from 'vue';
+import type { CSSProperties, PropType } from 'vue';
+import { computed, defineComponent } from 'vue';
 import type { FlowViewport } from '../types';
 import { performanceMonitor } from '../utils/performance-monitor';
 

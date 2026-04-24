@@ -4,7 +4,8 @@
  * 提供画布的缩略图视图，支持快速导航
  */
 
-import type { CSSProperties, type PropType, computed, defineComponent, ref } from 'vue';
+import type { CSSProperties, PropType } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
 import { useEventListener } from '@vueuse/core';
 import { getGpuAccelerationStyle } from '../utils/style-utils';
 import { calculateBounds } from '../utils/math-utils';

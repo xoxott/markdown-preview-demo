@@ -4,7 +4,8 @@
  * 提供网格背景渲染，支持多种网格类型
  */
 
-import type { CSSProperties, type PropType, computed, defineComponent } from 'vue';
+import type { CSSProperties, PropType } from 'vue';
+import { computed, defineComponent } from 'vue';
 import { getConditionalGpuAccelerationStyle } from '../utils/style-utils';
 import { GRID_CONSTANTS } from '../constants/grid-constants';
 import type { FlowGridType, FlowViewport } from '../types';

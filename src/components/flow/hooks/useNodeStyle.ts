@@ -4,7 +4,8 @@
  * 提供节点样式计算和缓存功能，避免不必要的 DOM 更新
  */
 
-import type { CSSProperties, type Ref, computed, watch } from 'vue';
+import type { CSSProperties, Ref } from 'vue';
+import { computed, watch } from 'vue';
 import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
 import type { FlowConfig, FlowNode } from '../types';
 import { createCache } from '../utils/cache-utils';

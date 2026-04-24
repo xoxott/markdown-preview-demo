@@ -4,7 +4,8 @@
  * 负责使用 SVG 渲染连接线，支持贝塞尔曲线和箭头
  */
 
-import type { CSSProperties, type PropType, computed, defineComponent } from 'vue';
+import type { CSSProperties, PropType } from 'vue';
+import { computed, defineComponent } from 'vue';
 import { getGpuAccelerationStyle } from '../../utils/style-utils';
 import { useEventHandlers } from '../../hooks/useEventHandlers';
 import { generateEdgePath } from '../../utils/edge-path-generator';

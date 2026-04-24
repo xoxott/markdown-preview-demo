@@ -7,17 +7,8 @@
 // 导入 Flow 主题样式（在使用 FlowCanvas 时自动加载）
 import '../styles/index.scss';
 
-import type {
-  CSSProperties,
-  type PropType,
-  computed,
-  defineComponent,
-  h,
-  onMounted,
-  onUnmounted,
-  ref,
-  watch
-} from 'vue';
+import type { CSSProperties, PropType } from 'vue';
+import { computed, defineComponent, h, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useFlowConfig } from '../hooks/useFlowConfig';
 import { useFlowState } from '../hooks/useFlowState';
 import { useKeyboard } from '../hooks/useKeyboard';

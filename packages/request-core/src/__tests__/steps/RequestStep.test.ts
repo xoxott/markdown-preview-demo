@@ -1,11 +1,8 @@
 /** RequestStep 和 composeSteps 测试 */
 
 import { describe, expect, it } from 'vitest';
-import type {
-  NormalizedRequestConfig,
-  type RequestContext,
-  createRequestContext
-} from '../../context/RequestContext';
+import type { NormalizedRequestConfig, RequestContext } from '../../context/RequestContext';
+import { createRequestContext } from '../../context/RequestContext';
 import { type RequestStep, composeSteps } from '../../steps/RequestStep';
 
 describe('composeSteps', () => {
