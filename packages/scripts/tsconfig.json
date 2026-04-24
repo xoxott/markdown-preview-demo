@@ -3,7 +3,10 @@
     "target": "ESNext",
     "jsx": "preserve",
     "lib": ["DOM", "ESNext"],
-    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "~/*": ["./*"]
+    },
     "module": "ESNext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
