@@ -7,6 +7,20 @@
 // 从包中导入 DOM_ATTR_NAME
 export { DOM_ATTR_NAME } from '@suga/markdown-it-render-vnode';
 
+/** 性能优化常量 */
+export const PERFORMANCE_CONSTANTS = {
+  /** 节流间隔（毫秒） */
+  THROTTLE_INTERVAL_MS: 80,
+  /** 块级缓存大小 */
+  BLOCK_CACHE_SIZE: 200,
+  /** 渐进式渲染阈值（块数） */
+  PROGRESSIVE_RENDER_THRESHOLD: 20,
+  /** 首屏渲染块数 */
+  INITIAL_RENDER_BLOCKS: 15,
+  /** 每帧追加块数 */
+  CHUNK_SIZE: 8
+} as const;
+
 /** 支持运行的代码语言 */
 export const RUN_CODE_LANGS = ['vue', 'javascript', 'typescript', 'js', 'ts', 'vue3'] as const;
 
