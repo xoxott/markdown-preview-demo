@@ -1,6 +1,6 @@
 {
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "always"
   },
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -15,36 +15,8 @@
   "i18n-ally.sourceLanguage": "zh-CN",
   "i18n-ally.namespace": false,
   "i18n-ally.pathMatcher": "{locale}.json",
-  "i18n-ally.sortWords": false,
   "i18n-ally.extract.autoDetect": true,
-  "i18n-ally.extract.scripts": [
-    {
-      "template": "$t('{key}')",
-      "target": "**/*.vue"
-    }
-  ],
-  "i18n-ally.annotation.inPlace": true,
-  "i18n-ally.annotation.maxLength": 100,
-  "typescript.tsdk": "./node_modules/typescript/lib",
-  "typescript.preferences.includePackageJsonAutoImports": "auto",
-  "typescript.suggest.autoImports": true,
-  "typescript.updateImportsOnFileMove.enabled": "always",
-  "typescript.preferences.quoteStyle": "single",
-  "typescript.preferences.importModuleSpecifier": "relative",
-  "vue.codeActions.enabled": true,
-  "vue.complete.casing.props": "camel",
-  "vue.server.hybridMode": true,
-  "vue.server.maxOldSpaceSize": 4096,
   "unocss.root": ["./"],
-  "vitest.enabled": true,
-  "vitest.commandLine": "pnpm vitest",
-  "vitest.include": [
-    "**/__tests__/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
-    "packages/**/__tests__/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
-    "src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"
-  ],
-  "vitest.exclude": ["**/node_modules/**", "**/dist/**"],
-  "vitest.configPath": "./vitest.config.ts",
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
