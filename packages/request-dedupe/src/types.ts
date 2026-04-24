@@ -51,4 +51,3 @@ export interface PendingRequest {
   timestamp: number;
   timeoutId?: ReturnType<typeof setTimeout>;
 }
-

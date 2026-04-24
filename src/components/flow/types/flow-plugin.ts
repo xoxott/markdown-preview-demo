@@ -1,6 +1,6 @@
 /**
  * Flow 插件系统类型定义
- * 
+ *
  * 定义插件接口，支持扩展图形编辑器功能
  */
 
@@ -9,7 +9,7 @@ import type { FlowEvents } from './flow-events';
 
 /**
  * 插件上下文
- * 
+ *
  * 提供给插件使用的 API 和工具
  */
 export interface FlowPluginContext {
@@ -25,15 +25,9 @@ export interface FlowPluginContext {
   /** 事件系统 */
   events: {
     /** 注册事件监听器 */
-    on: <K extends keyof FlowEvents>(
-      event: K,
-      handler: FlowEvents[K]
-    ) => () => void;
+    on: <K extends keyof FlowEvents>(event: K, handler: FlowEvents[K]) => () => void;
     /** 移除事件监听器 */
-    off: <K extends keyof FlowEvents>(
-      event: K,
-      handler: FlowEvents[K]
-    ) => void;
+    off: <K extends keyof FlowEvents>(event: K, handler: FlowEvents[K]) => void;
     /** 触发事件 */
     emit: <K extends keyof FlowEvents>(
       event: K,
@@ -51,7 +45,7 @@ export interface FlowPluginContext {
 
 /**
  * Flow 插件接口
- * 
+ *
  * 所有插件必须实现此接口
  */
 export interface FlowPlugin {
@@ -78,4 +72,3 @@ export interface FlowPluginConfig {
   /** 是否启用 */
   enabled?: boolean;
 }
-

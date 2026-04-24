@@ -2,7 +2,12 @@
  * 传输步骤（Transport Step）
  */
 
-import type { RequestStep, RequestContext, Transport, NormalizedRequestConfig } from '@suga/request-core';
+import type {
+  RequestStep,
+  RequestContext,
+  Transport,
+  NormalizedRequestConfig
+} from '@suga/request-core';
 
 /**
  * 传输步骤
@@ -25,7 +30,7 @@ export class TransportStep implements RequestStep {
     if (signal) {
       config = {
         ...ctx.config,
-        signal,
+        signal
       };
     }
 
@@ -42,4 +47,3 @@ export class TransportStep implements RequestStep {
     }
   }
 }
-

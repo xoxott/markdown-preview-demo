@@ -40,4 +40,3 @@ export interface UploadStats {
   instantSpeed: number;
   networkQuality: string;
 }
-

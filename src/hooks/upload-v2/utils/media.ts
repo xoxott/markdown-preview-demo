@@ -76,4 +76,3 @@ export function getVideoResolution(file: File): Promise<{ width: number; height:
     video.src = url;
   });
 }
-

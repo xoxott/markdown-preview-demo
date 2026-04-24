@@ -41,16 +41,16 @@ export function createContextMenuHandler(deps: ContextMenuHandlerDeps) {
   // 事件处理映射表
   const handlers: Record<string, () => void | Promise<void>> = {
     // ==================== 文件操作 ====================
-    copy: () => fileOperations.copyFiles(),
-    cut: () => fileOperations.cutFiles(),
-    paste: () => fileOperations.pasteFiles(),
-    delete: () => fileOperations.deleteFiles(),
-    rename: () => fileOperations.startRename(),
-    refresh: () => fileOperations.refresh(),
-    properties: () => fileOperations.showProperties(),
+    'copy': () => fileOperations.copyFiles(),
+    'cut': () => fileOperations.cutFiles(),
+    'paste': () => fileOperations.pasteFiles(),
+    'delete': () => fileOperations.deleteFiles(),
+    'rename': () => fileOperations.startRename(),
+    'refresh': () => fileOperations.refresh(),
+    'properties': () => fileOperations.showProperties(),
     'new-folder': () => fileOperations.createFolder(),
     // ==================== 信息面板 ====================
-    info: () => {
+    'info': () => {
       if (onToggleInfoPanel) {
         onToggleInfoPanel();
       } else {
@@ -59,7 +59,7 @@ export function createContextMenuHandler(deps: ContextMenuHandlerDeps) {
     },
 
     // ==================== 打开操作 ====================
-    open: () => {
+    'open': () => {
       if (selectedFiles.value.length === 1) {
         onOpen?.(selectedFiles.value[0]);
       } else if (selectedFiles.value.length === 0) {
@@ -93,7 +93,7 @@ export function createContextMenuHandler(deps: ContextMenuHandlerDeps) {
     'sort-created': () => onSort?.('createdAt'),
 
     // ==================== 其他操作 ====================
-    download: () => {
+    'download': () => {
       const count = selectedFiles.value.length;
       if (count > 0) {
         message.info(`下载 ${count} 个项目 (功能开发中)`);
@@ -101,7 +101,7 @@ export function createContextMenuHandler(deps: ContextMenuHandlerDeps) {
         message.warning('请先选择要下载的文件');
       }
     },
-    share: () => {
+    'share': () => {
       const count = selectedFiles.value.length;
       if (count > 0) {
         message.info(`分享 ${count} 个项目 (功能开发中)`);
@@ -109,7 +109,7 @@ export function createContextMenuHandler(deps: ContextMenuHandlerDeps) {
         message.warning('请先选择要分享的文件');
       }
     },
-    favorite: () => {
+    'favorite': () => {
       if (selectedFiles.value.length === 1) {
         message.info(`收藏: ${selectedFiles.value[0].name} (功能开发中)`);
       } else {

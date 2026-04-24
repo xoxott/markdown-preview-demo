@@ -254,4 +254,3 @@ export class FlowKeyboardHandler {
     this.bindings.clear();
   }
 }
-

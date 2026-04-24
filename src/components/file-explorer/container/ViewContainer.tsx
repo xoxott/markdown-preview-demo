@@ -24,7 +24,10 @@ export default defineComponent({
     viewMode: { type: String as PropType<ViewMode>, required: true },
     gridSize: { type: String as PropType<GridSize>, required: false, default: 'medium' },
     selectedIds: { type: Object as PropType<Ref<Set<string>>>, required: true },
-    onSelect: { type: Function as PropType<(id: string[], event?: MouseEvent) => void>, required: true },
+    onSelect: {
+      type: Function as PropType<(id: string[], event?: MouseEvent) => void>,
+      required: true
+    },
     onOpen: { type: Function as PropType<(item: FileItem) => void>, required: true },
     sortField: { type: String as PropType<SortField>, required: false },
     sortOrder: { type: String as PropType<SortOrder>, required: false },
@@ -52,7 +55,8 @@ export default defineComponent({
       props.onSelect(ids);
     };
     return () => {
-      const hasPagination = props.showPagination && props.currentPage !== undefined && props.totalPages !== undefined;
+      const hasPagination =
+        props.showPagination && props.currentPage !== undefined && props.totalPages !== undefined;
 
       return (
         <div class="h-full flex flex-col" style={{ position: 'relative' }}>

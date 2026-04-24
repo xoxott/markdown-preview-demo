@@ -27,7 +27,7 @@ export default defineComponent({
         return (
           <NSwitch
             value={value}
-            onUpdateValue={(newValue) => {
+            onUpdateValue={newValue => {
               if (config.onChange) {
                 config.onChange(row, newValue);
               }
@@ -53,4 +53,3 @@ export default defineComponent({
     };
   }
 });
-

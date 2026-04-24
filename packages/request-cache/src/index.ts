@@ -7,11 +7,7 @@
 export { RequestCacheManager } from './managers/RequestCacheManager';
 
 // 导出缓存策略
-export {
-  DefaultCachePolicy,
-  NoCachePolicy,
-  createCachePolicy,
-} from './policies';
+export { DefaultCachePolicy, NoCachePolicy, createCachePolicy } from './policies';
 
 // 导出缓存步骤
 export { CacheReadStep } from './steps/CacheReadStep';
@@ -29,11 +25,7 @@ export type * from './types';
 export { DEFAULT_CACHE_CONFIG } from './constants';
 
 // 导出工具函数
-export {
-  isValidCacheItem,
-  isCacheItemExpired,
-  getCacheStats,
-} from './utils/cache-utils';
+export { isValidCacheItem, isCacheItemExpired, getCacheStats } from './utils/cache-utils';
 
 // 重新导出存储适配器（从 @suga/storage）
 export type { StorageAdapter } from '@suga/storage';
@@ -41,5 +33,5 @@ export {
   LocalStorageAdapter,
   SessionStorageAdapter,
   MemoryStorageAdapter,
-  defaultStorageAdapter,
+  defaultStorageAdapter
 } from '@suga/storage';

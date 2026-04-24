@@ -2,7 +2,13 @@
  * 分片服务
  * 负责分片的创建、上传和合并
  */
-import type { FileTask, ChunkInfo, ChunkUploadResponse, MergeResponse, UploadConfig } from '../types';
+import type {
+  FileTask,
+  ChunkInfo,
+  ChunkUploadResponse,
+  MergeResponse,
+  UploadConfig
+} from '../types';
 import { ChunkStatus } from '../types';
 import { calculateFileMD5 } from '../utils/hash';
 import { calculateFileMD5Smart } from '../utils/hash-worker';
@@ -66,9 +72,10 @@ export class ChunkService {
               end,
               size: end - start,
               blob: existingChunk?.blob || null, // 保留已有的 blob（如果有）
-              status: existingChunk?.status === ChunkStatus.ERROR
-                ? ChunkStatus.ERROR
-                : ChunkStatus.PENDING,
+              status:
+                existingChunk?.status === ChunkStatus.ERROR
+                  ? ChunkStatus.ERROR
+                  : ChunkStatus.PENDING,
               retryCount: existingChunk?.retryCount || 0,
               uploadTime: existingChunk?.uploadTime || 0,
               etag: existingChunk?.etag,
@@ -82,7 +89,9 @@ export class ChunkService {
         task.chunks = chunks;
         task.totalChunks = totalChunks;
         // 保留已上传的分片计数
-        task.uploadedChunks = chunks.filter((c: ChunkInfo) => c.status === ChunkStatus.SUCCESS).length;
+        task.uploadedChunks = chunks.filter(
+          (c: ChunkInfo) => c.status === ChunkStatus.SUCCESS
+        ).length;
 
         return chunks;
       }
@@ -140,11 +149,16 @@ export class ChunkService {
   /**
    * 上传单个分片（带重试机制）
    */
-  async uploadChunk(task: FileTask, chunk: ChunkInfo, abortSignal: AbortSignal): Promise<ChunkUploadResponse> {
+  async uploadChunk(
+    task: FileTask,
+    chunk: ChunkInfo,
+    abortSignal: AbortSignal
+  ): Promise<ChunkUploadResponse> {
     const startTime = performance.now();
-    const maxRetries = chunk.retryCount >= (this.config.maxRetries || CONSTANTS.RETRY.MAX_RETRIES)
-      ? 0
-      : (this.config.maxRetries || CONSTANTS.RETRY.MAX_RETRIES) - chunk.retryCount;
+    const maxRetries =
+      chunk.retryCount >= (this.config.maxRetries || CONSTANTS.RETRY.MAX_RETRIES)
+        ? 0
+        : (this.config.maxRetries || CONSTANTS.RETRY.MAX_RETRIES) - chunk.retryCount;
 
     try {
       // 延迟创建 blob
@@ -238,7 +252,8 @@ export class ChunkService {
 
       chunk.status = ChunkStatus.ERROR;
       // 确保 error 是 Error 类型
-      chunk.error = errorInfo.originalError || (error instanceof Error ? error : new Error(String(error)));
+      chunk.error =
+        errorInfo.originalError || (error instanceof Error ? error : new Error(String(error)));
 
       // 如果是中止错误，不抛出，让调用者处理
       if (errorInfo.type === ErrorType.ABORT_ERROR) {
@@ -376,14 +391,9 @@ export class ChunkService {
           );
       }
 
-      logger.error(
-        '合并分片失败',
-        { taskId: task.id, errorType: errorInfo.type },
-        detailedError
-      );
+      logger.error('合并分片失败', { taskId: task.id, errorType: errorInfo.type }, detailedError);
 
       throw detailedError;
     }
   }
 }
-

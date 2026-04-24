@@ -52,15 +52,18 @@ declare namespace Api {
         };
       };
       /** Network interfaces */
-      network?: Record<string, Array<{
-        address: string;
-        netmask: string;
-        family: string;
-        mac: string;
-        internal: boolean;
-        cidr?: string;
-        scopeid?: number;
-      }>>;
+      network?: Record<
+        string,
+        Array<{
+          address: string;
+          netmask: string;
+          family: string;
+          mac: string;
+          internal: boolean;
+          cidr?: string;
+          scopeid?: number;
+        }>
+      >;
       [key: string]: any;
     }
 
@@ -106,4 +109,3 @@ declare namespace Api {
     }
   }
 }
-

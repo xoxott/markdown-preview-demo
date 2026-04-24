@@ -94,4 +94,3 @@ export function useHistory(options: HistoryOptions = {}) {
     updateFlags
   };
 }
-

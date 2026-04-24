@@ -56,13 +56,7 @@ graph TD
   B -->|否| D[结束]
   `;
 
-  return (
-    <MermaidRenderer
-      code={mermaidCode}
-      langName="mermaid"
-      showToolbar={true}
-    />
-  );
+  return <MermaidRenderer code={mermaidCode} langName="mermaid" showToolbar={true} />;
 }
 ```
 
@@ -80,12 +74,7 @@ function MyComponent() {
 ## 子节点 2
   `;
 
-  return (
-    <MindmapRenderer
-      code={markmapCode}
-      langName="markmap"
-    />
-  );
+  return <MindmapRenderer code={markmapCode} langName="markmap" />;
 }
 ```
 
@@ -99,18 +88,15 @@ function MyComponent() {
     title: { text: '示例图表' },
     xAxis: { data: ['A', 'B', 'C'] },
     yAxis: {},
-    series: [{
-      type: 'bar',
-      data: [10, 20, 30]
-    }]
+    series: [
+      {
+        type: 'bar',
+        data: [10, 20, 30]
+      }
+    ]
   };
 
-  return (
-    <EchartsRenderer
-      option={chartOption}
-      height={400}
-    />
-  );
+  return <EchartsRenderer option={chartOption} height={400} />;
 }
 ```
 
@@ -152,52 +138,52 @@ function MyComponent() {
 
 ### MarkdownPreview
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| content | `string` | - | Markdown 内容 |
+| 属性    | 类型     | 默认值 | 说明          |
+| ------- | -------- | ------ | ------------- |
+| content | `string` | -      | Markdown 内容 |
 
 ### MermaidRenderer
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| meta | `CodeBlockMeta` | - | 代码块元数据（Markdown 集成时使用） |
-| code | `string` | `''` | Mermaid 代码（独立使用时） |
-| langName | `string` | `'mermaid'` | 语言名称 |
-| showToolbar | `boolean` | `true` | 是否显示工具栏 |
-| bordered | `boolean` | `true` | 是否显示边框 |
+| 属性        | 类型            | 默认值      | 说明                                |
+| ----------- | --------------- | ----------- | ----------------------------------- |
+| meta        | `CodeBlockMeta` | -           | 代码块元数据（Markdown 集成时使用） |
+| code        | `string`        | `''`        | Mermaid 代码（独立使用时）          |
+| langName    | `string`        | `'mermaid'` | 语言名称                            |
+| showToolbar | `boolean`       | `true`      | 是否显示工具栏                      |
+| bordered    | `boolean`       | `true`      | 是否显示边框                        |
 
 ### MindmapRenderer
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| meta | `CodeBlockMeta` | - | 代码块元数据 |
-| code | `string` | `''` | Markmap 代码 |
-| langName | `string` | `'markmap'` | 语言名称 |
-| showToolbar | `boolean` | `true` | 是否显示工具栏 |
-| bordered | `boolean` | `true` | 是否显示边框 |
+| 属性        | 类型            | 默认值      | 说明           |
+| ----------- | --------------- | ----------- | -------------- |
+| meta        | `CodeBlockMeta` | -           | 代码块元数据   |
+| code        | `string`        | `''`        | Markmap 代码   |
+| langName    | `string`        | `'markmap'` | 语言名称       |
+| showToolbar | `boolean`       | `true`      | 是否显示工具栏 |
+| bordered    | `boolean`       | `true`      | 是否显示边框   |
 
 ### EchartsRenderer
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| meta | `CodeBlockMeta` | - | 代码块元数据 |
-| option | `EChartsOption \| string` | - | ECharts 配置 |
-| height | `string \| number` | `300` | 图表高度 |
-| bordered | `boolean` | `true` | 是否显示边框 |
-| autoResize | `boolean` | `true` | 是否自动调整大小 |
+| 属性       | 类型                      | 默认值 | 说明             |
+| ---------- | ------------------------- | ------ | ---------------- |
+| meta       | `CodeBlockMeta`           | -      | 代码块元数据     |
+| option     | `EChartsOption \| string` | -      | ECharts 配置     |
+| height     | `string \| number`        | `300`  | 图表高度         |
+| bordered   | `boolean`                 | `true` | 是否显示边框     |
+| autoResize | `boolean`                 | `true` | 是否自动调整大小 |
 
 ### SvgRenderer
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| content | `string` | - | SVG 内容 |
-| attrs | `Record<string, any>` | `{}` | 额外属性 |
+| 属性    | 类型                  | 默认值 | 说明     |
+| ------- | --------------------- | ------ | -------- |
+| content | `string`              | -      | SVG 内容 |
+| attrs   | `Record<string, any>` | `{}`   | 额外属性 |
 
 ### CodeBlock
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| meta | `CodeBlockMeta` | - | 代码块元数据 |
+| 属性 | 类型            | 默认值 | 说明         |
+| ---- | --------------- | ------ | ------------ |
+| meta | `CodeBlockMeta` | -      | 代码块元数据 |
 
 ## 🎨 主题
 
@@ -222,12 +208,7 @@ function MyComponent() {
 ### SVG 工具
 
 ```tsx
-import {
-  isSvgContent,
-  sanitizeSvg,
-  downloadSvg,
-  copySvgToClipboard
-} from '@/components/markdown';
+import { isSvgContent, sanitizeSvg, downloadSvg, copySvgToClipboard } from '@/components/markdown';
 
 // 检测是否为 SVG
 const isSvg = isSvgContent('<svg>...</svg>');
@@ -245,11 +226,7 @@ await copySvgToClipboard(svgString);
 ### 安全工具
 
 ```tsx
-import {
-  escapeHtml,
-  unescapeAll,
-  sanitizeHtml
-} from '@/components/markdown';
+import { escapeHtml, unescapeAll, sanitizeHtml } from '@/components/markdown';
 
 // HTML 转义
 const escaped = escapeHtml('<script>alert("xss")</script>');
@@ -324,4 +301,3 @@ function Dashboard() {
 ## 📄 License
 
 MIT
-

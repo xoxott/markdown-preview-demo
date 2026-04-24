@@ -39,7 +39,7 @@ export default defineComponent({
             value={props.settings.maxConcurrentFiles}
             min={1}
             max={20}
-            onUpdateValue={(value) => props.onUpdate('maxConcurrentFiles', value)}
+            onUpdateValue={value => props.onUpdate('maxConcurrentFiles', value)}
           />
         </NFormItem>
         <NFormItem label="并发分片数">
@@ -47,14 +47,14 @@ export default defineComponent({
             value={props.settings.maxConcurrentChunks}
             min={1}
             max={20}
-            onUpdateValue={(value) => props.onUpdate('maxConcurrentChunks', value)}
+            onUpdateValue={value => props.onUpdate('maxConcurrentChunks', value)}
           />
         </NFormItem>
         <NFormItem label="分片大小">
           <NSelect
             value={props.settings.chunkSize}
             options={props.chunkSizeOptions as SelectOption[]}
-            onUpdateValue={(value) => props.onUpdate('chunkSize', value)}
+            onUpdateValue={value => props.onUpdate('chunkSize', value)}
           />
         </NFormItem>
         <NFormItem label="最大重试次数">
@@ -62,7 +62,7 @@ export default defineComponent({
             value={props.settings.maxRetries}
             min={0}
             max={10}
-            onUpdateValue={(value) => props.onUpdate('maxRetries', value)}
+            onUpdateValue={value => props.onUpdate('maxRetries', value)}
           />
         </NFormItem>
         <NFormItem label="超时时间(ms)">
@@ -71,7 +71,7 @@ export default defineComponent({
             min={1000}
             max={300000}
             step={1000}
-            onUpdateValue={(value) => props.onUpdate('timeout', value)}
+            onUpdateValue={value => props.onUpdate('timeout', value)}
           />
         </NFormItem>
         <NFormItem label="最大文件大小">
@@ -79,7 +79,7 @@ export default defineComponent({
             value={props.settings.maxFileSize}
             min={1024}
             step={1024 * 1024}
-            onUpdateValue={(value) => props.onUpdate('maxFileSize', value)}
+            onUpdateValue={value => props.onUpdate('maxFileSize', value)}
           >
             {{
               feedback: () => (
@@ -98,11 +98,10 @@ export default defineComponent({
             value={props.settings.maxFiles}
             min={1}
             max={1000}
-            onUpdateValue={(value) => props.onUpdate('maxFiles', value)}
+            onUpdateValue={value => props.onUpdate('maxFiles', value)}
           />
         </NFormItem>
       </NForm>
     );
   }
 });
-

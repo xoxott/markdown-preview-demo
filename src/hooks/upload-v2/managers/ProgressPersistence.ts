@@ -97,7 +97,7 @@ export class ProgressPersistence {
 
     if (cachedData.chunks && task.chunks) {
       let restoredCount = 0;
-      cachedData.chunks.forEach((cachedChunk) => {
+      cachedData.chunks.forEach(cachedChunk => {
         const chunk = task.chunks.find((c: ChunkInfo) => c.index === cachedChunk.index);
         if (chunk) {
           // 验证分片范围是否匹配
@@ -134,4 +134,3 @@ export class ProgressPersistence {
     this.cacheManager.delete(progressKey);
   }
 }
-

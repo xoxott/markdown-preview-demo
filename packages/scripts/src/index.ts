@@ -1,18 +1,36 @@
 import cac from 'cac'; // CLI 框架，用于快速定义命令行工具
 import { blue, lightGreen } from 'kolorist'; // 彩色输出工具，CLI提示更美观
 import { version } from '../package.json'; // 项目版本号
-import { cleanup, genChangelog, generateRoute, gitCommit, gitCommitVerify, release, updatePkg } from './commands';
+import {
+  cleanup,
+  genChangelog,
+  generateRoute,
+  gitCommit,
+  gitCommitVerify,
+  release,
+  updatePkg
+} from './commands';
 import { loadCliOptions } from './config'; // CLI 配置
 import type { Lang } from './locales';
 
 // 定义 CLI 支持的命令类型
-type Command = 'cleanup' | 'update-pkg' | 'git-commit' | 'git-commit-verify' | 'changelog' | 'release' | 'gen-route';
+type Command =
+  | 'cleanup'
+  | 'update-pkg'
+  | 'git-commit'
+  | 'git-commit-verify'
+  | 'changelog'
+  | 'release'
+  | 'gen-route';
 
 // 命令执行函数类型，支持异步或同步
 type CommandAction<A extends object> = (args?: A) => Promise<void> | void;
 
 // 命令集合类型，记录每个命令的描述和执行函数
-type CommandWithAction<A extends object = object> = Record<Command, { desc: string; action: CommandAction<A> }>;
+type CommandWithAction<A extends object = object> = Record<
+  Command,
+  { desc: string; action: CommandAction<A> }
+>;
 
 // CLI 命令参数类型
 interface CommandArg {
@@ -47,7 +65,7 @@ export async function setupCli() {
 
   // 定义 CLI 支持的命令及其执行逻辑
   const commands: CommandWithAction<CommandArg> = {
-    cleanup: {
+    'cleanup': {
       desc: '删除目录,例如: node_modules, dist, etc 等',
       action: async () => {
         await cleanup(cliOptions.cleanupDirs);
@@ -71,13 +89,13 @@ export async function setupCli() {
         await gitCommitVerify(args?.lang, cliOptions.gitCommitVerifyIgnores);
       }
     },
-    changelog: {
+    'changelog': {
       desc: '生成 changelog',
       action: async args => {
         await genChangelog(cliOptions.changelogOptions, args?.total);
       }
     },
-    release: {
+    'release': {
       desc: '发布版本: 更新版本号、生成 changelog、提交代码',
       action: async args => {
         await release(args?.execute, args?.push);

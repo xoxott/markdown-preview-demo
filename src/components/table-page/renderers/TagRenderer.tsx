@@ -46,7 +46,8 @@ export default defineComponent({
             <NSpace size="small">
               {value.map((item: any, index: number) => {
                 const label = typeof item === 'object' ? item[fieldMap.label] : item;
-                const itemType = typeof item === 'object' && fieldMap.type ? item[fieldMap.type] : tagType;
+                const itemType =
+                  typeof item === 'object' && fieldMap.type ? item[fieldMap.type] : tagType;
                 return (
                   <NTag key={index} type={itemType} size="small" round={round}>
                     {label}
@@ -78,7 +79,8 @@ export default defineComponent({
                   <NSpace size="small">
                     {displayItems.map((item: any, index: number) => {
                       const label = typeof item === 'object' ? item[fieldMap.label] : item;
-                      const itemType = typeof item === 'object' && fieldMap.type ? item[fieldMap.type] : tagType;
+                      const itemType =
+                        typeof item === 'object' && fieldMap.type ? item[fieldMap.type] : tagType;
                       return (
                         <NTag key={index} type={itemType} size="small" round={round}>
                           {label}
@@ -96,7 +98,8 @@ export default defineComponent({
                   <NSpace size="small" vertical>
                     {value.map((item: any, index: number) => {
                       const label = typeof item === 'object' ? item[fieldMap.label] : item;
-                      const itemType = typeof item === 'object' && fieldMap.type ? item[fieldMap.type] : tagType;
+                      const itemType =
+                        typeof item === 'object' && fieldMap.type ? item[fieldMap.type] : tagType;
                       return (
                         <NTag key={index} type={itemType} size="small" round={round}>
                           {label}
@@ -120,4 +123,3 @@ export default defineComponent({
     };
   }
 });
-

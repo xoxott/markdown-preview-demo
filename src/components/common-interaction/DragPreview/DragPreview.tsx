@@ -4,7 +4,15 @@
  * 在拖拽操作时显示跟随鼠标的预览卡片
  */
 
-import { computed, defineComponent, Teleport, Transition, type CSSProperties, type PropType, type VNode } from 'vue';
+import {
+  computed,
+  defineComponent,
+  Teleport,
+  Transition,
+  type CSSProperties,
+  type PropType,
+  type VNode
+} from 'vue';
 import { NIcon, NBadge } from 'naive-ui';
 import type { DragItem, DragOperation, Point } from '../types';
 import '@/styles/common-interaction.scss';
@@ -325,10 +333,7 @@ export default defineComponent({
           leaveActiveClass="drag-preview-leave-active"
         >
           {props.isDragging && props.dragCurrentPos && (
-            <div
-              class="drag-preview"
-              style={previewPositionStyle.value}
-            >
+            <div class="drag-preview" style={previewPositionStyle.value}>
               {renderPreviewContent()}
             </div>
           )}
@@ -337,4 +342,3 @@ export default defineComponent({
     );
   }
 });
-

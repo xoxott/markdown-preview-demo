@@ -41,4 +41,3 @@ export class MockStorageAdapter implements StorageAdapter {
     return this.storage.size;
   }
 }
-

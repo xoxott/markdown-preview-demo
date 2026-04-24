@@ -63,8 +63,8 @@ export class UploadWorkerManager {
     for (let i = 0; i < this.maxWorkers; i++) {
       try {
         const worker = new Worker(this.workerUrl, { type: 'module' });
-        worker.onmessage = (e) => this.handleWorkerMessage(worker, e);
-        worker.onerror = (error) => this.handleWorkerError(worker, error);
+        worker.onmessage = e => this.handleWorkerMessage(worker, e);
+        worker.onerror = error => this.handleWorkerError(worker, error);
         this.workers.push(worker);
       } catch (error) {
         console.warn(`创建 Worker ${i} 失败:`, error);
@@ -149,7 +149,7 @@ export class UploadWorkerManager {
 
     // 查找空闲的 Worker
     const availableWorker = this.workers.find(
-      (worker) => !Array.from(this.activeTasks.values()).some(({ worker: w }) => w === worker)
+      worker => !Array.from(this.activeTasks.values()).some(({ worker: w }) => w === worker)
     );
 
     if (!availableWorker) {
@@ -166,9 +166,10 @@ export class UploadWorkerManager {
     this.activeTasks.set(task.id, { worker: availableWorker, task });
 
     // 确保 data 是对象类型才能使用扩展运算符
-    const messageData = typeof task.data === 'object' && task.data !== null
-      ? { type: task.type, ...(task.data as Record<string, unknown>) }
-      : { type: task.type, data: task.data };
+    const messageData =
+      typeof task.data === 'object' && task.data !== null
+        ? { type: task.type, ...(task.data as Record<string, unknown>) }
+        : { type: task.type, data: task.data };
 
     availableWorker.postMessage(messageData);
   }
@@ -199,14 +200,14 @@ export class UploadWorkerManager {
       const originalOnComplete = task.onComplete;
       const originalOnError = task.onError;
 
-      task.onComplete = (result) => {
+      task.onComplete = result => {
         if (originalOnComplete) {
           originalOnComplete(result);
         }
         resolve(result);
       };
 
-      task.onError = (error) => {
+      task.onError = error => {
         if (originalOnError) {
           originalOnError(error);
         }
@@ -232,7 +233,7 @@ export class UploadWorkerManager {
     }
 
     // 从队列中移除
-    const index = this.taskQueue.findIndex((t) => t.id === taskId);
+    const index = this.taskQueue.findIndex(t => t.id === taskId);
     if (index > -1) {
       this.taskQueue.splice(index, 1);
       return true;
@@ -249,7 +250,7 @@ export class UploadWorkerManager {
       return 'running';
     }
 
-    if (this.taskQueue.some((t) => t.id === taskId)) {
+    if (this.taskQueue.some(t => t.id === taskId)) {
       return 'pending';
     }
 
@@ -271,7 +272,7 @@ export class UploadWorkerManager {
     this.taskQueue = [];
 
     // 终止所有 Worker
-    this.workers.forEach((worker) => {
+    this.workers.forEach(worker => {
       worker.terminate();
     });
 
@@ -293,4 +294,3 @@ export class UploadWorkerManager {
     };
   }
 }
-

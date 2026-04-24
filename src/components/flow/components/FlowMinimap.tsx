@@ -127,8 +127,8 @@ export default defineComponent({
       // 计算视口在小地图中的位置
       const viewportX = (-props.viewport.x / props.viewport.zoom - minX) * scaleValue;
       const viewportY = (-props.viewport.y / props.viewport.zoom - minY) * scaleValue;
-      const viewportWidth = (window.innerWidth || 1000) / props.viewport.zoom * scaleValue;
-      const viewportHeight = (window.innerHeight || 1000) / props.viewport.zoom * scaleValue;
+      const viewportWidth = ((window.innerWidth || 1000) / props.viewport.zoom) * scaleValue;
+      const viewportHeight = ((window.innerHeight || 1000) / props.viewport.zoom) * scaleValue;
 
       return {
         x: Math.max(0, Math.min(width - viewportWidth, viewportX)),
@@ -266,13 +266,15 @@ export default defineComponent({
           <svg
             width={width}
             height={height}
-            style={{
-              display: 'block',
-              ...getGpuAccelerationStyle({
-                enabled: true,
-                includeBackfaceVisibility: true
-              })
-            } as CSSProperties}
+            style={
+              {
+                display: 'block',
+                ...getGpuAccelerationStyle({
+                  enabled: true,
+                  includeBackfaceVisibility: true
+                })
+              } as CSSProperties
+            }
           >
             <defs>
               {/* ✅ 共享的节点矩形定义（使用 <use> 引用） */}
@@ -314,10 +316,12 @@ export default defineComponent({
               fill="none"
               stroke="#f5576c"
               stroke-width={2}
-              style={{
-                cursor: 'move',
-                ...getGpuAccelerationStyle({ enabled: true })
-              } as CSSProperties}
+              style={
+                {
+                  cursor: 'move',
+                  ...getGpuAccelerationStyle({ enabled: true })
+                } as CSSProperties
+              }
               onMousedown={handleViewportBoxMouseDown}
             />
           </svg>
@@ -326,4 +330,3 @@ export default defineComponent({
     };
   }
 });
-

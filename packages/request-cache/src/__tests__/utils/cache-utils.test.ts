@@ -13,7 +13,7 @@ describe('cache-utils', () => {
       const item: CacheItem = {
         data: { id: 1 },
         timestamp: now - 1000,
-        expireTime: now + 5000,
+        expireTime: now + 5000
       };
 
       expect(isValidCacheItem(item, now)).toBe(true);
@@ -24,7 +24,7 @@ describe('cache-utils', () => {
       const item: CacheItem = {
         data: { id: 1 },
         timestamp: now - 10000,
-        expireTime: now - 1000,
+        expireTime: now - 1000
       };
 
       expect(isValidCacheItem(item, now)).toBe(false);
@@ -38,7 +38,7 @@ describe('cache-utils', () => {
       const now = Date.now();
       const item = {
         data: { id: 1 },
-        timestamp: now - 1000,
+        timestamp: now - 1000
       } as unknown as CacheItem;
 
       expect(isValidCacheItem(item, now)).toBe(false);
@@ -49,7 +49,7 @@ describe('cache-utils', () => {
       const item: CacheItem = {
         data: { id: 1 },
         timestamp: now - 1000,
-        expireTime: now,
+        expireTime: now
       };
 
       expect(isValidCacheItem(item, now)).toBe(false);
@@ -60,7 +60,7 @@ describe('cache-utils', () => {
       const item: CacheItem = {
         data: { id: 1 },
         timestamp: now - 1000,
-        expireTime: now + 1,
+        expireTime: now + 1
       };
 
       expect(isValidCacheItem(item, now)).toBe(true);
@@ -73,7 +73,7 @@ describe('cache-utils', () => {
       const item: CacheItem = {
         data: { id: 1 },
         timestamp: now - 1000,
-        expireTime: now + 5000,
+        expireTime: now + 5000
       };
 
       expect(isCacheItemExpired(item, now)).toBe(false);
@@ -84,7 +84,7 @@ describe('cache-utils', () => {
       const item: CacheItem = {
         data: { id: 1 },
         timestamp: now - 10000,
-        expireTime: now - 1000,
+        expireTime: now - 1000
       };
 
       expect(isCacheItemExpired(item, now)).toBe(true);
@@ -118,4 +118,3 @@ describe('cache-utils', () => {
     });
   });
 });
-

@@ -45,13 +45,16 @@ export default function createHookRequest<ResponseData = any>(
 ) {
   const request = createFlatRequest<ResponseData>(axiosConfig, options);
 
-  const hookRequest: HookRequestInstance<ResponseData> = function hookRequest<T = any, R extends ResponseType = 'json'>(
-    config: CustomAxiosRequestConfig
-  ) {
+  const hookRequest: HookRequestInstance<ResponseData> = function hookRequest<
+    T = any,
+    R extends ResponseType = 'json'
+  >(config: CustomAxiosRequestConfig) {
     const { loading, startLoading, endLoading } = useLoading();
 
     const data = ref<MappedType<R, T> | null>(null) as Ref<MappedType<R, T>>;
-    const error = ref<AxiosError<ResponseData> | null>(null) as Ref<AxiosError<ResponseData> | null>;
+    const error = ref<AxiosError<ResponseData> | null>(
+      null
+    ) as Ref<AxiosError<ResponseData> | null>;
 
     startLoading();
 

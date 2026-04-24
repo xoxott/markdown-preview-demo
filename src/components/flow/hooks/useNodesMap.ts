@@ -42,9 +42,7 @@ export interface UseNodesMapReturn {
  * const node = getNodeById('node-1');
  * ```
  */
-export function useNodesMap(
-  options: UseNodesMapOptions
-): UseNodesMapReturn {
+export function useNodesMap(options: UseNodesMapOptions): UseNodesMapReturn {
   const { nodes } = options;
 
   // 将节点列表转换为 Map（O(1) 查找）
@@ -67,4 +65,3 @@ export function useNodesMap(
     getNodeById
   };
 }
-

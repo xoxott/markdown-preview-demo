@@ -143,4 +143,3 @@ describe('CommandManager', () => {
     expect(cmd1.value).toBe(2);
   });
 });
-

@@ -1,7 +1,19 @@
 import type { PropType } from 'vue';
 import { computed, defineComponent, h, ref } from 'vue';
 import { type MenuOption, NBadge, NDivider, NIcon, NMenu, NTree, useThemeVars } from 'naive-ui';
-import { Archive, Clock, File, FileText, Folder, Music, Photo, Rocket, Star, Trash, Video } from '@vicons/tabler';
+import {
+  Archive,
+  Clock,
+  File,
+  FileText,
+  Folder,
+  Music,
+  Photo,
+  Rocket,
+  Star,
+  Trash,
+  Video
+} from '@vicons/tabler';
 
 export interface QuickAccessItem {
   id: string;
@@ -101,7 +113,9 @@ export default defineComponent({
             key: item.path,
             label: item.label, // 关键：保持为字符串
             icon: renderMenuIcon(item.icon),
-            extra: item.count ? () => h(NBadge, { value: item.count, type: 'info', max: 99 }) : undefined
+            extra: item.count
+              ? () => h(NBadge, { value: item.count, type: 'info', max: 99 })
+              : undefined
           }))
         });
       }
@@ -116,7 +130,9 @@ export default defineComponent({
             key: item.path,
             label: item.label,
             icon: renderMenuIcon(item.icon),
-            extra: item.count ? () => h(NBadge, { value: item.count, type: 'info', max: 99 }) : undefined
+            extra: item.count
+              ? () => h(NBadge, { value: item.count, type: 'info', max: 99 })
+              : undefined
           }))
         });
       }
@@ -177,7 +193,10 @@ export default defineComponent({
           <>
             <NDivider class="my-2" />
             <div class="flex-1 overflow-y-auto px-2 pb-2">
-              <div class="mb-1 px-3 py-2 text-xs font-medium" style={{ color: themeVars.value.textColor3 }}>
+              <div
+                class="mb-1 px-3 py-2 text-xs font-medium"
+                style={{ color: themeVars.value.textColor3 }}
+              >
                 文件夹
               </div>
               <div

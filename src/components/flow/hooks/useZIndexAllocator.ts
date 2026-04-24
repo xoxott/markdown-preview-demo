@@ -50,10 +50,7 @@ export interface UseZIndexAllocatorReturn {
 export function useZIndexAllocator(
   options: UseZIndexAllocatorOptions = {}
 ): UseZIndexAllocatorReturn {
-  const {
-    startValue = PERFORMANCE_CONSTANTS.Z_INDEX_BASE,
-    maxNodes = 50
-  } = options;
+  const { startValue = PERFORMANCE_CONSTANTS.Z_INDEX_BASE, maxNodes = 50 } = options;
 
   /** 已分配 z-index 的节点 ID 映射 */
   const allocatedZIndexes = ref<Map<string, number>>(new Map());
@@ -112,4 +109,3 @@ export function useZIndexAllocator(
     clear
   };
 }
-

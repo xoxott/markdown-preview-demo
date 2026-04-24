@@ -6,7 +6,13 @@
 
 import React from 'react';
 import type { ReactElement } from 'react';
-import type { FrameworkAdapter, FrameworkComponent, FrameworkNode, NodeChildren, NodeProps } from '@suga/markdown-it-render-vnode/adapters';
+import type {
+  FrameworkAdapter,
+  FrameworkComponent,
+  FrameworkNode,
+  NodeChildren,
+  NodeProps
+} from '@suga/markdown-it-render-vnode/adapters';
 
 /**
  * 规范化子节点
@@ -17,7 +23,7 @@ function normalizeChildren(children: NodeChildren): ReactElement[] {
   }
 
   if (Array.isArray(children)) {
-    return children.filter((child) => child != null) as ReactElement[];
+    return children.filter(child => child != null) as ReactElement[];
   }
 
   return [children as ReactElement];
@@ -27,10 +33,18 @@ function normalizeChildren(children: NodeChildren): ReactElement[] {
  * React 适配器实现
  */
 export const reactAdapter: FrameworkAdapter = {
-  createElement(tag: string | FrameworkComponent, props: NodeProps | null, children: NodeChildren): FrameworkNode {
+  createElement(
+    tag: string | FrameworkComponent,
+    props: NodeProps | null,
+    children: NodeChildren
+  ): FrameworkNode {
     // 处理子节点：React 可以直接接受数组
     const normalizedChildren = normalizeChildren(children);
-    return React.createElement(tag as string | React.ComponentType, props || {}, ...normalizedChildren);
+    return React.createElement(
+      tag as string | React.ComponentType,
+      props || {},
+      ...normalizedChildren
+    );
   },
 
   createText(text: string): string {
@@ -55,10 +69,13 @@ export const reactAdapter: FrameworkAdapter = {
   getChildren(node: FrameworkNode): FrameworkNode[] {
     const element = node as ReactElement;
     const children = element?.props?.children;
-    return Array.isArray(children) ? (children as FrameworkNode[]) : children ? [children as FrameworkNode] : [];
+    return Array.isArray(children)
+      ? (children as FrameworkNode[])
+      : children
+        ? [children as FrameworkNode]
+        : [];
   }
 };
 
 // 默认导出适配器
 export default reactAdapter;
-

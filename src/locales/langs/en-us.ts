@@ -2,7 +2,8 @@ const local: App.I18n.Schema = {
   system: {
     title: 'SoybeanAdmin',
     updateTitle: 'System Version Update Notification',
-    updateContent: 'A new version of the system has been detected. Do you want to refresh the page immediately?',
+    updateContent:
+      'A new version of the system has been detected. Do you want to refresh the page immediately?',
     updateConfirm: 'Refresh immediately',
     updateCancel: 'Later'
   },
@@ -68,12 +69,12 @@ const local: App.I18n.Schema = {
     grayscale: 'Grayscale',
     colourWeakness: 'Colour Weakness',
     layoutMode: {
-      title: 'Layout Mode',
-      vertical: 'Vertical Menu Mode',
-      horizontal: 'Horizontal Menu Mode',
+      'title': 'Layout Mode',
+      'vertical': 'Vertical Menu Mode',
+      'horizontal': 'Horizontal Menu Mode',
       'vertical-mix': 'Vertical Mix Menu Mode',
       'horizontal-mix': 'Horizontal Mix menu Mode',
-      reverseHorizontalMix: 'Reverse first level menus and child level menus position'
+      'reverseHorizontalMix': 'Reverse first level menus and child level menus position'
     },
     recommendColor: 'Apply Recommended Color Algorithm',
     recommendColorDesc: 'The recommended color algorithm refers to',
@@ -94,14 +95,14 @@ const local: App.I18n.Schema = {
     page: {
       animate: 'Page Animate',
       mode: {
-        title: 'Page Animate Mode',
-        fade: 'Fade',
+        'title': 'Page Animate Mode',
+        'fade': 'Fade',
         'fade-slide': 'Slide',
         'fade-bottom': 'Fade Zoom',
         'fade-scale': 'Fade Scale',
         'zoom-fade': 'Zoom Fade',
         'zoom-out': 'Zoom Out',
-        none: 'None'
+        'none': 'None'
       }
     },
     fixedHeaderAndTab: 'Fixed Header And Tab',
@@ -152,27 +153,28 @@ const local: App.I18n.Schema = {
     },
     configOperation: {
       copyConfig: 'Copy Config',
-      copySuccessMsg: 'Copy Success, Please replace the variable "themeSettings" in "src/theme/settings.ts"',
+      copySuccessMsg:
+        'Copy Success, Please replace the variable "themeSettings" in "src/theme/settings.ts"',
       resetConfig: 'Reset Config',
       resetSuccessMsg: 'Reset Success'
     }
   },
   route: {
-    login: 'Login',
+    'login': 'Login',
     403: 'No Permission',
     404: 'Page Not Found',
     500: 'Server Error',
     'iframe-page': 'Iframe',
-    home: 'Home',
-    chat: 'Chat',
-    markdownedit: 'MarkdownEdit',
-    upload: 'Upload',
+    'home': 'Home',
+    'chat': 'Chat',
+    'markdownedit': 'MarkdownEdit',
+    'upload': 'Upload',
     'upload-v2-demo': 'Upload v2 Demo',
-    utils: 'Utils',
-    component: 'component',
-    mobile: 'mobile',
+    'utils': 'Utils',
+    'component': 'component',
+    'mobile': 'mobile',
     'file-manager': 'file-manager',
-    monitoring: 'Dashboard',
+    'monitoring': 'Dashboard',
     'user-management': 'User Management',
     'role-management': 'Role Management',
     'permission-management': 'Permission Management',
@@ -313,7 +315,8 @@ const local: App.I18n.Schema = {
       descriptionPlaceholder: 'Please enter role description (optional)',
       nameRequired: 'Please enter role name',
       codeRequired: 'Please enter role code',
-      codeInvalid: 'Invalid role code format, should be uppercase letters, numbers or underscores, and start with a letter or underscore',
+      codeInvalid:
+        'Invalid role code format, should be uppercase letters, numbers or underscores, and start with a letter or underscore',
       createSuccess: 'Role created successfully',
       updateSuccess: 'Role updated successfully',
       deleteSuccess: 'Role deleted successfully',
@@ -347,7 +350,8 @@ const local: App.I18n.Schema = {
       descriptionPlaceholder: 'Please enter permission description (optional)',
       nameRequired: 'Please enter permission name',
       codeRequired: 'Please enter permission code',
-      codeInvalid: 'Invalid permission code format, should be uppercase letters, numbers or underscores, and start with a letter or underscore',
+      codeInvalid:
+        'Invalid permission code format, should be uppercase letters, numbers or underscores, and start with a letter or underscore',
       resourceRequired: 'Please select or enter resource',
       actionRequired: 'Please select or enter action',
       createSuccess: 'Permission created successfully',

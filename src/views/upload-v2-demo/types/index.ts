@@ -7,7 +7,30 @@ import { ChunkStatus, UploadStatus } from '@/hooks/upload-v2';
  */
 export interface EventLog {
   time: string;
-  type: 'success' | 'error' | 'info' | 'warning' | 'progress' | 'pause' | 'resume' | 'cancel' | 'chunk-success' | 'chunk-error' | 'all-complete' | 'all-error' | 'add-files' | 'start' | 'pause-all' | 'resume-all' | 'retry-failed' | 'retry-single' | 'config-update' | 'i18n' | 'clear' | 'remove' | 'exceed';
+  type:
+    | 'success'
+    | 'error'
+    | 'info'
+    | 'warning'
+    | 'progress'
+    | 'pause'
+    | 'resume'
+    | 'cancel'
+    | 'chunk-success'
+    | 'chunk-error'
+    | 'all-complete'
+    | 'all-error'
+    | 'add-files'
+    | 'start'
+    | 'pause-all'
+    | 'resume-all'
+    | 'retry-failed'
+    | 'retry-single'
+    | 'config-update'
+    | 'i18n'
+    | 'clear'
+    | 'remove'
+    | 'exceed';
   message: string;
   data?: unknown;
 }
@@ -58,7 +81,7 @@ export interface UploadHookReturn {
   removeFile: (taskId: string) => void;
   clear: () => void;
   updateConfig: (config: Partial<UploadConfig>) => void;
-  
+
   // 状态
   uploadQueue: { value: FileTask[] };
   activeUploads: { value: Map<string, FileTask> };
@@ -69,14 +92,56 @@ export interface UploadHookReturn {
   isUploading: { value: boolean };
   isPaused: { value: boolean };
   networkQuality: { value: string };
-  
+
   // 统计
-  getTodayStats: () => { date: string; totalFiles: number; totalSize: number; successFiles: number; failedFiles: number; averageSpeed: number; totalTime: number; uploadedSize?: number } | null;
-  getHistoryStats: (days: number) => Array<{ date: string; totalFiles: number; totalSize: number; successFiles: number; failedFiles: number; averageSpeed: number; totalTime: number }>;
-  getTrendAnalysis: (days: number) => { speedTrend: 'increasing' | 'stable' | 'decreasing'; successRate: number; averageSpeed: number; peakSpeed: number; recentStats: unknown[] };
-  todayStats: { value: { date: string; totalFiles: number; totalSize: number; successFiles: number; failedFiles: number; averageSpeed: number; totalTime: number; uploadedSize?: number } | null };
-  trendAnalysis: { value: { speedTrend: 'increasing' | 'stable' | 'decreasing'; successRate: number; averageSpeed: number; peakSpeed: number; recentStats: unknown[] } };
-  
+  getTodayStats: () => {
+    date: string;
+    totalFiles: number;
+    totalSize: number;
+    successFiles: number;
+    failedFiles: number;
+    averageSpeed: number;
+    totalTime: number;
+    uploadedSize?: number;
+  } | null;
+  getHistoryStats: (days: number) => Array<{
+    date: string;
+    totalFiles: number;
+    totalSize: number;
+    successFiles: number;
+    failedFiles: number;
+    averageSpeed: number;
+    totalTime: number;
+  }>;
+  getTrendAnalysis: (days: number) => {
+    speedTrend: 'increasing' | 'stable' | 'decreasing';
+    successRate: number;
+    averageSpeed: number;
+    peakSpeed: number;
+    recentStats: unknown[];
+  };
+  todayStats: {
+    value: {
+      date: string;
+      totalFiles: number;
+      totalSize: number;
+      successFiles: number;
+      failedFiles: number;
+      averageSpeed: number;
+      totalTime: number;
+      uploadedSize?: number;
+    } | null;
+  };
+  trendAnalysis: {
+    value: {
+      speedTrend: 'increasing' | 'stable' | 'decreasing';
+      successRate: number;
+      averageSpeed: number;
+      peakSpeed: number;
+      recentStats: unknown[];
+    };
+  };
+
   // 性能
   getPerformanceReport: () => unknown;
   getPerformanceMetrics: () => {
@@ -86,10 +151,10 @@ export interface UploadHookReturn {
     chunkUploadTimes: number[];
     memoryUsage?: { used: number; total: number };
   };
-  
+
   // 国际化
   setLanguage: (lang: 'zh-CN' | 'en-US') => void;
-  
+
   // 工具函数
   formatFileSize: (bytes: number) => string;
   formatSpeed: (bytesPerSecond: number) => string;
@@ -98,7 +163,7 @@ export interface UploadHookReturn {
   getStatusText: (status: UploadStatus) => string;
   getFileIcon: (fileName: string) => string;
   getFileColor: (fileName: string) => string;
-  
+
   // 上传器实例
   uploader: {
     onFileProgress: (callback: (task: FileTask) => void) => void;
@@ -178,4 +243,3 @@ export interface PerformanceMetricsData {
     total: number;
   };
 }
-

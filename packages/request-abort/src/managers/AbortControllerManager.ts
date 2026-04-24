@@ -32,7 +32,7 @@ export class AbortControllerManager {
   constructor(options: AbortControllerManagerOptions = {}) {
     this.options = {
       autoAbortPrevious: options.autoAbortPrevious ?? true,
-      defaultAbortMessage: options.defaultAbortMessage ?? DEFAULT_ABORT_MESSAGE,
+      defaultAbortMessage: options.defaultAbortMessage ?? DEFAULT_ABORT_MESSAGE
     };
   }
 
@@ -42,10 +42,7 @@ export class AbortControllerManager {
    * @param config 请求配置（可选，用于按条件中止）
    * @returns AbortController
    */
-  createAbortController(
-    requestId: string,
-    config?: AbortableRequestConfig,
-  ): AbortController {
+  createAbortController(requestId: string, config?: AbortableRequestConfig): AbortController {
     // 如果启用了自动中止，且已存在相同 requestId 的请求，先中止之前的请求
     if (this.options.autoAbortPrevious) {
       this.abort(requestId);
@@ -54,7 +51,7 @@ export class AbortControllerManager {
     const controller = new AbortController();
     this.controllerMap.set(requestId, {
       controller,
-      message: this.options.defaultAbortMessage,
+      message: this.options.defaultAbortMessage
     });
     if (config) {
       this.requestConfigMap.set(requestId, config);
@@ -121,10 +118,7 @@ export class AbortControllerManager {
    * @param message 中止原因（注意：AbortController 不支持自定义消息，消息仅用于日志）
    * @returns 中止的请求数量
    */
-  abortBy(
-    predicate: (config: AbortableRequestConfig) => boolean,
-    message?: string,
-  ): number {
+  abortBy(predicate: (config: AbortableRequestConfig) => boolean, message?: string): number {
     const abortMessage = message || this.options.defaultAbortMessage;
     let abortedCount = 0;
 
@@ -180,4 +174,3 @@ export class AbortControllerManager {
     this.requestConfigMap.clear();
   }
 }
-

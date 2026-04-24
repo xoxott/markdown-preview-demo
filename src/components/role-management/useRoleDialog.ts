@@ -17,4 +17,3 @@ export function useRoleDialog(app?: App) {
 
 /** 导出类型 */
 export type UseRoleDialogReturn = ReturnType<typeof useRoleDialog>;
-

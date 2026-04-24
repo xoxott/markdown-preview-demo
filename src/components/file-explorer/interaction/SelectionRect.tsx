@@ -100,13 +100,20 @@ export default defineComponent({
     });
     /** 计算内容坐标下的选区矩形 */
     const selectionRect = computed<Rect>(() => {
-      if (!containerRef.value || !scrollContainerRef.value) return { left: 0, top: 0, width: 0, height: 0 };
+      if (!containerRef.value || !scrollContainerRef.value)
+        return { left: 0, top: 0, width: 0, height: 0 };
 
       const scrollContainer = scrollContainerRef.value;
       const left = Math.max(0, Math.min(startPoint.value.x, currentPoint.value.x));
       const top = Math.max(0, Math.min(startPoint.value.y, currentPoint.value.y));
-      const right = Math.min(scrollContainer.scrollWidth, Math.max(startPoint.value.x, currentPoint.value.x));
-      const bottom = Math.min(scrollContainer.scrollHeight, Math.max(startPoint.value.y, currentPoint.value.y));
+      const right = Math.min(
+        scrollContainer.scrollWidth,
+        Math.max(startPoint.value.x, currentPoint.value.x)
+      );
+      const bottom = Math.min(
+        scrollContainer.scrollHeight,
+        Math.max(startPoint.value.y, currentPoint.value.y)
+      );
 
       return { left, top, width: right - left, height: bottom - top };
     });
@@ -164,10 +171,12 @@ export default defineComponent({
     const updateSelection = (rect: Rect) => {
       if (!containerRef.value) return;
       const newSelectedIds = new Set<string>();
-      containerRef.value.querySelectorAll<HTMLElement>(`${props.selectableSelector}`).forEach(el => {
-        const id = el.dataset.selectableId;
-        if (id && isElementInSelection(el, rect)) newSelectedIds.add(id);
-      });
+      containerRef.value
+        .querySelectorAll<HTMLElement>(`${props.selectableSelector}`)
+        .forEach(el => {
+          const id = el.dataset.selectableId;
+          if (id && isElementInSelection(el, rect)) newSelectedIds.add(id);
+        });
 
       if (!areSetsEqual(selectedIds.value, newSelectedIds)) {
         selectedIds.value = newSelectedIds;
@@ -185,11 +194,17 @@ export default defineComponent({
       let dy = 0;
 
       if (clientY - rect.top < props.scrollEdge && scroll.scrollTop > 0) dy = -props.scrollSpeed;
-      else if (rect.bottom - clientY < props.scrollEdge && scroll.scrollTop < scroll.scrollHeight - scroll.clientHeight)
+      else if (
+        rect.bottom - clientY < props.scrollEdge &&
+        scroll.scrollTop < scroll.scrollHeight - scroll.clientHeight
+      )
         dy = props.scrollSpeed;
 
       if (clientX - rect.left < props.scrollEdge && scroll.scrollLeft > 0) dx = -props.scrollSpeed;
-      else if (rect.right - clientX < props.scrollEdge && scroll.scrollLeft < scroll.scrollWidth - scroll.clientWidth)
+      else if (
+        rect.right - clientX < props.scrollEdge &&
+        scroll.scrollLeft < scroll.scrollWidth - scroll.clientWidth
+      )
         dx = props.scrollSpeed;
 
       if (dx || dy) {
@@ -220,17 +235,22 @@ export default defineComponent({
     };
 
     /** 判断是否允许拖选 */
-    const canStartDragSelection = (target: HTMLElement) => !target.closest(`[${props.preventDragSelector}]`);
+    const canStartDragSelection = (target: HTMLElement) =>
+      !target.closest(`[${props.preventDragSelector}]`);
 
     /** 鼠标按下事件 */
     const handleMouseDown = (e: MouseEvent) => {
-      if (props.disabled || e.button !== 0 || !canStartDragSelection(e.target as HTMLElement)) return;
+      if (props.disabled || e.button !== 0 || !canStartDragSelection(e.target as HTMLElement))
+        return;
       e.preventDefault();
       if (!containerRef.value || !scrollContainerRef.value) return;
 
       const scroll = scrollContainerRef.value;
       const rect = containerRef.value.getBoundingClientRect();
-      startPoint.value = { x: e.clientX - rect.left + scroll.scrollLeft, y: e.clientY - rect.top + scroll.scrollTop };
+      startPoint.value = {
+        x: e.clientX - rect.left + scroll.scrollLeft,
+        y: e.clientY - rect.top + scroll.scrollTop
+      };
       currentPoint.value = { ...startPoint.value };
       isMouseDown.value = true;
       selectedIds.value.clear();
@@ -245,9 +265,15 @@ export default defineComponent({
 
       const rect = containerRef.value.getBoundingClientRect();
       const scroll = scrollContainerRef.value;
-      currentPoint.value = { x: e.clientX - rect.left + scroll.scrollLeft, y: e.clientY - rect.top + scroll.scrollTop };
+      currentPoint.value = {
+        x: e.clientX - rect.left + scroll.scrollLeft,
+        y: e.clientY - rect.top + scroll.scrollTop
+      };
 
-      const distance = Math.hypot(currentPoint.value.x - startPoint.value.x, currentPoint.value.y - startPoint.value.y);
+      const distance = Math.hypot(
+        currentPoint.value.x - startPoint.value.x,
+        currentPoint.value.y - startPoint.value.y
+      );
       if (distance > props.threshold) {
         if (!isSelecting.value) {
           isSelecting.value = true;
@@ -318,7 +344,11 @@ export default defineComponent({
     );
 
     return () => (
-      <div ref={containerRef} class={['selection-container', props.className]} onMousedown={handleMouseDown}>
+      <div
+        ref={containerRef}
+        class={['selection-container', props.className]}
+        onMousedown={handleMouseDown}
+      >
         {slots.default?.()}
         {isSelecting.value && displayRect.value.width > 0 && displayRect.value.height > 0 && (
           <div

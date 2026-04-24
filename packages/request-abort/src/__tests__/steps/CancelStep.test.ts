@@ -34,8 +34,8 @@ describe('AbortStep', () => {
       const defaultStep = new AbortStep({
         defaultOptions: {
           enabled: true,
-          autoAbortPrevious: true,
-        },
+          autoAbortPrevious: true
+        }
       });
       expect(defaultStep).toBeInstanceOf(AbortStep);
     });
@@ -45,7 +45,7 @@ describe('AbortStep', () => {
     it('应该在 meta 中没有 abortable 时默认启用', async () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext(config);
 
@@ -62,10 +62,10 @@ describe('AbortStep', () => {
     it('应该在 abortable=false 时跳过', async () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext(config, undefined, {
-        abortable: false,
+        abortable: false
       });
 
       let nextCalled = false;
@@ -82,10 +82,10 @@ describe('AbortStep', () => {
     it('应该在 abortable=undefined 时默认启用', async () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext(config, undefined, {
-        abortable: undefined,
+        abortable: undefined
       });
 
       const next = async (): Promise<void> => {
@@ -101,10 +101,10 @@ describe('AbortStep', () => {
     it('应该在 abortable=true 时创建 AbortController', async () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext(config, undefined, {
-        abortable: true,
+        abortable: true
       });
 
       const next = async (): Promise<void> => {
@@ -120,10 +120,10 @@ describe('AbortStep', () => {
     it('应该在请求成功时清理 AbortController', async () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext<string>(config, undefined, {
-        abortable: true,
+        abortable: true
       });
 
       const next = async (): Promise<void> => {
@@ -138,10 +138,10 @@ describe('AbortStep', () => {
     it('应该在请求失败时清理 AbortController', async () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext(config, undefined, {
-        abortable: true,
+        abortable: true
       });
 
       const error = new Error('Test error');
@@ -157,15 +157,15 @@ describe('AbortStep', () => {
     it('应该在请求被中止时不重复清理', async () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext(config, undefined, {
-        abortable: true,
+        abortable: true
       });
 
       const next = async (): Promise<void> => {
         // 等待 controller 创建
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise(resolve => setTimeout(resolve, 10));
         // 模拟请求被中止 - 使用 ctx 中的 signal
         const signal = ctx.meta.signal as AbortSignal | undefined;
         if (signal) {
@@ -206,10 +206,10 @@ describe('AbortStep', () => {
     it('应该使用 ctx.id 作为 requestId', async () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext(config, undefined, {
-        abortable: true,
+        abortable: true
       });
 
       const next = async (): Promise<void> => {
@@ -225,10 +225,10 @@ describe('AbortStep', () => {
     it('应该存储请求配置到 AbortControllerManager', async () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext(config, undefined, {
-        abortable: true,
+        abortable: true
       });
 
       const next = async (): Promise<void> => {
@@ -254,16 +254,16 @@ describe('AbortStep', () => {
     it('应该能够通过 AbortControllerManager 中止请求', async () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext(config, undefined, {
-        abortable: true,
+        abortable: true
       });
 
       let aborted = false;
       const next = async (): Promise<void> => {
         // 等待 controller 创建
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise(resolve => setTimeout(resolve, 10));
 
         // 模拟异步请求
         const signal = ctx.meta.signal as AbortSignal | undefined;
@@ -295,7 +295,7 @@ describe('AbortStep', () => {
       const requestPromise = step.execute(ctx, next);
 
       // 等待 controller 创建
-      await new Promise((resolve) => setTimeout(resolve, 20));
+      await new Promise(resolve => setTimeout(resolve, 20));
 
       // 立即中止请求
       abortControllerManager.abort(ctx.id, '用户中止');
@@ -303,7 +303,7 @@ describe('AbortStep', () => {
       await expect(requestPromise).rejects.toBeDefined();
 
       // 等待中止完成
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(aborted).toBe(true);
     }, 10000);
@@ -311,18 +311,18 @@ describe('AbortStep', () => {
     it('应该支持自动中止旧请求', async () => {
       const config1: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx1 = createRequestContext(config1, undefined, {
-        abortable: true,
+        abortable: true
       });
 
       const config2: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx2 = createRequestContext(config2, undefined, {
-        abortable: true,
+        abortable: true
       });
 
       // 使用相同的 requestId 来测试自动取消
@@ -334,7 +334,7 @@ describe('AbortStep', () => {
       let aborted1 = false;
       const next1 = async (): Promise<void> => {
         // 等待 controller 创建
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise(resolve => setTimeout(resolve, 10));
 
         const signal = ctx1.meta.signal as AbortSignal | undefined;
         if (signal) {
@@ -369,7 +369,7 @@ describe('AbortStep', () => {
       const request1Promise = step.execute(ctx1, next1);
 
       // 等待第一个请求的 controller 创建
-      await new Promise((resolve) => setTimeout(resolve, 20));
+      await new Promise(resolve => setTimeout(resolve, 20));
 
       // 立即启动第二个请求（应该自动中止第一个）
       await step.execute(ctx2, next2);
@@ -377,10 +377,9 @@ describe('AbortStep', () => {
       await expect(request1Promise).rejects.toBeDefined();
 
       // 等待中止完成（promise reject 的回调是异步的）
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(aborted1).toBe(true);
     }, 10000);
   });
 });
-

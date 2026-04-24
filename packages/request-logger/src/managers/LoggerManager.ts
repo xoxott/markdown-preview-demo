@@ -17,7 +17,7 @@ export class LoggerManager {
       logResponse: true,
       logError: true,
       output: console.log,
-      ...options,
+      ...options
     };
   }
 
@@ -69,4 +69,3 @@ export class LoggerManager {
     return this.options.output ?? console.log;
   }
 }
-

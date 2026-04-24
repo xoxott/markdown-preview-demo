@@ -91,7 +91,11 @@ export default defineComponent({
                   <IconComponent />
                 </NIcon>
                 <div style={{ flex: 1, color: themeVars.value.textColor2, lineHeight: '1.6' }}>
-                  {typeof props.config.content === 'string' ? <div>{props.config.content}</div> : props.config.content}
+                  {typeof props.config.content === 'string' ? (
+                    <div>{props.config.content}</div>
+                  ) : (
+                    props.config.content
+                  )}
                 </div>
               </div>
             ),

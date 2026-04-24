@@ -20,9 +20,7 @@ export default defineComponent({
         position: { x: 100, y: 100 },
         size: { width: 150, height: 60 },
         data: { label: '开始节点' },
-        handles: [
-          { id: 'source-1', type: 'source', position: 'right' }
-        ]
+        handles: [{ id: 'source-1', type: 'source', position: 'right' }]
       },
       {
         id: 'node-2',
@@ -41,9 +39,7 @@ export default defineComponent({
         position: { x: 500, y: 100 },
         size: { width: 150, height: 60 },
         data: { label: '结束节点' },
-        handles: [
-          { id: 'target-3', type: 'target', position: 'left' }
-        ]
+        handles: [{ id: 'target-3', type: 'target', position: 'left' }]
       }
     ]);
 
@@ -95,4 +91,3 @@ export default defineComponent({
     );
   }
 });
-

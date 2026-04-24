@@ -16,10 +16,7 @@
  * compareIds(nodes1, nodes2); // true
  * ```
  */
-export function compareIds<T extends { id: string }>(
-  arr1: T[],
-  arr2: T[]
-): boolean {
+export function compareIds<T extends { id: string }>(arr1: T[], arr2: T[]): boolean {
   if (arr1.length !== arr2.length) return false;
 
   const set1 = new Set(arr1.map(item => item.id));
@@ -33,4 +30,3 @@ export function compareIds<T extends { id: string }>(
 
   return true;
 }
-

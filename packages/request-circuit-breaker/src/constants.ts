@@ -13,7 +13,7 @@ export const DEFAULT_CIRCUIT_BREAKER_CONFIG = {
   /** 默认成功阈值 */
   DEFAULT_SUCCESS_THRESHOLD: 2,
   /** 默认启用状态 */
-  DEFAULT_ENABLED: true,
+  DEFAULT_ENABLED: true
 } as const;
 
 /**
@@ -24,7 +24,7 @@ export const NETWORK_ERROR_CODES: readonly string[] = [
   'ENOTFOUND',
   'ETIMEDOUT',
   'ECONNREFUSED',
-  'ENETUNREACH',
+  'ENETUNREACH'
 ] as const;
 
 /**
@@ -35,7 +35,7 @@ export const NETWORK_ERROR_KEYWORDS: readonly string[] = [
   'network',
   'connection',
   'econnrefused',
-  'enotfound',
+  'enotfound'
 ] as const;
 
 /**
@@ -53,6 +53,5 @@ export const DEFAULT_CIRCUIT_BREAKER_MANAGER_CONFIG = {
   /** 默认最大数量（0 表示无限制） */
   DEFAULT_MAX_SIZE: 0,
   /** 默认空闲超时时间（30 分钟，毫秒） */
-  DEFAULT_IDLE_TIMEOUT: 30 * 60 * 1000,
+  DEFAULT_IDLE_TIMEOUT: 30 * 60 * 1000
 } as const;
-

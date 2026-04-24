@@ -1,14 +1,14 @@
-.vue-repl-container{
+.vue-repl-container {
   display: flex;
-  min-height:fit-content !important;
+  min-height: fit-content !important;
 }
-.msg{
-   position: absolute;
-   bottom: 0;
-   left: 0px !important;
-   right: 23px !important;
-   margin-bottom:0 !important;
-   pre {
+.msg {
+  position: absolute;
+  bottom: 0;
+  left: 0px !important;
+  right: 23px !important;
+  margin-bottom: 0 !important;
+  pre {
     overflow: auto;
 
     /* 滚动条整体 */
@@ -26,7 +26,7 @@
     &::-webkit-scrollbar-thumb {
       background-color: rgba(128, 128, 128, 0.3);
       border-radius: 4px;
-      transition: background-color .2s;
+      transition: background-color 0.2s;
     }
 
     &::-webkit-scrollbar-thumb:hover {

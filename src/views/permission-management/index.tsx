@@ -273,15 +273,8 @@ export default defineComponent({
     }
 
     // 表格配置
-    const {
-      columns,
-      data,
-      loading,
-      pagination,
-      getData,
-      updateSearchParams,
-      resetSearchParams
-    } = useTable({
+    const { columns, data, loading, pagination, getData, updateSearchParams, resetSearchParams } =
+      useTable({
         apiFn: fetchPermissionList,
         apiParams: {
           page: 1,
@@ -315,7 +308,9 @@ export default defineComponent({
         return;
       }
       await dialog.confirmDelete(
-        $t('page.permissionManagement.confirmBatchDelete' as any, { count: selectedRowKeys.value.length }),
+        $t('page.permissionManagement.confirmBatchDelete' as any, {
+          count: selectedRowKeys.value.length
+        }),
         async () => {
           try {
             await fetchBatchDeletePermissions({ ids: selectedRowKeys.value });
@@ -328,7 +323,6 @@ export default defineComponent({
         }
       );
     }
-
 
     return () => (
       <NSpace vertical size={16}>
@@ -404,9 +398,7 @@ export default defineComponent({
                 <NButton type="primary" onClick={handleSearch}>
                   {$t('common.search')}
                 </NButton>
-                <NButton onClick={handleReset}>
-                  {$t('common.reset')}
-                </NButton>
+                <NButton onClick={handleReset}>{$t('common.reset')}</NButton>
               </NSpace>
             </NFormItem>
           </NForm>
@@ -418,12 +410,14 @@ export default defineComponent({
             <NButton type="primary" onClick={handleAdd}>
               {$t('common.add')}
             </NButton>
-            <NButton type="error" disabled={selectedRowKeys.value.length === 0} onClick={handleBatchDelete}>
+            <NButton
+              type="error"
+              disabled={selectedRowKeys.value.length === 0}
+              onClick={handleBatchDelete}
+            >
               {$t('common.batchDelete')}
             </NButton>
-            <NButton onClick={getData}>
-              {$t('common.refresh')}
-            </NButton>
+            <NButton onClick={getData}>{$t('common.refresh')}</NButton>
           </NSpace>
         </NCard>
 
@@ -436,7 +430,7 @@ export default defineComponent({
             pagination={pagination}
             rowKey={(row: Permission) => row.id}
             checkedRowKeys={selectedRowKeys.value}
-            onUpdateCheckedRowKeys={(keys) => {
+            onUpdateCheckedRowKeys={keys => {
               selectedRowKeys.value = keys as number[];
             }}
             scrollX={1800}
@@ -446,4 +440,3 @@ export default defineComponent({
     );
   }
 });
-

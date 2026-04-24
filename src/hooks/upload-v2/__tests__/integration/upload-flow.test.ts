@@ -171,10 +171,7 @@ describe('上传流程集成测试', () => {
 
       uploader = useChunkUpload(config);
 
-      const files = [
-        new File(['content1'], 'file1.txt'),
-        new File(['content2'], 'file2.txt')
-      ];
+      const files = [new File(['content1'], 'file1.txt'), new File(['content2'], 'file2.txt')];
 
       await (uploader as any).addFiles(files);
 
@@ -225,10 +222,7 @@ describe('上传流程集成测试', () => {
 
       uploader = useChunkUpload(config);
 
-      const files = [
-        new File(['content1'], 'file1.txt'),
-        new File(['content2'], 'file2.txt')
-      ];
+      const files = [new File(['content1'], 'file1.txt'), new File(['content2'], 'file2.txt')];
 
       await (uploader as any).addFiles(files);
 
@@ -338,7 +332,11 @@ describe('上传流程集成测试', () => {
         queueLength: uploader.uploader.uploadQueue.value.length,
         activeLength: uploader.uploader.activeUploads.value.size,
         completedLength: uploader.uploader.completedUploads.value.length,
-        completedTasks: uploader.uploader.completedUploads.value.map(t => ({ id: t.id, name: t.file.name, status: t.status }))
+        completedTasks: uploader.uploader.completedUploads.value.map(t => ({
+          id: t.id,
+          name: t.file.name,
+          status: t.status
+        }))
       });
 
       // 最终验证：错误回调被触发或任务状态为 ERROR
@@ -350,7 +348,7 @@ describe('上传流程集成测试', () => {
         expect(task.status).toBe(UploadStatus.ERROR);
       } else {
         // 如果都没有，测试失败
-        expect(errorCaught || (task?.status === UploadStatus.ERROR)).toBe(true);
+        expect(errorCaught || task?.status === UploadStatus.ERROR).toBe(true);
       }
     });
   });
@@ -366,10 +364,7 @@ describe('上传流程集成测试', () => {
 
       uploader = useChunkUpload(config);
 
-      const files = [
-        new File(['content1'], 'file1.txt'),
-        new File(['content2'], 'file2.txt')
-      ];
+      const files = [new File(['content1'], 'file1.txt'), new File(['content2'], 'file2.txt')];
 
       await (uploader as any).addFiles(files);
 
@@ -439,9 +434,7 @@ describe('上传流程集成测试', () => {
 
       uploader = useChunkUpload(config);
 
-      const files = Array.from({ length: 5 }, (_, i) =>
-        new File(['content'], `file${i}.txt`)
-      );
+      const files = Array.from({ length: 5 }, (_, i) => new File(['content'], `file${i}.txt`));
 
       await (uploader as any).addFiles(files);
       await (uploader as any).start();
@@ -454,4 +447,3 @@ describe('上传流程集成测试', () => {
     });
   });
 });
-

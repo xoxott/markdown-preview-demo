@@ -14,7 +14,7 @@
   "i18n-ally.sourceLanguage": "zh-CN",
   "i18n-ally.namespace": false,
   "i18n-ally.pathMatcher": "{locale}.json",
-  "i18n-ally.sortKeys": false,
+  "i18n-ally.sortWords": false,
   "i18n-ally.extract.autoDetect": true,
   "i18n-ally.refactor.templates": [
     {
@@ -26,6 +26,14 @@
   "i18n-ally.annotation.maxLength": 100,
   "prettier.enable": false,
   "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  "typescript.disableAutomaticTypeAcquisition": false,
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "vue.codeActions.enabled": true,
+  "vue.complete.casing.props": "camel",
+  "vue.server.hybridMode": true,
+  "vue.server.maxOldSpaceSize": 4096,
   "unocss.root": ["./"],
   "vitest.enable": true,
   "vitest.commandLine": "pnpm vitest",

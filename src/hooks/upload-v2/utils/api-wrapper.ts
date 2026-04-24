@@ -25,11 +25,11 @@ export function createMethodWrappers<T extends object>(
   methodNames: ReadonlyArray<keyof T>
 ): Record<string, (...args: any[]) => any> {
   const wrappers: Record<string, (...args: any[]) => any> = {};
-  
+
   for (const methodName of methodNames) {
     wrappers[String(methodName)] = createMethodWrapper(target, methodName);
   }
-  
+
   return wrappers;
 }
 
@@ -51,11 +51,10 @@ export function createPropertyAccessors<T extends object>(
   propertyNames: ReadonlyArray<keyof T>
 ): Record<string, any> {
   const accessors: Record<string, any> = {};
-  
+
   for (const propertyName of propertyNames) {
     accessors[String(propertyName)] = createPropertyAccessor(target, propertyName);
   }
-  
+
   return accessors;
 }
-

@@ -9,26 +9,13 @@ export * from './delay';
 export * from './media';
 
 // Re-export commonly used utilities for convenience
-export {
-  getFileExtension,
-  getFileNameWithoutExtension,
-  getFileInfo
-} from './file';
+export { getFileExtension, getFileNameWithoutExtension, getFileInfo } from './file';
 
-export {
-  generateId,
-  generateUUID
-} from './id';
+export { generateId, generateUUID } from './id';
 
-export {
-  delay,
-  cancellableDelay
-} from './delay';
+export { delay, cancellableDelay } from './delay';
 
-export {
-  getMediaDuration,
-  getVideoResolution
-} from './media';
+export { getMediaDuration, getVideoResolution } from './media';
 
 export {
   parseSize,
@@ -65,4 +52,3 @@ export * from './network-adaptation';
 export * from './array-helpers';
 export * from './batch-processor';
 export * from './chunk-helpers';
-

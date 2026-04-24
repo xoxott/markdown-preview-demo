@@ -77,72 +77,114 @@ export class CallbackManager {
   }
 
   // 链式调用设置回调
-  onFileStart(callback: UploadCallbacks['onFileStart'], options?: { priority?: number; once?: boolean }): this {
+  onFileStart(
+    callback: UploadCallbacks['onFileStart'],
+    options?: { priority?: number; once?: boolean }
+  ): this {
     if (!callback) return this;
     return this.registerCallback('onFileStart', callback, options);
   }
 
-  onFileProgress(callback: UploadCallbacks['onFileProgress'], options?: { priority?: number; once?: boolean }): this {
+  onFileProgress(
+    callback: UploadCallbacks['onFileProgress'],
+    options?: { priority?: number; once?: boolean }
+  ): this {
     if (!callback) return this;
     return this.registerCallback('onFileProgress', callback, options);
   }
 
-  onFileSuccess(callback: UploadCallbacks['onFileSuccess'], options?: { priority?: number; once?: boolean }): this {
+  onFileSuccess(
+    callback: UploadCallbacks['onFileSuccess'],
+    options?: { priority?: number; once?: boolean }
+  ): this {
     if (!callback) return this;
     return this.registerCallback('onFileSuccess', callback, options);
   }
 
-  onFileError(callback: UploadCallbacks['onFileError'], options?: { priority?: number; once?: boolean }): this {
+  onFileError(
+    callback: UploadCallbacks['onFileError'],
+    options?: { priority?: number; once?: boolean }
+  ): this {
     if (!callback) return this;
     return this.registerCallback('onFileError', callback, options);
   }
 
-  onFilePause(callback: UploadCallbacks['onFilePause'], options?: { priority?: number; once?: boolean }): this {
+  onFilePause(
+    callback: UploadCallbacks['onFilePause'],
+    options?: { priority?: number; once?: boolean }
+  ): this {
     if (!callback) return this;
     return this.registerCallback('onFilePause', callback, options);
   }
 
-  onFileResume(callback: UploadCallbacks['onFileResume'], options?: { priority?: number; once?: boolean }): this {
+  onFileResume(
+    callback: UploadCallbacks['onFileResume'],
+    options?: { priority?: number; once?: boolean }
+  ): this {
     if (!callback) return this;
     return this.registerCallback('onFileResume', callback, options);
   }
 
-  onFileCancel(callback: UploadCallbacks['onFileCancel'], options?: { priority?: number; once?: boolean }): this {
+  onFileCancel(
+    callback: UploadCallbacks['onFileCancel'],
+    options?: { priority?: number; once?: boolean }
+  ): this {
     if (!callback) return this;
     return this.registerCallback('onFileCancel', callback, options);
   }
 
-  onTotalProgress(callback: UploadCallbacks['onTotalProgress'], options?: { priority?: number; once?: boolean }): this {
+  onTotalProgress(
+    callback: UploadCallbacks['onTotalProgress'],
+    options?: { priority?: number; once?: boolean }
+  ): this {
     if (!callback) return this;
     return this.registerCallback('onTotalProgress', callback, options);
   }
 
-  onAllComplete(callback: UploadCallbacks['onAllComplete'], options?: { priority?: number; once?: boolean }): this {
+  onAllComplete(
+    callback: UploadCallbacks['onAllComplete'],
+    options?: { priority?: number; once?: boolean }
+  ): this {
     if (!callback) return this;
     return this.registerCallback('onAllComplete', callback, options);
   }
 
-  onAllError(callback: UploadCallbacks['onAllError'], options?: { priority?: number; once?: boolean }): this {
+  onAllError(
+    callback: UploadCallbacks['onAllError'],
+    options?: { priority?: number; once?: boolean }
+  ): this {
     if (!callback) return this;
     return this.registerCallback('onAllError', callback, options);
   }
 
-  onSpeedChange(callback: UploadCallbacks['onSpeedChange'], options?: { priority?: number; once?: boolean }): this {
+  onSpeedChange(
+    callback: UploadCallbacks['onSpeedChange'],
+    options?: { priority?: number; once?: boolean }
+  ): this {
     if (!callback) return this;
     return this.registerCallback('onSpeedChange', callback, options);
   }
 
-  onQueueChange(callback: UploadCallbacks['onQueueChange'], options?: { priority?: number; once?: boolean }): this {
+  onQueueChange(
+    callback: UploadCallbacks['onQueueChange'],
+    options?: { priority?: number; once?: boolean }
+  ): this {
     if (!callback) return this;
     return this.registerCallback('onQueueChange', callback, options);
   }
 
-  onChunkSuccess(callback: UploadCallbacks['onChunkSuccess'], options?: { priority?: number; once?: boolean }): this {
+  onChunkSuccess(
+    callback: UploadCallbacks['onChunkSuccess'],
+    options?: { priority?: number; once?: boolean }
+  ): this {
     if (!callback) return this;
     return this.registerCallback('onChunkSuccess', callback, options);
   }
 
-  onChunkError(callback: UploadCallbacks['onChunkError'], options?: { priority?: number; once?: boolean }): this {
+  onChunkError(
+    callback: UploadCallbacks['onChunkError'],
+    options?: { priority?: number; once?: boolean }
+  ): this {
     if (!callback) return this;
     return this.registerCallback('onChunkError', callback, options);
   }
@@ -190,7 +232,11 @@ export class CallbackManager {
         if (typeof window !== 'undefined') {
           const windowWithLogger = window as WindowWithLogger;
           if (windowWithLogger.__UPLOAD_LOGGER__) {
-            windowWithLogger.__UPLOAD_LOGGER__.error(`回调执行失败 [${event}]`, {}, error instanceof Error ? error : undefined);
+            windowWithLogger.__UPLOAD_LOGGER__.error(
+              `回调执行失败 [${event}]`,
+              {},
+              error instanceof Error ? error : undefined
+            );
           } else {
             console.error(`回调执行失败 [${event}]:`, error);
           }
@@ -226,4 +272,3 @@ export class CallbackManager {
     return { ...this.callbacks };
   }
 }
-

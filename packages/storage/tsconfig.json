@@ -13,6 +13,8 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noUnusedLocals": true,
@@ -23,4 +25,3 @@
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }
-

@@ -75,11 +75,16 @@ export function useEventHandlers<T>(
 
   const eventHandlers = computed(() => {
     // 如果没有事件处理函数，返回 null
-    if (!handlers.onClick && !handlers.onDoubleClick && !handlers.onMouseEnter && !handlers.onMouseLeave) {
+    if (
+      !handlers.onClick &&
+      !handlers.onDoubleClick &&
+      !handlers.onMouseEnter &&
+      !handlers.onMouseLeave
+    ) {
       return null;
     }
     // 检查是否是 Ref（使用类型守卫）
-    const itemsArray = isRef<T[]>(items) ? items.value : items as T[];
+    const itemsArray = isRef<T[]>(items) ? items.value : (items as T[]);
     const handlersMap = new Map<string, EventHandlerMap<T>>();
 
     itemsArray.forEach((item: T) => {
@@ -95,7 +100,7 @@ export function useEventHandlers<T>(
           : undefined,
         onMouseLeave: handlers.onMouseLeave
           ? (event: MouseEvent) => handlers.onMouseLeave!(item, event)
-          : undefined,
+          : undefined
       });
     });
 
@@ -104,4 +109,3 @@ export function useEventHandlers<T>(
 
   return { eventHandlers };
 }
-

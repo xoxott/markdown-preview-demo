@@ -29,21 +29,24 @@ import { RequestClient } from '@suga/request-core';
 
 // 创建带熔断步骤的请求客户端
 const client = new RequestClient(transport, [
-  new CircuitBreakerStep(),
+  new CircuitBreakerStep()
   // ... 其他步骤
 ]);
 
 // 在请求中使用熔断器
-const result = await client.request({
-  url: '/api/users',
-  method: 'GET',
-}, {
-  circuitBreaker: {
-    failureThreshold: 5,
-    timeout: 60000,
-    fallback: () => ({ id: 0, name: '默认用户' }),
+const result = await client.request(
+  {
+    url: '/api/users',
+    method: 'GET'
   },
-});
+  {
+    circuitBreaker: {
+      failureThreshold: 5,
+      timeout: 60000,
+      fallback: () => ({ id: 0, name: '默认用户' })
+    }
+  }
+);
 ```
 
 ### 使用 CircuitBreaker 类
@@ -56,12 +59,12 @@ const breaker = createCircuitBreaker<User>({
   failureThreshold: 5,
   timeout: 60000,
   successThreshold: 2,
-  fallback: () => ({ id: 0, name: '默认用户' }),
+  fallback: () => ({ id: 0, name: '默认用户' })
 });
 
 // 使用熔断器执行请求
 const user = await breaker.execute(async () => {
-  return await fetch('/api/users/1').then((res) => res.json());
+  return await fetch('/api/users/1').then(res => res.json());
 });
 ```
 
@@ -75,12 +78,12 @@ const manager = new CircuitBreakerManager();
 // 获取或创建熔断器（按 key 区分）
 const breaker1 = manager.getOrCreateBreaker('api-users', {
   failureThreshold: 5,
-  timeout: 60000,
+  timeout: 60000
 });
 
 const breaker2 = manager.getOrCreateBreaker('api-orders', {
   failureThreshold: 3,
-  timeout: 30000,
+  timeout: 30000
 });
 ```
 
@@ -90,7 +93,7 @@ const breaker2 = manager.getOrCreateBreaker('api-orders', {
 import {
   CircuitBreaker,
   DefaultStateTransitionStrategy,
-  DefaultErrorClassificationStrategy,
+  DefaultErrorClassificationStrategy
 } from '@suga/request-circuit-breaker';
 
 // 自定义状态转换策略
@@ -115,7 +118,7 @@ class CustomErrorClassificationStrategy extends DefaultErrorClassificationStrate
 
 const breaker = new CircuitBreaker({
   stateTransitionStrategy: new CustomStateTransitionStrategy(),
-  errorClassificationStrategy: new CustomErrorClassificationStrategy(),
+  errorClassificationStrategy: new CustomErrorClassificationStrategy()
 });
 ```
 
@@ -166,9 +169,9 @@ class CircuitBreakerStep implements RequestStep {
 
 ```typescript
 enum CircuitBreakerState {
-  CLOSED = 'closed',      // 关闭状态：正常处理请求
-  OPEN = 'open',          // 开启状态：拒绝所有请求
-  HALF_OPEN = 'half-open', // 半开状态：允许少量请求通过
+  CLOSED = 'closed', // 关闭状态：正常处理请求
+  OPEN = 'open', // 开启状态：拒绝所有请求
+  HALF_OPEN = 'half-open' // 半开状态：允许少量请求通过
 }
 ```
 
@@ -178,10 +181,10 @@ enum CircuitBreakerState {
 
 ```typescript
 interface CircuitBreakerOptions<T = unknown> {
-  failureThreshold?: number;                    // 失败阈值，默认 5
-  timeout?: number;                             // 超时时间（毫秒），默认 60000
-  successThreshold?: number;                    // 成功阈值，默认 2
-  enabled?: boolean;                            // 是否启用，默认 true
+  failureThreshold?: number; // 失败阈值，默认 5
+  timeout?: number; // 超时时间（毫秒），默认 60000
+  successThreshold?: number; // 成功阈值，默认 2
+  enabled?: boolean; // 是否启用，默认 true
   fallback?: (error?: unknown) => T | Promise<T>; // 降级函数
   errorClassificationStrategy?: ErrorClassificationStrategy;
   stateTransitionStrategy?: StateTransitionStrategy;
@@ -231,4 +234,3 @@ src/
 ## 许可证
 
 MIT
-

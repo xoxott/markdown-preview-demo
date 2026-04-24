@@ -163,17 +163,11 @@ export default defineComponent({
           }
         }}
       >
-        <NForm
-          ref={formRef}
-          model={model}
-          rules={rules.value}
-          size="large"
-          showLabel={false}
-        >
+        <NForm ref={formRef} model={model} rules={rules.value} size="large" showLabel={false}>
           <NFormItem path="email" class="mb-10px">
             <NInput
               value={model.email}
-              onUpdateValue={(value) => (model.email = value)}
+              onUpdateValue={value => (model.email = value)}
               placeholder="请输入邮箱地址"
               class="h-40px"
             >
@@ -186,7 +180,7 @@ export default defineComponent({
             <div class="w-full flex-y-center gap-8px">
               <NInput
                 value={model.verificationCode}
-                onUpdateValue={(value) => (model.verificationCode = value)}
+                onUpdateValue={value => (model.verificationCode = value)}
                 placeholder="请输入验证码"
                 maxlength={6}
                 class="flex-1 h-40px"
@@ -210,7 +204,7 @@ export default defineComponent({
           <NFormItem path="password" class="mb-10px">
             <NInput
               value={model.password}
-              onUpdateValue={(value) => (model.password = value)}
+              onUpdateValue={value => (model.password = value)}
               type="password"
               showPasswordOn="click"
               placeholder={$t('page.login.common.passwordPlaceholder')}
@@ -224,7 +218,7 @@ export default defineComponent({
           <NFormItem path="confirmPassword" class="mb-10px">
             <NInput
               value={model.confirmPassword}
-              onUpdateValue={(value) => (model.confirmPassword = value)}
+              onUpdateValue={value => (model.confirmPassword = value)}
               type="password"
               showPasswordOn="click"
               placeholder={$t('page.login.common.confirmPasswordPlaceholder')}
@@ -236,20 +230,20 @@ export default defineComponent({
             </NInput>
           </NFormItem>
           <NSpace vertical size={8} class="w-full">
-            <NButton 
-              type="primary" 
-              size="large" 
-              round 
-              block 
+            <NButton
+              type="primary"
+              size="large"
+              round
+              block
               onClick={handleSubmit}
               class="h-40px text-14px font-500 shadow-lg hover:shadow-xl transition-all"
             >
               {$t('common.confirm')}
             </NButton>
-            <NButton 
-              size="large" 
-              round 
-              block 
+            <NButton
+              size="large"
+              round
+              block
               secondary
               onClick={() => toggleLoginModule('pwd-login')}
               class="h-36px"
@@ -265,4 +259,3 @@ export default defineComponent({
     );
   }
 });
-

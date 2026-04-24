@@ -7,7 +7,11 @@
 import { defineComponent } from 'vue';
 import { useMessage } from 'naive-ui';
 import { TablePage, useTablePage } from '@/components/table-page';
-import type { SearchFieldConfig, ActionBarConfig, TableColumnConfig } from '@/components/table-page';
+import type {
+  SearchFieldConfig,
+  ActionBarConfig,
+  TableColumnConfig
+} from '@/components/table-page';
 
 // 模拟数据类型
 interface ExampleData {
@@ -79,18 +83,12 @@ export default defineComponent({
     ];
 
     // 使用 hook 管理数据
-    const {
-      data,
-      loading,
-      pagination,
-      selectedKeys,
-      refresh,
-      updateSelectedKeys
-    } = useTablePage<ExampleData>({
-      apiFn: fetchExampleList,
-      searchConfig,
-      immediate: true
-    });
+    const { data, loading, pagination, selectedKeys, refresh, updateSelectedKeys } =
+      useTablePage<ExampleData>({
+        apiFn: fetchExampleList,
+        searchConfig,
+        immediate: true
+      });
 
     // 操作函数
     const handleAdd = () => {
@@ -225,4 +223,3 @@ export default defineComponent({
     );
   }
 });
-

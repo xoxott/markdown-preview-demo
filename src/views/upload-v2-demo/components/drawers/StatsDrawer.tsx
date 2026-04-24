@@ -64,19 +64,16 @@ export default defineComponent({
                 <NStatistic label="总文件数" value={props.todayStatsData.totalFiles} />
               </NGridItem>
               <NGridItem>
-                <NStatistic
-                  label="成功文件数"
-                  value={props.todayStatsData.successFiles}
-                />
+                <NStatistic label="成功文件数" value={props.todayStatsData.successFiles} />
+              </NGridItem>
+              <NGridItem>
+                <NStatistic label="失败文件数" value={props.todayStatsData.failedFiles} />
               </NGridItem>
               <NGridItem>
                 <NStatistic
-                  label="失败文件数"
-                  value={props.todayStatsData.failedFiles}
+                  label="总大小"
+                  value={props.formatFileSize(props.todayStatsData.totalSize)}
                 />
-              </NGridItem>
-              <NGridItem>
-                <NStatistic label="总大小" value={props.formatFileSize(props.todayStatsData.totalSize)} />
               </NGridItem>
               <NGridItem>
                 <NStatistic
@@ -125,11 +122,7 @@ export default defineComponent({
         </NTabPane>
         <NTabPane name="history" tab="历史记录">
           <div class="mt-4">
-            <NDataTable
-              columns={historyColumns}
-              data={props.historyStatsData}
-              pagination={false}
-            />
+            <NDataTable columns={historyColumns} data={props.historyStatsData} pagination={false} />
           </div>
         </NTabPane>
       </NTabs>

@@ -43,4 +43,3 @@ class DefaultStorageAdapter implements StorageAdapter {
  * 默认存储适配器实例
  */
 export const defaultStorageAdapter = new DefaultStorageAdapter();
-

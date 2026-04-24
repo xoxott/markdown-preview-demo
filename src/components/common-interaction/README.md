@@ -9,6 +9,7 @@
 用于鼠标拖拽框选元素的交互组件。
 
 **功能特性**：
+
 - ✅ 鼠标拖拽框选
 - ✅ 自动滚动支持
 - ✅ 阈值控制（避免误触）
@@ -17,12 +18,14 @@
 - ✅ 性能优化（节流）
 
 **使用场景**：
+
 - 文件管理器的多选
 - 工作流画布的节点多选
 - 图片库的批量选择
 - 表格的行多选
 
 **示例**：
+
 ```vue
 <SelectionRect
   :disabled="false"
@@ -46,6 +49,7 @@
 拖拽操作时跟随鼠标的预览组件。
 
 **功能特性**：
+
 - ✅ 跟随鼠标位置
 - ✅ 显示拖拽项数量
 - ✅ 支持图标/缩略图
@@ -54,12 +58,14 @@
 - ✅ Teleport 到 body
 
 **使用场景**：
+
 - 文件拖拽预览
 - 节点拖拽预览
 - 列表项拖拽排序
 - 卡片拖拽移动
 
 **示例**：
+
 ```vue
 <DragPreview
   :items="draggedItems"
@@ -75,6 +81,7 @@
 接收拖放操作的目标区域组件。
 
 **功能特性**：
+
 - ✅ 拖放目标高亮
 - ✅ 拖放验证
 - ✅ 嵌套拖放支持
@@ -83,12 +90,14 @@
 - ✅ 文件/数据拖放
 
 **使用场景**：
+
 - 文件上传区域
 - 文件夹拖放
 - 节点连接拖放
 - 列表项排序
 
 **示例**：
+
 ```vue
 <DropZone
   :accept-types="['file', 'folder']"
@@ -106,21 +115,25 @@
 ## 设计原则
 
 ### 1. 通用性优先
+
 - 组件设计面向多种使用场景
 - 提供灵活的配置选项
 - 最小化业务逻辑耦合
 
 ### 2. 性能优化
+
 - 使用 RAF 节流
 - 避免不必要的 DOM 操作
 - 优化事件监听器
 
 ### 3. 可访问性
+
 - 支持键盘操作
 - 提供 ARIA 属性
 - 屏幕阅读器友好
 
 ### 4. 类型安全
+
 - 完整的 TypeScript 类型定义
 - 泛型支持
 - 严格的 props 验证
@@ -155,11 +168,13 @@ common-interaction/
 ### 从 file-explorer 迁移
 
 **旧代码**：
+
 ```typescript
 import SelectionRect from '@/components/file-explorer/interaction/SelectionRect';
 ```
 
 **新代码**：
+
 ```typescript
 import { SelectionRect } from '@/components/common-interaction';
 ```
@@ -169,12 +184,14 @@ import { SelectionRect } from '@/components/common-interaction';
 工作流画布的圈选功能可以直接使用通用组件：
 
 **旧代码**：
+
 ```typescript
 // 自定义实现的圈选逻辑
 const { selectionBox, startSelection } = useSelectionBox();
 ```
 
 **新代码**：
+
 ```typescript
 import { SelectionRect } from '@/components/common-interaction';
 
@@ -284,4 +301,3 @@ import '@/styles/common-interaction.scss';
 - [Vue 3 文档](https://vuejs.org/)
 - [VueUse](https://vueuse.org/)
 - [HTML5 拖放 API](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API)
-

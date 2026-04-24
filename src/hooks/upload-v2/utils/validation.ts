@@ -63,4 +63,3 @@ export function validateFileSize(
 
   return { valid: true };
 }
-

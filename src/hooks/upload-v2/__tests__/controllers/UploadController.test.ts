@@ -84,8 +84,8 @@ describe('UploadController', () => {
         file: new File(['content'], 'test.txt'),
         status: UploadStatus.PAUSED
       } as any;
-      controller.setTaskGetter((id) => id === 'test-id' ? task : undefined);
-      
+      controller.setTaskGetter(id => (id === 'test-id' ? task : undefined));
+
       controller.isPaused.value = true;
       controller.pausedTasks.add('test-id');
       controller.resumeAll();
@@ -109,4 +109,3 @@ describe('UploadController', () => {
     });
   });
 });
-

@@ -58,12 +58,12 @@ export class EventManager {
     data: T extends 'request:start'
       ? RequestStartEventData
       : T extends 'request:success'
-      ? RequestSuccessEventData
-      : T extends 'request:error'
-      ? RequestErrorEventData
-      : T extends 'request:complete'
-      ? RequestCompleteEventData
-      : never,
+        ? RequestSuccessEventData
+        : T extends 'request:error'
+          ? RequestErrorEventData
+          : T extends 'request:complete'
+            ? RequestCompleteEventData
+            : never
   ): void {
     const listeners = this.eventListeners.get(event);
     if (!listeners) {
@@ -94,4 +94,3 @@ export class EventManager {
     return Array.from(this.eventListeners.keys());
   }
 }
-

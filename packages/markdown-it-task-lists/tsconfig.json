@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "jsx": "preserve",
-    "lib": ["DOM", "ESNext"],
+    "lib": ["ESNext", "DOM"],
     "baseUrl": ".",
     "module": "ESNext",
     "moduleResolution": "bundler",
@@ -13,9 +12,14 @@
     "noUnusedLocals": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "outDir": "./dist"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }
-

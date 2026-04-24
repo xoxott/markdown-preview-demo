@@ -57,7 +57,12 @@ export default defineComponent({
               icon: () => <NIcon component={LanguageOutline} />
             }}
           </NButton>
-          <NButton size="small" quaternary circle onClick={() => props.onToggleDrawer('performance')}>
+          <NButton
+            size="small"
+            quaternary
+            circle
+            onClick={() => props.onToggleDrawer('performance')}
+          >
             {{
               icon: () => <NIcon component={FlashOutline} />
             }}
@@ -89,4 +94,3 @@ export default defineComponent({
     );
   }
 });
-

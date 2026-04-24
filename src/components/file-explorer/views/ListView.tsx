@@ -29,7 +29,9 @@ export default defineComponent({
   },
   setup(props) {
     const themeVars = useThemeVars();
-    const selectedItems = computed(() => props.items.filter(it => props.selectedIds.value.has(it.id)));
+    const selectedItems = computed(() =>
+      props.items.filter(it => props.selectedIds.value.has(it.id))
+    );
     const dragDrop = inject<FileDragDropHook>('FILE_DRAG_DROP')!;
 
     const handleMouseEnter = (e: MouseEvent, isSelected: boolean) => {
@@ -60,7 +62,8 @@ export default defineComponent({
                 style={{
                   backgroundColor:
                     isSelected ||
-                    (dragDrop.getDropZoneState(item.id)?.isOver && dragDrop.getDropZoneState(item.id)?.canDrop)
+                    (dragDrop.getDropZoneState(item.id)?.isOver &&
+                      dragDrop.getDropZoneState(item.id)?.canDrop)
                       ? `${themeVars.value.primaryColorHover}20`
                       : themeVars.value.cardColor
                   // borderLeft: isSelected

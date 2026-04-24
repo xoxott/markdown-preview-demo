@@ -23,10 +23,7 @@ export const loggerManager = new LoggerManager();
 /**
  * 记录请求日志（便捷函数）
  */
-export function logRequestWithManager(
-  config: NormalizedRequestConfig,
-  enabled?: boolean,
-): void {
+export function logRequestWithManager(config: NormalizedRequestConfig, enabled?: boolean): void {
   logRequest(config, loggerManager, enabled);
 }
 
@@ -37,7 +34,7 @@ export function logResponseWithManager<T>(
   config: NormalizedRequestConfig,
   result: T,
   duration: number,
-  enabled?: boolean,
+  enabled?: boolean
 ): void {
   logResponse(config, result, duration, loggerManager, enabled);
 }
@@ -49,7 +46,7 @@ export function logErrorWithManager(
   config: NormalizedRequestConfig,
   error: unknown,
   duration: number,
-  enabled?: boolean,
+  enabled?: boolean
 ): void {
   logError(config, error, duration, loggerManager, enabled);
 }
@@ -60,4 +57,3 @@ export function logErrorWithManager(
 export function configureLogger(options: Partial<LoggerOptions>): void {
   loggerManager.setOptions(options);
 }
-

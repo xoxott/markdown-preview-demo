@@ -9,7 +9,7 @@ import {
   calculateRetryDelay,
   delay,
   isLastAttempt,
-  hasExceededErrorTypeMaxRetries,
+  hasExceededErrorTypeMaxRetries
 } from './retry-utils';
 
 /**
@@ -36,13 +36,13 @@ function normalizeError(error: unknown): RetryableError {
   if (error instanceof Error) {
     return {
       message: error.message,
-      code: (error as unknown as Record<string, unknown>).code as string | undefined,
+      code: (error as unknown as Record<string, unknown>).code as string | undefined
     };
   }
 
   // 默认错误
   return {
-    message: String(error),
+    message: String(error)
   };
 }
 
@@ -52,7 +52,7 @@ function normalizeError(error: unknown): RetryableError {
 export async function retryRequest<T>(
   requestFn: () => Promise<T>,
   config?: RetryConfig,
-  strategy?: RetryStrategy,
+  strategy?: RetryStrategy
 ): Promise<T> {
   // 如果提供了策略且未启用，直接执行请求
   if (strategy && !strategy.enabled) {
@@ -96,7 +96,7 @@ export async function retryRequest<T>(
         attempt,
         DEFAULT_RETRY_CONFIG.DEFAULT_RETRY_DELAY,
         normalizedError,
-        strategy,
+        strategy
       );
       await delay(delayTime);
     }
@@ -105,4 +105,3 @@ export async function retryRequest<T>(
   // 理论上不会执行到这里，但为了类型安全保留
   throw lastError ?? new Error('重试失败：未知错误');
 }
-

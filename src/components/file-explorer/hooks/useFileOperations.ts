@@ -24,10 +24,14 @@ export interface FileOperations {
 }
 
 export interface FileOperationsOptions {
-  fileDialog?:UseFileDialogReturn;
+  fileDialog?: UseFileDialogReturn;
   onCopy?: (items: FileItem[]) => void | Promise<void>;
   onCut?: (items: FileItem[]) => void | Promise<void>;
-  onPaste?: (items: FileItem[], operation: ClipboardOperation, targetPath?: string) => void | Promise<void>;
+  onPaste?: (
+    items: FileItem[],
+    operation: ClipboardOperation,
+    targetPath?: string
+  ) => void | Promise<void>;
   onDelete?: (items: FileItem[]) => void | Promise<void>;
   onRename?: (item: FileItem, newName: string) => void | Promise<void>;
   onCreateFolder?: (name: string, parentPath?: string) => void | Promise<void>;
@@ -35,9 +39,22 @@ export interface FileOperationsOptions {
   onShowProperties?: (item: FileItem) => void;
 }
 
-export function useFileOperations(selectedFiles: Ref<FileItem[]>, options: FileOperationsOptions = {}) {
-  const { fileDialog,onCopy, onCut, onPaste, onDelete, onRename, onCreateFolder, onRefresh, onShowProperties } = options;
-  const dialog = useDialog()
+export function useFileOperations(
+  selectedFiles: Ref<FileItem[]>,
+  options: FileOperationsOptions = {}
+) {
+  const {
+    fileDialog,
+    onCopy,
+    onCut,
+    onPaste,
+    onDelete,
+    onRename,
+    onCreateFolder,
+    onRefresh,
+    onShowProperties
+  } = options;
+  const dialog = useDialog();
 
   // 剪贴板状态
   const clipboard = ref<FileItem[]>([]);

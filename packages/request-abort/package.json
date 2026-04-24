@@ -14,7 +14,9 @@
   },
   "typesVersions": {
     "*": {
-      "*": ["./src/*"]
+      "*": [
+        "./src/*"
+      ]
     }
   },
   "keywords": [
@@ -45,4 +47,3 @@
   },
   "peerDependencies": {}
 }
-

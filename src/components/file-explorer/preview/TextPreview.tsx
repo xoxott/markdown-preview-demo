@@ -27,7 +27,10 @@ export default defineComponent({
     const previewContent = computed(() => {
       const lines = props.content.split('\n');
       if (lines.length > props.maxLines) {
-        return lines.slice(0, props.maxLines).join('\n') + `\n\n... (已截断，共 ${lines.length} 行，仅显示前 ${props.maxLines} 行)`;
+        return (
+          lines.slice(0, props.maxLines).join('\n') +
+          `\n\n... (已截断，共 ${lines.length} 行，仅显示前 ${props.maxLines} 行)`
+        );
       }
       return props.content;
     });
@@ -44,7 +47,7 @@ export default defineComponent({
         css: 'css',
         html: 'html',
         json: 'json',
-        md: 'markdown',
+        md: 'markdown'
         // xml: 'xml',
         // yaml: 'yaml',
         // yml: 'yaml',
@@ -60,7 +63,7 @@ export default defineComponent({
 
     return () => (
       <div class="h-full flex flex-col" style={{ backgroundColor: themeVars.value.bodyColor }}>
-        <NScrollbar class="flex-1" contentClass='h-full'>
+        <NScrollbar class="flex-1" contentClass="h-full">
           <MonacoEditor
             modelValue={previewContent.value}
             filename={props.file.name}
@@ -74,4 +77,3 @@ export default defineComponent({
     );
   }
 });
-

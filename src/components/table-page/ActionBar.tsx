@@ -20,12 +20,15 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const presetButtonMap: Record<PresetButtonType, {
-      label: string;
-      icon: string;
-      type: 'default' | 'primary' | 'error';
-      needSelection?: boolean;
-    }> = {
+    const presetButtonMap: Record<
+      PresetButtonType,
+      {
+        label: string;
+        icon: string;
+        type: 'default' | 'primary' | 'error';
+        needSelection?: boolean;
+      }
+    > = {
       add: {
         label: $t('common.add'),
         icon: 'i-carbon-add',
@@ -51,23 +54,12 @@ export default defineComponent({
 
     const renderPresetButton = (buttonType: PresetButtonType, buttonConfig: any) => {
       const preset = presetButtonMap[buttonType];
-      const {
-        label = preset.label,
-        icon = preset.icon,
-        onClick,
-        disabled,
-        loading
-      } = buttonConfig;
+      const { label = preset.label, icon = preset.icon, onClick, disabled, loading } = buttonConfig;
 
       const isDisabled = disabled || (preset.needSelection && props.selectedKeys.length === 0);
 
       return (
-        <NButton
-          type={preset.type}
-          disabled={isDisabled}
-          loading={loading}
-          onClick={onClick}
-        >
+        <NButton type={preset.type} disabled={isDisabled} loading={loading} onClick={onClick}>
           <div class="flex items-center gap-4px">
             <div class={`${icon} text-16px`} />
             <span>{label}</span>
@@ -114,7 +106,13 @@ export default defineComponent({
 
       if (statsRender) {
         const result = statsRender(props.total, props.selectedKeys.length);
-        return typeof result === 'string' ? <NText depth={3} class="text-13px">{result}</NText> : result;
+        return typeof result === 'string' ? (
+          <NText depth={3} class="text-13px">
+            {result}
+          </NText>
+        ) : (
+          result
+        );
       }
 
       return (
@@ -129,15 +127,18 @@ export default defineComponent({
       <div class="flex items-center justify-between">
         <NSpace size="small">
           {/* Preset buttons */}
-          {props.config.preset && Object.entries(props.config.preset).map(([key, config]) => {
-            if (config.show !== false) {
-              return renderPresetButton(key as PresetButtonType, config);
-            }
-            return null;
-          })}
+          {props.config.preset &&
+            Object.entries(props.config.preset).map(([key, config]) => {
+              if (config.show !== false) {
+                return renderPresetButton(key as PresetButtonType, config);
+              }
+              return null;
+            })}
 
           {/* Custom buttons */}
-          {props.config.custom?.map((buttonConfig, index) => renderCustomButton(buttonConfig, index))}
+          {props.config.custom?.map((buttonConfig, index) =>
+            renderCustomButton(buttonConfig, index)
+          )}
         </NSpace>
 
         {/* Stats */}
@@ -146,4 +147,3 @@ export default defineComponent({
     );
   }
 });
-

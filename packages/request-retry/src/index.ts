@@ -13,7 +13,7 @@ export {
   calculateRetryDelay,
   delay,
   isLastAttempt,
-  hasExceededErrorTypeMaxRetries,
+  hasExceededErrorTypeMaxRetries
 } from './utils/retry-utils';
 export { retryRequest } from './utils/retry-request';
 
@@ -25,7 +25,7 @@ export {
   isRetryableClientError,
   isCanceledError,
   getErrorType,
-  isApplicableErrorType,
+  isApplicableErrorType
 } from './utils/error-utils';
 
 // 导出类型
@@ -33,4 +33,3 @@ export type * from './types';
 
 // 导出常量
 export { DEFAULT_RETRY_CONFIG } from './constants';
-

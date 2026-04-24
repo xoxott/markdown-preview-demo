@@ -39,4 +39,3 @@ export function detectBrowser(): {
 
   return { name, version, isMobile };
 }
-

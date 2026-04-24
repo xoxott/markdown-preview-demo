@@ -22,11 +22,10 @@ describe('AbortControllerManager', () => {
     it('应该使用自定义配置', () => {
       const customManager = new AbortControllerManager({
         autoAbortPrevious: false,
-        defaultAbortMessage: '自定义中止消息',
+        defaultAbortMessage: '自定义中止消息'
       });
       expect(customManager.getPendingCount()).toBe(0);
     });
-
   });
 
   describe('createAbortController', () => {
@@ -41,7 +40,7 @@ describe('AbortControllerManager', () => {
     it('应该存储请求配置', () => {
       const config: AbortableRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       manager.createAbortController('request-1', config);
       expect(manager.has('request-1')).toBe(true);
@@ -56,13 +55,13 @@ describe('AbortControllerManager', () => {
       });
 
       // 等待监听器注册
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise(resolve => setTimeout(resolve, 0));
 
       // 创建相同 requestId 的新 controller，应该中止旧的
       manager.createAbortController('request-1');
 
       // 等待事件触发
-      await new Promise<void>((resolve) => {
+      await new Promise<void>(resolve => {
         setTimeout(() => {
           expect(aborted).toBe(true);
           expect(controller1.signal.aborted).toBe(true);
@@ -73,7 +72,7 @@ describe('AbortControllerManager', () => {
 
     it('应该在 autoAbortPrevious=false 时不自动中止旧请求', async () => {
       const noAutoManager = new AbortControllerManager({
-        autoAbortPrevious: false,
+        autoAbortPrevious: false
       });
       const controller1 = noAutoManager.createAbortController('request-1');
       let aborted = false;
@@ -86,7 +85,7 @@ describe('AbortControllerManager', () => {
       noAutoManager.createAbortController('request-1');
 
       // 等待一段时间，确认没有中止
-      await new Promise<void>((resolve) => {
+      await new Promise<void>(resolve => {
         setTimeout(() => {
           expect(aborted).toBe(false);
           expect(controller1.signal.aborted).toBe(false);
@@ -109,12 +108,12 @@ describe('AbortControllerManager', () => {
       });
 
       // 等待监听器注册
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise(resolve => setTimeout(resolve, 0));
 
       manager.abort('request-1', '用户中止');
 
       // 等待事件触发
-      await new Promise<void>((resolve) => {
+      await new Promise<void>(resolve => {
         setTimeout(() => {
           expect(aborted).toBe(true);
           expect(controller.signal.aborted).toBe(true);
@@ -153,12 +152,12 @@ describe('AbortControllerManager', () => {
       });
 
       // 等待监听器注册
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise(resolve => setTimeout(resolve, 0));
 
       manager.abortAll('批量中止');
 
       // 等待事件触发
-      await new Promise<void>((resolve) => {
+      await new Promise<void>(resolve => {
         setTimeout(() => {
           expect(aborted1).toBe(true);
           expect(aborted2).toBe(true);
@@ -181,15 +180,15 @@ describe('AbortControllerManager', () => {
     it('应该按条件中止请求', async () => {
       const controller1 = manager.createAbortController('request-1', {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       });
       manager.createAbortController('request-2', {
         url: '/api/posts',
-        method: 'GET',
+        method: 'GET'
       });
       const controller3 = manager.createAbortController('request-3', {
         url: '/api/users',
-        method: 'POST',
+        method: 'POST'
       });
 
       let aborted1 = false;
@@ -203,12 +202,12 @@ describe('AbortControllerManager', () => {
       });
 
       // 等待监听器注册
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise(resolve => setTimeout(resolve, 0));
 
-      const count = manager.abortBy((config) => config.url === '/api/users');
+      const count = manager.abortBy(config => config.url === '/api/users');
 
       // 等待事件触发
-      await new Promise<void>((resolve) => {
+      await new Promise<void>(resolve => {
         setTimeout(() => {
           expect(count).toBe(2);
           expect(aborted1).toBe(true);
@@ -226,14 +225,14 @@ describe('AbortControllerManager', () => {
     it('应该返回中止的请求数量', () => {
       manager.createAbortController('request-1', {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       });
       manager.createAbortController('request-2', {
         url: '/api/posts',
-        method: 'GET',
+        method: 'GET'
       });
 
-      const count = manager.abortBy((config) => config.url === '/api/users');
+      const count = manager.abortBy(config => config.url === '/api/users');
 
       expect(count).toBe(1);
     });
@@ -241,10 +240,10 @@ describe('AbortControllerManager', () => {
     it('应该在没有匹配请求时返回 0', () => {
       manager.createAbortController('request-1', {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       });
 
-      const count = manager.abortBy((config) => config.url === '/api/posts');
+      const count = manager.abortBy(config => config.url === '/api/posts');
 
       expect(count).toBe(0);
     });
@@ -252,7 +251,7 @@ describe('AbortControllerManager', () => {
     it('应该中止匹配的请求', async () => {
       const controller = manager.createAbortController('request-1', {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       });
       let aborted = false;
 
@@ -260,10 +259,10 @@ describe('AbortControllerManager', () => {
         aborted = true;
       });
 
-      manager.abortBy((config) => config.url === '/api/users', '条件中止');
+      manager.abortBy(config => config.url === '/api/users', '条件中止');
 
       // 等待事件触发
-      await new Promise<void>((resolve) => {
+      await new Promise<void>(resolve => {
         setTimeout(() => {
           expect(aborted).toBe(true);
           expect(controller.signal.aborted).toBe(true);
@@ -340,7 +339,7 @@ describe('AbortControllerManager', () => {
 
       manager.clear();
 
-      await new Promise<void>((resolve) => {
+      await new Promise<void>(resolve => {
         setTimeout(() => {
           expect(aborted).toBe(false);
           expect(controller.signal.aborted).toBe(false);
@@ -351,4 +350,3 @@ describe('AbortControllerManager', () => {
     });
   });
 });
-

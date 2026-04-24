@@ -13,4 +13,3 @@ export type * from './types';
 
 // 创建全局性能监控器实例
 export const performanceMonitor = new PerformanceMonitorManager();
-

@@ -31,7 +31,7 @@ describe('createCachePolicy', () => {
     const customPolicy: CachePolicy = {
       shouldRead: () => true,
       shouldWrite: () => true,
-      getTTL: () => 1000,
+      getTTL: () => 1000
     };
 
     const policy = createCachePolicy(customPolicy);
@@ -44,7 +44,7 @@ describe('createCachePolicy', () => {
       shouldRead: () => true,
       shouldWrite: () => true,
       getTTL: () => undefined,
-      otherMethod: () => {},
+      otherMethod: () => {}
     };
 
     const policy = createCachePolicy(customPolicy);
@@ -64,4 +64,3 @@ describe('createCachePolicy', () => {
     expect(policy).toBeInstanceOf(DefaultCachePolicy);
   });
 });
-

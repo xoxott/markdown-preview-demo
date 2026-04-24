@@ -16,7 +16,7 @@ pnpm add @suga/request-progress
 import { createProgressTracker } from '@suga/request-progress';
 
 // 创建进度追踪器
-const tracker = createProgressTracker((progress) => {
+const tracker = createProgressTracker(progress => {
   console.log(`进度: ${progress.percent}%`);
   console.log(`已传输: ${progress.loaded} / ${progress.total}`);
   console.log(`速度: ${progress.speed}`);
@@ -28,7 +28,7 @@ const config = {
   url: '/api/upload',
   method: 'POST',
   data: formData,
-  onUploadProgress: tracker, // 使用追踪器
+  onUploadProgress: tracker // 使用追踪器
 };
 ```
 
@@ -37,7 +37,7 @@ const config = {
 ```typescript
 import { ProgressTracker } from '@suga/request-progress';
 
-const tracker = new ProgressTracker((progress) => {
+const tracker = new ProgressTracker(progress => {
   console.log(`进度: ${progress.percent}%`);
 });
 
@@ -85,7 +85,9 @@ constructor(onProgress?: ProgressCallback)
 创建进度追踪器的工厂函数。
 
 ```typescript
-function createProgressTracker(onProgress?: ProgressCallback): (progressEvent: ProgressEvent) => void
+function createProgressTracker(
+  onProgress?: ProgressCallback
+): (progressEvent: ProgressEvent) => void;
 ```
 
 ### 工具函数
@@ -99,17 +101,17 @@ function createProgressTracker(onProgress?: ProgressCallback): (progressEvent: P
 ```typescript
 // 进度事件数据
 interface ProgressEvent {
-  loaded: number;  // 已传输字节数
-  total: number;   // 总字节数（如果未知则为 0）
+  loaded: number; // 已传输字节数
+  total: number; // 总字节数（如果未知则为 0）
 }
 
 // 进度信息
 interface ProgressInfo {
-  percent: number;  // 进度百分比 (0-100)
-  loaded: number;   // 已传输字节数
-  total: number;    // 总字节数
-  speed: string;    // 传输速度（格式化字符串，如 "1.5 MB/s"）
-  elapsed: number;  // 已用时间（毫秒）
+  percent: number; // 进度百分比 (0-100)
+  loaded: number; // 已传输字节数
+  total: number; // 总字节数
+  speed: string; // 传输速度（格式化字符串，如 "1.5 MB/s"）
+  elapsed: number; // 已用时间（毫秒）
 }
 
 // 进度回调函数
@@ -123,7 +125,7 @@ type ProgressCallback = (progress: ProgressInfo) => void;
 ```typescript
 import { createProgressTracker, formatFileSize } from '@suga/request-progress';
 
-const uploadTracker = createProgressTracker((progress) => {
+const uploadTracker = createProgressTracker(progress => {
   console.log(`上传进度: ${progress.percent}%`);
   console.log(`已上传: ${formatFileSize(progress.loaded)} / ${formatFileSize(progress.total)}`);
   console.log(`速度: ${progress.speed}`);
@@ -134,7 +136,7 @@ const config = {
   url: '/api/upload',
   method: 'POST',
   data: file,
-  onUploadProgress: uploadTracker,
+  onUploadProgress: uploadTracker
 };
 ```
 
@@ -143,7 +145,7 @@ const config = {
 ```typescript
 import { createProgressTracker, formatFileSize } from '@suga/request-progress';
 
-const downloadTracker = createProgressTracker((progress) => {
+const downloadTracker = createProgressTracker(progress => {
   console.log(`下载进度: ${progress.percent}%`);
   console.log(`已下载: ${formatFileSize(progress.loaded)} / ${formatFileSize(progress.total)}`);
   console.log(`速度: ${progress.speed}`);
@@ -153,7 +155,7 @@ const downloadTracker = createProgressTracker((progress) => {
 const config = {
   url: '/api/download',
   method: 'GET',
-  onDownloadProgress: downloadTracker,
+  onDownloadProgress: downloadTracker
 };
 ```
 
@@ -162,7 +164,7 @@ const config = {
 ```typescript
 import { createProgressTracker } from '@suga/request-progress';
 
-const tracker = createProgressTracker((progress) => {
+const tracker = createProgressTracker(progress => {
   // 更新进度条
   progressBar.style.width = `${progress.percent}%`;
   progressText.textContent = `${progress.percent}%`;
@@ -177,7 +179,7 @@ import { ProgressTracker } from '@suga/request-progress';
 
 const files = [file1, file2, file3];
 const trackers = files.map((file, index) => {
-  return new ProgressTracker((progress) => {
+  return new ProgressTracker(progress => {
     console.log(`文件 ${index + 1} 进度: ${progress.percent}%`);
   });
 });
@@ -186,7 +188,7 @@ const trackers = files.map((file, index) => {
 // 注意：uploadFile 是一个示例函数，实际使用时需要根据你的请求库进行适配
 files.forEach((file, index) => {
   uploadFile(file, {
-    onUploadProgress: (event) => trackers[index].update(event),
+    onUploadProgress: event => trackers[index].update(event)
   });
 });
 ```
@@ -196,16 +198,18 @@ files.forEach((file, index) => {
 ```typescript
 import { formatFileSize, formatSpeed } from '@suga/request-progress';
 
-const tracker = createProgressTracker((progress) => {
+const tracker = createProgressTracker(progress => {
   const display = {
     percent: `${progress.percent}%`,
     loaded: formatFileSize(progress.loaded),
     total: formatFileSize(progress.total),
     speed: progress.speed,
-    elapsed: `${(progress.elapsed / 1000).toFixed(1)}s`,
+    elapsed: `${(progress.elapsed / 1000).toFixed(1)}s`
   };
 
-  console.log(`${display.percent} - ${display.loaded} / ${display.total} @ ${display.speed} (${display.elapsed})`);
+  console.log(
+    `${display.percent} - ${display.loaded} / ${display.total} @ ${display.speed} (${display.elapsed})`
+  );
 });
 ```
 
@@ -230,4 +234,3 @@ request-progress/
 ## 📄 License
 
 MIT
-

@@ -17,21 +17,22 @@ import { RequestClient } from '@suga/request-core';
 import { QueueStep } from '@suga/request-queue';
 
 // 创建请求客户端（需要提供 transport）
-const client = new RequestClient(transport)
-  .with(new QueueStep({
+const client = new RequestClient(transport).with(
+  new QueueStep({
     defaultConfig: {
       maxConcurrent: 5, // 最大并发数为 5
-      queueStrategy: 'fifo', // FIFO 策略
-    },
-  }));
+      queueStrategy: 'fifo' // FIFO 策略
+    }
+  })
+);
 
 // 在 meta 中启用队列
 await client.request({
   url: '/api/users',
   method: 'GET',
   meta: {
-    queue: true, // 启用队列
-  },
+    queue: true // 启用队列
+  }
 });
 ```
 
@@ -44,12 +45,11 @@ import { QueueStep } from '@suga/request-queue';
 const queueStep = new QueueStep({
   defaultConfig: {
     maxConcurrent: 10, // 最大并发数为 10
-    queueStrategy: 'priority', // 优先级策略
-  },
+    queueStrategy: 'priority' // 优先级策略
+  }
 });
 
-const client = new RequestClient(transport)
-  .with(queueStep);
+const client = new RequestClient(transport).with(queueStep);
 ```
 
 ### 使用自定义管理器
@@ -60,15 +60,14 @@ import { QueueManager, QueueStep } from '@suga/request-queue';
 
 const queueManager = new QueueManager({
   maxConcurrent: 5,
-  queueStrategy: 'priority',
+  queueStrategy: 'priority'
 });
 
 const queueStep = new QueueStep({
-  queueManager,
+  queueManager
 });
 
-const client = new RequestClient(transport)
-  .with(queueStep);
+const client = new RequestClient(transport).with(queueStep);
 ```
 
 ### 设置请求优先级
@@ -80,8 +79,8 @@ await client.request({
   method: 'GET',
   meta: {
     queue: true,
-    priority: 'high',
-  },
+    priority: 'high'
+  }
 });
 
 // 低优先级请求
@@ -90,8 +89,8 @@ await client.request({
   method: 'GET',
   meta: {
     queue: true,
-    priority: 'low',
-  },
+    priority: 'low'
+  }
 });
 ```
 
@@ -144,7 +143,7 @@ import { createRequestQueue } from '@suga/request-queue';
 
 const queueManager = createRequestQueue({
   maxConcurrent: 10,
-  queueStrategy: 'fifo',
+  queueStrategy: 'fifo'
 });
 ```
 
@@ -171,6 +170,7 @@ const queueManager = createRequestQueue({
 ```
 
 优先级等级：
+
 - `high`: 高优先级（优先级值：3）
 - `normal`: 普通优先级（优先级值：2，默认）
 - `low`: 低优先级（优先级值：1）
@@ -184,20 +184,21 @@ import { RequestClient } from '@suga/request-core';
 import { QueueStep } from '@suga/request-queue';
 
 // 限制最多同时发送 3 个请求
-const client = new RequestClient(transport)
-  .with(new QueueStep({
+const client = new RequestClient(transport).with(
+  new QueueStep({
     defaultConfig: {
       maxConcurrent: 3,
-      queueStrategy: 'fifo',
-    },
-  }));
+      queueStrategy: 'fifo'
+    }
+  })
+);
 
 // 发送多个请求，最多同时执行 3 个
 for (let i = 0; i < 10; i++) {
   client.request({
     url: `/api/data/${i}`,
     method: 'GET',
-    meta: { queue: true },
+    meta: { queue: true }
   });
 }
 ```
@@ -208,13 +209,14 @@ for (let i = 0; i < 10; i++) {
 import { RequestClient } from '@suga/request-core';
 import { QueueStep } from '@suga/request-queue';
 
-const client = new RequestClient(transport)
-  .with(new QueueStep({
+const client = new RequestClient(transport).with(
+  new QueueStep({
     defaultConfig: {
       maxConcurrent: 5,
-      queueStrategy: 'priority',
-    },
-  }));
+      queueStrategy: 'priority'
+    }
+  })
+);
 
 // 高优先级请求会优先执行
 await client.request({
@@ -222,8 +224,8 @@ await client.request({
   method: 'GET',
   meta: {
     queue: true,
-    priority: 'high',
-  },
+    priority: 'high'
+  }
 });
 
 // 低优先级请求会等待高优先级请求完成
@@ -232,8 +234,8 @@ await client.request({
   method: 'GET',
   meta: {
     queue: true,
-    priority: 'low',
-  },
+    priority: 'low'
+  }
 });
 ```
 
@@ -245,8 +247,8 @@ await client.request({
   url: '/api/data',
   method: 'GET',
   meta: {
-    queue: false, // 禁用队列
-  },
+    queue: false // 禁用队列
+  }
 });
 ```
 
@@ -260,10 +262,10 @@ await client.request({
   meta: {
     queue: {
       maxConcurrent: 2, // 使用更小的并发数
-      queueStrategy: 'priority',
+      queueStrategy: 'priority'
     },
-    priority: 'high',
-  },
+    priority: 'high'
+  }
 });
 ```
 
@@ -291,4 +293,3 @@ request-queue/
 ## 📄 License
 
 MIT
-

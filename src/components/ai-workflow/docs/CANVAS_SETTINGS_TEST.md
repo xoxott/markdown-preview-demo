@@ -69,7 +69,7 @@
 // 在 ConnectionLine.tsx 中
 const lineStyle = computed(() => ({
   stroke: settings.connectionLine.color,
-  strokeWidth: settings.connectionLine.width,
+  strokeWidth: settings.connectionLine.width
   // ... 根据 type 渲染不同类型的路径
 }));
 ```
@@ -81,7 +81,7 @@ const lineStyle = computed(() => ({
 ```tsx
 // 在 CanvasGrid.tsx 中
 const gridStyle = computed(() => ({
-  backgroundColor: settings.background.backgroundColor,
+  backgroundColor: settings.background.backgroundColor
   // ... 根据 gridType 渲染不同类型的网格
 }));
 ```
@@ -89,12 +89,14 @@ const gridStyle = computed(() => ({
 ## 🎨 UI 预览
 
 ### 连接线设置对话框
+
 - 标题：连接线设置
 - 宽度：500px
 - 表单项：4个（类型、颜色、宽度、动画）
 - 按钮：取消、保存
 
 ### 背景设置对话框
+
 - 标题：背景设置
 - 宽度：500px
 - 表单项：5个（显示网格、网格类型、网格大小、网格颜色、背景颜色）
@@ -105,4 +107,3 @@ const gridStyle = computed(() => ({
 1. 设置目前只保存在内存中，刷新页面会丢失
 2. 设置尚未应用到实际的连接线和背景渲染
 3. 需要后续实现设置的持久化和应用逻辑
-

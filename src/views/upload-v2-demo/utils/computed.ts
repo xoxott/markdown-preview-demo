@@ -6,17 +6,21 @@ import type { FileListRow, TodayStatsData } from '../types';
 /**
  * 计算失败文件数量
  */
-export function useFailedCount(completedUploads: Ref<FileTask[]> | { value: FileTask[] }): Ref<number> {
+export function useFailedCount(
+  completedUploads: Ref<FileTask[]> | { value: FileTask[] }
+): Ref<number> {
   return computed(() => {
     const value = 'value' in completedUploads ? completedUploads.value : completedUploads;
-    return value.filter((task) => task.status === UploadStatus.ERROR).length;
+    return value.filter(task => task.status === UploadStatus.ERROR).length;
   });
 }
 
 /**
  * 计算网络质量文本
  */
-export function useNetworkQualityText(networkQuality: Ref<string> | { value: string }): Ref<string> {
+export function useNetworkQualityText(
+  networkQuality: Ref<string> | { value: string }
+): Ref<string> {
   return computed(() => {
     const value = 'value' in networkQuality ? networkQuality.value : networkQuality;
     const map: Record<string, string> = {
@@ -78,17 +82,11 @@ export function useTodayStatsData(
     const activeValue = 'value' in activeUploads ? activeUploads.value : activeUploads;
     const completedValue = 'value' in completedUploads ? completedUploads.value : completedUploads;
 
-    const allTasks = [
-      ...queueValue,
-      ...Array.from(activeValue.values()),
-      ...completedValue
-    ];
+    const allTasks = [...queueValue, ...Array.from(activeValue.values()), ...completedValue];
 
     const uploadedSize = allTasks.reduce((sum, task) => {
       const taskUploadedSize =
-        task.uploadedSize != null &&
-        Number.isFinite(task.uploadedSize) &&
-        task.uploadedSize >= 0
+        task.uploadedSize != null && Number.isFinite(task.uploadedSize) && task.uploadedSize >= 0
           ? task.uploadedSize
           : 0;
       return sum + taskUploadedSize;
@@ -132,4 +130,3 @@ export function useAllFiles(
     return [...queueFiles, ...activeFiles, ...completedFiles];
   });
 }
-

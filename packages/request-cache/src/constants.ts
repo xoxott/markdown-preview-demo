@@ -11,5 +11,5 @@ export const DEFAULT_CACHE_CONFIG = {
   /** 持久化缓存键前缀 */
   STORAGE_PREFIX: 'cache_',
   /** 默认最大缓存数量 */
-  DEFAULT_MAX_SIZE: 100,
+  DEFAULT_MAX_SIZE: 100
 } as const;

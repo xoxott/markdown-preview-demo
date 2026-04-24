@@ -48,4 +48,3 @@ export class DefaultCachePolicy implements CachePolicy {
     return undefined;
   }
 }
-

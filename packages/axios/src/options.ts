@@ -4,7 +4,9 @@ import { stringify } from 'qs';
 import { isHttpSuccess } from './shared';
 import type { RequestOption } from './type';
 
-export function createDefaultOptions<ResponseData = any>(options?: Partial<RequestOption<ResponseData>>) {
+export function createDefaultOptions<ResponseData = any>(
+  options?: Partial<RequestOption<ResponseData>>
+) {
   const opts: RequestOption<ResponseData> = {
     onRequest: async config => config,
     isBackendSuccess: _response => true,

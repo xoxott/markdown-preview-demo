@@ -1,4 +1,10 @@
-import type { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import type {
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+  InternalAxiosRequestConfig
+} from 'axios';
 
 export type ContentType =
   | 'text/html'
@@ -16,7 +22,9 @@ export interface RequestOption<ResponseData = any> {
    *
    * @param config Axios config
    */
-  onRequest: (config: InternalAxiosRequestConfig) => InternalAxiosRequestConfig | Promise<InternalAxiosRequestConfig>;
+  onRequest: (
+    config: InternalAxiosRequestConfig
+  ) => InternalAxiosRequestConfig | Promise<InternalAxiosRequestConfig>;
   /**
    * The hook to check backend response is success or not
    *
@@ -64,7 +72,10 @@ export type MappedType<R extends ResponseType, JsonType = any> = R extends keyof
   ? ResponseMap[R]
   : JsonType;
 
-export type CustomAxiosRequestConfig<R extends ResponseType = 'json'> = Omit<AxiosRequestConfig, 'responseType'> & {
+export type CustomAxiosRequestConfig<R extends ResponseType = 'json'> = Omit<
+  AxiosRequestConfig,
+  'responseType'
+> & {
   responseType?: R;
 };
 
@@ -89,7 +100,9 @@ export interface RequestInstanceCommon<T> {
 
 /** The request instance */
 export interface RequestInstance<S = Record<string, unknown>> extends RequestInstanceCommon<S> {
-  <T = any, R extends ResponseType = 'json'>(config: CustomAxiosRequestConfig<R>): Promise<MappedType<R, T>>;
+  <T = any, R extends ResponseType = 'json'>(
+    config: CustomAxiosRequestConfig<R>
+  ): Promise<MappedType<R, T>>;
 }
 
 export type FlatResponseSuccessData<T = any, ResponseData = any> = {
@@ -110,17 +123,23 @@ export type FlatResponseData<T = any, ResponseData = any> =
 
 /**
  * Extract the inner data type from Api.ListResponse or Api.Response
- * 
+ *
  * @template T The response type (Api.ListResponse<U> | Api.Response<U> | any)
  * @returns The extracted data type, or T itself if not a recognized response type
  */
-export type ExtractResponseData<T> = T extends { data: { lists: any[] }; statusCode: number; message: string; timestamp: string }
+export type ExtractResponseData<T> = T extends {
+  data: { lists: any[] };
+  statusCode: number;
+  message: string;
+  timestamp: string;
+}
   ? T['data'] // Api.ListResponse<U>['data']
   : T extends { data: infer D; statusCode: number; message: string; timestamp: string }
     ? D // Api.Response<U>['data']
     : T;
 
-export interface FlatRequestInstance<S = Record<string, unknown>, ResponseData = any> extends RequestInstanceCommon<S> {
+export interface FlatRequestInstance<S = Record<string, unknown>, ResponseData = any>
+  extends RequestInstanceCommon<S> {
   <T = any, R extends ResponseType = 'json'>(
     config: CustomAxiosRequestConfig<R>
   ): Promise<FlatResponseData<ExtractResponseData<MappedType<R, T>>, ResponseData>>;

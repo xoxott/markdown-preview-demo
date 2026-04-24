@@ -179,12 +179,9 @@ $$
       }, 500);
     });
 
-
     return () => (
       <NCard bordered class="shadow-sm">
-        <NH3 class="border-b pb-2 text-lg font-semibold mb-4">
-          ✍️ Markdown 流式渲染笔写效果
-        </NH3>
+        <NH3 class="border-b pb-2 text-lg font-semibold mb-4">✍️ Markdown 流式渲染笔写效果</NH3>
 
         <NText class="text-gray-500 mb-6 block">
           演示在 Markdown 渲染时，笔跟随文字末尾移动的效果。点击按钮可以重新开始流式渲染。
@@ -192,11 +189,7 @@ $$
 
         {/* 控制按钮 */}
         <div class="mb-4 flex gap-2">
-          <NButton
-            type="primary"
-            onClick={() => startTyping(testText)}
-            disabled={isTyping.value}
-          >
+          <NButton type="primary" onClick={() => startTyping(testText)} disabled={isTyping.value}>
             开始流式渲染
           </NButton>
           <NButton onClick={stopTyping} disabled={!isTyping.value}>

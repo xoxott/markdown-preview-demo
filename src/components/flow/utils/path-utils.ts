@@ -1,6 +1,6 @@
 /**
  * Flow 路径工具函数
- * 
+ *
  * 提供贝塞尔曲线计算、路径生成、路径优化等功能
  */
 
@@ -8,7 +8,7 @@ import type { FlowEdgePathParams } from '../types/flow-edge';
 
 /**
  * 生成直线路径
- * 
+ *
  * @param params 路径参数
  * @returns SVG path 字符串
  */
@@ -19,7 +19,7 @@ export function generateStraightPath(params: FlowEdgePathParams): string {
 
 /**
  * 生成贝塞尔曲线路径
- * 
+ *
  * @param params 路径参数
  * @param controlOffset 控制点偏移比例（0-1）
  * @returns SVG path 字符串
@@ -44,15 +44,12 @@ export function generateBezierPath(
 
 /**
  * 生成阶梯路径
- * 
+ *
  * @param params 路径参数
  * @param radius 圆角半径
  * @returns SVG path 字符串
  */
-export function generateStepPath(
-  params: FlowEdgePathParams,
-  radius: number = 10
-): string {
+export function generateStepPath(params: FlowEdgePathParams, radius: number = 10): string {
   const { sourceX, sourceY, targetX, targetY } = params;
 
   const dx = targetX - sourceX;
@@ -80,15 +77,12 @@ export function generateStepPath(
 
 /**
  * 生成平滑阶梯路径
- * 
+ *
  * @param params 路径参数
  * @param radius 圆角半径
  * @returns SVG path 字符串
  */
-export function generateSmoothStepPath(
-  params: FlowEdgePathParams,
-  radius: number = 10
-): string {
+export function generateSmoothStepPath(params: FlowEdgePathParams, radius: number = 10): string {
   const { sourceX, sourceY, targetX, targetY } = params;
 
   const dx = targetX - sourceX;
@@ -116,7 +110,7 @@ export function generateSmoothStepPath(
 
 /**
  * 根据类型生成路径
- * 
+ *
  * @param params 路径参数
  * @param type 路径类型
  * @param options 选项
@@ -146,7 +140,7 @@ export function generatePath(
 
 /**
  * 计算路径长度（近似值）
- * 
+ *
  * @param pathData SVG path 字符串
  * @returns 路径长度（近似值）
  */
@@ -187,15 +181,9 @@ export function calculatePathLength(pathData: string): number {
           const p3 = { x: coords[4], y: coords[5] };
           // 简化的长度计算
           length +=
-            Math.sqrt(
-              Math.pow(p1.x - p0.x, 2) + Math.pow(p1.y - p0.y, 2)
-            ) +
-            Math.sqrt(
-              Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2)
-            ) +
-            Math.sqrt(
-              Math.pow(p3.x - p2.x, 2) + Math.pow(p3.y - p2.y, 2)
-            );
+            Math.sqrt(Math.pow(p1.x - p0.x, 2) + Math.pow(p1.y - p0.y, 2)) +
+            Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2)) +
+            Math.sqrt(Math.pow(p3.x - p2.x, 2) + Math.pow(p3.y - p2.y, 2));
           lastX = coords[4];
           lastY = coords[5];
         }
@@ -208,15 +196,12 @@ export function calculatePathLength(pathData: string): number {
 
 /**
  * 获取路径上的点（根据比例）
- * 
+ *
  * @param pathData SVG path 字符串
  * @param t 比例（0-1）
  * @returns 点坐标
  */
-export function getPointOnPath(
-  pathData: string,
-  t: number
-): { x: number; y: number } | null {
+export function getPointOnPath(pathData: string, t: number): { x: number; y: number } | null {
   // 简化实现：对于直线路径，直接计算
   // 对于复杂路径，需要使用更精确的算法
   const match = pathData.match(/M\s*([\d.-]+),([\d.-]+)\s*L\s*([\d.-]+),([\d.-]+)/);
@@ -235,7 +220,7 @@ export function getPointOnPath(
 
 /**
  * 简化路径（减少点数）
- * 
+ *
  * @param pathData SVG path 字符串
  * @param tolerance 容差
  * @returns 简化后的路径
@@ -245,4 +230,3 @@ export function simplifyPath(pathData: string, tolerance: number = 1): string {
   // 对于复杂路径，可以使用 Douglas-Peucker 算法
   return pathData;
 }
-

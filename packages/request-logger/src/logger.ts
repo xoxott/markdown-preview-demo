@@ -11,7 +11,7 @@ import type { LoggerManager } from './managers/LoggerManager';
 export function logRequest(
   config: NormalizedRequestConfig,
   loggerManager: LoggerManager,
-  enabled?: boolean,
+  enabled?: boolean
 ): void {
   if (!loggerManager.shouldLogRequest(enabled)) {
     return;
@@ -44,7 +44,7 @@ export function logResponse<T>(
   result: T,
   duration: number,
   loggerManager: LoggerManager,
-  enabled?: boolean,
+  enabled?: boolean
 ): void {
   if (!loggerManager.shouldLogResponse(enabled)) {
     return;
@@ -67,7 +67,7 @@ export function logError(
   error: unknown,
   duration: number,
   loggerManager: LoggerManager,
-  enabled?: boolean,
+  enabled?: boolean
 ): void {
   if (!loggerManager.shouldLogError(enabled)) {
     return;
@@ -81,4 +81,3 @@ export function logError(
   output('📥 Error:', error);
   output('⏱️  Duration:', `${duration}ms`);
 }
-

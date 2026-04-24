@@ -2,10 +2,18 @@
  * 请求转换器
  * 提供默认的请求参数转换器
  */
-import type { CheckFileTransformer, ChunkUploadTransformer, MergeChunksTransformer } from '../types';
+import type {
+  CheckFileTransformer,
+  ChunkUploadTransformer,
+  MergeChunksTransformer
+} from '../types';
 
 /** 默认分块上传参数转换器 */
-export const defaultChunkUploadTransformer: ChunkUploadTransformer = ({ task, chunk, customParams = {} }) => {
+export const defaultChunkUploadTransformer: ChunkUploadTransformer = ({
+  task,
+  chunk,
+  customParams = {}
+}) => {
   const formData = new FormData();
   // 确保 blob 存在（延迟创建的情况下）
   const blob = chunk.blob || task.file.slice(chunk.start, chunk.end);
@@ -27,7 +35,10 @@ export const defaultChunkUploadTransformer: ChunkUploadTransformer = ({ task, ch
 };
 
 /** 默认合并分块参数转换器 */
-export const defaultMergeChunksTransformer: MergeChunksTransformer = ({ task, customParams = {} }) => {
+export const defaultMergeChunksTransformer: MergeChunksTransformer = ({
+  task,
+  customParams = {}
+}) => {
   return {
     fileMD5: task.fileMD5,
     fileName: task.file.name,
@@ -47,4 +58,3 @@ export const defaultCheckFileTransformer: CheckFileTransformer = ({ task, custom
     ...customParams
   };
 };
-

@@ -114,4 +114,3 @@ export function fetchResolveAlert(id: number) {
     method: 'patch'
   });
 }
-

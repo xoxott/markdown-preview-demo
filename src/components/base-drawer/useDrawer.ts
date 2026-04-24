@@ -1,4 +1,13 @@
-import { type Ref, createVNode, getCurrentInstance, nextTick, readonly, ref, render, watchEffect } from 'vue';
+import {
+  type Ref,
+  createVNode,
+  getCurrentInstance,
+  nextTick,
+  readonly,
+  ref,
+  render,
+  watchEffect
+} from 'vue';
 import { storeToRefs } from 'pinia';
 import { NConfigProvider, darkTheme } from 'naive-ui';
 import { useThemeStore } from '@/store/modules/theme';
@@ -53,9 +62,9 @@ class DrawerManager {
     watchEffect(() => {
       const drawerVNode = createVNode(BaseDrawer, {
         options,
-        visible: visible.value,
-        loading: loading.value,
-        disabled: disabled.value,
+        'visible': visible.value,
+        'loading': loading.value,
+        'disabled': disabled.value,
         'onUpdate:visible': (val: boolean) => {
           visible.value = val;
         },
@@ -65,7 +74,7 @@ class DrawerManager {
         'onUpdate:disabled': (val: boolean) => {
           disabled.value = val;
         },
-        ref: (el: any) => {
+        'ref': (el: any) => {
           if (el) {
             exposedMethods = el;
           }

@@ -103,7 +103,7 @@ export default defineComponent({
               支持拖拽、多选、文件夹
             </NTag>
           ),
-          default: () => (
+          'default': () => (
             <div class="flex flex-col gap-4">
               <CustomUpload
                 ref={fileInputRef}
@@ -120,7 +120,11 @@ export default defineComponent({
                 onExceed={props.onExceed}
               >
                 {{
-                  default: ({ isDragOver, isProcessing, fileCount }: {
+                  default: ({
+                    isDragOver,
+                    isProcessing,
+                    fileCount
+                  }: {
                     isDragOver: boolean;
                     isProcessing: boolean;
                     fileCount: number;
@@ -203,4 +207,3 @@ export default defineComponent({
     );
   }
 });
-

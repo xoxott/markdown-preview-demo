@@ -43,4 +43,3 @@ export async function getFileInfo(file: File): Promise<{
 
   return info;
 }
-

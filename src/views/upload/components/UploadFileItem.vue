@@ -47,7 +47,8 @@ const getFileIcon = (type: string) => {
   if (type.startsWith('video/')) return iconMap.video;
   if (type.startsWith('audio/')) return iconMap.audio;
   if (type.includes('zip') || type.includes('rar') || type.includes('7z')) return iconMap.archive;
-  if (type.includes('pdf') || type.includes('document') || type.includes('word')) return iconMap.document;
+  if (type.includes('pdf') || type.includes('document') || type.includes('word'))
+    return iconMap.document;
   return iconMap.default;
 };
 
@@ -221,8 +222,17 @@ const handleRetry = () => emit('retry');
         </div>
 
         <!-- 进度条（仅上传中显示） -->
-        <div v-if="showProgress && task.status === UploadStatus.UPLOADING" class="flex flex-col gap-1.5">
-          <NProgress type="line" :percentage="task.progress" :show-indicator="false" :height="4" :border-radius="2" />
+        <div
+          v-if="showProgress && task.status === UploadStatus.UPLOADING"
+          class="flex flex-col gap-1.5"
+        >
+          <NProgress
+            type="line"
+            :percentage="task.progress"
+            :show-indicator="false"
+            :height="4"
+            :border-radius="2"
+          />
           <div class="text-xs text-gray-500 dark:text-gray-400">
             {{ task.progress }}% · {{ formatSpeed(task.speed) }}
           </div>

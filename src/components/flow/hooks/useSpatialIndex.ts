@@ -61,12 +61,12 @@ function getNodesPositionHash(nodes: FlowNode[]): number {
     const x = floorCoordinate(n.position.x);
     const y = floorCoordinate(n.position.y);
     // 使用位运算计算哈希（标准哈希算法：hash = hash * 31 + value）
-    hash = ((hash << HASH_SHIFT_BITS) - hash) + x;
-    hash = ((hash << HASH_SHIFT_BITS) - hash) + y;
+    hash = (hash << HASH_SHIFT_BITS) - hash + x;
+    hash = (hash << HASH_SHIFT_BITS) - hash + y;
     hash = hash | 0; // Convert to 32bit integer
   }
   // 将节点数量也加入哈希，确保节点数量变化时哈希值变化
-  hash = ((hash << HASH_SHIFT_BITS) - hash) + nodes.length;
+  hash = (hash << HASH_SHIFT_BITS) - hash + nodes.length;
   hash = hash | 0;
   return hash;
 }
@@ -87,9 +87,7 @@ function getNodesPositionHash(nodes: FlowNode[]): number {
  * });
  * ```
  */
-export function useSpatialIndex(
-  options: UseSpatialIndexOptions
-): UseSpatialIndexReturn {
+export function useSpatialIndex(options: UseSpatialIndexOptions): UseSpatialIndexReturn {
   const {
     nodes,
     enabled = true,
@@ -129,7 +127,9 @@ export function useSpatialIndex(
 
   // 使用 markRaw 标记 SpatialIndex 实例，避免 Vue 对其进行深度响应式处理
   // SpatialIndex 是一个纯数据结构和算法类，不需要响应式
-  const spatialIndex = ref(markRaw(new SpatialIndex({ defaultWidth, defaultHeight }))) as Ref<SpatialIndex>;
+  const spatialIndex = ref(
+    markRaw(new SpatialIndex({ defaultWidth, defaultHeight }))
+  ) as Ref<SpatialIndex>;
 
   // 位置缓存，用于检测变化的节点
   const lastNodePositions = new Map<string, { x: number; y: number }>();
@@ -222,7 +222,7 @@ export function useSpatialIndex(
   // 监听节点位置变化（使用 RAF 节流优化性能）
   watch(
     () => getNodesPositionHash(nodes.value),
-    (newHash) => {
+    newHash => {
       // 如果哈希没变化，跳过更新
       if (newHash === lastHash) {
         return;
@@ -264,4 +264,3 @@ export function useSpatialIndex(
     cleanup
   };
 }
-

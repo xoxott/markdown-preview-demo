@@ -46,4 +46,3 @@ export function generatePositionKey(position: FlowPosition): string {
 export function generateViewportKey(viewport: FlowViewport): string {
   return `${floorCoordinate(viewport.x)}-${floorCoordinate(viewport.y)}-${roundZoomKey(viewport.zoom)}`;
 }
-

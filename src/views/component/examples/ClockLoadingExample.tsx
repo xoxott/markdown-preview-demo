@@ -125,6 +125,5 @@ export const ClockLoadingExample = defineComponent({
         </div>
       </div>
     );
-  },
+  }
 });
-

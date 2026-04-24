@@ -135,7 +135,7 @@ export class FlowConnectionHandler {
 
     // 如果使用 RAF 节流，使用节流版本
     if (this.options.useRAF) {
-      this.rafThrottle.throttle(event, (e) => {
+      this.rafThrottle.throttle(event, e => {
         this.processPreviewUpdate(e);
       });
     } else {
@@ -265,10 +265,7 @@ export class FlowConnectionHandler {
    * @param nodes 所有节点列表（用于验证）
    * @returns 连接数据，如果验证失败或未找到目标则返回 null
    */
-  async finishConnectionFromEvent(
-    event: MouseEvent,
-    nodes: FlowNode[]
-  ): Promise<FlowEdge | null> {
+  async finishConnectionFromEvent(event: MouseEvent, nodes: FlowNode[]): Promise<FlowEdge | null> {
     if (!this.draft) {
       return null;
     }
@@ -281,12 +278,7 @@ export class FlowConnectionHandler {
       const handleType = handleElement.getAttribute('data-handle-type');
       const nodeId = handleElement.closest('.flow-node')?.getAttribute('data-node-id');
 
-      if (
-        nodeId &&
-        handleId &&
-        handleType === 'target' &&
-        nodeId !== this.draft.sourceNodeId
-      ) {
+      if (nodeId && handleId && handleType === 'target' && nodeId !== this.draft.sourceNodeId) {
         return await this.finishConnection(nodeId, handleId, nodes);
       }
     }
@@ -360,11 +352,7 @@ export class FlowConnectionHandler {
    * @param nodes 所有节点列表
    * @returns 是否可以连接
    */
-  canConnectTo(
-    targetNodeId: string,
-    targetHandleId: string,
-    nodes: FlowNode[]
-  ): boolean {
+  canConnectTo(targetNodeId: string, targetHandleId: string, nodes: FlowNode[]): boolean {
     if (!this.draft) {
       return false;
     }
@@ -385,4 +373,3 @@ export class FlowConnectionHandler {
     return true;
   }
 }
-

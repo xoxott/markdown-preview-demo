@@ -12,20 +12,13 @@ export function getAllTasks(
   activeUploads: Map<string, FileTask>,
   completedUploads: FileTask[]
 ): FileTask[] {
-  return [
-    ...uploadQueue,
-    ...Array.from(activeUploads.values()),
-    ...completedUploads
-  ];
+  return [...uploadQueue, ...Array.from(activeUploads.values()), ...completedUploads];
 }
 
 /**
  * 按状态过滤任务
  */
-export function filterTasksByStatus(
-  tasks: FileTask[],
-  status: UploadStatus
-): FileTask[] {
+export function filterTasksByStatus(tasks: FileTask[], status: UploadStatus): FileTask[] {
   return tasks.filter(task => task.status === status);
 }
 
@@ -58,4 +51,3 @@ export function resetTaskForRetry(task: FileTask): void {
   task.error = null;
   task.retryCount++;
 }
-

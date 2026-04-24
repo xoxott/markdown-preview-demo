@@ -25,29 +25,28 @@ export default defineComponent({
         <NFormItem label="分片上传 URL">
           <NInput
             value={props.settings.uploadChunkUrl}
-            onUpdateValue={(value) => props.onUpdate('uploadChunkUrl', value)}
+            onUpdateValue={value => props.onUpdate('uploadChunkUrl', value)}
           />
         </NFormItem>
         <NFormItem label="合并分片 URL">
           <NInput
             value={props.settings.mergeChunksUrl}
-            onUpdateValue={(value) => props.onUpdate('mergeChunksUrl', value)}
+            onUpdateValue={value => props.onUpdate('mergeChunksUrl', value)}
           />
         </NFormItem>
         <NFormItem label="秒传检查 URL (可选)">
           <NInput
             value={props.settings.checkFileUrl}
-            onUpdateValue={(value) => props.onUpdate('checkFileUrl', value || undefined)}
+            onUpdateValue={value => props.onUpdate('checkFileUrl', value || undefined)}
           />
         </NFormItem>
         <NFormItem label="取消上传 URL (可选)">
           <NInput
             value={props.settings.cancelUploadUrl}
-            onUpdateValue={(value) => props.onUpdate('cancelUploadUrl', value || undefined)}
+            onUpdateValue={value => props.onUpdate('cancelUploadUrl', value || undefined)}
           />
         </NFormItem>
       </NForm>
     );
   }
 });
-

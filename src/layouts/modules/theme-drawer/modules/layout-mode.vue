@@ -54,7 +54,10 @@ function handleReverseHorizontalMixChange(value: boolean) {
     :label="$t('theme.layoutMode.reverseHorizontalMix')"
     class="mt-16px"
   >
-    <NSwitch :value="themeStore.layout.reverseHorizontalMix" @update:value="handleReverseHorizontalMixChange" />
+    <NSwitch
+      :value="themeStore.layout.reverseHorizontalMix"
+      @update:value="handleReverseHorizontalMixChange"
+    />
   </SettingItem>
 </template>
 

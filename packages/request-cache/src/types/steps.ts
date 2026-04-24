@@ -24,4 +24,3 @@ export interface CacheWriteStepOptions {
   /** 缓存策略工厂函数 */
   policyFactory?: (cache?: CacheConfig) => CachePolicy;
 }
-

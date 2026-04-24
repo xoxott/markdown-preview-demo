@@ -27,14 +27,13 @@ export function isCacheItemExpired(item: CacheItem | null, now: number): boolean
  */
 export function getCacheStats(
   memoryCount: number,
-  storageCount: number = 0,
+  storageCount: number = 0
 ): {
   memoryCount: number;
   storageCount: number;
 } {
   return {
     memoryCount,
-    storageCount,
+    storageCount
   };
 }
-

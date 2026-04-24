@@ -56,7 +56,10 @@ export class ProgressManager {
     }
 
     const totalSize = tasks.reduce((sum, task) => sum + task.file.size, 0);
-    const uploadedSize = tasks.reduce((sum, task) => sum + (task.file.size * task.progress) / 100, 0);
+    const uploadedSize = tasks.reduce(
+      (sum, task) => sum + (task.file.size * task.progress) / 100,
+      0
+    );
 
     this.totalProgress.value = Math.min(100, Math.round((uploadedSize / totalSize) * 100) || 0);
   }
@@ -77,7 +80,10 @@ export class ProgressManager {
 
     const allTasks = [...uploadQueue, ...Array.from(activeUploads.values()), ...completedUploads];
     const totalSize = allTasks.reduce((sum, task) => sum + task.file.size, 0);
-    const uploadedSize = allTasks.reduce((sum, task) => sum + (task.file.size * task.progress) / 100, 0);
+    const uploadedSize = allTasks.reduce(
+      (sum, task) => sum + (task.file.size * task.progress) / 100,
+      0
+    );
 
     // 🔥 使用时间估算器计算剩余时间
     const remainingSize = totalSize - uploadedSize;

@@ -28,9 +28,10 @@
   border: 1px solid $flow-node-border;
   border-radius: $flow-node-border-radius;
   color: $flow-node-text;
-  transition: border $flow-transition-duration $flow-transition-timing,
-              box-shadow $flow-transition-duration $flow-transition-timing,
-              opacity $flow-transition-opacity $flow-transition-timing;
+  transition:
+    border $flow-transition-duration $flow-transition-timing,
+    box-shadow $flow-transition-duration $flow-transition-timing,
+    opacity $flow-transition-opacity $flow-transition-timing;
 
   &.flow-node-selected {
     border: 2px solid $flow-node-border-selected;
@@ -92,4 +93,3 @@
 .flow-background {
   background-color: $flow-background-color;
 }
-

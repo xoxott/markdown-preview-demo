@@ -20,7 +20,7 @@ describe('TransportStep', () => {
     const step = new TransportStep(mockTransport);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     const responseData = { id: 1, name: 'John' };
@@ -44,10 +44,13 @@ describe('TransportStep', () => {
     const step = new TransportStep(mockTransport);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
-    const responseData = [{ id: 1, name: 'John' }, { id: 2, name: 'Jane' }];
+    const responseData = [
+      { id: 1, name: 'John' },
+      { id: 2, name: 'Jane' }
+    ];
     mockTransport.setDefaultResponse(responseData, 200);
 
     const ctx = createRequestContext<typeof responseData>(config);
@@ -66,7 +69,7 @@ describe('TransportStep', () => {
     const step = new TransportStep(mockTransport);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     const error = new Error('Network error');
@@ -86,7 +89,7 @@ describe('TransportStep', () => {
     const step = new TransportStep(mockTransport);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     const ctx = createRequestContext(config);
@@ -110,11 +113,11 @@ describe('TransportStep', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer token',
+        'Authorization': 'Bearer token'
       },
       data: { name: 'John' },
       baseURL: 'https://api.example.com',
-      timeout: 5000,
+      timeout: 5000
     };
 
     mockTransport.setDefaultResponse({ success: true }, 201);
@@ -136,7 +139,7 @@ describe('TransportStep', () => {
     const step = new TransportStep(mockTransport);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     mockTransport.setDefaultResponse({ message: 'Created' }, 201);
@@ -156,7 +159,7 @@ describe('TransportStep', () => {
     const step = new TransportStep(mockTransport);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     const ctx = createRequestContext(config);
@@ -178,14 +181,14 @@ describe('TransportStep', () => {
     const step = new TransportStep(mockTransport);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     const response: TransportResponse<{ id: number }> = {
       data: { id: 123 },
       status: 200,
       headers: { 'Content-Type': 'application/json' },
-      config,
+      config
     };
 
     mockTransport.setResponse('GET:/api/users', response);
@@ -201,4 +204,3 @@ describe('TransportStep', () => {
     expect(ctx.result).toEqual({ id: 123 });
   });
 });
-

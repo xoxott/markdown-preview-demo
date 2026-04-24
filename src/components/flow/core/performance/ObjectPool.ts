@@ -57,7 +57,7 @@ export class ObjectPool<T> {
   private stats = {
     totalCreated: 0,
     totalAcquired: 0,
-    totalReleased: 0,
+    totalReleased: 0
   };
 
   /**
@@ -67,17 +67,13 @@ export class ObjectPool<T> {
    * @param reset 对象重置函数
    * @param options 配置选项
    */
-  constructor(
-    factory: () => T,
-    reset: (obj: T) => void,
-    options: ObjectPoolOptions<T> = {}
-  ) {
+  constructor(factory: () => T, reset: (obj: T) => void, options: ObjectPoolOptions<T> = {}) {
     this.factory = factory;
     this.reset = reset;
     this.options = {
       initialSize: options.initialSize || 10,
       maxSize: options.maxSize || 1000,
-      enableStats: options.enableStats || 1,
+      enableStats: options.enableStats || 1
     };
 
     // 预创建初始对象
@@ -154,9 +150,11 @@ export class ObjectPool<T> {
    * @returns 统计信息
    */
   getStats(): ObjectPoolStats {
-    const hitRate = this.stats.totalAcquired > 0
-      ? (this.stats.totalAcquired - this.stats.totalCreated + this.options.initialSize) / this.stats.totalAcquired
-      : 0;
+    const hitRate =
+      this.stats.totalAcquired > 0
+        ? (this.stats.totalAcquired - this.stats.totalCreated + this.options.initialSize) /
+          this.stats.totalAcquired
+        : 0;
 
     return {
       poolSize: this.pool.length,
@@ -164,7 +162,7 @@ export class ObjectPool<T> {
       totalCreated: this.stats.totalCreated,
       totalAcquired: this.stats.totalAcquired,
       totalReleased: this.stats.totalReleased,
-      hitRate: Math.max(0, Math.min(1, hitRate)),
+      hitRate: Math.max(0, Math.min(1, hitRate))
     };
   }
 
@@ -175,7 +173,7 @@ export class ObjectPool<T> {
     this.stats = {
       totalCreated: 0,
       totalAcquired: 0,
-      totalReleased: 0,
+      totalReleased: 0
     };
   }
 
@@ -208,10 +206,13 @@ export class ObjectPool<T> {
 /**
  * 创建位置对象池
  */
-export function createPositionPool(initialSize = 100, maxSize = 1000): ObjectPool<{ x: number; y: number }> {
+export function createPositionPool(
+  initialSize = 100,
+  maxSize = 1000
+): ObjectPool<{ x: number; y: number }> {
   return new ObjectPool(
     () => ({ x: 0, y: 0 }),
-    (pos) => {
+    pos => {
       pos.x = 0;
       pos.y = 0;
     },
@@ -222,7 +223,10 @@ export function createPositionPool(initialSize = 100, maxSize = 1000): ObjectPoo
 /**
  * 创建边界对象池
  */
-export function createBoundsPool(initialSize = 50, maxSize = 500): ObjectPool<{
+export function createBoundsPool(
+  initialSize = 50,
+  maxSize = 500
+): ObjectPool<{
   minX: number;
   minY: number;
   maxX: number;
@@ -237,9 +241,9 @@ export function createBoundsPool(initialSize = 50, maxSize = 500): ObjectPool<{
       maxX: 0,
       maxY: 0,
       width: 0,
-      height: 0,
+      height: 0
     }),
-    (bounds) => {
+    bounds => {
       bounds.minX = 0;
       bounds.minY = 0;
       bounds.maxX = 0;
@@ -270,7 +274,7 @@ export function createArrayPool<T>(initialSize = 50, maxSize = 500): ObjectPool<
 export function createMapPool<K, V>(initialSize = 20, maxSize = 200): ObjectPool<Map<K, V>> {
   return new ObjectPool(
     () => new Map<K, V>(),
-    (map) => {
+    map => {
       map.clear();
     },
     { initialSize, maxSize }
@@ -283,10 +287,9 @@ export function createMapPool<K, V>(initialSize = 20, maxSize = 200): ObjectPool
 export function createSetPool<T>(initialSize = 20, maxSize = 200): ObjectPool<Set<T>> {
   return new ObjectPool(
     () => new Set<T>(),
-    (set) => {
+    set => {
       set.clear();
     },
     { initialSize, maxSize }
   );
 }
-

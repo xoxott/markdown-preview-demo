@@ -11,6 +11,7 @@
 ## 特性
 
 ### 核心功能
+
 - ✅ **多实例支持**：每个画布可以有独立的配置
 - ✅ **完整配置系统**：涵盖画布、节点、连接线、交互、性能、主题等所有配置
 - ✅ **事件系统**：完整的事件回调接口，类似 VueFlow
@@ -20,6 +21,7 @@
 - ✅ **响应式**：基于 Vue 3 的响应式系统
 
 ### 🚀 性能优化 (v2.0)
+
 - ✅ **空间索引 (R-Tree)**：节点查询性能提升 90% (O(n) → O(log n))
 - ✅ **对象池模式**：减少 GC 压力 30-50%
 - ✅ **命令模式**：撤销/重做内存占用减少 80%
@@ -108,13 +110,13 @@ src/components/flow/
 
 ## 📊 性能对比 (v1.0 vs v2.0)
 
-| 指标 | v1.0 | v2.0 | 提升 |
-|------|------|------|------|
-| **10000节点视口查询** | 50ms | 5ms | ⚡ **90%** |
-| **对象创建/销毁 GC** | 高压力 | 低压力 | ⚡ **30-50%** |
-| **撤销/重做内存占用** | 200MB | 40MB | ⚡ **80%** |
-| **事件监听器数量** | 3000个 | 3个 | ⚡ **99.9%** |
-| **单元测试覆盖** | 0% | 80%+ | ✅ **新增** |
+| 指标                  | v1.0   | v2.0   | 提升          |
+| --------------------- | ------ | ------ | ------------- |
+| **10000节点视口查询** | 50ms   | 5ms    | ⚡ **90%**    |
+| **对象创建/销毁 GC**  | 高压力 | 低压力 | ⚡ **30-50%** |
+| **撤销/重做内存占用** | 200MB  | 40MB   | ⚡ **80%**    |
+| **事件监听器数量**    | 3000个 | 3个    | ⚡ **99.9%**  |
+| **单元测试覆盖**      | 0%     | 80%+   | ✅ **新增**   |
 
 > 💡 **提示**: 性能提升在大规模场景（>100节点）下更明显
 
@@ -218,7 +220,7 @@ emitter.on('onNodeClick', (node, event) => {
 });
 
 // 一次性监听器
-emitter.once('onConnect', (connection) => {
+emitter.once('onConnect', connection => {
   console.log('Connected:', connection);
 });
 
@@ -250,12 +252,7 @@ if (!result.valid) {
 ### 性能优化
 
 ```typescript
-import {
-  ViewportCuller,
-  VirtualScroller,
-  CanvasRenderer,
-  FlowCache
-} from '@/components/flow';
+import { ViewportCuller, VirtualScroller, CanvasRenderer, FlowCache } from '@/components/flow';
 
 // 视口裁剪器
 const culler = new ViewportCuller();
@@ -269,10 +266,7 @@ const visibleEdges = culler.cullEdges(edges, nodes, bounds);
 const scroller = new VirtualScroller(culler);
 scroller.setOptions({ threshold: 100, buffer: 200 });
 
-const { visibleNodes, totalCount, visibleCount } = scroller.getVisibleNodes(
-  nodes,
-  viewport
-);
+const { visibleNodes, totalCount, visibleCount } = scroller.getVisibleNodes(nodes, viewport);
 
 // Canvas 渲染器
 const canvasRenderer = new CanvasRenderer();
@@ -309,9 +303,9 @@ const myPlugin: FlowPlugin = {
   name: 'my-plugin',
   version: '1.0.0',
   description: '我的自定义插件',
-  install: async (context) => {
+  install: async context => {
     // 注册事件监听
-    const unsubscribe = context.events.on('onNodeClick', (node) => {
+    const unsubscribe = context.events.on('onNodeClick', node => {
       console.log('Plugin: Node clicked', node);
     });
 
@@ -326,11 +320,11 @@ const myPlugin: FlowPlugin = {
     });
 
     // 订阅配置变化
-    context.config.subscribe((config) => {
+    context.config.subscribe(config => {
       console.log('Config changed:', config);
     });
   },
-  uninstall: async (context) => {
+  uninstall: async context => {
     // 清理工作
     const hook = context.hooks.get('customHook');
     if (hook?.cleanup) {
@@ -412,23 +406,27 @@ console.log(pluginLoader.isEnabled('my-plugin')); // true
 ### ✅ 已实现功能
 
 1. **类型系统**
+
    - 完整的 TypeScript 类型定义
    - 节点、连接线、配置、事件、插件类型
    - 类型安全的 API
 
 2. **配置管理**
+
    - 多实例配置支持
    - 配置验证
    - 配置订阅和更新
    - 默认配置
 
 3. **事件系统**
+
    - 类型安全的事件发射器
    - 多实例事件管理
    - 事件转发和广播
    - 一次性监听器
 
 4. **状态管理**
+
    - 节点和连接线管理
    - 视口状态管理
    - 选择状态管理
@@ -436,6 +434,7 @@ console.log(pluginLoader.isEnabled('my-plugin')); // true
    - 状态快照
 
 5. **核心组件**
+
    - FlowCanvas - 主画布组件
    - FlowNodes - 节点列表组件
    - FlowEdges - 连接线列表组件
@@ -443,6 +442,7 @@ console.log(pluginLoader.isEnabled('my-plugin')); // true
    - BaseEdge - 基础连接线组件
 
 6. **交互系统**
+
    - 节点拖拽
    - 画布平移
    - 节点选择（单选、多选、框选）
@@ -450,18 +450,21 @@ console.log(pluginLoader.isEnabled('my-plugin')); // true
    - 键盘快捷键
 
 7. **工具组件**
+
    - FlowBackground - 网格背景
    - FlowMinimap - 小地图
    - FlowToolbar - 工具栏
    - FlowEmptyState - 空状态
 
 8. **性能优化**
+
    - 视口裁剪
    - 虚拟滚动
    - Canvas/SVG 混合渲染
    - 缓存系统
 
 9. **插件系统**
+
    - 插件注册和加载
    - 插件生命周期管理
    - 插件上下文 API
@@ -499,12 +502,15 @@ const isInRect = isPointInRect(point, { x: 0, y: 0, width: 100, height: 100 });
 const isOnLine = isPointOnLine(point, lineStart, lineEnd, 5);
 
 // 路径生成
-const path = generateBezierPath({
-  sourceX: 100,
-  sourceY: 100,
-  targetX: 200,
-  targetY: 200
-}, 0.5);
+const path = generateBezierPath(
+  {
+    sourceX: 100,
+    sourceY: 100,
+    targetX: 200,
+    targetY: 200
+  },
+  0.5
+);
 
 // 节点对齐
 const positions = alignNodes(selectedNodes, 'left');
@@ -543,7 +549,7 @@ const dragHandler = new FlowDragHandler({
 
 // 选择处理器
 const selectionHandler = new FlowSelectionHandler({
-  onSelectionChange: (selectedIds) => {
+  onSelectionChange: selectedIds => {
     console.log('Selection changed:', selectedIds);
   },
   multiSelectKey: 'ctrlKey',
@@ -555,10 +561,10 @@ const connectionHandler = new FlowConnectionHandler({
   onConnectStart: (handle, nodeId) => {
     console.log('Connection started from:', nodeId);
   },
-  onConnect: (connection) => {
+  onConnect: connection => {
     console.log('Connected:', connection);
   },
-  validateConnection: (connection) => {
+  validateConnection: connection => {
     // 验证连接是否有效
     return true;
   }
@@ -566,12 +572,20 @@ const connectionHandler = new FlowConnectionHandler({
 
 // 键盘快捷键处理器
 const keyboardHandler = new FlowKeyboardHandler();
-keyboardHandler.register('ctrl+z', () => {
-  undo();
-}, { priority: 100 });
-keyboardHandler.register('ctrl+y', () => {
-  redo();
-}, { priority: 100 });
+keyboardHandler.register(
+  'ctrl+z',
+  () => {
+    undo();
+  },
+  { priority: 100 }
+);
+keyboardHandler.register(
+  'ctrl+y',
+  () => {
+    redo();
+  },
+  { priority: 100 }
+);
 ```
 
 ### 工具组件
@@ -632,6 +646,7 @@ import {
 ### 核心类
 
 #### FlowConfigManager
+
 配置管理器，支持多实例配置管理。
 
 ```typescript
@@ -647,7 +662,7 @@ const config = manager.getConfig('canvas-1');
 manager.updateConfig('canvas-1', { canvas: { minZoom: 0.2 } });
 
 // 订阅配置变化
-const unsubscribe = manager.subscribe('canvas-1', (config) => {
+const unsubscribe = manager.subscribe('canvas-1', config => {
   console.log('Config changed:', config);
 });
 ```
@@ -661,15 +676,7 @@ Flow 使用新的状态管理架构，支持框架无关的状态存储和可插
 ```typescript
 import { useFlowState } from '@/components/flow/hooks/useFlowState';
 
-const {
-  nodes,
-  edges,
-  addNode,
-  updateNode,
-  selectNode,
-  undo,
-  redo
-} = useFlowState({
+const { nodes, edges, addNode, updateNode, selectNode, undo, redo } = useFlowState({
   initialNodes: [],
   initialEdges: [],
   maxHistorySize: 50
@@ -717,6 +724,7 @@ historyManager.redo();
 ```
 
 #### FlowEventEmitter
+
 类型安全的事件发射器。
 
 ```typescript
@@ -737,6 +745,7 @@ unsubscribe();
 ### Hooks
 
 #### useFlowConfig
+
 配置管理 Hook，提供响应式配置访问。
 
 ```typescript
@@ -746,30 +755,25 @@ const { config, updateConfig, subscribe } = useFlowConfig({
 });
 
 // 响应式访问
-watch(() => config.value.canvas.minZoom, (newVal) => {
-  console.log('Min zoom changed:', newVal);
-});
+watch(
+  () => config.value.canvas.minZoom,
+  newVal => {
+    console.log('Min zoom changed:', newVal);
+  }
+);
 ```
 
 #### useFlowState
+
 状态管理 Hook，提供响应式状态访问。
 
 ```typescript
-const {
-  nodes,
-  edges,
-  viewport,
-  selectedNodeIds,
-  addNode,
-  removeNode,
-  selectNode,
-  undo,
-  redo
-} = useFlowState({
-  initialNodes: [],
-  initialEdges: [],
-  maxHistorySize: 50
-});
+const { nodes, edges, viewport, selectedNodeIds, addNode, removeNode, selectNode, undo, redo } =
+  useFlowState({
+    initialNodes: [],
+    initialEdges: [],
+    maxHistorySize: 50
+  });
 ```
 
 ## 完整示例
@@ -785,10 +789,7 @@ const {
       @on-connect="handleConnect"
     >
       <template #background>
-        <FlowBackground
-          :grid-type="'dots'"
-          :grid-size="20"
-        />
+        <FlowBackground :grid-type="'dots'" :grid-size="20" />
       </template>
       <template #minimap>
         <FlowMinimap />
@@ -831,5 +832,3 @@ const handleConnect = (connection: any) => {
 };
 </script>
 ```
-
-

@@ -64,13 +64,33 @@ export interface FlowNodesProps {
   /** 节点拖拽结束 */
   onNodeDragStop?: (node: FlowNode, event: MouseEvent) => void;
   /** 端口鼠标按下 */
-  onPortMouseDown?: (nodeId: string, handleId: string, handleType: 'source' | 'target', event: MouseEvent) => void;
+  onPortMouseDown?: (
+    nodeId: string,
+    handleId: string,
+    handleType: 'source' | 'target',
+    event: MouseEvent
+  ) => void;
   /** 端口鼠标抬起 */
-  onPortMouseUp?: (nodeId: string, handleId: string, handleType: 'source' | 'target', event: MouseEvent) => void;
+  onPortMouseUp?: (
+    nodeId: string,
+    handleId: string,
+    handleType: 'source' | 'target',
+    event: MouseEvent
+  ) => void;
   /** 端口鼠标进入 */
-  onPortMouseEnter?: (nodeId: string, handleId: string, handleType: 'source' | 'target', event: MouseEvent) => void;
+  onPortMouseEnter?: (
+    nodeId: string,
+    handleId: string,
+    handleType: 'source' | 'target',
+    event: MouseEvent
+  ) => void;
   /** 端口鼠标离开 */
-  onPortMouseLeave?: (nodeId: string, handleId: string, handleType: 'source' | 'target', event: MouseEvent) => void;
+  onPortMouseLeave?: (
+    nodeId: string,
+    handleId: string,
+    handleType: 'source' | 'target',
+    event: MouseEvent
+  ) => void;
   /** 节点鼠标按下 */
   onNodeMouseDown?: (node: FlowNode, event: MouseEvent) => void;
 }
@@ -142,19 +162,47 @@ export default defineComponent({
       default: undefined
     },
     onPortMouseDown: {
-      type: Function as PropType<(nodeId: string, handleId: string, handleType: 'source' | 'target', event: MouseEvent) => void>,
+      type: Function as PropType<
+        (
+          nodeId: string,
+          handleId: string,
+          handleType: 'source' | 'target',
+          event: MouseEvent
+        ) => void
+      >,
       default: undefined
     },
     onPortMouseUp: {
-      type: Function as PropType<(nodeId: string, handleId: string, handleType: 'source' | 'target', event: MouseEvent) => void>,
+      type: Function as PropType<
+        (
+          nodeId: string,
+          handleId: string,
+          handleType: 'source' | 'target',
+          event: MouseEvent
+        ) => void
+      >,
       default: undefined
     },
     onPortMouseEnter: {
-      type: Function as PropType<(nodeId: string, handleId: string, handleType: 'source' | 'target', event: MouseEvent) => void>,
+      type: Function as PropType<
+        (
+          nodeId: string,
+          handleId: string,
+          handleType: 'source' | 'target',
+          event: MouseEvent
+        ) => void
+      >,
       default: undefined
     },
     onPortMouseLeave: {
-      type: Function as PropType<(nodeId: string, handleId: string, handleType: 'source' | 'target', event: MouseEvent) => void>,
+      type: Function as PropType<
+        (
+          nodeId: string,
+          handleId: string,
+          handleType: 'source' | 'target',
+          event: MouseEvent
+        ) => void
+      >,
       default: undefined
     },
     onNodeMouseDown: {
@@ -171,7 +219,6 @@ export default defineComponent({
     }
   },
   setup(props) {
-
     const nodesRef = toRef(props, 'nodes');
     const selectedNodeIdsRef = computed(() => props.selectedNodeIds || []);
     const lockedNodeIdsRef = computed(() => props.lockedNodeIds || []);
@@ -181,7 +228,6 @@ export default defineComponent({
     const viewportRef = computed(() => props.viewport || { x: 0, y: 0, zoom: 1 });
     const enableViewportCullingRef = computed(() => props.enableViewportCulling ?? true);
     const isPanningRef = computed(() => props.isPanning ?? false);
-
 
     // 空间索引管理
     const { spatialIndex } = useSpatialIndex({
@@ -219,15 +265,9 @@ export default defineComponent({
       config: configRef
     });
 
-    const handleNodeClick = createNodeEventDelegation(
-      visibleNodes,
-      props.onNodeClick
-    );
+    const handleNodeClick = createNodeEventDelegation(visibleNodes, props.onNodeClick);
 
-    const handleNodeDoubleClick = createNodeEventDelegation(
-      visibleNodes,
-      props.onNodeDoubleClick
-    );
+    const handleNodeDoubleClick = createNodeEventDelegation(visibleNodes, props.onNodeDoubleClick);
 
     const handleNodeMouseDown = createNodeEventDelegation(
       visibleNodes,
@@ -319,4 +359,3 @@ export default defineComponent({
     };
   }
 });
-

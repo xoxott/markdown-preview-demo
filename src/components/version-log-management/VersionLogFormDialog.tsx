@@ -1,15 +1,6 @@
 import type { PropType } from 'vue';
 import { defineComponent, watch, reactive, ref } from 'vue';
-import {
-  NForm,
-  NFormItem,
-  NInput,
-  NSelect,
-  NDatePicker,
-  NSwitch,
-  NButton,
-  NSpace
-} from 'naive-ui';
+import { NForm, NFormItem, NInput, NSelect, NDatePicker, NSwitch, NButton, NSpace } from 'naive-ui';
 import { useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
 import BaseDialog from '@/components/base-dialog';
@@ -42,10 +33,14 @@ export default defineComponent({
     // 监听 config.formData 变化，同步到 formModel
     watch(
       () => props.config.formData,
-      (newData) => {
+      newData => {
         Object.assign(formModel, newData);
-        releaseDateTimestamp.value = newData.releaseDate ? new Date(newData.releaseDate).getTime() : null;
-        publishedAtTimestamp.value = newData.publishedAt ? new Date(newData.publishedAt).getTime() : null;
+        releaseDateTimestamp.value = newData.releaseDate
+          ? new Date(newData.releaseDate).getTime()
+          : null;
+        publishedAtTimestamp.value = newData.publishedAt
+          ? new Date(newData.publishedAt).getTime()
+          : null;
       },
       { deep: true, immediate: true }
     );
@@ -60,7 +55,11 @@ export default defineComponent({
     // 表单验证规则
     const formRules = {
       version: [
-        { required: true, message: $t('page.versionLogManagement.versionRequired' as any), trigger: 'blur' },
+        {
+          required: true,
+          message: $t('page.versionLogManagement.versionRequired' as any),
+          trigger: 'blur'
+        },
         {
           pattern: /^\d+\.\d+\.\d+$/,
           message: $t('page.versionLogManagement.versionInvalid' as any),
@@ -68,13 +67,25 @@ export default defineComponent({
         }
       ],
       type: [
-        { required: true, message: $t('page.versionLogManagement.typeRequired' as any), trigger: 'change' }
+        {
+          required: true,
+          message: $t('page.versionLogManagement.typeRequired' as any),
+          trigger: 'change'
+        }
       ],
       releaseDate: [
-        { required: true, message: $t('page.versionLogManagement.releaseDateRequired' as any), trigger: 'change' }
+        {
+          required: true,
+          message: $t('page.versionLogManagement.releaseDateRequired' as any),
+          trigger: 'change'
+        }
       ],
       content: [
-        { required: true, message: $t('page.versionLogManagement.contentRequired' as any), trigger: 'blur' }
+        {
+          required: true,
+          message: $t('page.versionLogManagement.contentRequired' as any),
+          trigger: 'blur'
+        }
       ]
     };
 
@@ -87,8 +98,12 @@ export default defineComponent({
         // 将时间戳转换为 ISO 字符串
         const submitData = {
           ...formModel,
-          releaseDate: releaseDateTimestamp.value ? new Date(releaseDateTimestamp.value).toISOString() : '',
-          publishedAt: publishedAtTimestamp.value ? new Date(publishedAtTimestamp.value).toISOString() : ''
+          releaseDate: releaseDateTimestamp.value
+            ? new Date(releaseDateTimestamp.value).toISOString()
+            : '',
+          publishedAt: publishedAtTimestamp.value
+            ? new Date(publishedAtTimestamp.value).toISOString()
+            : ''
         };
         await props.config.onConfirm(submitData);
         handleClose();
@@ -112,7 +127,7 @@ export default defineComponent({
     // 监听显示状态，重置表单验证
     watch(
       () => props.show,
-      (show) => {
+      show => {
         if (show) {
           formRef.value?.restoreValidation();
         }
@@ -152,13 +167,16 @@ export default defineComponent({
                   options={typeOptions}
                 />
               </NFormItem>
-              <NFormItem label={$t('page.versionLogManagement.releaseDate' as any)} path="releaseDate">
+              <NFormItem
+                label={$t('page.versionLogManagement.releaseDate' as any)}
+                path="releaseDate"
+              >
                 <NDatePicker
                   v-model:value={releaseDateTimestamp.value}
                   type="date"
                   placeholder={$t('page.versionLogManagement.releaseDatePlaceholder' as any)}
                   style={{ width: '100%' }}
-                  onUpdateValue={(value) => {
+                  onUpdateValue={value => {
                     releaseDateTimestamp.value = value;
                   }}
                 />
@@ -187,7 +205,10 @@ export default defineComponent({
                   rows={3}
                 />
               </NFormItem>
-              <NFormItem label={$t('page.versionLogManagement.improvements' as any)} path="improvements">
+              <NFormItem
+                label={$t('page.versionLogManagement.improvements' as any)}
+                path="improvements"
+              >
                 <NInput
                   v-model:value={formModel.improvements}
                   type="textarea"
@@ -195,14 +216,17 @@ export default defineComponent({
                   rows={3}
                 />
               </NFormItem>
-              <NFormItem label={$t('page.versionLogManagement.publishedAt' as any)} path="publishedAt">
+              <NFormItem
+                label={$t('page.versionLogManagement.publishedAt' as any)}
+                path="publishedAt"
+              >
                 <NDatePicker
                   v-model:value={publishedAtTimestamp.value}
                   type="datetime"
                   placeholder={$t('page.versionLogManagement.publishedAtPlaceholder' as any)}
                   clearable
                   style={{ width: '100%' }}
-                  onUpdateValue={(value) => {
+                  onUpdateValue={value => {
                     publishedAtTimestamp.value = value;
                   }}
                 />
@@ -210,16 +234,16 @@ export default defineComponent({
               <NFormItem label={$t('page.versionLogManagement.status' as any)} path="isPublished">
                 <NSwitch v-model:value={formModel.isPublished} />
                 <span style={{ marginLeft: '8px' }}>
-                  {formModel.isPublished ? $t('page.versionLogManagement.published' as any) : $t('page.versionLogManagement.unpublished' as any)}
+                  {formModel.isPublished
+                    ? $t('page.versionLogManagement.published' as any)
+                    : $t('page.versionLogManagement.unpublished' as any)}
                 </span>
               </NFormItem>
             </NForm>
           ),
           footer: () => (
             <NSpace justify="end">
-              <NButton onClick={handleCancel}>
-                {$t('common.cancel')}
-              </NButton>
+              <NButton onClick={handleCancel}>{$t('common.cancel')}</NButton>
               <NButton type="primary" onClick={handleConfirm}>
                 {$t('common.confirm')}
               </NButton>
@@ -230,4 +254,3 @@ export default defineComponent({
     );
   }
 });
-

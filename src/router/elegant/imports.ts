@@ -4,38 +4,38 @@
 // Read more: https://github.com/soybeanjs/elegant-router
 
 import type { RouteComponent } from "vue-router";
-import type { LastLevelRouteKey, RouteLayout } from "@elegant-router/types";
+import type { LastLevelRouteKey, RouteLayout } from '@elegant-router/types';
 
 // 懒加载布局组件以提升性能
 export const layouts: Record<RouteLayout, RouteComponent | (() => Promise<RouteComponent>)> = {
-  base: () => import("@/layouts/base-layout/index.vue"),
-  blank: () => import("@/layouts/blank-layout/index.vue"),
+  base: () => import('@/layouts/base-layout/index.vue'),
+  blank: () => import('@/layouts/blank-layout/index.vue')
 };
 
 export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<RouteComponent>)> = {
-  403: () => import("@/views/_builtin/403/index.vue"),
-  404: () => import("@/views/_builtin/404/index.vue"),
-  500: () => import("@/views/_builtin/500/index.vue"),
-  "iframe-page": () => import("@/views/_builtin/iframe-page/[url].vue"),
-  login: () => import("@/views/_builtin/login"),
-  chat: () => import("@/views/chat/index.vue"),
-  component: () => import("@/views/component/index"),
-  "file-manager": () => import("@/views/file-manager/index.vue"),
-  home: () => import("@/views/home/index.vue"),
-  markdownedit: () => import("@/views/markdownEdit/index"),
-  mobile: () => import("@/views/mobile/index.vue"),
-  "upload-v2-demo": () => import("@/views/upload-v2-demo/index"),
-  upload: () => import("@/views/upload/index.vue"),
-  utils: () => import("@/views/utils/index.vue"),
-  monitoring: () => import("@/views/monitoring/index"),
-  "user-management": () => import("@/views/user-management/index"),
-  "role-management": () => import("@/views/role-management/index"),
-  "permission-management": () => import("@/views/permission-management/index"),
-  "announcement-management": () => import("@/views/announcement-management/index"),
-  "notification-management": () => import("@/views/notification-management/index"),
-  "alert-management": () => import("@/views/alert-management/index"),
-  "log-management": () => import("@/views/log-management/index"),
-  "version-log-management": () => import("@/views/version-log-management/index"),
-  "ai-workflow": () => import("@/views/ai-workflow/index"),
-  "ai-workflow-editor": () => import("@/views/ai-workflow/editor/index")
+  403: () => import('@/views/_builtin/403/index.vue'),
+  404: () => import('@/views/_builtin/404/index.vue'),
+  500: () => import('@/views/_builtin/500/index.vue'),
+  'iframe-page': () => import('@/views/_builtin/iframe-page/[url].vue'),
+  'login': () => import('@/views/_builtin/login'),
+  'chat': () => import('@/views/chat/index.vue'),
+  'component': () => import('@/views/component/index'),
+  'file-manager': () => import('@/views/file-manager/index.vue'),
+  'home': () => import('@/views/home/index.vue'),
+  'markdownedit': () => import('@/views/markdownEdit/index'),
+  'mobile': () => import('@/views/mobile/index.vue'),
+  'upload-v2-demo': () => import('@/views/upload-v2-demo/index'),
+  'upload': () => import('@/views/upload/index.vue'),
+  'utils': () => import('@/views/utils/index.vue'),
+  'monitoring': () => import('@/views/monitoring/index'),
+  'user-management': () => import('@/views/user-management/index'),
+  'role-management': () => import('@/views/role-management/index'),
+  'permission-management': () => import('@/views/permission-management/index'),
+  'announcement-management': () => import('@/views/announcement-management/index'),
+  'notification-management': () => import('@/views/notification-management/index'),
+  'alert-management': () => import('@/views/alert-management/index'),
+  'log-management': () => import('@/views/log-management/index'),
+  'version-log-management': () => import('@/views/version-log-management/index'),
+  'ai-workflow': () => import('@/views/ai-workflow/index'),
+  'ai-workflow-editor': () => import('@/views/ai-workflow/editor/index')
 };

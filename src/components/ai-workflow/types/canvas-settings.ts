@@ -44,8 +44,8 @@ export const DEFAULT_CANVAS_SETTINGS: CanvasSettings = {
     width: 2,
     animated: false,
     showArrow: true,
-    draftColor: undefined,  // 默认使用渐变
-    draftWidth: undefined   // 默认使用 3px
+    draftColor: undefined, // 默认使用渐变
+    draftWidth: undefined // 默认使用 3px
   },
   background: {
     showGrid: true,
@@ -55,4 +55,3 @@ export const DEFAULT_CANVAS_SETTINGS: CanvasSettings = {
     backgroundColor: '#ffffff'
   }
 };
-

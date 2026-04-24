@@ -117,7 +117,8 @@ export default defineComponent({
               }}
               onMouseenter={(e: MouseEvent) => {
                 if (!isCurrentItem(displayItems.value.head[0])) {
-                  (e.currentTarget as HTMLElement).style.backgroundColor = themeVars.value.hoverColor;
+                  (e.currentTarget as HTMLElement).style.backgroundColor =
+                    themeVars.value.hoverColor;
                 }
               }}
               onMouseleave={(e: MouseEvent) => {
@@ -167,7 +168,8 @@ export default defineComponent({
                     }}
                     onMouseenter={(e: MouseEvent) => {
                       if (!isCurrent) {
-                        (e.currentTarget as HTMLElement).style.backgroundColor = themeVars.value.hoverColor;
+                        (e.currentTarget as HTMLElement).style.backgroundColor =
+                          themeVars.value.hoverColor;
                       }
                     }}
                     onMouseleave={(e: MouseEvent) => {
@@ -200,14 +202,19 @@ export default defineComponent({
           {displayItems.value.collapsed.length > 0 && (
             <>
               <NBreadcrumbItem>
-                <NDropdown options={collapsedOptions.value} onSelect={handleCollapsedSelect} placement="bottom-start">
+                <NDropdown
+                  options={collapsedOptions.value}
+                  onSelect={handleCollapsedSelect}
+                  placement="bottom-start"
+                >
                   <div
                     class="cursor-pointer rounded px-2 py-1 transition-colors"
                     style={{
                       color: themeVars.value.textColor3
                     }}
                     onMouseenter={(e: MouseEvent) => {
-                      (e.currentTarget as HTMLElement).style.backgroundColor = themeVars.value.hoverColor;
+                      (e.currentTarget as HTMLElement).style.backgroundColor =
+                        themeVars.value.hoverColor;
                     }}
                     onMouseleave={(e: MouseEvent) => {
                       (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
@@ -247,7 +254,8 @@ export default defineComponent({
                     }}
                     onMouseenter={(e: MouseEvent) => {
                       if (!isCurrent) {
-                        (e.currentTarget as HTMLElement).style.backgroundColor = themeVars.value.hoverColor;
+                        (e.currentTarget as HTMLElement).style.backgroundColor =
+                          themeVars.value.hoverColor;
                       }
                     }}
                     onMouseleave={(e: MouseEvent) => {

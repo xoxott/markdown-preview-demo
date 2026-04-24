@@ -23,7 +23,6 @@ import {
 export default defineComponent({
   name: 'ComponentExample',
   setup() {
-
     return () => (
       <div class="p-4 space-y-6">
         {/* ==================== 加载组件 (Loading Components) ==================== */}
@@ -97,4 +96,3 @@ export default defineComponent({
     );
   }
 });
-

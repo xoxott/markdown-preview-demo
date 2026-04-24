@@ -118,4 +118,3 @@ declare namespace Api {
     }
   }
 }
-

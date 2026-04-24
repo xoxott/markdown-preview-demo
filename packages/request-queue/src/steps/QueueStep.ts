@@ -30,7 +30,7 @@ function isQueueMeta(meta: Record<string, unknown>): meta is QueueMeta {
  */
 function parseQueueConfig(
   config: boolean | QueueConfig | undefined,
-  defaultConfig?: QueueConfig,
+  defaultConfig?: QueueConfig
 ): QueueConfig | undefined {
   if (config === undefined || config === false) {
     return undefined;
@@ -63,7 +63,7 @@ export class QueueStep implements RequestStep {
       // 使用默认配置创建管理器
       this.queueManager = new QueueManager({
         maxConcurrent: DEFAULT_QUEUE_CONFIG.DEFAULT_MAX_CONCURRENT,
-        queueStrategy: DEFAULT_QUEUE_CONFIG.DEFAULT_STRATEGY,
+        queueStrategy: DEFAULT_QUEUE_CONFIG.DEFAULT_STRATEGY
       });
     }
     this.defaultConfig = options.defaultConfig;
@@ -93,16 +93,19 @@ export class QueueStep implements RequestStep {
     const priority = ctx.meta.priority ?? DEFAULT_QUEUE_CONFIG.DEFAULT_PRIORITY;
 
     // 使用队列管理器执行请求
-    await manager.enqueue(ctx.config, async () => {
-      await next();
-      if (ctx.error) {
-        throw ctx.error;
-      }
-      if (ctx.result === undefined) {
-        throw new Error('Request completed but no result');
-      }
-      return ctx.result;
-    }, priority);
+    await manager.enqueue(
+      ctx.config,
+      async () => {
+        await next();
+        if (ctx.error) {
+          throw ctx.error;
+        }
+        if (ctx.result === undefined) {
+          throw new Error('Request completed but no result');
+        }
+        return ctx.result;
+      },
+      priority
+    );
   }
 }
-

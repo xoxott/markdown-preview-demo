@@ -10,7 +10,10 @@ import { useDebounceFn } from '@vueuse/core';
 import { DefaultStateStore } from '../core/state/stores/DefaultStateStore';
 import { performanceMonitor } from '../utils/performance-monitor';
 import { DefaultHistoryManager } from '../core/state/stores/DefaultHistoryManager';
-import { FlowSelectionHandler, type SelectionOptions } from '../core/interaction/FlowSelectionHandler';
+import {
+  FlowSelectionHandler,
+  type SelectionOptions
+} from '../core/interaction/FlowSelectionHandler';
 import { safeUpdateRef, shallowUpdateRef } from '../utils/ref-utils';
 import type { FlowNode } from '../types/flow-node';
 import type { FlowEdge } from '../types/flow-edge';
@@ -141,9 +144,7 @@ export interface UseFlowStateReturn {
  * selectNode('node-1');
  * ```
  */
-export function useFlowState(
-  options: UseFlowStateOptions = {}
-): UseFlowStateReturn {
+export function useFlowState(options: UseFlowStateOptions = {}): UseFlowStateReturn {
   const {
     initialNodes,
     initialEdges,
@@ -156,19 +157,20 @@ export function useFlowState(
   // ==================== 创建状态存储（框架无关）====================
 
   // 恢复初始选择状态
-  const initialSelectedNodeIds = initialNodes
-    ?.filter(node => node.selected)
-    .map(node => node.id) || [];
+  const initialSelectedNodeIds =
+    initialNodes?.filter(node => node.selected).map(node => node.id) || [];
 
   // 使用 markRaw 标记 store 实例，避免 Vue 对其进行深度响应式处理
   // store 是框架无关的状态管理类，不需要响应式
-  const store = markRaw(new DefaultStateStore({
-    nodes: initialNodes,
-    edges: initialEdges,
-    viewport: initialViewport,
-    selectedNodeIds: initialSelectedNodeIds,
-    selectedEdgeIds: []
-  }));
+  const store = markRaw(
+    new DefaultStateStore({
+      nodes: initialNodes,
+      edges: initialEdges,
+      viewport: initialViewport,
+      selectedNodeIds: initialSelectedNodeIds,
+      selectedEdgeIds: []
+    })
+  );
 
   // ==================== 使用 Vue Ref 包装状态，提供响应式 ====================
 
@@ -246,7 +248,7 @@ export function useFlowState(
   /**
    * 订阅状态变化（细粒度更新，避免深度监听）
    */
-  store.subscribe((changeType) => {
+  store.subscribe(changeType => {
     pendingUpdates.add(changeType);
     if (!updateScheduled) {
       updateScheduled = true;
@@ -262,21 +264,25 @@ export function useFlowState(
   // ==================== 创建历史记录管理器 ====================
 
   // 使用 markRaw 标记 historyManager 实例，避免 Vue 对其进行深度响应式处理
-  const historyManager = markRaw(new DefaultHistoryManager(store, {
-    maxHistorySize
-  }));
+  const historyManager = markRaw(
+    new DefaultHistoryManager(store, {
+      maxHistorySize
+    })
+  );
 
   // ==================== 创建选择处理器（独立）====================
 
   // 使用 markRaw 标记 selectionHandler 实例，避免 Vue 对其进行深度响应式处理
-  const selectionHandler = markRaw(new FlowSelectionHandler({
-    options: selectionOptions,
-    onSelectionChange: (nodeIds, edgeIds) => {
-      // 同步到状态存储
-      store.setSelectedNodeIds(nodeIds);
-      store.setSelectedEdgeIds(edgeIds);
-    }
-  }));
+  const selectionHandler = markRaw(
+    new FlowSelectionHandler({
+      options: selectionOptions,
+      onSelectionChange: (nodeIds, edgeIds) => {
+        // 同步到状态存储
+        store.setSelectedNodeIds(nodeIds);
+        store.setSelectedEdgeIds(edgeIds);
+      }
+    })
+  );
 
   // 初始化选择状态
   if (initialSelectedNodeIds.length > 0) {
@@ -291,7 +297,7 @@ export function useFlowState(
     }, 300);
 
     // 使用订阅机制替代深度监听，只监听节点和连接线的变化
-    const historyUnsubscribe = store.subscribe((changeType) => {
+    const historyUnsubscribe = store.subscribe(changeType => {
       if (changeType === 'nodes' || changeType === 'edges' || changeType === 'all') {
         debouncedPushHistory();
       }
@@ -467,4 +473,3 @@ export function useFlowState(
     }
   };
 }
-

@@ -115,4 +115,3 @@ export class RafThrottle<T = void> {
     this.cancel();
   }
 }
-

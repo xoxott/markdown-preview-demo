@@ -34,4 +34,3 @@ export function formatSpeed(bytes: number, elapsedTime: number): string {
   const speed = (bytes / elapsedTime) * 1000; // 转换为 B/s
   return `${formatFileSize(speed)}/s`;
 }
-

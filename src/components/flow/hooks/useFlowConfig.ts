@@ -85,9 +85,7 @@ function generateInstanceId(): string {
  * updateConfig({ canvas: { minZoom: 0.2 } });
  * ```
  */
-export function useFlowConfig(
-  options: UseFlowConfigOptions = {}
-): UseFlowConfigReturn {
+export function useFlowConfig(options: UseFlowConfigOptions = {}): UseFlowConfigReturn {
   const {
     id: providedId,
     initialConfig,
@@ -98,8 +96,7 @@ export function useFlowConfig(
 
   // 确定配置管理器
   const manager =
-    customManager ||
-    (useGlobalManager ? getGlobalConfigManager() : createFlowConfigManager());
+    customManager || (useGlobalManager ? getGlobalConfigManager() : createFlowConfigManager());
 
   // 确定配置实例 ID
   const instanceId = providedId || generateInstanceId();
@@ -110,9 +107,9 @@ export function useFlowConfig(
   }
 
   // 响应式配置
-  const config = ref<Readonly<FlowConfig>>(
-    manager.getConfig(instanceId)
-  ) as Ref<Readonly<FlowConfig>>;
+  const config = ref<Readonly<FlowConfig>>(manager.getConfig(instanceId)) as Ref<
+    Readonly<FlowConfig>
+  >;
 
   // 订阅配置变化
   const unsubscribe = manager.subscribe(instanceId, newConfig => {
@@ -185,4 +182,3 @@ export function useFlowConfig(
 export function useDefaultFlowConfig(id?: string): UseFlowConfigReturn {
   return useFlowConfig({ id, initialConfig: {} });
 }
-

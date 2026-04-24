@@ -8,7 +8,10 @@ const { baseURL } = getServiceBaseURL(import.meta.env, isHttpProxy);
 /**
  * Monitoring SSE connection IDs
  */
-export const MONITORING_SSE_CONNECTION_IDS: Record<Exclude<SSE.MonitoringEventType, 'environment'>, string> = {
+export const MONITORING_SSE_CONNECTION_IDS: Record<
+  Exclude<SSE.MonitoringEventType, 'environment'>,
+  string
+> = {
   health: 'monitoring-health',
   liveness: 'monitoring-liveness',
   readiness: 'monitoring-readiness',
@@ -19,7 +22,7 @@ export const MONITORING_SSE_CONNECTION_IDS: Record<Exclude<SSE.MonitoringEventTy
 
 /**
  * Get authorization token for SSE
- * 
+ *
  * @returns Authorization token or empty string
  */
 function getSSEToken(): string {
@@ -29,7 +32,7 @@ function getSSEToken(): string {
 
 /**
  * Get SSE endpoint URL for specific event type
- * 
+ *
  * @param eventType - Monitoring event type
  * @returns SSE endpoint URL
  */
@@ -48,11 +51,13 @@ function getSSEEndpoint(eventType: SSE.MonitoringEventType): string {
 
 /**
  * Create monitoring SSE connection configuration for specific event type
- * 
+ *
  * @param eventType - Monitoring event type
  * @returns SSE connection configuration
  */
-export function createMonitoringSSEConfig(eventType: SSE.MonitoringEventType): SSE.ConnectionConfig {
+export function createMonitoringSSEConfig(
+  eventType: SSE.MonitoringEventType
+): SSE.ConnectionConfig {
   const token = getSSEToken();
 
   return {
@@ -83,4 +88,3 @@ export type MonitoringEventListener<T extends SSE.MonitoringEventType = SSE.Moni
   data: MonitoringEventData[T],
   event: MessageEvent
 ) => void;
-

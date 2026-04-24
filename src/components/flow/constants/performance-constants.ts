@@ -71,4 +71,3 @@ export const PERFORMANCE_CONSTANTS = {
   /** z-index 基础值（用于递增分配，拖拽结束后提升的节点从此值开始，需高于选中节点） */
   Z_INDEX_BASE: 1000
 } as const;
-

@@ -19,7 +19,11 @@ import { ChunkService } from '../services/ChunkService';
 import { FileService } from '../services/FileService';
 import { NetworkService } from '../services/NetworkService';
 import { TaskService } from '../services/TaskService';
-import { defaultCheckFileTransformer, defaultChunkUploadTransformer, defaultMergeChunksTransformer } from '../transformers/RequestTransformer';
+import {
+  defaultCheckFileTransformer,
+  defaultChunkUploadTransformer,
+  defaultMergeChunksTransformer
+} from '../transformers/RequestTransformer';
 import type { ExtendedUploadConfig, FileTask, FileUploadOptions, UploadConfig } from '../types';
 import { checkCompatibility, warnCompatibility } from '../utils/browser-compat';
 import { validateAndWarnConfig } from '../utils/config-validator';
@@ -109,9 +113,8 @@ export class UploadOrchestrator {
     this.taskService = new TaskService(this.config);
 
     // 创建分片服务
-    this.chunkService = new ChunkService(
-      this.config,
-      (chunk, size, time) => this.progressManager.updateChunkProgress(chunk, size, time)
+    this.chunkService = new ChunkService(this.config, (chunk, size, time) =>
+      this.progressManager.updateChunkProgress(chunk, size, time)
     );
 
     // 初始化新增的管理器
@@ -253,7 +256,10 @@ export class UploadOrchestrator {
   /**
    * 添加文件到上传队列
    */
-  public async addFiles(files: File[] | FileList | File, options: FileUploadOptions = {}): Promise<this> {
+  public async addFiles(
+    files: File[] | FileList | File,
+    options: FileUploadOptions = {}
+  ): Promise<this> {
     if (this.isAddingFiles.value && this.addFilesAbortController) {
       this.addFilesAbortController.abort();
       if (this.addFilesPromise) {
@@ -328,7 +334,11 @@ export class UploadOrchestrator {
    * 恢复单个任务
    */
   public resume(taskId: string): this {
-    this.taskOperations.resume(taskId, () => this.isUploading.value, () => this.start());
+    this.taskOperations.resume(
+      taskId,
+      () => this.isUploading.value,
+      () => this.start()
+    );
     return this;
   }
 
@@ -348,7 +358,10 @@ export class UploadOrchestrator {
    * 恢复所有上传
    */
   public resumeAll(): this {
-    this.taskOperations.resumeAll(() => this.isUploading.value, () => this.start());
+    this.taskOperations.resumeAll(
+      () => this.isUploading.value,
+      () => this.start()
+    );
     return this;
   }
 
@@ -402,7 +415,11 @@ export class UploadOrchestrator {
    * 重试单个失败的文件
    */
   public retrySingleFile(taskId: string): this {
-    this.taskOperations.retrySingleFile(taskId, () => this.isUploading.value, () => this.start());
+    this.taskOperations.retrySingleFile(
+      taskId,
+      () => this.isUploading.value,
+      () => this.start()
+    );
     return this;
   }
 
@@ -410,7 +427,10 @@ export class UploadOrchestrator {
    * 重试所有失败的文件
    */
   public retryFailed(): this {
-    this.taskOperations.retryFailed(() => this.isUploading.value, () => this.start());
+    this.taskOperations.retryFailed(
+      () => this.isUploading.value,
+      () => this.start()
+    );
     return this;
   }
 

@@ -61,10 +61,11 @@ export interface RequestContext<T = unknown> {
 export function createRequestContext<T = unknown>(
   config: NormalizedRequestConfig,
   id?: string,
-  meta?: Record<string, unknown>,
+  meta?: Record<string, unknown>
 ): RequestContext<T> {
   // 使用统一的键生成函数，确保格式一致且包含完整的 params 和 data
-  const requestId = id || generateKey(config.method || 'GET', config.url || '', config.params, config.data);
+  const requestId =
+    id || generateKey(config.method || 'GET', config.url || '', config.params, config.data);
 
   return {
     id: requestId,
@@ -73,11 +74,10 @@ export function createRequestContext<T = unknown>(
       aborted: false,
       fromCache: false,
       retrying: false,
-      retryCount: 0,
+      retryCount: 0
     },
     meta: meta || {},
     result: undefined,
-    error: undefined,
+    error: undefined
   };
 }
-

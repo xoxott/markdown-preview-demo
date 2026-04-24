@@ -139,4 +139,3 @@ declare namespace Api {
     } & T;
   }
 }
-

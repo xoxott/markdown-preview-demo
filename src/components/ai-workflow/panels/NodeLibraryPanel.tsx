@@ -48,7 +48,7 @@ export default defineComponent({
     };
 
     return () => (
-      <div class="node-library-panel h-full flex flex-col w-64" >
+      <div class="node-library-panel h-full flex flex-col w-64">
         {/* 标题栏 - 与工具栏高度一致 */}
         <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm">
           <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
@@ -63,64 +63,63 @@ export default defineComponent({
         {/* 使用 NScrollbar 替代原生滚动条 */}
         <NScrollbar class="flex-1" style={{ maxHeight: 'calc(100vh - 60px)' }}>
           <div class="p-3">
-          <NCollapse v-model:expanded-names={expandedKeys.value} accordion={false}>
-            {Object.entries(categories).map(([category, nodes]) => (
-              <NCollapseItem
-                key={category}
-                name={category}
-                title={categoryLabels[category as keyof typeof categoryLabels]}
-              >
-                {nodes.length > 0 ? (
-                  <div class="space-y-2.5">
-                    {nodes.map(({ type, config }) => (
-                      <div
-                        key={type}
-                        class="node-library-item group p-3 bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg cursor-move hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
-                        draggable
-                        onDragstart={(e: DragEvent) => handleDragStart(type, e)}
-                        style={{
-                          borderLeftColor: config.color,
-                          borderLeftWidth: '4px'
-                        }}
-                      >
-                        <div class="flex items-center gap-3">
-                          <div
-                            class="flex-shrink-0 flex items-center justify-center group-hover:scale-110 transition-transform"
-                            style={{
-                              width: '40px',
-                              height: '40px',
-                              borderRadius: '10px',
-                              background: `${config.color}15`,
-                              color: config.color,
-                              border: `1.5px solid ${config.color}30`
-                            }}
-                          >
-                            <NIcon size={20}>
-                              <Icon icon={config.icon} />
-                            </NIcon>
-                          </div>
-                          <div class="flex-1 min-w-0">
-                            <div class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-0.5">
-                              {config.label}
+            <NCollapse v-model:expanded-names={expandedKeys.value} accordion={false}>
+              {Object.entries(categories).map(([category, nodes]) => (
+                <NCollapseItem
+                  key={category}
+                  name={category}
+                  title={categoryLabels[category as keyof typeof categoryLabels]}
+                >
+                  {nodes.length > 0 ? (
+                    <div class="space-y-2.5">
+                      {nodes.map(({ type, config }) => (
+                        <div
+                          key={type}
+                          class="node-library-item group p-3 bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg cursor-move hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
+                          draggable
+                          onDragstart={(e: DragEvent) => handleDragStart(type, e)}
+                          style={{
+                            borderLeftColor: config.color,
+                            borderLeftWidth: '4px'
+                          }}
+                        >
+                          <div class="flex items-center gap-3">
+                            <div
+                              class="flex-shrink-0 flex items-center justify-center group-hover:scale-110 transition-transform"
+                              style={{
+                                width: '40px',
+                                height: '40px',
+                                borderRadius: '10px',
+                                background: `${config.color}15`,
+                                color: config.color,
+                                border: `1.5px solid ${config.color}30`
+                              }}
+                            >
+                              <NIcon size={20}>
+                                <Icon icon={config.icon} />
+                              </NIcon>
                             </div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">
-                              {config.description}
+                            <div class="flex-1 min-w-0">
+                              <div class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-0.5">
+                                {config.label}
+                              </div>
+                              <div class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">
+                                {config.description}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <NEmpty description="暂无节点" size="small" />
-                )}
-              </NCollapseItem>
-            ))}
-          </NCollapse>
+                      ))}
+                    </div>
+                  ) : (
+                    <NEmpty description="暂无节点" size="small" />
+                  )}
+                </NCollapseItem>
+              ))}
+            </NCollapse>
           </div>
         </NScrollbar>
       </div>
     );
   }
 });
-

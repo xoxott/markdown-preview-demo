@@ -25,7 +25,7 @@ function normalizeChildren(children: NodeChildren): VNode[] {
   if (Array.isArray(children)) {
     return children
       .filter((child): child is VNode | string => child != null)
-      .map((child) => (typeof child === 'string' ? createVNode(Text, {}, child) : (child as VNode)));
+      .map(child => (typeof child === 'string' ? createVNode(Text, {}, child) : (child as VNode)));
   }
 
   if (typeof children === 'string' || typeof children === 'number') {
@@ -39,7 +39,11 @@ function normalizeChildren(children: NodeChildren): VNode[] {
  * Vue 适配器实现
  */
 export const vueAdapter: FrameworkAdapter = {
-  createElement(tag: string | FrameworkComponent, props: NodeProps | null, children: NodeChildren): FrameworkNode {
+  createElement(
+    tag: string | FrameworkComponent,
+    props: NodeProps | null,
+    children: NodeChildren
+  ): FrameworkNode {
     // 处理子节点：扁平化数组，过滤 null/undefined
     const normalizedChildren = normalizeChildren(children);
 
@@ -100,4 +104,3 @@ export const vueAdapter: FrameworkAdapter = {
 
 // 默认导出适配器
 export default vueAdapter;
-

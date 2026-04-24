@@ -27,7 +27,7 @@ describe('LoggerManager', () => {
         enabled: true,
         logRequest: true,
         logResponse: false,
-        logError: true,
+        logError: true
       });
       expect(customManager.shouldLog()).toBe(true);
       expect(customManager.shouldLogRequest()).toBe(true);
@@ -39,7 +39,7 @@ describe('LoggerManager', () => {
       const output = vi.fn();
       const customManager = new LoggerManager({
         enabled: true,
-        output,
+        output
       });
       const loggerOutput = customManager.getOutput();
       loggerOutput('test message');
@@ -174,4 +174,3 @@ describe('LoggerManager', () => {
     });
   });
 });
-

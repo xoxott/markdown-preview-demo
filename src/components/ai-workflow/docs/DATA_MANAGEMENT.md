@@ -11,11 +11,13 @@
 **位置**: `Api.Workflow.*` 类型
 
 **特点**:
+
 - 需要持久化到后端数据库
 - 包含工作流的核心业务逻辑和布局信息
 - 与后端 API 接口对齐
 
 **包含内容**:
+
 - 节点配置（AI 模型、HTTP 请求、数据库查询等）
 - **节点位置**（position - 工作流布局的一部分，需要持久化）
 - 连接关系（节点之间的数据流）
@@ -24,6 +26,7 @@
 - 执行结果和日志
 
 **示例**:
+
 ```typescript
 // 业务数据 - 需要保存到后端
 interface WorkflowNode {
@@ -31,8 +34,8 @@ interface WorkflowNode {
   type: NodeType;
   name: string;
   description?: string;
-  position: Position;  // ✅ 节点位置需要持久化
-  config: NodeConfig;  // 业务配置
+  position: Position; // ✅ 节点位置需要持久化
+  config: NodeConfig; // 业务配置
   inputs?: Port[];
   outputs?: Port[];
 }
@@ -40,7 +43,7 @@ interface WorkflowNode {
 interface WorkflowDefinition {
   nodes: WorkflowNode[];
   connections: Connection[];
-  viewport?: Viewport;  // ✅ 视口状态需要持久化
+  viewport?: Viewport; // ✅ 视口状态需要持久化
 }
 ```
 
@@ -49,12 +52,14 @@ interface WorkflowDefinition {
 **位置**: `src/components/ai-workflow/types/index.ts`
 
 **特点**:
+
 - 只在前端缓存，不持久化到后端
 - 存储在 `localStorage`
 - 用户刷新页面后可恢复 UI 状态
 - 主要是样式和交互状态
 
 **包含内容**:
+
 - 节点样式（颜色、图标、边框等 - 用户自定义外观）
 - 节点尺寸（前端计算的显示尺寸）
 - 连接线样式（线条类型、颜色、动画等）
@@ -63,18 +68,20 @@ interface WorkflowDefinition {
 - z-index 层级（前端渲染层级）
 
 **不包含**:
+
 - ❌ 节点位置（position）- 已在后端保存
 - ❌ 视口状态（viewport）- 已在后端保存
 
 **示例**:
+
 ```typescript
 // UI 数据 - 前端缓存，不入库
 interface NodeUIData {
-  size?: Size;               // 节点尺寸
-  style?: NodeStyle;         // 用户自定义样式（颜色、图标等）
-  uiState?: NodeUIState;     // 交互状态（选中、悬停等）
-  layoutStrategy?: string;   // 布局算法
-  zIndex?: number;           // 层级
+  size?: Size; // 节点尺寸
+  style?: NodeStyle; // 用户自定义样式（颜色、图标等）
+  uiState?: NodeUIState; // 交互状态（选中、悬停等）
+  layoutStrategy?: string; // 布局算法
+  zIndex?: number; // 层级
   // ❌ 不包含 position，position 在 business 数据中
 }
 ```
@@ -86,14 +93,14 @@ interface NodeUIData {
 ```typescript
 // 节点：业务数据（含 position）+ UI 数据（样式、状态）
 interface WorkflowNodeWithUI {
-  business: Api.Workflow.WorkflowNode;  // 业务数据（入库，包含 position）
-  ui: NodeUIData;                        // UI 数据（前端缓存，不含 position）
+  business: Api.Workflow.WorkflowNode; // 业务数据（入库，包含 position）
+  ui: NodeUIData; // UI 数据（前端缓存，不含 position）
 }
 
 // 连接线：业务数据 + UI 数据
 interface WorkflowConnectionWithUI {
-  business: Api.Workflow.Connection;     // 业务数据（入库）
-  ui: ConnectionUIData;                  // UI 数据（前端缓存）
+  business: Api.Workflow.Connection; // 业务数据（入库）
+  ui: ConnectionUIData; // UI 数据（前端缓存）
 }
 ```
 
@@ -102,10 +109,10 @@ interface WorkflowConnectionWithUI {
 ```typescript
 interface LocalWorkflowData {
   workflowId: string;
-  nodesUI: Record<string, NodeUIData>;           // 节点 UI 映射（样式、状态）
+  nodesUI: Record<string, NodeUIData>; // 节点 UI 映射（样式、状态）
   connectionsUI: Record<string, ConnectionUIData>; // 连接线 UI 映射
-  canvasConfig?: Partial<CanvasConfig>;          // 画布配置（用户偏好）
-  lastUpdated: number;                            // 更新时间
+  canvasConfig?: Partial<CanvasConfig>; // 画布配置（用户偏好）
+  lastUpdated: number; // 更新时间
   // ❌ 不包含 viewport，viewport 在后端保存
 }
 ```
@@ -123,10 +130,10 @@ const localData = loadWorkflowUIFromLocal(workflowId);
 
 // 3. 合并数据
 const { nodes, connections, viewport } = mergeAPIAndLocalData(
-  apiData.definition.nodes,      // 包含 position
+  apiData.definition.nodes, // 包含 position
   apiData.definition.connections,
-  apiData.definition.viewport,   // 从后端获取
-  localData                       // 本地 UI 数据
+  apiData.definition.viewport, // 从后端获取
+  localData // 本地 UI 数据
 );
 
 // 4. 使用完整数据渲染
@@ -141,7 +148,7 @@ function handleNodeDrag(nodeId: string, newPosition: Position) {
   // 1. 更新业务数据中的位置
   const node = nodes.find(n => n.business.id === nodeId);
   if (node) {
-    node.business.position = newPosition;  // 更新 business 数据
+    node.business.position = newPosition; // 更新 business 数据
   }
 
   // 2. 标记为需要保存（防抖）
@@ -150,7 +157,7 @@ function handleNodeDrag(nodeId: string, newPosition: Position) {
 
 // 防抖保存到后端
 const debouncedSaveToBackend = debounce(() => {
-  saveWorkflowToBackend();  // 保存到后端
+  saveWorkflowToBackend(); // 保存到后端
 }, 1000);
 ```
 
@@ -185,7 +192,7 @@ async function saveWorkflow() {
 
   // 2. 调用 API
   await workflowApi.updateWorkflow(workflowId, {
-    definition  // 包含 nodes（含 position）、connections、viewport
+    definition // 包含 nodes（含 position）、connections、viewport
   });
 
   // 3. UI 样式数据已经在 localStorage 中，无需发送到后端
@@ -238,7 +245,7 @@ async function handleSave() {
     await workflowApi.updateWorkflow(workflowId, {
       name: workflowName,
       description: workflowDescription,
-      definition  // 包含 nodes（含 position）、connections、viewport
+      definition // 包含 nodes（含 position）、connections、viewport
     });
 
     message.success('保存成功');
@@ -310,15 +317,18 @@ function handleResetCanvas() {
 ### localStorage 存储
 
 **优点**:
+
 - 持久化存储，关闭浏览器后仍保留
 - 适合存储用户偏好设置
 
 **使用场景**:
+
 - 节点位置和样式
 - 视口状态
 - 画布配置（网格、主题等）
 
 **存储 Key 格式**:
+
 ```
 workflow_ui_{workflowId}
 ```
@@ -326,10 +336,12 @@ workflow_ui_{workflowId}
 ### sessionStorage 存储（可选）
 
 **优点**:
+
 - 会话级存储，关闭标签页后清除
 - 适合临时状态
 
 **使用场景**:
+
 - 临时选中状态
 - 拖拽过程中的临时数据
 
@@ -348,7 +360,7 @@ const debouncedSave = debounce(() => {
 // 在节点拖拽等高频操作中使用
 function handleNodeDrag(nodeId: string, position: Position) {
   updateNodePosition(nodeId, position);
-  debouncedSave();  // 防抖保存
+  debouncedSave(); // 防抖保存
 }
 ```
 
@@ -363,10 +375,7 @@ function updateNodeUI(nodeId: string, uiData: Partial<NodeUIData>) {
       ...localData.nodesUI[nodeId],
       ...uiData
     };
-    localStorage.setItem(
-      getWorkflowUIStorageKey(workflowId),
-      JSON.stringify(localData)
-    );
+    localStorage.setItem(getWorkflowUIStorageKey(workflowId), JSON.stringify(localData));
   }
 }
 ```
@@ -444,14 +453,17 @@ function importUIConfig(file: File) {
 ### ✅ 推荐做法
 
 1. **明确数据归属**
+
    - 业务逻辑 → API 数据
    - UI 状态 → 前端缓存
 
 2. **及时保存 UI 状态**
+
    - 使用防抖避免频繁写入
    - 在关键操作后立即保存
 
 3. **优雅降级**
+
    - localStorage 不可用时使用内存
    - 提供清除缓存的入口
 
@@ -462,11 +474,12 @@ function importUIConfig(file: File) {
 ### ❌ 避免做法
 
 1. **不要混淆数据类型**
+
    ```typescript
    // ❌ 错误：将 UI 数据保存到后端
    await api.updateWorkflow({
      definition: {
-       nodes: nodesWithUI  // 包含 UI 数据
+       nodes: nodesWithUI // 包含 UI 数据
      }
    });
 
@@ -476,6 +489,7 @@ function importUIConfig(file: File) {
    ```
 
 2. **不要忽略错误处理**
+
    ```typescript
    // ❌ 错误：不处理 localStorage 异常
    localStorage.setItem(key, data);
@@ -502,8 +516,8 @@ function importUIConfig(file: File) {
 - **用户体验**：自动恢复 UI 状态，提供重置功能
 
 这种设计确保了：
+
 1. 后端数据库只存储业务数据，保持简洁
 2. 前端可以自由管理 UI 状态，不影响后端
 3. 用户体验更好，刷新页面后可恢复界面状态
 4. 便于扩展和维护
-

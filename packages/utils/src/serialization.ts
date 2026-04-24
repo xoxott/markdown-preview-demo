@@ -96,4 +96,3 @@ export function generateKey(method: string, url: string, params?: unknown, data?
 
   return `${methodUpper}_${url}_${paramsStr}`;
 }
-

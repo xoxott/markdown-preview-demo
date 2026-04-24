@@ -78,8 +78,8 @@ export default defineComponent({
     });
 
     const toMinimapCoords = (x: number, y: number) => ({
-        x: (x - bounds.value.minX) * scale.value,
-        y: (y - bounds.value.minY) * scale.value
+      x: (x - bounds.value.minX) * scale.value,
+      y: (y - bounds.value.minY) * scale.value
     });
 
     const viewportRect = computed(() => {
@@ -211,62 +211,61 @@ export default defineComponent({
                 border: '1px solid rgba(0, 0, 0, 0.1)'
               }}
             >
+              <div
+                class="relative select-none"
+                style={{
+                  width: `${props.width}px`,
+                  height: `${props.height}px`,
+                  background: '#f8fafc',
+                  cursor: isDragging.value ? 'grabbing' : 'grab',
+                  overflow: 'hidden'
+                }}
+                onMousedown={handleMinimapMouseDown}
+                onMousemove={handleMinimapMouseMove}
+                onMouseup={handleMinimapMouseUp}
+                onMouseleave={handleMinimapMouseUp}
+              >
+                {props.nodes.map(node => {
+                  const pos = toMinimapCoords(node.position.x, node.position.y);
+                  const nodeTypeConfig = NODE_TYPES[node.type];
+                  const color = nodeTypeConfig?.color || '#94a3b8';
 
-          <div
-            class="relative select-none"
-            style={{
-              width: `${props.width}px`,
-              height: `${props.height}px`,
-              background: '#f8fafc',
-              cursor: isDragging.value ? 'grabbing' : 'grab',
-              overflow: 'hidden'
-            }}
-            onMousedown={handleMinimapMouseDown}
-            onMousemove={handleMinimapMouseMove}
-            onMouseup={handleMinimapMouseUp}
-            onMouseleave={handleMinimapMouseUp}
-          >
-            {props.nodes.map(node => {
-              const pos = toMinimapCoords(node.position.x, node.position.y);
-              const nodeTypeConfig = NODE_TYPES[node.type];
-              const color = nodeTypeConfig?.color || '#94a3b8';
+                  return (
+                    <div
+                      key={node.id}
+                      class="absolute rounded"
+                      style={{
+                        left: `${pos.x}px`,
+                        top: `${pos.y}px`,
+                        width: `${Math.max(minimapNodeSize.value.width, MIN_NODE_SIZE)}px`,
+                        height: `${Math.max(minimapNodeSize.value.height, MIN_NODE_SIZE)}px`,
+                        background: color,
+                        opacity: 0.7,
+                        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+                      }}
+                    />
+                  );
+                })}
 
-              return (
                 <div
-                  key={node.id}
-                  class="absolute rounded"
+                  class="absolute border-2 border-blue-500 pointer-events-none"
                   style={{
-                    left: `${pos.x}px`,
-                    top: `${pos.y}px`,
-                    width: `${Math.max(minimapNodeSize.value.width, MIN_NODE_SIZE)}px`,
-                    height: `${Math.max(minimapNodeSize.value.height, MIN_NODE_SIZE)}px`,
-                    background: color,
-                    opacity: 0.7,
-                    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+                    left: `${viewportRect.value.x}px`,
+                    top: `${viewportRect.value.y}px`,
+                    width: `${viewportRect.value.width}px`,
+                    height: `${viewportRect.value.height}px`,
+                    background: 'rgba(59, 130, 246, 0.15)',
+                    boxShadow:
+                      '0 0 0 1px rgba(59, 130, 246, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.5)',
+                    borderRadius: '2px',
+                    transition: isDragging.value ? 'none' : 'all 0.15s ease-out'
                   }}
                 />
-              );
-            })}
-
-            <div
-              class="absolute border-2 border-blue-500 pointer-events-none"
-              style={{
-                left: `${viewportRect.value.x}px`,
-                top: `${viewportRect.value.y}px`,
-                width: `${viewportRect.value.width}px`,
-                height: `${viewportRect.value.height}px`,
-                background: 'rgba(59, 130, 246, 0.15)',
-                boxShadow: '0 0 0 1px rgba(59, 130, 246, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.5)',
-                borderRadius: '2px',
-                transition: isDragging.value ? 'none' : 'all 0.15s ease-out'
-              }}
-            />
-            </div>
-          </NCard>
-        </div>
+              </div>
+            </NCard>
+          </div>
         )}
       </div>
     );
   }
 });
-

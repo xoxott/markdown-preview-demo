@@ -98,82 +98,85 @@ export function createFileListColumns(
       width: 220,
       fixed: 'right' as const,
       render: (row: FileListRow) => {
-        return h(NSpace, { size: 'small' }, {
-          default: () => [
-            row.status === UploadStatus.PENDING &&
-              h(
-                NTag,
-                {
-                  type: 'info',
-                  size: 'small',
-                  bordered: false
-                },
-                { default: () => '等待中' }
-              ),
-            row.status === UploadStatus.UPLOADING &&
+        return h(
+          NSpace,
+          { size: 'small' },
+          {
+            default: () => [
+              row.status === UploadStatus.PENDING &&
+                h(
+                  NTag,
+                  {
+                    type: 'info',
+                    size: 'small',
+                    bordered: false
+                  },
+                  { default: () => '等待中' }
+                ),
+              row.status === UploadStatus.UPLOADING &&
+                h(
+                  NButton,
+                  {
+                    size: 'tiny',
+                    onClick: () => handlers.onPause(row.id)
+                  },
+                  { default: () => '暂停' }
+                ),
+              row.status === UploadStatus.PAUSED &&
+                h(
+                  NButton,
+                  {
+                    size: 'tiny',
+                    type: 'primary',
+                    onClick: () => handlers.onResume(row.id)
+                  },
+                  { default: () => '恢复' }
+                ),
+              (row.status === UploadStatus.UPLOADING ||
+                row.status === UploadStatus.PAUSED ||
+                row.status === UploadStatus.PENDING) &&
+                h(
+                  NButton,
+                  {
+                    size: 'tiny',
+                    type: 'error',
+                    onClick: () => handlers.onCancel(row.id)
+                  },
+                  { default: () => '取消' }
+                ),
+              row.status === UploadStatus.ERROR &&
+                h(
+                  NButton,
+                  {
+                    size: 'tiny',
+                    type: 'warning',
+                    onClick: () => handlers.onRetrySingle(row.id)
+                  },
+                  { default: () => '重试' }
+                ),
               h(
                 NButton,
                 {
                   size: 'tiny',
-                  onClick: () => handlers.onPause(row.id)
+                  quaternary: true,
+                  onClick: () => handlers.onViewTask(row)
                 },
-                { default: () => '暂停' }
+                { default: () => '详情' }
               ),
-            row.status === UploadStatus.PAUSED &&
               h(
                 NButton,
                 {
                   size: 'tiny',
-                  type: 'primary',
-                  onClick: () => handlers.onResume(row.id)
-                },
-                { default: () => '恢复' }
-              ),
-            (row.status === UploadStatus.UPLOADING ||
-              row.status === UploadStatus.PAUSED ||
-              row.status === UploadStatus.PENDING) &&
-              h(
-                NButton,
-                {
-                  size: 'tiny',
+                  quaternary: true,
                   type: 'error',
-                  onClick: () => handlers.onCancel(row.id)
+                  onClick: () => handlers.onRemove(row.id)
                 },
-                { default: () => '取消' }
-              ),
-            row.status === UploadStatus.ERROR &&
-              h(
-                NButton,
-                {
-                  size: 'tiny',
-                  type: 'warning',
-                  onClick: () => handlers.onRetrySingle(row.id)
-                },
-                { default: () => '重试' }
-              ),
-            h(
-              NButton,
-              {
-                size: 'tiny',
-                quaternary: true,
-                onClick: () => handlers.onViewTask(row)
-              },
-              { default: () => '详情' }
-            ),
-            h(
-              NButton,
-              {
-                size: 'tiny',
-                quaternary: true,
-                type: 'error',
-                onClick: () => handlers.onRemove(row.id)
-              },
-              { default: () => '移除' }
-            )
-          ]
-        });
+                { default: () => '移除' }
+              )
+            ]
+          }
+        );
       }
     }
   ];
 }
-

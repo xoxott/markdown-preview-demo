@@ -31,29 +31,15 @@ export default defineComponent({
         <NCard title={props.title} style={{ height: '100%' }}>
           <NDescriptions bordered size="small" column={1}>
             {props.os.platform && (
-              <NDescriptionsItem label="平台">
-                {props.os.platform}
-              </NDescriptionsItem>
+              <NDescriptionsItem label="平台">{props.os.platform}</NDescriptionsItem>
             )}
-            {props.os.type && (
-              <NDescriptionsItem label="类型">
-                {props.os.type}
-              </NDescriptionsItem>
-            )}
+            {props.os.type && <NDescriptionsItem label="类型">{props.os.type}</NDescriptionsItem>}
             {props.os.release && (
-              <NDescriptionsItem label="版本">
-                {props.os.release}
-              </NDescriptionsItem>
+              <NDescriptionsItem label="版本">{props.os.release}</NDescriptionsItem>
             )}
-            {props.os.arch && (
-              <NDescriptionsItem label="架构">
-                {props.os.arch}
-              </NDescriptionsItem>
-            )}
+            {props.os.arch && <NDescriptionsItem label="架构">{props.os.arch}</NDescriptionsItem>}
             {props.os.hostname && (
-              <NDescriptionsItem label="主机名">
-                {props.os.hostname}
-              </NDescriptionsItem>
+              <NDescriptionsItem label="主机名">{props.os.hostname}</NDescriptionsItem>
             )}
             {props.os.uptime !== undefined && (
               <NDescriptionsItem label="运行时间">
@@ -66,4 +52,3 @@ export default defineComponent({
     };
   }
 });
-

@@ -26,7 +26,7 @@ describe('RequestClient', () => {
     it('应该初始化默认步骤', async () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       mockTransport.setDefaultResponse({ success: true }, 200);
@@ -65,7 +65,7 @@ describe('RequestClient', () => {
 
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       mockTransport.setDefaultResponse({ success: true }, 200);
@@ -96,7 +96,7 @@ describe('RequestClient', () => {
 
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       mockTransport.setDefaultResponse({ success: true }, 200);
@@ -113,7 +113,7 @@ describe('RequestClient', () => {
     it('应该执行请求', async () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       const responseData = { id: 1, name: 'John' };
@@ -127,12 +127,12 @@ describe('RequestClient', () => {
     it('应该传递 meta', async () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       const meta = {
         cache: true,
-        retry: true,
+        retry: true
       };
 
       mockTransport.setDefaultResponse({ success: true }, 200);
@@ -149,7 +149,7 @@ describe('RequestClient', () => {
 
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       expect(() => {
@@ -183,12 +183,12 @@ describe('RequestClient', () => {
       mockTransport.setDefaultResponse({ success: true }, 200);
 
       await client.get('/api/users', undefined, {
-        headers: { 'Authorization': 'Bearer token' },
-        timeout: 5000,
+        headers: { Authorization: 'Bearer token' },
+        timeout: 5000
       });
 
       const request = mockTransport.getRequestHistory()[0];
-      expect(request.headers).toEqual({ 'Authorization': 'Bearer token' });
+      expect(request.headers).toEqual({ Authorization: 'Bearer token' });
       expect(request.timeout).toBe(5000);
     });
 
@@ -223,7 +223,7 @@ describe('RequestClient', () => {
         '/api/users',
         { name: 'John' },
         { headers: { 'Content-Type': 'application/json' } },
-        { retry: true },
+        { retry: true }
       );
 
       const request = mockTransport.getRequestHistory()[0];
@@ -238,7 +238,9 @@ describe('RequestClient', () => {
       const responseData = { id: 1, name: 'John Updated' };
       mockTransport.setDefaultResponse(responseData, 200);
 
-      const result = await client.put<typeof responseData>('/api/users/1', { name: 'John Updated' });
+      const result = await client.put<typeof responseData>('/api/users/1', {
+        name: 'John Updated'
+      });
 
       expect(result).toEqual(responseData);
       expect(mockTransport.getRequestHistory()[0].method).toBe('PUT');
@@ -263,13 +265,13 @@ describe('RequestClient', () => {
 
       await client.delete(
         '/api/users/1',
-        { headers: { 'Authorization': 'Bearer token' } },
-        { cache: false },
+        { headers: { Authorization: 'Bearer token' } },
+        { cache: false }
       );
 
       const request = mockTransport.getRequestHistory()[0];
       expect(request.method).toBe('DELETE');
-      expect(request.headers).toEqual({ 'Authorization': 'Bearer token' });
+      expect(request.headers).toEqual({ Authorization: 'Bearer token' });
     });
   });
 
@@ -278,7 +280,9 @@ describe('RequestClient', () => {
       const responseData = { id: 1, name: 'John Patched' };
       mockTransport.setDefaultResponse(responseData, 200);
 
-      const result = await client.patch<typeof responseData>('/api/users/1', { name: 'John Patched' });
+      const result = await client.patch<typeof responseData>('/api/users/1', {
+        name: 'John Patched'
+      });
 
       expect(result).toEqual(responseData);
       expect(mockTransport.getRequestHistory()[0].method).toBe('PATCH');
@@ -339,4 +343,3 @@ describe('RequestClient', () => {
     });
   });
 });
-

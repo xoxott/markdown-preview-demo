@@ -9,7 +9,9 @@ export async function callOllamaStream(
 ) {
   try {
     const controller = new AbortController();
-    const timeoutId = options.timeout ? setTimeout(() => controller.abort(), options.timeout) : null;
+    const timeoutId = options.timeout
+      ? setTimeout(() => controller.abort(), options.timeout)
+      : null;
 
     const res = await fetch('http://localhost:11434/api/generate', {
       method: 'POST',

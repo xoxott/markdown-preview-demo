@@ -1,6 +1,6 @@
 /**
  * 画布缩放 Hook
- * 
+ *
  * 处理画布的滚轮缩放功能
  */
 
@@ -39,10 +39,7 @@ export function useCanvasZoom(options: UseCanvasZoomOptions) {
     const maxZoom = config.value.canvas?.maxZoom || 4;
 
     const currentZoom = options.viewport.value.zoom;
-    const newZoom = Math.max(
-      minZoom,
-      Math.min(maxZoom, currentZoom + delta * zoomStep)
-    );
+    const newZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom + delta * zoomStep));
 
     // 获取鼠标位置（相对于画布）
     const rect = canvasRef.value?.getBoundingClientRect();
@@ -64,4 +61,3 @@ export function useCanvasZoom(options: UseCanvasZoomOptions) {
     handleWheel
   };
 }
-

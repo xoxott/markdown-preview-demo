@@ -78,9 +78,15 @@ export function useNodeDrag(options: UseNodeDragOptions): UseNodeDragReturn {
 
   // 使用通用的拖拽 hook
   const drag = useDrag({
-
     // 坐标转换：屏幕坐标偏移 -> 画布坐标偏移
-    transformCoordinates: (screenX, screenY, startScreenX, startScreenY, startNodeX, startNodeY) => {
+    transformCoordinates: (
+      screenX,
+      screenY,
+      startScreenX,
+      startScreenY,
+      startNodeX,
+      startNodeY
+    ) => {
       // 计算屏幕坐标偏移
       const screenDeltaX = screenX - startScreenX;
       const screenDeltaY = screenY - startScreenY;
@@ -99,7 +105,7 @@ export function useNodeDrag(options: UseNodeDragOptions): UseNodeDragReturn {
     },
 
     // 拖拽更新回调
-    onDrag: (result) => {
+    onDrag: result => {
       if (currentNodeId) {
         onNodePositionUpdate(currentNodeId, result.x, result.y);
       } else {
@@ -108,7 +114,7 @@ export function useNodeDrag(options: UseNodeDragOptions): UseNodeDragReturn {
     },
 
     // 拖拽结束回调：处理点击/拖拽区分
-    onDragEnd: (hasMoved) => {
+    onDragEnd: hasMoved => {
       if (hasMoved) {
         // 标记拖拽发生，阻止后续的点击事件
         markDragOccurred();
@@ -157,7 +163,6 @@ export function useNodeDrag(options: UseNodeDragOptions): UseNodeDragReturn {
     event.stopPropagation();
   };
 
-
   return {
     draggingNodeId,
     elevatedNodeIds,
@@ -169,4 +174,3 @@ export function useNodeDrag(options: UseNodeDragOptions): UseNodeDragReturn {
     handleNodeMouseUp: drag.handleMouseUp
   };
 }
-

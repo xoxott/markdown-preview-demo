@@ -55,16 +55,13 @@ importers:
         version: 1.1.2
       '@vue/repl':
         specifier: git+https://github.com/xoxott/repl.git#swich-npm-registry
-        version: git+https://git@github.com:xoxott/repl.git#f7a0d5eecd1830e0be47bd81847594d166736eb1
+        version: https://codeload.github.com/xoxott/repl/tar.gz/f7a0d5eecd1830e0be47bd81847594d166736eb1
       '@vueuse/core':
         specifier: 13.1.0
         version: 13.1.0(vue@3.5.13(typescript@5.6.3))
       clipboard:
         specifier: 2.0.11
         version: 2.0.11
-      crypto:
-        specifier: ^1.0.1
-        version: 1.0.1
       d3:
         specifier: ^7.9.0
         version: 7.9.0
@@ -237,6 +234,9 @@ importers:
       kolorist:
         specifier: 1.8.0
         version: 1.8.0
+      prettier:
+        specifier: ^3.5.3
+        version: 3.5.3
       sass:
         specifier: 1.88.0
         version: 1.88.0
@@ -269,7 +269,7 @@ importers:
         version: 7.7.6(rollup@4.53.2)(vite@6.3.5(@types/node@22.15.17)(jiti@2.6.1)(sass@1.88.0)(tsx@4.19.4)(yaml@2.8.1))(vue@3.5.13(typescript@5.6.3))
       vitest:
         specifier: ^4.0.8
-        version: 4.0.8(@types/debug@4.1.12)(@types/node@22.15.17)(@vitest/ui@4.0.16(vitest@4.0.8))(happy-dom@20.0.10)(jiti@2.6.1)(sass@1.88.0)(tsx@4.19.4)(yaml@2.8.1)
+        version: 4.0.8(@types/debug@4.1.12)(@types/node@22.15.17)(@vitest/ui@4.0.16)(happy-dom@20.0.10)(jiti@2.6.1)(sass@1.88.0)(tsx@4.19.4)(yaml@2.8.1)
       vue-eslint-parser:
         specifier: 10.1.3
         version: 10.1.3(eslint@9.26.0(jiti@2.6.1))
@@ -356,9 +356,6 @@ importers:
       markdown-it:
         specifier: ^14.0.0
         version: 14.1.0
-      uuid:
-        specifier: ^11.1.0
-        version: 11.1.0
     devDependencies:
       '@suga/markdown-it-render-vnode-vue':
         specifier: workspace:*
@@ -366,15 +363,12 @@ importers:
       '@types/markdown-it':
         specifier: ^14.1.2
         version: 14.1.2
-      '@types/uuid':
-        specifier: ^11.0.0
-        version: 11.0.0
       typescript:
         specifier: ^5.6.3
         version: 5.6.3
       vitest:
         specifier: ^4.0.8
-        version: 4.0.8(@types/debug@4.1.12)(@types/node@22.15.17)(@vitest/ui@4.0.16(vitest@4.0.8))(happy-dom@20.0.10)(jiti@2.6.1)(sass@1.88.0)(tsx@4.19.4)(yaml@2.8.1)
+        version: 4.0.8(@types/debug@4.1.12)(@types/node@22.15.17)(@vitest/ui@4.0.16)(happy-dom@20.0.10)(jiti@2.6.1)(sass@1.88.0)(tsx@4.19.4)(yaml@2.8.1)
       vue:
         specifier: ^3.5.13
         version: 3.5.13(typescript@5.6.3)
@@ -409,17 +403,19 @@ importers:
         version: 5.6.3
 
   packages/markdown-it-task-lists:
-    dependencies:
-      markdown-it:
-        specifier: ^14.0.0
-        version: 14.1.0
     devDependencies:
       '@types/markdown-it':
         specifier: ^14.1.2
         version: 14.1.2
+      markdown-it:
+        specifier: ^14.1.0
+        version: 14.1.0
       typescript:
         specifier: ^5.6.3
         version: 5.6.3
+      vitest:
+        specifier: ^4.0.8
+        version: 4.0.8(@types/debug@4.1.12)(@types/node@22.15.17)(@vitest/ui@4.0.16)(happy-dom@20.0.10)(jiti@2.6.1)(sass@1.88.0)(tsx@4.19.4)(yaml@2.8.1)
 
   packages/materials:
     dependencies:
@@ -1409,6 +1405,7 @@ packages:
 
   '@rollup/rollup-win32-x64-msvc@4.55.1':
     resolution: {integrity: sha512-SPEpaL6DX4rmcXtnhdrQYgzQ5W2uW3SCJch88lB2zImhJRhIIK44fkUrgIV/Q8yUNfw5oyZ5vkeQsZLhCb06lw==}
+    cpu: [x64]
     os: [win32]
 
   '@sec-ant/readable-stream@0.4.1':
@@ -1694,10 +1691,6 @@ packages:
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
 
-  '@types/uuid@11.0.0':
-    resolution: {integrity: sha512-HVyk8nj2m+jcFRNazzqyVKiZezyhDKrGUA3jlEcg/nZ6Ms+qHwocba1Y/AaVaznJTAM9xpdFSh+ptbNrhOGvZA==}
-    deprecated: This is a stub types definition. uuid provides its own type definitions, so you do not need this installed.
-
   '@types/web-bluetooth@0.0.21':
     resolution: {integrity: sha512-oIQLCGWtcFZy2JW77j9k8nHzAOpqMHLQejDA48XXMWH6tjCQHz5RCFz1bzsmROyL6PUm+LLnUiI4BCn221inxA==}
 
@@ -1982,8 +1975,8 @@ packages:
   '@vue/reactivity@3.5.13':
     resolution: {integrity: sha512-NaCwtw8o48B9I6L1zl2p41OHo/2Z4wqYGGIK1Khu5T7yxrn+ATOixn/Udn2m+6kZKB/J7cuT9DbWWhRxqixACg==}
 
-  '@vue/repl@git+https://git@github.com:xoxott/repl.git#f7a0d5eecd1830e0be47bd81847594d166736eb1':
-    resolution: {commit: f7a0d5eecd1830e0be47bd81847594d166736eb1, repo: git@github.com:xoxott/repl.git, type: git}
+  '@vue/repl@https://codeload.github.com/xoxott/repl/tar.gz/f7a0d5eecd1830e0be47bd81847594d166736eb1':
+    resolution: {tarball: https://codeload.github.com/xoxott/repl/tar.gz/f7a0d5eecd1830e0be47bd81847594d166736eb1}
     version: 4.5.1
 
   '@vue/runtime-core@3.5.13':
@@ -2475,10 +2468,6 @@ packages:
 
   crypto-js@4.2.0:
     resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
-
-  crypto@1.0.1:
-    resolution: {integrity: sha512-VxBKmeNcqQdiUQUW2Tzq0t377b54N2bMtXO/qiLa+6eRRmmC4qT3D4OnTGoT/U6O9aklQ/jTwbOtRMTTY8G0Ig==}
-    deprecated: This package is no longer supported. It's now a built-in Node module. If you've depended on crypto, you should switch to the one that's built-in.
 
   css-render@0.15.14:
     resolution: {integrity: sha512-9nF4PdUle+5ta4W5SyZdLCCmFd37uVimSjg1evcTqKJCyvCEEj12WKzOSBNak6r4im4J4iYXKH1OWpUV5LBYFg==}
@@ -6778,10 +6767,6 @@ snapshots:
 
   '@types/unist@3.0.3': {}
 
-  '@types/uuid@11.0.0':
-    dependencies:
-      uuid: 11.1.0
-
   '@types/web-bluetooth@0.0.21': {}
 
   '@types/whatwg-mimetype@3.0.2': {}
@@ -7081,7 +7066,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.0.3
-      vitest: 4.0.8(@types/debug@4.1.12)(@types/node@22.15.17)(@vitest/ui@4.0.16(vitest@4.0.8))(happy-dom@20.0.10)(jiti@2.6.1)(sass@1.88.0)(tsx@4.19.4)(yaml@2.8.1)
+      vitest: 4.0.8(@types/debug@4.1.12)(@types/node@22.15.17)(@vitest/ui@4.0.16)(happy-dom@20.0.10)(jiti@2.6.1)(sass@1.88.0)(tsx@4.19.4)(yaml@2.8.1)
 
   '@vitest/utils@4.0.16':
     dependencies:
@@ -7252,7 +7237,7 @@ snapshots:
     dependencies:
       '@vue/shared': 3.5.13
 
-  '@vue/repl@git+https://git@github.com:xoxott/repl.git#f7a0d5eecd1830e0be47bd81847594d166736eb1': {}
+  '@vue/repl@https://codeload.github.com/xoxott/repl/tar.gz/f7a0d5eecd1830e0be47bd81847594d166736eb1': {}
 
   '@vue/runtime-core@3.5.13':
     dependencies:
@@ -7776,8 +7761,6 @@ snapshots:
       which: 2.0.2
 
   crypto-js@4.2.0: {}
-
-  crypto@1.0.1: {}
 
   css-render@0.15.14:
     dependencies:
@@ -11255,7 +11238,7 @@ snapshots:
       tsx: 4.19.4
       yaml: 2.8.1
 
-  vitest@4.0.8(@types/debug@4.1.12)(@types/node@22.15.17)(@vitest/ui@4.0.16(vitest@4.0.8))(happy-dom@20.0.10)(jiti@2.6.1)(sass@1.88.0)(tsx@4.19.4)(yaml@2.8.1):
+  vitest@4.0.8(@types/debug@4.1.12)(@types/node@22.15.17)(@vitest/ui@4.0.16)(happy-dom@20.0.10)(jiti@2.6.1)(sass@1.88.0)(tsx@4.19.4)(yaml@2.8.1):
     dependencies:
       '@vitest/expect': 4.0.8
       '@vitest/mocker': 4.0.8(vite@6.3.5(@types/node@22.15.17)(jiti@2.6.1)(sass@1.88.0)(tsx@4.19.4)(yaml@2.8.1))

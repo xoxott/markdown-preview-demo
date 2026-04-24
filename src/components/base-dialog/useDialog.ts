@@ -9,7 +9,11 @@ import ConfirmDialog from './ConfirmDialog';
 import type { ConfirmDialogConfig, DialogInstance } from './dialog';
 
 /** 创建弹窗实例 */
-export async function createDialogInstance(component: any, config: any, app?: App): Promise<DialogInstance> {
+export async function createDialogInstance(
+  component: any,
+  config: any,
+  app?: App
+): Promise<DialogInstance> {
   const container = document.createElement('div');
   document.body.appendChild(container);
   const themeStore = useThemeStore();
@@ -39,11 +43,11 @@ export async function createDialogInstance(component: any, config: any, app?: Ap
 
   watchEffect(() => {
     const dialogVNode = createVNode(component, {
-      show: show.value,
+      'show': show.value,
       config,
       'onUpdate:show': handleUpdateShow,
-      onAfterLeave: handleAfterLeave,
-      onClose: config?.onClose
+      'onAfterLeave': handleAfterLeave,
+      'onClose': config?.onClose
     });
 
     const vnode = createVNode(
@@ -73,7 +77,6 @@ export async function createDialogInstance(component: any, config: any, app?: Ap
 
 /** useDialog Hook */
 export function useDialog(app?: App) {
-
   /** 显示确认对话框 */
   const confirm = (config: ConfirmDialogConfig): Promise<DialogInstance> => {
     return createDialogInstance(ConfirmDialog, config, app);
@@ -124,7 +127,10 @@ export function useDialog(app?: App) {
   };
 
   /** 显示删除确认对话框 */
-  const confirmDelete = (itemName: string, onConfirm: () => void | Promise<void>): Promise<DialogInstance> => {
+  const confirmDelete = (
+    itemName: string,
+    onConfirm: () => void | Promise<void>
+  ): Promise<DialogInstance> => {
     return confirm({
       title: '确认删除',
       content: `确定要删除 "${itemName}" 吗?此操作无法撤销。`,

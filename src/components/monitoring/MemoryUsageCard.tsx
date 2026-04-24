@@ -62,7 +62,9 @@ export default defineComponent({
           <NSpace vertical size={16}>
             {/* 使用率进度条 */}
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <div
+                style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}
+              >
                 <span>使用率</span>
                 <span style={{ color: color.value, fontWeight: 'bold' }}>
                   {usagePercent.value.toFixed(2)}%
@@ -121,4 +123,3 @@ export default defineComponent({
     };
   }
 });
-

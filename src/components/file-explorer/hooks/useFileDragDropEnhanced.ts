@@ -205,7 +205,11 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}): FileDrag
   };
 
   /** 内部验证 */
-  const validateDropInternal = (items: FileItem[], targetPath: string, targetItem?: FileItem): boolean => {
+  const validateDropInternal = (
+    items: FileItem[],
+    targetPath: string,
+    targetItem?: FileItem
+  ): boolean => {
     if (validateDrop && !validateDrop(items, targetPath, targetItem)) {
       return false;
     }

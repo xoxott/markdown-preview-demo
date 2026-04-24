@@ -1,14 +1,6 @@
 import type { PropType } from 'vue';
 import { defineComponent, watch, ref, reactive } from 'vue';
-import {
-  NForm,
-  NFormItem,
-  NInput,
-  NSelect,
-  NSwitch,
-  NButton,
-  NSpace
-} from 'naive-ui';
+import { NForm, NFormItem, NInput, NSelect, NSwitch, NButton, NSpace } from 'naive-ui';
 import { useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
 import BaseDialog from '@/components/base-dialog';
@@ -50,7 +42,7 @@ export default defineComponent({
     // 监听 config.formData 变化，同步到 formModel
     watch(
       () => props.config.formData,
-      (newData) => {
+      newData => {
         Object.assign(formModel, newData);
       },
       { deep: true, immediate: true }
@@ -59,10 +51,18 @@ export default defineComponent({
     // 表单验证规则
     const formRules = {
       name: [
-        { required: true, message: $t('page.permissionManagement.nameRequired' as any), trigger: 'blur' }
+        {
+          required: true,
+          message: $t('page.permissionManagement.nameRequired' as any),
+          trigger: 'blur'
+        }
       ],
       code: [
-        { required: true, message: $t('page.permissionManagement.codeRequired' as any), trigger: 'blur' },
+        {
+          required: true,
+          message: $t('page.permissionManagement.codeRequired' as any),
+          trigger: 'blur'
+        },
         {
           pattern: /^[A-Z_][A-Z0-9_]*$/,
           message: $t('page.permissionManagement.codeInvalid' as any),
@@ -70,10 +70,18 @@ export default defineComponent({
         }
       ],
       resource: [
-        { required: true, message: $t('page.permissionManagement.resourceRequired' as any), trigger: 'change' }
+        {
+          required: true,
+          message: $t('page.permissionManagement.resourceRequired' as any),
+          trigger: 'change'
+        }
       ],
       action: [
-        { required: true, message: $t('page.permissionManagement.actionRequired' as any), trigger: 'change' }
+        {
+          required: true,
+          message: $t('page.permissionManagement.actionRequired' as any),
+          trigger: 'change'
+        }
       ]
     };
 
@@ -105,7 +113,7 @@ export default defineComponent({
     // 监听显示状态，重置表单验证
     watch(
       () => props.show,
-      (show) => {
+      show => {
         if (show) {
           formRef.value?.restoreValidation();
         }
@@ -132,7 +140,10 @@ export default defineComponent({
               labelWidth="100px"
             >
               <NFormItem label={$t('page.permissionManagement.name' as any)} path="name">
-                <NInput v-model:value={formModel.name} placeholder={$t('page.permissionManagement.namePlaceholder' as any)} />
+                <NInput
+                  v-model:value={formModel.name}
+                  placeholder={$t('page.permissionManagement.namePlaceholder' as any)}
+                />
               </NFormItem>
               <NFormItem label={$t('page.permissionManagement.code' as any)} path="code">
                 <NInput
@@ -159,7 +170,10 @@ export default defineComponent({
                   tag
                 />
               </NFormItem>
-              <NFormItem label={$t('page.permissionManagement.description' as any)} path="description">
+              <NFormItem
+                label={$t('page.permissionManagement.description' as any)}
+                path="description"
+              >
                 <NInput
                   v-model:value={formModel.description}
                   type="textarea"
@@ -170,16 +184,16 @@ export default defineComponent({
               <NFormItem label={$t('page.permissionManagement.status' as any)} path="isActive">
                 <NSwitch v-model:value={formModel.isActive} />
                 <span style={{ marginLeft: '8px' }}>
-                  {formModel.isActive ? $t('page.permissionManagement.active' as any) : $t('page.permissionManagement.inactive' as any)}
+                  {formModel.isActive
+                    ? $t('page.permissionManagement.active' as any)
+                    : $t('page.permissionManagement.inactive' as any)}
                 </span>
               </NFormItem>
             </NForm>
           ),
           footer: () => (
             <NSpace justify="end">
-              <NButton onClick={handleCancel}>
-                {$t('common.cancel')}
-              </NButton>
+              <NButton onClick={handleCancel}>{$t('common.cancel')}</NButton>
               <NButton type="primary" onClick={handleConfirm}>
                 {$t('common.confirm')}
               </NButton>
@@ -190,4 +204,3 @@ export default defineComponent({
     );
   }
 });
-

@@ -183,7 +183,9 @@ export default defineComponent({
                             >
                               {log.level.toUpperCase()}
                             </NTag>
-                            {log.nodeId && <span class="text-xs text-gray-500">[{log.nodeId}]</span>}
+                            {log.nodeId && (
+                              <span class="text-xs text-gray-500">[{log.nodeId}]</span>
+                            )}
                             <span class="flex-1">{log.message}</span>
                           </div>
                         </div>
@@ -223,4 +225,3 @@ export default defineComponent({
     );
   }
 });
-

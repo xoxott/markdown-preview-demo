@@ -72,10 +72,7 @@ export class DedupeManager {
   /**
    * 通过键获取或创建请求（直接使用 ctx.id）
    */
-  getOrCreateRequestByKey<T>(
-    key: string,
-    requestFn: () => Promise<T>,
-  ): Promise<T> {
+  getOrCreateRequestByKey<T>(key: string, requestFn: () => Promise<T>): Promise<T> {
     // 清理过期请求
     this.cleanupExpiredRequests();
 
@@ -101,7 +98,7 @@ export class DedupeManager {
     this.pendingRequests.set(key, {
       promise,
       timestamp,
-      timeoutId: undefined,
+      timeoutId: undefined
     });
 
     return promise;
@@ -134,4 +131,3 @@ export class DedupeManager {
     this.dedupeWindow = window;
   }
 }
-

@@ -5,6 +5,7 @@
 ### 1. 多种线条类型
 
 **支持的线条类型：**
+
 - ✅ **贝塞尔曲线（bezier）**：平滑的曲线，默认类型
 - ✅ **直线（straight）**：最短路径的直线连接
 - ✅ **阶梯线（step）**：直角转折的阶梯式连接
@@ -13,6 +14,7 @@
 ### 2. 箭头功能
 
 **箭头特性：**
+
 - ✅ **颜色同步**：箭头颜色自动与线条颜色保持一致
 - ✅ **显示控制**：可以通过设置开关显示/隐藏箭头
 - ✅ **智能定位**：
@@ -23,6 +25,7 @@
 ### 3. 线条样式
 
 **可配置项：**
+
 - ✅ 线条类型（4种）
 - ✅ 线条颜色（任意颜色）
 - ✅ 线条宽度（1-10px）
@@ -38,15 +41,15 @@ switch (lineType) {
   case 'straight':
     // 直线：M x1,y1 L x2,y2
     return `M ${x1},${y1} L ${endX},${endY}`;
-  
+
   case 'step':
     // 阶梯线：水平-垂直-水平
     return `M ${x1},${y1} H ${midX} V ${y2} H ${endX}`;
-  
+
   case 'smoothstep':
     // 平滑阶梯线：使用 Q 命令添加圆角
     return `M ${x1},${y1} H ${midX - radius} Q ${midX},${y1} ${midX},${y1 + radius} V ${y2 - radius} Q ${midX},${y2} ${midX + radius},${y2} H ${endX}`;
-  
+
   case 'bezier':
     // 贝塞尔曲线：使用 C 命令
     return `M ${x1},${y1} C ${cx1},${cy1} ${cx2},${cy2} ${endX},${endY}`;
@@ -58,7 +61,7 @@ switch (lineType) {
 ```typescript
 // 箭头填充色
 fill={
-  props.selected 
+  props.selected
     ? CONNECTION_LINE_CONFIG.ARROW_FILL_SELECTED  // 选中：粉色
     : (props.style?.color || CONNECTION_LINE_CONFIG.ARROW_FILL_DEFAULT)  // 普通：与线条同色
 }
@@ -84,21 +87,25 @@ marker-end={showArrow ? `url(#${arrowMarkerId})` : undefined}
 ## 📊 不同线条类型的特点
 
 ### 贝塞尔曲线（bezier）
+
 - **优点**：视觉最流畅，适合展示流程
 - **适用场景**：工作流、数据流、流程图
 - **特性**：自动计算控制点，保持平滑过渡
 
 ### 直线（straight）
+
 - **优点**：最简洁，路径最短
 - **适用场景**：简单连接、技术图表
 - **特性**：直接连接两点，无中间控制点
 
 ### 阶梯线（step）
+
 - **优点**：清晰的水平/垂直路径
 - **适用场景**：电路图、组织架构图
 - **特性**：直角转折，路径明确
 
 ### 平滑阶梯线（smoothstep）
+
 - **优点**：结合阶梯线和曲线的优点
 - **适用场景**：现代化的流程图
 - **特性**：圆角转折，视觉柔和
@@ -110,11 +117,11 @@ marker-end={showArrow ? `url(#${arrowMarkerId})` : undefined}
 ```typescript
 // 在 WorkflowCanvas 中
 const connectionLineStyle = computed(() => ({
-  type: 'bezier',        // 线条类型
-  color: '#3b82f6',      // 蓝色
-  width: 3,              // 3px 宽
-  animated: true,        // 启用动画
-  showArrow: true        // 显示箭头
+  type: 'bezier', // 线条类型
+  color: '#3b82f6', // 蓝色
+  width: 3, // 3px 宽
+  animated: true, // 启用动画
+  showArrow: true // 显示箭头
 }));
 ```
 
@@ -141,6 +148,7 @@ const connectionLineStyle = computed(() => ({
 ### 箭头位置计算
 
 **贝塞尔曲线：**
+
 ```typescript
 // 计算曲线在终点的切线方向
 const tangent = getBezierTangent(x1, y1, cx1, cy1, cx2, cy2, x2, y2);
@@ -150,6 +158,7 @@ endY = y2 - tangent.dy * ARROW_LENGTH;
 ```
 
 **直线：**
+
 ```typescript
 // 计算直线方向
 const dx = x2 - x1;
@@ -161,6 +170,7 @@ endY = y2 - (dy / length) * ARROW_LENGTH;
 ```
 
 **阶梯线/平滑阶梯线：**
+
 ```typescript
 // 最后一段是水平线，直接减去箭头长度
 endX = x2 - ARROW_LENGTH;
@@ -176,6 +186,7 @@ endX = x2 - ARROW_LENGTH;
 ## 🎉 总结
 
 连接线功能现已完全实现：
+
 - ✅ 4种线条类型，满足不同场景需求
 - ✅ 箭头颜色自动同步，视觉统一
 - ✅ 箭头显示可控，灵活配置
@@ -183,4 +194,3 @@ endX = x2 - ARROW_LENGTH;
 - ✅ 实时预览，所见即所得
 
 所有功能已通过 Lint 检查，可以直接使用！🚀
-

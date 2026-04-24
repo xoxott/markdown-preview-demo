@@ -78,9 +78,15 @@ export default defineComponent({
         onConfirm: async (data: VersionLogFormData) => {
           try {
             // 将字符串转换为数组（如果为空则设为 undefined）
-            const features = data.features.trim() ? data.features.split('\n').filter(f => f.trim()) : undefined;
-            const fixes = data.fixes.trim() ? data.fixes.split('\n').filter(f => f.trim()) : undefined;
-            const improvements = data.improvements.trim() ? data.improvements.split('\n').filter(f => f.trim()) : undefined;
+            const features = data.features.trim()
+              ? data.features.split('\n').filter(f => f.trim())
+              : undefined;
+            const fixes = data.fixes.trim()
+              ? data.fixes.split('\n').filter(f => f.trim())
+              : undefined;
+            const improvements = data.improvements.trim()
+              ? data.improvements.split('\n').filter(f => f.trim())
+              : undefined;
 
             await fetchCreateVersionLog({
               version: data.version,
@@ -130,9 +136,15 @@ export default defineComponent({
           onConfirm: async (data: VersionLogFormData) => {
             try {
               // 将字符串转换为数组（如果为空则设为 undefined）
-              const features = data.features.trim() ? data.features.split('\n').filter(f => f.trim()) : undefined;
-              const fixes = data.fixes.trim() ? data.fixes.split('\n').filter(f => f.trim()) : undefined;
-              const improvements = data.improvements.trim() ? data.improvements.split('\n').filter(f => f.trim()) : undefined;
+              const features = data.features.trim()
+                ? data.features.split('\n').filter(f => f.trim())
+                : undefined;
+              const fixes = data.fixes.trim()
+                ? data.fixes.split('\n').filter(f => f.trim())
+                : undefined;
+              const improvements = data.improvements.trim()
+                ? data.improvements.split('\n').filter(f => f.trim())
+                : undefined;
 
               const updateData: Api.VersionLogManagement.UpdateVersionLogRequest = {
                 type: data.type,
@@ -217,7 +229,11 @@ export default defineComponent({
               minor: 'warning',
               patch: 'info'
             };
-            return <NTag type={typeColorMap[row.type] || 'default'}>{typeMap[row.type] || row.type}</NTag>;
+            return (
+              <NTag type={typeColorMap[row.type] || 'default'}>
+                {typeMap[row.type] || row.type}
+              </NTag>
+            );
           }
         },
         {
@@ -290,15 +306,8 @@ export default defineComponent({
     }
 
     // 表格配置
-    const {
-      columns,
-      data,
-      loading,
-      pagination,
-      getData,
-      updateSearchParams,
-      resetSearchParams
-    } = useTable({
+    const { columns, data, loading, pagination, getData, updateSearchParams, resetSearchParams } =
+      useTable({
         apiFn: fetchVersionLogList,
         apiParams: {
           page: 1,
@@ -332,7 +341,9 @@ export default defineComponent({
         return;
       }
       await dialog.confirmDelete(
-        $t('page.versionLogManagement.confirmBatchDelete' as any, { count: selectedRowKeys.value.length }),
+        $t('page.versionLogManagement.confirmBatchDelete' as any, {
+          count: selectedRowKeys.value.length
+        }),
         async () => {
           try {
             await fetchBatchDeleteVersionLogs({ ids: selectedRowKeys.value });
@@ -390,9 +401,7 @@ export default defineComponent({
                 <NButton type="primary" onClick={handleSearch}>
                   {$t('common.search')}
                 </NButton>
-                <NButton onClick={handleReset}>
-                  {$t('common.reset')}
-                </NButton>
+                <NButton onClick={handleReset}>{$t('common.reset')}</NButton>
               </NSpace>
             </NFormItem>
           </NForm>
@@ -404,12 +413,14 @@ export default defineComponent({
             <NButton type="primary" onClick={handleAdd}>
               {$t('common.add')}
             </NButton>
-            <NButton type="error" disabled={selectedRowKeys.value.length === 0} onClick={handleBatchDelete}>
+            <NButton
+              type="error"
+              disabled={selectedRowKeys.value.length === 0}
+              onClick={handleBatchDelete}
+            >
               {$t('common.batchDelete')}
             </NButton>
-            <NButton onClick={getData}>
-              {$t('common.refresh')}
-            </NButton>
+            <NButton onClick={getData}>{$t('common.refresh')}</NButton>
           </NSpace>
         </NCard>
 
@@ -422,10 +433,12 @@ export default defineComponent({
             pagination={pagination}
             rowKey={(row: VersionLog) => row.id}
             checkedRowKeys={selectedRowKeys.value}
-            onUpdateCheckedRowKeys={(keys) => {
+            onUpdateCheckedRowKeys={keys => {
               selectedRowKeys.value = keys as number[];
             }}
-            onUpdateSorter={(sorter: Array<{ columnKey: string; order: 'ascend' | 'descend' }> | null) => {
+            onUpdateSorter={(
+              sorter: Array<{ columnKey: string; order: 'ascend' | 'descend' }> | null
+            ) => {
               if (sorter && sorter.length > 0) {
                 const sortItem = sorter[0];
                 searchForm.sortBy = sortItem.columnKey as string;
@@ -443,4 +456,3 @@ export default defineComponent({
     );
   }
 });
-

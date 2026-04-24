@@ -1,6 +1,15 @@
 import type { PropType } from 'vue';
 import { computed, defineComponent, onMounted, onUnmounted, ref } from 'vue';
-import { NButton, NButtonGroup, NDropdown, NIcon, NInput, NSelect, NTooltip, useThemeVars } from 'naive-ui';
+import {
+  NButton,
+  NButtonGroup,
+  NDropdown,
+  NIcon,
+  NInput,
+  NSelect,
+  NTooltip,
+  useThemeVars
+} from 'naive-ui';
 import {
   DocumentTextOutline,
   EllipsisHorizontal,
@@ -9,7 +18,16 @@ import {
   ListOutline,
   ReorderFourOutline
 } from '@vicons/ionicons5';
-import { Folder, Plus, Search, SortAscending, SortDescending, Upload, Cloud, DeviceDesktop } from '@vicons/tabler';
+import {
+  Folder,
+  Plus,
+  Search,
+  SortAscending,
+  SortDescending,
+  Upload,
+  Cloud,
+  DeviceDesktop
+} from '@vicons/tabler';
 import type { GridSize, SortField, SortOrder, ViewMode } from '../types/file-explorer';
 import type { DataSourceType } from '../datasources/types';
 
@@ -22,7 +40,10 @@ export default defineComponent({
     onGridSizeChange: Function as PropType<(size: GridSize) => void>,
     sortField: { type: String as PropType<SortField>, required: true },
     sortOrder: { type: String as PropType<SortOrder>, required: true },
-    onSortChange: { type: Function as PropType<(field: SortField, order: SortOrder) => void>, required: true },
+    onSortChange: {
+      type: Function as PropType<(field: SortField, order: SortOrder) => void>,
+      required: true
+    },
     searchQuery: { type: String, default: '' },
     onSearchChange: Function as PropType<(query: string) => void>,
     showUpload: { type: Boolean, default: true },
@@ -157,7 +178,7 @@ export default defineComponent({
     const handleMoreSelect = (key: 'new-folder' | 'upload') => {
       const map = {
         'new-folder': props.onNewFolder,
-        upload: props.onUpload
+        'upload': props.onUpload
       };
       map[key]?.();
     };
@@ -353,7 +374,9 @@ export default defineComponent({
                   {{
                     trigger: () => (
                       <NButton onClick={toggleSortOrder}>
-                        <NIcon size={16}>{props.sortOrder === 'asc' ? <SortAscending /> : <SortDescending />}</NIcon>
+                        <NIcon size={16}>
+                          {props.sortOrder === 'asc' ? <SortAscending /> : <SortDescending />}
+                        </NIcon>
                       </NButton>
                     ),
                     default: () => (props.sortOrder === 'asc' ? '升序' : '降序')
@@ -371,12 +394,18 @@ export default defineComponent({
                 }))}
                 onSelect={(key: string) => {
                   const newOrder =
-                    props.sortField === key ? (props.sortOrder === 'asc' ? 'desc' : 'asc') : props.sortOrder;
+                    props.sortField === key
+                      ? props.sortOrder === 'asc'
+                        ? 'desc'
+                        : 'asc'
+                      : props.sortOrder;
                   props.onSortChange(key as SortField, newOrder);
                 }}
               >
                 <NButton>
-                  <NIcon size={16}>{props.sortOrder === 'asc' ? <SortAscending /> : <SortDescending />}</NIcon>
+                  <NIcon size={16}>
+                    {props.sortOrder === 'asc' ? <SortAscending /> : <SortDescending />}
+                  </NIcon>
                 </NButton>
               </NDropdown>
             )}

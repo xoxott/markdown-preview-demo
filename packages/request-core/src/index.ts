@@ -7,7 +7,7 @@
 export type {
   RequestContext,
   RequestState,
-  NormalizedRequestConfig,
+  NormalizedRequestConfig
 } from './context/RequestContext';
 export { createRequestContext } from './context/RequestContext';
 
@@ -28,4 +28,3 @@ export { RequestExecutor } from './executor/RequestExecutor';
 
 // Client
 export { RequestClient } from './client/RequestClient';
-

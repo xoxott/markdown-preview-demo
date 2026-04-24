@@ -1,6 +1,6 @@
 /**
  * Flow 虚拟滚动器
- * 
+ *
  * 只渲染可见区域的节点，提升大量节点时的渲染性能
  */
 
@@ -47,7 +47,7 @@ export class VirtualScroller {
 
   /**
    * 获取可见节点
-   * 
+   *
    * @param nodes 所有节点列表
    * @param viewport 视口状态
    * @param canvasWidth 画布宽度
@@ -66,15 +66,8 @@ export class VirtualScroller {
     bounds: ViewportBounds;
   } {
     // 如果未启用或节点数量未超过阈值，返回所有节点
-    if (
-      !this.options.enabled ||
-      nodes.length < this.options.threshold
-    ) {
-      const bounds = this.culler.calculateViewportBounds(
-        viewport,
-        canvasWidth,
-        canvasHeight
-      );
+    if (!this.options.enabled || nodes.length < this.options.threshold) {
+      const bounds = this.culler.calculateViewportBounds(viewport, canvasWidth, canvasHeight);
       return {
         visibleNodes: nodes,
         totalCount: nodes.length,
@@ -84,11 +77,7 @@ export class VirtualScroller {
     }
 
     // 使用视口裁剪器获取可见节点
-    const bounds = this.culler.calculateViewportBounds(
-      viewport,
-      canvasWidth,
-      canvasHeight
-    );
+    const bounds = this.culler.calculateViewportBounds(viewport, canvasWidth, canvasHeight);
     const visibleNodes = this.culler.cullNodes(nodes, bounds);
 
     return {
@@ -101,7 +90,7 @@ export class VirtualScroller {
 
   /**
    * 计算节点索引范围（用于虚拟滚动优化）
-   * 
+   *
    * @param nodes 所有节点列表（假设已排序）
    * @param bounds 视口边界
    * @returns 可见节点的索引范围
@@ -134,7 +123,7 @@ export class VirtualScroller {
 
   /**
    * 检查是否应该启用虚拟滚动
-   * 
+   *
    * @param nodeCount 节点数量
    * @returns 是否应该启用
    */
@@ -144,7 +133,7 @@ export class VirtualScroller {
 
   /**
    * 获取性能统计信息
-   * 
+   *
    * @param nodes 所有节点列表
    * @param viewport 视口状态
    * @param canvasWidth 画布宽度
@@ -164,9 +153,7 @@ export class VirtualScroller {
   } {
     const result = this.getVisibleNodes(nodes, viewport, canvasWidth, canvasHeight);
     const cullingRatio =
-      result.totalCount > 0
-        ? (result.totalCount - result.visibleCount) / result.totalCount
-        : 0;
+      result.totalCount > 0 ? (result.totalCount - result.visibleCount) / result.totalCount : 0;
 
     return {
       totalNodes: result.totalCount,
@@ -176,4 +163,3 @@ export class VirtualScroller {
     };
   }
 }
-

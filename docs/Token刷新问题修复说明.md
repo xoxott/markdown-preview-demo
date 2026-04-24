@@ -3,6 +3,7 @@
 ## 🐛 问题描述
 
 当 Access Token 过期时，后端返回：
+
 ```json
 {
   "code": 1202,
@@ -17,6 +18,7 @@ HTTP 状态码为 **401**，但前端没有自动触发 token 刷新机制。
 ## 🔍 问题原因
 
 ### 原问题
+
 axios 的 `validateStatus` 配置只认为 HTTP 状态码 200-299 和 304 是"成功"的：
 
 ```typescript
@@ -79,18 +81,20 @@ export function isHttpSuccess(status: number) {
 
 ### HTTP 状态码 vs 业务状态码
 
-| 类型 | 作用 | 示例 |
-|------|------|------|
-| **HTTP 状态码** | 传输层状态，表示请求是否成功到达 | 200, 401, 404, 500 |
+| 类型                  | 作用                             | 示例                     |
+| --------------------- | -------------------------------- | ------------------------ |
+| **HTTP 状态码**       | 传输层状态，表示请求是否成功到达 | 200, 401, 404, 500       |
 | **业务状态码 (code)** | 业务层状态，表示业务逻辑是否成功 | 200=成功, 1202=token过期 |
 
 ### 处理原则
 
 1. **HTTP 401 不代表业务失败**
+
    - 只是表示需要认证
    - 响应体中的 `code` 才是真正的业务状态
 
 2. **业务逻辑由 code 字段决定**
+
    ```typescript
    isBackendSuccess(response) {
      const code = response.data.code;
@@ -248,17 +252,20 @@ localStorage.setItem('token', 'your-short-lived-token');
 ## ⚠️ 注意事项
 
 1. **修改后需要重启开发服务器**
+
    ```bash
    # 停止当前服务器 (Ctrl+C)
    npm run dev
    ```
 
 2. **生产环境需要重新构建**
+
    ```bash
    npm run build
    ```
 
 3. **清除浏览器缓存**
+
    - 修改后建议清除浏览器缓存
    - 或者使用隐私模式测试
 
@@ -282,4 +289,3 @@ localStorage.setItem('token', 'your-short-lived-token');
 - [ ] 刷新失败后自动登出
 - [ ] 控制台日志完整输出
 - [ ] 环境变量配置生效
-

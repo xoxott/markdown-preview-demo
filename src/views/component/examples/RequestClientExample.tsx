@@ -3,11 +3,33 @@
  * 展示所有功能的使用方法，确保功能正常
  */
 
-import { onRequestComplete, onRequestError, onRequestStart, onRequestSuccess } from '@suga/request-events';
-import { configureLogger, logErrorWithManager, logRequestWithManager, logResponseWithManager } from '@suga/request-logger';
+import {
+  onRequestComplete,
+  onRequestError,
+  onRequestStart,
+  onRequestSuccess
+} from '@suga/request-events';
+import {
+  configureLogger,
+  logErrorWithManager,
+  logRequestWithManager,
+  logResponseWithManager
+} from '@suga/request-logger';
 import { createRequestClient } from '@/utils/request/createRequestClient';
 import type { AxiosProgressEvent } from 'axios';
-import { NAlert, NButton, NCard, NCode, NConfigProvider, NDivider, NH3, NProgress, NScrollbar, NSpace, NText } from 'naive-ui';
+import {
+  NAlert,
+  NButton,
+  NCard,
+  NCode,
+  NConfigProvider,
+  NDivider,
+  NH3,
+  NProgress,
+  NScrollbar,
+  NSpace,
+  NText
+} from 'naive-ui';
 import { defineComponent, onMounted, ref } from 'vue';
 
 // 创建请求客户端（仅配置 Axios 基础配置，步骤配置已写死在 createRequestClient 内部）
@@ -15,8 +37,8 @@ const client = createRequestClient({
   baseURL: 'https://jsonplaceholder.typicode.com',
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json',
-  },
+    'Content-Type': 'application/json'
+  }
 });
 
 export default defineComponent({
@@ -70,10 +92,14 @@ export default defineComponent({
         const startTime = Date.now();
         const data = await client.get('/posts/2', undefined, {
           cache: true,
-          cacheExpireTime: 60000, // 60秒
+          cacheExpireTime: 60000 // 60秒
         });
         const duration = Date.now() - startTime;
-        result.value = { ...(data as Record<string, unknown>), _duration: duration, _fromCache: false };
+        result.value = {
+          ...(data as Record<string, unknown>),
+          _duration: duration,
+          _fromCache: false
+        };
         addLog(`缓存请求成功（耗时: ${duration}ms）`);
 
         // 立即再次请求，应该从缓存读取
@@ -82,10 +108,14 @@ export default defineComponent({
           const startTime2 = Date.now();
           const data2 = await client.get('/posts/2', undefined, {
             cache: true,
-            cacheExpireTime: 60000,
+            cacheExpireTime: 60000
           });
           const duration2 = Date.now() - startTime2;
-          result.value = { ...(data2 as Record<string, unknown>), _duration: duration2, _fromCache: true };
+          result.value = {
+            ...(data2 as Record<string, unknown>),
+            _duration: duration2,
+            _fromCache: true
+          };
           addLog(`缓存请求成功（从缓存读取，耗时: ${duration2}ms）`);
           loading.value = false;
         }, 100);
@@ -108,8 +138,8 @@ export default defineComponent({
           retry: {
             retry: true,
             retryCount: 3,
-            retryOnTimeout: false,
-          },
+            retryOnTimeout: false
+          }
         });
         result.value = data;
         addLog('重试请求成功');
@@ -133,14 +163,14 @@ export default defineComponent({
         const promises = [
           client.get('/posts/3', undefined, { dedupe: true }),
           client.get('/posts/3', undefined, { dedupe: true }),
-          client.get('/posts/3', undefined, { dedupe: true }),
+          client.get('/posts/3', undefined, { dedupe: true })
         ];
 
         const results = await Promise.all(promises);
         result.value = {
           count: results.length,
           data: results[0],
-          message: '3个请求被去重为1个',
+          message: '3个请求被去重为1个'
         };
         addLog('去重请求成功（3个请求被去重为1个）');
       } catch (err: any) {
@@ -163,16 +193,16 @@ export default defineComponent({
           client.get(`/posts/${i + 1}`, undefined, {
             queue: {
               maxConcurrent: 5,
-              queueStrategy: 'fifo',
+              queueStrategy: 'fifo'
             },
-            priority: 10 - i, // 优先级递减
+            priority: 10 - i // 优先级递减
           })
         );
 
         const results = await Promise.all(promises);
         result.value = {
           count: results.length,
-          message: '10个请求通过队列管理（最大并发5个）',
+          message: '10个请求通过队列管理（最大并发5个）'
         };
         addLog('队列请求成功（10个请求通过队列管理）');
       } catch (err: any) {
@@ -193,26 +223,30 @@ export default defineComponent({
       addLog('开始进度监控请求...');
 
       try {
-        const data = await client.post('/posts', {
-          title: 'Test Post',
-          body: 'This is a test post',
-          userId: 1,
-        }, {
-          onUploadProgress: (progressEvent: unknown) => {
-            const event = progressEvent as AxiosProgressEvent;
-            if (event.total) {
-              uploadProgress.value = Math.round((event.loaded * 100) / event.total);
-              addLog(`上传进度: ${uploadProgress.value}%`);
-            }
+        const data = await client.post(
+          '/posts',
+          {
+            title: 'Test Post',
+            body: 'This is a test post',
+            userId: 1
           },
-          onDownloadProgress: (progressEvent: unknown) => {
-            const event = progressEvent as AxiosProgressEvent;
-            if (event.total) {
-              downloadProgress.value = Math.round((event.loaded * 100) / event.total);
-              addLog(`下载进度: ${downloadProgress.value}%`);
+          {
+            onUploadProgress: (progressEvent: unknown) => {
+              const event = progressEvent as AxiosProgressEvent;
+              if (event.total) {
+                uploadProgress.value = Math.round((event.loaded * 100) / event.total);
+                addLog(`上传进度: ${uploadProgress.value}%`);
+              }
+            },
+            onDownloadProgress: (progressEvent: unknown) => {
+              const event = progressEvent as AxiosProgressEvent;
+              if (event.total) {
+                downloadProgress.value = Math.round((event.loaded * 100) / event.total);
+                addLog(`下载进度: ${downloadProgress.value}%`);
+              }
             }
-          },
-        });
+          }
+        );
         result.value = data;
         addLog('进度监控请求成功');
       } catch (err: any) {
@@ -240,7 +274,7 @@ export default defineComponent({
         const promise = client.get('/posts', undefined, {
           abortable: true,
           requestId: requestId.value,
-          signal: controller.signal,
+          signal: controller.signal
         });
 
         // 3秒后中止请求
@@ -253,7 +287,11 @@ export default defineComponent({
         result.value = data;
         addLog('可中止请求成功');
       } catch (err: any) {
-        if (err.name === 'AbortError' || err.message?.includes('canceled') || err.message?.includes('aborted')) {
+        if (
+          err.name === 'AbortError' ||
+          err.message?.includes('canceled') ||
+          err.message?.includes('aborted')
+        ) {
           error.value = '请求已被中止';
           addLog('请求已被中止');
         } else {
@@ -285,7 +323,7 @@ export default defineComponent({
         const data = await client.post('/posts', {
           title: 'New Post',
           body: 'This is a new post',
-          userId: 1,
+          userId: 1
         });
         result.value = data;
         addLog('POST 请求成功');
@@ -309,7 +347,7 @@ export default defineComponent({
           id: 1,
           title: 'Updated Post',
           body: 'This post has been updated',
-          userId: 1,
+          userId: 1
         });
         result.value = data;
         addLog('PUT 请求成功');
@@ -357,7 +395,7 @@ export default defineComponent({
           retry: {
             retry: true,
             retryCount: 3,
-            retryOnTimeout: false,
+            retryOnTimeout: false
           },
 
           // 去重
@@ -372,15 +410,15 @@ export default defineComponent({
             enabled: true,
             logRequest: true,
             logResponse: true,
-            logError: true,
+            logError: true
           },
 
           // 队列
           queue: {
             maxConcurrent: 5,
-            queueStrategy: 'fifo',
+            queueStrategy: 'fifo'
           },
-          priority: 10,
+          priority: 10
         });
         result.value = data;
         addLog('完整配置请求成功');
@@ -509,7 +547,10 @@ export default defineComponent({
                 <NText class="text-gray-400">暂无日志</NText>
               ) : (
                 logs.value.map((log, index) => (
-                  <div key={index} class="text-sm font-mono text-gray-700 py-1 px-2 hover:bg-gray-50 rounded">
+                  <div
+                    key={index}
+                    class="text-sm font-mono text-gray-700 py-1 px-2 hover:bg-gray-50 rounded"
+                  >
                     {log}
                   </div>
                 ))
@@ -521,4 +562,3 @@ export default defineComponent({
     );
   }
 });
-

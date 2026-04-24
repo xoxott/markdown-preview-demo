@@ -4,14 +4,8 @@
  * 提供可扩展的连接线路径生成功能，支持不同类型的线条和箭头处理
  */
 
-import {
-  ARROW_SIZES,
-  BEZIER_CONSTANTS,
-  EDGE_TYPES
-} from '../constants/edge-constants';
-import {
-  calculateArrowSize
-} from './edge-style-utils';
+import { ARROW_SIZES, BEZIER_CONSTANTS, EDGE_TYPES } from '../constants/edge-constants';
+import { calculateArrowSize } from './edge-style-utils';
 import type { EdgePositions } from '../hooks/useEdgePositions';
 import type { FlowEdge, FlowViewport } from '../types';
 
@@ -145,13 +139,13 @@ class BezierPathGenerator implements EdgePathGenerator {
     const minOffset = BEZIER_CONSTANTS.BASE_MIN_OFFSET * zoom;
 
     // 获取贝塞尔控制点偏移比例：优先使用边自身配置，然后使用全局配置，最后使用默认值
-    const offsetRatio = edge.bezierControlOffset ?? options.bezierControlOffset ?? BEZIER_CONSTANTS.CONTROL_OFFSET_RATIO;
+    const offsetRatio =
+      edge.bezierControlOffset ??
+      options.bezierControlOffset ??
+      BEZIER_CONSTANTS.CONTROL_OFFSET_RATIO;
 
     // 根据偏移比例计算控制点偏移
-    const controlOffset = Math.max(
-      Math.abs(dx) * offsetRatio,
-      minOffset
-    );
+    const controlOffset = Math.max(Math.abs(dx) * offsetRatio, minOffset);
 
     const controlX1 = startX + controlOffset;
     const controlY1 = startY;
@@ -234,4 +228,3 @@ export function generateEdgePath(
     ...options
   });
 }
-

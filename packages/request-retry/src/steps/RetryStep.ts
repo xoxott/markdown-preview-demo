@@ -29,9 +29,7 @@ function isRetryStrategy(value: RetryStrategy | RetryConfig): value is RetryStra
 /**
  * 解析重试配置
  */
-function parseRetryConfig(
-  retryConfig: boolean | RetryStrategy | RetryConfig | undefined,
-): {
+function parseRetryConfig(retryConfig: boolean | RetryStrategy | RetryConfig | undefined): {
   strategy?: RetryStrategy;
   config?: RetryConfig;
 } {
@@ -77,8 +75,7 @@ export class RetryStep implements RequestStep {
         }
       },
       config,
-      finalStrategy,
+      finalStrategy
     );
   }
 }
-

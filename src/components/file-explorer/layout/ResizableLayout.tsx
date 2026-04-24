@@ -161,7 +161,7 @@ export default defineComponent({
               transition: isResizingRight.value ? 'none' : 'width 0.2s ease',
               position: 'relative'
             }}
-            contentClass='h-full ml-1'
+            contentClass="h-full ml-1"
           >
             {renderRightResizeHandle()}
             <div style="height: 100%;">{slots.right?.()}</div>

@@ -51,7 +51,9 @@ export function createOperationsConfig(
       try {
         // 模拟异步操作
         await new Promise(resolve => setTimeout(resolve, 800));
-        message.success(`已${opText} ${items.length} 个项目${targetPath ? ` 到 ${targetPath}` : ''}`);
+        message.success(
+          `已${opText} ${items.length} 个项目${targetPath ? ` 到 ${targetPath}` : ''}`
+        );
       } finally {
         setLoading?.(false);
       }

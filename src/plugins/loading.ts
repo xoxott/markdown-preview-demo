@@ -17,7 +17,10 @@ export function setupLoading() {
     toggleHtmlClass(DARK_CLASS).add();
   }
 
-  const logoWithClass = systemLogo.replace('<svg', `<svg class="size-80px text-primary" style="filter: drop-shadow(0 4px 20px rgba(${r}, ${g}, ${b}, 0.4)); animation: float 3s ease-in-out infinite;"`);
+  const logoWithClass = systemLogo.replace(
+    '<svg',
+    `<svg class="size-80px text-primary" style="filter: drop-shadow(0 4px 20px rgba(${r}, ${g}, ${b}, 0.4)); animation: float 3s ease-in-out infinite;"`
+  );
 
   // 创建旋转圆环动画
   const spinnerRings = `

@@ -144,4 +144,3 @@ export function useKeyboard(options: UseKeyboardOptions = {}): UseKeyboardReturn
     clear
   };
 }
-

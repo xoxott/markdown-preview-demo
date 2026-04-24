@@ -102,10 +102,7 @@ export default defineComponent({
           </div>
 
           <h3>多个项目拖拽</h3>
-          <button
-            class="multi-drag-btn"
-            onMousedown={handleMultiDrag}
-          >
+          <button class="multi-drag-btn" onMousedown={handleMultiDrag}>
             拖拽所有项目 ({items.length})
           </button>
         </div>
@@ -220,4 +217,3 @@ export default defineComponent({
     );
   }
 });
-

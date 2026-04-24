@@ -22,4 +22,3 @@ export interface UploadCallbacks {
   onSpeedChange?: (speed: number) => void;
   onQueueChange?: (status: UploadStats) => void;
 }
-

@@ -23,7 +23,7 @@ describe('CircuitBreaker', () => {
       const customBreaker = new CircuitBreaker({
         failureThreshold: 3,
         timeout: 30000,
-        successThreshold: 1,
+        successThreshold: 1
       });
 
       expect(customBreaker.getState()).toBe(CircuitBreakerState.CLOSED);
@@ -31,7 +31,7 @@ describe('CircuitBreaker', () => {
 
     it('应该支持禁用熔断器', async () => {
       const disabledBreaker = new CircuitBreaker({
-        enabled: false,
+        enabled: false
       });
 
       // 即使失败多次，也不应该开启熔断
@@ -65,13 +65,13 @@ describe('CircuitBreaker', () => {
       await expect(
         breaker.execute(async () => {
           throw error;
-        }),
+        })
       ).rejects.toThrow('Request failed');
     });
 
     it('应该在达到失败阈值后开启熔断', async () => {
       const breaker = new CircuitBreaker({
-        failureThreshold: 3,
+        failureThreshold: 3
       });
 
       // 记录 3 次失败
@@ -91,7 +91,7 @@ describe('CircuitBreaker', () => {
     it('应该在熔断开启时使用 fallback', async () => {
       const breaker = new CircuitBreaker({
         failureThreshold: 2,
-        fallback: () => 'fallback-data',
+        fallback: () => 'fallback-data'
       });
 
       // 开启熔断
@@ -115,7 +115,7 @@ describe('CircuitBreaker', () => {
 
     it('应该在熔断开启时抛出错误当没有 fallback', async () => {
       const breaker = new CircuitBreaker({
-        failureThreshold: 2,
+        failureThreshold: 2
       });
 
       // 开启熔断
@@ -133,14 +133,14 @@ describe('CircuitBreaker', () => {
       await expect(
         breaker.execute(async () => {
           return 'should-not-execute';
-        }),
+        })
       ).rejects.toThrow('熔断器已开启，请求被拒绝');
     });
 
     it('应该在超时后进入半开状态', async () => {
       const breaker = new CircuitBreaker({
         failureThreshold: 2,
-        timeout: 100, // 100ms
+        timeout: 100 // 100ms
       });
 
       // 开启熔断
@@ -169,7 +169,7 @@ describe('CircuitBreaker', () => {
       const breaker = new CircuitBreaker({
         failureThreshold: 2,
         timeout: 100,
-        successThreshold: 2,
+        successThreshold: 2
       });
 
       // 开启熔断
@@ -200,7 +200,7 @@ describe('CircuitBreaker', () => {
     it('应该在半开状态下失败后重新开启熔断', async () => {
       const breaker = new CircuitBreaker({
         failureThreshold: 2,
-        timeout: 100,
+        timeout: 100
       });
 
       // 开启熔断
@@ -232,7 +232,7 @@ describe('CircuitBreaker', () => {
 
     it('应该只统计符合条件的错误', async () => {
       const breaker = new CircuitBreaker({
-        failureThreshold: 2,
+        failureThreshold: 2
       });
 
       // 4xx 错误不应该被统计
@@ -260,7 +260,7 @@ describe('CircuitBreaker', () => {
 
     it('应该在成功时重置失败计数（CLOSED 状态）', async () => {
       const breaker = new CircuitBreaker({
-        failureThreshold: 5,
+        failureThreshold: 5
       });
 
       // 记录一些失败
@@ -327,7 +327,7 @@ describe('CircuitBreaker', () => {
     it('应该手动推进状态', async () => {
       const breaker = new CircuitBreaker({
         failureThreshold: 2,
-        timeout: 100,
+        timeout: 100
       });
 
       // 开启熔断
@@ -354,4 +354,3 @@ describe('CircuitBreaker', () => {
     });
   });
 });
-

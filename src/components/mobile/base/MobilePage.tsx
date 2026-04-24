@@ -1,6 +1,12 @@
 import type { PropType } from 'vue';
 import { computed, defineComponent } from 'vue';
-import type { FooterConfig, HeaderConfig, MobilePageConfig, ScrollConfig, StatusBarConfig } from '../types/mobile';
+import type {
+  FooterConfig,
+  HeaderConfig,
+  MobilePageConfig,
+  ScrollConfig,
+  StatusBarConfig
+} from '../types/mobile';
 import { MobileStatusBar } from './MobileStatusBar';
 import { MobileHeader } from './MobileHeader';
 import { MobileContent } from './MobileContent';

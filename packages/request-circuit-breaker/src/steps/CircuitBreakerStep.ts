@@ -4,12 +4,12 @@
  */
 
 import type { RequestStep, RequestContext } from '@suga/request-core';
-import type {
-  CircuitBreakerOptions,
-  CircuitBreakerBaseOptions,
-} from '../types';
+import type { CircuitBreakerOptions, CircuitBreakerBaseOptions } from '../types';
 import { isCircuitBreakerMeta, CircuitBreakerState } from '../types';
-import { CircuitBreakerManager, type CircuitBreakerManagerOptions } from '../managers/CircuitBreakerManager';
+import {
+  CircuitBreakerManager,
+  type CircuitBreakerManagerOptions
+} from '../managers/CircuitBreakerManager';
 
 /**
  * 熔断步骤配置
@@ -25,7 +25,12 @@ export interface CircuitBreakerStepOptions {
  * 解析熔断器配置
  */
 function parseCircuitBreakerConfig<T = unknown>(
-  config: boolean | CircuitBreakerBaseOptions | CircuitBreakerOptions<unknown> | CircuitBreakerOptions<T> | undefined,
+  config:
+    | boolean
+    | CircuitBreakerBaseOptions
+    | CircuitBreakerOptions<unknown>
+    | CircuitBreakerOptions<T>
+    | undefined
 ): CircuitBreakerOptions<T> | undefined {
   if (config === undefined || config === false) {
     return undefined;
@@ -109,4 +114,3 @@ export class CircuitBreakerStep implements RequestStep {
     }
   }
 }
-

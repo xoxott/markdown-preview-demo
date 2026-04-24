@@ -39,7 +39,7 @@ const loginModuleMap: Record<UnionKey.LoginModule, LoginModuleConfig> = {
     label: loginModuleRecord['code-login'],
     component: CodeLogin
   },
-  register: {
+  'register': {
     label: loginModuleRecord.register,
     component: Register
   },
@@ -71,7 +71,9 @@ export default defineComponent({
     });
 
     const bgThemeColor = computed(() =>
-      themeStore.darkMode ? getPaletteColorByNumber(themeStore.themeColor, 600) : themeStore.themeColor
+      themeStore.darkMode
+        ? getPaletteColorByNumber(themeStore.themeColor, 600)
+        : themeStore.themeColor
     );
 
     const bgColor = computed(() => {
@@ -84,9 +86,7 @@ export default defineComponent({
 
     // 毛玻璃卡片样式
     const cardStyle = computed(() => ({
-      background: themeStore.darkMode
-        ? 'rgba(30, 41, 59, 0.75)'
-        : 'rgba(255, 255, 255, 0.75)',
+      background: themeStore.darkMode ? 'rgba(30, 41, 59, 0.75)' : 'rgba(255, 255, 255, 0.75)',
       backdropFilter: 'blur(20px) saturate(180%)',
       WebkitBackdropFilter: 'blur(20px) saturate(180%)',
       border: themeStore.darkMode
@@ -159,5 +159,3 @@ export default defineComponent({
     );
   }
 });
-
-

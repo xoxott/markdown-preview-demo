@@ -20,10 +20,12 @@ examples/
 ## 如何添加新示例
 
 1. **创建示例组件文件**
+
    - 在 `examples/` 目录下创建新的 `.tsx` 文件
    - 文件命名规范：`组件名Example.tsx`（如：`TableExample.tsx`）
 
 2. **编写示例组件**
+
    ```tsx
    import { defineComponent } from 'vue';
    import { NCard, NH3, NText } from 'naive-ui';
@@ -37,9 +39,7 @@ examples/
        return () => (
          <NCard bordered>
            <NH3 class="border-b pb-2 text-lg font-semibold">组件名称示例</NH3>
-           <NText class="text-gray-500 mb-4 block">
-             示例说明
-           </NText>
+           <NText class="text-gray-500 mb-4 block">示例说明</NText>
            {/* 示例内容 */}
          </NCard>
        );
@@ -48,18 +48,22 @@ examples/
    ```
 
 3. **导出示例组件**
+
    - 在 `examples/index.ts` 中添加导出：
+
    ```ts
    export { default as YourComponentExample } from './YourComponentExample';
    ```
 
 4. **在主文件中使用**
+
    - 在 `src/views/component/index.tsx` 中导入并使用：
+
    ```tsx
    import { YourComponentExample } from './examples';
 
    // 在 return 中使用
-   <YourComponentExample />
+   <YourComponentExample />;
    ```
 
 ## 示例组件规范
@@ -67,6 +71,7 @@ examples/
 1. **组件命名**：使用 PascalCase，以 `Example` 结尾
 2. **文件命名**：与组件名保持一致
 3. **结构规范**：
+
    - 使用 `NCard` 包裹示例内容
    - 使用 `NH3` 作为标题
    - 使用 `NText` 添加说明文字
@@ -92,4 +97,3 @@ examples/
 - 避免在示例中包含复杂的业务逻辑
 - 每个示例应该专注于展示一个或一组相关功能
 - 及时更新示例以反映组件的最新 API
-

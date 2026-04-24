@@ -16,7 +16,12 @@ interface WorkerResponse {
   progress?: number;
 }
 
-type WorkerMessageType = 'MD5_CALCULATE' | 'COMPRESS_IMAGE' | 'SLICE_FILE' | 'BATCH_PROCESS' | 'PROGRESS';
+type WorkerMessageType =
+  | 'MD5_CALCULATE'
+  | 'COMPRESS_IMAGE'
+  | 'SLICE_FILE'
+  | 'BATCH_PROCESS'
+  | 'PROGRESS';
 
 interface BatchProcessOptions {
   calculateMD5?: boolean;
@@ -254,7 +259,9 @@ export default class UploadWorkerManager {
       if (workerScript) {
         this.worker = new Worker(workerScript);
       } else {
-        const blob = new Blob([WorkerScriptGenerator.generate()], { type: 'application/javascript' });
+        const blob = new Blob([WorkerScriptGenerator.generate()], {
+          type: 'application/javascript'
+        });
         const url = URL.createObjectURL(blob);
         this.worker = new Worker(url);
         URL.revokeObjectURL(url); // 立即释放 URL

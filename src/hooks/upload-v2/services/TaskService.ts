@@ -71,8 +71,10 @@ export class TaskService {
    */
   sort(queue: FileTask[]): void {
     queue.sort((a, b) => {
-      const aPriorityKey: keyof typeof this.priorities = (a.options.priority || 'normal') as keyof typeof this.priorities;
-      const bPriorityKey: keyof typeof this.priorities = (b.options.priority || 'normal') as keyof typeof this.priorities;
+      const aPriorityKey: keyof typeof this.priorities = (a.options.priority ||
+        'normal') as keyof typeof this.priorities;
+      const bPriorityKey: keyof typeof this.priorities = (b.options.priority ||
+        'normal') as keyof typeof this.priorities;
 
       const aPriority = this.priorities[aPriorityKey];
       const bPriority = this.priorities[bPriorityKey];
@@ -91,7 +93,9 @@ export class TaskService {
   isDuplicate(file: File, allTasks: FileTask[]): boolean {
     return allTasks.some(
       task =>
-        task.file.name === file.name && task.file.size === file.size && task.file.lastModified === file.lastModified
+        task.file.name === file.name &&
+        task.file.size === file.size &&
+        task.file.lastModified === file.lastModified
     );
   }
 
@@ -126,4 +130,3 @@ export class TaskService {
     return Math.max(this.config.minChunkSize, Math.min(this.config.maxChunkSize, chunkSize));
   }
 }
-

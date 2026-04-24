@@ -52,7 +52,7 @@ export class SpatialIndex {
     this.tree = new RBush<RTreeItem>();
     this.options = {
       defaultWidth: options.defaultWidth || 220,
-      defaultHeight: options.defaultHeight || 72,
+      defaultHeight: options.defaultHeight || 72
     };
     this.nodeMap = new Map();
     this.itemMap = new Map();
@@ -78,7 +78,7 @@ export class SpatialIndex {
         minY: node.position.y,
         maxX: node.position.x + (node.size?.width || this.options.defaultWidth),
         maxY: node.position.y + (node.size?.height || this.options.defaultHeight),
-        node,
+        node
       };
 
       this.itemMap.set(node.id, item);
@@ -108,7 +108,7 @@ export class SpatialIndex {
       minY: node.position.y,
       maxX: node.position.x + (node.size?.width || this.options.defaultWidth),
       maxY: node.position.y + (node.size?.height || this.options.defaultHeight),
-      node,
+      node
     };
 
     // 插入新的边界到 R-Tree
@@ -205,9 +205,7 @@ export class SpatialIndex {
     };
 
     const items = this.tree.search(bounds);
-    return items
-      .map(item => item.node)
-      .filter(n => n.id !== nodeId);
+    return items.map(item => item.node).filter(n => n.id !== nodeId);
   }
 
   /**
@@ -229,9 +227,7 @@ export class SpatialIndex {
     };
 
     const items = this.tree.search(bounds);
-    return items
-      .map(item => item.node)
-      .filter(n => n.id !== nodeId);
+    return items.map(item => item.node).filter(n => n.id !== nodeId);
   }
 
   /**
@@ -323,4 +319,3 @@ export class SpatialIndex {
     } as ViewportBounds;
   }
 }
-

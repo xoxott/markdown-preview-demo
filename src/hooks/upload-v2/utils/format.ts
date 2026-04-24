@@ -194,4 +194,3 @@ export function formatRemainingTime(seconds: number): string {
 
   return `剩余 ${formatTime(seconds)}`;
 }
-

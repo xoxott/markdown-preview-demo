@@ -163,7 +163,6 @@ export function useRafLoop(
     isRunning.value = false;
   };
 
-
   /**
    * 初始化循环
    *
@@ -172,10 +171,11 @@ export function useRafLoop(
    * - 函数/布尔值：根据初始值决定是否开始
    */
   const initializeLoop = () => {
-    if (isRef(enabled)) {  // 响应式引用：监听变化
+    if (isRef(enabled)) {
+      // 响应式引用：监听变化
       watch(
         () => enabled.value,
-        (newVal) => {
+        newVal => {
           if (newVal) {
             start();
           } else {
@@ -188,7 +188,7 @@ export function useRafLoop(
     }
     // 函数或布尔值：根据初始值决定
     const shouldStart = checkEnabled();
-    if (shouldStart) requestAnimationFrame(() => checkEnabled() ? start() : stop());
+    if (shouldStart) requestAnimationFrame(() => (checkEnabled() ? start() : stop()));
   };
 
   initializeLoop();
@@ -203,4 +203,3 @@ export function useRafLoop(
     isRunning
   };
 }
-

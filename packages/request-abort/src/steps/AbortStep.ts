@@ -29,14 +29,14 @@ function isAbortMeta(meta: Record<string, unknown>): meta is AbortMeta {
  */
 function parseAbortConfig(
   config: boolean | AbortOptions | undefined,
-  defaultOptions?: AbortOptions,
+  defaultOptions?: AbortOptions
 ): AbortOptions | undefined {
   if (config === undefined || config === false) {
     return undefined;
   }
 
   if (typeof config === 'boolean') {
-    return config ? defaultOptions ?? {} : undefined;
+    return config ? (defaultOptions ?? {}) : undefined;
   }
 
   if (typeof config === 'object' && config !== null) {
@@ -76,13 +76,10 @@ export class AbortStep implements RequestStep {
     const requestId = ctx.id;
 
     // 创建 AbortController
-    const abortController = this.abortControllerManager.createAbortController(
-      requestId,
-      {
-        url: ctx.config.url,
-        method: ctx.config.method,
-      },
-    );
+    const abortController = this.abortControllerManager.createAbortController(requestId, {
+      url: ctx.config.url,
+      method: ctx.config.method
+    });
 
     ctx.meta.signal = abortController.signal;
 
@@ -108,4 +105,3 @@ export class AbortStep implements RequestStep {
     return this.abortControllerManager;
   }
 }
-

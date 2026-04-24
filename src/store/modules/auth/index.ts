@@ -258,7 +258,12 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
    * @param password Password
    * @param verificationCode Verification code
    */
-  async function register(username: string, email: string, password: string, verificationCode: string) {
+  async function register(
+    username: string,
+    email: string,
+    password: string,
+    verificationCode: string
+  ) {
     startLoading();
     const { data, error } = await fetchRegister(username, email, password, verificationCode);
     endLoading();

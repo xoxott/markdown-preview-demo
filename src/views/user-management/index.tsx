@@ -209,7 +209,11 @@ export default defineComponent({
             <NSpace size="small" align="center">
               <div class="flex items-center gap-6px">
                 {row.avatar ? (
-                  <img src={row.avatar} alt={row.username} class="w-28px h-28px rounded-full object-cover" />
+                  <img
+                    src={row.avatar}
+                    alt={row.username}
+                    class="w-28px h-28px rounded-full object-cover"
+                  />
                 ) : (
                   <div class="w-28px h-28px rounded-full bg-primary text-white flex items-center justify-center text-12px font-500">
                     {row.username.charAt(0).toUpperCase()}
@@ -285,9 +289,13 @@ export default defineComponent({
           width: 100,
           render: (row: User) => (
             <div class="flex items-center gap-6px">
-              <div class={`w-6px h-6px rounded-full ${row.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
+              <div
+                class={`w-6px h-6px rounded-full ${row.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
+              />
               <NText depth={row.isOnline ? 1 : 3}>
-                {row.isOnline ? $t('page.userManagement.online') : $t('page.userManagement.offline')}
+                {row.isOnline
+                  ? $t('page.userManagement.online')
+                  : $t('page.userManagement.offline')}
               </NText>
             </div>
           )
@@ -346,7 +354,11 @@ export default defineComponent({
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
             if (days === 0) {
-              return <NText type="success">{date.toLocaleString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</NText>;
+              return (
+                <NText type="success">
+                  {date.toLocaleString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+                </NText>
+              );
             } else if (days < 7) {
               return <NText>{days}天前</NText>;
             }
@@ -375,23 +387,13 @@ export default defineComponent({
           fixed: 'right',
           render: (row: User) => (
             <NSpace size="small">
-              <NButton
-                size="small"
-                type="primary"
-                secondary
-                onClick={() => handleEdit(row)}
-              >
+              <NButton size="small" type="primary" secondary onClick={() => handleEdit(row)}>
                 <div class="flex items-center gap-4px">
                   <div class="i-carbon-edit text-14px" />
                   <span>{$t('common.edit')}</span>
                 </div>
               </NButton>
-              <NButton
-                size="small"
-                type="error"
-                secondary
-                onClick={() => handleDelete(row)}
-              >
+              <NButton size="small" type="error" secondary onClick={() => handleDelete(row)}>
                 <div class="flex items-center gap-4px">
                   <div class="i-carbon-trash-can text-14px" />
                   <span>{$t('common.delete')}</span>
@@ -404,15 +406,8 @@ export default defineComponent({
     }
 
     // 表格配置
-    const {
-      columns,
-      data,
-      loading,
-      pagination,
-      getData,
-      updateSearchParams,
-      resetSearchParams
-    } = useTable({
+    const { columns, data, loading, pagination, getData, updateSearchParams, resetSearchParams } =
+      useTable({
         apiFn: fetchUserList,
         apiParams: {
           page: 1,
@@ -438,7 +433,6 @@ export default defineComponent({
       resetSearchParams();
       getData();
     }
-
 
     // 批量删除
     async function handleBatchDelete() {
@@ -536,7 +530,10 @@ export default defineComponent({
                     clearable
                     options={[
                       { label: $t('page.userManagement.blacklisted' as any), value: true as any },
-                      { label: $t('page.userManagement.notBlacklisted' as any), value: false as any }
+                      {
+                        label: $t('page.userManagement.notBlacklisted' as any),
+                        value: false as any
+                      }
                     ]}
                   />
                 </NFormItem>
@@ -607,7 +604,8 @@ export default defineComponent({
                 </NSpace>
                 <NText depth={3} class="text-13px">
                   共 {pagination.itemCount || 0} 条数据
-                  {selectedRowKeys.value.length > 0 && `, 已选择 ${selectedRowKeys.value.length} 条`}
+                  {selectedRowKeys.value.length > 0 &&
+                    `, 已选择 ${selectedRowKeys.value.length} 条`}
                 </NText>
               </div>
             )
@@ -615,7 +613,11 @@ export default defineComponent({
         </NCard>
 
         {/* 表格 */}
-        <NCard class="flex-1 overflow-hidden" bordered={false} contentStyle={{ height: '100%', padding: 0 }}>
+        <NCard
+          class="flex-1 overflow-hidden"
+          bordered={false}
+          contentStyle={{ height: '100%', padding: 0 }}
+        >
           {{
             default: () => (
               <NDataTable
@@ -625,7 +627,7 @@ export default defineComponent({
                 pagination={pagination}
                 rowKey={(row: User) => row.id}
                 checkedRowKeys={selectedRowKeys.value}
-                onUpdateCheckedRowKeys={(keys) => {
+                onUpdateCheckedRowKeys={keys => {
                   selectedRowKeys.value = keys as number[];
                 }}
                 scrollX={1600}
@@ -640,4 +642,3 @@ export default defineComponent({
     );
   }
 });
-

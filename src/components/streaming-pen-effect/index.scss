@@ -18,7 +18,8 @@
 }
 
 @keyframes writing {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0) translateX(0) rotate(-20deg);
   }
   25% {

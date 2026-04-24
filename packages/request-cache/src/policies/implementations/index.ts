@@ -5,4 +5,3 @@
 export { DefaultCachePolicy } from './DefaultCachePolicy';
 export { NoCachePolicy } from './NoCachePolicy';
 export { createCachePolicy } from './createCachePolicy';
-

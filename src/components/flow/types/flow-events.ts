@@ -142,4 +142,3 @@ export interface FlowEvents
     FlowSelectionEvents,
     FlowViewportEvents,
     FlowDataEvents {}
-

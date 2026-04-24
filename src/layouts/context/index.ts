@@ -3,7 +3,10 @@ import { useRoute } from 'vue-router';
 import { useContext } from '@suga/hooks';
 import { useRouteStore } from '@/store/modules/route';
 
-export const { setupStore: setupMixMenuContext, useStore: useMixMenuContext } = useContext('mix-menu', useMixMenu);
+export const { setupStore: setupMixMenuContext, useStore: useMixMenuContext } = useContext(
+  'mix-menu',
+  useMixMenu
+);
 
 function useMixMenu() {
   const route = useRoute();

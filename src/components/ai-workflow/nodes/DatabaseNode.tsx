@@ -8,4 +8,3 @@ export default defineComponent({
     return () => <BaseNode {...props} />;
   }
 });
-

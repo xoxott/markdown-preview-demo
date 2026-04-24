@@ -1,6 +1,6 @@
 /**
  * 命令接口
- * 
+ *
  * 实现命令模式，支持撤销/重做功能
  */
 
@@ -25,7 +25,7 @@ export interface Command {
 
   /**
    * 尝试合并命令（可选）
-   * 
+   *
    * @param other 另一个命令
    * @returns 是否成功合并
    */
@@ -56,4 +56,3 @@ export abstract class BaseCommand implements Command {
     return this.constructor.name;
   }
 }
-

@@ -69,4 +69,3 @@ export const SVG_PATTERN_UNITS = {
   /** 使用用户空间单位 */
   USER_SPACE_ON_USE: 'userSpaceOnUse'
 } as const;
-

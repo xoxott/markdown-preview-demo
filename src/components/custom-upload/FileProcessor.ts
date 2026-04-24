@@ -113,7 +113,11 @@ export default class FileProcessor {
   }
 
   /** 控制并发执行的任务队列 */
-  private async runWithConcurrency<T>(tasks: T[], limit: number, worker: (task: T) => Promise<void>): Promise<void> {
+  private async runWithConcurrency<T>(
+    tasks: T[],
+    limit: number,
+    worker: (task: T) => Promise<void>
+  ): Promise<void> {
     const executing: Promise<void>[] = [];
 
     for (const task of tasks) {

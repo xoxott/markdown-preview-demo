@@ -277,11 +277,12 @@ export default defineComponent({
           key: 'level',
           width: 120,
           render: (row: Alert) => {
-            const levelMap: Record<string, { label: string; type: 'error' | 'warning' | 'info' }> = {
-              critical: { label: $t('page.alertManagement.levelCritical' as any), type: 'error' },
-              warning: { label: $t('page.alertManagement.levelWarning' as any), type: 'warning' },
-              info: { label: $t('page.alertManagement.levelInfo' as any), type: 'info' }
-            };
+            const levelMap: Record<string, { label: string; type: 'error' | 'warning' | 'info' }> =
+              {
+                critical: { label: $t('page.alertManagement.levelCritical' as any), type: 'error' },
+                warning: { label: $t('page.alertManagement.levelWarning' as any), type: 'warning' },
+                info: { label: $t('page.alertManagement.levelInfo' as any), type: 'info' }
+              };
             const level = levelMap[row.level] || { label: row.level, type: 'info' };
             return <NTag type={level.type}>{level.label}</NTag>;
           }
@@ -396,15 +397,8 @@ export default defineComponent({
     }
 
     // 表格配置
-    const {
-      columns,
-      data,
-      loading,
-      pagination,
-      getData,
-      updateSearchParams,
-      resetSearchParams
-    } = useTable({
+    const { columns, data, loading, pagination, getData, updateSearchParams, resetSearchParams } =
+      useTable({
         apiFn: fetchAlertList,
         apiParams: {
           page: 1,
@@ -438,7 +432,9 @@ export default defineComponent({
         return;
       }
       await dialog.confirmDelete(
-        $t('page.alertManagement.confirmBatchDelete' as any, { count: selectedRowKeys.value.length }),
+        $t('page.alertManagement.confirmBatchDelete' as any, {
+          count: selectedRowKeys.value.length
+        }),
         async () => {
           try {
             await fetchBatchDeleteAlerts({ ids: selectedRowKeys.value });
@@ -514,9 +510,7 @@ export default defineComponent({
                 <NButton type="primary" onClick={handleSearch}>
                   {$t('common.search')}
                 </NButton>
-                <NButton onClick={handleReset}>
-                  {$t('common.reset')}
-                </NButton>
+                <NButton onClick={handleReset}>{$t('common.reset')}</NButton>
               </NSpace>
             </NFormItem>
           </NForm>
@@ -528,12 +522,14 @@ export default defineComponent({
             <NButton type="primary" onClick={handleAdd}>
               {$t('common.add')}
             </NButton>
-            <NButton type="error" disabled={selectedRowKeys.value.length === 0} onClick={handleBatchDelete}>
+            <NButton
+              type="error"
+              disabled={selectedRowKeys.value.length === 0}
+              onClick={handleBatchDelete}
+            >
               {$t('common.batchDelete')}
             </NButton>
-            <NButton onClick={getData}>
-              {$t('common.refresh')}
-            </NButton>
+            <NButton onClick={getData}>{$t('common.refresh')}</NButton>
           </NSpace>
         </NCard>
 
@@ -546,7 +542,7 @@ export default defineComponent({
             pagination={pagination}
             rowKey={(row: Alert) => row.id}
             checkedRowKeys={selectedRowKeys.value}
-            onUpdateCheckedRowKeys={(keys) => {
+            onUpdateCheckedRowKeys={keys => {
               selectedRowKeys.value = keys as number[];
             }}
             scrollX={2400}
@@ -556,4 +552,3 @@ export default defineComponent({
     );
   }
 });
-

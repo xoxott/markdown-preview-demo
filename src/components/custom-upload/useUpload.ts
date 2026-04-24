@@ -139,7 +139,9 @@ export function useUpload(config: UploadConfig = {}) {
     }
 
     // 检查是否已存在相同文件
-    const exists = files.value.some(f => f.name === fileInfo.name && f.file?.size === fileInfo.file?.size);
+    const exists = files.value.some(
+      f => f.name === fileInfo.name && f.file?.size === fileInfo.file?.size
+    );
 
     if (!exists) {
       files.value.push(fileInfo);

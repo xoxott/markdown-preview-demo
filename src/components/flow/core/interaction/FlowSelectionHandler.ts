@@ -104,10 +104,7 @@ export class FlowSelectionHandler {
    */
   private notifySelectionChange(): void {
     if (this.onSelectionChange) {
-      this.onSelectionChange(
-        Array.from(this.selectedNodeIds),
-        Array.from(this.selectedEdgeIds)
-      );
+      this.onSelectionChange(Array.from(this.selectedNodeIds), Array.from(this.selectedEdgeIds));
     }
   }
 
@@ -414,4 +411,3 @@ export class FlowSelectionHandler {
     }
   }
 }
-

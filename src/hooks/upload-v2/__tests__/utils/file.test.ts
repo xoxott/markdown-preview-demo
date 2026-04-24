@@ -2,22 +2,10 @@
  * 文件工具函数测试
  */
 import { describe, expect, it } from 'vitest';
-import {
-  getFileExtension,
-  getFileNameWithoutExtension
-} from '../../utils/file';
-import {
-  generateId,
-  generateUUID
-} from '../../utils/id';
-import {
-  delay,
-  cancellableDelay
-} from '../../utils/delay';
-import {
-  throttle,
-  debounce
-} from '../../utils/throttle';
+import { getFileExtension, getFileNameWithoutExtension } from '../../utils/file';
+import { generateId, generateUUID } from '../../utils/id';
+import { delay, cancellableDelay } from '../../utils/delay';
+import { throttle, debounce } from '../../utils/throttle';
 
 describe('文件工具函数', () => {
   describe('generateId', () => {
@@ -37,7 +25,9 @@ describe('文件工具函数', () => {
   describe('generateUUID', () => {
     it('应该生成UUID格式的字符串', () => {
       const uuid = generateUUID();
-      expect(uuid).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+      expect(uuid).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+      );
     });
 
     it('应该生成不同的UUID', () => {
@@ -119,4 +109,3 @@ describe('文件工具函数', () => {
     });
   });
 });
-

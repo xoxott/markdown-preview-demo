@@ -63,4 +63,3 @@ export type RequestEventHandler<T extends RequestEventType> = T extends 'request
       : T extends 'request:complete'
         ? (data: RequestCompleteEventData) => void
         : never;
-

@@ -1,6 +1,6 @@
 /**
  * Flow Canvas 渲染器
- * 
+ *
  * 使用 Canvas 渲染大量连接线，提升性能
  */
 
@@ -42,7 +42,7 @@ export class CanvasRenderer {
 
   /**
    * 设置 Canvas 元素
-   * 
+   *
    * @param canvas Canvas 元素
    */
   setCanvas(canvas: HTMLCanvasElement): void {
@@ -62,7 +62,7 @@ export class CanvasRenderer {
 
   /**
    * 检查是否应该使用 Canvas 渲染
-   * 
+   *
    * @param edgeCount 连接线数量
    * @returns 是否应该使用 Canvas
    */
@@ -72,7 +72,7 @@ export class CanvasRenderer {
 
   /**
    * 渲染连接线
-   * 
+   *
    * @param edges 连接线列表
    * @param nodes 节点列表（用于计算位置）
    * @param viewport 视口状态
@@ -89,8 +89,8 @@ export class CanvasRenderer {
     }
 
     // 设置画布尺寸
-    const width = this.canvas.width = this.canvas.offsetWidth;
-    const height = this.canvas.height = this.canvas.offsetHeight;
+    const width = (this.canvas.width = this.canvas.offsetWidth);
+    const height = (this.canvas.height = this.canvas.offsetHeight);
 
     // 清空画布
     this.ctx.clearRect(0, 0, width, height);
@@ -164,7 +164,7 @@ export class CanvasRenderer {
 
   /**
    * 检测点击的连接线
-   * 
+   *
    * @param x 点击 X 坐标（屏幕坐标）
    * @param y 点击 Y 坐标（屏幕坐标）
    * @returns 被点击的连接线 ID，如果没有则返回 null
@@ -186,7 +186,7 @@ export class CanvasRenderer {
 
   /**
    * 为连接线生成唯一颜色
-   * 
+   *
    * @param index 连接线索引
    * @returns 颜色字符串（RGB）
    */
@@ -200,7 +200,7 @@ export class CanvasRenderer {
 
   /**
    * 将颜色转换为数字（用于快速查找）
-   * 
+   *
    * @param color 颜色字符串
    * @returns 颜色数字
    */
@@ -225,4 +225,3 @@ export class CanvasRenderer {
     }
   }
 }
-

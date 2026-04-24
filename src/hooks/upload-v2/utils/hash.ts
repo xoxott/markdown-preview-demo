@@ -14,7 +14,10 @@ const CHUNK_SIZE = 2 * 1024 * 1024; // 2MB per chunk for MD5 calculation
  * @param onProgress - 进度回调
  * @returns MD5 字符串
  */
-export async function calculateFileMD5(file: File, onProgress?: (progress: number) => void): Promise<string> {
+export async function calculateFileMD5(
+  file: File,
+  onProgress?: (progress: number) => void
+): Promise<string> {
   return new Promise((resolve, reject) => {
     const spark = new SparkMD5.ArrayBuffer();
     const fileReader = new FileReader();
@@ -94,7 +97,10 @@ export function calculateStringMD5(str: string): string {
 }
 
 /** 计算文件 SHA-256（使用 Web Crypto API） */
-export async function calculateFileSHA256(file: File, onProgress?: (progress: number) => void): Promise<string> {
+export async function calculateFileSHA256(
+  file: File,
+  onProgress?: (progress: number) => void
+): Promise<string> {
   const chunkSize = CHUNK_SIZE;
   const chunks = Math.ceil(file.size / chunkSize);
   const hashBuffer: Uint8Array[] = [];
@@ -129,4 +135,3 @@ export async function calculateFileSHA256(file: File, onProgress?: (progress: nu
     .map(b => b.toString(16).padStart(2, '0'))
     .join('');
 }
-

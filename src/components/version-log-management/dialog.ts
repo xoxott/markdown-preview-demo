@@ -22,4 +22,3 @@ export interface VersionLogFormDialogConfig {
   /** 取消回调 */
   onCancel?: () => void;
 }
-

@@ -84,8 +84,12 @@ export default defineComponent({
       if (fullFeatureNodes.value.length > 0) {
         const minX = Math.min(...fullFeatureNodes.value.map(n => n.position.x));
         const minY = Math.min(...fullFeatureNodes.value.map(n => n.position.y));
-        const maxX = Math.max(...fullFeatureNodes.value.map(n => n.position.x + (n.size?.width || 220)));
-        const maxY = Math.max(...fullFeatureNodes.value.map(n => n.position.y + (n.size?.height || 72)));
+        const maxX = Math.max(
+          ...fullFeatureNodes.value.map(n => n.position.x + (n.size?.width || 220))
+        );
+        const maxY = Math.max(
+          ...fullFeatureNodes.value.map(n => n.position.y + (n.size?.height || 72))
+        );
 
         const centerX = (minX + maxX) / 2;
         const centerY = (minY + maxY) / 2;
@@ -126,16 +130,18 @@ export default defineComponent({
             height="100%"
             onViewport-change={handleViewportChange}
           >
-            <FlowBackground
-              gridType="dots"
-              gridSize={20}
-              viewport={fullFeatureViewport.value}
-            />
+            <FlowBackground gridType="dots" gridSize={20} viewport={fullFeatureViewport.value} />
             <FlowMinimap
               nodes={fullFeatureNodes.value}
               viewport={fullFeatureViewport.value}
               onViewportChange={handleViewportChange}
-              style={{ position: 'absolute', bottom: '20px', right: '20px', width: '200px', height: '150px' }}
+              style={{
+                position: 'absolute',
+                bottom: '20px',
+                right: '20px',
+                width: '200px',
+                height: '150px'
+              }}
             />
             <FlowToolbar
               viewport={fullFeatureViewport.value}
@@ -154,4 +160,3 @@ export default defineComponent({
     );
   }
 });
-

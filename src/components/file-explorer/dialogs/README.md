@@ -36,25 +36,25 @@ types/
 ### 1. 在组件中使用
 
 ```typescript
-import { useDialog } from '../hooks/useDialog'
+import { useDialog } from '../hooks/useDialog';
 
 export default defineComponent({
   setup() {
-    const dialog = useDialog()
+    const dialog = useDialog();
 
     const handleRename = () => {
       dialog.rename({
         title: '重命名文件',
         defaultValue: 'file.txt',
-        onConfirm: async (newName) => {
-          console.log('新名称:', newName)
+        onConfirm: async newName => {
+          console.log('新名称:', newName);
         }
-      })
-    }
+      });
+    };
 
-    return { handleRename }
+    return { handleRename };
   }
-})
+});
 ```
 
 ### 2. 通过 provide/inject 使用
@@ -79,13 +79,13 @@ dialog?.rename({ ... })
 
 ```typescript
 interface DialogManager {
-  rename: (config: RenameDialogConfig) => DialogInstance
-  confirm: (config: ConfirmDialogConfig) => DialogInstance
-  info: (content: string, title?: string) => DialogInstance
-  success: (content: string, title?: string) => DialogInstance
-  warning: (content: string, title?: string) => DialogInstance
-  error: (content: string, title?: string) => DialogInstance
-  confirmDelete: (itemName: string, onConfirm: () => void) => DialogInstance
+  rename: (config: RenameDialogConfig) => DialogInstance;
+  confirm: (config: ConfirmDialogConfig) => DialogInstance;
+  info: (content: string, title?: string) => DialogInstance;
+  success: (content: string, title?: string) => DialogInstance;
+  warning: (content: string, title?: string) => DialogInstance;
+  error: (content: string, title?: string) => DialogInstance;
+  confirmDelete: (itemName: string, onConfirm: () => void) => DialogInstance;
 }
 ```
 
@@ -93,60 +93,65 @@ interface DialogManager {
 
 ```typescript
 dialog.rename({
-  title: '重命名',                    // 标题
-  defaultValue: 'file.txt',          // 默认值
-  placeholder: '请输入新名称',        // 占位符
-  validator: (value) => {            // 验证器
-    if (!value.trim()) return '名称不能为空'
-    return true
+  title: '重命名', // 标题
+  defaultValue: 'file.txt', // 默认值
+  placeholder: '请输入新名称', // 占位符
+  validator: value => {
+    // 验证器
+    if (!value.trim()) return '名称不能为空';
+    return true;
   },
-  onConfirm: async (newName) => {   // 确认回调
-    await renameFile(newName)
+  onConfirm: async newName => {
+    // 确认回调
+    await renameFile(newName);
   },
-  onCancel: () => {                  // 取消回调(可选)
-    console.log('取消重命名')
+  onCancel: () => {
+    // 取消回调(可选)
+    console.log('取消重命名');
   }
-})
+});
 ```
 
 ### 确认对话框
 
 ```typescript
 dialog.confirm({
-  title: '确认删除',                 // 标题
-  content: '确定要删除这个文件吗?',   // 内容(支持 VNode)
-  type: 'warning',                   // 类型: info/success/warning/error
-  confirmText: '删除',               // 确认按钮文字
-  cancelText: '取消',                // 取消按钮文字
-  showCancel: true,                  // 是否显示取消按钮
-  onConfirm: async () => {          // 确认回调
-    await deleteFile()
+  title: '确认删除', // 标题
+  content: '确定要删除这个文件吗?', // 内容(支持 VNode)
+  type: 'warning', // 类型: info/success/warning/error
+  confirmText: '删除', // 确认按钮文字
+  cancelText: '取消', // 取消按钮文字
+  showCancel: true, // 是否显示取消按钮
+  onConfirm: async () => {
+    // 确认回调
+    await deleteFile();
   },
-  onCancel: () => {                  // 取消回调(可选)
-    console.log('取消删除')
+  onCancel: () => {
+    // 取消回调(可选)
+    console.log('取消删除');
   }
-})
+});
 ```
 
 ### 快捷方法
 
 ```typescript
 // 信息提示
-dialog.info('这是一条信息', '信息')
+dialog.info('这是一条信息', '信息');
 
 // 成功提示
-dialog.success('操作成功!', '成功')
+dialog.success('操作成功!', '成功');
 
 // 警告提示
-dialog.warning('请注意!', '警告')
+dialog.warning('请注意!', '警告');
 
 // 错误提示
-dialog.error('操作失败!', '错误')
+dialog.error('操作失败!', '错误');
 
 // 删除确认
 dialog.confirmDelete('file.txt', async () => {
-  await deleteFile()
-})
+  await deleteFile();
+});
 ```
 
 ## 🎨 BaseDialog 组件
@@ -157,22 +162,22 @@ dialog.confirmDelete('file.txt', async () => {
 
 ```typescript
 interface BaseDialogProps {
-  show: boolean                    // 是否显示
-  title?: string                   // 标题
-  width?: number | string          // 宽度
-  height?: number | string         // 高度
-  minWidth?: number                // 最小宽度
-  minHeight?: number               // 最小高度
-  maxWidth?: number                // 最大宽度
-  maxHeight?: number               // 最大高度
-  draggable?: boolean              // 是否可拖拽(默认 true)
-  resizable?: boolean              // 是否可调整大小(默认 false)
-  maskClosable?: boolean           // 点击遮罩是否关闭(默认 true)
-  showClose?: boolean              // 是否显示关闭按钮(默认 true)
-  closeOnEsc?: boolean             // ESC键是否关闭(默认 true)
-  position?: 'center' | { x, y }   // 弹窗位置
-  zIndex?: number                  // 层级
-  onClose?: () => void             // 关闭回调
+  show: boolean; // 是否显示
+  title?: string; // 标题
+  width?: number | string; // 宽度
+  height?: number | string; // 高度
+  minWidth?: number; // 最小宽度
+  minHeight?: number; // 最小高度
+  maxWidth?: number; // 最大宽度
+  maxHeight?: number; // 最大高度
+  draggable?: boolean; // 是否可拖拽(默认 true)
+  resizable?: boolean; // 是否可调整大小(默认 false)
+  maskClosable?: boolean; // 点击遮罩是否关闭(默认 true)
+  showClose?: boolean; // 是否显示关闭按钮(默认 true)
+  closeOnEsc?: boolean; // ESC键是否关闭(默认 true)
+  position?: 'center' | { x; y }; // 弹窗位置
+  zIndex?: number; // 层级
+  onClose?: () => void; // 关闭回调
 }
 ```
 
@@ -202,7 +207,9 @@ interface BaseDialogProps {
     footer: () => (
       <NSpace justify="end">
         <NButton onClick={handleClose}>取消</NButton>
-        <NButton type="primary" onClick={handleConfirm}>确定</NButton>
+        <NButton type="primary" onClick={handleConfirm}>
+          确定
+        </NButton>
       </NSpace>
     )
   }}
@@ -215,16 +222,16 @@ interface BaseDialogProps {
 
 ```typescript
 // 在 useFileExplorerLogic 中
-const dialog = useDialog()
+const dialog = useDialog();
 const fileOperations = useFileOperations(selectedFiles, {
   ...operationsConfig,
-  dialog  // 传入 dialog
-})
+  dialog // 传入 dialog
+});
 
 // 现在文件操作会自动显示弹窗
-fileOperations.startRename()    // 显示重命名对话框
-fileOperations.deleteFiles()    // 显示删除确认对话框
-fileOperations.createFolder()   // 显示新建文件夹对话框
+fileOperations.startRename(); // 显示重命名对话框
+fileOperations.deleteFiles(); // 显示删除确认对话框
+fileOperations.createFolder(); // 显示新建文件夹对话框
 ```
 
 ## 🎨 样式定制
@@ -257,14 +264,14 @@ dialog.confirm({
   content: '这将花费一些时间',
   onConfirm: async () => {
     // 显示加载状态
-    setLoading(true)
+    setLoading(true);
     try {
-      await longRunningOperation()
+      await longRunningOperation();
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
-})
+});
 ```
 
 ### 2. 表单验证
@@ -272,16 +279,16 @@ dialog.confirm({
 ```typescript
 dialog.rename({
   defaultValue: 'file.txt',
-  validator: (value) => {
-    if (!value.trim()) return '名称不能为空'
-    if (!/^[\w\-.]+$/.test(value)) return '名称包含非法字符'
-    if (value.length > 255) return '名称过长'
-    return true
+  validator: value => {
+    if (!value.trim()) return '名称不能为空';
+    if (!/^[\w\-.]+$/.test(value)) return '名称包含非法字符';
+    if (value.length > 255) return '名称过长';
+    return true;
   },
-  onConfirm: async (newName) => {
-    await renameFile(newName)
+  onConfirm: async newName => {
+    await renameFile(newName);
   }
-})
+});
 ```
 
 ### 3. 错误处理
@@ -292,13 +299,13 @@ dialog.confirm({
   content: '确定要删除吗?',
   onConfirm: async () => {
     try {
-      await deleteFile()
-      message.success('删除成功')
+      await deleteFile();
+      message.success('删除成功');
     } catch (error) {
-      message.error(`删除失败: ${error.message}`)
+      message.error(`删除失败: ${error.message}`);
     }
   }
-})
+});
 ```
 
 ## 🔧 高级功能
@@ -337,8 +344,8 @@ dialog.confirm({
 
 ```typescript
 // 可以同时打开多个弹窗
-dialog.info('第一个弹窗')
-dialog.warning('第二个弹窗')  // 会显示在第一个之上
+dialog.info('第一个弹窗');
+dialog.warning('第二个弹窗'); // 会显示在第一个之上
 ```
 
 ## 🐛 故障排除
@@ -386,4 +393,3 @@ dialog.warning('第二个弹窗')  // 会显示在第一个之上
 - ✅ 添加调整大小功能
 - ✅ 完整的主题支持
 - ✅ 完整的类型定义
-

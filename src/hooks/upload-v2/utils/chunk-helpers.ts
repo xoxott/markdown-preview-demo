@@ -9,9 +9,10 @@ import { ChunkStatus } from '../types';
  */
 export function getPendingChunks(chunks: ChunkInfo[]): ChunkInfo[] {
   return chunks.filter(
-    c => c.status === ChunkStatus.PENDING ||
-         c.status === ChunkStatus.ERROR ||
-         c.status === ChunkStatus.RETRYING
+    c =>
+      c.status === ChunkStatus.PENDING ||
+      c.status === ChunkStatus.ERROR ||
+      c.status === ChunkStatus.RETRYING
   );
 }
 
@@ -47,4 +48,3 @@ export function resetChunkForRetry(chunk: ChunkInfo, enableResume: boolean): voi
     chunk.uploadTime = 0;
   }
 }
-

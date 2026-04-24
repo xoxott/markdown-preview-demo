@@ -1,5 +1,17 @@
 import { defineComponent, ref, watch, type PropType } from 'vue';
-import { NModal, NCard, NForm, NFormItem, NSelect, NColorPicker, NSlider, NSwitch, NButton, NSpace, NDivider } from 'naive-ui';
+import {
+  NModal,
+  NCard,
+  NForm,
+  NFormItem,
+  NSelect,
+  NColorPicker,
+  NSlider,
+  NSwitch,
+  NButton,
+  NSpace,
+  NDivider
+} from 'naive-ui';
 import type { ConnectionLineStyle, ConnectionLineType } from '../types/canvas-settings';
 
 export default defineComponent({
@@ -25,9 +37,13 @@ export default defineComponent({
   setup(props) {
     const localSettings = ref<ConnectionLineStyle>({ ...props.settings });
 
-    watch(() => props.settings, (newSettings) => {
-      localSettings.value = { ...newSettings };
-    }, { deep: true });
+    watch(
+      () => props.settings,
+      newSettings => {
+        localSettings.value = { ...newSettings };
+      },
+      { deep: true }
+    );
 
     const lineTypeOptions = [
       { label: '贝塞尔曲线', value: 'bezier' as ConnectionLineType },
@@ -57,10 +73,7 @@ export default defineComponent({
           default: () => (
             <NForm labelPlacement="left" labelWidth="100">
               <NFormItem label="线条类型">
-                <NSelect
-                  v-model:value={localSettings.value.type}
-                  options={lineTypeOptions}
-                />
+                <NSelect v-model:value={localSettings.value.type} options={lineTypeOptions} />
               </NFormItem>
 
               <NFormItem label="线条颜色">
@@ -93,9 +106,7 @@ export default defineComponent({
                 <NSwitch v-model:value={localSettings.value.showArrow} />
               </NFormItem>
 
-              <NDivider style={{ marginTop: '16px', marginBottom: '16px' }}>
-                拖拽预览线条
-              </NDivider>
+              <NDivider style={{ marginTop: '16px', marginBottom: '16px' }}>拖拽预览线条</NDivider>
 
               <NFormItem label="预览线条颜色" labelStyle={{ alignItems: 'flex-start' }}>
                 <div style={{ width: '100%' }}>
@@ -128,7 +139,9 @@ export default defineComponent({
           footer: () => (
             <NSpace justify="end">
               <NButton onClick={props.onClose}>取消</NButton>
-              <NButton type="primary" onClick={handleSave}>保存</NButton>
+              <NButton type="primary" onClick={handleSave}>
+                保存
+              </NButton>
             </NSpace>
           )
         }}
@@ -136,4 +149,3 @@ export default defineComponent({
     );
   }
 });
-

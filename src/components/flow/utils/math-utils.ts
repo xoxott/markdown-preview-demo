@@ -1,6 +1,6 @@
 /**
  * Flow 数学工具函数
- * 
+ *
  * 提供坐标转换、距离计算、角度计算、碰撞检测等数学工具
  */
 
@@ -8,7 +8,7 @@ import type { FlowPosition, FlowSize } from '../types/flow-node';
 
 /**
  * 坐标转换：屏幕坐标转画布坐标
- * 
+ *
  * @param screenX 屏幕 X 坐标
  * @param screenY 屏幕 Y 坐标
  * @param viewport 视口状态
@@ -30,7 +30,7 @@ export function screenToCanvas(
 
 /**
  * 坐标转换：画布坐标转屏幕坐标
- * 
+ *
  * @param canvasX 画布 X 坐标
  * @param canvasY 画布 Y 坐标
  * @param viewport 视口状态
@@ -52,7 +52,7 @@ export function canvasToScreen(
 
 /**
  * 计算两点之间的距离
- * 
+ *
  * @param p1 点1
  * @param p2 点2
  * @returns 距离
@@ -65,7 +65,7 @@ export function distance(p1: FlowPosition, p2: FlowPosition): number {
 
 /**
  * 计算两点之间的角度（弧度）
- * 
+ *
  * @param p1 起点
  * @param p2 终点
  * @returns 角度（弧度，0 到 2π）
@@ -78,7 +78,7 @@ export function angle(p1: FlowPosition, p2: FlowPosition): number {
 
 /**
  * 计算两点之间的角度（度数）
- * 
+ *
  * @param p1 起点
  * @param p2 终点
  * @returns 角度（度数，-180 到 180）
@@ -89,15 +89,12 @@ export function angleDegrees(p1: FlowPosition, p2: FlowPosition): number {
 
 /**
  * 检查点是否在矩形内
- * 
+ *
  * @param point 点
  * @param rect 矩形（位置和尺寸）
  * @returns 是否在矩形内
  */
-export function isPointInRect(
-  point: FlowPosition,
-  rect: FlowPosition & FlowSize
-): boolean {
+export function isPointInRect(point: FlowPosition, rect: FlowPosition & FlowSize): boolean {
   return (
     point.x >= rect.x &&
     point.x <= rect.x + rect.width &&
@@ -108,7 +105,7 @@ export function isPointInRect(
 
 /**
  * 检查点是否在线段上（带容差）
- * 
+ *
  * @param point 点
  * @param lineStart 线段起点
  * @param lineEnd 线段终点
@@ -131,7 +128,7 @@ export function isPointOnLine(
 
 /**
  * 检查点是否在圆内
- * 
+ *
  * @param point 点
  * @param center 圆心
  * @param radius 半径
@@ -147,7 +144,7 @@ export function isPointInCircle(
 
 /**
  * 检查两个矩形是否相交
- * 
+ *
  * @param rect1 矩形1
  * @param rect2 矩形2
  * @returns 是否相交
@@ -166,7 +163,7 @@ export function isRectIntersect(
 
 /**
  * 计算两个矩形的交集
- * 
+ *
  * @param rect1 矩形1
  * @param rect2 矩形2
  * @returns 交集矩形，如果不相交则返回 null
@@ -194,7 +191,7 @@ export function rectIntersection(
 
 /**
  * 计算两个矩形的并集
- * 
+ *
  * @param rect1 矩形1
  * @param rect2 矩形2
  * @returns 并集矩形
@@ -218,7 +215,7 @@ export function rectUnion(
 
 /**
  * 计算多个节点的边界框
- * 
+ *
  * @param nodes 节点列表（需要包含 position 和 size）
  * @returns 边界框
  */
@@ -256,7 +253,7 @@ export function calculateBounds(
 
 /**
  * 限制值在范围内
- * 
+ *
  * @param value 值
  * @param min 最小值
  * @param max 最大值
@@ -268,7 +265,7 @@ export function clamp(value: number, min: number, max: number): number {
 
 /**
  * 线性插值
- * 
+ *
  * @param start 起始值
  * @param end 结束值
  * @param t 插值系数（0 到 1）
@@ -280,7 +277,7 @@ export function lerp(start: number, end: number, t: number): number {
 
 /**
  * 将角度标准化到 0-2π 范围
- * 
+ *
  * @param angle 角度（弧度）
  * @returns 标准化后的角度
  */
@@ -296,7 +293,7 @@ export function normalizeAngle(angle: number): number {
 
 /**
  * 将角度标准化到 -π 到 π 范围
- * 
+ *
  * @param angle 角度（弧度）
  * @returns 标准化后的角度
  */
@@ -309,4 +306,3 @@ export function normalizeAngleSigned(angle: number): number {
   }
   return angle;
 }
-

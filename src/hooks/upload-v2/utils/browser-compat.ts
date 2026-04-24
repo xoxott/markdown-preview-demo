@@ -83,7 +83,12 @@ export function checkCompatibility(): CompatibilityResult {
     fallbacks.push('网络自适应功能将被禁用');
   }
 
-  const supported = features.fetch && features.abortController && features.fileReader && features.blob && features.fileAPI;
+  const supported =
+    features.fetch &&
+    features.abortController &&
+    features.fileReader &&
+    features.blob &&
+    features.fileAPI;
 
   return {
     supported,
@@ -176,4 +181,3 @@ export function warnCompatibility(): void {
     }
   }
 }
-

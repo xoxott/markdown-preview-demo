@@ -34,14 +34,8 @@ export interface GpuAccelerationOptions {
  * };
  * ```
  */
-export function getGpuAccelerationStyle(
-  options: GpuAccelerationOptions = {}
-): CSSProperties {
-  const {
-    enabled = true,
-    includeBackfaceVisibility = false,
-    includePerspective = false
-  } = options;
+export function getGpuAccelerationStyle(options: GpuAccelerationOptions = {}): CSSProperties {
+  const { enabled = true, includeBackfaceVisibility = false, includePerspective = false } = options;
 
   if (!enabled) {
     return {};
@@ -94,4 +88,3 @@ export function getConditionalGpuAccelerationStyle(
     enabled: shouldOptimize
   });
 }
-

@@ -40,11 +40,11 @@ export default defineComponent({
       const { type, field, placeholder, icon, width, options, clearable = true } = fieldConfig;
 
       const commonProps = {
-        value: props.model[field],
+        'value': props.model[field],
         'onUpdate:value': (value: any) => props.onUpdateModel(field, value),
         placeholder,
         clearable,
-        style: width ? { width } : undefined
+        'style': width ? { width } : undefined
       };
 
       switch (type) {
@@ -65,28 +65,13 @@ export default defineComponent({
           );
 
         case 'select':
-          return (
-            <NSelect
-              {...commonProps}
-              options={options || []}
-            />
-          );
+          return <NSelect {...commonProps} options={options || []} />;
 
         case 'date':
-          return (
-            <NDatePicker
-              {...commonProps}
-              type="date"
-            />
-          );
+          return <NDatePicker {...commonProps} type="date" />;
 
         case 'date-range':
-          return (
-            <NDatePicker
-              {...commonProps}
-              type="daterange"
-            />
-          );
+          return <NDatePicker {...commonProps} type="daterange" />;
 
         case 'custom':
           return fieldConfig.render ? fieldConfig.render(props.model, props.onUpdateModel) : null;
@@ -107,7 +92,9 @@ export default defineComponent({
           <NFormItem
             key={fieldConfig.field || index}
             path={fieldConfig.field}
-            label={fieldConfig.showLabel !== false && fieldConfig.label ? fieldConfig.label : undefined}
+            label={
+              fieldConfig.showLabel !== false && fieldConfig.label ? fieldConfig.label : undefined
+            }
             class="!mb-0"
           >
             {renderField(fieldConfig)}
@@ -133,4 +120,3 @@ export default defineComponent({
     );
   }
 });
-

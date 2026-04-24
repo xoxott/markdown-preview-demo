@@ -1,6 +1,6 @@
 /**
  * 命令管理器
- * 
+ *
  * 管理命令历史，支持撤销/重做
  */
 
@@ -22,23 +22,23 @@ export interface CommandManagerOptions {
 export class CommandManager {
   /** 命令历史 */
   private history: Command[] = [];
-  
+
   /** 当前指针位置 */
   private currentIndex = -1;
-  
+
   /** 配置选项 */
   private options: Required<CommandManagerOptions>;
 
   constructor(options: CommandManagerOptions = {}) {
     this.options = {
       maxSize: options.maxSize || 50,
-      enableMerge: options.enableMerge !== false,
+      enableMerge: options.enableMerge !== false
     };
   }
 
   /**
    * 执行命令
-   * 
+   *
    * @param command 要执行的命令
    */
   execute(command: Command): void {
@@ -72,7 +72,7 @@ export class CommandManager {
 
   /**
    * 撤销命令
-   * 
+   *
    * @returns 是否成功撤销
    */
   undo(): boolean {
@@ -88,7 +88,7 @@ export class CommandManager {
 
   /**
    * 重做命令
-   * 
+   *
    * @returns 是否成功重做
    */
   redo(): boolean {
@@ -104,7 +104,7 @@ export class CommandManager {
 
   /**
    * 检查是否可以撤销
-   * 
+   *
    * @returns 是否可以撤销
    */
   canUndo(): boolean {
@@ -113,7 +113,7 @@ export class CommandManager {
 
   /**
    * 检查是否可以重做
-   * 
+   *
    * @returns 是否可以重做
    */
   canRedo(): boolean {
@@ -130,7 +130,7 @@ export class CommandManager {
 
   /**
    * 获取历史记录大小
-   * 
+   *
    * @returns 历史记录数量
    */
   size(): number {
@@ -139,7 +139,7 @@ export class CommandManager {
 
   /**
    * 获取当前位置
-   * 
+   *
    * @returns 当前指针位置
    */
   getCurrentIndex(): number {
@@ -148,7 +148,7 @@ export class CommandManager {
 
   /**
    * 获取历史记录（用于调试）
-   * 
+   *
    * @returns 命令描述列表
    */
   getHistory(): string[] {
@@ -159,4 +159,3 @@ export class CommandManager {
     });
   }
 }
-

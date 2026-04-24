@@ -20,4 +20,3 @@ export interface AnnouncementFormDialogConfig {
   /** 取消回调 */
   onCancel?: () => void;
 }
-

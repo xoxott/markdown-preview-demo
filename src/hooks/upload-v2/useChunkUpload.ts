@@ -147,4 +147,3 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
     uploader
   };
 }
-

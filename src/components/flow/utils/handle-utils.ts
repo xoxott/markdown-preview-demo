@@ -32,13 +32,18 @@ export function getHandleColor(
   type: 'source' | 'target' | 'default',
   element?: HTMLElement
 ): string {
-  const variableName = type === 'source'
-    ? CSS_VARIABLES.HANDLE_BORDER_SOURCE
-    : type === 'target'
-    ? CSS_VARIABLES.HANDLE_BORDER_TARGET
-    : CSS_VARIABLES.HANDLE_BORDER_DEFAULT;
+  const variableName =
+    type === 'source'
+      ? CSS_VARIABLES.HANDLE_BORDER_SOURCE
+      : type === 'target'
+        ? CSS_VARIABLES.HANDLE_BORDER_TARGET
+        : CSS_VARIABLES.HANDLE_BORDER_DEFAULT;
 
-  return getCssVariable(variableName, element, HANDLE_COLORS[type.toUpperCase() as keyof typeof HANDLE_COLORS]);
+  return getCssVariable(
+    variableName,
+    element,
+    HANDLE_COLORS[type.toUpperCase() as keyof typeof HANDLE_COLORS]
+  );
 }
 
 /**
@@ -128,4 +133,3 @@ export function calculateHandlePositionStyle(handle: FlowHandle): Record<string,
 export function getHandleClass(handle: FlowHandle): string {
   return `flow-handle flow-handle-${handle.type} flow-handle-${handle.position}`;
 }
-

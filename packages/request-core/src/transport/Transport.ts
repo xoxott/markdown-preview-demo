@@ -31,4 +31,3 @@ export interface Transport {
    */
   request<T = unknown>(config: NormalizedRequestConfig): Promise<TransportResponse<T>>;
 }
-

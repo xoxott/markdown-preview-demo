@@ -20,7 +20,7 @@ describe('DedupeStep', () => {
   it('应该在 meta 中没有 dedupe 时跳过', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config);
 
@@ -37,10 +37,10 @@ describe('DedupeStep', () => {
   it('应该在 dedupe=false 时跳过', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config, undefined, {
-      dedupe: false,
+      dedupe: false
     });
 
     let nextCalled = false;
@@ -56,10 +56,10 @@ describe('DedupeStep', () => {
   it('应该在 dedupe=undefined 时跳过', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config, undefined, {
-      dedupe: undefined,
+      dedupe: undefined
     });
 
     let nextCalled = false;
@@ -75,10 +75,10 @@ describe('DedupeStep', () => {
   it('应该在 dedupe=true 时启用去重', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext<string>(config, 'test-key', {
-      dedupe: true,
+      dedupe: true
     });
 
     let requestCount = 0;
@@ -95,7 +95,7 @@ describe('DedupeStep', () => {
     // 第二次执行（应该复用，但需要等待第一次完成）
     // 注意：去重会复用 Promise，但 ctx2 是新的上下文，所以需要从 Promise 中获取结果
     const ctx2 = createRequestContext<string>(config, 'test-key', {
-      dedupe: true,
+      dedupe: true
     });
     let requestCount2 = 0;
     const next2 = async (): Promise<void> => {
@@ -113,11 +113,11 @@ describe('DedupeStep', () => {
   it('应该使用 ctx.id 作为键（exact 策略）', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const customId = 'custom-request-id';
     const ctx = createRequestContext<string>(config, customId, {
-      dedupe: true,
+      dedupe: true
     });
 
     let requestCount = 0;
@@ -135,16 +135,16 @@ describe('DedupeStep', () => {
   it('应该支持自定义去重时间窗口', async () => {
     const customStep = new DedupeStep({
       defaultOptions: {
-        dedupeWindow: 2000,
-      },
+        dedupeWindow: 2000
+      }
     });
 
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext<string>(config, 'test-key', {
-      dedupe: true,
+      dedupe: true
     });
 
     let requestCount = 0;
@@ -164,19 +164,19 @@ describe('DedupeStep', () => {
     const customStep = new DedupeStep({
       defaultOptions: {
         strategy: 'ignore-params',
-        ignoreParams: ['timestamp'],
-      },
+        ignoreParams: ['timestamp']
+      }
     });
 
     const config1: NormalizedRequestConfig = {
       url: '/api/users',
       method: 'GET',
-      params: { page: 1, timestamp: 123456 },
+      params: { page: 1, timestamp: 123456 }
     };
     const config2: NormalizedRequestConfig = {
       url: '/api/users',
       method: 'GET',
-      params: { page: 1, timestamp: 789012 },
+      params: { page: 1, timestamp: 789012 }
     };
 
     let requestCount = 0;
@@ -185,14 +185,14 @@ describe('DedupeStep', () => {
     };
 
     const ctx1 = createRequestContext(config1, undefined, {
-      dedupe: true, // 使用默认配置
+      dedupe: true // 使用默认配置
     });
     await customStep.execute(ctx1, next);
 
     // 由于创建了临时管理器，第二次请求会使用新的管理器
     // 但键生成应该相同（因为 timestamp 被忽略）
     const ctx2 = createRequestContext(config2, undefined, {
-      dedupe: true, // 使用默认配置
+      dedupe: true // 使用默认配置
     });
     await customStep.execute(ctx2, next);
 
@@ -211,19 +211,19 @@ describe('DedupeStep', () => {
     const customStep = new DedupeStep({
       defaultOptions: {
         strategy: 'custom',
-        customKeyGenerator,
-      },
+        customKeyGenerator
+      }
     });
 
     const config1: NormalizedRequestConfig = {
       url: '/api/users',
       method: 'GET',
-      params: { page: 1 },
+      params: { page: 1 }
     };
     const config2: NormalizedRequestConfig = {
       url: '/api/users',
       method: 'GET',
-      params: { page: 2 },
+      params: { page: 2 }
     };
 
     let requestCount = 0;
@@ -232,14 +232,14 @@ describe('DedupeStep', () => {
     };
 
     const ctx1 = createRequestContext(config1, undefined, {
-      dedupe: true, // 使用默认配置
+      dedupe: true // 使用默认配置
     });
     await customStep.execute(ctx1, next);
 
     // 由于创建了临时管理器，第二次请求会使用新的管理器
     // 但键生成应该相同（因为自定义函数忽略了 params）
     const ctx2 = createRequestContext(config2, undefined, {
-      dedupe: true, // 使用默认配置
+      dedupe: true // 使用默认配置
     });
     await customStep.execute(ctx2, next);
 
@@ -251,10 +251,10 @@ describe('DedupeStep', () => {
   it('应该在请求失败时抛出错误', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config, 'test-key', {
-      dedupe: true,
+      dedupe: true
     });
 
     const error = new Error('Request failed');
@@ -268,7 +268,7 @@ describe('DedupeStep', () => {
   it('应该在请求失败后允许重新请求', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     let requestCount = 0;
@@ -280,7 +280,7 @@ describe('DedupeStep', () => {
     };
 
     const ctx1 = createRequestContext(config, 'test-key', {
-      dedupe: true,
+      dedupe: true
     });
 
     // 第一次请求失败
@@ -292,7 +292,7 @@ describe('DedupeStep', () => {
 
     // 第二次请求应该可以执行（因为失败后记录被移除）
     const ctx2 = createRequestContext(config, 'test-key', {
-      dedupe: true,
+      dedupe: true
     });
 
     await step.execute(ctx2, next);
@@ -304,13 +304,13 @@ describe('DedupeStep', () => {
     const customStep = new DedupeStep({
       defaultOptions: {
         dedupeWindow: 1000,
-        strategy: 'exact',
-      },
+        strategy: 'exact'
+      }
     });
 
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     let requestCount = 0;
@@ -322,8 +322,8 @@ describe('DedupeStep', () => {
       dedupe: {
         dedupeWindow: 2000,
         strategy: 'ignore-params',
-        ignoreParams: ['timestamp'],
-      },
+        ignoreParams: ['timestamp']
+      }
     });
 
     await customStep.execute(ctx, next);
@@ -333,19 +333,19 @@ describe('DedupeStep', () => {
 
   it('应该使用自定义管理器', async () => {
     const customManager = new DedupeManager({
-      dedupeWindow: 2000,
+      dedupeWindow: 2000
     });
 
     const customStep = new DedupeStep({
-      dedupeManager: customManager,
+      dedupeManager: customManager
     });
 
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext<string>(config, 'test-key', {
-      dedupe: true,
+      dedupe: true
     });
 
     let requestCount = 0;
@@ -360,4 +360,3 @@ describe('DedupeStep', () => {
     expect(ctx.result).toBe('result');
   });
 });
-

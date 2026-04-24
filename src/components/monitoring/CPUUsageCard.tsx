@@ -56,7 +56,9 @@ export default defineComponent({
             {/* 使用率进度条 */}
             {isSystemCPU && (
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <div
+                  style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}
+                >
                   <span>使用率</span>
                   <span style={{ color: color.value, fontWeight: 'bold' }}>
                     {usagePercent.value.toFixed(2)}%
@@ -77,9 +79,7 @@ export default defineComponent({
                 {isSystemCPU && (
                   <>
                     {props.cpu.model && (
-                      <NDescriptionsItem label="型号">
-                        {props.cpu.model}
-                      </NDescriptionsItem>
+                      <NDescriptionsItem label="型号">{props.cpu.model}</NDescriptionsItem>
                     )}
                     {props.cpu.cores !== undefined && (
                       <NDescriptionsItem label="核心数">
@@ -121,4 +121,3 @@ export default defineComponent({
     };
   }
 });
-

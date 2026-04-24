@@ -163,7 +163,10 @@ export class MarkdownMenuExtractor {
     return menuItems.map(item => ({
       label: item.title,
       key: item.anchor,
-      children: item.children && item.children.length > 0 ? this.generateNavConfig(item.children) : undefined
+      children:
+        item.children && item.children.length > 0
+          ? this.generateNavConfig(item.children)
+          : undefined
     }));
   }
 

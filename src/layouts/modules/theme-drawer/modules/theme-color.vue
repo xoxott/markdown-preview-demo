@@ -57,7 +57,11 @@ const swatches: string[] = [
         </NButton>
       </p>
     </NTooltip>
-    <SettingItem v-for="(_, key) in themeStore.themeColors" :key="key" :label="$t(`theme.themeColor.${key}`)">
+    <SettingItem
+      v-for="(_, key) in themeStore.themeColors"
+      :key="key"
+      :label="$t(`theme.themeColor.${key}`)"
+    >
       <template v-if="key === 'info'" #suffix>
         <NCheckbox v-model:checked="themeStore.isInfoFollowPrimary">
           {{ $t('theme.themeColor.followPrimary') }}

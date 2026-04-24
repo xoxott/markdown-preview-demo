@@ -31,7 +31,13 @@ export function useNodeDragDrop() {
   }
 
   /** 放置新节点到画布 */
-  function dropNewNode(x: number, y: number, zoom: number, viewportX: number, viewportY: number): Api.Workflow.WorkflowNode | null {
+  function dropNewNode(
+    x: number,
+    y: number,
+    zoom: number,
+    viewportX: number,
+    viewportY: number
+  ): Api.Workflow.WorkflowNode | null {
     if (!draggedNode.value) return null;
 
     // 转换屏幕坐标到画布坐标
@@ -170,4 +176,3 @@ export function useNodeDragDrop() {
     getNode
   };
 }
-

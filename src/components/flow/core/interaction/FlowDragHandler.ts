@@ -173,12 +173,7 @@ export class FlowDragHandler {
    * @param startX 起始 X 坐标（屏幕坐标）
    * @param startY 起始 Y 坐标（屏幕坐标）
    */
-  startNodeDrag(
-    nodeId: string,
-    node: FlowNode,
-    startX: number,
-    startY: number
-  ): void {
+  startNodeDrag(nodeId: string, node: FlowNode, startX: number, startY: number): void {
     this.dragState = {
       isDragging: true,
       type: 'node',
@@ -204,11 +199,7 @@ export class FlowDragHandler {
    * @param startX 起始 X 坐标（屏幕坐标）
    * @param startY 起始 Y 坐标（屏幕坐标）
    */
-  startCanvasDrag(
-    viewport: FlowViewport,
-    startX: number,
-    startY: number
-  ): void {
+  startCanvasDrag(viewport: FlowViewport, startX: number, startY: number): void {
     this.dragState = {
       isDragging: true,
       type: 'canvas',
@@ -244,7 +235,7 @@ export class FlowDragHandler {
 
     // 如果使用 RAF 节流，使用节流版本
     if (this.options.useRAF) {
-      this.rafThrottle.throttle(event, (e) => {
+      this.rafThrottle.throttle(event, e => {
         this.processDrag(e);
       });
     } else {
@@ -489,4 +480,3 @@ export class FlowDragHandler {
     return this.dragState.hasMoved;
   }
 }
-

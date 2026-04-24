@@ -48,7 +48,7 @@ export class ProgressTracker {
         loaded,
         total: total || 0,
         speed,
-        elapsed,
+        elapsed
       };
       this.onProgress(progressInfo);
     }
@@ -67,10 +67,11 @@ export class ProgressTracker {
 /**
  * 创建进度追踪器（工厂函数）
  */
-export function createProgressTracker(onProgress?: ProgressCallback): (progressEvent: ProgressEvent) => void {
+export function createProgressTracker(
+  onProgress?: ProgressCallback
+): (progressEvent: ProgressEvent) => void {
   const tracker = new ProgressTracker(onProgress);
   return (progressEvent: ProgressEvent) => {
     tracker.update(progressEvent);
   };
 }
-

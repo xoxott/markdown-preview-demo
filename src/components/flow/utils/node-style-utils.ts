@@ -43,8 +43,16 @@ export function calculateNodeContainerStyle(
   const nodeBorder = getCssVariable(CSS_VARIABLES.NODE_BORDER, element, '#d9d9d9');
   const nodeBorderSelected = getCssVariable(CSS_VARIABLES.NODE_BORDER_SELECTED, element, '#2080f0');
   const nodeBorderHover = getCssVariable(CSS_VARIABLES.NODE_BORDER_HOVER, element, '#2080f0');
-  const nodeShadowSelected = getCssVariable('flow-node-shadow-selected-value', element, 'rgba(32, 128, 240, 0.2)');
-  const nodeShadowHover = getCssVariable('flow-node-shadow-hover-value', element, 'rgba(0, 0, 0, 0.1)');
+  const nodeShadowSelected = getCssVariable(
+    'flow-node-shadow-selected-value',
+    element,
+    'rgba(32, 128, 240, 0.2)'
+  );
+  const nodeShadowHover = getCssVariable(
+    'flow-node-shadow-hover-value',
+    element,
+    'rgba(0, 0, 0, 0.1)'
+  );
 
   const baseStyle: Record<string, any> = {
     position: 'relative',
@@ -114,4 +122,3 @@ export function calculateNodeClass(options: {
 
   return classes.filter(Boolean).join(' ');
 }
-

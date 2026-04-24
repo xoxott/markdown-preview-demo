@@ -16,7 +16,7 @@ async function handleRefreshToken() {
   const { resetStore } = useAuthStore();
 
   const rToken = localStg.get('refreshToken') || '';
-  
+
   if (!rToken) {
     console.error('[Token Refresh] Refresh token 不存在，无法刷新');
     resetStore();
@@ -26,7 +26,7 @@ async function handleRefreshToken() {
   console.log('[Token Refresh] 开始调用刷新 token API');
   try {
     const { error, data } = await fetchRefreshToken(rToken);
-    
+
     if (error) {
       console.error('[Token Refresh] 刷新 token 失败:', error);
       if (error.response?.data) {
@@ -53,9 +53,9 @@ async function handleRefreshToken() {
     if (data.refreshToken) {
       localStg.set('refreshToken', data.refreshToken);
     }
-    
+
     console.log('[Token Refresh] Token 刷新成功');
-    
+
     // Update SSE connections with new token
     const newToken = data.accessToken;
     if (newToken) {
@@ -63,7 +63,7 @@ async function handleRefreshToken() {
       sseManager.updateAllHeaders({ Authorization: authorization }, true);
       console.log('[Token Refresh] SSE connections updated with new token');
     }
-    
+
     return true;
   } catch (err) {
     console.error('[Token Refresh] 刷新 token 异常:', err);

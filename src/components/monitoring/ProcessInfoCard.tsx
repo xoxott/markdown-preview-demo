@@ -35,14 +35,10 @@ export default defineComponent({
         <NCard title={props.title} style={{ height: '100%' }}>
           <NDescriptions bordered size="small" column={1}>
             {props.process.pid !== undefined && (
-              <NDescriptionsItem label="进程 ID">
-                {props.process.pid}
-              </NDescriptionsItem>
+              <NDescriptionsItem label="进程 ID">{props.process.pid}</NDescriptionsItem>
             )}
             {props.process.version && (
-              <NDescriptionsItem label="版本">
-                {props.process.version}
-              </NDescriptionsItem>
+              <NDescriptionsItem label="版本">{props.process.version}</NDescriptionsItem>
             )}
             {props.process.uptime !== undefined && (
               <NDescriptionsItem label="运行时间">
@@ -76,4 +72,3 @@ export default defineComponent({
     };
   }
 });
-

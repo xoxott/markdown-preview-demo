@@ -64,9 +64,10 @@ export function formatCpuTime(microseconds: number): string {
  * 格式化时间戳
  */
 export function formatTimestamp(timestamp: string | number | Date): string {
-  const date = typeof timestamp === 'string' || typeof timestamp === 'number'
-    ? new Date(timestamp)
-    : timestamp;
+  const date =
+    typeof timestamp === 'string' || typeof timestamp === 'number'
+      ? new Date(timestamp)
+      : timestamp;
 
   return date.toLocaleString('zh-CN', {
     year: 'numeric',
@@ -104,4 +105,3 @@ export function getCpuUsageColor(percent: number): string {
   if (percent < 80) return '#f0a020'; // 橙色
   return '#d03050'; // 红色
 }
-

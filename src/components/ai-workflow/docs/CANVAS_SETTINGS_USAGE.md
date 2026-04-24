@@ -7,13 +7,16 @@
 ## 新增文件
 
 ### 1. 类型定义
+
 - `src/components/ai-workflow/types/canvas-settings.ts` - 设置相关的类型定义
 
 ### 2. 对话框组件
+
 - `src/components/ai-workflow/dialogs/ConnectionLineSettingsDialog.tsx` - 连接线设置对话框
 - `src/components/ai-workflow/dialogs/BackgroundSettingsDialog.tsx` - 背景设置对话框
 
 ### 3. Hook
+
 - `src/components/ai-workflow/hooks/useCanvasSettings.ts` - 设置管理 Hook
 
 ## 在 WorkflowCanvas 中集成
@@ -42,8 +45,8 @@ export default defineComponent({
       <div>
         {/* 工具栏 */}
         <CanvasToolbar
-          onConnectionLineSettings={() => showConnectionLineDialog.value = true}
-          onBackgroundSettings={() => showBackgroundDialog.value = true}
+          onConnectionLineSettings={() => (showConnectionLineDialog.value = true)}
+          onBackgroundSettings={() => (showBackgroundDialog.value = true)}
           // ... 其他 props
         />
 
@@ -52,7 +55,7 @@ export default defineComponent({
           show={showConnectionLineDialog.value}
           settings={connectionLineStyle.value}
           onUpdate={updateConnectionLineStyle}
-          onClose={() => showConnectionLineDialog.value = false}
+          onClose={() => (showConnectionLineDialog.value = false)}
         />
 
         {/* 背景设置对话框 */}
@@ -60,7 +63,7 @@ export default defineComponent({
           show={showBackgroundDialog.value}
           settings={backgroundSettings.value}
           onUpdate={updateBackgroundSettings}
-          onClose={() => showBackgroundDialog.value = false}
+          onClose={() => (showBackgroundDialog.value = false)}
         />
       </div>
     );
@@ -73,6 +76,7 @@ export default defineComponent({
 ### 连接线设置
 
 **可配置项：**
+
 - **线条类型**：贝塞尔曲线、直线、阶梯线、平滑阶梯线
 - **线条颜色**：支持颜色选择器
 - **线条宽度**：1-10px
@@ -81,6 +85,7 @@ export default defineComponent({
 ### 背景设置
 
 **可配置项：**
+
 - **显示网格**：开启/关闭网格显示
 - **网格类型**：点状、线状、十字
 - **网格大小**：10-50px
@@ -113,4 +118,3 @@ export default defineComponent({
 - **背景设置按钮**：图标 `mdi:palette-outline`
 
 两个按钮都位于工具栏右侧，视图控制按钮组之后。
-

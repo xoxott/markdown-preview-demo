@@ -159,7 +159,7 @@ const ClockLoading = defineComponent({
     clockBorder: {
       type: String,
       default: '#d0d0d0'
-    },
+    }
   },
   setup(props: ClockLoadingProps) {
     // 使用默认值确保类型安全
@@ -232,7 +232,7 @@ const ClockLoading = defineComponent({
                   // 每个字符的动画延迟递增，形成波浪效果
                   // 第一个延迟: i * 0.1s (波浪效果)
                   // 第二个延迟: i * 0.12s (颜色渐变)
-                  animationDelay: `${i * 0.1}s, ${i * 0.12}s`,
+                  animationDelay: `${i * 0.1}s, ${i * 0.12}s`
                 }}
               >
                 {l}
@@ -247,19 +247,21 @@ const ClockLoading = defineComponent({
         */}
         <div
           class="clock-svg-wrapper"
-          style={{
-            width: size + 'px',
-            height: size + 'px',
-            // CSS变量: 刻度高亮颜色，用于刻度闪烁动画
-            '--tick-color': color,
-            // CSS变量: 秒针旋转和刻度闪烁的动画速度
-            '--animation-speed': `${speed}s`,
-            // CSS变量: 表盘脉冲和中心点光晕的动画速度(比旋转稍快)
-            '--pulse-speed': `${speed * 0.75}s`,
-            position: 'relative',
-            // 添加阴影效果，增强视觉层次
-            filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1))'
-          } as any}
+          style={
+            {
+              'width': size + 'px',
+              'height': size + 'px',
+              // CSS变量: 刻度高亮颜色，用于刻度闪烁动画
+              '--tick-color': color,
+              // CSS变量: 秒针旋转和刻度闪烁的动画速度
+              '--animation-speed': `${speed}s`,
+              // CSS变量: 表盘脉冲和中心点光晕的动画速度(比旋转稍快)
+              '--pulse-speed': `${speed * 0.75}s`,
+              'position': 'relative',
+              // 添加阴影效果，增强视觉层次
+              'filter': 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1))'
+            } as any
+          }
         >
           <svg
             viewBox="0 0 50 50"
@@ -393,19 +395,12 @@ const ClockLoading = defineComponent({
             />
 
             {/* 中心点内圈 - 增加细节 */}
-            <circle
-              cx="25"
-              cy="25"
-              r="1.2"
-              fill="#ffffff"
-              opacity="0.8"
-            />
+            <circle cx="25" cy="25" r="1.2" fill="#ffffff" opacity="0.8" />
           </svg>
         </div>
       </div>
     );
-  },
+  }
 });
 
 export default ClockLoading;
-

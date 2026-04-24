@@ -29,14 +29,7 @@ export interface BatchProcessResult<R> {
 export async function batchProcess<T, R>(
   config: BatchProcessConfig<T, R>
 ): Promise<BatchProcessResult<R>> {
-  const {
-    items,
-    batchSize = 5,
-    processor,
-    onProgress,
-    signal,
-    delayBetweenBatches = 10
-  } = config;
+  const { items, batchSize = 5, processor, onProgress, signal, delayBetweenBatches = 10 } = config;
 
   const results: R[] = [];
   const total = items.length;
@@ -47,9 +40,7 @@ export async function batchProcess<T, R>(
     }
 
     const batch = items.slice(i, i + batchSize);
-    const batchPromises = batch.map((item, batchIndex) =>
-      processor(item, i + batchIndex)
-    );
+    const batchPromises = batch.map((item, batchIndex) => processor(item, i + batchIndex));
 
     const batchResults = await Promise.all(batchPromises);
     // 过滤掉 null 值，并确保类型正确
@@ -72,4 +63,3 @@ export async function batchProcess<T, R>(
     total
   };
 }
-

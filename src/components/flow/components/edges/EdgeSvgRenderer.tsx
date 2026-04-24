@@ -18,9 +18,7 @@ import {
   MARKER_PATH_SUFFIXES,
   MARKER_SUFFIXES
 } from '../../constants/edge-constants';
-import {
-  calculateArrowMarkerConfig
-} from '../../utils/edge-style-utils';
+import { calculateArrowMarkerConfig } from '../../utils/edge-style-utils';
 
 /**
  * EdgeSvgRenderer 组件属性
@@ -92,7 +90,7 @@ export default defineComponent({
       type: Number,
       default: 0
     },
-    bezierControlOffset:{
+    bezierControlOffset: {
       type: Number,
       default: 0.5
     }
@@ -123,7 +121,7 @@ export default defineComponent({
 
     const { eventHandlers } = useEventHandlers({
       items: computed(() => props.visibleEdges),
-      getId: (edge) => edge.id,
+      getId: edge => edge.id,
       handlers: {
         onClick: props.onEdgeClick,
         onDoubleClick: props.onEdgeDoubleClick,
@@ -136,109 +134,105 @@ export default defineComponent({
       const handlers = eventHandlers.value;
 
       return (
-        <svg
-          class={EDGE_CLASS_NAMES.CONTAINER}
-          style={svgStyle.value}
-        >
-        {/* 共享的箭头标记定义 */}
-        <defs>
-          {/* 共享的箭头路径定义 */}
-          <path
-            id={`${idPrefix.value}${MARKER_PATH_SUFFIXES.DEFAULT}`}
-            d={arrowConfig.value.path}
-            fill={EDGE_COLORS.DEFAULT}
-          />
-          <path
-            id={`${idPrefix.value}${MARKER_PATH_SUFFIXES.SELECTED}`}
-            d={arrowConfig.value.path}
-            fill={EDGE_COLORS.SELECTED}
-          />
-          <path
-            id={`${idPrefix.value}${MARKER_PATH_SUFFIXES.HOVERED}`}
-            d={arrowConfig.value.path}
-            fill={EDGE_COLORS.HOVERED}
-          />
-
-          {/* 箭头标记 */}
-          <marker
-            id={`${idPrefix.value}${MARKER_SUFFIXES.DEFAULT}`}
-            markerWidth={arrowConfig.value.arrowSize}
-            markerHeight={arrowConfig.value.arrowSize}
-            refX={arrowConfig.value.refX}
-            refY={arrowConfig.value.refY}
-            orient="auto"
-            markerUnits="userSpaceOnUse"
-          >
-            <use href={`#${idPrefix.value}${MARKER_PATH_SUFFIXES.DEFAULT}`} />
-          </marker>
-
-          <marker
-            id={`${idPrefix.value}${MARKER_SUFFIXES.SELECTED}`}
-            markerWidth={arrowConfig.value.arrowSize}
-            markerHeight={arrowConfig.value.arrowSize}
-            refX={arrowConfig.value.refX}
-            refY={arrowConfig.value.refY}
-            orient="auto"
-            markerUnits="userSpaceOnUse"
-          >
-            <use href={`#${idPrefix.value}${MARKER_PATH_SUFFIXES.SELECTED}`} />
-          </marker>
-
-          <marker
-            id={`${idPrefix.value}${MARKER_SUFFIXES.HOVERED}`}
-            markerWidth={arrowConfig.value.arrowSize}
-            markerHeight={arrowConfig.value.arrowSize}
-            refX={arrowConfig.value.refX}
-            refY={arrowConfig.value.refY}
-            orient="auto"
-            markerUnits="userSpaceOnUse"
-          >
-            <use href={`#${idPrefix.value}${MARKER_PATH_SUFFIXES.HOVERED}`} />
-          </marker>
-        </defs>
-
-        {/* 渲染连接线 */}
-        {props.visibleEdges.map(edge => {
-          const positions = props.getEdgePositions(edge);
-          if (!positions) {
-            return null;
-          }
-
-          const isSelected = props.selectedEdgeIdsSet.has(edge.id);
-          const path = generateEdgePath(edge, positions, {
-            showArrow: edge.showArrow !== false,
-            viewport: props.viewport,
-            bezierControlOffset: props?.bezierControlOffset
-          });
-
-          const handler = handlers?.get(edge.id);
-
-          return (
-            <BaseEdge
-              key={edge.id}
-              edge={edge}
-              sourceX={positions.sourceX}
-              sourceY={positions.sourceY}
-              targetX={positions.targetX}
-              targetY={positions.targetY}
-              sourceHandleX={positions.sourceHandleX}
-              sourceHandleY={positions.sourceHandleY}
-              targetHandleX={positions.targetHandleX}
-              targetHandleY={positions.targetHandleY}
-              path={path}
-              viewport={props.viewport}
-              instanceId={props.instanceId}
-              selected={isSelected}
-              onClick={handler?.onClick}
-              onDouble-click={handler?.onDoubleClick}
-              onMouseenter={handler?.onMouseEnter}
-              onMouseleave={handler?.onMouseLeave}
+        <svg class={EDGE_CLASS_NAMES.CONTAINER} style={svgStyle.value}>
+          {/* 共享的箭头标记定义 */}
+          <defs>
+            {/* 共享的箭头路径定义 */}
+            <path
+              id={`${idPrefix.value}${MARKER_PATH_SUFFIXES.DEFAULT}`}
+              d={arrowConfig.value.path}
+              fill={EDGE_COLORS.DEFAULT}
             />
-          );
-        })}
+            <path
+              id={`${idPrefix.value}${MARKER_PATH_SUFFIXES.SELECTED}`}
+              d={arrowConfig.value.path}
+              fill={EDGE_COLORS.SELECTED}
+            />
+            <path
+              id={`${idPrefix.value}${MARKER_PATH_SUFFIXES.HOVERED}`}
+              d={arrowConfig.value.path}
+              fill={EDGE_COLORS.HOVERED}
+            />
+
+            {/* 箭头标记 */}
+            <marker
+              id={`${idPrefix.value}${MARKER_SUFFIXES.DEFAULT}`}
+              markerWidth={arrowConfig.value.arrowSize}
+              markerHeight={arrowConfig.value.arrowSize}
+              refX={arrowConfig.value.refX}
+              refY={arrowConfig.value.refY}
+              orient="auto"
+              markerUnits="userSpaceOnUse"
+            >
+              <use href={`#${idPrefix.value}${MARKER_PATH_SUFFIXES.DEFAULT}`} />
+            </marker>
+
+            <marker
+              id={`${idPrefix.value}${MARKER_SUFFIXES.SELECTED}`}
+              markerWidth={arrowConfig.value.arrowSize}
+              markerHeight={arrowConfig.value.arrowSize}
+              refX={arrowConfig.value.refX}
+              refY={arrowConfig.value.refY}
+              orient="auto"
+              markerUnits="userSpaceOnUse"
+            >
+              <use href={`#${idPrefix.value}${MARKER_PATH_SUFFIXES.SELECTED}`} />
+            </marker>
+
+            <marker
+              id={`${idPrefix.value}${MARKER_SUFFIXES.HOVERED}`}
+              markerWidth={arrowConfig.value.arrowSize}
+              markerHeight={arrowConfig.value.arrowSize}
+              refX={arrowConfig.value.refX}
+              refY={arrowConfig.value.refY}
+              orient="auto"
+              markerUnits="userSpaceOnUse"
+            >
+              <use href={`#${idPrefix.value}${MARKER_PATH_SUFFIXES.HOVERED}`} />
+            </marker>
+          </defs>
+
+          {/* 渲染连接线 */}
+          {props.visibleEdges.map(edge => {
+            const positions = props.getEdgePositions(edge);
+            if (!positions) {
+              return null;
+            }
+
+            const isSelected = props.selectedEdgeIdsSet.has(edge.id);
+            const path = generateEdgePath(edge, positions, {
+              showArrow: edge.showArrow !== false,
+              viewport: props.viewport,
+              bezierControlOffset: props?.bezierControlOffset
+            });
+
+            const handler = handlers?.get(edge.id);
+
+            return (
+              <BaseEdge
+                key={edge.id}
+                edge={edge}
+                sourceX={positions.sourceX}
+                sourceY={positions.sourceY}
+                targetX={positions.targetX}
+                targetY={positions.targetY}
+                sourceHandleX={positions.sourceHandleX}
+                sourceHandleY={positions.sourceHandleY}
+                targetHandleX={positions.targetHandleX}
+                targetHandleY={positions.targetHandleY}
+                path={path}
+                viewport={props.viewport}
+                instanceId={props.instanceId}
+                selected={isSelected}
+                onClick={handler?.onClick}
+                onDouble-click={handler?.onDoubleClick}
+                onMouseenter={handler?.onMouseEnter}
+                onMouseleave={handler?.onMouseLeave}
+              />
+            );
+          })}
         </svg>
       );
     };
   }
 });
-

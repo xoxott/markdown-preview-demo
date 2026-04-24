@@ -124,7 +124,9 @@ watch(
     const diff = Math.abs(newTime - countdown);
 
     if (diff > props.updateThreshold || animationTimer === null) {
-      console.log(`🕐 时间更新: ${countdown.toFixed(0)}s -> ${newTime}s (差异: ${diff.toFixed(1)}s)`);
+      console.log(
+        `🕐 时间更新: ${countdown.toFixed(0)}s -> ${newTime}s (差异: ${diff.toFixed(1)}s)`
+      );
       updateTrend(newTime);
       startCountdown();
     }

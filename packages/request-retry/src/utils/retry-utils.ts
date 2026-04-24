@@ -9,7 +9,7 @@ import {
   isRetryableClientError,
   isCanceledError,
   getErrorType,
-  isApplicableErrorType,
+  isApplicableErrorType
 } from './error-utils';
 
 /**
@@ -22,7 +22,10 @@ function shouldRetryByDefault(error: RetryableError): boolean {
   const status = error.response?.status ?? error.status ?? 0;
 
   // 客户端错误：只有特定状态码可重试
-  if (status >= DEFAULT_RETRY_CONFIG.CLIENT_ERROR_MIN && status <= DEFAULT_RETRY_CONFIG.CLIENT_ERROR_MAX) {
+  if (
+    status >= DEFAULT_RETRY_CONFIG.CLIENT_ERROR_MIN &&
+    status <= DEFAULT_RETRY_CONFIG.CLIENT_ERROR_MAX
+  ) {
     return isRetryableClientError(status);
   }
 
@@ -37,14 +40,13 @@ export function shouldRetry(
   error: RetryableError,
   strategy?: RetryStrategy,
   attempt: number = 0,
-  retryOnTimeout?: boolean,
+  retryOnTimeout?: boolean
 ): boolean {
   // 请求被取消，不重试
   if (isCanceledError(error)) return false;
 
   // 检查是否为超时错误
-  const isTimeoutError =
-    error.code === 'ECONNABORTED' || error.message.includes('timeout');
+  const isTimeoutError = error.code === 'ECONNABORTED' || error.message.includes('timeout');
 
   // 如果是超时错误且未启用超时重试，不重试
   if (isTimeoutError && retryOnTimeout === false) return false;
@@ -60,7 +62,7 @@ export function shouldRetry(
  */
 function getDelayFromErrorTypeStrategy(
   error: RetryableError,
-  strategy: RetryStrategy,
+  strategy: RetryStrategy
 ): number | null {
   if (!strategy.errorTypeStrategy) return null;
 
@@ -75,8 +77,7 @@ function getDelayFromErrorTypeStrategy(
  * 计算指数退避延迟时间
  */
 function calculateExponentialDelay(retryCount: number, baseDelay: number): number {
-  const delay =
-    baseDelay * Math.pow(DEFAULT_RETRY_CONFIG.EXPONENTIAL_BASE, retryCount);
+  const delay = baseDelay * Math.pow(DEFAULT_RETRY_CONFIG.EXPONENTIAL_BASE, retryCount);
   return Math.min(delay, DEFAULT_RETRY_CONFIG.MAX_DELAY);
 }
 
@@ -87,7 +88,7 @@ export function calculateRetryDelay(
   retryCount: number,
   baseDelay: number = DEFAULT_RETRY_CONFIG.DEFAULT_RETRY_DELAY,
   error?: RetryableError,
-  strategy?: RetryStrategy,
+  strategy?: RetryStrategy
 ): number {
   if (strategy && error) {
     const typeDelay = getDelayFromErrorTypeStrategy(error, strategy);
@@ -102,7 +103,7 @@ export function calculateRetryDelay(
  * 延迟函数
  */
 export function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 /**
@@ -118,7 +119,7 @@ export function isLastAttempt(currentAttempt: number, maxRetries: number): boole
 export function hasExceededErrorTypeMaxRetries(
   error: RetryableError,
   attempt: number,
-  strategy: RetryStrategy,
+  strategy: RetryStrategy
 ): boolean {
   if (!strategy.errorTypeStrategy) {
     return false;
@@ -132,4 +133,3 @@ export function hasExceededErrorTypeMaxRetries(
   const typeStrategy = strategy.errorTypeStrategy[errorType];
   return typeStrategy !== undefined && attempt >= typeStrategy.maxRetries;
 }
-

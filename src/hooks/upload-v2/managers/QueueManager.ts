@@ -13,8 +13,10 @@ export class QueueManager {
   sort(queue: FileTask[]): void {
     queue.sort((a, b) => {
       // 确保 priority 是有效的键类型
-      const aPriorityKey: keyof typeof this.priorities = (a.options.priority || 'normal') as keyof typeof this.priorities;
-      const bPriorityKey: keyof typeof this.priorities = (b.options.priority || 'normal') as keyof typeof this.priorities;
+      const aPriorityKey: keyof typeof this.priorities = (a.options.priority ||
+        'normal') as keyof typeof this.priorities;
+      const bPriorityKey: keyof typeof this.priorities = (b.options.priority ||
+        'normal') as keyof typeof this.priorities;
 
       const aPriority = this.priorities[aPriorityKey];
       const bPriority = this.priorities[bPriorityKey];
@@ -33,8 +35,9 @@ export class QueueManager {
   isDuplicate(file: File, allTasks: FileTask[]): boolean {
     return allTasks.some(
       task =>
-        task.file.name === file.name && task.file.size === file.size && task.file.lastModified === file.lastModified
+        task.file.name === file.name &&
+        task.file.size === file.size &&
+        task.file.lastModified === file.lastModified
     );
   }
 }
-

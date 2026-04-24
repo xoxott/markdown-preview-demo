@@ -54,7 +54,9 @@ defineExpose({
       class="flex cursor-pointer items-center justify-between border-b border-gray-100 px-4 py-3 transition-colors dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
       @click="toggleCollapse"
     >
-      <h3 class="m-0 flex items-center gap-2 text-lg text-gray-600 font-semibold dark:text-gray-300">
+      <h3
+        class="m-0 flex items-center gap-2 text-lg text-gray-600 font-semibold dark:text-gray-300"
+      >
         <NIcon :component="icon" :size="20" />
         {{ title }}
       </h3>

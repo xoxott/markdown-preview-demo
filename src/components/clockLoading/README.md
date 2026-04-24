@@ -26,19 +26,19 @@ import ClockLoading from '@/components/clockLoading';
 
 ### Props
 
-| 参数 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `size` | `number` | `50` | 时钟尺寸(px) |
-| `text` | `string` | `'请稍等'` | 显示的文字 |
-| `color` | `string` | `'#4da6ff'` | 主题颜色 |
-| `showText` | `boolean` | `true` | 是否显示文字 |
-| `speed` | `number` | `2` | 旋转速度(秒/圈)，范围1-10 |
-| `background` | `string` | `'transparent'` | 背景颜色 |
-| `showBackground` | `boolean` | `false` | 是否显示背景 |
-| `containerStyle` | `CSSProperties` | `{}` | 自定义容器样式 |
-| `className` | `string` | `''` | 自定义类名 |
-| `clockBg` | `string` | `'#ffffff'` | 表盘背景色 |
-| `clockBorder` | `string` | `'#d0d0d0'` | 表盘边框色 |
+| 参数             | 类型            | 默认值          | 说明                      |
+| ---------------- | --------------- | --------------- | ------------------------- |
+| `size`           | `number`        | `50`            | 时钟尺寸(px)              |
+| `text`           | `string`        | `'请稍等'`      | 显示的文字                |
+| `color`          | `string`        | `'#4da6ff'`     | 主题颜色                  |
+| `showText`       | `boolean`       | `true`          | 是否显示文字              |
+| `speed`          | `number`        | `2`             | 旋转速度(秒/圈)，范围1-10 |
+| `background`     | `string`        | `'transparent'` | 背景颜色                  |
+| `showBackground` | `boolean`       | `false`         | 是否显示背景              |
+| `containerStyle` | `CSSProperties` | `{}`            | 自定义容器样式            |
+| `className`      | `string`        | `''`            | 自定义类名                |
+| `clockBg`        | `string`        | `'#ffffff'`     | 表盘背景色                |
+| `clockBorder`    | `string`        | `'#d0d0d0'`     | 表盘边框色                |
 
 ## 📖 使用示例
 
@@ -51,61 +51,37 @@ import ClockLoading from '@/components/clockLoading';
 ### 自定义颜色和尺寸
 
 ```vue
-<ClockLoading
-  :size="80"
-  color="#ff6b6b"
-  text="加载中"
-/>
+<ClockLoading :size="80" color="#ff6b6b" text="加载中" />
 ```
 
 ### 快速旋转
 
 ```vue
-<ClockLoading
-  :speed="1"
-  text="快速加载"
-/>
+<ClockLoading :speed="1" text="快速加载" />
 ```
 
 ### 慢速旋转
 
 ```vue
-<ClockLoading
-  :speed="4"
-  text="慢速加载"
-/>
+<ClockLoading :speed="4" text="慢速加载" />
 ```
 
 ### 只显示时钟(无文字)
 
 ```vue
-<ClockLoading
-  :show-text="false"
-  :size="60"
-/>
+<ClockLoading :show-text="false" :size="60" />
 ```
 
 ### 带背景的加载
 
 ```vue
-<ClockLoading
-  :show-background="true"
-  background="rgba(0, 0, 0, 0.05)"
-  :size="70"
-  text="处理中"
-/>
+<ClockLoading :show-background="true" background="rgba(0, 0, 0, 0.05)" :size="70" text="处理中" />
 ```
 
 ### 深色主题
 
 ```vue
-<ClockLoading
-  color="#64ffda"
-  clock-bg="#1e1e1e"
-  clock-border="#333333"
-  :size="80"
-  text="Loading"
-/>
+<ClockLoading color="#64ffda" clock-bg="#1e1e1e" clock-border="#333333" :size="80" text="Loading" />
 ```
 
 ### 自定义样式
@@ -178,12 +154,7 @@ import ClockLoading from '@/components/clockLoading';
 ```vue
 <template>
   <div class="data-container">
-    <ClockLoading
-      v-if="fetching"
-      text="获取数据中"
-      :size="60"
-      :show-text="false"
-    />
+    <ClockLoading v-if="fetching" text="获取数据中" :size="60" :show-text="false" />
     <div v-else>
       <!-- 数据内容 -->
     </div>
@@ -196,12 +167,7 @@ import ClockLoading from '@/components/clockLoading';
 ```vue
 <template>
   <button @click="handleSubmit" :disabled="submitting">
-    <ClockLoading
-      v-if="submitting"
-      :size="20"
-      :show-text="false"
-      color="white"
-    />
+    <ClockLoading v-if="submitting" :size="20" :show-text="false" color="white" />
     <span v-else>提交</span>
   </button>
 </template>
@@ -210,26 +176,31 @@ import ClockLoading from '@/components/clockLoading';
 ## 🎨 主题预设
 
 ### 蓝色主题(默认)
+
 ```vue
 <ClockLoading color="#4da6ff" />
 ```
 
 ### 绿色主题
+
 ```vue
 <ClockLoading color="#52c41a" text="成功" />
 ```
 
 ### 红色主题
+
 ```vue
 <ClockLoading color="#ff4d4f" text="处理中" />
 ```
 
 ### 紫色主题
+
 ```vue
 <ClockLoading color="#722ed1" text="等待中" />
 ```
 
 ### 橙色主题
+
 ```vue
 <ClockLoading color="#fa8c16" text="加载中" />
 ```
@@ -273,6 +244,7 @@ delay = (speed × position) / 4
 ## 🎉 更新日志
 
 ### v2.0.0
+
 - ✨ 新增多个配置选项
 - 🎨 优化视觉效果
 - ⚡ 支持动态速度控制
@@ -282,4 +254,3 @@ delay = (speed × position) / 4
 ## 📄 License
 
 MIT
-

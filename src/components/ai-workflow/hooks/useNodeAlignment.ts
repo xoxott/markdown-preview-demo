@@ -137,4 +137,3 @@ export function useNodeAlignment({ nodes, selectedNodeIds }: AlignmentOptions) {
     distributeVertical
   };
 }
-

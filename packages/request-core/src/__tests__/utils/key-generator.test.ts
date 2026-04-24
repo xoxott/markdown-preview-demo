@@ -10,7 +10,7 @@ describe('generateRequestKey', () => {
   it('应该为相同的请求生成相同的键', () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     const key1 = generateRequestKey(config);
@@ -22,12 +22,12 @@ describe('generateRequestKey', () => {
   it('应该为不同的 URL 生成不同的键', () => {
     const config1: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     const config2: NormalizedRequestConfig = {
       url: '/api/posts',
-      method: 'GET',
+      method: 'GET'
     };
 
     const key1 = generateRequestKey(config1);
@@ -39,12 +39,12 @@ describe('generateRequestKey', () => {
   it('应该为不同的 method 生成不同的键', () => {
     const config1: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     const config2: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'POST',
+      method: 'POST'
     };
 
     const key1 = generateRequestKey(config1);
@@ -57,13 +57,13 @@ describe('generateRequestKey', () => {
     const config1: NormalizedRequestConfig = {
       url: '/api/users',
       method: 'GET',
-      params: { page: 1 },
+      params: { page: 1 }
     };
 
     const config2: NormalizedRequestConfig = {
       url: '/api/users',
       method: 'GET',
-      params: { page: 2 },
+      params: { page: 2 }
     };
 
     const key1 = generateRequestKey(config1);
@@ -76,13 +76,13 @@ describe('generateRequestKey', () => {
     const config1: NormalizedRequestConfig = {
       url: '/api/users',
       method: 'GET',
-      params: { page: 1, limit: 10 },
+      params: { page: 1, limit: 10 }
     };
 
     const config2: NormalizedRequestConfig = {
       url: '/api/users',
       method: 'GET',
-      params: { page: 1, limit: 10 },
+      params: { page: 1, limit: 10 }
     };
 
     const key1 = generateRequestKey(config1);
@@ -95,13 +95,13 @@ describe('generateRequestKey', () => {
     const config1: NormalizedRequestConfig = {
       url: '/api/users',
       method: 'POST',
-      data: { name: 'John' },
+      data: { name: 'John' }
     };
 
     const config2: NormalizedRequestConfig = {
       url: '/api/users',
       method: 'POST',
-      data: { name: 'Jane' },
+      data: { name: 'Jane' }
     };
 
     const key1 = generateRequestKey(config1);
@@ -114,13 +114,13 @@ describe('generateRequestKey', () => {
     const config1: NormalizedRequestConfig = {
       url: '/api/users',
       method: 'POST',
-      data: { name: 'John', age: 30 },
+      data: { name: 'John', age: 30 }
     };
 
     const config2: NormalizedRequestConfig = {
       url: '/api/users',
       method: 'POST',
-      data: { name: 'John', age: 30 },
+      data: { name: 'John', age: 30 }
     };
 
     const key1 = generateRequestKey(config1);
@@ -133,13 +133,13 @@ describe('generateRequestKey', () => {
     const config1: NormalizedRequestConfig = {
       url: '/api/users',
       method: 'GET',
-      headers: { 'Authorization': 'Bearer token1' },
+      headers: { Authorization: 'Bearer token1' }
     };
 
     const config2: NormalizedRequestConfig = {
       url: '/api/users',
       method: 'GET',
-      headers: { 'Authorization': 'Bearer token2' },
+      headers: { Authorization: 'Bearer token2' }
     };
 
     const key1 = generateRequestKey(config1);
@@ -152,7 +152,7 @@ describe('generateRequestKey', () => {
   it('应该处理没有 params 和 data 的请求', () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     const key = generateRequestKey(config);
@@ -170,10 +170,10 @@ describe('generateRequestKey', () => {
           name: 'John',
           address: {
             city: 'New York',
-            country: 'USA',
-          },
-        },
-      },
+            country: 'USA'
+          }
+        }
+      }
     };
 
     const config2: NormalizedRequestConfig = {
@@ -184,10 +184,10 @@ describe('generateRequestKey', () => {
           name: 'John',
           address: {
             city: 'New York',
-            country: 'USA',
-          },
-        },
-      },
+            country: 'USA'
+          }
+        }
+      }
     };
 
     const key1 = generateRequestKey(config1);
@@ -200,13 +200,13 @@ describe('generateRequestKey', () => {
     const config1: NormalizedRequestConfig = {
       url: '/api/users',
       method: 'GET',
-      params: { ids: [1, 2, 3] },
+      params: { ids: [1, 2, 3] }
     };
 
     const config2: NormalizedRequestConfig = {
       url: '/api/users',
       method: 'GET',
-      params: { ids: [1, 2, 3] },
+      params: { ids: [1, 2, 3] }
     };
 
     const key1 = generateRequestKey(config1);
@@ -218,7 +218,7 @@ describe('generateRequestKey', () => {
   it('应该处理空字符串 URL', () => {
     const config: NormalizedRequestConfig = {
       url: '',
-      method: 'GET',
+      method: 'GET'
     };
 
     const key = generateRequestKey(config);
@@ -229,7 +229,7 @@ describe('generateRequestKey', () => {
   it('应该处理默认 method', () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     const key = generateRequestKey(config);
@@ -237,4 +237,3 @@ describe('generateRequestKey', () => {
     expect(key).toBeDefined();
   });
 });
-

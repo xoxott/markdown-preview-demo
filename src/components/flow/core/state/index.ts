@@ -12,4 +12,3 @@ export * from './interfaces/IHistoryManager';
 // ==================== 默认实现 ====================
 export * from './stores/DefaultStateStore';
 export * from './stores/DefaultHistoryManager';
-

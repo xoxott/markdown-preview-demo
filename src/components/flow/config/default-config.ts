@@ -5,7 +5,15 @@
  * 参考 VueFlow/ReactFlow 的最佳实践
  */
 
-import type { FlowCanvasConfig, FlowConfig, FlowEdgeConfig, FlowInteractionConfig, FlowNodeConfig, FlowPerformanceConfig, FlowThemeConfig } from '../types/flow-config';
+import type {
+  FlowCanvasConfig,
+  FlowConfig,
+  FlowEdgeConfig,
+  FlowInteractionConfig,
+  FlowNodeConfig,
+  FlowPerformanceConfig,
+  FlowThemeConfig
+} from '../types/flow-config';
 
 /**
  * 默认画布配置
@@ -123,7 +131,8 @@ export const DEFAULT_THEME_CONFIG: FlowThemeConfig = {
   warningColor: '#f0a020',
   errorColor: '#d03050',
   infoColor: '#70c0e8',
-  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+  fontFamily:
+    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
   fontSize: 14,
   borderRadius: 8,
   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
@@ -140,4 +149,3 @@ export const DEFAULT_FLOW_CONFIG: FlowConfig = {
   performance: DEFAULT_PERFORMANCE_CONFIG,
   theme: DEFAULT_THEME_CONFIG
 };
-

@@ -58,7 +58,11 @@ export const MobileHeader = defineComponent({
 
           {/* 中间标题 */}
           <div class="flex-1 text-center">
-            {slots.title ? slots.title() : <div class="truncate px-4 text-lg font-semibold">{defaultConfig.title}</div>}
+            {slots.title ? (
+              slots.title()
+            ) : (
+              <div class="truncate px-4 text-lg font-semibold">{defaultConfig.title}</div>
+            )}
           </div>
 
           {/* 右侧内容 */}

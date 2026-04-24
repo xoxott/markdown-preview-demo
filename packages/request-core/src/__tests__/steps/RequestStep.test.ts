@@ -12,7 +12,7 @@ describe('composeSteps', () => {
     const composed = composeSteps([]);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config);
 
@@ -52,7 +52,7 @@ describe('composeSteps', () => {
     const composed = composeSteps([new Step1(), new Step2(), new Step3()]);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config);
 
@@ -74,7 +74,7 @@ describe('composeSteps', () => {
     const composed = composeSteps([new ModifyStep()]);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config);
 
@@ -95,7 +95,7 @@ describe('composeSteps', () => {
     const composed = composeSteps([new SetResultStep()]);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext<{ data: string }>(config);
 
@@ -115,7 +115,7 @@ describe('composeSteps', () => {
     const composed = composeSteps([new SetErrorStep()]);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config);
 
@@ -135,7 +135,7 @@ describe('composeSteps', () => {
     const composed = composeSteps([new ThrowErrorStep()]);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config);
 
@@ -163,7 +163,7 @@ describe('composeSteps', () => {
     const composed = composeSteps([new ErrorHandlingStep(), new ThrowErrorStep()]);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config);
 
@@ -196,7 +196,7 @@ describe('composeSteps', () => {
     const composed = composeSteps([new Step1(), new Step2()]);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config);
 
@@ -218,7 +218,7 @@ describe('composeSteps', () => {
     const composed = composeSteps([new AsyncStep()]);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config);
 
@@ -246,7 +246,7 @@ describe('composeSteps', () => {
     const composed = composeSteps([new Step1(), new Step2()]);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config);
 
@@ -257,4 +257,3 @@ describe('composeSteps', () => {
     expect(ctx.meta.step1Value).toBe('value1');
   });
 });
-

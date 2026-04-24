@@ -26,7 +26,11 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
   const networkQuality = uploader.networkQuality;
 
   const createNaiveFileList = (): UploadFileInfo[] => {
-    const allTasks = [...uploadQueue.value, ...Array.from(activeUploads.value.values()), ...completedUploads.value];
+    const allTasks = [
+      ...uploadQueue.value,
+      ...Array.from(activeUploads.value.values()),
+      ...completedUploads.value
+    ];
 
     return allTasks.map(
       (task): UploadFileInfo => ({
@@ -55,7 +59,8 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
     return statusMap[status];
   };
 
-  const addFiles = (files: File[] | FileList | File, options?: FileUploadOptions) => uploader.addFiles(files, options);
+  const addFiles = (files: File[] | FileList | File, options?: FileUploadOptions) =>
+    uploader.addFiles(files, options);
 
   const start = () => uploader.start();
   const pauseAll = () => uploader.pauseAll();
@@ -94,7 +99,9 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
   };
 
   // 获取状态类型
-  const getStatusType = (status: UploadStatus): 'default' | 'success' | 'warning' | 'error' | 'info' => {
+  const getStatusType = (
+    status: UploadStatus
+  ): 'default' | 'success' | 'warning' | 'error' | 'info' => {
     const typeMap: Record<UploadStatus, 'default' | 'success' | 'warning' | 'error' | 'info'> = {
       [UploadStatus.PENDING]: 'default',
       [UploadStatus.UPLOADING]: 'info',

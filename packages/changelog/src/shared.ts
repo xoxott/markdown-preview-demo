@@ -62,7 +62,11 @@ type PartitionFilter<T> = (i: T, idx: number, arr: readonly T[]) => any;
  * @returns 分组后的数组集合，长度 = `filters.length + 1`
  */
 export function partition<T>(array: readonly T[], f1: PartitionFilter<T>): [T[], T[]];
-export function partition<T>(array: readonly T[], f1: PartitionFilter<T>, f2: PartitionFilter<T>): [T[], T[], T[]];
+export function partition<T>(
+  array: readonly T[],
+  f1: PartitionFilter<T>,
+  f2: PartitionFilter<T>
+): [T[], T[], T[]];
 export function partition<T>(
   array: readonly T[],
   f1: PartitionFilter<T>,

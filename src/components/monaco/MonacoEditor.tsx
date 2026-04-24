@@ -1,14 +1,40 @@
 /** Monaco Editor 组件 支持编辑和只读模式，代码折叠，语法高亮等功能 */
-import { type PropType, computed, defineComponent, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
+import {
+  type PropType,
+  computed,
+  defineComponent,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  shallowRef,
+  watch
+} from 'vue';
 import { NButton, NIcon, NSpace, NTooltip } from 'naive-ui';
-import { ArrowsMaximize, ArrowsMinimize, ChevronDown, ChevronRight, Code, Copy, FileCode } from '@vicons/tabler';
+import {
+  ArrowsMaximize,
+  ArrowsMinimize,
+  ChevronDown,
+  ChevronRight,
+  Code,
+  Copy,
+  FileCode
+} from '@vicons/tabler';
 import * as monaco from 'monaco-editor-core';
 import { useMarkdownTheme } from '../markdown/hooks/useMarkdownTheme';
 import { registerHighlighter } from './highlight';
 import { getOrCreateModel } from './utils';
 import './index.scss';
 
-export type MonacoLanguage = 'javascript' | 'typescript' | 'vue' | 'jsx' | 'tsx' | 'css' | 'html' | 'json' | 'markdown';
+export type MonacoLanguage =
+  | 'javascript'
+  | 'typescript'
+  | 'vue'
+  | 'jsx'
+  | 'tsx'
+  | 'css'
+  | 'html'
+  | 'json'
+  | 'markdown';
 
 export interface MonacoEditorProps {
   /** 编辑器内容 */
@@ -85,7 +111,7 @@ export const MonacoEditor = defineComponent({
   },
   emits: {
     'update:modelValue': (_value: string) => true,
-    change: (_value: string) => true
+    'change': (_value: string) => true
   },
   setup(props, { emit }) {
     // ==================== 状态管理 ====================
@@ -328,7 +354,9 @@ export const MonacoEditor = defineComponent({
                   {{
                     trigger: () => (
                       <NButton quaternary size="small" onClick={handleToggleFold}>
-                        <NIcon size={16}>{isFolded.value ? <ChevronRight /> : <ChevronDown />}</NIcon>
+                        <NIcon size={16}>
+                          {isFolded.value ? <ChevronRight /> : <ChevronDown />}
+                        </NIcon>
                       </NButton>
                     ),
                     default: () => (isFolded.value ? '展开所有' : '折叠所有')
@@ -371,7 +399,9 @@ export const MonacoEditor = defineComponent({
                 {{
                   trigger: () => (
                     <NButton quaternary size="small" onClick={handleToggleFullscreen}>
-                      <NIcon size={16}>{isFullscreen.value ? <ArrowsMinimize /> : <ArrowsMaximize />}</NIcon>
+                      <NIcon size={16}>
+                        {isFullscreen.value ? <ArrowsMinimize /> : <ArrowsMaximize />}
+                      </NIcon>
                     </NButton>
                   ),
                   default: () => (isFullscreen.value ? '退出全屏' : '全屏')

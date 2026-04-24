@@ -50,4 +50,3 @@ export class MoveNodeCommand extends BaseCommand {
     return `Move node ${this.nodeId} from (${this.oldPosition.x}, ${this.oldPosition.y}) to (${this.newPosition.x}, ${this.newPosition.y})`;
   }
 }
-

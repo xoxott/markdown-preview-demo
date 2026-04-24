@@ -122,7 +122,11 @@ export default defineComponent({
       if (props.disabled) {
         classes.push('opacity-50 cursor-not-allowed');
       } else if (canAcceptDrop.value) {
-        classes.push('border-blue-500 bg-blue-50 dark:bg-blue-900/20', 'ring-2 ring-blue-500/30', 'scale-[1.02]');
+        classes.push(
+          'border-blue-500 bg-blue-50 dark:bg-blue-900/20',
+          'ring-2 ring-blue-500/30',
+          'scale-[1.02]'
+        );
       } else if (props.isOver && !props.canDrop) {
         classes.push('border-red-500 bg-red-50 dark:bg-red-900/20', 'ring-2 ring-red-500/30');
       } else if (isActive.value) {
@@ -284,7 +288,9 @@ export default defineComponent({
                   {props.loading ? (
                     <NSpin size={48} />
                   ) : (
-                    iconComponent.value && <NIcon component={iconComponent.value} size={48} class={iconColor.value} />
+                    iconComponent.value && (
+                      <NIcon component={iconComponent.value} size={48} class={iconColor.value} />
+                    )
                   )}
 
                   {/* 箭头动画提示 */}

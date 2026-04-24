@@ -43,7 +43,7 @@ const html = md.render(`
 ```typescript
 const md = new MarkdownIt();
 md.use(markdownItTaskLists, {
-  enabled: true  // 启用可交互的 checkbox（默认 false，checkbox 为 disabled 状态）
+  enabled: true // 启用可交互的 checkbox（默认 false，checkbox 为 disabled 状态）
 });
 
 const html = md.render(`
@@ -57,9 +57,9 @@ const html = md.render(`
 ```typescript
 const md = new MarkdownIt();
 md.use(markdownItTaskLists, {
-  listClass: 'my-task-list',           // 自定义列表类名
-  itemClass: 'my-task-item',           // 自定义列表项类名
-  checkboxClass: 'my-checkbox'         // 自定义 checkbox 类名
+  listClass: 'my-task-list', // 自定义列表类名
+  itemClass: 'my-task-item', // 自定义列表项类名
+  checkboxClass: 'my-checkbox' // 自定义 checkbox 类名
 });
 ```
 
@@ -106,11 +106,11 @@ interface TaskListOptions {
 ```html
 <ul class="contains-task-list">
   <li class="task-list-item" data-checked="false">
-    <input class="task-list-item-checkbox" type="checkbox" disabled>
+    <input class="task-list-item-checkbox" type="checkbox" disabled />
     未完成的任务
   </li>
   <li class="task-list-item" data-checked="true">
-    <input class="task-list-item-checkbox" type="checkbox" disabled checked>
+    <input class="task-list-item-checkbox" type="checkbox" disabled checked />
     已完成的任务
   </li>
 </ul>
@@ -125,28 +125,28 @@ md.use(markdownItTaskLists, { enabled: true });
 ```html
 <ul class="contains-task-list">
   <li class="task-list-item" data-checked="false">
-    <input class="task-list-item-checkbox" type="checkbox">
+    <input class="task-list-item-checkbox" type="checkbox" />
     未完成的任务
   </li>
   <li class="task-list-item" data-checked="true">
-    <input class="task-list-item-checkbox" type="checkbox" checked>
+    <input class="task-list-item-checkbox" type="checkbox" checked />
     已完成的任务
   </li>
 </ul>
 ```
-
 
 ## API 参考
 
 ### 主函数
 
 ```typescript
-function markdownItTaskLists(md: MarkdownIt, userOptions?: TaskListOptions): void
+function markdownItTaskLists(md: MarkdownIt, userOptions?: TaskListOptions): void;
 ```
 
 注册任务列表插件到 markdown-it 实例。
 
 **参数：**
+
 - `md` - MarkdownIt 实例
 - `userOptions` - 可选的配置选项（见 `TaskListOptions` 接口）
 
@@ -185,16 +185,19 @@ import type { TaskListOptions } from '@suga/markdown-it-task-lists';
 ### 核心架构
 
 1. **解析阶段**
+
    - 使用 `core.ruler.after('inline', 'task-lists')` 规则在正确的阶段处理任务列表
    - 在 `inline` 规则之后执行，确保所有文本 token 已经解析完成
    - 通过修改 token 流而不是覆盖渲染规则，确保与其他插件兼容
 
 2. **处理流程**
+
    ```
    list_item_open → 检测任务标记 → 查找相关 token → 移除标记文本 → 插入 checkbox token → 标记父列表
    ```
 
 3. **性能优化**
+
    - **合并查找逻辑**：`detectTaskListItem` 函数一次性查找所有需要的 token（`paragraph_open`、`inline`），避免多次遍历
    - **智能索引管理**：使用 `findTokensInListItem` 在限定范围内查找，找到第一个 `inline` token 后立即停止
    - **缓存任务状态**：使用 `token.info` 标记任务状态（`task-checked`/`task-unchecked`），避免重复检测
@@ -208,22 +211,26 @@ import type { TaskListOptions } from '@suga/markdown-it-task-lists';
 ### 核心改进（相比原有实现）
 
 1. **正确的解析逻辑**
+
    - 使用 `core.ruler.after('inline', 'task-lists')` 规则在正确的阶段处理任务列表
    - 准确识别任务列表标记并移除标记文本
    - 使用 `token.info` 标记任务状态，避免重复检测
 
 2. **性能优化**
+
    - 合并重复的 token 查找逻辑，一次遍历获取所有信息
    - 提取 `findTokensInListItem` 函数，在限定范围内查找
    - 使用常量管理 token 类型和任务状态，避免字符串比较开销
 
 3. **边界情况处理**
+
    - 支持空任务列表项（`- [ ]`）
    - 支持标记后只有空格的情况（`- [ ]   `）
    - 正确区分任务列表和普通列表
    - 支持嵌套任务列表
 
 4. **类型安全**
+
    - 完整的 TypeScript 类型定义
    - 所有配置选项都有明确的类型
    - 与 markdown-it 的类型完全兼容
@@ -244,6 +251,7 @@ pnpm test:run
 ```
 
 测试覆盖了以下场景：
+
 - 基础任务列表功能（识别、渲染、类名）
 - 嵌套任务列表
 - 混合列表（任务列表 + 普通列表）
@@ -263,15 +271,18 @@ pnpm test:run
 ```tsx
 import { MarkdownPreview } from '@/components/markdown';
 
-<MarkdownPreview content={`
+<MarkdownPreview
+  content={`
 - [ ] 未完成的任务
 - [x] 已完成的任务
-`} />
+`}
+/>;
 ```
 
 ### 与其他插件
 
 由于不覆盖 markdown-it 的渲染器，本插件与大多数 markdown-it 插件兼容，包括：
+
 - markdown-it-multimd-table
 - markdown-it-katex
 - markdown-it-footnote
@@ -280,10 +291,12 @@ import { MarkdownPreview } from '@/components/markdown';
 ### 使用注意事项
 
 1. **插件注册顺序**
+
    - 建议在其他修改渲染规则的插件之前注册
    - 必须在 `markdown-it-render-vnode` 之后注册（如果使用）
 
 2. **CSS 样式**
+
    - 插件只生成 HTML 结构，不包含任何样式
    - 需要自行编写 CSS 样式来控制 checkbox 的外观
    - 可以基于默认的类名编写样式
@@ -315,7 +328,7 @@ A: 配合 `markdown-it-render-vnode` 使用，会自动转换为 VNode：
 // React
 import { MarkdownPreview } from '@/components/markdown';
 
-<MarkdownPreview content={markdown} />
+<MarkdownPreview content={markdown} />;
 ```
 
 ### Q: 支持有序列表吗？
@@ -334,4 +347,3 @@ MIT
 ## 作者
 
 yangtao <212920320@qq.com>
-

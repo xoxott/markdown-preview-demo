@@ -29,7 +29,7 @@ export class UploadError extends Error {
     this.context = options.context;
     this.retryable = options.retryable ?? true;
     this.timestamp = Date.now();
-    
+
     if (options.cause) {
       this.cause = options.cause;
     }
@@ -99,12 +99,7 @@ export class TimeoutError extends UploadError {
 
 /** 服务器错误 */
 export class ServerError extends UploadError {
-  constructor(
-    message: string,
-    statusCode: number,
-    statusText?: string,
-    cause?: Error
-  ) {
+  constructor(message: string, statusCode: number, statusText?: string, cause?: Error) {
     super(message, ErrorType.SERVER_ERROR, {
       code: statusCode,
       context: { statusCode, statusText },
@@ -130,4 +125,3 @@ export class ValidationError extends UploadError {
     this.name = 'ValidationError';
   }
 }
-

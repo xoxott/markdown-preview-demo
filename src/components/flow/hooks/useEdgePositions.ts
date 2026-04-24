@@ -172,9 +172,7 @@ function calculateEdgePositions(
  * const positions = getEdgePositions(edge);
  * ```
  */
-export function useEdgePositions(
-  options: UseEdgePositionsOptions
-): UseEdgePositionsReturn {
+export function useEdgePositions(options: UseEdgePositionsOptions): UseEdgePositionsReturn {
   const {
     edges,
     nodes,
@@ -249,10 +247,9 @@ export function useEdgePositions(
     const now = Date.now();
 
     // 如果节点正在拖拽，降低缓存 TTL 以确保实时更新
-    const isDragging = draggingNodeIds?.value && (
-      draggingNodeIds.value.has(edge.source) ||
-      draggingNodeIds.value.has(edge.target)
-    );
+    const isDragging =
+      draggingNodeIds?.value &&
+      (draggingNodeIds.value.has(edge.source) || draggingNodeIds.value.has(edge.target));
     const effectiveTTL = isDragging
       ? dynamicCacheTTL.value / PERFORMANCE_CONSTANTS.EDGE_POSITION_CACHE_DRAGGING_TTL_DIVISOR
       : dynamicCacheTTL.value;
@@ -285,4 +282,3 @@ export function useEdgePositions(
     clearCache
   };
 }
-

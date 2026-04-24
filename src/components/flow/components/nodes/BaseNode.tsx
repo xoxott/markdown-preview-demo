@@ -7,7 +7,11 @@
 import { defineComponent, computed, type PropType } from 'vue';
 import { createCache } from '../../utils/cache-utils';
 import { calculateNodeContainerStyle, calculateNodeClass } from '../../utils/node-style-utils';
-import { calculateHandleStyle, calculateHandlePositionStyle, getHandleClass } from '../../utils/handle-utils';
+import {
+  calculateHandleStyle,
+  calculateHandlePositionStyle,
+  getHandleClass
+} from '../../utils/handle-utils';
 import type { FlowNode, FlowHandle } from '../../types/flow-node';
 
 /**
@@ -154,7 +158,9 @@ export default defineComponent({
         data-node-type={props.node.type}
       >
         {/* 默认插槽：节点内容 */}
-        {slots.default ? slots.default() : (
+        {slots.default ? (
+          slots.default()
+        ) : (
           <div
             class="flow-node-content"
             style={{
@@ -212,4 +218,3 @@ export default defineComponent({
     );
   }
 });
-

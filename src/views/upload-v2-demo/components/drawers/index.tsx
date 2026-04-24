@@ -1,7 +1,14 @@
 import useDrawer from '@/components/base-drawer/useDrawer';
 import type { FileTask } from '@/hooks/upload-v2';
 import type { UploadConfig } from '@/hooks/upload-v2';
-import type { ChunkSizeOption, TodayStatsData, HistoryStatsData, TrendAnalysisData, EventLog, PerformanceMetricsData } from '../../types';
+import type {
+  ChunkSizeOption,
+  TodayStatsData,
+  HistoryStatsData,
+  TrendAnalysisData,
+  EventLog,
+  PerformanceMetricsData
+} from '../../types';
 import TaskDetailDrawer from './TaskDetailDrawer';
 import SettingsDrawer from './SettingsDrawer';
 import StatsDrawer from './StatsDrawer';
@@ -125,18 +132,10 @@ export function useDrawers() {
   /**
    * 打开事件日志抽屉
    */
-  const openEvents = (
-    eventLogs: EventLog[],
-    onClear: () => void
-  ) => {
+  const openEvents = (eventLogs: EventLog[], onClear: () => void) => {
     return drawer.open({
       title: '事件日志',
-      content: () => (
-        <EventsDrawer
-          eventLogs={eventLogs}
-          onClear={onClear}
-        />
-      ),
+      content: () => <EventsDrawer eventLogs={eventLogs} onClear={onClear} />,
       width: 700,
       placement: 'right'
     });
@@ -175,4 +174,3 @@ export function useDrawers() {
     openI18n
   };
 }
-

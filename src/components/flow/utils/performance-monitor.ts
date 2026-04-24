@@ -361,4 +361,3 @@ export function measurePerformance(name: string) {
     return descriptor;
   };
 }
-

@@ -42,7 +42,12 @@ export function fetchLoginStep2(temporaryToken: string, code: string) {
  * @param password Password
  * @param verificationCode Verification code
  */
-export function fetchRegister(username: string, email: string, password: string, verificationCode: string) {
+export function fetchRegister(
+  username: string,
+  email: string,
+  password: string,
+  verificationCode: string
+) {
   return request<Api.Auth.RegisterResponse>({
     url: '/api/admin/auth/register',
     method: 'post',

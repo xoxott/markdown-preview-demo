@@ -1,6 +1,6 @@
 /**
  * Flow 空状态组件
- * 
+ *
  * 当画布为空时显示的空状态提示
  */
 
@@ -116,4 +116,3 @@ export default defineComponent({
     };
   }
 });
-

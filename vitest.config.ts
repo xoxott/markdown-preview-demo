@@ -18,33 +18,36 @@ export default defineConfig({
         '**/*.d.ts',
         '**/*.config.*',
         '**/mockData',
-        '**/dist',
+        '**/dist'
       ],
       thresholds: {
         lines: 80,
         functions: 80,
         branches: 80,
-        statements: 80,
-      },
+        statements: 80
+      }
     },
     projects: [
       {
         test: {
           include: ['packages/**/__tests__/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
           environment: 'node',
-        },
+          globals: true
+        }
       },
       {
         test: {
           include: ['src/components/flow/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
           environment: 'happy-dom',
-        },
-      },
-    ],
+          globals: true,
+          setupFiles: ['./src/components/flow/__tests__/setup.ts']
+        }
+      }
+    ]
   },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
-  },
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  }
 });

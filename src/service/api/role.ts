@@ -90,4 +90,3 @@ export function fetchToggleRoleStatus(id: number, isActive: boolean) {
     data: { isActive }
   });
 }
-

@@ -20,6 +20,7 @@ src/locales/
 ### 1. 编辑语言文件
 
 直接编辑 `langs/` 目录下的 TypeScript 文件：
+
 - `zh-cn.ts` - 中文翻译
 - `en-us.ts` - 英文翻译
 
@@ -42,6 +43,7 @@ node convert-locales.mjs
 ### 3. i18n Ally 配置
 
 i18n Ally 插件已配置为读取 `langs-json/` 目录下的 JSON 文件，这样可以在编辑器中：
+
 - 实时查看翻译内容
 - 鼠标悬停显示所有语言的翻译
 - 自动补全翻译键
@@ -74,11 +76,12 @@ const message = $t('page.login.common.loginSuccess');
 ## 为什么需要 JSON 文件？
 
 i18n Ally 插件对 JSON 格式的支持最好，而项目使用 TypeScript 格式是为了：
+
 - 类型安全
 - 更好的代码提示
 - 统一的代码风格
 
 因此我们维护两份格式：
+
 - TypeScript 作为源文件（手动编辑）
 - JSON 作为辅助文件（自动生成，供 i18n Ally 使用）
-

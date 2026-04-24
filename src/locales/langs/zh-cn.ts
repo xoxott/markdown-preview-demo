@@ -68,12 +68,12 @@ const local: App.I18n.Schema = {
     grayscale: '灰色模式',
     colourWeakness: '色弱模式',
     layoutMode: {
-      title: '布局模式',
-      vertical: '左侧菜单模式',
+      'title': '布局模式',
+      'vertical': '左侧菜单模式',
       'vertical-mix': '左侧菜单混合模式',
-      horizontal: '顶部菜单模式',
+      'horizontal': '顶部菜单模式',
       'horizontal-mix': '顶部菜单混合模式',
-      reverseHorizontalMix: '一级菜单与子级菜单位置反转'
+      'reverseHorizontalMix': '一级菜单与子级菜单位置反转'
     },
     recommendColor: '应用推荐算法的颜色',
     recommendColorDesc: '推荐颜色的算法参照',
@@ -94,14 +94,14 @@ const local: App.I18n.Schema = {
     page: {
       animate: '页面切换动画',
       mode: {
-        title: '页面切换动画类型',
+        'title': '页面切换动画类型',
         'fade-slide': '滑动',
-        fade: '淡入淡出',
+        'fade': '淡入淡出',
         'fade-bottom': '底部消退',
         'fade-scale': '缩放消退',
         'zoom-fade': '渐变',
         'zoom-out': '闪现',
-        none: '无'
+        'none': '无'
       }
     },
     fixedHeaderAndTab: '固定头部和标签栏',
@@ -158,21 +158,21 @@ const local: App.I18n.Schema = {
     }
   },
   route: {
-    login: '登录',
+    'login': '登录',
     403: '无权限',
     404: '页面不存在',
     500: '服务器错误',
     'iframe-page': '外链页面',
-    home: '首页',
-    chat: '会话',
-    markdownedit: 'markdown编辑',
-    upload: '上传',
+    'home': '首页',
+    'chat': '会话',
+    'markdownedit': 'markdown编辑',
+    'upload': '上传',
     'upload-v2-demo': '上传v2演示',
-    utils: '工具',
-    component: '组件示例',
-    mobile: '移动端',
+    'utils': '工具',
+    'component': '组件示例',
+    'mobile': '移动端',
     'file-manager': '文件管理器',
-    monitoring: '仪表盘',
+    'monitoring': '仪表盘',
     'user-management': '用户管理',
     'role-management': '角色管理',
     'permission-management': '权限管理',

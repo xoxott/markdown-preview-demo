@@ -90,7 +90,7 @@ export const THEME_COLORS = {
   /** 粉色 */
   pink: '#eb2f96',
   /** 金色 */
-  gold: '#faad14',
+  gold: '#faad14'
 } as const;
 
 /**
@@ -102,7 +102,7 @@ export const SPEED_PRESETS = {
   /** 标准 - 2秒/圈 */
   normal: 2,
   /** 慢速 - 4秒/圈 */
-  slow: 4,
+  slow: 4
 } as const;
 
 /**
@@ -116,6 +116,5 @@ export const SIZE_PRESETS = {
   /** 大 - 80px */
   large: 80,
   /** 超大 - 120px */
-  xlarge: 120,
+  xlarge: 120
 } as const;
-

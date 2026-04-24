@@ -16,10 +16,7 @@ import { DEFAULT_FLOW_CONFIG } from '../config/default-config';
  * @param source 源配置
  * @returns 合并后的配置
  */
-export function mergeConfig(
-  target: FlowConfig,
-  source?: PartialFlowConfig
-): FlowConfig {
+export function mergeConfig(target: FlowConfig, source?: PartialFlowConfig): FlowConfig {
   if (!source) {
     return { ...target };
   }
@@ -61,9 +58,7 @@ export function mergeConfig(
  * @param partialConfig 部分配置
  * @returns 完整配置
  */
-export function normalizeConfig(
-  partialConfig?: PartialFlowConfig
-): FlowConfig {
+export function normalizeConfig(partialConfig?: PartialFlowConfig): FlowConfig {
   return mergeConfig(DEFAULT_FLOW_CONFIG, partialConfig);
 }
 
@@ -131,8 +126,7 @@ export function isValidConfig(config: any): config is FlowConfig {
     const edges = config.edges;
     if (
       edges.defaultStrokeWidth !== undefined &&
-      (typeof edges.defaultStrokeWidth !== 'number' ||
-        edges.defaultStrokeWidth <= 0)
+      (typeof edges.defaultStrokeWidth !== 'number' || edges.defaultStrokeWidth <= 0)
     ) {
       return false;
     }
@@ -150,10 +144,7 @@ export function isValidConfig(config: any): config is FlowConfig {
  * @param path 配置路径（用点分隔）
  * @returns 配置值
  */
-export function getConfigValue(
-  config: FlowConfig,
-  path: string
-): any {
+export function getConfigValue(config: FlowConfig, path: string): any {
   const keys = path.split('.');
   let value: any = config;
 
@@ -177,11 +168,7 @@ export function getConfigValue(
  * @param path 配置路径（用点分隔）
  * @param value 要设置的值
  */
-export function setConfigValue(
-  config: FlowConfig,
-  path: string,
-  value: any
-): void {
+export function setConfigValue(config: FlowConfig, path: string, value: any): void {
   const keys = path.split('.');
   const lastKey = keys.pop()!;
   let target: any = config;
@@ -195,4 +182,3 @@ export function setConfigValue(
 
   target[lastKey] = value;
 }
-

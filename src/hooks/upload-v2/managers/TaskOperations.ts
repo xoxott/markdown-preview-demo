@@ -11,7 +11,12 @@ import { TaskStateManager } from './TaskStateManager';
 import { QueueManager } from './QueueManager';
 import { ProgressManager } from './ProgressManager';
 import { ChunkCalculator } from '../calculators/ChunkCalculator';
-import { resetTaskForRetry, filterTasksByStatus, updateTasksStatus, getAllTasks } from '../utils/task-helpers';
+import {
+  resetTaskForRetry,
+  filterTasksByStatus,
+  updateTasksStatus,
+  getAllTasks
+} from '../utils/task-helpers';
 import { existsInArray } from '../utils/array-helpers';
 import { resetChunkForRetry } from '../utils/chunk-helpers';
 import type { ChunkInfo } from '../types';
@@ -79,9 +84,8 @@ export class TaskOperations {
     task.status = UploadStatus.PENDING;
     task.pausedTime = 0;
 
-    this.taskStateManager.completedUploads.value = this.taskStateManager.completedUploads.value.filter(
-      t => t.id !== taskId
-    );
+    this.taskStateManager.completedUploads.value =
+      this.taskStateManager.completedUploads.value.filter(t => t.id !== taskId);
 
     if (
       !this.taskStateManager.uploadQueue.value.some(t => t.id === taskId) &&
@@ -103,7 +107,7 @@ export class TaskOperations {
   pauseAll(): void {
     // 先设置 isPaused 状态
     this.uploadController.isPaused.value = true;
-    
+
     const allTasks = getAllTasks(
       this.taskStateManager.uploadQueue.value,
       this.taskStateManager.activeUploads.value,
@@ -148,9 +152,10 @@ export class TaskOperations {
     allPausedTasks.forEach(task => this.uploadController.resume(task.id));
 
     // 从已完成列表中移除
-    this.taskStateManager.completedUploads.value = this.taskStateManager.completedUploads.value.filter(
-      t => !allPausedTasks.some(pt => pt.id === t.id)
-    );
+    this.taskStateManager.completedUploads.value =
+      this.taskStateManager.completedUploads.value.filter(
+        t => !allPausedTasks.some(pt => pt.id === t.id)
+      );
 
     // 添加到队列
     allPausedTasks.forEach(task => {
@@ -245,9 +250,8 @@ export class TaskOperations {
       this.taskStateManager.uploadQueue.value.push(task);
     });
 
-    this.taskStateManager.completedUploads.value = this.taskStateManager.completedUploads.value.filter(
-      t => t.status !== UploadStatus.PENDING
-    );
+    this.taskStateManager.completedUploads.value =
+      this.taskStateManager.completedUploads.value.filter(t => t.status !== UploadStatus.PENDING);
 
     this.queueManager.sort(this.taskStateManager.uploadQueue.value);
 
@@ -279,4 +283,3 @@ export class TaskOperations {
     task.options.priority = 'high';
   }
 }
-

@@ -1,7 +1,11 @@
 import { defineComponent, type PropType } from 'vue';
 import { NCard, NDataTable, NSpace, NTag } from 'naive-ui';
 import type { FileListRow } from '../types';
-import { createFileListColumns, type FileListColumnHandlers, type FileListColumnUtils } from './FileListColumns';
+import {
+  createFileListColumns,
+  type FileListColumnHandlers,
+  type FileListColumnUtils
+} from './FileListColumns';
 
 interface Props {
   allFiles: FileListRow[];
@@ -59,7 +63,7 @@ export default defineComponent({
               </NTag>
             </NSpace>
           ),
-          default: () => (
+          'default': () => (
             <NDataTable
               columns={columns}
               data={props.allFiles}
@@ -74,4 +78,3 @@ export default defineComponent({
     );
   }
 });
-

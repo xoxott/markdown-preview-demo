@@ -86,17 +86,8 @@ onMounted(async () => {
 
 ```vue
 <template>
-  <button
-    @click="handleSubmit"
-    :disabled="submitting"
-    class="submit-btn"
-  >
-    <ClockLoading
-      v-if="submitting"
-      :size="20"
-      :show-text="false"
-      color="white"
-    />
+  <button @click="handleSubmit" :disabled="submitting" class="submit-btn">
+    <ClockLoading v-if="submitting" :size="20" :show-text="false" color="white" />
     <span v-else>提交</span>
   </button>
 </template>
@@ -176,11 +167,7 @@ const handleSubmit = async () => {
 
 ```vue
 <script setup lang="ts">
-import ClockLoading, {
-  THEME_COLORS,
-  SPEED_PRESETS,
-  SIZE_PRESETS
-} from '@/components/clockLoading';
+import ClockLoading, { THEME_COLORS, SPEED_PRESETS, SIZE_PRESETS } from '@/components/clockLoading';
 
 // 使用预设颜色
 const color = THEME_COLORS.green;
@@ -193,11 +180,7 @@ const size = SIZE_PRESETS.large;
 </script>
 
 <template>
-  <ClockLoading
-    :color="color"
-    :speed="speed"
-    :size="size"
-  />
+  <ClockLoading :color="color" :speed="speed" :size="size" />
 </template>
 ```
 
@@ -214,10 +197,7 @@ const size = SIZE_PRESETS.large;
       <option value="red">红色</option>
     </select>
 
-    <ClockLoading
-      :color="THEME_COLORS[selectedTheme]"
-      :size="80"
-    />
+    <ClockLoading :color="THEME_COLORS[selectedTheme]" :size="80" />
   </div>
 </template>
 
@@ -233,10 +213,7 @@ const selectedTheme = ref<keyof typeof THEME_COLORS>('blue');
 
 ```vue
 <template>
-  <ClockLoading
-    :size="isMobile ? 50 : 100"
-    :text="isMobile ? '加载' : '正在加载中'"
-  />
+  <ClockLoading :size="isMobile ? 50 : 100" :text="isMobile ? '加载' : '正在加载中'" />
 </template>
 
 <script setup lang="ts">
@@ -274,7 +251,7 @@ onUnmounted(() => {
     :container-style="{
       padding: '30px',
       borderRadius: '16px',
-      boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
     }"
   />
 </template>
@@ -296,7 +273,7 @@ const config: ClockLoadingProps = {
   text: '加载中',
   color: THEME_COLORS.blue,
   speed: SPEED_PRESETS.normal,
-  showText: true,
+  showText: true
 };
 
 // 在组件中使用
@@ -327,12 +304,7 @@ const loadingProps = ref<ClockLoadingProps>(config);
 <ClockLoading color="#1890ff" text="信息" />
 
 <!-- 深色主题 -->
-<ClockLoading
-  color="#64ffda"
-  clock-bg="#1e1e1e"
-  clock-border="#333"
-  text="深色"
-/>
+<ClockLoading color="#64ffda" clock-bg="#1e1e1e" clock-border="#333" text="深色" />
 ```
 
 ## 🔗 相关链接
@@ -340,4 +312,3 @@ const loadingProps = ref<ClockLoadingProps>(config);
 - [完整文档](./README.md)
 - [类型定义](./types.ts)
 - [示例页面](../../views/component/index.tsx)
-

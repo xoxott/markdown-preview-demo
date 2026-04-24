@@ -56,7 +56,12 @@ function handleClose() {
 </script>
 
 <template>
-  <component :is="activeTabComponent.component" :class="activeTabComponent.class" :style="cssVars" v-bind="bindProps">
+  <component
+    :is="activeTabComponent.component"
+    :class="activeTabComponent.class"
+    :style="cssVars"
+    v-bind="bindProps"
+  >
     <template #prefix>
       <slot name="prefix"></slot>
     </template>

@@ -1,14 +1,5 @@
 import { defineComponent, ref, onMounted, onBeforeUnmount, computed, watch } from 'vue';
-import {
-  NCard,
-  NGrid,
-  NGi,
-  NAlert,
-  NSpin,
-  NSpace,
-  NButton,
-  NProgress
-} from 'naive-ui';
+import { NCard, NGrid, NGi, NAlert, NSpin, NSpace, NButton, NProgress } from 'naive-ui';
 import { useMonitoringSSE } from '@/hooks/monitoring/useMonitoringSSE';
 import {
   MemoryUsageCard,
@@ -16,7 +7,12 @@ import {
   HealthCheckDrawer,
   SystemMonitoringDrawer
 } from '@/components/monitoring';
-import { formatUptime, formatTimestamp, getMemoryUsageColor, getCpuUsageColor } from '@/utils/monitoring';
+import {
+  formatUptime,
+  formatTimestamp,
+  getMemoryUsageColor,
+  getCpuUsageColor
+} from '@/utils/monitoring';
 
 export default defineComponent({
   name: 'MonitoringDashboard',
@@ -63,12 +59,16 @@ export default defineComponent({
     });
 
     // Update loading state based on SSE status
-    watch([isConnecting, isReconnecting], ([connecting, reconnecting]) => {
-      loading.value = connecting || reconnecting;
-    }, { immediate: true });
+    watch(
+      [isConnecting, isReconnecting],
+      ([connecting, reconnecting]) => {
+        loading.value = connecting || reconnecting;
+      },
+      { immediate: true }
+    );
 
     // Update error state
-    watch(sseError, (err) => {
+    watch(sseError, err => {
       if (err) {
         error.value = err.message;
       } else {
@@ -77,7 +77,7 @@ export default defineComponent({
     });
 
     // Subscribe to health events
-    onHealth((data) => {
+    onHealth(data => {
       const newStatus = data?.status === 'ok' ? 'ok' : 'error';
       if (healthStatus.value !== newStatus) {
         healthStatus.value = newStatus;
@@ -86,7 +86,7 @@ export default defineComponent({
     });
 
     // Subscribe to liveness events
-    onLiveness((data) => {
+    onLiveness(data => {
       const newStatus = data?.status === 'ok' ? 'ok' : 'error';
       if (livenessStatus.value !== newStatus) {
         livenessStatus.value = newStatus;
@@ -95,7 +95,7 @@ export default defineComponent({
     });
 
     // Subscribe to readiness events
-    onReadiness((data) => {
+    onReadiness(data => {
       const newStatus = data?.status === 'ok' ? 'ok' : 'error';
       if (readinessStatus.value !== newStatus) {
         readinessStatus.value = newStatus;
@@ -104,7 +104,7 @@ export default defineComponent({
     });
 
     // Subscribe to metrics events
-    onMetrics((data) => {
+    onMetrics(data => {
       if (data) {
         metricsSummary.value = data;
         lastUpdateTime.value = new Date();
@@ -112,7 +112,7 @@ export default defineComponent({
     });
 
     // Subscribe to system events
-    onSystem((data) => {
+    onSystem(data => {
       if (data) {
         systemInfo.value = data;
         lastUpdateTime.value = new Date();
@@ -120,20 +120,27 @@ export default defineComponent({
     });
 
     // Subscribe to performance events
-    onPerformance((data) => {
+    onPerformance(data => {
       if (data) {
         performanceMetrics.value = data;
         lastUpdateTime.value = new Date();
       }
     });
 
-
     // Computed values
     const overallHealth = computed(() => {
-      if (healthStatus.value === 'loading' || livenessStatus.value === 'loading' || readinessStatus.value === 'loading') {
+      if (
+        healthStatus.value === 'loading' ||
+        livenessStatus.value === 'loading' ||
+        readinessStatus.value === 'loading'
+      ) {
         return 'loading';
       }
-      if (healthStatus.value === 'ok' && livenessStatus.value === 'ok' && readinessStatus.value === 'ok') {
+      if (
+        healthStatus.value === 'ok' &&
+        livenessStatus.value === 'ok' &&
+        readinessStatus.value === 'ok'
+      ) {
         return 'ok';
       }
       return 'error';
@@ -157,7 +164,10 @@ export default defineComponent({
       if (systemInfo.value?.memory) {
         return parseFloat(systemInfo.value.memory.usagePercent || '0');
       }
-      if (metricsSummary.value?.memory?.heapTotal && metricsSummary.value.memory.heapUsed !== undefined) {
+      if (
+        metricsSummary.value?.memory?.heapTotal &&
+        metricsSummary.value.memory.heapUsed !== undefined
+      ) {
         return (metricsSummary.value.memory.heapUsed / metricsSummary.value.memory.heapTotal) * 100;
       }
       return 0;
@@ -177,7 +187,15 @@ export default defineComponent({
       <NSpace vertical size={16}>
         {/* Header - 标准后台管理系统风格 */}
         <NCard>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '16px'
+            }}
+          >
             <div>
               <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 600 }}>系统监控仪表盘</h2>
               <div style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>
@@ -187,14 +205,18 @@ export default defineComponent({
             <NSpace>
               <NButton
                 type="info"
-                onClick={() => { healthDrawerVisible.value = true; }}
+                onClick={() => {
+                  healthDrawerVisible.value = true;
+                }}
                 style={{ fontWeight: 500 }}
               >
                 健康检查详情
               </NButton>
               <NButton
                 type="primary"
-                onClick={() => { systemDrawerVisible.value = true; }}
+                onClick={() => {
+                  systemDrawerVisible.value = true;
+                }}
                 style={{ fontWeight: 500 }}
               >
                 系统监控详情
@@ -210,7 +232,14 @@ export default defineComponent({
 
         {/* Error alert */}
         {error.value && (
-          <NAlert type="error" title="错误" closable onClose={() => { error.value = null; }}>
+          <NAlert
+            type="error"
+            title="错误"
+            closable
+            onClose={() => {
+              error.value = null;
+            }}
+          >
             {error.value}
           </NAlert>
         )}
@@ -225,13 +254,31 @@ export default defineComponent({
                 <NSpin show={overallHealth.value === 'loading'}>
                   {overallHealth.value === 'ok' ? (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#18a058' }} />
-                      <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#18a058' }}>正常</span>
+                      <div
+                        style={{
+                          width: '8px',
+                          height: '8px',
+                          borderRadius: '50%',
+                          backgroundColor: '#18a058'
+                        }}
+                      />
+                      <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#18a058' }}>
+                        正常
+                      </span>
                     </div>
                   ) : overallHealth.value === 'error' ? (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#d03050' }} />
-                      <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#d03050' }}>异常</span>
+                      <div
+                        style={{
+                          width: '8px',
+                          height: '8px',
+                          borderRadius: '50%',
+                          backgroundColor: '#d03050'
+                        }}
+                      />
+                      <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#d03050' }}>
+                        异常
+                      </span>
                     </div>
                   ) : (
                     <span style={{ fontSize: '18px', color: '#666' }}>检查中...</span>
@@ -246,7 +293,13 @@ export default defineComponent({
             <NCard>
               <NSpace vertical size={8}>
                 <div style={{ fontSize: '14px', color: '#666' }}>CPU 使用率</div>
-                <div style={{ fontSize: '24px', fontWeight: 'bold', color: getCpuUsageColor(cpuUsagePercent.value) }}>
+                <div
+                  style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: getCpuUsageColor(cpuUsagePercent.value)
+                  }}
+                >
                   {cpuUsagePercent.value.toFixed(2)}%
                 </div>
                 <NProgress
@@ -265,7 +318,13 @@ export default defineComponent({
             <NCard>
               <NSpace vertical size={8}>
                 <div style={{ fontSize: '14px', color: '#666' }}>内存使用率</div>
-                <div style={{ fontSize: '24px', fontWeight: 'bold', color: getMemoryUsageColor(memoryUsagePercent.value) }}>
+                <div
+                  style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: getMemoryUsageColor(memoryUsagePercent.value)
+                  }}
+                >
                   {memoryUsagePercent.value.toFixed(2)}%
                 </div>
                 <NProgress
@@ -310,12 +369,26 @@ export default defineComponent({
                   <NSpin show={healthStatus.value === 'loading'}>
                     {healthStatus.value === 'ok' ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#18a058' }} />
+                        <div
+                          style={{
+                            width: '8px',
+                            height: '8px',
+                            borderRadius: '50%',
+                            backgroundColor: '#18a058'
+                          }}
+                        />
                         <span style={{ color: '#18a058', fontWeight: 500 }}>正常</span>
                       </div>
                     ) : healthStatus.value === 'error' ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#d03050' }} />
+                        <div
+                          style={{
+                            width: '8px',
+                            height: '8px',
+                            borderRadius: '50%',
+                            backgroundColor: '#d03050'
+                          }}
+                        />
                         <span style={{ color: '#d03050', fontWeight: 500 }}>异常</span>
                       </div>
                     ) : (
@@ -332,12 +405,26 @@ export default defineComponent({
                   <NSpin show={livenessStatus.value === 'loading'}>
                     {livenessStatus.value === 'ok' ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#18a058' }} />
+                        <div
+                          style={{
+                            width: '8px',
+                            height: '8px',
+                            borderRadius: '50%',
+                            backgroundColor: '#18a058'
+                          }}
+                        />
                         <span style={{ color: '#18a058', fontWeight: 500 }}>正常</span>
                       </div>
                     ) : livenessStatus.value === 'error' ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#d03050' }} />
+                        <div
+                          style={{
+                            width: '8px',
+                            height: '8px',
+                            borderRadius: '50%',
+                            backgroundColor: '#d03050'
+                          }}
+                        />
                         <span style={{ color: '#d03050', fontWeight: 500 }}>异常</span>
                       </div>
                     ) : (
@@ -354,12 +441,26 @@ export default defineComponent({
                   <NSpin show={readinessStatus.value === 'loading'}>
                     {readinessStatus.value === 'ok' ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#18a058' }} />
+                        <div
+                          style={{
+                            width: '8px',
+                            height: '8px',
+                            borderRadius: '50%',
+                            backgroundColor: '#18a058'
+                          }}
+                        />
                         <span style={{ color: '#18a058', fontWeight: 500 }}>正常</span>
                       </div>
                     ) : readinessStatus.value === 'error' ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#d03050' }} />
+                        <div
+                          style={{
+                            width: '8px',
+                            height: '8px',
+                            borderRadius: '50%',
+                            backgroundColor: '#d03050'
+                          }}
+                        />
                         <span style={{ color: '#d03050', fontWeight: 500 }}>异常</span>
                       </div>
                     ) : (
@@ -396,15 +497,18 @@ export default defineComponent({
           </NGrid>
         )}
 
-
         {/* Drawers */}
         <HealthCheckDrawer
           show={healthDrawerVisible.value}
-          onClose={() => { healthDrawerVisible.value = false; }}
+          onClose={() => {
+            healthDrawerVisible.value = false;
+          }}
         />
         <SystemMonitoringDrawer
           show={systemDrawerVisible.value}
-          onClose={() => { systemDrawerVisible.value = false; }}
+          onClose={() => {
+            systemDrawerVisible.value = false;
+          }}
         />
       </NSpace>
     );

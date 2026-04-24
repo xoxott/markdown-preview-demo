@@ -75,11 +75,12 @@ export function setCssVariables(
  * @param element 元素（默认为 document.documentElement）
  * @returns 当前主题（'light' | 'dark' | 'auto'）
  */
-export function getCurrentTheme(element: HTMLElement = document.documentElement): 'light' | 'dark' | 'auto' {
+export function getCurrentTheme(
+  element: HTMLElement = document.documentElement
+): 'light' | 'dark' | 'auto' {
   const theme = element.getAttribute('data-flow-theme');
   if (theme && ['light', 'dark', 'auto'].includes(theme)) {
     return theme as 'light' | 'dark' | 'auto';
   }
   return 'light';
 }
-

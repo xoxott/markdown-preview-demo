@@ -22,7 +22,11 @@ export interface ChunkInfo {
 
 /** 分块上传请求参数转换器 */
 export interface ChunkUploadTransformer {
-  (params: { task: FileTask; chunk: ChunkInfo; customParams?: Record<string, any> }): FormData | Record<string, any>;
+  (params: {
+    task: FileTask;
+    chunk: ChunkInfo;
+    customParams?: Record<string, any>;
+  }): FormData | Record<string, any>;
 }
 
 /** 上传响应接口 */
@@ -33,4 +37,3 @@ export interface ChunkUploadResponse {
   uploadId?: string;
   error?: string;
 }
-

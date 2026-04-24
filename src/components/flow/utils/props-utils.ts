@@ -18,10 +18,7 @@ import { computed, type ComputedRef } from 'vue';
  * const viewportRef = usePropRef(props.viewport, { x: 0, y: 0, zoom: 1 });
  * ```
  */
-export function usePropRef<T>(
-  prop: T | undefined,
-  defaultValue?: T
-): ComputedRef<T> {
+export function usePropRef<T>(prop: T | undefined, defaultValue?: T): ComputedRef<T> {
   return computed(() => prop ?? defaultValue!);
 }
 
@@ -66,4 +63,3 @@ export function usePropObjectRef<T extends Record<string, any>>(
 ): ComputedRef<T> {
   return computed(() => prop ?? defaultValue);
 }
-

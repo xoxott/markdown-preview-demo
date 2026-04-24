@@ -6,14 +6,14 @@ import type {
   CircuitBreakerOptions,
   CircuitBreakerMetrics,
   ErrorClassificationStrategy,
-  SuccessEvaluationStrategy,
+  SuccessEvaluationStrategy
 } from '../types';
 import { CircuitBreakerState } from '../types';
 import { DEFAULT_CIRCUIT_BREAKER_CONFIG } from '../constants';
 import {
   DefaultStateTransitionStrategy,
   DefaultErrorClassificationStrategy,
-  DefaultSuccessEvaluationStrategy,
+  DefaultSuccessEvaluationStrategy
 } from '../strategies';
 import { Metrics } from './Metrics';
 import { StateController } from './StateController';
@@ -38,7 +38,7 @@ export class CircuitBreaker<T = unknown> {
       options.stateTransitionStrategy ?? new DefaultStateTransitionStrategy(),
       options.failureThreshold ?? DEFAULT_CIRCUIT_BREAKER_CONFIG.DEFAULT_FAILURE_THRESHOLD,
       options.timeout ?? DEFAULT_CIRCUIT_BREAKER_CONFIG.DEFAULT_TIMEOUT,
-      options.successThreshold ?? DEFAULT_CIRCUIT_BREAKER_CONFIG.DEFAULT_SUCCESS_THRESHOLD,
+      options.successThreshold ?? DEFAULT_CIRCUIT_BREAKER_CONFIG.DEFAULT_SUCCESS_THRESHOLD
     );
     this.executionGuard = new ExecutionGuard(this.metrics, options.fallback);
     this.errorClassificationStrategy =
@@ -130,4 +130,3 @@ export class CircuitBreaker<T = unknown> {
     return this.stateController.advanceState(Date.now());
   }
 }
-

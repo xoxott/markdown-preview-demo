@@ -26,8 +26,8 @@ describe('markdownItTaskLists', () => {
 
       // 查找 list_item_open token
       const listItemToken = tokens.find(
-        token => token.type === 'list_item_open' &&
-        token.attrs?.some(([name]) => name === 'data-checked')
+        token =>
+          token.type === 'list_item_open' && token.attrs?.some(([name]) => name === 'data-checked')
       );
 
       expect(listItemToken).toBeDefined();
@@ -42,8 +42,8 @@ describe('markdownItTaskLists', () => {
       const tokens = md.parse(content, {});
 
       const listItemToken = tokens.find(
-        token => token.type === 'list_item_open' &&
-        token.attrs?.some(([name]) => name === 'data-checked')
+        token =>
+          token.type === 'list_item_open' && token.attrs?.some(([name]) => name === 'data-checked')
       );
 
       expect(listItemToken).toBeDefined();
@@ -58,8 +58,8 @@ describe('markdownItTaskLists', () => {
       const tokens = md.parse(content, {});
 
       const listItemToken = tokens.find(
-        token => token.type === 'list_item_open' &&
-        token.attrs?.some(([name]) => name === 'data-checked')
+        token =>
+          token.type === 'list_item_open' && token.attrs?.some(([name]) => name === 'data-checked')
       );
 
       expect(listItemToken).toBeDefined();
@@ -89,8 +89,7 @@ describe('markdownItTaskLists', () => {
       const tokens = md.parse(content, {});
 
       const listItemToken = tokens.find(
-        token => token.type === 'list_item_open' &&
-        token.attrs?.some(([name]) => name === 'class')
+        token => token.type === 'list_item_open' && token.attrs?.some(([name]) => name === 'class')
       );
 
       expect(listItemToken).toBeDefined();
@@ -105,8 +104,9 @@ describe('markdownItTaskLists', () => {
       const tokens = md.parse(content, {});
 
       const listToken = tokens.find(
-        token => (token.type === 'bullet_list_open' || token.type === 'ordered_list_open') &&
-        token.attrs?.some(([name]) => name === 'class')
+        token =>
+          (token.type === 'bullet_list_open' || token.type === 'ordered_list_open') &&
+          token.attrs?.some(([name]) => name === 'class')
       );
 
       expect(listToken).toBeDefined();
@@ -169,8 +169,8 @@ describe('markdownItTaskLists', () => {
 
       // 查找所有任务列表项
       const taskItems = tokens.filter(
-        token => token.type === 'list_item_open' &&
-        token.attrs?.some(([name]) => name === 'data-checked')
+        token =>
+          token.type === 'list_item_open' && token.attrs?.some(([name]) => name === 'data-checked')
       );
 
       expect(taskItems.length).toBeGreaterThanOrEqual(3);
@@ -216,8 +216,8 @@ describe('markdownItTaskLists', () => {
 
       // 应该只有一个任务列表项
       const taskItems = tokens.filter(
-        token => token.type === 'list_item_open' &&
-        token.attrs?.some(([name]) => name === 'data-checked')
+        token =>
+          token.type === 'list_item_open' && token.attrs?.some(([name]) => name === 'data-checked')
       );
 
       expect(taskItems.length).toBe(1);
@@ -232,8 +232,8 @@ describe('markdownItTaskLists', () => {
       const tokens = md.parse(content, {});
 
       const listItemToken = tokens.find(
-        token => token.type === 'list_item_open' &&
-        token.attrs?.some(([name]) => name === 'data-checked')
+        token =>
+          token.type === 'list_item_open' && token.attrs?.some(([name]) => name === 'data-checked')
       );
 
       expect(listItemToken).toBeDefined();
@@ -246,8 +246,8 @@ describe('markdownItTaskLists', () => {
       const tokens = md.parse(content, {});
 
       const listItemToken = tokens.find(
-        token => token.type === 'list_item_open' &&
-        token.attrs?.some(([name]) => name === 'data-checked')
+        token =>
+          token.type === 'list_item_open' && token.attrs?.some(([name]) => name === 'data-checked')
       );
 
       expect(listItemToken).toBeDefined();
@@ -260,12 +260,11 @@ describe('markdownItTaskLists', () => {
       const tokens = md.parse(content, {});
 
       const taskItems = tokens.filter(
-        token => token.type === 'list_item_open' &&
-        token.attrs?.some(([name]) => name === 'data-checked')
+        token =>
+          token.type === 'list_item_open' && token.attrs?.some(([name]) => name === 'data-checked')
       );
 
       expect(taskItems.length).toBe(0);
     });
   });
 });
-

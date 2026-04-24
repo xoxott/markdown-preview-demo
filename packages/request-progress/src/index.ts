@@ -11,4 +11,3 @@ export { calculateProgress, formatFileSize, formatSpeed } from './utils';
 
 // 导出类型
 export type * from './types';
-

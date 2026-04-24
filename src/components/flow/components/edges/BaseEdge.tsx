@@ -16,9 +16,7 @@ import {
   MARKER_SUFFIXES,
   STROKE_WIDTHS
 } from '../../constants/edge-constants';
-import {
-  calculateStrokeWidth
-} from '../../utils/edge-style-utils';
+import { calculateStrokeWidth } from '../../utils/edge-style-utils';
 
 /**
  * BaseEdge 组件属性
@@ -50,10 +48,10 @@ export interface BaseEdgeProps {
   instanceId?: string;
   /** 自定义样式 */
   style?: Record<string, any>;
-    /** CSS 类名 */
-    class?: string;
-    /** 自定义箭头标记 ID（覆盖默认的标记 ID） */
-    markerEnd?: string;
+  /** CSS 类名 */
+  class?: string;
+  /** 自定义箭头标记 ID（覆盖默认的标记 ID） */
+  markerEnd?: string;
 }
 
 /**
@@ -133,7 +131,6 @@ export default defineComponent({
   },
   emits: ['click', 'double-click', 'mouseenter', 'mouseleave', 'contextmenu'],
   setup(props, { emit, slots }) {
-
     const arrowIdPrefix = computed(() => `${ID_PREFIXES.ARROW}${props.instanceId}`);
 
     // 计算实际起点和终点（如果有端口位置，使用端口位置）
@@ -274,46 +271,47 @@ export default defineComponent({
 
     return () => {
       return (
-        <g
-          class={edgeClass.value}
-          data-edge-id={props.edge.id}
-          style={containerStyle.value}
-        >
-        {/* 连接线路径（使用共享的箭头标记） */}
-        <path
-          d={pathData.value}
-          style={edgeStyle.value}
-          marker-end={showArrow.value && markerEndId.value ? (markerEndId.value.startsWith('url(') ? markerEndId.value : `url(#${markerEndId.value})`) : undefined}
-          onClick={handleClick}
-          onDblclick={handleDoubleClick}
-          onMouseenter={handleMouseEnter}
-          onMouseleave={handleMouseLeave}
-          onContextmenu={handleContextMenu}
-        />
+        <g class={edgeClass.value} data-edge-id={props.edge.id} style={containerStyle.value}>
+          {/* 连接线路径（使用共享的箭头标记） */}
+          <path
+            d={pathData.value}
+            style={edgeStyle.value}
+            marker-end={
+              showArrow.value && markerEndId.value
+                ? markerEndId.value.startsWith('url(')
+                  ? markerEndId.value
+                  : `url(#${markerEndId.value})`
+                : undefined
+            }
+            onClick={handleClick}
+            onDblclick={handleDoubleClick}
+            onMouseenter={handleMouseEnter}
+            onMouseleave={handleMouseLeave}
+            onContextmenu={handleContextMenu}
+          />
 
-        {/* 连接线标签 */}
-        {props.edge.label && (
-          <text
-            x={(startX.value + endX.value) / 2}
-            y={(startY.value + endY.value) / 2}
-            text-anchor={LABEL_STYLES.TEXT_ANCHOR}
-            dominant-baseline={LABEL_STYLES.DOMINANT_BASELINE}
-            style={{
-              fontSize: LABEL_STYLES.FONT_SIZE,
-              fill: EDGE_COLORS.LABEL,
-              pointerEvents: 'none',
-              ...props.edge.labelStyle
-            }}
-          >
-            {props.edge.label}
-          </text>
-        )}
+          {/* 连接线标签 */}
+          {props.edge.label && (
+            <text
+              x={(startX.value + endX.value) / 2}
+              y={(startY.value + endY.value) / 2}
+              text-anchor={LABEL_STYLES.TEXT_ANCHOR}
+              dominant-baseline={LABEL_STYLES.DOMINANT_BASELINE}
+              style={{
+                fontSize: LABEL_STYLES.FONT_SIZE,
+                fill: EDGE_COLORS.LABEL,
+                pointerEvents: 'none',
+                ...props.edge.labelStyle
+              }}
+            >
+              {props.edge.label}
+            </text>
+          )}
 
-        {/* 自定义内容插槽 */}
-        {slots.default && slots.default()}
+          {/* 自定义内容插槽 */}
+          {slots.default && slots.default()}
         </g>
       );
     };
   }
 });
-

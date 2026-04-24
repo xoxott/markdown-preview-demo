@@ -102,7 +102,8 @@ export default defineComponent({
         </NH3>
 
         <NText class="text-gray-500 mb-4 block">
-          这是一个模拟 AI 对话流式响应时的笔写动画效果组件。笔图标会在文字输出时出现，并带有书写动画，让交互更加生动。
+          这是一个模拟 AI
+          对话流式响应时的笔写动画效果组件。笔图标会在文字输出时出现，并带有书写动画，让交互更加生动。
         </NText>
 
         {/* 控制按钮 */}
@@ -113,9 +114,7 @@ export default defineComponent({
           <NButton onClick={handleStop} disabled={!isTyping.value}>
             停止
           </NButton>
-          <NButton onClick={handleReset}>
-            重置
-          </NButton>
+          <NButton onClick={handleReset}>重置</NButton>
         </NSpace>
 
         {/* 演示区域 */}
@@ -124,7 +123,9 @@ export default defineComponent({
           <div class="demo-section">
             <h4 class="text-md font-semibold mb-3 text-gray-700">默认样式 - 笔跟随文字</h4>
             <div class="text-box default" style="position: relative;">
-              <span class="text-content" ref={textRef1}>{displayText.value}</span>
+              <span class="text-content" ref={textRef1}>
+                {displayText.value}
+              </span>
               <StreamingPenEffect
                 isWriting={isTyping.value}
                 penColor="#92400e"
@@ -138,7 +139,9 @@ export default defineComponent({
           <div class="demo-section">
             <h4 class="text-md font-semibold mb-3 text-gray-700">蓝色笔</h4>
             <div class="text-box blue" style="position: relative;">
-              <span class="text-content" ref={textRef2}>{displayText.value}</span>
+              <span class="text-content" ref={textRef2}>
+                {displayText.value}
+              </span>
               <StreamingPenEffect
                 isWriting={isTyping.value}
                 penColor="#1e40af"
@@ -152,7 +155,9 @@ export default defineComponent({
           <div class="demo-section">
             <h4 class="text-md font-semibold mb-3 text-gray-700">大号笔 (28px)</h4>
             <div class="text-box green" style="position: relative;">
-              <span class="text-content" ref={textRef3}>{displayText.value}</span>
+              <span class="text-content" ref={textRef3}>
+                {displayText.value}
+              </span>
               <StreamingPenEffect
                 isWriting={isTyping.value}
                 penColor="#15803d"
@@ -166,7 +171,9 @@ export default defineComponent({
           <div class="demo-section">
             <h4 class="text-md font-semibold mb-3 text-gray-700">紫色笔</h4>
             <div class="text-box purple" style="position: relative;">
-              <span class="text-content" ref={textRef4}>{displayText.value}</span>
+              <span class="text-content" ref={textRef4}>
+                {displayText.value}
+              </span>
               <StreamingPenEffect
                 isWriting={isTyping.value}
                 penColor="#7c3aed"
@@ -181,10 +188,20 @@ export default defineComponent({
         <div class="mt-6 p-4 bg-gray-50 rounded-lg">
           <h4 class="text-sm font-semibold mb-2 text-gray-700">组件 Props:</h4>
           <ul class="text-sm text-gray-600 space-y-1">
-            <li><code class="px-1 py-0.5 bg-gray-200 rounded">isWriting</code>: 是否正在书写（控制显示/隐藏）</li>
-            <li><code class="px-1 py-0.5 bg-gray-200 rounded">penColor</code>: 笔的颜色，默认 #92400e</li>
-            <li><code class="px-1 py-0.5 bg-gray-200 rounded">size</code>: 笔的大小（px），默认 24</li>
-            <li><code class="px-1 py-0.5 bg-gray-200 rounded">targetRef</code>: 文字容器的 ref（必需，用于追踪位置）</li>
+            <li>
+              <code class="px-1 py-0.5 bg-gray-200 rounded">isWriting</code>:
+              是否正在书写（控制显示/隐藏）
+            </li>
+            <li>
+              <code class="px-1 py-0.5 bg-gray-200 rounded">penColor</code>: 笔的颜色，默认 #92400e
+            </li>
+            <li>
+              <code class="px-1 py-0.5 bg-gray-200 rounded">size</code>: 笔的大小（px），默认 24
+            </li>
+            <li>
+              <code class="px-1 py-0.5 bg-gray-200 rounded">targetRef</code>: 文字容器的
+              ref（必需，用于追踪位置）
+            </li>
           </ul>
           <div class="mt-3 text-sm text-gray-600">
             <strong>✨ 新特性：</strong> 现在笔会智能跟随文字末尾移动，使用 Range API 实现精确定位！

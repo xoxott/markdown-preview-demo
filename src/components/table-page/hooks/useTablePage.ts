@@ -55,7 +55,7 @@ export function useTablePage<T = any>(options: UseTablePageOptions<T>) {
       pagination.page = 1;
       getData();
     },
-    prefix: (paginationInfo) => `共 ${paginationInfo.itemCount} 条`
+    prefix: paginationInfo => `共 ${paginationInfo.itemCount} 条`
   });
 
   // Search form
@@ -165,4 +165,3 @@ export function useTablePage<T = any>(options: UseTablePageOptions<T>) {
     total: computed(() => pagination.itemCount || 0)
   };
 }
-

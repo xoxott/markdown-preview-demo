@@ -11,21 +11,25 @@
 **位置**: `src/components/file-explorer/interaction/`
 
 1. **SelectionRect.tsx** (380 行)
+
    - 功能：鼠标框选
    - 特性：自动滚动、阈值控制、节流优化
    - 使用场景：文件/文件夹多选
 
 2. **NSelectionRect.tsx** (593 行)
+
    - 功能：增强版框选（支持更多配置）
    - 特性：更灵活的配置、更好的性能
    - 使用场景：复杂的多选场景
 
 3. **DragPreview.tsx** (241 行)
+
    - 功能：拖拽预览
    - 特性：跟随鼠标、显示数量、操作提示
    - 使用场景：文件拖拽
 
 4. **DropZone.tsx** (358 行)
+
    - 功能：拖放目标区域
    - 特性：高亮反馈、验证、嵌套支持
    - 使用场景：文件夹拖放
@@ -40,6 +44,7 @@
 **位置**: `src/components/ai-workflow/hooks/`
 
 1. **useSelectionBox.ts**
+
    - 功能：节点框选逻辑
    - 特性：画布坐标转换、节点选择
    - 使用场景：工作流节点多选
@@ -66,6 +71,7 @@
 **优先级**: 高
 
 **步骤**:
+
 1. 分析 `file-explorer/SelectionRect.tsx` 和 `NSelectionRect.tsx`
 2. 提取通用功能，保留业务特定逻辑在原组件
 3. 创建 `common-interaction/SelectionRect/`
@@ -74,27 +80,28 @@
 6. 更新文档和示例
 
 **设计要点**:
+
 ```typescript
 // 通用接口
 interface SelectionRectProps<T = any> {
   // 基础配置
   disabled?: boolean;
   threshold?: number;
-  
+
   // 容器配置
   containerSelector: string;
   selectableSelector: string;
-  
+
   // 自动滚动
   autoScroll?: boolean;
   scrollSpeed?: number;
   scrollEdge?: number;
-  
+
   // 回调
   onSelectionStart?: () => void;
   onSelectionChange?: (items: SelectableItem<T>[]) => void;
   onSelectionEnd?: (items: SelectableItem<T>[]) => void;
-  
+
   // 自定义
   itemExtractor?: (element: HTMLElement) => T;
   validator?: (item: SelectableItem<T>) => boolean;
@@ -106,6 +113,7 @@ interface SelectionRectProps<T = any> {
 **优先级**: 中
 
 **步骤**:
+
 1. 分析 `file-explorer/DragPreview.tsx`
 2. 抽象拖拽项类型，支持泛型
 3. 创建 `common-interaction/DragPreview/`
@@ -114,6 +122,7 @@ interface SelectionRectProps<T = any> {
 6. 编写单元测试
 
 **设计要点**:
+
 ```typescript
 interface DragPreviewProps<T = any> {
   // 拖拽数据
@@ -122,12 +131,12 @@ interface DragPreviewProps<T = any> {
   startPos: Point | null;
   currentPos: Point | null;
   operation: DragOperation;
-  
+
   // 显示配置
   maxItems?: number;
   showOperationIcon?: boolean;
   showCountBadge?: boolean;
-  
+
   // 自定义渲染
   itemRenderer?: (item: DragItem<T>) => VNode;
   iconResolver?: (item: DragItem<T>) => string;
@@ -139,6 +148,7 @@ interface DragPreviewProps<T = any> {
 **优先级**: 中
 
 **步骤**:
+
 1. 分析 `file-explorer/DropZone.tsx`
 2. 抽象拖放验证逻辑
 3. 创建 `common-interaction/DropZone/`
@@ -147,21 +157,22 @@ interface DragPreviewProps<T = any> {
 6. 编写单元测试
 
 **设计要点**:
+
 ```typescript
 interface DropZoneProps<T = any> {
   // 拖放配置
   acceptTypes?: string[];
   disabled?: boolean;
-  
+
   // 验证器
   validator?: DropValidator<T>;
-  
+
   // 回调
   onDrop?: (params: DropCallbackParams<T>) => void;
   onDragEnter?: () => void;
   onDragLeave?: () => void;
   onDragOver?: (operation: DragOperation) => void;
-  
+
   // 样式
   activeClass?: string;
   canDropClass?: string;
@@ -174,11 +185,13 @@ interface DropZoneProps<T = any> {
 #### 3.1 迁移 file-explorer
 
 **文件**:
+
 - `src/components/file-explorer/interaction/SelectionRect.tsx`
 - `src/components/file-explorer/interaction/DragPreview.tsx`
 - `src/components/file-explorer/interaction/DropZone.tsx`
 
 **步骤**:
+
 1. 更新导入语句
 2. 调整 props 传递
 3. 保留业务特定逻辑（如文件类型判断）
@@ -186,6 +199,7 @@ interface DropZoneProps<T = any> {
 5. 删除旧组件（可选，保留作为兼容层）
 
 **示例**:
+
 ```typescript
 // 旧代码
 import SelectionRect from './interaction/SelectionRect';
@@ -207,9 +221,11 @@ const { handleSelectionChange } = useFileSelection();
 #### 3.2 迁移 ai-workflow
 
 **文件**:
+
 - `src/components/ai-workflow/hooks/useSelectionBox.ts`
 
 **步骤**:
+
 1. 使用 SelectionRect 组件替代自定义逻辑
 2. 保留画布坐标转换逻辑
 3. 适配节点选择回调
@@ -217,6 +233,7 @@ const { handleSelectionChange } = useFileSelection();
 5. 清理旧代码
 
 **示例**:
+
 ```typescript
 // 旧代码
 const { selectionBox, startSelection } = useSelectionBox();
@@ -249,11 +266,13 @@ import { SelectionRect } from '@/components/common-interaction';
 ### 渐进式迁移
 
 1. **保留旧组件**
+
    - 在迁移期间保留原有组件
    - 添加 `@deprecated` 注释
    - 提供迁移指南
 
 2. **兼容层**
+
    - 创建适配器组件
    - 保持 API 向后兼容
    - 逐步过渡到新 API
@@ -277,7 +296,7 @@ export default defineComponent({
   name: 'SelectionRect',
   setup(props, { slots }) {
     console.warn('[SelectionRect] 此组件已废弃，请迁移到 @/components/common-interaction');
-    
+
     return () => h(CommonSelectionRect, props, slots);
   }
 });
@@ -293,11 +312,11 @@ describe('SelectionRect', () => {
   it('should start selection when mouse moves beyond threshold', () => {
     // ...
   });
-  
+
   it('should select elements within selection rect', () => {
     // ...
   });
-  
+
   it('should auto-scroll when near edge', () => {
     // ...
   });
@@ -324,26 +343,28 @@ describe('Workflow Canvas Selection', () => {
 
 ## 时间估算
 
-| 阶段 | 任务 | 预计时间 |
-|------|------|----------|
-| 阶段 1 | 基础设施 | ✅ 已完成 |
-| 阶段 2.1 | SelectionRect 组件 | 4-6 小时 |
-| 阶段 2.2 | DragPreview 组件 | 3-4 小时 |
-| 阶段 2.3 | DropZone 组件 | 3-4 小时 |
-| 阶段 3.1 | 迁移 file-explorer | 2-3 小时 |
-| 阶段 3.2 | 迁移 ai-workflow | 2-3 小时 |
-| 测试 | 单元测试 + 集成测试 | 4-6 小时 |
-| **总计** | | **18-26 小时** |
+| 阶段     | 任务                | 预计时间       |
+| -------- | ------------------- | -------------- |
+| 阶段 1   | 基础设施            | ✅ 已完成      |
+| 阶段 2.1 | SelectionRect 组件  | 4-6 小时       |
+| 阶段 2.2 | DragPreview 组件    | 3-4 小时       |
+| 阶段 2.3 | DropZone 组件       | 3-4 小时       |
+| 阶段 3.1 | 迁移 file-explorer  | 2-3 小时       |
+| 阶段 3.2 | 迁移 ai-workflow    | 2-3 小时       |
+| 测试     | 单元测试 + 集成测试 | 4-6 小时       |
+| **总计** |                     | **18-26 小时** |
 
 ## 风险和挑战
 
 ### 技术风险
 
 1. **性能回归**
+
    - 风险：抽象层可能影响性能
    - 缓解：性能测试、优化关键路径
 
 2. **API 不兼容**
+
    - 风险：现有代码需要大量修改
    - 缓解：提供兼容层、渐进式迁移
 
@@ -354,6 +375,7 @@ describe('Workflow Canvas Selection', () => {
 ### 业务风险
 
 1. **功能回归**
+
    - 风险：迁移后功能异常
    - 缓解：充分测试、灰度发布
 
@@ -373,18 +395,20 @@ describe('Workflow Canvas Selection', () => {
 ## 下一步行动
 
 1. **立即执行**
+
    - 开始实现 SelectionRect 组件
    - 编写单元测试
 
 2. **短期（1-2 周）**
+
    - 完成 DragPreview 和 DropZone 组件
    - 开始迁移 file-explorer
 
 3. **中期（3-4 周）**
+
    - 完成 ai-workflow 迁移
    - 优化性能和体验
 
 4. **长期（1-2 月）**
    - 添加更多功能
    - 持续优化和维护
-

@@ -7,56 +7,65 @@
 ## ✨ 核心特性
 
 ### 1. 📝 完整的 TypeScript 类型支持
-- 详细的接口定义和类型约束  
-- 完善的泛型支持和类型推导  
-- IDE 智能提示和错误检查  
+
+- 详细的接口定义和类型约束
+- 完善的泛型支持和类型推导
+- IDE 智能提示和错误检查
 
 ### 2. 🔄 Vue3 响应式集成
-- 使用 Vue3 的 `ref`、`reactive`、`computed`  
-- 完美的响应式状态管理  
-- 组合式 API：`useChunkUpload`  
+
+- 使用 Vue3 的 `ref`、`reactive`、`computed`
+- 完美的响应式状态管理
+- 组合式 API：`useChunkUpload`
 
 ### 3. 🎨 Naive UI 原生支持
-- 无缝集成 **Naive UI 上传组件**  
-- 状态转换和格式适配  
-- 完整的组件使用示例  
+
+- 无缝集成 **Naive UI 上传组件**
+- 状态转换和格式适配
+- 完整的组件使用示例
 
 ### 4. ⚡ 增强的功能特性
 
 #### 📊 性能监控
-- 实时上传速度计算  
-- 预计剩余时间  
-- 详细的统计信息  
+
+- 实时上传速度计算
+- 预计剩余时间
+- 详细的统计信息
 
 #### 🔄 断点续传
-- 支持暂停 / 恢复上传  
-- 网络中断自动恢复  
-- 切片级别的状态管理  
+
+- 支持暂停 / 恢复上传
+- 网络中断自动恢复
+- 切片级别的状态管理
 
 #### ⚡ 并发控制优化
-- 信号量机制控制并发  
-- 智能优先级调度  
-- 资源使用优化  
+
+- 信号量机制控制并发
+- 智能优先级调度
+- 资源使用优化
 
 #### 🛡️ 错误处理
-- 指数退避重试策略  
-- 详细的错误信息  
-- 优雅的降级处理  
+
+- 指数退避重试策略
+- 详细的错误信息
+- 优雅的降级处理
 
 #### 📈 扩展功能
-- 文件去重（秒传）  
-- MD5 校验  
-- 自定义参数支持  
-- Web Worker 支持（预留）  
+
+- 文件去重（秒传）
+- MD5 校验
+- 自定义参数支持
+- Web Worker 支持（预留）
 
 ---
 
 ## 🎯 在 Vue3 项目中的使用
 
 ### 1. 基础用法
+
 ```ts
 // 在组件中使用
-const {  
+const {
   uploadQueue,
   activeUploads,
   completedUploads,
@@ -74,7 +83,7 @@ const {
   retryFailed,
   removeFile,
   clear,
-  createNaiveFileList 
+  createNaiveFileList
   } = useChunkUpload({
   maxConcurrentFiles: 2,
   maxConcurrentChunks: 4,
@@ -105,5 +114,6 @@ uploader
   .onTotalProgress((progress) => {
     console.log(`总进度: ${progress}%`)
   })
- 
-  
+
+
+```

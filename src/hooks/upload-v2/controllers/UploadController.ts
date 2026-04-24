@@ -199,4 +199,3 @@ export class UploadController implements IUploadController {
     return this.isPaused.value || this.pausedTasks.has(taskId);
   }
 }
-

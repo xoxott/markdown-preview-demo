@@ -103,6 +103,7 @@ interface StorageAdapter {
 - **生产环境**：静默处理错误，返回默认值或跳过操作，不影响用户体验
 
 常见错误场景：
+
 - 存储已满（QuotaExceededError）
 - 存储被禁用（SecurityError）
 - 浏览器隐私模式限制
@@ -123,4 +124,3 @@ interface StorageAdapter {
    - 生产环境静默处理，保证稳定性
    - 所有操作都有容错机制
 4. **类型安全**：完整的 TypeScript 支持
-

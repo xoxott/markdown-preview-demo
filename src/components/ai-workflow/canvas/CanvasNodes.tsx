@@ -14,8 +14,18 @@ export interface CanvasNodesProps {
   onNodeClick: (nodeId: string, e: MouseEvent) => void;
   onNodeDelete: (nodeId: string) => void;
   onNodeToggleLock: (nodeId: string) => void;
-  onPortMouseDown: (nodeId: string, portId: string, portType: 'input' | 'output', e: MouseEvent) => void;
-  onPortMouseUp: (nodeId: string, portId: string, portType: 'input' | 'output', e: MouseEvent) => void;
+  onPortMouseDown: (
+    nodeId: string,
+    portId: string,
+    portType: 'input' | 'output',
+    e: MouseEvent
+  ) => void;
+  onPortMouseUp: (
+    nodeId: string,
+    portId: string,
+    portType: 'input' | 'output',
+    e: MouseEvent
+  ) => void;
 }
 
 export default defineComponent({
@@ -50,11 +60,15 @@ export default defineComponent({
       required: true
     },
     onPortMouseDown: {
-      type: Function as PropType<(nodeId: string, portId: string, portType: 'input' | 'output', e: MouseEvent) => void>,
+      type: Function as PropType<
+        (nodeId: string, portId: string, portType: 'input' | 'output', e: MouseEvent) => void
+      >,
       required: true
     },
     onPortMouseUp: {
-      type: Function as PropType<(nodeId: string, portId: string, portType: 'input' | 'output', e: MouseEvent) => void>,
+      type: Function as PropType<
+        (nodeId: string, portId: string, portType: 'input' | 'output', e: MouseEvent) => void
+      >,
       required: true
     }
   },
@@ -117,4 +131,3 @@ export default defineComponent({
     );
   }
 });
-

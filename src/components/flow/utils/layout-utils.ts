@@ -1,6 +1,6 @@
 /**
  * Flow 布局工具函数
- * 
+ *
  * 提供节点对齐、分布、排序等布局功能
  */
 
@@ -9,7 +9,13 @@ import type { FlowNode, FlowPosition, FlowSize } from '../types/flow-node';
 /**
  * 对齐方向
  */
-export type AlignDirection = 'left' | 'right' | 'top' | 'bottom' | 'center-horizontal' | 'center-vertical';
+export type AlignDirection =
+  | 'left'
+  | 'right'
+  | 'top'
+  | 'bottom'
+  | 'center-horizontal'
+  | 'center-vertical';
 
 /**
  * 分布方向
@@ -18,7 +24,7 @@ export type DistributeDirection = 'horizontal' | 'vertical';
 
 /**
  * 对齐节点
- * 
+ *
  * @param nodes 节点列表
  * @param direction 对齐方向
  * @returns 更新后的节点位置
@@ -43,9 +49,7 @@ export function alignNodes(
     }
 
     case 'right': {
-      const maxX = Math.max(
-        ...nodes.map(n => n.position.x + (n.size?.width || 220))
-      );
+      const maxX = Math.max(...nodes.map(n => n.position.x + (n.size?.width || 220)));
       nodes.forEach(node => {
         const nodeWidth = node.size?.width || 220;
         positions.set(node.id, { ...node.position, x: maxX - nodeWidth });
@@ -62,9 +66,7 @@ export function alignNodes(
     }
 
     case 'bottom': {
-      const maxY = Math.max(
-        ...nodes.map(n => n.position.y + (n.size?.height || 72))
-      );
+      const maxY = Math.max(...nodes.map(n => n.position.y + (n.size?.height || 72)));
       nodes.forEach(node => {
         const nodeHeight = node.size?.height || 72;
         positions.set(node.id, { ...node.position, y: maxY - nodeHeight });
@@ -74,9 +76,7 @@ export function alignNodes(
 
     case 'center-horizontal': {
       const minX = Math.min(...nodes.map(n => n.position.x));
-      const maxX = Math.max(
-        ...nodes.map(n => n.position.x + (n.size?.width || 220))
-      );
+      const maxX = Math.max(...nodes.map(n => n.position.x + (n.size?.width || 220)));
       const centerX = (minX + maxX) / 2;
       nodes.forEach(node => {
         const nodeWidth = node.size?.width || 220;
@@ -90,9 +90,7 @@ export function alignNodes(
 
     case 'center-vertical': {
       const minY = Math.min(...nodes.map(n => n.position.y));
-      const maxY = Math.max(
-        ...nodes.map(n => n.position.y + (n.size?.height || 72))
-      );
+      const maxY = Math.max(...nodes.map(n => n.position.y + (n.size?.height || 72)));
       const centerY = (minY + maxY) / 2;
       nodes.forEach(node => {
         const nodeHeight = node.size?.height || 72;
@@ -110,7 +108,7 @@ export function alignNodes(
 
 /**
  * 分布节点
- * 
+ *
  * @param nodes 节点列表
  * @param direction 分布方向
  * @param spacing 间距（可选，如果不提供则均匀分布）
@@ -129,9 +127,7 @@ export function distributeNodes(
 
   if (direction === 'horizontal') {
     // 按 X 坐标排序
-    const sortedNodes = [...nodes].sort(
-      (a, b) => a.position.x - b.position.x
-    );
+    const sortedNodes = [...nodes].sort((a, b) => a.position.x - b.position.x);
 
     if (spacing !== undefined) {
       // 固定间距
@@ -145,15 +141,11 @@ export function distributeNodes(
       const firstNode = sortedNodes[0];
       const lastNode = sortedNodes[sortedNodes.length - 1];
       const firstX = firstNode.position.x;
-      const lastX =
-        lastNode.position.x + (lastNode.size?.width || 220);
+      const lastX = lastNode.position.x + (lastNode.size?.width || 220);
       const totalWidth = lastX - firstX;
 
       // 计算所有节点的总宽度
-      const totalNodeWidth = sortedNodes.reduce(
-        (sum, node) => sum + (node.size?.width || 220),
-        0
-      );
+      const totalNodeWidth = sortedNodes.reduce((sum, node) => sum + (node.size?.width || 220), 0);
 
       // 计算间距
       const gap = (totalWidth - totalNodeWidth) / (sortedNodes.length - 1);
@@ -166,9 +158,7 @@ export function distributeNodes(
     }
   } else {
     // 按 Y 坐标排序
-    const sortedNodes = [...nodes].sort(
-      (a, b) => a.position.y - b.position.y
-    );
+    const sortedNodes = [...nodes].sort((a, b) => a.position.y - b.position.y);
 
     if (spacing !== undefined) {
       // 固定间距
@@ -182,15 +172,11 @@ export function distributeNodes(
       const firstNode = sortedNodes[0];
       const lastNode = sortedNodes[sortedNodes.length - 1];
       const firstY = firstNode.position.y;
-      const lastY =
-        lastNode.position.y + (lastNode.size?.height || 72);
+      const lastY = lastNode.position.y + (lastNode.size?.height || 72);
       const totalHeight = lastY - firstY;
 
       // 计算所有节点的总高度
-      const totalNodeHeight = sortedNodes.reduce(
-        (sum, node) => sum + (node.size?.height || 72),
-        0
-      );
+      const totalNodeHeight = sortedNodes.reduce((sum, node) => sum + (node.size?.height || 72), 0);
 
       // 计算间距
       const gap = (totalHeight - totalNodeHeight) / (sortedNodes.length - 1);
@@ -208,7 +194,7 @@ export function distributeNodes(
 
 /**
  * 排序节点
- * 
+ *
  * @param nodes 节点列表
  * @param direction 排序方向
  * @returns 排序后的节点列表
@@ -239,15 +225,12 @@ export function sortNodes(
 
 /**
  * 网格对齐（将节点对齐到网格）
- * 
+ *
  * @param nodes 节点列表
  * @param gridSize 网格大小
  * @returns 更新后的节点位置
  */
-export function snapToGrid(
-  nodes: FlowNode[],
-  gridSize: number
-): Map<string, FlowPosition> {
+export function snapToGrid(nodes: FlowNode[], gridSize: number): Map<string, FlowPosition> {
   const positions = new Map<string, FlowPosition>();
 
   nodes.forEach(node => {
@@ -261,7 +244,7 @@ export function snapToGrid(
 
 /**
  * 计算节点中心点
- * 
+ *
  * @param node 节点
  * @returns 中心点坐标
  */
@@ -276,7 +259,7 @@ export function getNodeCenter(node: FlowNode): FlowPosition {
 
 /**
  * 计算多个节点的中心点
- * 
+ *
  * @param nodes 节点列表
  * @returns 中心点坐标
  */
@@ -302,7 +285,7 @@ export function getNodesCenter(nodes: FlowNode[]): FlowPosition {
 
 /**
  * 将节点移动到指定位置（保持相对位置）
- * 
+ *
  * @param nodes 节点列表
  * @param targetCenter 目标中心点
  * @returns 更新后的节点位置
@@ -330,4 +313,3 @@ export function moveNodesToCenter(
 
   return positions;
 }
-

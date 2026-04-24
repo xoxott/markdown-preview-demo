@@ -153,7 +153,11 @@ export class UploadTask {
   private isAbortError(error: unknown): boolean {
     if (!error || typeof error !== 'object') return false;
     const err = error as { name?: string; code?: string; message?: string };
-    return err.name === 'AbortError' || err.code === 'ABORT_ERR' || err.message?.includes('aborted') === true;
+    return (
+      err.name === 'AbortError' ||
+      err.code === 'ABORT_ERR' ||
+      err.message?.includes('aborted') === true
+    );
   }
 
   /** 检查文件秒传 */
@@ -277,7 +281,10 @@ export class UploadTask {
         this.callbackManager.emit('onChunkSuccess', this.task, chunk);
 
         // 如果任务已暂停，保存进度以确保已成功上传的分片状态被记录
-        if (this.task.status === UploadStatus.PAUSED || this.uploadController.shouldPause(this.task.id)) {
+        if (
+          this.task.status === UploadStatus.PAUSED ||
+          this.uploadController.shouldPause(this.task.id)
+        ) {
           if (this.config.enableResume && this.config.enableCache) {
             this.saveProgress();
           }
@@ -321,11 +328,14 @@ export class UploadTask {
         // 使用 logger 记录（动态导入避免循环依赖）
         try {
           const { logger } = await import('../utils/logger');
-          logger.warn(`任务 ${this.task.id} 有 ${stillRetryable.length} 个分片失败，将在重试时处理`, {
-            taskId: this.task.id,
-            failedChunks: stillRetryable.length,
-            totalFailed: failedChunks.length
-          });
+          logger.warn(
+            `任务 ${this.task.id} 有 ${stillRetryable.length} 个分片失败，将在重试时处理`,
+            {
+              taskId: this.task.id,
+              failedChunks: stillRetryable.length,
+              totalFailed: failedChunks.length
+            }
+          );
         } catch {
           // logger 不可用时静默处理
         }
@@ -333,7 +343,8 @@ export class UploadTask {
         // 所有分片都失败且无法重试，任务失败
         // 检查是否所有待上传的分片都失败了（因为只有 pendingChunks 会被上传）
         // 并且确保有分片需要上传（pendingChunks.length > 0）
-        const allPendingChunksFailed = failedChunks.length === pendingChunks.length && pendingChunks.length > 0;
+        const allPendingChunksFailed =
+          failedChunks.length === pendingChunks.length && pendingChunks.length > 0;
         // 如果所有待上传的分片都失败了，抛出错误
         if (allPendingChunksFailed) {
           const error = new Error(`所有分片上传失败，无法继续上传`);
@@ -423,4 +434,3 @@ export class UploadTask {
     this.uploadController.cleanupTask(this.task.id);
   }
 }
-

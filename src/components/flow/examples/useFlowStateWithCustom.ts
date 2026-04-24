@@ -6,7 +6,11 @@
  */
 
 import { ref, computed, type Ref } from 'vue';
-import type { IStateStore, Unsubscribe, StateChangeType } from '../core/state/interfaces/IStateStore';
+import type {
+  IStateStore,
+  Unsubscribe,
+  StateChangeType
+} from '../core/state/interfaces/IStateStore';
 import type { FlowNode } from '../types/flow-node';
 import type { FlowEdge } from '../types/flow-edge';
 import type { FlowViewport } from '../types/flow-config';
@@ -132,9 +136,7 @@ class CustomStateStore implements IStateStore {
   }
 
   getNodeEdges(nodeId: string): FlowEdge[] {
-    return this.store.state.edges.filter(
-      edge => edge.source === nodeId || edge.target === nodeId
-    );
+    return this.store.state.edges.filter(edge => edge.source === nodeId || edge.target === nodeId);
   }
 
   // 视口操作
@@ -367,4 +369,3 @@ export function useFlowStateWithCustom(
     }
   };
 }
-

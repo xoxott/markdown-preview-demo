@@ -17,11 +17,13 @@
 ### 1. FlowCanvas 组件响应式数据过多 ⚠️ 高优先级
 
 **问题**：
+
 - `FlowCanvas.tsx` 中使用了大量 `computed` 和 `ref`
 - 每个 hook 都创建多个响应式引用
 - 可能导致不必要的响应式更新链
 
 **当前代码**：
+
 ```typescript
 // FlowCanvas.tsx 中创建了大量响应式数据
 const config = useFlowConfig({...}); // 内部多个 ref/computed
@@ -66,6 +68,7 @@ const nodeStyle = computed(() => getStyle(node.value));
 ```
 
 **预期收益**：
+
 - 减少 30-40% 的响应式开销
 - 提升 20-30% 的渲染性能
 
@@ -74,11 +77,13 @@ const nodeStyle = computed(() => getStyle(node.value));
 ### 2. ConnectionPreview 组件重复计算 ⚠️ 中优先级
 
 **问题**：
+
 - `sourceNodeInfo` computed 在每次节点列表变化时都会重新计算
 - 即使源节点和端口没有变化也会重新计算
 - `arrowMarkerConfig` 在缩放时频繁重新计算
 
 **当前代码**：
+
 ```typescript
 // ConnectionPreview.tsx
 const sourceNodeInfo = computed(() => {
@@ -123,6 +128,7 @@ const arrowMarkerConfig = computed(() => {
 ```
 
 **预期收益**：
+
 - 减少 50-60% 的重复计算
 - 连接预览更流畅
 
@@ -131,10 +137,12 @@ const arrowMarkerConfig = computed(() => {
 ### 3. FlowNodes 组件事件委托优化 ⚠️ 低优先级
 
 **问题**：
+
 - 事件委托函数在每次渲染时都可能重新创建
 - `visibleNodes` 变化时事件处理函数会重新绑定
 
 **当前代码**：
+
 ```typescript
 // FlowNodes.tsx
 const handleNodeClick = createNodeEventDelegation(
@@ -151,14 +159,12 @@ import { useMemo } from 'vue';
 
 const handleNodeClick = useMemo(() => {
   if (!props.onNodeClick) return undefined;
-  return createNodeEventDelegation(
-    visibleNodes,
-    props.onNodeClick
-  );
+  return createNodeEventDelegation(visibleNodes, props.onNodeClick);
 }, [visibleNodes, props.onNodeClick]);
 ```
 
 **预期收益**：
+
 - 减少函数创建开销
 - 提升事件处理性能
 
@@ -167,13 +173,15 @@ const handleNodeClick = useMemo(() => {
 ### 4. 状态更新批量处理优化 ⚠️ 高优先级
 
 **问题**：
+
 - `useFlowState` 中虽然使用了 `nextTick` 批量更新，但可以进一步优化
 - 拖拽时节点更新可能触发多次状态更新
 
 **当前代码**：
+
 ```typescript
 // useFlowState.ts
-store.subscribe((changeType) => {
+store.subscribe(changeType => {
   pendingUpdates.add(changeType);
   if (!updateScheduled) {
     updateScheduled = true;
@@ -193,7 +201,7 @@ store.subscribe((changeType) => {
 let rafUpdateScheduled = false;
 let rafPendingUpdates: Set<string> = new Set();
 
-store.subscribe((changeType) => {
+store.subscribe(changeType => {
   if (changeType === 'nodes') {
     rafPendingUpdates.add(changeType);
     if (!rafUpdateScheduled) {
@@ -218,6 +226,7 @@ store.subscribe((changeType) => {
 ```
 
 **预期收益**：
+
 - 拖拽时更流畅
 - 减少不必要的中间状态更新
 
@@ -226,10 +235,12 @@ store.subscribe((changeType) => {
 ### 5. 缓存键生成优化 ⚠️ 中优先级
 
 **问题**：
+
 - `useEdgePositions` 中的缓存键生成使用了 `Math.round`，可能导致缓存命中率低
 - `useNodeStyle` 的缓存键可能不够精确
 
 **当前代码**：
+
 ```typescript
 // useEdgePositions.ts
 function generateCacheKey(...) {
@@ -264,6 +275,7 @@ function generateCacheKey(
 ```
 
 **预期收益**：
+
 - 提升 20-30% 的缓存命中率
 - 减少重复计算
 
@@ -272,6 +284,7 @@ function generateCacheKey(
 ### 6. 空间索引更新优化 ⚠️ 中优先级
 
 **问题**：
+
 - `useSpatialIndex` 中的位置哈希计算可能不够高效
 - 增量更新阈值（10%）可能需要根据场景调整
 
@@ -285,8 +298,8 @@ function getNodesPositionHash(nodes: FlowNode[]): number {
   for (let i = 0; i < len; i++) {
     const n = nodes[i];
     // 使用更高效的哈希算法
-    hash = ((hash << 5) - hash) + Math.floor(n.position.x);
-    hash = ((hash << 5) - hash) + Math.floor(n.position.y);
+    hash = (hash << 5) - hash + Math.floor(n.position.x);
+    hash = (hash << 5) - hash + Math.floor(n.position.y);
     hash = hash | 0;
   }
   return hash;
@@ -302,6 +315,7 @@ const incrementalThreshold = computed(() => {
 ```
 
 **预期收益**：
+
 - 提升 15-20% 的空间索引更新性能
 - 更智能的更新策略
 
@@ -310,6 +324,7 @@ const incrementalThreshold = computed(() => {
 ### 7. 视口裁剪边界计算优化 ⚠️ 低优先级
 
 **问题**：
+
 - `useViewportCulling` 中每次视口变化都会重新计算边界
 - 边界计算可能可以缓存
 
@@ -343,6 +358,7 @@ const calculateViewportBounds = (viewport: FlowViewport, buffer: number) => {
 ```
 
 **预期收益**：
+
 - 减少 10-15% 的边界计算开销
 
 ---
@@ -350,6 +366,7 @@ const calculateViewportBounds = (viewport: FlowViewport, buffer: number) => {
 ### 8. 连接线位置计算优化 ⚠️ 中优先级
 
 **问题**：
+
 - `useEdgePositions` 中的位置计算可能可以进一步优化
 - 缓存 TTL（16ms）可能不够灵活
 
@@ -380,6 +397,7 @@ const getEdgePositions = (edge: FlowEdge): EdgePositions | null => {
 ```
 
 **预期收益**：
+
 - 提升 15-20% 的连接线渲染性能
 - 更灵活的缓存策略
 
@@ -390,6 +408,7 @@ const getEdgePositions = (edge: FlowEdge): EdgePositions | null => {
 ### 1. FlowCanvas 组件职责过重 ⚠️ 高优先级
 
 **问题**：
+
 - `FlowCanvas.tsx` 超过 400 行
 - 包含 10+ 个 hooks 初始化
 - 组件 setup 函数过于复杂
@@ -453,6 +472,7 @@ export default defineComponent({
 ```
 
 **预期收益**：
+
 - 提升代码可读性
 - 便于测试和维护
 - 减少组件复杂度
@@ -462,6 +482,7 @@ export default defineComponent({
 ### 2. Hook 依赖关系优化 ⚠️ 中优先级
 
 **问题**：
+
 - Hooks 之间相互依赖，难以单独测试
 - 数据流不够清晰
 
@@ -487,6 +508,7 @@ const { config, state, events } = inject(FlowContext)!;
 ```
 
 **预期收益**：
+
 - 减少 props drilling
 - 更清晰的依赖关系
 - 便于测试
@@ -496,6 +518,7 @@ const { config, state, events } = inject(FlowContext)!;
 ### 3. 组件层级优化 ⚠️ 中优先级
 
 **问题**：
+
 - FlowCanvas → FlowNodes → BaseNode → 自定义节点
 - 事件需要层层传递
 
@@ -515,6 +538,7 @@ const events = inject('flowEvents');
 ```
 
 **预期收益**：
+
 - 减少 props 传递
 - 提升组件灵活性
 
@@ -525,6 +549,7 @@ const events = inject('flowEvents');
 ### 1. 缓存大小管理 ⚠️ 中优先级
 
 **问题**：
+
 - 多个缓存可能同时占用大量内存
 - 缓存清理策略可能不够智能
 
@@ -541,13 +566,16 @@ class CacheManager {
   }
 
   cleanup() {
-    const totalSize = Array.from(this.caches.values())
-      .reduce((sum, { cache }) => sum + cache.size, 0);
+    const totalSize = Array.from(this.caches.values()).reduce(
+      (sum, { cache }) => sum + cache.size,
+      0
+    );
 
     if (totalSize > this.maxTotalSize) {
       // 按优先级清理
-      const sorted = Array.from(this.caches.entries())
-        .sort((a, b) => a[1].priority - b[1].priority);
+      const sorted = Array.from(this.caches.entries()).sort(
+        (a, b) => a[1].priority - b[1].priority
+      );
 
       for (const [name, { cache }] of sorted) {
         // 清理低优先级缓存
@@ -564,6 +592,7 @@ class CacheManager {
 ```
 
 **预期收益**：
+
 - 减少 20-30% 的内存占用
 - 更智能的缓存管理
 
@@ -572,6 +601,7 @@ class CacheManager {
 ### 2. 事件监听器清理 ⚠️ 中优先级
 
 **问题**：
+
 - 某些组件可能没有正确清理事件监听器
 - 内存泄漏风险
 
@@ -593,6 +623,7 @@ useAutoCleanup(() => {
 ```
 
 **预期收益**：
+
 - 防止内存泄漏
 - 更好的资源管理
 
@@ -603,6 +634,7 @@ useAutoCleanup(() => {
 ### 1. Props 类型定义优化 ⚠️ 低优先级
 
 **问题**：
+
 - 某些 props 使用了 `any` 类型
 - 类型定义可能不够严格
 
@@ -619,16 +651,12 @@ export interface FlowCanvasProps {
 
 // 使用类型守卫
 function isValidFlowNode(node: unknown): node is FlowNode {
-  return (
-    typeof node === 'object' &&
-    node !== null &&
-    'id' in node &&
-    'position' in node
-  );
+  return typeof node === 'object' && node !== null && 'id' in node && 'position' in node;
 }
 ```
 
 **预期收益**：
+
 - 更好的类型安全
 - 减少运行时错误
 
@@ -636,32 +664,35 @@ function isValidFlowNode(node: unknown): node is FlowNode {
 
 ## 📊 优化优先级总结
 
-| 优先级 | 优化项 | 预期收益 | 工作量 |
-|--------|--------|----------|--------|
-| 🔴 高 | FlowCanvas 响应式数据优化 | 30-40% 性能提升 | 2-3 天 |
-| 🔴 高 | 状态更新批量处理优化 | 20-30% 性能提升 | 1-2 天 |
-| 🟡 中 | ConnectionPreview 重复计算优化 | 50-60% 计算减少 | 1 天 |
-| 🟡 中 | 缓存键生成优化 | 20-30% 缓存命中率提升 | 0.5 天 |
-| 🟡 中 | 空间索引更新优化 | 15-20% 性能提升 | 1 天 |
-| 🟡 中 | 连接线位置计算优化 | 15-20% 性能提升 | 1 天 |
-| 🟢 低 | 视口裁剪边界计算优化 | 10-15% 性能提升 | 0.5 天 |
-| 🟢 低 | FlowNodes 事件委托优化 | 5-10% 性能提升 | 0.5 天 |
+| 优先级 | 优化项                         | 预期收益              | 工作量 |
+| ------ | ------------------------------ | --------------------- | ------ |
+| 🔴 高  | FlowCanvas 响应式数据优化      | 30-40% 性能提升       | 2-3 天 |
+| 🔴 高  | 状态更新批量处理优化           | 20-30% 性能提升       | 1-2 天 |
+| 🟡 中  | ConnectionPreview 重复计算优化 | 50-60% 计算减少       | 1 天   |
+| 🟡 中  | 缓存键生成优化                 | 20-30% 缓存命中率提升 | 0.5 天 |
+| 🟡 中  | 空间索引更新优化               | 15-20% 性能提升       | 1 天   |
+| 🟡 中  | 连接线位置计算优化             | 15-20% 性能提升       | 1 天   |
+| 🟢 低  | 视口裁剪边界计算优化           | 10-15% 性能提升       | 0.5 天 |
+| 🟢 低  | FlowNodes 事件委托优化         | 5-10% 性能提升        | 0.5 天 |
 
 ---
 
 ## 🎯 实施建议
 
 ### 第一阶段（立即实施）
+
 1. FlowCanvas 响应式数据优化
 2. 状态更新批量处理优化
 3. ConnectionPreview 重复计算优化
 
 ### 第二阶段（近期实施）
+
 1. 缓存键生成优化
 2. 空间索引更新优化
 3. 连接线位置计算优化
 
 ### 第三阶段（长期优化）
+
 1. 架构重构（组合式 Hook）
 2. 内存优化
 3. 类型安全优化
@@ -687,4 +718,3 @@ function isValidFlowNode(node: unknown): node is FlowNode {
 - [ ] 是否有性能瓶颈
 - [ ] 是否有重复代码
 - [ ] 是否有测试覆盖
-

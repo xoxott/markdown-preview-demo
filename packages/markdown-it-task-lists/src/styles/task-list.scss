@@ -49,7 +49,7 @@ $list-item-hover-bg: #f9fafb;
   }
 
   // 已完成任务的样式
-  &[data-checked="true"] {
+  &[data-checked='true'] {
     // 文本删除线和半透明
     > p,
     > * {
@@ -140,7 +140,7 @@ $list-item-hover-bg: #f9fafb;
       background-color: var(--list-item-hover-bg);
     }
 
-    &[data-checked="true"] {
+    &[data-checked='true'] {
       > p,
       > * {
         color: #9ca3af;
@@ -211,4 +211,3 @@ $list-item-hover-bg: #f9fafb;
 .task-list-item-checkbox:checked {
   animation: checkboxPop 0.3s ease;
 }
-

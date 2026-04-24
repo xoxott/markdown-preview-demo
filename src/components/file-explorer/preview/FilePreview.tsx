@@ -27,7 +27,27 @@ export default defineComponent({
     });
 
     const isTextFile = computed(() => {
-      const textExtensions = ['txt', 'md', 'js', 'ts', 'json', 'html', 'css', 'vue', 'tsx', 'jsx', 'xml', 'yaml', 'yml', 'sh', 'py', 'java', 'cpp', 'c', 'h'];
+      const textExtensions = [
+        'txt',
+        'md',
+        'js',
+        'ts',
+        'json',
+        'html',
+        'css',
+        'vue',
+        'tsx',
+        'jsx',
+        'xml',
+        'yaml',
+        'yml',
+        'sh',
+        'py',
+        'java',
+        'cpp',
+        'c',
+        'h'
+      ];
       return textExtensions.includes(fileExtension.value);
     });
 
@@ -93,4 +113,3 @@ export default defineComponent({
     };
   }
 });
-

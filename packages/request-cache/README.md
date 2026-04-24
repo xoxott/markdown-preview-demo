@@ -30,16 +30,19 @@ import { RequestClient } from '@suga/request-core';
 const client = new RequestClient(transport, [
   new CacheReadStep(),
   // ... 其他步骤
-  new CacheWriteStep(),
+  new CacheWriteStep()
 ]);
 
 // 在请求中使用缓存
-const result = await client.request({
-  url: '/api/users',
-  method: 'GET',
-}, {
-  cache: true, // 启用缓存
-});
+const result = await client.request(
+  {
+    url: '/api/users',
+    method: 'GET'
+  },
+  {
+    cache: true // 启用缓存
+  }
+);
 ```
 
 ### 自定义缓存策略
@@ -66,12 +69,15 @@ class CustomCachePolicy implements CachePolicy {
 }
 
 // 使用自定义策略
-const result = await client.request({
-  url: '/api/users',
-  method: 'GET',
-}, {
-  cache: new CustomCachePolicy(),
-});
+const result = await client.request(
+  {
+    url: '/api/users',
+    method: 'GET'
+  },
+  {
+    cache: new CustomCachePolicy()
+  }
+);
 ```
 
 ### 缓存策略配置
@@ -82,19 +88,19 @@ import { RequestCacheManager } from '@suga/request-cache';
 // 基于时间的策略（默认）
 const cacheManager = new RequestCacheManager({
   strategy: 'time',
-  defaultExpireTime: 5 * 60 * 1000, // 5 分钟
+  defaultExpireTime: 5 * 60 * 1000 // 5 分钟
 });
 
 // LRU 策略
 const lruCacheManager = new RequestCacheManager({
   strategy: 'lru',
-  maxSize: 100,
+  maxSize: 100
 });
 
 // FIFO 策略
 const fifoCacheManager = new RequestCacheManager({
   strategy: 'fifo',
-  maxSize: 100,
+  maxSize: 100
 });
 
 // 自定义策略
@@ -103,7 +109,7 @@ const customCacheManager = new RequestCacheManager({
   customStrategy: (key, item) => {
     // 返回 true 保留，false 删除
     return item.data.important === true;
-  },
+  }
 });
 ```
 
@@ -139,7 +145,7 @@ class CustomStorageAdapter implements StorageAdapter {
 // 使用自定义存储适配器
 const cacheManager = new RequestCacheManager({
   useStorage: true,
-  storageAdapter: new CustomStorageAdapter(),
+  storageAdapter: new CustomStorageAdapter()
 });
 ```
 
@@ -151,13 +157,16 @@ import { CacheMeta } from '@suga/request-cache';
 // 使用缓存元数据
 const meta: CacheMeta = {
   cache: true, // 启用缓存
-  cacheExpireTime: 10 * 60 * 1000, // 10 分钟过期
+  cacheExpireTime: 10 * 60 * 1000 // 10 分钟过期
 };
 
-const result = await client.request({
-  url: '/api/users',
-  method: 'GET',
-}, meta);
+const result = await client.request(
+  {
+    url: '/api/users',
+    method: 'GET'
+  },
+  meta
+);
 ```
 
 ## API

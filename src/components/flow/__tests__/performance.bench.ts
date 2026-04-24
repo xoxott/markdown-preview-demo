@@ -18,9 +18,9 @@ function generateNodes(count: number): FlowNode[] {
     type: 'default',
     position: {
       x: Math.random() * 10000,
-      y: Math.random() * 10000,
+      y: Math.random() * 10000
     },
-    data: {},
+    data: {}
   }));
 }
 
@@ -37,7 +37,7 @@ describe('Viewport Culling Performance', () => {
     maxX: 1000,
     maxY: 1000,
     width: 1000,
-    height: 1000,
+    height: 1000
   };
 
   // 线性查找（优化前）
@@ -170,7 +170,7 @@ describe('Undo/Redo Performance', () => {
   // 命令模式（优化后）
   const commandManager = new CommandManager({ maxSize: 100 });
   const mockStateManager = {
-    updateNode: () => {},
+    updateNode: () => {}
   } as any;
 
   bench('Command pattern - 100 operations', () => {
@@ -215,7 +215,7 @@ describe('Spatial Index Update Performance', () => {
       maxX: 1000,
       maxY: 1000,
       width: 1000,
-      height: 1000,
+      height: 1000
     });
   });
 });
@@ -258,7 +258,7 @@ describe('Real-world Scenario Performance', () => {
     const viewports = [
       { minX: 0, minY: 0, maxX: 1000, maxY: 1000, width: 1000, height: 1000 },
       { minX: 100, minY: 100, maxX: 1100, maxY: 1100, width: 1000, height: 1000 },
-      { minX: 200, minY: 200, maxX: 1200, maxY: 1200, width: 1000, height: 1000 },
+      { minX: 200, minY: 200, maxX: 1200, maxY: 1200, width: 1000, height: 1000 }
     ];
 
     viewports.forEach(vp => {
@@ -294,4 +294,3 @@ describe('Memory Usage', () => {
     positions.length = 0;
   });
 });
-

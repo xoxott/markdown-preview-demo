@@ -32,7 +32,12 @@ export type { SandBoxProps, CodeMode } from './components/SandBox';
 export type { ErrorMessageProps } from './components/ErrorMessage';
 
 // 工具函数（从包中导入基础函数，从本地导入组件特有函数）
-export { escapeHtml, unescapeAll, validateAttrName, isUrlSafe } from '@suga/markdown-it-render-vnode';
+export {
+  escapeHtml,
+  unescapeAll,
+  validateAttrName,
+  isUrlSafe
+} from '@suga/markdown-it-render-vnode';
 export { sanitizeSvg, sanitizeHtml } from './utils/security';
 
 export {
@@ -55,4 +60,3 @@ export {
   SVG_SAFE_ATTRS,
   SVG_SAFE_TAGS
 } from './constants';
-

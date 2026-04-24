@@ -32,4 +32,3 @@ export interface ProgressInfo {
  * 进度回调函数
  */
 export type ProgressCallback = (progress: ProgressInfo) => void;
-

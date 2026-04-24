@@ -19,12 +19,12 @@ export function removeFromArray<T>(array: T[], predicate: (item: T) => boolean):
 export function removeManyFromArray<T>(array: T[], predicate: (item: T) => boolean): T[] {
   const removed: T[] = [];
   let index = array.findIndex(predicate);
-  
+
   while (index > -1) {
     removed.push(array.splice(index, 1)[0]);
     index = array.findIndex(predicate);
   }
-  
+
   return removed;
 }
 
@@ -38,14 +38,10 @@ export function existsInArray<T>(array: T[], predicate: (item: T) => boolean): b
 /**
  * 从多个数组中查找项
  */
-export function findInArrays<T>(
-  arrays: T[][],
-  predicate: (item: T) => boolean
-): T | undefined {
+export function findInArrays<T>(arrays: T[][], predicate: (item: T) => boolean): T | undefined {
   for (const array of arrays) {
     const found = array.find(predicate);
     if (found) return found;
   }
   return undefined;
 }
-

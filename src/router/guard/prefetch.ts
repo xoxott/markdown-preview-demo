@@ -19,7 +19,11 @@ export function setupRoutePrefetch(router: Router) {
       // 触发组件的懒加载
       Object.values(route.components).forEach(component => {
         // 检查是否为懒加载组件（函数形式）
-        if (component && typeof component === 'function' && component.constructor.name === 'AsyncFunction') {
+        if (
+          component &&
+          typeof component === 'function' &&
+          component.constructor.name === 'AsyncFunction'
+        ) {
           (component as () => Promise<any>)().catch(() => {
             // 忽略预加载错误
           });
@@ -54,4 +58,3 @@ export function setupRoutePrefetch(router: Router) {
     );
   }
 }
-

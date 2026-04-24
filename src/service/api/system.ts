@@ -27,8 +27,7 @@ export function fetchPerformanceMetrics() {
 export function fetchEnvironmentInfo() {
   return request<Api.System.EnvironmentInfo>({
     url: '/api/admin/system/environment',
-    method: 'get',
+    method: 'get'
     // baseURL: 'http://localhost:3000'
   });
 }
-

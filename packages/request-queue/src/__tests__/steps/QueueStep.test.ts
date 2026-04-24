@@ -15,7 +15,7 @@ describe('QueueStep', () => {
   beforeEach(() => {
     manager = new QueueManager({
       maxConcurrent: 2,
-      queueStrategy: 'fifo',
+      queueStrategy: 'fifo'
     });
     step = new QueueStep({ queueManager: manager });
   });
@@ -23,7 +23,7 @@ describe('QueueStep', () => {
   it('应该在 meta 中没有 queue 时跳过', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config);
 
@@ -40,10 +40,10 @@ describe('QueueStep', () => {
   it('应该在 queue=false 时跳过', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config, undefined, {
-      queue: false,
+      queue: false
     });
 
     let nextCalled = false;
@@ -59,10 +59,10 @@ describe('QueueStep', () => {
   it('应该在 queue=undefined 时跳过', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config, undefined, {
-      queue: undefined,
+      queue: undefined
     });
 
     let nextCalled = false;
@@ -78,10 +78,10 @@ describe('QueueStep', () => {
   it('应该在 queue=true 时启用队列', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext<string>(config, undefined, {
-      queue: true,
+      queue: true
     });
 
     let requestCount = 0;
@@ -99,13 +99,13 @@ describe('QueueStep', () => {
   it('应该支持自定义队列配置', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext<string>(config, undefined, {
       queue: {
         maxConcurrent: 5,
-        queueStrategy: 'priority',
-      },
+        queueStrategy: 'priority'
+      }
     });
 
     let requestCount = 0;
@@ -123,7 +123,7 @@ describe('QueueStep', () => {
   it('应该支持优先级', async () => {
     const priorityManager = new QueueManager({
       maxConcurrent: 1, // 一次只执行一个，确保顺序
-      queueStrategy: 'priority',
+      queueStrategy: 'priority'
     });
 
     const priorityStep = new QueueStep({ queueManager: priorityManager });
@@ -132,17 +132,17 @@ describe('QueueStep', () => {
 
     const config1: NormalizedRequestConfig = {
       url: '/api/low',
-      method: 'GET',
+      method: 'GET'
     };
     const config2: NormalizedRequestConfig = {
       url: '/api/high',
-      method: 'GET',
+      method: 'GET'
     };
 
     // 先添加低优先级请求
     const ctx1 = createRequestContext<string>(config1, undefined, {
       queue: true,
-      priority: 'low',
+      priority: 'low'
     });
     const next1 = async (): Promise<void> => {
       await new Promise(resolve => setTimeout(resolve, 30));
@@ -157,7 +157,7 @@ describe('QueueStep', () => {
     // 再添加高优先级请求
     const ctx2 = createRequestContext<string>(config2, undefined, {
       queue: true,
-      priority: 'high',
+      priority: 'high'
     });
     const next2 = async (): Promise<void> => {
       await new Promise(resolve => setTimeout(resolve, 30));
@@ -176,10 +176,10 @@ describe('QueueStep', () => {
   it('应该使用默认优先级', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext<string>(config, undefined, {
-      queue: true,
+      queue: true
       // 不指定 priority，应该使用默认值
     });
 
@@ -198,10 +198,10 @@ describe('QueueStep', () => {
   it('应该在请求失败时抛出错误', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config, undefined, {
-      queue: true,
+      queue: true
     });
 
     const error = new Error('Request failed');
@@ -219,10 +219,10 @@ describe('QueueStep', () => {
   it('应该在 result 为 undefined 时抛出错误', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext<string>(config, undefined, {
-      queue: true,
+      queue: true
     });
 
     // 确保 result 是 undefined
@@ -251,10 +251,10 @@ describe('QueueStep', () => {
 
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext<string>(config, undefined, {
-      queue: true,
+      queue: true
     });
 
     let requestCount = 0;
@@ -273,16 +273,16 @@ describe('QueueStep', () => {
     const customStep = new QueueStep({
       defaultConfig: {
         maxConcurrent: 5,
-        queueStrategy: 'priority',
-      },
+        queueStrategy: 'priority'
+      }
     });
 
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext<string>(config, undefined, {
-      queue: true,
+      queue: true
     });
 
     let requestCount = 0;
@@ -301,19 +301,19 @@ describe('QueueStep', () => {
     const customStep = new QueueStep({
       defaultConfig: {
         maxConcurrent: 2,
-        queueStrategy: 'fifo',
-      },
+        queueStrategy: 'fifo'
+      }
     });
 
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext<string>(config, undefined, {
       queue: {
         maxConcurrent: 5,
-        queueStrategy: 'priority',
-      },
+        queueStrategy: 'priority'
+      }
     });
 
     let requestCount = 0;
@@ -335,13 +335,13 @@ describe('QueueStep', () => {
     for (let i = 0; i < 5; i++) {
       configs.push({
         url: `/api/users/${i}`,
-        method: 'GET',
+        method: 'GET'
       });
     }
 
     const promises = configs.map((config, index) => {
       const ctx = createRequestContext<string>(config, undefined, {
-        queue: true,
+        queue: true
       });
 
       const next = async (): Promise<void> => {
@@ -359,4 +359,3 @@ describe('QueueStep', () => {
     expect(executionOrder.length).toBe(5);
   });
 });
-

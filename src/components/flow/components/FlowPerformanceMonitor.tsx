@@ -4,7 +4,15 @@
  * 显示实时 FPS、节点数量、渲染时间等性能指标
  */
 
-import { defineComponent, ref, computed, watch, onUnmounted, type PropType, type CSSProperties } from 'vue';
+import {
+  defineComponent,
+  ref,
+  computed,
+  watch,
+  onUnmounted,
+  type PropType,
+  type CSSProperties
+} from 'vue';
 import { useRafLoop } from '../hooks/useRafLoop';
 
 export interface PerformanceMetrics {
@@ -310,7 +318,6 @@ export default defineComponent({
       }
     };
 
-
     // 获取最低 FPS 的颜色
     const getMinFpsColor = (minFps: number): string => {
       if (minFps < PERFORMANCE_THRESHOLDS.MIN_FPS_ERROR) {
@@ -323,19 +330,19 @@ export default defineComponent({
 
     return () => (
       <div style={{ ...positionStyle.value, ...props.style }}>
-        <div style={staticStyles.header}>
-          {LABELS.TITLE}
-        </div>
+        <div style={staticStyles.header}>{LABELS.TITLE}</div>
 
         <div style={staticStyles.container}>
           {/* FPS */}
           <div style={staticStyles.row}>
             <span style={staticStyles.label}>{LABELS.FPS}:</span>
-            <span style={{
-              fontWeight: 'bold',
-              color: performanceColor.value,
-              fontSize: '14px'
-            }}>
+            <span
+              style={{
+                fontWeight: 'bold',
+                color: performanceColor.value,
+                fontSize: '14px'
+              }}
+            >
               {fps.value}
             </span>
           </div>
@@ -344,9 +351,11 @@ export default defineComponent({
           <div style={staticStyles.row}>
             <span style={staticStyles.label}>{LABELS.FRAME_TIME}:</span>
             <span>
-              {frameTime.value}{LABELS.UNIT_MS}
+              {frameTime.value}
+              {LABELS.UNIT_MS}
               <span style={staticStyles.smallText}>
-                ({LABELS.PEAK}: {maxFrameTime.value}{LABELS.UNIT_MS})
+                ({LABELS.PEAK}: {maxFrameTime.value}
+                {LABELS.UNIT_MS})
               </span>
             </span>
           </div>
@@ -354,9 +363,11 @@ export default defineComponent({
           {/* 最低 FPS */}
           <div style={staticStyles.row}>
             <span style={staticStyles.label}>{LABELS.MIN_FPS}:</span>
-            <span style={{
-              color: getMinFpsColor(minFps.value)
-            }}>
+            <span
+              style={{
+                color: getMinFpsColor(minFps.value)
+              }}
+            >
               {minFps.value}
             </span>
           </div>
@@ -391,13 +402,16 @@ export default defineComponent({
           {memoryUsage.value !== undefined && (
             <div style={staticStyles.row}>
               <span style={staticStyles.label}>{LABELS.MEMORY}:</span>
-              <span>{memoryUsage.value} {LABELS.UNIT_MB}</span>
+              <span>
+                {memoryUsage.value} {LABELS.UNIT_MB}
+              </span>
             </div>
           )}
 
           {/* 性能等级 */}
           <div style={staticStyles.footer}>
-            {LABELS.PERFORMANCE}: <span style={{ color: performanceColor.value, fontWeight: 'bold' }}>
+            {LABELS.PERFORMANCE}:{' '}
+            <span style={{ color: performanceColor.value, fontWeight: 'bold' }}>
               {PERFORMANCE_CONFIG[performanceLevel.value].label}
             </span>
           </div>
@@ -406,4 +420,3 @@ export default defineComponent({
     );
   }
 });
-

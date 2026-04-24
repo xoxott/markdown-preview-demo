@@ -18,28 +18,27 @@ import { EventStep } from '@suga/request-events';
 import { performanceMonitor } from '@suga/request-performance';
 
 // 创建请求客户端（需要提供 transport）
-const client = new RequestClient(transport)
-  .with(new EventStep());
+const client = new RequestClient(transport).with(new EventStep());
 
 // 监听事件并记录性能
 import { onRequestStart, onRequestSuccess, onRequestError } from '@suga/request-events';
 
-onRequestStart((data) => {
+onRequestStart(data => {
   performanceMonitor.onRequestStart(data.config);
 });
 
-onRequestSuccess((data) => {
+onRequestSuccess(data => {
   performanceMonitor.onRequestSuccess(data.config, data.duration);
 });
 
-onRequestError((data) => {
+onRequestError(data => {
   performanceMonitor.onRequestError(data.config, data.error, data.duration);
 });
 
 // 发送请求
 await client.request({
   url: '/api/users',
-  method: 'GET',
+  method: 'GET'
 });
 
 // 获取性能指标
@@ -60,7 +59,7 @@ const customMonitor = new PerformanceMonitorManager();
 // 使用自定义监控器
 const config: NormalizedRequestConfig = {
   url: '/api/users',
-  method: 'GET',
+  method: 'GET'
 };
 
 customMonitor.onRequestStart(config);
@@ -123,15 +122,15 @@ import { performanceMonitor } from '@suga/request-performance';
 import { onRequestStart, onRequestSuccess, onRequestError } from '@suga/request-events';
 
 // 集成到事件系统
-onRequestStart((data) => {
+onRequestStart(data => {
   performanceMonitor.onRequestStart(data.config);
 });
 
-onRequestSuccess((data) => {
+onRequestSuccess(data => {
   performanceMonitor.onRequestSuccess(data.config, data.duration);
 });
 
-onRequestError((data) => {
+onRequestError(data => {
   performanceMonitor.onRequestError(data.config, data.error, data.duration);
 });
 
@@ -206,7 +205,7 @@ console.log('All metrics reset:', metrics.totalRequests === 0);
 import { performanceMonitor } from '@suga/request-performance';
 import { onRequestComplete } from '@suga/request-events';
 
-onRequestComplete((data) => {
+onRequestComplete(data => {
   if (data.duration > 1000) {
     const metrics = performanceMonitor.getMetrics();
     console.warn(`Slow request detected: ${data.config.url} (${data.duration}ms)`);
@@ -235,4 +234,3 @@ request-performance/
 ## 📄 License
 
 MIT
-

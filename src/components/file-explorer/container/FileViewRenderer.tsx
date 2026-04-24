@@ -12,7 +12,10 @@ export default defineComponent({
   props: {
     items: { type: Array as PropType<FileItem[]>, required: true },
     selectedIds: { type: Object as PropType<Ref<Set<string>>>, required: true },
-    onSelect: { type: Function as PropType<(ids: string[], event?: MouseEvent) => void>, required: true },
+    onSelect: {
+      type: Function as PropType<(ids: string[], event?: MouseEvent) => void>,
+      required: true
+    },
     onOpen: { type: Function as PropType<(item: FileItem) => void>, required: true },
     viewMode: { type: String as PropType<ViewMode>, required: true },
     gridSize: { type: String as PropType<GridSize>, default: 'medium' },

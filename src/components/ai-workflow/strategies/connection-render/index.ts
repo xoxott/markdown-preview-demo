@@ -118,7 +118,10 @@ export class StraightConnectionStrategy implements IConnectionRenderStrategy {
     return `M ${x1},${y1} L ${x2},${y2}`;
   }
 
-  computeArrowTransform(sourcePos: Position, targetPos: Position): { x: number; y: number; angle: number } {
+  computeArrowTransform(
+    sourcePos: Position,
+    targetPos: Position
+  ): { x: number; y: number; angle: number } {
     const { x: x1, y: y1 } = sourcePos;
     const { x: x2, y: y2 } = targetPos;
 
@@ -145,7 +148,10 @@ export class StepConnectionStrategy implements IConnectionRenderStrategy {
     return `M ${x1},${y1} L ${midX},${y1} L ${midX},${y2} L ${x2},${y2}`;
   }
 
-  computeArrowTransform(sourcePos: Position, targetPos: Position): { x: number; y: number; angle: number } {
+  computeArrowTransform(
+    sourcePos: Position,
+    targetPos: Position
+  ): { x: number; y: number; angle: number } {
     const { x: x2, y: y2 } = targetPos;
 
     // 箭头水平指向
@@ -184,10 +190,15 @@ export class SmoothStepConnectionStrategy implements IConnectionRenderStrategy {
       L ${corner2X},${corner2Y - (y2 > y1 ? radius : -radius)}
       Q ${corner2X},${corner2Y} ${corner2X + radius},${corner2Y}
       L ${x2},${y2}
-    `.replace(/\s+/g, ' ').trim();
+    `
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
-  computeArrowTransform(sourcePos: Position, targetPos: Position): { x: number; y: number; angle: number } {
+  computeArrowTransform(
+    sourcePos: Position,
+    targetPos: Position
+  ): { x: number; y: number; angle: number } {
     const { x: x2, y: y2 } = targetPos;
     return { x: x2, y: y2, angle: 0 };
   }
@@ -296,7 +307,9 @@ export class ConnectionRenderStrategyManager {
   ): string {
     const strategy = this.getStrategy(strategyName);
     if (!strategy) {
-      console.warn(`Connection render strategy "${strategyName}" not found, falling back to bezier`);
+      console.warn(
+        `Connection render strategy "${strategyName}" not found, falling back to bezier`
+      );
       return this.getStrategy('bezier')!.computePath(sourcePos, targetPos, config);
     }
 
@@ -306,4 +319,3 @@ export class ConnectionRenderStrategyManager {
 
 // 导出单例
 export const connectionRenderManager = new ConnectionRenderStrategyManager();
-

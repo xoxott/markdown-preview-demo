@@ -34,9 +34,7 @@ export default defineComponent({
         position: { x: 100, y: 100 },
         data: { label: '节点 1', description: '浅色主题示例' },
         size: { width: 180, height: 80 },
-        handles: [
-          { id: 'source-1', type: 'source', position: 'right' }
-        ]
+        handles: [{ id: 'source-1', type: 'source', position: 'right' }]
       },
       {
         id: 'theme-node-2',
@@ -55,9 +53,7 @@ export default defineComponent({
         position: { x: 100, y: 250 },
         data: { label: '节点 3', description: '自动主题示例' },
         size: { width: 180, height: 80 },
-        handles: [
-          { id: 'source-3', type: 'source', position: 'right' }
-        ]
+        handles: [{ id: 'source-3', type: 'source', position: 'right' }]
       },
       {
         id: 'theme-node-4',
@@ -65,9 +61,7 @@ export default defineComponent({
         position: { x: 350, y: 250 },
         data: { label: '节点 4', description: '自定义主题示例' },
         size: { width: 180, height: 80 },
-        handles: [
-          { id: 'target-4', type: 'target', position: 'left' }
-        ]
+        handles: [{ id: 'target-4', type: 'target', position: 'left' }]
       }
     ]);
 
@@ -106,7 +100,9 @@ export default defineComponent({
     // 处理主题切换
     const handleThemeChange = (newTheme: 'light' | 'dark' | 'auto') => {
       setTheme(newTheme);
-      message.success(`已切换到 ${newTheme === 'light' ? '浅色' : newTheme === 'dark' ? '深色' : '自动'} 主题`);
+      message.success(
+        `已切换到 ${newTheme === 'light' ? '浅色' : newTheme === 'dark' ? '深色' : '自动'} 主题`
+      );
     };
 
     // 当前主题显示文本
@@ -121,14 +117,17 @@ export default defineComponent({
       <NCard bordered>
         <NH3 class="border-b pb-2 text-lg font-semibold">Flow 示例 7: 主题模式</NH3>
         <NText class="text-gray-500 mb-4 block">
-          展示 Flow 组件的主题系统，支持 light（浅色）、dark（深色）、auto（自动跟随系统）三种主题模式。
-          主题设置会持久化到 localStorage，刷新页面后仍然保持。
+          展示 Flow 组件的主题系统，支持
+          light（浅色）、dark（深色）、auto（自动跟随系统）三种主题模式。 主题设置会持久化到
+          localStorage，刷新页面后仍然保持。
         </NText>
 
         {/* 主题控制面板 */}
         <NSpace vertical class="mb-4">
           <div>
-            <NText strong class="mr-2">当前主题：</NText>
+            <NText strong class="mr-2">
+              当前主题：
+            </NText>
             <NText class="text-blue-500">{themeText.value}</NText>
           </div>
 
@@ -136,7 +135,7 @@ export default defineComponent({
             <NText strong>切换主题：</NText>
             <NRadioGroup
               value={theme.value}
-              onUpdateValue={(value) => handleThemeChange(value as 'light' | 'dark' | 'auto')}
+              onUpdateValue={value => handleThemeChange(value as 'light' | 'dark' | 'auto')}
             >
               <NSpace>
                 <NRadio value="light">浅色</NRadio>
@@ -173,12 +172,12 @@ export default defineComponent({
             onViewport-change={handleViewportChange}
           >
             {{
-              background: ({viewport}: {viewport: FlowViewport}) => (
-                   <FlowBackground
-                    gridType="dots"
-                    gridSize={20}
-                    viewport={viewport}
-                    instanceId='theme-flow-example'
+              background: ({ viewport }: { viewport: FlowViewport }) => (
+                <FlowBackground
+                  gridType="dots"
+                  gridSize={20}
+                  viewport={viewport}
+                  instanceId="theme-flow-example"
                 />
               )
             }}
@@ -190,10 +189,9 @@ export default defineComponent({
             gridType="dots"
             gridSize={12}
             viewport={themeViewport.value}
-            instanceId='theme-flow-example1'
+            instanceId="theme-flow-example1"
           />
         </div>
-
 
         {/* 使用说明 */}
         <NSpace vertical class="mt-4">
@@ -206,10 +204,12 @@ export default defineComponent({
               <strong>深色主题（Dark）</strong>：适合在暗光环境下使用，使用深色背景和浅色文字
             </li>
             <li>
-              <strong>自动主题（Auto）</strong>：自动跟随系统主题设置（通过 <code>prefers-color-scheme</code> 媒体查询）
+              <strong>自动主题（Auto）</strong>：自动跟随系统主题设置（通过{' '}
+              <code>prefers-color-scheme</code> 媒体查询）
             </li>
             <li>
-              <strong>自定义主题</strong>：可以通过覆盖 CSS 变量来自定义主题颜色，详见 <code>styles/README.md</code>
+              <strong>自定义主题</strong>：可以通过覆盖 CSS 变量来自定义主题颜色，详见{' '}
+              <code>styles/README.md</code>
             </li>
             <li>
               <strong>持久化</strong>：主题设置会自动保存到 localStorage，刷新页面后仍然保持
@@ -219,10 +219,11 @@ export default defineComponent({
 
         {/* 代码示例 */}
         <NSpace vertical class="mt-4">
-        {themeViewport.value}
+          {themeViewport.value}
           <NH3 class="text-base font-semibold">代码示例：</NH3>
           <pre class="bg-gray-100 p-4 rounded text-sm overflow-x-auto">
-            <code>{`import { useFlowTheme } from '@/components/flow/hooks/useFlowTheme';
+            <code>
+              {`import { useFlowTheme } from '@/components/flow/hooks/useFlowTheme';
 
                     const { theme, setTheme, toggleTheme, isDark } = useFlowTheme({
                       initialTheme: 'auto',
@@ -245,4 +246,3 @@ export default defineComponent({
     );
   }
 });
-

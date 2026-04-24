@@ -35,7 +35,10 @@ export interface IFileProcessor {
 /** 分片管理器接口 */
 export interface IChunkManager {
   createChunks(task: FileTask, chunkSize: number): Promise<ChunkInfo[]>;
-  uploadChunk(task: FileTask, chunk: ChunkInfo, abortSignal: AbortSignal): Promise<ChunkUploadResponse>;
+  uploadChunk(
+    task: FileTask,
+    chunk: ChunkInfo,
+    abortSignal: AbortSignal
+  ): Promise<ChunkUploadResponse>;
   mergeChunks(task: FileTask, abortSignal: AbortSignal): Promise<MergeResponse>;
 }
-

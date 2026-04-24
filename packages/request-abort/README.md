@@ -22,24 +22,29 @@ import { CancelStep } from '@suga/request-abort';
 // const transport = new AxiosTransport({ instance: axios.create() });
 
 // 创建客户端并添加中止步骤
-const client = new RequestClient(transport)
-  .with(new CancelStep());
+const client = new RequestClient(transport).with(new CancelStep());
 
 // 发起请求（默认启用中止）
-await client.request({
-  url: '/api/users',
-  method: 'GET',
-}, {
-  cancelable: true, // 启用中止（默认启用，可省略）
-});
+await client.request(
+  {
+    url: '/api/users',
+    method: 'GET'
+  },
+  {
+    cancelable: true // 启用中止（默认启用，可省略）
+  }
+);
 
 // 禁用中止
-await client.request({
-  url: '/api/users',
-  method: 'GET',
-}, {
-  cancelable: false, // 禁用中止
-});
+await client.request(
+  {
+    url: '/api/users',
+    method: 'GET'
+  },
+  {
+    cancelable: false // 禁用中止
+  }
+);
 ```
 
 ### 中止请求
@@ -49,8 +54,7 @@ import { CancelStep } from '@suga/request-abort';
 
 // 创建 CancelStep 实例（通常在创建客户端时创建）
 const cancelStep = new CancelStep();
-const client = new RequestClient(transport)
-  .with(cancelStep);
+const client = new RequestClient(transport).with(cancelStep);
 
 // 获取 AbortControllerManager
 const abortControllerManager = cancelStep.getAbortControllerManager();
@@ -74,7 +78,7 @@ abortControllerManager.cancelAll('页面切换，中止所有请求');
 ```typescript
 // 中止所有匹配条件的请求
 const count = abortControllerManager.cancelBy(
-  (config) => config.url?.startsWith('/api/search'),
+  config => config.url?.startsWith('/api/search'),
   '搜索条件已改变'
 );
 console.log(`已中止 ${count} 个请求`);
@@ -92,13 +96,13 @@ const cancelStep = new CancelStep({
     // 是否在创建新 controller 时自动中止旧请求，默认 true
     autoCancelPrevious: true,
     // 默认中止消息
-    defaultCancelMessage: '请求已中止',
+    defaultCancelMessage: '请求已中止'
   }),
   // 默认中止配置
   defaultOptions: {
     enabled: true, // 默认启用
-    autoCancelPrevious: true, // 自动中止旧请求
-  },
+    autoCancelPrevious: true // 自动中止旧请求
+  }
 });
 ```
 
@@ -115,6 +119,7 @@ new CancelStep(options?: CancelStepOptions)
 ```
 
 **参数：**
+
 - `options.abortControllerManager?: AbortControllerManager` - AbortController 管理器实例
 - `options.defaultOptions?: CancelOptions` - 默认中止配置
 
@@ -134,47 +139,56 @@ new AbortControllerManager(options?: AbortControllerManagerOptions)
 ```
 
 **参数：**
+
 - `options.autoCancelPrevious?: boolean` - 是否在创建新 controller 时自动中止旧请求，默认 `true`
 - `options.defaultCancelMessage?: string` - 默认中止消息，默认 `'请求已取消'`
 
 #### 方法
 
 - `createAbortController(requestId, config?)`: 创建 AbortController
+
   - 参数:
     - `requestId: string` - 请求标识
     - `config?: CancelableRequestConfig` - 请求配置（可选，用于按条件中止）
   - 返回: `AbortController`
 
 - `cancel(requestId, message?)`: 中止指定请求
+
   - 参数:
     - `requestId: string` - 请求标识
     - `message?: string` - 中止原因（注意：AbortController 不支持自定义消息，消息仅用于日志）
 
 - `cancelAll(message?)`: 中止所有请求
+
   - 参数:
     - `message?: string` - 中止原因（注意：AbortController 不支持自定义消息，消息仅用于日志）
 
 - `cancelBy(predicate, message?)`: 按条件中止请求
+
   - 参数:
     - `predicate: (config: CancelableRequestConfig) => boolean` - 中止条件函数
     - `message?: string` - 中止原因（注意：AbortController 不支持自定义消息，消息仅用于日志）
   - 返回: `number` - 中止的请求数量
 
 - `remove(requestId)`: 移除 AbortController（请求完成后调用）
+
   - 参数:
     - `requestId: string` - 请求标识
 
 - `get(requestId)`: 获取 AbortController
+
   - 参数:
     - `requestId: string` - 请求标识
   - 返回: `AbortController | undefined`
 
 - `has(requestId)`: 检查请求是否存在
+
   - 参数:
     - `requestId: string` - 请求标识
   - 返回: `boolean`
 
 - `getPendingCount()`: 获取当前待中止的请求数量
+
   - 返回: `number`
 
 - `clear()`: 清除所有请求记录（不中止请求）
@@ -195,7 +209,7 @@ const cancelStep = new CancelStep();
 // 发起请求
 const requestPromise = client.request({
   url: '/api/users',
-  method: 'GET',
+  method: 'GET'
 });
 
 // 中止请求
@@ -209,7 +223,7 @@ abortControllerManager.cancel('request_id', '用户中止操作');
 ```typescript
 // 中止所有搜索相关的请求
 const count = abortControllerManager.cancelBy(
-  (config) => config.url?.includes('/search'),
+  config => config.url?.includes('/search'),
   '搜索条件已改变'
 );
 console.log(`已中止 ${count} 个搜索请求`);
@@ -221,8 +235,8 @@ console.log(`已中止 ${count} 个搜索请求`);
 // 如果同一个 requestId 发起新请求，自动中止旧请求
 const cancelStep = new CancelStep({
   abortControllerManager: new AbortControllerManager({
-    autoCancelPrevious: true, // 默认 true
-  }),
+    autoCancelPrevious: true // 默认 true
+  })
 });
 ```
 
@@ -237,4 +251,3 @@ const cancelStep = new CancelStep({
 4. **自动清理**：请求完成后（成功或失败）会自动清理 AbortController，无需手动调用 `remove()`。
 
 5. **原生 API**：本包使用原生 Web API `AbortController`，不依赖任何第三方库，与现代浏览器和 Node.js 18+ 兼容。
-

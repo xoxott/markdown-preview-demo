@@ -27,7 +27,9 @@ const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
   nextTick(() => {
     const scrollbarInstance = scrollbarRef.value;
     if (scrollbarInstance) {
-      const contentEl = (scrollbarInstance as any).$refs?.scrollContentRef as HTMLElement | undefined;
+      const contentEl = (scrollbarInstance as any).$refs?.scrollContentRef as
+        | HTMLElement
+        | undefined;
       const scrollHeight = contentEl?.scrollHeight || 999999;
       scrollbarInstance.scrollTo({
         top: scrollHeight,
@@ -167,7 +169,12 @@ const sendMessage = async () => {
             maxRows: 5
           }"
         />
-        <NButton type="primary" :disabled="loading || !input.trim()" :loading="loading" @click="sendMessage">
+        <NButton
+          type="primary"
+          :disabled="loading || !input.trim()"
+          :loading="loading"
+          @click="sendMessage"
+        >
           发送
         </NButton>
       </div>

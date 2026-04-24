@@ -34,4 +34,3 @@ export function useUploadHook(config: Partial<UploadConfig>): UploadHookReturn {
   // 类型安全的返回值 - 使用类型断言，因为 useChunkUpload 返回的类型与我们的接口匹配
   return uploadHook as unknown as UploadHookReturn;
 }
-

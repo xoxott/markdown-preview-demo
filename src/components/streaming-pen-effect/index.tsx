@@ -28,13 +28,13 @@ const DEFAULT_CONFIG = {
   PEN_COLOR: '#92400e',
   PEN_SIZE: 24,
   OFFSET_X: 0.2,
-  OFFSET_Y: - 0.2,
+  OFFSET_Y: -0.2,
   POSITION_THRESHOLD: {
-    X: 50,  // 超过 50px 认为是换行
-    Y: 20   // 超过 20px 认为是换行
+    X: 50, // 超过 50px 认为是换行
+    Y: 20 // 超过 20px 认为是换行
   },
-  TRANSITION_DURATION: 0.05,  // 200ms
-  ANIMATION_DURATION: 0.8,     // 书写动画时长
+  TRANSITION_DURATION: 0.05, // 200ms
+  ANIMATION_DURATION: 0.8 // 书写动画时长
 } as const;
 
 // ==================== SVG 路径定义（可扩展） ====================
@@ -97,18 +97,12 @@ const createQuillPenSVG = (penColor: string) => ({
  * 从后往前查找，找到第一个有效节点就停止，避免遍历整个树
  */
 const getLastTextNode = (element: HTMLElement): Text | null => {
-  const walker = document.createTreeWalker(
-    element,
-    NodeFilter.SHOW_TEXT,
-    {
-      acceptNode: (node) => {
-        // 只接受非空文本节点
-        return node.textContent?.trim()
-          ? NodeFilter.FILTER_ACCEPT
-          : NodeFilter.FILTER_REJECT;
-      }
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+    acceptNode: node => {
+      // 只接受非空文本节点
+      return node.textContent?.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
     }
-  );
+  });
 
   // 先遍历到最后一个节点
   let lastNode: Text | null = null;
@@ -126,18 +120,12 @@ const getLastTextNode = (element: HTMLElement): Text | null => {
  */
 const getTextNodes = (element: HTMLElement): Text[] => {
   const textNodes: Text[] = [];
-  const walker = document.createTreeWalker(
-    element,
-    NodeFilter.SHOW_TEXT,
-    {
-      acceptNode: (node) => {
-        // 只接受非空文本节点
-        return node.textContent?.trim()
-          ? NodeFilter.FILTER_ACCEPT
-          : NodeFilter.FILTER_REJECT;
-      }
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+    acceptNode: node => {
+      // 只接受非空文本节点
+      return node.textContent?.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
     }
-  );
+  });
 
   let node: Node | null;
   while ((node = walker.nextNode())) {
@@ -374,7 +362,7 @@ export default defineComponent({
       let debounceTimer: number | null = null;
       const DEBOUNCE_DELAY = 100; // 100ms 防抖延迟（仅用于结构变化）
 
-      observer = new MutationObserver((mutations) => {
+      observer = new MutationObserver(mutations => {
         let hasStructureChange = false;
         let hasTextChange = false;
 
@@ -438,39 +426,46 @@ export default defineComponent({
     // ==================== 响应式监听 ====================
 
     // 监听 isWriting 变化
-    watch(() => props.isWriting, (newVal) => {
-      if (newVal) {
-        scheduleUpdate();
-      } else {
-        isVisible.value = false;
+    watch(
+      () => props.isWriting,
+      newVal => {
+        if (newVal) {
+          scheduleUpdate();
+        } else {
+          isVisible.value = false;
+        }
       }
-    });
+    );
 
     // 监听 targetRef 变化
-    watch(() => props.targetRef, async (newRef, oldRef) => {
-      if (!newRef) {
-        isVisible.value = false;
-        lastTextNodeCache = null; // 清除缓存
-        return;
-      }
+    watch(
+      () => props.targetRef,
+      async (newRef, oldRef) => {
+        if (!newRef) {
+          isVisible.value = false;
+          lastTextNodeCache = null; // 清除缓存
+          return;
+        }
 
-      // 如果 targetRef 变化，清除缓存
-      if (oldRef !== newRef) {
-        lastTextNodeCache = null;
-      }
+        // 如果 targetRef 变化，清除缓存
+        if (oldRef !== newRef) {
+          lastTextNodeCache = null;
+        }
 
-      observeTarget();
+        observeTarget();
 
-      // 如果是从 null 变为有值，延迟一下确保 DOM 完全渲染
-      if (!oldRef) {
-        await nextTick();
-        // 再延迟一点确保内容已渲染
-        await new Promise(resolve => setTimeout(resolve, 50));
-        scheduleUpdate();
-      } else {
-        scheduleUpdate();
-      }
-    }, { immediate: true });
+        // 如果是从 null 变为有值，延迟一下确保 DOM 完全渲染
+        if (!oldRef) {
+          await nextTick();
+          // 再延迟一点确保内容已渲染
+          await new Promise(resolve => setTimeout(resolve, 50));
+          scheduleUpdate();
+        } else {
+          scheduleUpdate();
+        }
+      },
+      { immediate: true }
+    );
 
     // ==================== 生命周期 ====================
 
@@ -519,18 +514,10 @@ export default defineComponent({
               <path {...svgPaths.mainBody} />
 
               {/* 左侧边缘 */}
-              <path
-                {...svgPaths.leftEdge}
-                stroke-linecap="round"
-                fill="none"
-              />
+              <path {...svgPaths.leftEdge} stroke-linecap="round" fill="none" />
 
               {/* 右侧边缘 */}
-              <path
-                {...svgPaths.rightEdge}
-                stroke-linecap="round"
-                fill="none"
-              />
+              <path {...svgPaths.rightEdge} stroke-linecap="round" fill="none" />
 
               {/* 纹理线条 */}
               {svgPaths.textureLines.map((line, index) => (
@@ -552,11 +539,7 @@ export default defineComponent({
               <path {...svgPaths.penTip} />
 
               {/* 高光 */}
-              <path
-                {...svgPaths.highlight}
-                stroke-linecap="round"
-                fill="none"
-              />
+              <path {...svgPaths.highlight} stroke-linecap="round" fill="none" />
             </svg>
           </div>
         </div>

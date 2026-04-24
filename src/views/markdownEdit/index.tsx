@@ -77,10 +77,7 @@ export default defineComponent({
     return () => (
       <div class="h-full flex bg-gray-50" style={editorStyle.value}>
         {/* 左侧输入框 */}
-        <div
-          class="w-1/3 overflow-y-auto border-r border-gray-200 p-4"
-          style={leftStyle.value}
-        >
+        <div class="w-1/3 overflow-y-auto border-r border-gray-200 p-4" style={leftStyle.value}>
           <div class="mb-2 text-lg font-semibold">
             Markdown 输入
             <NButton onClick={clickHandle} disabled={isTyping.value} class="ml-2">
@@ -93,7 +90,7 @@ export default defineComponent({
             autosize={{ minRows: 20 }}
             placeholder="请输入 Markdown 内容..."
             class="w-full text-sm font-mono"
-            onUpdate: value={(val: string) => {
+            onUpdate:value={(val: string) => {
               content.value = val;
             }}
           />
@@ -102,14 +99,8 @@ export default defineComponent({
         {/* 右侧预览框 */}
         <div class="w-2/3 overflow-y-auto p-4" style={rightStyle.value}>
           <div class="mb-2 text-lg font-semibold">预览结果</div>
-          <div
-            class="border border-gray-200 rounded-md p-4 shadow"
-            style={previewStyle.value}
-          >
-            <Markdown
-              content={content.value}
-              showPenEffect={isTyping.value}
-            />
+          <div class="border border-gray-200 rounded-md p-4 shadow" style={previewStyle.value}>
+            <Markdown content={content.value} showPenEffect={isTyping.value} />
           </div>
         </div>
       </div>

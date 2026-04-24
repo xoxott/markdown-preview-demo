@@ -13,7 +13,8 @@ defineOptions({
 const appStore = useAppStore();
 const themeStore = useThemeStore();
 const { routerPushByKeyWithMetaQuery } = useRouterPush();
-const { allMenus, childLevelMenus, activeFirstLevelMenuKey, setActiveFirstLevelMenuKey } = useMixMenuContext();
+const { allMenus, childLevelMenus, activeFirstLevelMenuKey, setActiveFirstLevelMenuKey } =
+  useMixMenuContext();
 const { selectedKey } = useMenu();
 
 function handleSelectMixMenu(menu: App.Global.Menu) {

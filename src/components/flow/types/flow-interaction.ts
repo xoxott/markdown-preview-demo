@@ -31,4 +31,3 @@ export type CoordinateTransform = (
   startTargetX: number,
   startTargetY: number
 ) => DragTransformResult;
-

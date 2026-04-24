@@ -1,5 +1,19 @@
 import { defineComponent, computed, watch, ref, type PropType } from 'vue';
-import { NDrawer, NDrawerContent, NForm, NFormItem, NInput, NInputNumber, NSelect, NSwitch, NButton, NSpace, NDivider, NIcon, NTag } from 'naive-ui';
+import {
+  NDrawer,
+  NDrawerContent,
+  NForm,
+  NFormItem,
+  NInput,
+  NInputNumber,
+  NSelect,
+  NSwitch,
+  NButton,
+  NSpace,
+  NDivider,
+  NIcon,
+  NTag
+} from 'naive-ui';
 import { Icon } from '@iconify/vue';
 import { NODE_TYPES } from '../nodes/NodeRegistry';
 
@@ -15,7 +29,9 @@ export default defineComponent({
       default: null
     },
     onUpdate: {
-      type: Function as PropType<(nodeId: string, updates: Partial<Api.Workflow.WorkflowNode>) => void>,
+      type: Function as PropType<
+        (nodeId: string, updates: Partial<Api.Workflow.WorkflowNode>) => void
+      >,
       default: undefined
     },
     onClose: {
@@ -36,15 +52,19 @@ export default defineComponent({
     });
 
     // 监听节点变化，更新表单数据
-    watch(() => props.node, (node) => {
-      if (node) {
-        formData.value = {
-          label: node.name || '',
-          description: node.description || '',
-          config: { ...node.config }
-        };
-      }
-    }, { immediate: true, deep: true });
+    watch(
+      () => props.node,
+      node => {
+        if (node) {
+          formData.value = {
+            label: node.name || '',
+            description: node.description || '',
+            config: { ...node.config }
+          };
+        }
+      },
+      { immediate: true, deep: true }
+    );
 
     // 获取节点类型配置
     const nodeTypeConfig = computed(() => {
@@ -295,11 +315,7 @@ export default defineComponent({
           );
 
         default:
-          return (
-            <div class="text-gray-500 text-center py-8">
-              此节点类型暂无特殊配置
-            </div>
-          );
+          return <div class="text-gray-500 text-center py-8">此节点类型暂无特殊配置</div>;
       }
     };
 
@@ -312,11 +328,7 @@ export default defineComponent({
           if (!show) props.onClose?.();
         }}
       >
-        <NDrawerContent
-          title="节点配置"
-          closable
-          nativeScrollbar={false}
-        >
+        <NDrawerContent title="节点配置" closable nativeScrollbar={false}>
           {{
             default: () => {
               if (!props.node) {
@@ -357,11 +369,18 @@ export default defineComponent({
                         <div class="font-semibold text-gray-800 dark:text-gray-100">
                           {nodeTypeConfig.value?.label}
                         </div>
-                        <div class="text-xs text-gray-500">
-                          ID: {props.node.id}
-                        </div>
+                        <div class="text-xs text-gray-500">ID: {props.node.id}</div>
                       </div>
-                      <NTag type={props.node.type === 'start' ? 'success' : props.node.type === 'end' ? 'error' : 'info'} size="small">
+                      <NTag
+                        type={
+                          props.node.type === 'start'
+                            ? 'success'
+                            : props.node.type === 'end'
+                              ? 'error'
+                              : 'info'
+                        }
+                        size="small"
+                      >
                         {props.node.type}
                       </NTag>
                     </div>
@@ -377,10 +396,7 @@ export default defineComponent({
                   {/* 基础配置 */}
                   <NForm labelPlacement="top" labelWidth="auto">
                     <NFormItem label="节点名称">
-                      <NInput
-                        v-model:value={formData.value.label}
-                        placeholder="输入节点名称"
-                      />
+                      <NInput v-model:value={formData.value.label} placeholder="输入节点名称" />
                     </NFormItem>
 
                     <NFormItem label="节点描述">
@@ -395,9 +411,7 @@ export default defineComponent({
                     <NDivider />
 
                     {/* 类型特定配置 */}
-                    <div class="font-semibold text-gray-700 dark:text-gray-300 mb-4">
-                      节点配置
-                    </div>
+                    <div class="font-semibold text-gray-700 dark:text-gray-300 mb-4">节点配置</div>
                     {renderConfigForm()}
                   </NForm>
                 </div>
@@ -405,9 +419,7 @@ export default defineComponent({
             },
             footer: () => (
               <NSpace justify="end">
-                <NButton onClick={props.onClose}>
-                  取消
-                </NButton>
+                <NButton onClick={props.onClose}>取消</NButton>
                 <NButton type="primary" onClick={handleSave}>
                   保存
                 </NButton>
@@ -419,4 +431,3 @@ export default defineComponent({
     );
   }
 });
-

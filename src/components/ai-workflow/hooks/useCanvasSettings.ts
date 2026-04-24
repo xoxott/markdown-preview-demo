@@ -2,7 +2,11 @@
  * 画布设置管理 Hook
  */
 import { ref, computed } from 'vue';
-import type { CanvasSettings, ConnectionLineStyle, CanvasBackground } from '../types/canvas-settings';
+import type {
+  CanvasSettings,
+  ConnectionLineStyle,
+  CanvasBackground
+} from '../types/canvas-settings';
 import { DEFAULT_CANVAS_SETTINGS } from '../types/canvas-settings';
 
 export function useCanvasSettings(initialSettings?: Partial<CanvasSettings>) {
@@ -35,4 +39,3 @@ export function useCanvasSettings(initialSettings?: Partial<CanvasSettings>) {
     resetSettings
   };
 }
-

@@ -5,7 +5,11 @@
  */
 
 import { registerGridGenerator } from '../components/background/GridPatternGenerator';
-import type { GridPatternGenerator, GridPatternGeneratorOptions, GridPatternResult } from '../components/background/GridPatternGenerator';
+import type {
+  GridPatternGenerator,
+  GridPatternGeneratorOptions,
+  GridPatternResult
+} from '../components/background/GridPatternGenerator';
 import type { FlowGridType } from '../types';
 
 /**
@@ -57,7 +61,16 @@ class HexagonGridGenerator implements GridPatternGenerator {
  */
 class LargeDotsGridGenerator implements GridPatternGenerator {
   generate(options: GridPatternGeneratorOptions): GridPatternResult {
-    const { patternSize, gridColor, gridOpacity, zoom, idPrefix, patternX, patternY, patternCenter } = options;
+    const {
+      patternSize,
+      gridColor,
+      gridOpacity,
+      zoom,
+      idPrefix,
+      patternX,
+      patternY,
+      patternCenter
+    } = options;
     const dotRadius = 3 * zoom; // 更大的圆点
 
     const pattern = (

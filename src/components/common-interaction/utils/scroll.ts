@@ -17,7 +17,10 @@ export function getScrollContainer(element: HTMLElement): HTMLElement | null {
       /(auto|scroll)/.test(overflowX) ||
       /(auto|scroll)/.test(overflowY);
 
-    if (hasScroll && (parent.scrollHeight > parent.clientHeight || parent.scrollWidth > parent.clientWidth)) {
+    if (
+      hasScroll &&
+      (parent.scrollHeight > parent.clientHeight || parent.scrollWidth > parent.clientWidth)
+    ) {
       return parent;
     }
 
@@ -137,10 +140,7 @@ function easeInOutCubic(t: number): number {
 /**
  * 获取元素相对于滚动容器的位置
  */
-export function getElementOffsetInContainer(
-  element: HTMLElement,
-  container: HTMLElement
-): Point {
+export function getElementOffsetInContainer(element: HTMLElement, container: HTMLElement): Point {
   const elementRect = element.getBoundingClientRect();
   const containerRect = container.getBoundingClientRect();
 
@@ -153,10 +153,7 @@ export function getElementOffsetInContainer(
 /**
  * 判断元素是否在可视区域内
  */
-export function isElementInViewport(
-  element: HTMLElement,
-  container?: HTMLElement
-): boolean {
+export function isElementInViewport(element: HTMLElement, container?: HTMLElement): boolean {
   const rect = element.getBoundingClientRect();
 
   if (container) {
@@ -209,4 +206,3 @@ export function scrollIntoViewIfNeeded(
     });
   }
 }
-

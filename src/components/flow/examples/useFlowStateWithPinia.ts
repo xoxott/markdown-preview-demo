@@ -6,7 +6,11 @@
 
 import { computed, type Ref } from 'vue';
 import { defineStore } from 'pinia';
-import type { IStateStore, Unsubscribe, StateChangeType } from '../core/state/interfaces/IStateStore';
+import type {
+  IStateStore,
+  Unsubscribe,
+  StateChangeType
+} from '../core/state/interfaces/IStateStore';
 import type { FlowNode } from '../types/flow-node';
 import type { FlowEdge } from '../types/flow-edge';
 import type { FlowViewport } from '../types/flow-config';
@@ -27,10 +31,10 @@ export const useFlowStore = defineStore('flow', {
   }),
 
   getters: {
-    getNodeById: (state) => (id: string) => {
+    getNodeById: state => (id: string) => {
       return state.nodes.find(node => node.id === id);
     },
-    getEdgeById: (state) => (id: string) => {
+    getEdgeById: state => (id: string) => {
       return state.edges.find(edge => edge.id === id);
     }
   },
@@ -187,9 +191,7 @@ class PiniaStateStore implements IStateStore {
   }
 
   getNodeEdges(nodeId: string): FlowEdge[] {
-    return this.store.edges.filter(
-      edge => edge.source === nodeId || edge.target === nodeId
-    );
+    return this.store.edges.filter(edge => edge.source === nodeId || edge.target === nodeId);
   }
 
   // 视口操作
@@ -411,4 +413,3 @@ export function useFlowStateWithPinia(options?: {
     }
   };
 }
-

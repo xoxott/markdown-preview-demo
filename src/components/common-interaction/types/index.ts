@@ -114,10 +114,7 @@ export interface DropTargetState {
 }
 
 /** 拖放验证器 */
-export type DropValidator<T = any> = (
-  item: DragItem<T>,
-  dropZoneId: string
-) => boolean;
+export type DropValidator<T = any> = (item: DragItem<T>, dropZoneId: string) => boolean;
 
 /** 拖放回调参数 */
 export interface DropCallbackParams<T = any> {
@@ -204,4 +201,3 @@ export type RequiredKeys<T, K extends keyof T> = T & Required<Pick<T, K>>;
 
 /** 可选属性 */
 export type OptionalKeys<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
-

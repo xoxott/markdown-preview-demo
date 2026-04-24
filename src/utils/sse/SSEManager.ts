@@ -36,10 +36,7 @@ class SSEManager {
   /**
    * Create or get SSE connection
    */
-  connect(
-    connectionId: string,
-    config: SSE.ConnectionConfig
-  ): SSE.Connection {
+  connect(connectionId: string, config: SSE.ConnectionConfig): SSE.Connection {
     // If connection already exists, increment ref count and return it
     if (this.connections.has(connectionId)) {
       const existing = this.connections.get(connectionId)!;
@@ -230,7 +227,10 @@ class SSEManager {
           const listeners = connection.listeners.get('data') || new Set();
           listeners.forEach(listener => {
             try {
-              listener(message.data, new MessageEvent('data', { data: JSON.stringify(message.data) }));
+              listener(
+                message.data,
+                new MessageEvent('data', { data: JSON.stringify(message.data) })
+              );
             } catch (err) {
               // Silent error handling
             }
@@ -249,10 +249,9 @@ class SSEManager {
         break;
 
       default:
-        // Unknown message type
+      // Unknown message type
     }
   }
-
 
   /**
    * Handle connection error
@@ -270,7 +269,8 @@ class SSEManager {
 
     // Check if error is 401 Unauthorized (token expired)
     // For 401 errors, don't auto reconnect - wait for token refresh
-    const isUnauthorized = errorObj.message.includes('401') || errorObj.message.includes('Unauthorized');
+    const isUnauthorized =
+      errorObj.message.includes('401') || errorObj.message.includes('Unauthorized');
 
     // Auto reconnect if enabled and not 401 error
     if (connection.config.autoReconnect && !isUnauthorized) {
@@ -347,10 +347,7 @@ class SSEManager {
    * @param listener - Status change listener callback
    * @returns Unsubscribe function
    */
-  onStatusChange(
-    connectionId: string,
-    listener: SSE.StatusChangeListener
-  ): () => void {
+  onStatusChange(connectionId: string, listener: SSE.StatusChangeListener): () => void {
     const connection = this.connections.get(connectionId);
     if (!connection) {
       return () => {};
@@ -479,7 +476,11 @@ class SSEManager {
    * @param headers - New headers to update
    * @param reconnect - Whether to reconnect after updating headers (default: true)
    */
-  updateHeaders(connectionId: string, headers: Record<string, string>, reconnect: boolean = true): void {
+  updateHeaders(
+    connectionId: string,
+    headers: Record<string, string>,
+    reconnect: boolean = true
+  ): void {
     const connection = this.connections.get(connectionId);
     if (!connection) {
       return;
@@ -522,4 +523,3 @@ class SSEManager {
 }
 
 export const sseManager = SSEManager.getInstance();
-

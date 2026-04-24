@@ -9,9 +9,11 @@
 ### 1. SelectionRect 组件
 
 #### 旧实现
+
 **位置**: `src/components/file-explorer/interaction/SelectionRect.tsx`
 
 **特点**:
+
 - 380 行代码
 - 自定义类型定义（Point, Rect）
 - 使用 `useThemeVars` 获取主题色
@@ -19,6 +21,7 @@
 - 自定义碰撞检测
 
 **Props**:
+
 ```typescript
 {
   disabled: boolean;
@@ -38,9 +41,11 @@
 ```
 
 #### 新实现
+
 **位置**: `src/components/common-interaction/SelectionRect/SelectionRect.tsx`
 
 **改进**:
+
 - 361 行代码（更精简）
 - 共享类型定义（types/index.ts）
 - 独立的工具函数（geometry.ts, scroll.ts）
@@ -48,6 +53,7 @@
 - 统一的 API 设计
 
 **Props**:
+
 ```typescript
 {
   disabled: boolean;
@@ -67,6 +73,7 @@
 ```
 
 **事件**:
+
 ```typescript
 {
   'selection-start': () => void;
@@ -78,6 +85,7 @@
 #### 迁移步骤
 
 1. **更新导入**:
+
 ```typescript
 // 旧
 import SelectionRect from '@/components/file-explorer/interaction/SelectionRect';
@@ -87,6 +95,7 @@ import { SelectionRect } from '@/components/common-interaction';
 ```
 
 2. **更新 Props**:
+
 ```typescript
 // 旧
 <SelectionRect
@@ -106,6 +115,7 @@ import { SelectionRect } from '@/components/common-interaction';
 ```
 
 3. **更新事件处理**:
+
 ```typescript
 // 旧
 function handleSelectionChange(selectedIds: string[]) {
@@ -124,15 +134,18 @@ function handleSelectionChange(params: SelectionCallbackParams) {
 ### 2. DragPreview 组件
 
 #### 旧实现
+
 **位置**: `src/components/file-explorer/interaction/DragPreview.tsx`
 
 **特点**:
+
 - 241 行代码
 - 使用 Naive UI 图标（@vicons/ionicons5）
 - 文件类型特定的图标映射
 - 固定的样式设计
 
 **Props**:
+
 ```typescript
 {
   items: FileItem[];
@@ -144,9 +157,11 @@ function handleSelectionChange(params: SelectionCallbackParams) {
 ```
 
 #### 新实现
+
 **位置**: `src/components/common-interaction/DragPreview/DragPreview.tsx`
 
 **改进**:
+
 - 373 行代码（功能更丰富）
 - 支持自定义图标解析器
 - 支持自定义项渲染器
@@ -154,6 +169,7 @@ function handleSelectionChange(params: SelectionCallbackParams) {
 - 泛型支持
 
 **Props**:
+
 ```typescript
 {
   items: DragItem[];
@@ -175,6 +191,7 @@ function handleSelectionChange(params: SelectionCallbackParams) {
 #### 迁移步骤
 
 1. **更新导入**:
+
 ```typescript
 // 旧
 import DragPreview from '@/components/file-explorer/interaction/DragPreview';
@@ -185,6 +202,7 @@ import type { DragItem } from '@/components/common-interaction';
 ```
 
 2. **转换数据类型**:
+
 ```typescript
 // 旧
 interface FileItem {
@@ -200,7 +218,7 @@ function convertToDragItem(fileItem: FileItem): DragItem {
     id: fileItem.id,
     name: fileItem.name,
     type: fileItem.type,
-    data: fileItem  // 保留原始数据
+    data: fileItem // 保留原始数据
   };
 }
 
@@ -208,6 +226,7 @@ const dragItems = selectedFiles.map(convertToDragItem);
 ```
 
 3. **自定义图标解析器**（可选）:
+
 ```typescript
 <DragPreview
   items={dragItems}
@@ -219,12 +238,12 @@ const dragItems = selectedFiles.map(convertToDragItem);
     // 使用原有的图标逻辑
     const fileItem = item.data as FileItem;
     if (fileItem.type === 'folder') return 'material-symbols:folder';
-    
+
     const ext = fileItem.extension?.toLowerCase();
     if (['jpg', 'png', 'gif'].includes(ext)) return 'material-symbols:image';
     if (['mp4', 'avi'].includes(ext)) return 'material-symbols:videocam';
     // ... 更多映射
-    
+
     return 'material-symbols:description';
   }}
 />
@@ -235,9 +254,11 @@ const dragItems = selectedFiles.map(convertToDragItem);
 ### 3. DropZone 组件
 
 #### 旧实现
+
 **位置**: `src/components/file-explorer/interaction/DropZone.tsx`
 
 **特点**:
+
 - 358 行代码
 - 文件上传特定的逻辑
 - `asFolderZone` 特殊模式
@@ -245,6 +266,7 @@ const dragItems = selectedFiles.map(convertToDragItem);
 - 加载状态支持
 
 **Props**:
+
 ```typescript
 {
   zoneId: string;
@@ -259,6 +281,7 @@ const dragItems = selectedFiles.map(convertToDragItem);
 ```
 
 **事件**:
+
 ```typescript
 {
   drop: (zoneId: string, targetPath?: string) => void;
@@ -268,9 +291,11 @@ const dragItems = selectedFiles.map(convertToDragItem);
 ```
 
 #### 新实现
+
 **位置**: `src/components/common-interaction/DropZone/DropZone.tsx`
 
 **改进**:
+
 - 445 行代码（更通用）
 - 类型验证系统
 - 自定义验证器
@@ -278,6 +303,7 @@ const dragItems = selectedFiles.map(convertToDragItem);
 - 无业务逻辑耦合
 
 **Props**:
+
 ```typescript
 {
   id: string;
@@ -297,6 +323,7 @@ const dragItems = selectedFiles.map(convertToDragItem);
 ```
 
 **事件**:
+
 ```typescript
 {
   'drag-enter': (params: DropCallbackParams) => void;
@@ -309,6 +336,7 @@ const dragItems = selectedFiles.map(convertToDragItem);
 #### 迁移步骤
 
 1. **更新导入**:
+
 ```typescript
 // 旧
 import DropZone from '@/components/file-explorer/interaction/DropZone';
@@ -319,6 +347,7 @@ import type { DropCallbackParams } from '@/components/common-interaction';
 ```
 
 2. **更新 Props**:
+
 ```typescript
 // 旧
 <DropZone
@@ -344,6 +373,7 @@ import type { DropCallbackParams } from '@/components/common-interaction';
 ```
 
 3. **更新事件处理**:
+
 ```typescript
 // 旧
 function handleDrop(zoneId: string, targetPath?: string) {
@@ -354,18 +384,19 @@ function handleDrop(zoneId: string, targetPath?: string) {
 // 新
 function handleDrop(params: DropCallbackParams) {
   const { dropZoneId, items, canDrop, event } = params;
-  
+
   if (!canDrop) return;
-  
+
   // 从 event.dataTransfer 获取文件
   const files = Array.from(event.dataTransfer?.files || []);
-  
+
   // 处理文件上传（targetPath 需要从其他地方获取）
   uploadFiles(targetPath, files);
 }
 ```
 
 4. **处理 `asFolderZone` 模式**:
+
 ```typescript
 // 旧
 <DropZone
@@ -392,6 +423,7 @@ function handleDrop(params: DropCallbackParams) {
 ## 迁移检查清单
 
 ### SelectionRect
+
 - [ ] 更新导入路径
 - [ ] 更新 prop 名称（className → containerSelector, preventDragSelector → preventSelector）
 - [ ] 更新事件处理器（接收 SelectionCallbackParams）
@@ -400,6 +432,7 @@ function handleDrop(params: DropCallbackParams) {
 - [ ] 测试键盘交互
 
 ### DragPreview
+
 - [ ] 更新导入路径
 - [ ] 转换数据类型（FileItem → DragItem）
 - [ ] 实现图标解析器（如需保留原有图标）
@@ -408,6 +441,7 @@ function handleDrop(params: DropCallbackParams) {
 - [ ] 测试多项目预览
 
 ### DropZone
+
 - [ ] 更新导入路径
 - [ ] 更新 prop 名称（zoneId → id）
 - [ ] 移除 `targetPath` 逻辑（在事件处理中管理）
@@ -422,14 +456,15 @@ function handleDrop(params: DropCallbackParams) {
 
 ## 性能对比
 
-| 组件 | 旧代码行数 | 新代码行数 | 改进 |
-|------|-----------|-----------|------|
-| SelectionRect | 380 | 361 | -5% |
-| DragPreview | 241 | 373 | +55%（功能更丰富） |
-| DropZone | 358 | 445 | +24%（更通用） |
-| **总计** | **979** | **1179** | **+20%** |
+| 组件          | 旧代码行数 | 新代码行数 | 改进               |
+| ------------- | ---------- | ---------- | ------------------ |
+| SelectionRect | 380        | 361        | -5%                |
+| DragPreview   | 241        | 373        | +55%（功能更丰富） |
+| DropZone      | 358        | 445        | +24%（更通用）     |
+| **总计**      | **979**    | **1179**   | **+20%**           |
 
 **注意**: 虽然新代码总行数增加了 20%，但考虑到：
+
 1. 共享的工具函数（geometry.ts: 122 行, scroll.ts: 213 行）
 2. 共享的类型定义（types/index.ts: 209 行）
 3. 更强大的功能和可定制性
@@ -497,6 +532,7 @@ function handleDrop(params: DropCallbackParams) {
 ### Q4: 性能会受影响吗？
 
 **A**: 不会。新组件使用了相同的优化技术：
+
 - RAF 节流（60fps）
 - 高效的事件处理
 - 最小化 DOM 操作
@@ -507,6 +543,7 @@ function handleDrop(params: DropCallbackParams) {
 ## 下一步
 
 完成迁移后：
+
 1. 删除旧的组件文件
 2. 更新相关的导入引用
 3. 运行完整的测试套件
@@ -518,4 +555,3 @@ function handleDrop(params: DropCallbackParams) {
 - [迁移计划](../MIGRATION_PLAN.md)
 - [类型定义](../types/index.ts)
 - [使用示例](../SelectionRect/example.tsx)
-

@@ -140,8 +140,11 @@ export class TaskStateManager {
   /**
    * 更新任务状态
    */
-  updateTasksStatus(tasks: FileTask[], status: UploadStatus, extra?: Record<string, unknown>): void {
+  updateTasksStatus(
+    tasks: FileTask[],
+    status: UploadStatus,
+    extra?: Record<string, unknown>
+  ): void {
     updateTasksStatus(tasks, status, extra);
   }
 }
-

@@ -1,6 +1,6 @@
 /**
  * Flow 缓存管理器
- * 
+ *
  * 提供计算结果缓存、渲染结果缓存等功能，提升性能
  */
 
@@ -51,7 +51,7 @@ export class FlowCache {
 
   /**
    * 设置缓存
-   * 
+   *
    * @param key 缓存键
    * @param value 缓存值
    */
@@ -72,7 +72,7 @@ export class FlowCache {
 
   /**
    * 获取缓存
-   * 
+   *
    * @param key 缓存键
    * @returns 缓存值，如果不存在或已过期则返回 undefined
    */
@@ -98,7 +98,7 @@ export class FlowCache {
 
   /**
    * 检查缓存是否存在
-   * 
+   *
    * @param key 缓存键
    * @returns 是否存在且未过期
    */
@@ -120,7 +120,7 @@ export class FlowCache {
 
   /**
    * 删除缓存
-   * 
+   *
    * @param key 缓存键
    */
   delete(key: string): void {
@@ -167,7 +167,7 @@ export class FlowCache {
 
   /**
    * 获取缓存统计信息
-   * 
+   *
    * @returns 缓存统计信息
    */
   getStats(): {
@@ -219,7 +219,7 @@ export class FlowCache {
 
   /**
    * 获取所有缓存键
-   * 
+   *
    * @returns 缓存键数组
    */
   keys(): string[] {
@@ -228,11 +228,10 @@ export class FlowCache {
 
   /**
    * 获取缓存大小
-   * 
+   *
    * @returns 缓存数量
    */
   size(): number {
     return this.cache.size;
   }
 }
-

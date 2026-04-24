@@ -30,14 +30,14 @@ function isDedupeMeta(meta: Record<string, unknown>): meta is DedupeMeta {
  */
 function parseDedupeConfig(
   config: boolean | DedupeOptions | undefined,
-  defaultOptions?: DedupeOptions,
+  defaultOptions?: DedupeOptions
 ): DedupeOptions | undefined {
   if (config === undefined || config === false) {
     return undefined;
   }
 
   if (typeof config === 'boolean') {
-    return config ? defaultOptions ?? {} : undefined;
+    return config ? (defaultOptions ?? {}) : undefined;
   }
 
   if (typeof config === 'object' && config !== null) {
@@ -93,7 +93,7 @@ export class DedupeStep implements RequestStep {
       key = generateRequestKey(ctx.config, {
         strategy: parsedConfig.strategy ?? 'exact',
         ignoreParams: parsedConfig.ignoreParams ?? [],
-        customKeyGenerator: parsedConfig.customKeyGenerator,
+        customKeyGenerator: parsedConfig.customKeyGenerator
       });
     } else {
       // 精确匹配，直接使用 ctx.id
@@ -109,4 +109,3 @@ export class DedupeStep implements RequestStep {
     });
   }
 }
-

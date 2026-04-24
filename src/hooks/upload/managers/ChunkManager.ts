@@ -1,4 +1,11 @@
-import type { ChunkInfo, ChunkUploadResponse, FileTask, IChunkManager, MergeResponse, UploadConfig } from '../type';
+import type {
+  ChunkInfo,
+  ChunkUploadResponse,
+  FileTask,
+  IChunkManager,
+  MergeResponse,
+  UploadConfig
+} from '../type';
 import { ChunkStatus } from '../type';
 import SmartChunkCalculator from '../calculators/SmartChunkCalculator';
 import { calculateFileMD5 } from '../utils';
@@ -46,7 +53,11 @@ export class ChunkManager implements IChunkManager {
     return chunks;
   }
 
-  async uploadChunk(task: FileTask, chunk: ChunkInfo, abortSignal: AbortSignal): Promise<ChunkUploadResponse> {
+  async uploadChunk(
+    task: FileTask,
+    chunk: ChunkInfo,
+    abortSignal: AbortSignal
+  ): Promise<ChunkUploadResponse> {
     const startTime = performance.now();
 
     try {

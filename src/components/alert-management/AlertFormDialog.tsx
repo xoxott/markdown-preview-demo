@@ -34,7 +34,7 @@ export default defineComponent({
     // 监听 config.formData 变化，同步到 formModel
     watch(
       () => props.config.formData,
-      (newData) => {
+      newData => {
         Object.assign(formModel, newData);
       },
       { deep: true, immediate: true }
@@ -62,7 +62,11 @@ export default defineComponent({
         { required: true, message: $t('page.alertManagement.nameRequired' as any), trigger: 'blur' }
       ],
       level: [
-        { required: true, message: $t('page.alertManagement.levelRequired' as any), trigger: 'change' }
+        {
+          required: true,
+          message: $t('page.alertManagement.levelRequired' as any),
+          trigger: 'change'
+        }
       ]
     };
 
@@ -94,7 +98,7 @@ export default defineComponent({
     // 监听显示状态，重置表单验证
     watch(
       () => props.show,
-      (show) => {
+      show => {
         if (show) {
           formRef.value?.restoreValidation();
         }
@@ -121,7 +125,10 @@ export default defineComponent({
               labelWidth="100px"
             >
               <NFormItem label={$t('page.alertManagement.name' as any)} path="name">
-                <NInput v-model:value={formModel.name} placeholder={$t('page.alertManagement.namePlaceholder' as any)} />
+                <NInput
+                  v-model:value={formModel.name}
+                  placeholder={$t('page.alertManagement.namePlaceholder' as any)}
+                />
               </NFormItem>
               <NFormItem label={$t('page.alertManagement.description' as any)} path="description">
                 <NInput
@@ -173,7 +180,10 @@ export default defineComponent({
                   style={{ width: '100%' }}
                 />
               </NFormItem>
-              <NFormItem label={$t('page.alertManagement.targetRoles' as any)} path="targetRoleCodes">
+              <NFormItem
+                label={$t('page.alertManagement.targetRoles' as any)}
+                path="targetRoleCodes"
+              >
                 <NSelect
                   v-model:value={formModel.targetRoleCodes}
                   placeholder={$t('page.alertManagement.targetRolesPlaceholder' as any)}
@@ -187,16 +197,16 @@ export default defineComponent({
               <NFormItem label={$t('page.alertManagement.status' as any)} path="isEnabled">
                 <NSwitch v-model:value={formModel.isEnabled} />
                 <span style={{ marginLeft: '8px' }}>
-                  {formModel.isEnabled ? $t('page.alertManagement.enabled' as any) : $t('page.alertManagement.disabled' as any)}
+                  {formModel.isEnabled
+                    ? $t('page.alertManagement.enabled' as any)
+                    : $t('page.alertManagement.disabled' as any)}
                 </span>
               </NFormItem>
             </NForm>
           ),
           footer: () => (
             <NSpace justify="end">
-              <NButton onClick={handleCancel}>
-                {$t('common.cancel')}
-              </NButton>
+              <NButton onClick={handleCancel}>{$t('common.cancel')}</NButton>
               <NButton type="primary" onClick={handleConfirm}>
                 {$t('common.confirm')}
               </NButton>
@@ -207,4 +217,3 @@ export default defineComponent({
     );
   }
 });
-

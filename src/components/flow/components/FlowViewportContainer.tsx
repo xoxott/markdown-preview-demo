@@ -78,13 +78,9 @@ export default defineComponent({
     });
 
     return () => (
-      <div
-        class={`flow-viewport-container ${props.class}`}
-        style={containerStyle.value}
-      >
+      <div class={`flow-viewport-container ${props.class}`} style={containerStyle.value}>
         {slots.default && slots.default()}
       </div>
     );
   }
 });
-

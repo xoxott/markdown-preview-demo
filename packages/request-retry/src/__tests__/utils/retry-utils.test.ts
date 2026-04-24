@@ -8,7 +8,7 @@ import {
   calculateRetryDelay,
   delay,
   isLastAttempt,
-  hasExceededErrorTypeMaxRetries,
+  hasExceededErrorTypeMaxRetries
 } from '../../utils/retry-utils';
 import type { RetryableError, RetryStrategy } from '../../types';
 import { DEFAULT_RETRY_CONFIG } from '../../constants';
@@ -18,14 +18,14 @@ describe('retry-utils', () => {
     it('应该不重试被取消的请求', () => {
       const error: RetryableError = {
         code: 'ERR_CANCELED',
-        message: 'Request canceled',
+        message: 'Request canceled'
       };
       expect(shouldRetry(error)).toBe(false);
     });
 
     it('应该重试网络错误（无状态码）', () => {
       const error: RetryableError = {
-        message: 'Network error',
+        message: 'Network error'
       };
       expect(shouldRetry(error)).toBe(true);
     });
@@ -33,7 +33,7 @@ describe('retry-utils', () => {
     it('应该重试服务器错误（5xx）', () => {
       const error: RetryableError = {
         message: 'Server error',
-        status: 500,
+        status: 500
       };
       expect(shouldRetry(error)).toBe(true);
     });
@@ -41,13 +41,13 @@ describe('retry-utils', () => {
     it('应该重试可重试的客户端错误（408, 429）', () => {
       const error408: RetryableError = {
         message: 'Request timeout',
-        status: 408,
+        status: 408
       };
       expect(shouldRetry(error408)).toBe(true);
 
       const error429: RetryableError = {
         message: 'Too many requests',
-        status: 429,
+        status: 429
       };
       expect(shouldRetry(error429)).toBe(true);
     });
@@ -55,7 +55,7 @@ describe('retry-utils', () => {
     it('不应该重试其他客户端错误', () => {
       const error: RetryableError = {
         message: 'Not found',
-        status: 404,
+        status: 404
       };
       expect(shouldRetry(error)).toBe(false);
     });
@@ -63,13 +63,13 @@ describe('retry-utils', () => {
     it('应该使用自定义策略', () => {
       const error: RetryableError = {
         message: 'Error',
-        status: 404,
+        status: 404
       };
       const strategy: RetryStrategy = {
         enabled: true,
         maxRetries: 3,
         shouldRetry: () => true,
-        retryDelay: () => 1000,
+        retryDelay: () => 1000
       };
       expect(shouldRetry(error, strategy)).toBe(true);
     });
@@ -77,7 +77,7 @@ describe('retry-utils', () => {
     it('应该处理超时错误（retryOnTimeout=false）', () => {
       const error: RetryableError = {
         code: 'ECONNABORTED',
-        message: 'Request timeout',
+        message: 'Request timeout'
       };
       expect(shouldRetry(error, undefined, 0, false)).toBe(false);
     });
@@ -86,7 +86,7 @@ describe('retry-utils', () => {
       // 注意：ECONNABORTED 会被 isCanceledError 识别为取消错误，所以不重试
       // 超时错误应该使用消息中包含 "timeout" 来标识
       const error: RetryableError = {
-        message: 'Request timeout', // 使用消息来标识超时，而不是 ECONNABORTED code
+        message: 'Request timeout' // 使用消息来标识超时，而不是 ECONNABORTED code
         // 注意：超时错误通常没有 status，会被 shouldRetryByDefault 识别为网络错误
       };
       // 当 retryOnTimeout=true 时，超时错误应该被默认策略处理
@@ -120,13 +120,13 @@ describe('retry-utils', () => {
 
     it('应该使用策略的 retryDelay 函数', () => {
       const error: RetryableError = {
-        message: 'Error',
+        message: 'Error'
       };
       const strategy: RetryStrategy = {
         enabled: true,
         maxRetries: 3,
         shouldRetry: () => true,
-        retryDelay: (attempt) => attempt * 1000,
+        retryDelay: attempt => attempt * 1000
       };
       const delay = calculateRetryDelay(2, 1000, error, strategy);
       expect(delay).toBe(2000); // 2 * 1000
@@ -135,7 +135,7 @@ describe('retry-utils', () => {
     it('应该使用错误类型策略的延迟', () => {
       const error: RetryableError = {
         message: 'Request timeout',
-        code: 'ECONNABORTED',
+        code: 'ECONNABORTED'
       };
       const strategy: RetryStrategy = {
         enabled: true,
@@ -145,9 +145,9 @@ describe('retry-utils', () => {
         errorTypeStrategy: {
           timeout: {
             maxRetries: 3,
-            delay: 2000,
-          },
-        },
+            delay: 2000
+          }
+        }
       };
       const delay = calculateRetryDelay(1, 1000, error, strategy);
       expect(delay).toBe(2000); // 使用错误类型策略的延迟
@@ -183,7 +183,7 @@ describe('retry-utils', () => {
     it('应该在达到错误类型最大重试次数时返回 true', () => {
       const error: RetryableError = {
         message: 'Request timeout',
-        code: 'ECONNABORTED',
+        code: 'ECONNABORTED'
       };
       const strategy: RetryStrategy = {
         enabled: true,
@@ -193,9 +193,9 @@ describe('retry-utils', () => {
         errorTypeStrategy: {
           timeout: {
             maxRetries: 2,
-            delay: 1000,
-          },
-        },
+            delay: 1000
+          }
+        }
       };
       expect(hasExceededErrorTypeMaxRetries(error, 2, strategy)).toBe(true);
       expect(hasExceededErrorTypeMaxRetries(error, 3, strategy)).toBe(true);
@@ -204,7 +204,7 @@ describe('retry-utils', () => {
     it('应该在未达到错误类型最大重试次数时返回 false', () => {
       const error: RetryableError = {
         message: 'Request timeout',
-        code: 'ECONNABORTED',
+        code: 'ECONNABORTED'
       };
       const strategy: RetryStrategy = {
         enabled: true,
@@ -214,9 +214,9 @@ describe('retry-utils', () => {
         errorTypeStrategy: {
           timeout: {
             maxRetries: 2,
-            delay: 1000,
-          },
-        },
+            delay: 1000
+          }
+        }
       };
       expect(hasExceededErrorTypeMaxRetries(error, 0, strategy)).toBe(false);
       expect(hasExceededErrorTypeMaxRetries(error, 1, strategy)).toBe(false);
@@ -224,13 +224,13 @@ describe('retry-utils', () => {
 
     it('应该在无错误类型策略时返回 false', () => {
       const error: RetryableError = {
-        message: 'Error',
+        message: 'Error'
       };
       const strategy: RetryStrategy = {
         enabled: true,
         maxRetries: 3,
         shouldRetry: () => true,
-        retryDelay: () => 1000,
+        retryDelay: () => 1000
       };
       expect(hasExceededErrorTypeMaxRetries(error, 5, strategy)).toBe(false);
     });
@@ -238,7 +238,7 @@ describe('retry-utils', () => {
     it('应该对不适用错误类型策略的错误返回 false', () => {
       const error: RetryableError = {
         message: 'Client error',
-        status: 404,
+        status: 404
       };
       const strategy: RetryStrategy = {
         enabled: true,
@@ -248,12 +248,11 @@ describe('retry-utils', () => {
         errorTypeStrategy: {
           timeout: {
             maxRetries: 2,
-            delay: 1000,
-          },
-        },
+            delay: 1000
+          }
+        }
       };
       expect(hasExceededErrorTypeMaxRetries(error, 5, strategy)).toBe(false);
     });
   });
 });
-

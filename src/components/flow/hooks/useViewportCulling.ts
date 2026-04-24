@@ -118,9 +118,7 @@ function isNodeVisible(
  * });
  * ```
  */
-export function useViewportCulling(
-  options: UseViewportCullingOptions
-): UseViewportCullingReturn {
+export function useViewportCulling(options: UseViewportCullingOptions): UseViewportCullingReturn {
   const {
     nodes,
     viewport,
@@ -161,9 +159,7 @@ export function useViewportCulling(
 
     // 选择查询策略
     const useSpatialIndex =
-      spatialIndex &&
-      spatialIndex.value &&
-      nodes.value.length > spatialIndexThreshold;
+      spatialIndex && spatialIndex.value && nodes.value.length > spatialIndexThreshold;
 
     let newVisibleNodes: FlowNode[];
     const queryStart = performance.now();
@@ -182,10 +178,8 @@ export function useViewportCulling(
 
       // 按照原始数组顺序过滤，确保 DOM 节点顺序不变
       const filterStart = performance.now();
-      newVisibleNodes = filterNodesByOriginalOrder(
-        nodes.value,
-        queriedNodes,
-        (node) => isNodeVisible(node, bounds, defaultNodeWidth, defaultNodeHeight)
+      newVisibleNodes = filterNodesByOriginalOrder(nodes.value, queriedNodes, node =>
+        isNodeVisible(node, bounds, defaultNodeWidth, defaultNodeHeight)
       );
       const filterTime = performance.now();
 
@@ -270,7 +264,8 @@ export function useViewportCulling(
 
     // 检查节点对象引用是否变化（重要：节点位置更新时，节点对象引用会变化）
     // 如果节点 ID 集合没变，但节点对象引用变化了，说明节点数据更新了（比如位置）
-    const nodesRefChanged = idsChanged ||
+    const nodesRefChanged =
+      idsChanged ||
       visibleNodesRef.value.length !== newVisibleNodes.length ||
       visibleNodesRef.value.some((node, index) => node !== newVisibleNodes[index]);
 
@@ -309,7 +304,6 @@ export function useViewportCulling(
     updateVisibleNodes,
     { immediate: false }
   );
-
 
   // 1. 监听节点变化、启用状态、空间索引变化（这些变化应该立即更新）
   watch(
@@ -359,7 +353,6 @@ export function useViewportCulling(
         viewportX: viewport.value.x,
         viewportY: viewport.value.y
       });
-
     },
     { immediate: false, deep: false }
   );
@@ -381,4 +374,3 @@ export function useViewportCulling(
     visibleNodes: visibleNodesRef
   };
 }
-

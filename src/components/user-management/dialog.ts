@@ -26,4 +26,3 @@ export interface UserFormDialogConfig {
   /** 取消回调 */
   onCancel?: () => void;
 }
-

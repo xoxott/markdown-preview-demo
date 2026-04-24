@@ -26,4 +26,3 @@ export interface NotificationFormDialogConfig {
   /** 取消回调 */
   onCancel?: () => void;
 }
-

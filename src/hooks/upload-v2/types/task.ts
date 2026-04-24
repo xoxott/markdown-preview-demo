@@ -54,4 +54,3 @@ export interface MergeResponse {
   originalFile?: File;
   uploadTime: number;
 }
-

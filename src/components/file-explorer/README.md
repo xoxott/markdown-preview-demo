@@ -163,22 +163,24 @@ FileExplorer (主容器)
    ├─ SelectionInfo (选中信息)
    └─ Statistics (统计信息)
 ```
+
 props 用于“组件特定、独立的参数”。
 
-inject 用于“全局共享、深层复用的状态/方法”。
----
+## inject 用于“全局共享、深层复用的状态/方法”。
 
 ## 📋 核心功能实现清单
 
 ### ✅ 已实现功能
 
 #### 视图系统
+
 - [x] 5种视图模式（网格、列表、平铺、详细、内容）
 - [x] 网格视图支持4种图标尺寸
 - [x] 详细视图支持列宽调整和列顺序拖拽
 - [x] 视图动态切换
 
 #### 选择系统
+
 - [x] 单选（普通点击）
 - [x] 多选（Ctrl/Cmd + 点击）
 - [x] 范围选择（Shift + 点击）
@@ -187,6 +189,7 @@ inject 用于“全局共享、深层复用的状态/方法”。
 - [x] 智能边界检测（只在视图容器内清空选中）
 
 #### 文件操作
+
 - [x] 复制/剪切/粘贴（内部剪贴板管理）
 - [x] 删除文件
 - [x] 重命名文件
@@ -195,18 +198,21 @@ inject 用于“全局共享、深层复用的状态/方法”。
 - [x] 显示文件属性
 
 #### 交互系统
+
 - [x] 右键菜单（上下文相关）
 - [x] 拖拽移动/复制（带预览和验证）
 - [x] 键盘快捷键（16个快捷键）
 - [x] 圈选组件（高性能，支持自动滚动）
 
 #### 布局系统
+
 - [x] 可调整的左侧边栏（可折叠）
 - [x] 可调整的右侧信息面板（默认隐藏）
 - [x] 响应式布局
 - [x] 拖拽调整宽度
 
 #### UI 组件
+
 - [x] 顶部工具栏（视图切换、排序、网格尺寸）
 - [x] 面包屑导航
 - [x] 左侧边栏（快速访问、文件树）
@@ -215,6 +221,7 @@ inject 用于“全局共享、深层复用的状态/方法”。
 - [x] 加载状态反馈
 
 #### 其他功能
+
 - [x] 文件排序（名称、大小、类型、日期）
 - [x] 文件夹始终在前
 - [x] 文件图标识别
@@ -222,6 +229,7 @@ inject 用于“全局共享、深层复用的状态/方法”。
 - [x] 日期格式化
 
 ### 🚧 待完善功能
+
 - [ ] 搜索过滤功能
 - [ ] PDF 预览支持
 - [ ] 批量操作进度显示
@@ -233,27 +241,33 @@ inject 用于“全局共享、深层复用的状态/方法”。
 ## 🎯 视图模式详细说明
 
 ### 1️⃣ GridView - 网格视图
+
 **布局方式**: CSS Grid + Auto Fill  
 **图标尺寸**:
+
 - Extra Large: 80px (3列)
 - Large: 64px (4列)
 - Medium: 48px (5列)
 - Small: 32px (6列)
 
 **特点**:
+
 - 响应式列数
 - 缩略图支持
 
 ---
 
 ### 2️⃣ ListView - 列表视图
+
 **布局方式**: Flex 单行  
 **显示内容**:
+
 - 图标（32px）
 - 文件名
 - 大小标签
 
 **特点**:
+
 - 紧凑布局
 - 快速浏览
 - 类似资源管理器
@@ -261,26 +275,32 @@ inject 用于“全局共享、深层复用的状态/方法”。
 ---
 
 ### 3️⃣ TileView - 平铺视图
+
 **布局方式**: Grid 2列  
 **显示内容**:
+
 - 图标（48px，左侧）
 - 文件名 + 元信息（右侧）
 
 **特点**:
+
 - 平衡的信息展示
 - 适合中等数量文件
 
 ---
 
 ### 4️⃣ DetailView - 详细视图
+
 **布局方式**: Naive UI DataTable  
 **显示列**:
+
 - 名称（带图标）
 - 修改日期
 - 类型
 - 大小
 
 **特点**:
+
 - 完整信息展示
 - 可排序
 - 表格形式
@@ -288,13 +308,16 @@ inject 用于“全局共享、深层复用的状态/方法”。
 ---
 
 ### 5️⃣ ContentView - 内容视图
+
 **布局方式**: Card 列表  
 **显示内容**:
+
 - 大图标（48px）
 - 文件名 + 元信息
 - 内容预览摘要（3行）
 
 **特点**:
+
 - 预览文件内容
 - 适合文档搜索
 - 最详细的视图
@@ -304,8 +327,10 @@ inject 用于“全局共享、深层复用的状态/方法”。
 ## 🔧 关键 Composable 说明
 
 ### useFileSelection
+
 **功能**: 统一的文件选择逻辑  
 **支持**:
+
 - 单选（普通点击）
 - 多选（Ctrl/Cmd + 点击）
 - 范围选择（Shift + 点击）
@@ -315,8 +340,10 @@ inject 用于“全局共享、深层复用的状态/方法”。
 ---
 
 ### useFileSort
+
 **功能**: 文件排序逻辑  
 **排序字段**:
+
 - 名称（字母序）
 - 大小（数值）
 - 类型（分类）
@@ -327,27 +354,35 @@ inject 用于“全局共享、深层复用的状态/方法”。
 ---
 
 ### useKeyboardShortcuts
+
 **功能**: 统一的键盘快捷键管理  
 **特性**:
+
 - 支持修饰键组合（Ctrl、Shift、Alt、Meta）
 - 可绑定到特定 DOM 元素或全局
 - 自动处理事件监听和清理
 - 支持自定义快捷键映射
 
 **使用示例**:
+
 ```typescript
-useKeyboardShortcuts({
-  'Ctrl+C': (e) => copyFiles(),
-  'Ctrl+V': (e) => pasteFiles(),
-  'Delete': (e) => deleteFiles()
-}, containerRef)
+useKeyboardShortcuts(
+  {
+    'Ctrl+C': e => copyFiles(),
+    'Ctrl+V': e => pasteFiles(),
+    'Delete': e => deleteFiles()
+  },
+  containerRef
+);
 ```
 
 ---
 
 ### useFileOperations
+
 **功能**: 文件操作逻辑封装  
 **支持操作**:
+
 - 复制/剪切/粘贴（内部剪贴板管理）
 - 删除文件
 - 重命名文件
@@ -356,14 +391,17 @@ useKeyboardShortcuts({
 - 显示属性
 
 **特性**:
+
 - 统一的操作接口
 - 剪贴板状态管理
 - 操作回调支持
 - 状态验证（单选/多选限制）
 
 ### useFileDragDropEnhanced
+
 **功能**: 增强的拖拽逻辑  
 **特性**:
+
 - 支持拖拽移动/复制/链接
 - 拖拽预览
 - 放置区域验证
@@ -371,8 +409,10 @@ useKeyboardShortcuts({
 - 错误处理
 
 ### useFileMetadata
+
 **功能**: 文件元数据管理  
 **特性**:
+
 - 使用 Map 存储文件 ID 到元数据的映射
 - 提供标签和备注的增删改查方法
 - 内存存储（可扩展为 localStorage 持久化）
@@ -382,6 +422,7 @@ useKeyboardShortcuts({
 ## ⌨️ 键盘快捷键
 
 ### 文件操作（8个）
+
 - `Ctrl+A` - 全选文件
 - `Ctrl+C` - 复制选中文件
 - `Ctrl+X` - 剪切选中文件
@@ -392,6 +433,7 @@ useKeyboardShortcuts({
 - `Alt+Enter` - 显示文件属性/信息面板
 
 ### 视图切换（5个）
+
 - `Ctrl+1` - 切换到网格视图
 - `Ctrl+2` - 切换到列表视图
 - `Ctrl+3` - 切换到平铺视图
@@ -399,6 +441,7 @@ useKeyboardShortcuts({
 - `Ctrl+5` - 切换到内容视图
 
 ### 其他操作（3个）
+
 - `F5` - 刷新视图
 - `Ctrl+Shift+N` - 新建文件夹
 - `Escape` - 取消选择
@@ -410,6 +453,7 @@ useKeyboardShortcuts({
 ## 📊 信息面板
 
 ### 功能特性
+
 - **文件信息展示**: 显示选中文件的详细信息（名称、类型、大小、路径、时间等）
 - **统计信息**: 多选时显示选中文件的统计信息（总数、文件数、文件夹数、总大小、文件类型分布）
 - **轻量级设计**: 适配窄面板（最小 200px），性能友好
@@ -417,15 +461,18 @@ useKeyboardShortcuts({
 - **可调整宽度**: 支持拖拽调整面板宽度（120px - 1000px）
 
 ### 打开方式
+
 - 右键菜单 → "文件信息"选项
 - 快捷键 `Alt+Enter`（选中文件时）
 
 ### 显示内容
 
 **单选时**:
+
 - 基本信息：名称、类型、大小、扩展名、路径、创建时间、修改时间
 
 **多选时**:
+
 - 统计信息：总数、文件数、文件夹数、总大小
 - 文件类型分布：按扩展名统计
 
@@ -441,28 +488,28 @@ useKeyboardShortcuts({
 </template>
 
 <script setup>
-import FileExplorer from '@/components/file-explorer/FileExplorer.vue'
+import FileExplorer from '@/components/file-explorer/FileExplorer.vue';
 </script>
 ```
 
 ### 自定义配置
 
 ```typescript
-import { useFileExplorerLogic } from '@/components/file-explorer/composables/useFileExplorerLogic'
+import { useFileExplorerLogic } from '@/components/file-explorer/composables/useFileExplorerLogic';
 
 const logic = useFileExplorerLogic({
   initialItems: fileList,
   containerRef,
   validateDrop: (items, targetPath) => {
     // 自定义拖放验证逻辑
-    return true
+    return true;
   },
   initialDataSourceType: 'local', // 或 'server'
   serverDataSourceConfig: {
     baseUrl: 'https://api.example.com',
     token: 'your-token'
   }
-})
+});
 ```
 
 ### 模式切换
@@ -470,12 +517,14 @@ const logic = useFileExplorerLogic({
 文件管理器支持两种模式：
 
 **本地模式**:
+
 - 使用 File System Access API 访问本地文件系统
 - 需要用户授权选择文件夹
 - 支持直接编辑和预览本地文件
 - 双击文件夹可进入子目录
 
 **服务器模式**:
+
 - 通过 API 访问服务器文件
 - 支持文件上传到服务器
 - 文件操作通过 API 调用实现
@@ -496,6 +545,7 @@ const logic = useFileExplorerLogic({
 文件管理器采用数据源抽象设计，支持多种文件存储后端：
 
 **IFileDataSource 接口**:
+
 - `listFiles(path)` - 列出文件
 - `readFile(path)` - 读取文件
 - `writeFile(path, content)` - 写入文件
@@ -508,6 +558,7 @@ const logic = useFileExplorerLogic({
 ### LocalFileDataSource
 
 **功能**:
+
 - 使用 File System Access API 访问本地文件系统
 - 支持打开文件夹、读取/写入文件
 - 自动获取文件大小和修改时间
@@ -515,6 +566,7 @@ const logic = useFileExplorerLogic({
 - 双击文件夹可进入子目录
 
 **使用**:
+
 ```typescript
 const localDataSource = new LocalFileDataSource();
 await localDataSource.openFolder(); // 打开文件夹选择器
@@ -524,11 +576,13 @@ const files = await localDataSource.listFiles('/');
 ### ServerFileDataSource
 
 **功能**:
+
 - 通过 REST API 访问服务器文件
 - 支持认证和自定义请求头
 - 可配置 API 基础 URL
 
 **使用**:
+
 ```typescript
 const serverDataSource = new ServerFileDataSource({
   baseUrl: 'https://api.example.com',

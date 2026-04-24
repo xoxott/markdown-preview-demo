@@ -15,31 +15,34 @@ pnpm add @suga/request-logger
 ```typescript
 import { RequestClient } from '@suga/request-core';
 import { EventStep } from '@suga/request-events';
-import { logRequestWithManager, logResponseWithManager, logErrorWithManager } from '@suga/request-logger';
+import {
+  logRequestWithManager,
+  logResponseWithManager,
+  logErrorWithManager
+} from '@suga/request-logger';
 
 // 创建请求客户端（需要提供 transport）
-const client = new RequestClient(transport)
-  .with(new EventStep());
+const client = new RequestClient(transport).with(new EventStep());
 
 // 监听事件并记录日志
 import { onRequestStart, onRequestSuccess, onRequestError } from '@suga/request-events';
 
-onRequestStart((data) => {
+onRequestStart(data => {
   logRequestWithManager(data.config);
 });
 
-onRequestSuccess((data) => {
+onRequestSuccess(data => {
   logResponseWithManager(data.config, data.result, data.duration);
 });
 
-onRequestError((data) => {
+onRequestError(data => {
   logErrorWithManager(data.config, data.error, data.duration);
 });
 
 // 发送请求
 await client.request({
   url: '/api/users',
-  method: 'GET',
+  method: 'GET'
 });
 ```
 
@@ -53,7 +56,7 @@ configureLogger({
   enabled: true, // 必须明确设置为 true 才会启用日志
   logRequest: true, // 记录请求日志
   logResponse: true, // 记录响应日志
-  logError: true, // 记录错误日志
+  logError: true // 记录错误日志
 });
 ```
 
@@ -70,7 +73,7 @@ const customLogger = new LoggerManager({
   output: (message, ...args) => {
     // 自定义日志输出
     console.log(`[CUSTOM] ${message}`, ...args);
-  },
+  }
 });
 
 // 使用自定义管理器
@@ -78,7 +81,7 @@ import type { NormalizedRequestConfig } from '@suga/request-core';
 
 const config: NormalizedRequestConfig = {
   url: '/api/users',
-  method: 'GET',
+  method: 'GET'
 };
 
 logRequest(config, customLogger);
@@ -140,7 +143,7 @@ configureLogger({
   enabled: true,
   logRequest: true,
   logResponse: true,
-  logError: true,
+  logError: true
 });
 ```
 
@@ -149,18 +152,22 @@ configureLogger({
 ### 示例 1：基本日志记录
 
 ```typescript
-import { logRequestWithManager, logResponseWithManager, logErrorWithManager } from '@suga/request-logger';
+import {
+  logRequestWithManager,
+  logResponseWithManager,
+  logErrorWithManager
+} from '@suga/request-logger';
 import { onRequestStart, onRequestSuccess, onRequestError } from '@suga/request-events';
 
-onRequestStart((data) => {
+onRequestStart(data => {
   logRequestWithManager(data.config);
 });
 
-onRequestSuccess((data) => {
+onRequestSuccess(data => {
   logResponseWithManager(data.config, data.result, data.duration);
 });
 
-onRequestError((data) => {
+onRequestError(data => {
   logErrorWithManager(data.config, data.error, data.duration);
 });
 ```
@@ -177,7 +184,7 @@ configureLogger({
   enabled: isDev, // 使用者自己判断环境
   logRequest: true,
   logResponse: true,
-  logError: true,
+  logError: true
 });
 ```
 
@@ -196,14 +203,14 @@ const logger = new LoggerManager({
       level: 'info',
       message,
       args,
-      timestamp: Date.now(),
+      timestamp: Date.now()
     });
-  },
+  }
 });
 
 const config: NormalizedRequestConfig = {
   url: '/api/users',
-  method: 'GET',
+  method: 'GET'
 };
 
 logRequest(config, logger);
@@ -218,7 +225,7 @@ import { configureLogger } from '@suga/request-logger';
 configureLogger({
   logRequest: true,
   logResponse: false,
-  logError: true,
+  logError: true
 });
 ```
 
@@ -256,4 +263,3 @@ request-logger/
 ## 📄 License
 
 MIT
-

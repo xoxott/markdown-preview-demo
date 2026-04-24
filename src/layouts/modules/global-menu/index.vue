@@ -18,10 +18,12 @@ const themeStore = useThemeStore();
 
 const activeMenu = computed(() => {
   const menuMap: Record<UnionKey.ThemeLayoutMode, Component> = {
-    vertical: VerticalMenu,
+    'vertical': VerticalMenu,
     'vertical-mix': VerticalMixMenu,
-    horizontal: HorizontalMenu,
-    'horizontal-mix': themeStore.layout.reverseHorizontalMix ? ReversedHorizontalMixMenu : HorizontalMixMenu
+    'horizontal': HorizontalMenu,
+    'horizontal-mix': themeStore.layout.reverseHorizontalMix
+      ? ReversedHorizontalMixMenu
+      : HorizontalMixMenu
   };
 
   return menuMap[themeStore.layout.mode];

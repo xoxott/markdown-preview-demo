@@ -104,7 +104,7 @@ export async function calculateFileMD5WithWorker(
       }
     };
 
-    worker.onerror = (error) => {
+    worker.onerror = error => {
       worker.terminate();
       reject(error);
     };
@@ -141,4 +141,3 @@ export async function calculateFileMD5Smart(
     return calculateFileMD5(file, onProgress);
   }
 }
-

@@ -32,13 +32,13 @@ export class RequestCacheManager {
     this.storageCache = options.useStorage
       ? {
           prefix: options.storagePrefix ?? DEFAULT_CACHE_CONFIG.STORAGE_PREFIX,
-          adapter: options.storageAdapter ?? defaultStorageAdapter,
+          adapter: options.storageAdapter ?? defaultStorageAdapter
         }
       : null;
     this.strategyManager = new CacheStrategyManager(
       options.strategy ?? 'time',
       options.maxSize ?? DEFAULT_CACHE_CONFIG.DEFAULT_MAX_SIZE,
-      options.customStrategy,
+      options.customStrategy
     );
   }
 
@@ -136,7 +136,7 @@ export class RequestCacheManager {
     const cacheItem: CacheItem<T> = {
       data,
       timestamp: now,
-      expireTime: now + expire,
+      expireTime: now + expire
     };
 
     this.applyCacheStrategy(key);
@@ -175,7 +175,7 @@ export class RequestCacheManager {
     this.memoryCache.clear();
     this.strategyManager = new CacheStrategyManager(
       this.strategyManager.getStrategy(),
-      this.strategyManager.getMaxSize(),
+      this.strategyManager.getMaxSize()
     );
 
     if (this.storageCache) {

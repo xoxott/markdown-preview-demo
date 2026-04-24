@@ -114,7 +114,11 @@ export default defineComponent({
         )}
 
         {/* Data Table */}
-        <NCard class="flex-1 overflow-hidden" bordered={false} contentStyle={{ height: '100%', padding: 0 }}>
+        <NCard
+          class="flex-1 overflow-hidden"
+          bordered={false}
+          contentStyle={{ height: '100%', padding: 0 }}
+        >
           <DataTable
             columns={props.columns}
             data={props.data}
@@ -136,4 +140,3 @@ export default defineComponent({
     );
   }
 });
-

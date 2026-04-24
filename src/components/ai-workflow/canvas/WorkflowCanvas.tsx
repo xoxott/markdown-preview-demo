@@ -121,7 +121,10 @@ export default defineComponent({
       if (!e.ctrlKey && !e.metaKey) {
         // 延迟一帧，确保 selectedNodeIds 已更新
         requestAnimationFrame(() => {
-          if (canvas.selectedNodeIds.value.length === 1 && canvas.selectedNodeIds.value[0] === nodeId) {
+          if (
+            canvas.selectedNodeIds.value.length === 1 &&
+            canvas.selectedNodeIds.value[0] === nodeId
+          ) {
             showConfigDrawer.value = true;
           }
         });
@@ -190,16 +193,34 @@ export default defineComponent({
           onFitView={handleFitView}
           onUndo={canvas.undo}
           onRedo={canvas.redo}
-          onAlignLeft={() => { canvas.alignLeft(); canvas.saveHistory(); }}
-          onAlignRight={() => { canvas.alignRight(); canvas.saveHistory(); }}
-          onAlignTop={() => { canvas.alignTop(); canvas.saveHistory(); }}
-          onAlignBottom={() => { canvas.alignBottom(); canvas.saveHistory(); }}
-          onDistributeHorizontal={() => { canvas.distributeHorizontal(); canvas.saveHistory(); }}
-          onDistributeVertical={() => { canvas.distributeVertical(); canvas.saveHistory(); }}
+          onAlignLeft={() => {
+            canvas.alignLeft();
+            canvas.saveHistory();
+          }}
+          onAlignRight={() => {
+            canvas.alignRight();
+            canvas.saveHistory();
+          }}
+          onAlignTop={() => {
+            canvas.alignTop();
+            canvas.saveHistory();
+          }}
+          onAlignBottom={() => {
+            canvas.alignBottom();
+            canvas.saveHistory();
+          }}
+          onDistributeHorizontal={() => {
+            canvas.distributeHorizontal();
+            canvas.saveHistory();
+          }}
+          onDistributeVertical={() => {
+            canvas.distributeVertical();
+            canvas.saveHistory();
+          }}
           onToggleGrid={canvas.toggleGrid}
           onToggleMinimap={canvas.toggleMinimap}
-          onConnectionLineSettings={() => showConnectionLineDialog.value = true}
-          onBackgroundSettings={() => showBackgroundDialog.value = true}
+          onConnectionLineSettings={() => (showConnectionLineDialog.value = true)}
+          onBackgroundSettings={() => (showBackgroundDialog.value = true)}
           onLockSelected={canvas.lockSelectedNodes}
           onUnlockSelected={canvas.unlockSelectedNodes}
           onValidate={() => {
@@ -274,23 +295,25 @@ export default defineComponent({
           )}
 
           {/* 小地图 - 可切换显示 */}
-          {canvas.showMinimap.value && canvas.nodes.value.length > 0 && canvasSize.value.width > 0 && (
-            <Minimap
-              nodes={canvas.nodes.value}
-              viewport={canvas.viewport.value}
-              canvasWidth={canvasSize.value.width}
-              canvasHeight={canvasSize.value.height}
-              width={200}
-              height={150}
-              onViewportChange={(x, y) => {
-                canvas.viewport.value = {
-                  ...canvas.viewport.value,
-                  x,
-                  y
-                };
-              }}
-            />
-          )}
+          {canvas.showMinimap.value &&
+            canvas.nodes.value.length > 0 &&
+            canvasSize.value.width > 0 && (
+              <Minimap
+                nodes={canvas.nodes.value}
+                viewport={canvas.viewport.value}
+                canvasWidth={canvasSize.value.width}
+                canvasHeight={canvasSize.value.height}
+                width={200}
+                height={150}
+                onViewportChange={(x, y) => {
+                  canvas.viewport.value = {
+                    ...canvas.viewport.value,
+                    x,
+                    y
+                  };
+                }}
+              />
+            )}
         </div>
 
         {/* 节点配置抽屉 */}
@@ -306,7 +329,7 @@ export default defineComponent({
           show={showConnectionLineDialog.value}
           settings={connectionLineStyle.value}
           onUpdate={updateConnectionLineStyle}
-          onClose={() => showConnectionLineDialog.value = false}
+          onClose={() => (showConnectionLineDialog.value = false)}
         />
 
         {/* 背景设置对话框 */}
@@ -314,10 +337,9 @@ export default defineComponent({
           show={showBackgroundDialog.value}
           settings={backgroundSettings.value}
           onUpdate={updateBackgroundSettings}
-          onClose={() => showBackgroundDialog.value = false}
+          onClose={() => (showBackgroundDialog.value = false)}
         />
       </div>
     );
   }
 });
-

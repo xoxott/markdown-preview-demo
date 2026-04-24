@@ -168,7 +168,10 @@ export class NetworkService {
     if (saveData) {
       config.files = CONSTANTS.NETWORK.CONCURRENT_LIMITS.MIN_FILES;
       config.chunks = Math.min(CONSTANTS.NETWORK.CONCURRENT_LIMITS.MIN_CHUNKS, config.chunks);
-      config.chunkSize = Math.min(CONSTANTS.NETWORK.CHUNK_SIZE_LIMITS.SAVE_DATA_MAX, config.chunkSize);
+      config.chunkSize = Math.min(
+        CONSTANTS.NETWORK.CHUNK_SIZE_LIMITS.SAVE_DATA_MAX,
+        config.chunkSize
+      );
     }
 
     // 确保不超过用户设置的最大值
@@ -279,4 +282,3 @@ export class NetworkService {
     }
   }
 }
-

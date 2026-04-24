@@ -29,7 +29,7 @@ export default defineComponent({
             max={1}
             step={0.1}
             precision={1}
-            onUpdateValue={(value) => props.onUpdate('compressionQuality', value)}
+            onUpdateValue={value => props.onUpdate('compressionQuality', value)}
           />
         </NFormItem>
         <NFormItem label="预览最大宽度">
@@ -37,7 +37,7 @@ export default defineComponent({
             value={props.settings.previewMaxWidth}
             min={50}
             max={1000}
-            onUpdateValue={(value) => props.onUpdate('previewMaxWidth', value)}
+            onUpdateValue={value => props.onUpdate('previewMaxWidth', value)}
           />
         </NFormItem>
         <NFormItem label="预览最大高度">
@@ -45,7 +45,7 @@ export default defineComponent({
             value={props.settings.previewMaxHeight}
             min={50}
             max={1000}
-            onUpdateValue={(value) => props.onUpdate('previewMaxHeight', value)}
+            onUpdateValue={value => props.onUpdate('previewMaxHeight', value)}
           />
         </NFormItem>
         <NFormItem label="重试延迟(ms)">
@@ -54,7 +54,7 @@ export default defineComponent({
             min={100}
             max={10000}
             step={100}
-            onUpdateValue={(value) => props.onUpdate('retryDelay', value)}
+            onUpdateValue={value => props.onUpdate('retryDelay', value)}
           />
         </NFormItem>
         <NFormItem label="重试退避倍数">
@@ -64,11 +64,10 @@ export default defineComponent({
             max={5}
             step={0.1}
             precision={1}
-            onUpdateValue={(value) => props.onUpdate('retryBackoff', value)}
+            onUpdateValue={value => props.onUpdate('retryBackoff', value)}
           />
         </NFormItem>
       </NForm>
     );
   }
 });
-

@@ -21,7 +21,9 @@ export default defineComponent({
       default: null
     },
     onUpdate: {
-      type: Function as PropType<(nodeId: string, updates: Partial<Api.Workflow.WorkflowNode>) => void>,
+      type: Function as PropType<
+        (nodeId: string, updates: Partial<Api.Workflow.WorkflowNode>) => void
+      >,
       default: undefined
     },
     onClose: {
@@ -167,7 +169,12 @@ export default defineComponent({
           />
         </NFormItem>
         <NFormItem label="查询语句">
-          <NInput v-model:value={formData.config.query} type="textarea" rows={6} placeholder="SQL查询" />
+          <NInput
+            v-model:value={formData.config.query}
+            type="textarea"
+            rows={6}
+            placeholder="SQL查询"
+          />
         </NFormItem>
       </>
     );
@@ -284,4 +291,3 @@ export default defineComponent({
     };
   }
 });
-

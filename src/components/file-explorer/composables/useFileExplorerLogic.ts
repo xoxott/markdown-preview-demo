@@ -15,7 +15,11 @@ import { createShortcutsConfig } from '../config/shortcuts.config';
 import { createContextMenuHandler } from '../config/contextmenu.config';
 import type { LayoutConfig } from '../layout/ResizableLayout';
 import { useFileDialog } from '../hooks/useFileDialog';
-import type { IFileDataSource, DataSourceType, ServerFileDataSourceConfig } from '../datasources/types';
+import type {
+  IFileDataSource,
+  DataSourceType,
+  ServerFileDataSourceConfig
+} from '../datasources/types';
 import { LocalFileDataSource, ServerFileDataSource } from '../datasources';
 import type { BreadcrumbItem } from '../layout/FileBreadcrumb';
 
@@ -34,7 +38,13 @@ export interface UseFileExplorerLogicOptions {
 
 /** 文件管理器核心业务逻辑 封装所有 hooks 的组合和配置 */
 export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
-  const { initialItems, containerRef, validateDrop, initialDataSourceType = 'local', serverDataSourceConfig } = options;
+  const {
+    initialItems,
+    containerRef,
+    validateDrop,
+    initialDataSourceType = 'local',
+    serverDataSourceConfig
+  } = options;
   const message = useMessage();
 
   // ==================== 数据源管理 ====================
@@ -50,9 +60,10 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
     const items: BreadcrumbItem[] = [];
 
     // 根目录
-    const rootName = dataSource.value?.type === 'local'
-      ? (dataSource.value as LocalFileDataSource).rootPath || '根目录'
-      : '根目录';
+    const rootName =
+      dataSource.value?.type === 'local'
+        ? (dataSource.value as LocalFileDataSource).rootPath || '根目录'
+        : '根目录';
 
     items.push({
       id: 'root',
@@ -114,7 +125,7 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
   const [showInfoPanel, toggleInfoPanel] = useToggle(false);
 
   // 同步更新布局配置
-  watch(showInfoPanel, (value) => {
+  watch(showInfoPanel, value => {
     layoutConfig.value.showRight = value;
   });
 
@@ -168,9 +179,10 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
       } else {
         // 云端模式：使用分页结果更新 mockItems（用于统计）
         // 注意：这里只更新当前页的数据，总数来自分页结果
-        mockItems.value = pagination.paginatedItems.value.length > 0
-          ? pagination.paginatedItems.value
-          : initialItems;
+        mockItems.value =
+          pagination.paginatedItems.value.length > 0
+            ? pagination.paginatedItems.value
+            : initialItems;
       }
     } catch (error: any) {
       message.error(`加载文件列表失败: ${error.message}`);
@@ -225,7 +237,8 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
   // ==================== 排序和选择 ====================
   // 对分页后的文件进行排序
   const { setSorting, sortedFiles, sortOrder, sortField } = useFileSort(pagination.paginatedItems);
-  const { selectedIds, selectFile, selectAll, clearSelection, selectedFiles } = useFileSelection(sortedFiles);
+  const { selectedIds, selectFile, selectAll, clearSelection, selectedFiles } =
+    useFileSelection(sortedFiles);
 
   // ==================== Loading 控制 ====================
   const setLoading = (value: boolean, tip?: string) => {
@@ -395,4 +408,3 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
     fileOperations
   };
 }
-

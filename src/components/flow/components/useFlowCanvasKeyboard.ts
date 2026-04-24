@@ -122,79 +122,61 @@ export function registerFlowCanvasShortcuts(
 
   // Delete/Backspace: 删除选中的节点和连接线
   unregisters.push(
-    keyboard.register(
-      { key: 'Delete' },
-      handleDelete,
-      { description: '删除选中的节点和连接线', priority: 10 }
-    )
+    keyboard.register({ key: 'Delete' }, handleDelete, {
+      description: '删除选中的节点和连接线',
+      priority: 10
+    })
   );
 
   unregisters.push(
-    keyboard.register(
-      { key: 'Backspace' },
-      handleDelete,
-      { description: '删除选中的节点和连接线', priority: 10 }
-    )
+    keyboard.register({ key: 'Backspace' }, handleDelete, {
+      description: '删除选中的节点和连接线',
+      priority: 10
+    })
   );
 
   // Ctrl+Z / Cmd+Z: 撤销
   unregisters.push(
-    keyboard.register(
-      { key: 'z', ctrl: true },
-      handleUndo,
-      { description: '撤销', priority: 10 }
-    )
+    keyboard.register({ key: 'z', ctrl: true }, handleUndo, { description: '撤销', priority: 10 })
   );
 
   unregisters.push(
-    keyboard.register(
-      { key: 'z', meta: true },
-      handleUndo,
-      { description: '撤销', priority: 10 }
-    )
+    keyboard.register({ key: 'z', meta: true }, handleUndo, { description: '撤销', priority: 10 })
   );
 
   // Ctrl+Y / Cmd+Shift+Z: 重做
   unregisters.push(
-    keyboard.register(
-      { key: 'y', ctrl: true },
-      handleRedo,
-      { description: '重做', priority: 10 }
-    )
+    keyboard.register({ key: 'y', ctrl: true }, handleRedo, { description: '重做', priority: 10 })
   );
 
   unregisters.push(
-    keyboard.register(
-      { key: 'z', meta: true, shift: true },
-      handleRedo,
-      { description: '重做', priority: 10 }
-    )
+    keyboard.register({ key: 'z', meta: true, shift: true }, handleRedo, {
+      description: '重做',
+      priority: 10
+    })
   );
 
   // Ctrl+A / Cmd+A: 全选
   unregisters.push(
-    keyboard.register(
-      { key: 'a', ctrl: true },
-      handleSelectAll,
-      { description: '全选节点', priority: 10 }
-    )
+    keyboard.register({ key: 'a', ctrl: true }, handleSelectAll, {
+      description: '全选节点',
+      priority: 10
+    })
   );
 
   unregisters.push(
-    keyboard.register(
-      { key: 'a', meta: true },
-      handleSelectAll,
-      { description: '全选节点', priority: 10 }
-    )
+    keyboard.register({ key: 'a', meta: true }, handleSelectAll, {
+      description: '全选节点',
+      priority: 10
+    })
   );
 
   // Escape: 取消选择
   unregisters.push(
-    keyboard.register(
-      { key: 'Escape' },
-      () => selection.deselectAll(),
-      { description: '取消选择', priority: 10 }
-    )
+    keyboard.register({ key: 'Escape' }, () => selection.deselectAll(), {
+      description: '取消选择',
+      priority: 10
+    })
   );
 
   // 返回取消注册所有快捷键的函数
@@ -202,4 +184,3 @@ export function registerFlowCanvasShortcuts(
     unregisters.forEach(unregister => unregister());
   };
 }
-

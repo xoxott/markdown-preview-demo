@@ -11,6 +11,5 @@ export {
   LocalStorageAdapter,
   SessionStorageAdapter,
   MemoryStorageAdapter,
-  defaultStorageAdapter,
+  defaultStorageAdapter
 } from './adapters';
-

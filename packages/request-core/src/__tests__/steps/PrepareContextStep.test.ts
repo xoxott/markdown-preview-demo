@@ -12,7 +12,7 @@ describe('PrepareContextStep', () => {
     const step = new PrepareContextStep();
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config);
 
@@ -30,7 +30,7 @@ describe('PrepareContextStep', () => {
     const step = new PrepareContextStep();
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config);
 
@@ -53,7 +53,7 @@ describe('PrepareContextStep', () => {
     const step = new PrepareContextStep();
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config);
 
@@ -68,4 +68,3 @@ describe('PrepareContextStep', () => {
     expect(ctx.result).toEqual({ data: 'test' });
   });
 });
-

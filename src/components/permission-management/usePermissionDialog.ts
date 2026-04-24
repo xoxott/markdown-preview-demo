@@ -17,4 +17,3 @@ export function usePermissionDialog(app?: App) {
 
 /** 导出类型 */
 export type UsePermissionDialogReturn = ReturnType<typeof usePermissionDialog>;
-

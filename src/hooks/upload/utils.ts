@@ -360,7 +360,10 @@ export function detectBrowser(): {
  * @param onProgress - 进度回调
  * @returns MD5 字符串
  */
-export async function calculateFileMD5(file: File, onProgress?: (progress: number) => void): Promise<string> {
+export async function calculateFileMD5(
+  file: File,
+  onProgress?: (progress: number) => void
+): Promise<string> {
   return new Promise((resolve, reject) => {
     const spark = new SparkMD5.ArrayBuffer();
     const fileReader = new FileReader();
@@ -440,7 +443,10 @@ export function calculateStringMD5(str: string): string {
 }
 
 /** 计算文件 SHA-256（使用 Web Crypto API） */
-export async function calculateFileSHA256(file: File, onProgress?: (progress: number) => void): Promise<string> {
+export async function calculateFileSHA256(
+  file: File,
+  onProgress?: (progress: number) => void
+): Promise<string> {
   const chunkSize = CONSTANTS.CHUNK_SIZE;
   const chunks = Math.ceil(file.size / chunkSize);
   const hashBuffer: Uint8Array[] = [];
@@ -580,7 +586,10 @@ export async function getFileInfo(file: File): Promise<{
 
 // ==================== 节流防抖 ====================
 /** 节流函数 */
-export function throttle<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
+export function throttle<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout | null = null;
   let previous = 0;
 
@@ -606,7 +615,10 @@ export function throttle<T extends (...args: any[]) => any>(func: T, wait: numbe
 }
 
 /** 防抖函数 */
-export function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
+export function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout | null = null;
 
   return function (this: any, ...args: Parameters<T>) {

@@ -44,7 +44,7 @@ function transformElegantRouteToVueRoute(
   function getLayoutName(component: string) {
     const layout = component.replace(LAYOUT_PREFIX, '');
 
-    if(!layouts[layout]) {
+    if (!layouts[layout]) {
       throw new Error(`Layout component "${layout}" not found`);
     }
 
@@ -58,7 +58,7 @@ function transformElegantRouteToVueRoute(
   function getViewName(component: string) {
     const view = component.replace(VIEW_PREFIX, '');
 
-    if(!views[view]) {
+    if (!views[view]) {
       throw new Error(`View component "${view}" not found`);
     }
 
@@ -128,7 +128,6 @@ function transformElegantRouteToVueRoute(
 
         vueRoute.component = views[viewName];
       }
-
     }
   } catch (error: any) {
     console.error(`Error transforming route "${route.name}": ${error.toString()}`);
@@ -143,9 +142,11 @@ function transformElegantRouteToVueRoute(
   }
 
   if (children?.length) {
-    const childRoutes = children.flatMap(child => transformElegantRouteToVueRoute(child, layouts, views));
+    const childRoutes = children.flatMap(child =>
+      transformElegantRouteToVueRoute(child, layouts, views)
+    );
 
-    if(isFirstLevelRoute(route)) {
+    if (isFirstLevelRoute(route)) {
       vueRoute.children = childRoutes;
     } else {
       vueRoutes.push(...childRoutes);
@@ -161,33 +162,33 @@ function transformElegantRouteToVueRoute(
  * map of route name and route path
  */
 const routeMap: RouteMap = {
-  "root": "/",
-  "not-found": "/:pathMatch(.*)*",
-  "403": "/403",
-  "404": "/404",
-  "500": "/500",
-  "chat": "/chat",
-  "component": "/component",
-  "file-manager": "/file-manager",
-  "home": "/home",
-  "iframe-page": "/iframe-page/:url",
-  "login": "/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?",
-  "markdownedit": "/markdownedit",
-  "mobile": "/mobile",
-  "upload": "/upload",
-  "upload-v2-demo": "/upload-v2-demo",
-  "utils": "/utils",
-  "monitoring": "/monitoring",
-  "user-management": "/user-management",
-  "role-management": "/role-management",
-  "permission-management": "/permission-management",
-  "announcement-management": "/announcement-management",
-  "notification-management": "/notification-management",
-  "alert-management": "/alert-management",
-  "log-management": "/log-management",
-  "version-log-management": "/version-log-management",
-  "ai-workflow": "/ai-workflow",
-  "ai-workflow-editor": "/ai-workflow/editor/:id"
+  'root': '/',
+  'not-found': '/:pathMatch(.*)*',
+  '403': '/403',
+  '404': '/404',
+  '500': '/500',
+  'chat': '/chat',
+  'component': '/component',
+  'file-manager': '/file-manager',
+  'home': '/home',
+  'iframe-page': '/iframe-page/:url',
+  'login': '/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?',
+  'markdownedit': '/markdownedit',
+  'mobile': '/mobile',
+  'upload': '/upload',
+  'upload-v2-demo': '/upload-v2-demo',
+  'utils': '/utils',
+  'monitoring': '/monitoring',
+  'user-management': '/user-management',
+  'role-management': '/role-management',
+  'permission-management': '/permission-management',
+  'announcement-management': '/announcement-management',
+  'notification-management': '/notification-management',
+  'alert-management': '/alert-management',
+  'log-management': '/log-management',
+  'version-log-management': '/version-log-management',
+  'ai-workflow': '/ai-workflow',
+  'ai-workflow-editor': '/ai-workflow/editor/:id'
 };
 
 /**
@@ -205,7 +206,8 @@ export function getRoutePath<T extends RouteKey>(name: T) {
 export function getRouteName(path: RoutePath) {
   const routeEntries = Object.entries(routeMap) as [RouteKey, RoutePath][];
 
-  const routeName: RouteKey | null = routeEntries.find(([, routePath]) => routePath === path)?.[0] || null;
+  const routeName: RouteKey | null =
+    routeEntries.find(([, routePath]) => routePath === path)?.[0] || null;
 
   return routeName;
 }

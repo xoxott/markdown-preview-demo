@@ -15,7 +15,7 @@ export class StateController {
     private strategy: StateTransitionStrategy,
     private failureThreshold: number,
     private timeout: number,
-    private successThreshold: number,
+    private successThreshold: number
   ) {}
 
   advanceState(currentTime: number): CircuitBreakerState {
@@ -54,4 +54,3 @@ export class StateController {
     }
   }
 }
-

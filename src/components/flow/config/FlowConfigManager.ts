@@ -50,10 +50,7 @@ export class FlowConfigManager {
    * @param initialConfig 初始配置（可选）
    * @returns 配置实例 ID
    */
-  createInstance(
-    id: string,
-    initialConfig?: PartialFlowConfig
-  ): string {
+  createInstance(id: string, initialConfig?: PartialFlowConfig): string {
     if (this.instances.has(id)) {
       logger.warn(`Config instance with id "${id}" already exists, updating instead`);
       this.updateConfig(id, initialConfig);
@@ -66,10 +63,7 @@ export class FlowConfigManager {
     // 验证配置
     const validation = this.validator.validate(normalizedConfig);
     if (!validation.valid) {
-      logger.warn(
-        `Invalid config for instance "${id}":`,
-        validation.errors.join(', ')
-      );
+      logger.warn(`Invalid config for instance "${id}":`, validation.errors.join(', '));
     }
 
     // 创建实例
@@ -121,9 +115,7 @@ export class FlowConfigManager {
   updateConfig(id: string, partialConfig?: PartialFlowConfig): void {
     const instance = this.instances.get(id);
     if (!instance) {
-      logger.warn(
-        `Config instance with id "${id}" not found, creating new instance`
-      );
+      logger.warn(`Config instance with id "${id}" not found, creating new instance`);
       this.createInstance(id, partialConfig);
       return;
     }
@@ -134,10 +126,7 @@ export class FlowConfigManager {
     // 验证配置
     const validation = this.validator.validate(updatedConfig);
     if (!validation.valid) {
-      logger.warn(
-        `Invalid config update for instance "${id}":`,
-        validation.errors.join(', ')
-      );
+      logger.warn(`Invalid config update for instance "${id}":`, validation.errors.join(', '));
       // 仍然更新，但记录警告
     }
 
@@ -156,15 +145,10 @@ export class FlowConfigManager {
    * @param listener 监听器函数
    * @returns 取消订阅的函数
    */
-  subscribe(
-    id: string,
-    listener: (config: FlowConfig) => void
-  ): () => void {
+  subscribe(id: string, listener: (config: FlowConfig) => void): () => void {
     const instance = this.instances.get(id);
     if (!instance) {
-      logger.warn(
-        `Config instance with id "${id}" not found, cannot subscribe`
-      );
+      logger.warn(`Config instance with id "${id}" not found, cannot subscribe`);
       return () => {}; // 返回空函数
     }
 
@@ -245,10 +229,7 @@ export class FlowConfigManager {
       try {
         listener(configCopy);
       } catch (error) {
-        logger.error(
-          `Error in config listener for instance "${id}":`,
-          error
-        );
+        logger.error(`Error in config listener for instance "${id}":`, error);
       }
     });
   }
@@ -289,4 +270,3 @@ export function getGlobalConfigManager(): FlowConfigManager {
 export function createFlowConfigManager(): FlowConfigManager {
   return new FlowConfigManager();
 }
-

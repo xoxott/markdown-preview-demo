@@ -4,7 +4,15 @@
  * 提供拖放目标区域，支持验证、高亮、自定义样式等功能
  */
 
-import { computed, defineComponent, onBeforeUnmount, onMounted, ref, type CSSProperties, type PropType } from 'vue';
+import {
+  computed,
+  defineComponent,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  type CSSProperties,
+  type PropType
+} from 'vue';
 import { useEventListener } from '@vueuse/core';
 import type { DragItem, DropTargetState, DropValidator, DropCallbackParams } from '../types';
 import '@/styles/common-interaction.scss';
@@ -195,9 +203,7 @@ export default defineComponent({
 
       // 类型检查
       if (props.acceptTypes.length > 0) {
-        const hasValidType = items.some(item =>
-          props.acceptTypes.includes(item.type)
-        );
+        const hasValidType = items.some(item => props.acceptTypes.includes(item.type));
         if (!hasValidType) return false;
       }
 
@@ -365,9 +371,7 @@ export default defineComponent({
             ]}
           >
             {props.showHint && currentHintText.value && (
-              <div class="drop-zone-hint">
-                {currentHintText.value}
-              </div>
+              <div class="drop-zone-hint">{currentHintText.value}</div>
             )}
           </div>
         )}
@@ -442,4 +446,3 @@ export default defineComponent({
     );
   }
 });
-

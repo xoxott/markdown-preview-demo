@@ -30,7 +30,9 @@ export function fetchNotificationDetail(id: number) {
  *
  * @param data Notification data
  */
-export function fetchCreateNotification(data: Api.NotificationManagement.CreateNotificationRequest) {
+export function fetchCreateNotification(
+  data: Api.NotificationManagement.CreateNotificationRequest
+) {
   return request<Api.NotificationManagement.CreateNotificationResponse>({
     url: '/api/admin/notifications',
     method: 'post',
@@ -44,7 +46,10 @@ export function fetchCreateNotification(data: Api.NotificationManagement.CreateN
  * @param id Notification ID
  * @param data Notification data
  */
-export function fetchUpdateNotification(id: number, data: Api.NotificationManagement.UpdateNotificationRequest) {
+export function fetchUpdateNotification(
+  id: number,
+  data: Api.NotificationManagement.UpdateNotificationRequest
+) {
   return request<Api.NotificationManagement.UpdateNotificationResponse>({
     url: `/api/admin/notifications/${id}`,
     method: 'put',
@@ -69,7 +74,9 @@ export function fetchDeleteNotification(id: number) {
  *
  * @param data Notification IDs
  */
-export function fetchBatchDeleteNotifications(data: Api.NotificationManagement.BatchDeleteNotificationsRequest) {
+export function fetchBatchDeleteNotifications(
+  data: Api.NotificationManagement.BatchDeleteNotificationsRequest
+) {
   return request<Api.NotificationManagement.BatchDeleteNotificationsResponse>({
     url: '/api/admin/notifications/batch',
     method: 'delete',
@@ -104,4 +111,3 @@ export function fetchMarkAsRead(id: number, userId?: number) {
     data: userId ? { userId } : {}
   });
 }
-

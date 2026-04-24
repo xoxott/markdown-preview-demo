@@ -144,8 +144,9 @@ describe('QueueManager', () => {
       ];
 
       expect(manager.isDuplicate(file, tasks)).toBe(true);
-      expect(manager.isDuplicate(new File(['other'], 'other.txt', { type: 'text/plain' }), tasks)).toBe(false);
+      expect(
+        manager.isDuplicate(new File(['other'], 'other.txt', { type: 'text/plain' }), tasks)
+      ).toBe(false);
     });
   });
 });
-

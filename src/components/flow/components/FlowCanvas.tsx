@@ -7,7 +7,17 @@
 // 导入 Flow 主题样式（在使用 FlowCanvas 时自动加载）
 import '../styles/index.scss';
 
-import { defineComponent, ref, computed, watch, onMounted, onUnmounted, type PropType, CSSProperties, h } from 'vue';
+import {
+  defineComponent,
+  ref,
+  computed,
+  watch,
+  onMounted,
+  onUnmounted,
+  type PropType,
+  CSSProperties,
+  h
+} from 'vue';
 import { useFlowConfig } from '../hooks/useFlowConfig';
 import { useFlowState } from '../hooks/useFlowState';
 import { useKeyboard } from '../hooks/useKeyboard';
@@ -188,12 +198,12 @@ export default defineComponent({
     } = useConnectionCreation({
       config,
       nodes,
-      onCreateEdge: (edge) => {
+      onCreateEdge: edge => {
         addEdge(edge);
         emit('connect', edge);
         eventEmitter.emit('onConnect', edge);
       },
-      onConnect: (edge) => {
+      onConnect: edge => {
         emit('connect', edge);
         eventEmitter.emit('onConnect', edge);
       }
@@ -234,7 +244,7 @@ export default defineComponent({
       onPan: (deltaX, deltaY) => {
         panViewport(deltaX, deltaY);
       },
-      onViewportChange: (newViewport) => {
+      onViewportChange: newViewport => {
         emit('viewport-change', newViewport);
         eventEmitter.emit('onCanvasPan', newViewport);
       }
@@ -253,11 +263,15 @@ export default defineComponent({
     });
 
     // 非平移时，保持稳定的 viewport 与当前 viewport 同步
-    watch(viewport, () => {
-      if (!isPanning.value) {
-        stableViewportRef.value = viewport.value;
-      }
-    }, { immediate: true });
+    watch(
+      viewport,
+      () => {
+        if (!isPanning.value) {
+          stableViewportRef.value = viewport.value;
+        }
+      },
+      { immediate: true }
+    );
 
     // 画布缩放
     const { handleWheel } = useCanvasZoom({
@@ -267,7 +281,7 @@ export default defineComponent({
       onZoom: (zoom, centerX, centerY) => {
         zoomViewport(zoom, centerX, centerY);
       },
-      onViewportChange: (newViewport) => {
+      onViewportChange: newViewport => {
         emit('viewport-change', newViewport);
         eventEmitter.emit('onCanvasZoom', newViewport);
       }
@@ -363,7 +377,7 @@ export default defineComponent({
         'node-double-click': (node, event) => emit('node-double-click', node, event),
         'edge-click': (edge, event) => emit('edge-click', edge, event),
         'edge-double-click': (edge, event) => emit('edge-double-click', edge, event),
-        'viewport-change': (vp) => emit('viewport-change', vp)
+        'viewport-change': vp => emit('viewport-change', vp)
       }
     });
 
@@ -376,7 +390,6 @@ export default defineComponent({
     ) => {
       handlePortMouseDownHook(nodeId, handleId, handleType, event);
     };
-
 
     // 启动同步
     onMounted(() => {
@@ -437,22 +450,20 @@ export default defineComponent({
         style={canvasStyle.value as CSSProperties}
       >
         {/* 背景层（最底层） */}
-        {slots.background ? (
-          slots.background({ viewport:viewport.value })
-        ) : (
-          config.value.canvas?.showGrid !== false && (
-            <FlowBackground
-              showGrid={config.value.canvas?.showGrid}
-              gridType={config.value.canvas?.gridType || 'dots'}
-              gridSize={config.value.canvas?.gridSize || 20}
-              gridColor={config.value.canvas?.gridColor}
-              gridOpacity={config.value.canvas?.gridOpacity}
-              backgroundColor={config.value.canvas?.backgroundColor}
-              viewport={viewport.value}
-              instanceId={defaultInstanceId.value}
-            />
-          )
-        )}
+        {slots.background
+          ? slots.background({ viewport: viewport.value })
+          : config.value.canvas?.showGrid !== false && (
+              <FlowBackground
+                showGrid={config.value.canvas?.showGrid}
+                gridType={config.value.canvas?.gridType || 'dots'}
+                gridSize={config.value.canvas?.gridSize || 20}
+                gridColor={config.value.canvas?.gridColor}
+                gridOpacity={config.value.canvas?.gridOpacity}
+                backgroundColor={config.value.canvas?.backgroundColor}
+                viewport={viewport.value}
+                instanceId={defaultInstanceId.value}
+              />
+            )}
 
         {/* 节点容器 */}
         <FlowViewportContainer viewport={viewport.value}>
@@ -510,4 +521,3 @@ export default defineComponent({
     );
   }
 });
-

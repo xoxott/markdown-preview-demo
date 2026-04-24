@@ -23,7 +23,11 @@ export default class SmartChunkCalculator {
    * @param config - 上传配置，包括 minChunkSize、maxChunkSize 和默认 chunkSize
    * @returns 分片大小（字节）
    */
-  static calculateOptimalChunkSize(fileSize: number, networkSpeed: number, config: UploadConfig): number {
+  static calculateOptimalChunkSize(
+    fileSize: number,
+    networkSpeed: number,
+    config: UploadConfig
+  ): number {
     const { minChunkSize, maxChunkSize, chunkSize } = config;
 
     // 基于网络速度调整分片大小

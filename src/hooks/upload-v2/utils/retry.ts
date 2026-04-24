@@ -30,7 +30,9 @@ export function classifyError(error: unknown): ErrorInfo {
   };
 
   // 类型守卫：检查是否为包含 status/code 的对象
-  const isErrorWithStatus = (err: unknown): err is { status?: number; code?: string | number; message?: string } => {
+  const isErrorWithStatus = (
+    err: unknown
+  ): err is { status?: number; code?: string | number; message?: string } => {
     return typeof err === 'object' && err !== null;
   };
 
@@ -49,7 +51,11 @@ export function classifyError(error: unknown): ErrorInfo {
   }
 
   // 超时错误
-  if (errorName === 'TimeoutError' || errorMessage.includes('timeout') || errorMessage.includes('超时')) {
+  if (
+    errorName === 'TimeoutError' ||
+    errorMessage.includes('timeout') ||
+    errorMessage.includes('超时')
+  ) {
     return {
       type: ErrorType.TIMEOUT_ERROR,
       message: '请求超时',
@@ -162,7 +168,7 @@ export async function withRetry<T>(
 
       // 计算延迟并等待
       const delayMs = calculateRetryDelay(retryCount, baseDelay, maxDelay, backoffMultiplier);
-      
+
       if (onRetry) {
         onRetry(error, retryCount + 1);
       }
@@ -174,4 +180,3 @@ export async function withRetry<T>(
 
   throw lastError;
 }
-

@@ -23,13 +23,9 @@ export interface NodePositionComparison {
  * @param newNode 新节点
  * @returns 比较结果
  */
-export function compareNodePosition(
-  oldNode: FlowNode,
-  newNode: FlowNode
-): NodePositionComparison {
+export function compareNodePosition(oldNode: FlowNode, newNode: FlowNode): NodePositionComparison {
   const positionChanged =
-    oldNode.position.x !== newNode.position.x ||
-    oldNode.position.y !== newNode.position.y;
+    oldNode.position.x !== newNode.position.x || oldNode.position.y !== newNode.position.y;
 
   return {
     positionChanged,
@@ -102,4 +98,3 @@ export function incrementalUpdateNodes(
 
   return { result, hasChanges };
 }
-

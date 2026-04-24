@@ -1,5 +1,10 @@
 import type { FileItem } from '../types/file-explorer';
-import type { IFileDataSource, LocalFileDataSourceConfig, PaginationParams, PaginationResult } from './types';
+import type {
+  IFileDataSource,
+  LocalFileDataSourceConfig,
+  PaginationParams,
+  PaginationResult
+} from './types';
 
 /** 本地文件数据源实现（使用 File System Access API） */
 export class LocalFileDataSource implements IFileDataSource {
@@ -138,7 +143,10 @@ export class LocalFileDataSource implements IFileDataSource {
     const parentPath = normalizedPath === '' ? '' : normalizedPath;
 
     for await (const handle of dirHandle.values()) {
-      const fileItem = this.handleToFileItem(handle as FileSystemDirectoryHandle | FileSystemFileHandle, parentPath);
+      const fileItem = this.handleToFileItem(
+        handle as FileSystemDirectoryHandle | FileSystemFileHandle,
+        parentPath
+      );
 
       // 获取文件大小和修改时间
       if (handle.kind === 'file') {
@@ -185,7 +193,21 @@ export class LocalFileDataSource implements IFileDataSource {
 
     // 根据文件类型返回文本或 Blob
     const extension = this.getExtension(file.name);
-    const textExtensions = ['txt', 'md', 'js', 'ts', 'json', 'html', 'css', 'vue', 'tsx', 'jsx', 'xml', 'yaml', 'yml'];
+    const textExtensions = [
+      'txt',
+      'md',
+      'js',
+      'ts',
+      'json',
+      'html',
+      'css',
+      'vue',
+      'tsx',
+      'jsx',
+      'xml',
+      'yaml',
+      'yml'
+    ];
 
     if (textExtensions.includes(extension.toLowerCase())) {
       return await file.text();
@@ -245,7 +267,8 @@ export class LocalFileDataSource implements IFileDataSource {
     const parts = normalizedPath.split('/').filter(Boolean);
     const fileName = parts[parts.length - 1];
     const parentPath = parts.slice(0, -1).join('/');
-    const parentHandle = parentPath === '' ? this.rootHandle : await this.getDirectoryHandle(parentPath);
+    const parentHandle =
+      parentPath === '' ? this.rootHandle : await this.getDirectoryHandle(parentPath);
 
     await parentHandle.removeEntry(fileName, { recursive: true });
   }
@@ -315,7 +338,8 @@ export class LocalFileDataSource implements IFileDataSource {
 
       const fileName = parts[parts.length - 1];
       const parentPath = parts.slice(0, -1).join('/');
-      const parentHandle = parentPath === '' ? this.rootHandle! : await this.getDirectoryHandle(parentPath);
+      const parentHandle =
+        parentPath === '' ? this.rootHandle! : await this.getDirectoryHandle(parentPath);
 
       let handle: FileSystemFileHandle | FileSystemDirectoryHandle;
       try {
@@ -340,4 +364,3 @@ export class LocalFileDataSource implements IFileDataSource {
     }
   }
 }
-

@@ -27,7 +27,9 @@ export default defineComponent({
     }
 
     function handleDrop(params: DropCallbackParams) {
-      addLog(`✅ 放置到 ${params.dropZoneId}: ${params.items.map((i: DragItem<any>) => i.name).join(', ')}`);
+      addLog(
+        `✅ 放置到 ${params.dropZoneId}: ${params.items.map((i: DragItem<any>) => i.name).join(', ')}`
+      );
     }
 
     // 模拟拖拽数据
@@ -133,10 +135,7 @@ export default defineComponent({
             </DropZone>
 
             {/* 禁用的区域 */}
-            <DropZone
-              id="zone-disabled"
-              disabled={true}
-            >
+            <DropZone id="zone-disabled" disabled={true}>
               <div class="zone-content">
                 <div class="zone-title">🚫 禁用区域</div>
                 <div class="zone-desc">无法放置文件</div>
@@ -153,7 +152,9 @@ export default defineComponent({
               <div class="log-empty">暂无操作记录</div>
             ) : (
               logs.value.map((log, index) => (
-                <div key={index} class="log-item">{log}</div>
+                <div key={index} class="log-item">
+                  {log}
+                </div>
               ))
             )}
           </div>
@@ -299,4 +300,3 @@ export default defineComponent({
     );
   }
 });
-

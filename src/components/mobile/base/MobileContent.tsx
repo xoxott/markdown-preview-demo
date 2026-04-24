@@ -89,7 +89,10 @@ export const MobileContent = defineComponent({
     return () => (
       <div
         ref={contentRef}
-        class={['mobile-content flex-1', defaultScrollConfig.enabled ? 'overflow-y-auto' : 'overflow-hidden']}
+        class={[
+          'mobile-content flex-1',
+          defaultScrollConfig.enabled ? 'overflow-y-auto' : 'overflow-hidden'
+        ]}
         style={{
           padding: props.padding,
           backgroundColor: props.backgroundColor

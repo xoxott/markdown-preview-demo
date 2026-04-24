@@ -30,4 +30,3 @@ export const DEFAULT_OPTIONS: Required<TaskListOptions> = {
   itemClass: 'task-list-item',
   checkboxClass: 'task-list-item-checkbox'
 };
-

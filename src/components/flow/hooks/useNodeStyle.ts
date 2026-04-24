@@ -60,9 +60,7 @@ export interface UseNodeStyleReturn {
  * const style = getNodeStyle(node);
  * ```
  */
-export function useNodeStyle(
-  options: UseNodeStyleOptions
-): UseNodeStyleReturn {
+export function useNodeStyle(options: UseNodeStyleOptions): UseNodeStyleReturn {
   const {
     nodes,
     selectedNodeIds,
@@ -77,9 +75,7 @@ export function useNodeStyle(
   const selectedNodeIdsSet = useCachedSet(selectedNodeIds);
 
   // 是否启用拖拽后提升层级（默认启用，节点过多时可禁用）
-  const elevateOnDragEnd = computed(() =>
-    config?.value?.nodes?.elevateOnDragEnd !== false
-  );
+  const elevateOnDragEnd = computed(() => config?.value?.nodes?.elevateOnDragEnd !== false);
 
   // 监听选中节点变化，自动分配递增的 z-index（使用共享的计数器）
   watch(
@@ -214,4 +210,3 @@ export function useNodeStyle(
     clearCache
   };
 }
-

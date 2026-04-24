@@ -45,7 +45,7 @@ class PerformanceMonitor {
    */
   recordChunkUploadTime(time: number): void {
     this.chunkUploadTimes.push(time);
-    
+
     // 限制历史记录大小
     if (this.chunkUploadTimes.length > this.maxHistorySize) {
       this.chunkUploadTimes.shift();
@@ -63,9 +63,7 @@ class PerformanceMonitor {
    * 获取性能指标
    */
   getMetrics(): PerformanceMetrics {
-    const totalUploadTime = this.startTime
-      ? performance.now() - this.startTime
-      : 0;
+    const totalUploadTime = this.startTime ? performance.now() - this.startTime : 0;
 
     const averageChunkTime =
       this.chunkUploadTimes.length > 0
@@ -149,4 +147,3 @@ class PerformanceMonitor {
 
 // 导出单例
 export const performanceMonitor = new PerformanceMonitor();
-

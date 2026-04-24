@@ -8,7 +8,11 @@ export class ChunkCalculator {
   /**
    * 计算最优分片大小
    */
-  static calculateOptimalChunkSize(fileSize: number, networkSpeed: number, config: UploadConfig): number {
+  static calculateOptimalChunkSize(
+    fileSize: number,
+    networkSpeed: number,
+    config: UploadConfig
+  ): number {
     const { minChunkSize, maxChunkSize, chunkSize } = config;
 
     // 基于网络速度调整分片大小
@@ -33,4 +37,3 @@ export class ChunkCalculator {
     return Math.max(minChunkSize, Math.min(maxChunkSize, optimalSize));
   }
 }
-

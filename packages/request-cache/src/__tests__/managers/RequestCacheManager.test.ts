@@ -20,7 +20,7 @@ describe('RequestCacheManager', () => {
 
     it('应该使用自定义过期时间', () => {
       const customManager = new RequestCacheManager({
-        defaultExpireTime: 10 * 60 * 1000,
+        defaultExpireTime: 10 * 60 * 1000
       });
 
       customManager.setByKey('test', { id: 1 });
@@ -32,7 +32,7 @@ describe('RequestCacheManager', () => {
       const storageAdapter = new MockStorageAdapter();
       const customManager = new RequestCacheManager({
         useStorage: true,
-        storageAdapter,
+        storageAdapter
       });
 
       customManager.setByKey('test', { id: 1 });
@@ -45,7 +45,7 @@ describe('RequestCacheManager', () => {
       const customManager = new RequestCacheManager({
         useStorage: true,
         storagePrefix: 'custom_',
-        storageAdapter,
+        storageAdapter
       });
 
       customManager.setByKey('test', { id: 1 });
@@ -83,7 +83,7 @@ describe('RequestCacheManager', () => {
       const storageAdapter = new MockStorageAdapter();
       const customManager = new RequestCacheManager({
         useStorage: true,
-        storageAdapter,
+        storageAdapter
       });
 
       const data = { id: 1 };
@@ -92,7 +92,7 @@ describe('RequestCacheManager', () => {
       // 创建新实例模拟重启
       const newManager = new RequestCacheManager({
         useStorage: true,
-        storageAdapter,
+        storageAdapter
       });
 
       const cached = newManager.getByKey<typeof data>('test-key');
@@ -121,7 +121,7 @@ describe('RequestCacheManager', () => {
       const storageAdapter = new MockStorageAdapter();
       const customManager = new RequestCacheManager({
         useStorage: true,
-        storageAdapter,
+        storageAdapter
       });
 
       const data = { id: 1 };
@@ -146,7 +146,7 @@ describe('RequestCacheManager', () => {
       const storageAdapter = new MockStorageAdapter();
       const customManager = new RequestCacheManager({
         useStorage: true,
-        storageAdapter,
+        storageAdapter
       });
 
       const data = { id: 1 };
@@ -172,7 +172,7 @@ describe('RequestCacheManager', () => {
       const storageAdapter = new MockStorageAdapter();
       const customManager = new RequestCacheManager({
         useStorage: true,
-        storageAdapter,
+        storageAdapter
       });
 
       customManager.setByKey('key1', { id: 1 }, 5000);
@@ -213,7 +213,7 @@ describe('RequestCacheManager', () => {
       const storageAdapter = new MockStorageAdapter();
       const customManager = new RequestCacheManager({
         useStorage: true,
-        storageAdapter,
+        storageAdapter
       });
 
       customManager.setByKey('key1', { id: 1 }, 5000);
@@ -229,7 +229,7 @@ describe('RequestCacheManager', () => {
     it('应该支持 LRU 策略', () => {
       const lruManager = new RequestCacheManager({
         strategy: 'lru',
-        maxSize: 2,
+        maxSize: 2
       });
 
       lruManager.setByKey('key1', { id: 1 }, 5000);
@@ -244,7 +244,7 @@ describe('RequestCacheManager', () => {
     it('应该支持 FIFO 策略', () => {
       const fifoManager = new RequestCacheManager({
         strategy: 'fifo',
-        maxSize: 2,
+        maxSize: 2
       });
 
       fifoManager.setByKey('key1', { id: 1 }, 5000);
@@ -262,7 +262,7 @@ describe('RequestCacheManager', () => {
         customStrategy: (key, item) => {
           // 只保留 id 为奇数的项
           return (item.data as { id: number }).id % 2 === 1;
-        },
+        }
       });
 
       customManager.setByKey('key1', { id: 1 }, 5000);
@@ -290,7 +290,7 @@ describe('RequestCacheManager', () => {
     it('应该更新缓存策略', () => {
       const manager = new RequestCacheManager({
         strategy: 'time',
-        maxSize: 2,
+        maxSize: 2
       });
 
       manager.setStrategy('lru');
@@ -307,7 +307,7 @@ describe('RequestCacheManager', () => {
     it('应该更新最大缓存数量', () => {
       const manager = new RequestCacheManager({
         strategy: 'lru',
-        maxSize: 3,
+        maxSize: 3
       });
 
       manager.setByKey('key1', { id: 1 }, 5000);
@@ -329,7 +329,7 @@ describe('RequestCacheManager', () => {
         customStrategy: (key, item) => {
           // 只保留 id 为奇数的项
           return (item.data as { id: number }).id % 2 === 1;
-        },
+        }
       });
 
       manager.setByKey('key1', { id: 1 }, 5000);
@@ -343,4 +343,3 @@ describe('RequestCacheManager', () => {
     });
   });
 });
-

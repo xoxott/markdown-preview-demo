@@ -22,4 +22,3 @@ export class DefaultStateTransitionStrategy implements StateTransitionStrategy {
     return successes >= successThreshold;
   }
 }
-

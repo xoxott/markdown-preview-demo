@@ -11,7 +11,7 @@ export enum CircuitBreakerState {
   /** 开启状态：拒绝所有请求 */
   OPEN = 'open',
   /** 半开状态：允许少量请求通过，用于测试服务是否恢复 */
-  HALF_OPEN = 'half-open',
+  HALF_OPEN = 'half-open'
 }
 
 /**
@@ -126,4 +126,3 @@ export interface CircuitBreakerMeta {
 export function isCircuitBreakerMeta(meta: Record<string, unknown>): meta is CircuitBreakerMeta {
   return typeof meta === 'object' && meta !== null;
 }
-

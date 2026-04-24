@@ -227,12 +227,14 @@ src/components/file-explorer/
 **职责**: 主入口组件，负责组合所有子组件
 
 **特点**:
+
 - 使用 `useFileExplorerLogic` 封装所有业务逻辑
 - 提供容器和布局结构
 - 管理焦点状态（用于快捷键）
 - 组合布局组件、视图容器、交互组件
 
 **关键代码**:
+
 ```typescript
 const logic = useFileExplorerLogic({
   initialItems: mockFileItems,
@@ -248,6 +250,7 @@ const logic = useFileExplorerLogic({
 **职责**: 核心业务逻辑封装，整合所有 Hooks
 
 **功能模块**:
+
 - **数据源管理**: 切换本地/服务器模式，管理数据源实例
 - **路径管理**: 当前路径跟踪，面包屑生成
 - **状态管理**: viewMode, gridSize, collapsed, loading 等
@@ -260,6 +263,7 @@ const logic = useFileExplorerLogic({
 **设计模式**: Composable Pattern（组合式函数）
 
 **数据源集成**:
+
 ```typescript
 // 数据源管理
 const dataSourceType = ref<DataSourceType>('local');
@@ -283,29 +287,45 @@ const breadcrumbItems = computed<BreadcrumbItem[]>(() => {
 ```
 
 **返回值**:
+
 ```typescript
 {
   // 状态
-  viewMode, gridSize, collapsed, mockItems,
-  sortedFiles, sortOrder, sortField,
-  selectedIds, selectedFiles,
-  loading, loadingTip, layoutConfig,
-  
-  // 数据源
-  dataSourceType, dataSource, currentPath,
-  breadcrumbItems,
-  
-  // 拖拽
-  dragDrop,
-  
-  // 方法
-  setSorting, selectFile, selectAll, clearSelection,
-  handleViewModeChange, handleOpen, handleBreadcrumbNavigate,
-  handleGridSizeChange, setLoading, handleContextMenuSelect,
-  switchDataSource, openLocalFolder, refreshFileList,
-  
-  // 文件操作
-  fileOperations
+  viewMode,
+    gridSize,
+    collapsed,
+    mockItems,
+    sortedFiles,
+    sortOrder,
+    sortField,
+    selectedIds,
+    selectedFiles,
+    loading,
+    loadingTip,
+    layoutConfig,
+    // 数据源
+    dataSourceType,
+    dataSource,
+    currentPath,
+    breadcrumbItems,
+    // 拖拽
+    dragDrop,
+    // 方法
+    setSorting,
+    selectFile,
+    selectAll,
+    clearSelection,
+    handleViewModeChange,
+    handleOpen,
+    handleBreadcrumbNavigate,
+    handleGridSizeChange,
+    setLoading,
+    handleContextMenuSelect,
+    switchDataSource,
+    openLocalFolder,
+    refreshFileList,
+    // 文件操作
+    fileOperations;
 }
 ```
 
@@ -314,6 +334,7 @@ const breadcrumbItems = computed<BreadcrumbItem[]>(() => {
 **职责**: 视图容器，提供选择、菜单、滚动功能
 
 **功能**:
+
 - 集成圈选组件（NSelectionRect）
 - 集成右键菜单（ContextMenu）
 - 提供滚动容器（NScrollbar）
@@ -321,6 +342,7 @@ const breadcrumbItems = computed<BreadcrumbItem[]>(() => {
 - 动态渲染视图（FileViewRenderer）
 
 **组件层级**:
+
 ```
 ViewContainer
 ├─ ContextMenu (右键菜单)
@@ -335,6 +357,7 @@ ViewContainer
 **职责**: 视图渲染器，根据 viewMode 动态切换视图组件
 
 **支持的视图**:
+
 - `grid` → GridView
 - `list` → ListView
 - `tile` → TileView
@@ -346,6 +369,7 @@ ViewContainer
 **职责**: 文件信息面板，显示文件详细信息、标签和备注
 
 **功能模块**:
+
 - **基本信息区块**: 显示文件名称、类型、大小、路径、时间等
 - **统计信息区块**: 多选时显示选中文件的统计信息
 - **标签管理区块**: 添加、删除、显示标签
@@ -353,6 +377,7 @@ ViewContainer
 - **快速操作**: 预留快速操作按钮区域
 
 **特性**:
+
 - 轻量级设计，适配窄面板（最小 200px）
 - 单选时显示详细信息
 - 多选时显示统计信息
@@ -365,17 +390,20 @@ ViewContainer
 **职责**: 文件预览和编辑功能
 
 **FilePreview.tsx**:
+
 - 根据文件类型自动选择预览组件
 - 支持文本、图片、Markdown 预览
 - 在 Drawer 中显示预览内容
 
 **FileEditor.tsx**:
+
 - 封装 Monaco 编辑器
 - 自动识别文件语言
 - 支持保存和关闭操作
 - 集成文件写入功能
 
 **特性**:
+
 - 双击文件自动打开预览或编辑器
 - 支持文本文件编辑
 - 图片文件预览
@@ -416,24 +444,24 @@ useFileSelection / useFileOperations
 
 ### 关键状态
 
-| 状态 | 类型 | 说明 |
-|------|------|------|
-| `dataSourceType` | `Ref<DataSourceType>` | 当前数据源类型（local/server） |
-| `dataSource` | `Ref<IFileDataSource \| null>` | 当前数据源实例 |
-| `currentPath` | `Ref<string>` | 当前路径 |
-| `breadcrumbItems` | `ComputedRef<BreadcrumbItem[]>` | 面包屑导航项 |
-| `mockItems` | `Ref<FileItem[]>` | 原始文件列表 |
-| `sortedFiles` | `ComputedRef<FileItem[]>` | 排序后的文件列表 |
-| `selectedIds` | `Ref<Set<string>>` | 选中的文件 ID 集合 |
-| `viewMode` | `Ref<ViewMode>` | 当前视图模式 |
-| `gridSize` | `Ref<GridSize>` | 网格视图尺寸 |
-| `sortField` | `Ref<SortField>` | 排序字段 |
-| `sortOrder` | `Ref<SortOrder>` | 排序顺序 |
-| `loading` | `Ref<boolean>` | 加载状态 |
-| `collapsed` | `Ref<boolean>` | 侧边栏折叠状态 |
-| `openedFile` | `Ref<FileItem \| null>` | 当前打开的文件 |
-| `fileContent` | `Ref<string \| Blob \| null>` | 文件内容 |
-| `editorMode` | `Ref<boolean>` | 是否为编辑模式 |
+| 状态              | 类型                            | 说明                           |
+| ----------------- | ------------------------------- | ------------------------------ |
+| `dataSourceType`  | `Ref<DataSourceType>`           | 当前数据源类型（local/server） |
+| `dataSource`      | `Ref<IFileDataSource \| null>`  | 当前数据源实例                 |
+| `currentPath`     | `Ref<string>`                   | 当前路径                       |
+| `breadcrumbItems` | `ComputedRef<BreadcrumbItem[]>` | 面包屑导航项                   |
+| `mockItems`       | `Ref<FileItem[]>`               | 原始文件列表                   |
+| `sortedFiles`     | `ComputedRef<FileItem[]>`       | 排序后的文件列表               |
+| `selectedIds`     | `Ref<Set<string>>`              | 选中的文件 ID 集合             |
+| `viewMode`        | `Ref<ViewMode>`                 | 当前视图模式                   |
+| `gridSize`        | `Ref<GridSize>`                 | 网格视图尺寸                   |
+| `sortField`       | `Ref<SortField>`                | 排序字段                       |
+| `sortOrder`       | `Ref<SortOrder>`                | 排序顺序                       |
+| `loading`         | `Ref<boolean>`                  | 加载状态                       |
+| `collapsed`       | `Ref<boolean>`                  | 侧边栏折叠状态                 |
+| `openedFile`      | `Ref<FileItem \| null>`         | 当前打开的文件                 |
+| `fileContent`     | `Ref<string \| Blob \| null>`   | 文件内容                       |
+| `editorMode`      | `Ref<boolean>`                  | 是否为编辑模式                 |
 
 ---
 
@@ -444,6 +472,7 @@ useFileSelection / useFileOperations
 **功能**: 文件选择逻辑
 
 **特性**:
+
 - 单选（普通点击）
 - 多选（Ctrl/Cmd + 点击）
 - 范围选择（Shift + 点击）
@@ -451,13 +480,14 @@ useFileSelection / useFileOperations
 - 全选/反选
 
 **API**:
+
 ```typescript
 const {
-  selectedIds,      // 选中的 ID 集合
-  selectedFiles,    // 选中的文件列表
-  selectFile,       // 选择文件
-  selectAll,        // 全选
-  clearSelection    // 清空选择
+  selectedIds, // 选中的 ID 集合
+  selectedFiles, // 选中的文件列表
+  selectFile, // 选择文件
+  selectAll, // 全选
+  clearSelection // 清空选择
 } = useFileSelection(fileList);
 ```
 
@@ -466,6 +496,7 @@ const {
 **功能**: 文件排序逻辑
 
 **排序字段**:
+
 - `name` - 名称（字母序）
 - `size` - 大小（数值）
 - `type` - 类型（分类）
@@ -475,12 +506,13 @@ const {
 **规则**: 文件夹始终在前
 
 **API**:
+
 ```typescript
 const {
-  sortedFiles,      // 排序后的文件列表
-  sortField,        // 当前排序字段
-  sortOrder,        // 当前排序顺序
-  setSorting        // 设置排序
+  sortedFiles, // 排序后的文件列表
+  sortField, // 当前排序字段
+  sortOrder, // 当前排序顺序
+  setSorting // 设置排序
 } = useFileSort(fileList);
 ```
 
@@ -489,6 +521,7 @@ const {
 **功能**: 文件操作逻辑封装
 
 **支持操作**:
+
 - `copyFiles` - 复制文件
 - `cutFiles` - 剪切文件
 - `pasteFiles` - 粘贴文件
@@ -499,6 +532,7 @@ const {
 - `showProperties` - 显示属性
 
 **特性**:
+
 - 内部剪贴板管理（clipboard, clipboardOperation）
 - 支持复制和剪切两种操作模式
 - 剪切操作粘贴后自动清空剪贴板
@@ -506,10 +540,16 @@ const {
 - 状态验证（单选/多选限制）
 
 **API**:
+
 ```typescript
 const fileOperations = useFileOperations(selectedFiles, {
-  onCopy, onCut, onPaste, onDelete,
-  onRename, onCreateFolder, onRefresh,
+  onCopy,
+  onCut,
+  onPaste,
+  onDelete,
+  onRename,
+  onCreateFolder,
+  onRefresh,
   onShowProperties,
   fileDialog
 });
@@ -520,6 +560,7 @@ const fileOperations = useFileOperations(selectedFiles, {
 **功能**: 增强的拖拽逻辑
 
 **特性**:
+
 - 支持拖拽移动/复制/链接
 - 拖拽预览
 - 放置区域验证
@@ -527,6 +568,7 @@ const fileOperations = useFileOperations(selectedFiles, {
 - 错误处理
 
 **API**:
+
 ```typescript
 const dragDrop = useFileDragDropEnhanced({
   validateDrop: (items, targetPath) => boolean,
@@ -540,12 +582,14 @@ const dragDrop = useFileDragDropEnhanced({
 **功能**: 键盘快捷键管理
 
 **特性**:
+
 - 支持修饰键组合（Ctrl、Shift、Alt、Meta）
 - 可绑定到特定 DOM 元素
 - 自动处理事件监听和清理
 - 支持自定义快捷键映射
 
 **API**:
+
 ```typescript
 useKeyboardShortcuts(shortcutsConfig, containerRef);
 ```
@@ -555,6 +599,7 @@ useKeyboardShortcuts(shortcutsConfig, containerRef);
 **功能**: 文件对话框管理
 
 **特性**:
+
 - 统一的对话框接口
 - 支持重命名、删除确认等对话框
 - 基于 base-dialog 组件系统
@@ -564,11 +609,13 @@ useKeyboardShortcuts(shortcutsConfig, containerRef);
 **功能**: 文件元数据管理（标签和备注）
 
 **特性**:
+
 - 使用 Map 存储文件 ID 到元数据的映射
 - 提供标签和备注的增删改查方法
 - 内存存储（可扩展为 localStorage 持久化）
 
 **API**:
+
 ```typescript
 const fileMetadata = useFileMetadata();
 
@@ -594,6 +641,7 @@ const notes = fileMetadata.getNotes(fileId);
 **实现**: `useFileSelection` + `NSelectionRect`
 
 **交互方式**:
+
 - **单击**: 单选文件
 - **Ctrl/Cmd + 点击**: 多选文件
 - **Shift + 点击**: 范围选择
@@ -601,6 +649,7 @@ const notes = fileMetadata.getNotes(fileId);
 - **Ctrl+A**: 全选
 
 **组件**: `NSelectionRect.tsx`
+
 - 监听鼠标按下、移动、释放事件
 - 计算选择框区域
 - 检测与文件项的交集
@@ -611,16 +660,19 @@ const notes = fileMetadata.getNotes(fileId);
 **实现**: `useFileDragDropEnhanced` + `DragPreview` + `DropZone`
 
 **功能**:
+
 - 拖拽开始: 记录拖拽项和起始位置
 - 拖拽移动: 更新预览位置，检测放置区域
 - 拖拽结束: 执行放置操作（移动/复制）
 
 **组件**:
+
 - `DragPreview.tsx`: 显示拖拽预览
 - `DropZone.tsx`: 放置区域高亮
 - `FileDropZoneWrapper.tsx`: 文件项拖拽包装器
 
 **操作类型**:
+
 - `move`: 移动（默认）
 - `copy`: 复制（按住 Ctrl）
 - `link`: 链接（按住 Shift）
@@ -630,11 +682,13 @@ const notes = fileMetadata.getNotes(fileId);
 **实现**: `ContextMenu.tsx` + `useContextMenuOptions` + `contextmenu.config.ts`
 
 **功能**:
+
 - 根据选中项动态生成菜单选项
 - 支持文件、文件夹、多选等不同上下文
 - 集成文件操作（复制、粘贴、删除等）
 
 **配置**: `contextmenu.config.ts`
+
 - 定义菜单项结构
 - 处理菜单选择事件
 - 集成文件操作回调
@@ -646,6 +700,7 @@ const notes = fileMetadata.getNotes(fileId);
 **快捷键分类**:
 
 **文件操作** (8个):
+
 - `Ctrl+A` - 全选
 - `Ctrl+C` - 复制
 - `Ctrl+X` - 剪切
@@ -656,6 +711,7 @@ const notes = fileMetadata.getNotes(fileId);
 - `Alt+Enter` - 显示属性/文件信息
 
 **视图切换** (5个):
+
 - `Ctrl+1` - 网格视图
 - `Ctrl+2` - 列表视图
 - `Ctrl+3` - 平铺视图
@@ -663,11 +719,13 @@ const notes = fileMetadata.getNotes(fileId);
 - `Ctrl+5` - 内容视图
 
 **其他操作** (3个):
+
 - `F5` - 刷新
 - `Ctrl+Shift+N` - 新建文件夹
 - `Escape` - 取消选择
 
 **配置**: `shortcuts.config.ts`
+
 - 使用依赖注入设计
 - 接收操作函数作为参数
 - 返回快捷键映射对象
@@ -677,6 +735,7 @@ const notes = fileMetadata.getNotes(fileId);
 **实现**: `FileInfoPanel` + `useFileMetadata` + 状态栏按钮 + 右键菜单
 
 **功能**:
+
 - 显示文件详细信息（单选时）
 - 显示统计信息（多选时）
 - 标签管理（添加、删除、显示）
@@ -684,11 +743,13 @@ const notes = fileMetadata.getNotes(fileId);
 - 默认隐藏，可通过按钮或右键菜单打开
 
 **打开方式**:
+
 - 状态栏"信息"按钮（选中文件时可用）
 - 右键菜单"文件信息"选项
 - 支持拖拽调整面板宽度
 
 **特性**:
+
 - 轻量级设计，性能友好
 - 适配窄面板布局
 - 标签和备注自动保存
@@ -705,11 +766,13 @@ const notes = fileMetadata.getNotes(fileId);
 #### 1. GridView (网格视图)
 
 **特点**:
+
 - CSS Grid 布局，响应式列数
 - 4 种图标尺寸: extra-large, large, medium, small
 - 支持缩略图显示
 
 **布局**:
+
 - Extra Large: 80px 图标，3 列
 - Large: 64px 图标，4 列
 - Medium: 48px 图标，5 列
@@ -718,6 +781,7 @@ const notes = fileMetadata.getNotes(fileId);
 #### 2. ListView (列表视图)
 
 **特点**:
+
 - Flex 单行布局
 - 紧凑显示，快速浏览
 - 显示: 图标（32px）+ 文件名 + 大小标签
@@ -725,6 +789,7 @@ const notes = fileMetadata.getNotes(fileId);
 #### 3. TileView (平铺视图)
 
 **特点**:
+
 - Grid 2 列布局
 - 平衡的信息展示
 - 显示: 图标（48px，左侧）+ 文件名 + 元信息（右侧）
@@ -732,6 +797,7 @@ const notes = fileMetadata.getNotes(fileId);
 #### 4. DetailView (详细视图)
 
 **特点**:
+
 - Naive UI DataTable
 - 完整信息展示，可排序
 - 显示列: 名称、修改日期、类型、大小
@@ -739,6 +805,7 @@ const notes = fileMetadata.getNotes(fileId);
 #### 5. ContentView (内容视图)
 
 **特点**:
+
 - Card 列表布局
 - 预览文件内容摘要
 - 显示: 大图标 + 文件名 + 元信息 + 内容预览（3行）
@@ -772,8 +839,8 @@ return h(viewComponent, props);
 ```typescript
 export function createShortcutsConfig(deps: ShortcutsConfigDeps): ShortcutMap {
   return {
-    'Ctrl+A': (e) => deps.selectAll(),
-    'Ctrl+C': (e) => deps.fileOperations.copyFiles(),
+    'Ctrl+A': e => deps.selectAll(),
+    'Ctrl+C': e => deps.fileOperations.copyFiles()
     // ... 更多快捷键
   };
 }
@@ -789,9 +856,15 @@ export function createOperationsConfig(
   setLoading: (value: boolean, tip?: string) => void
 ): FileOperationsOptions {
   return {
-    onCopy: async (items) => { /* ... */ },
-    onCut: async (items) => { /* ... */ },
-    onPaste: async (items, targetPath) => { /* ... */ },
+    onCopy: async items => {
+      /* ... */
+    },
+    onCut: async items => {
+      /* ... */
+    },
+    onPaste: async (items, targetPath) => {
+      /* ... */
+    }
     // ... 更多操作
   };
 }
@@ -814,6 +887,7 @@ export function createContextMenuHandler(deps: ContextMenuHandlerDeps) {
 **职责**: Mock 数据管理
 
 **导出**:
+
 - `mockFileItems` - 测试文件数据
 - `mockBreadcrumbItems` - 面包屑导航数据
 
@@ -826,6 +900,7 @@ export function createContextMenuHandler(deps: ContextMenuHandlerDeps) {
 **应用**: 所有业务逻辑封装为 composable
 
 **优势**:
+
 - 逻辑复用
 - 关注点分离
 - 易于测试
@@ -837,6 +912,7 @@ export function createContextMenuHandler(deps: ContextMenuHandlerDeps) {
 **应用**: 配置函数接收依赖作为参数
 
 **优势**:
+
 - 提高可测试性
 - 增强灵活性
 - 降低耦合度
@@ -873,16 +949,17 @@ export function createContextMenuHandler(deps: ContextMenuHandlerDeps) {
 4. 在 `FileToolbar.tsx` 添加模式切换按钮（如需要）
 
 **示例**:
+
 ```typescript
 // datasources/CustomDataSource.ts
 export class CustomDataSource implements IFileDataSource {
   readonly type: DataSourceType = 'custom';
   readonly rootPath: string = '/';
-  
+
   async listFiles(path: string): Promise<FileItem[]> {
     // 实现文件列表获取逻辑
   }
-  
+
   // 实现其他接口方法...
 }
 ```
@@ -910,6 +987,7 @@ export class CustomDataSource implements IFileDataSource {
 3. 注册新的预览组件
 
 **示例**:
+
 ```typescript
 // preview/PDFPreview.tsx
 export default defineComponent({
@@ -1012,6 +1090,7 @@ File Explorer 组件采用分层架构设计，实现了：
 ## 更新日志
 
 ### v2.0 (2025-01-XX)
+
 - ✅ 添加双模式支持（本地/服务器）
 - ✅ 实现数据源抽象层（IFileDataSource）
 - ✅ 添加文件预览功能（文本、图片、Markdown）
@@ -1021,8 +1100,8 @@ File Explorer 组件采用分层架构设计，实现了：
 - ✅ 优化工具栏布局和响应式设计
 
 ### v1.0 (2025-11-08)
+
 - ✅ 基础文件管理器功能
 - ✅ 5 种视图模式
 - ✅ 文件操作和拖拽系统
 - ✅ 键盘快捷键支持
-

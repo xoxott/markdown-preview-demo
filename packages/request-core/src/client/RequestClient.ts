@@ -19,10 +19,7 @@ export class RequestClient {
 
   constructor(transport: Transport) {
     // 默认步骤顺序
-    this.steps = [
-      new PrepareContextStep(),
-      new TransportStep(transport),
-    ];
+    this.steps = [new PrepareContextStep(), new TransportStep(transport)];
 
     this.executor = new RequestExecutor(this.steps);
   }
@@ -36,9 +33,7 @@ export class RequestClient {
     // 将步骤插入到 TransportStep 之前
     // 默认步骤是 [PrepareContextStep, TransportStep]
     // 新步骤应该插入到 TransportStep 之前
-    const transportStepIndex = this.steps.findIndex(
-      s => s instanceof TransportStep,
-    );
+    const transportStepIndex = this.steps.findIndex(s => s instanceof TransportStep);
     if (transportStepIndex >= 0) {
       this.steps.splice(transportStepIndex, 0, step);
     } else {
@@ -57,7 +52,7 @@ export class RequestClient {
    */
   request<T = unknown>(
     config: NormalizedRequestConfig,
-    meta?: Record<string, unknown>,
+    meta?: Record<string, unknown>
   ): Promise<T> {
     if (!this.executor) {
       throw new Error('RequestClient not initialized');
@@ -72,16 +67,16 @@ export class RequestClient {
     url: string,
     params?: unknown,
     config?: Partial<NormalizedRequestConfig>,
-    meta?: Record<string, unknown>,
+    meta?: Record<string, unknown>
   ): Promise<T> {
     return this.request<T>(
       {
         url,
         method: 'GET',
         params,
-        ...config,
+        ...config
       },
-      meta,
+      meta
     );
   }
 
@@ -92,16 +87,16 @@ export class RequestClient {
     url: string,
     data?: unknown,
     config?: Partial<NormalizedRequestConfig>,
-    meta?: Record<string, unknown>,
+    meta?: Record<string, unknown>
   ): Promise<T> {
     return this.request<T>(
       {
         url,
         method: 'POST',
         data,
-        ...config,
+        ...config
       },
-      meta,
+      meta
     );
   }
 
@@ -112,16 +107,16 @@ export class RequestClient {
     url: string,
     data?: unknown,
     config?: Partial<NormalizedRequestConfig>,
-    meta?: Record<string, unknown>,
+    meta?: Record<string, unknown>
   ): Promise<T> {
     return this.request<T>(
       {
         url,
         method: 'PUT',
         data,
-        ...config,
+        ...config
       },
-      meta,
+      meta
     );
   }
 
@@ -131,15 +126,15 @@ export class RequestClient {
   delete<T = unknown>(
     url: string,
     config?: Partial<NormalizedRequestConfig>,
-    meta?: Record<string, unknown>,
+    meta?: Record<string, unknown>
   ): Promise<T> {
     return this.request<T>(
       {
         url,
         method: 'DELETE',
-        ...config,
+        ...config
       },
-      meta,
+      meta
     );
   }
 
@@ -150,17 +145,16 @@ export class RequestClient {
     url: string,
     data?: unknown,
     config?: Partial<NormalizedRequestConfig>,
-    meta?: Record<string, unknown>,
+    meta?: Record<string, unknown>
   ): Promise<T> {
     return this.request<T>(
       {
         url,
         method: 'PATCH',
         data,
-        ...config,
+        ...config
       },
-      meta,
+      meta
     );
   }
 }
-

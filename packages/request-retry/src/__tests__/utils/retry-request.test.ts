@@ -40,7 +40,7 @@ describe('retry-request', () => {
           }
           return 'success';
         },
-        { retry: true, retryCount: 3 },
+        { retry: true, retryCount: 3 }
       );
 
       expect(result).toBe('success');
@@ -56,8 +56,8 @@ describe('retry-request', () => {
             callCount++;
             throw { message: 'Network error', status: 500 };
           },
-          { retry: true, retryCount: 2 },
-        ),
+          { retry: true, retryCount: 2 }
+        )
       ).rejects.toBeDefined();
 
       expect(callCount).toBe(3); // 初始请求 + 2 次重试
@@ -74,8 +74,8 @@ describe('retry-request', () => {
             callCount++;
             throw { message: 'Error', status: 500 };
           },
-          { retry: false },
-        ),
+          { retry: false }
+        )
       ).rejects.toBeDefined();
 
       expect(callCount).toBe(1);
@@ -90,8 +90,8 @@ describe('retry-request', () => {
             callCount++;
             throw { message: 'Error', status: 500 };
           },
-          { retry: true, retryCount: 2 }, // 减少重试次数，避免超时
-        ),
+          { retry: true, retryCount: 2 } // 减少重试次数，避免超时
+        )
       ).rejects.toBeDefined();
 
       expect(callCount).toBe(3); // 初始请求 + 2 次重试
@@ -106,8 +106,8 @@ describe('retry-request', () => {
             callCount++;
             throw { message: 'Error', status: 500 };
           },
-          { retry: true },
-        ),
+          { retry: true }
+        )
       ).rejects.toBeDefined();
 
       expect(callCount).toBe(DEFAULT_RETRY_CONFIG.DEFAULT_RETRY_COUNT + 1);
@@ -120,7 +120,7 @@ describe('retry-request', () => {
         enabled: false,
         maxRetries: 3,
         shouldRetry: () => true,
-        retryDelay: () => 1000,
+        retryDelay: () => 1000
       };
 
       let callCount = 0;
@@ -132,8 +132,8 @@ describe('retry-request', () => {
             throw { message: 'Error', status: 500 };
           },
           undefined,
-          strategy,
-        ),
+          strategy
+        )
       ).rejects.toBeDefined();
 
       expect(callCount).toBe(1);
@@ -143,11 +143,11 @@ describe('retry-request', () => {
       const strategy: RetryStrategy = {
         enabled: true,
         maxRetries: 3,
-        shouldRetry: (error) => {
+        shouldRetry: error => {
           // 只重试 500 错误
           return error.status === 500;
         },
-        retryDelay: () => 100,
+        retryDelay: () => 100
       };
 
       let callCount = 0;
@@ -160,8 +160,8 @@ describe('retry-request', () => {
             throw { message: 'Not found', status: 404 };
           },
           undefined,
-          strategy,
-        ),
+          strategy
+        )
       ).rejects.toBeDefined();
 
       expect(callCount).toBe(1);
@@ -172,7 +172,7 @@ describe('retry-request', () => {
         enabled: true,
         maxRetries: 2,
         shouldRetry: () => true,
-        retryDelay: () => 50, // 固定延迟 50ms
+        retryDelay: () => 50 // 固定延迟 50ms
       };
 
       let callCount = 0;
@@ -185,8 +185,8 @@ describe('retry-request', () => {
             throw { message: 'Error', status: 500 };
           },
           undefined,
-          strategy,
-        ),
+          strategy
+        )
       ).rejects.toBeDefined();
 
       const elapsed = Date.now() - start;
@@ -201,7 +201,7 @@ describe('retry-request', () => {
         enabled: true,
         maxRetries: 5,
         shouldRetry: () => true,
-        retryDelay: () => 10,
+        retryDelay: () => 10
       };
 
       let callCount = 0;
@@ -213,8 +213,8 @@ describe('retry-request', () => {
             throw { message: 'Error', status: 500 };
           },
           undefined,
-          strategy,
-        ),
+          strategy
+        )
       ).rejects.toBeDefined();
 
       expect(callCount).toBe(6); // 初始请求 + 5 次重试
@@ -231,9 +231,9 @@ describe('retry-request', () => {
         errorTypeStrategy: {
           timeout: {
             maxRetries: 1, // 减少重试次数，避免超时
-            delay: 10,
-          },
-        },
+            delay: 10
+          }
+        }
       };
 
       let callCount = 0;
@@ -246,8 +246,8 @@ describe('retry-request', () => {
             throw { message: 'Request timeout' }; // 不使用 ECONNABORTED code
           },
           undefined,
-          strategy,
-        ),
+          strategy
+        )
       ).rejects.toBeDefined();
 
       expect(callCount).toBe(2); // 初始请求 + 1 次重试（使用错误类型策略）
@@ -262,9 +262,9 @@ describe('retry-request', () => {
         errorTypeStrategy: {
           timeout: {
             maxRetries: 1, // 减少重试次数
-            delay: 50, // 使用错误类型策略的延迟
-          },
-        },
+            delay: 50 // 使用错误类型策略的延迟
+          }
+        }
       };
 
       let callCount = 0;
@@ -278,8 +278,8 @@ describe('retry-request', () => {
             throw { message: 'Request timeout' }; // 不使用 ECONNABORTED code
           },
           undefined,
-          strategy,
-        ),
+          strategy
+        )
       ).rejects.toBeDefined();
 
       const elapsed = Date.now() - start;
@@ -297,8 +297,8 @@ describe('retry-request', () => {
           async () => {
             throw new Error('Test error');
           },
-          { retry: false },
-        ),
+          { retry: false }
+        )
       ).rejects.toThrow('Test error');
     });
 
@@ -308,8 +308,8 @@ describe('retry-request', () => {
           async () => {
             throw 'String error';
           },
-          { retry: false },
-        ),
+          { retry: false }
+        )
       ).rejects.toBeDefined();
     });
 
@@ -319,8 +319,8 @@ describe('retry-request', () => {
           async () => {
             throw { message: 'Object error' };
           },
-          { retry: false },
-        ),
+          { retry: false }
+        )
       ).rejects.toBeDefined();
     });
   });
@@ -337,8 +337,8 @@ describe('retry-request', () => {
             callCount++;
             throw { message: 'Request timeout' }; // 不使用 ECONNABORTED code
           },
-          { retry: true, retryOnTimeout: true, retryCount: 1 }, // 减少重试次数
-        ),
+          { retry: true, retryOnTimeout: true, retryCount: 1 } // 减少重试次数
+        )
       ).rejects.toBeDefined();
 
       expect(callCount).toBeGreaterThan(1);
@@ -353,12 +353,11 @@ describe('retry-request', () => {
             callCount++;
             throw { message: 'Request timeout', code: 'ECONNABORTED' };
           },
-          { retry: true, retryOnTimeout: false, retryCount: 2 },
-        ),
+          { retry: true, retryOnTimeout: false, retryCount: 2 }
+        )
       ).rejects.toBeDefined();
 
       expect(callCount).toBe(1);
     });
   });
 });
-

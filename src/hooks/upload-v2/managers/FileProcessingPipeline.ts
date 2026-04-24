@@ -118,4 +118,3 @@ export class FileProcessingPipeline {
     this.queueManager.sort(this.taskStateManager.uploadQueue.value);
   }
 }
-

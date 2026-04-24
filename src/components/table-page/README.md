@@ -18,7 +18,11 @@
 
 ```tsx
 import { TablePage, useTablePage } from '@/components/table-page';
-import type { SearchFieldConfig, ActionBarConfig, TableColumnConfig } from '@/components/table-page';
+import type {
+  SearchFieldConfig,
+  ActionBarConfig,
+  TableColumnConfig
+} from '@/components/table-page';
 
 export default defineComponent({
   setup() {
@@ -120,24 +124,24 @@ export default defineComponent({
 
 #### Props
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| searchConfig | `SearchFieldConfig[]` | - | 搜索栏配置 |
-| actionConfig | `ActionBarConfig` | - | 操作栏配置 |
-| columns | `TableColumnConfig[]` | - | 表格列配置（必填） |
-| data | `any[]` | - | 表格数据（必填） |
-| loading | `boolean` | `false` | 加载状态 |
-| pagination | `PaginationProps` | - | 分页配置 |
-| selectedKeys | `(string \| number)[]` | `[]` | 选中的行键 |
-| rowKey | `string \| Function` | `'id'` | 行键字段 |
-| onSearch | `Function` | - | 搜索事件 |
-| onReset | `Function` | - | 重置事件 |
-| onUpdateSelectedKeys | `Function` | - | 选中行变更事件 |
-| scrollX | `number` | - | 表格滚动宽度 |
-| showIndex | `boolean` | `true` | 是否显示序号列 |
-| showSelection | `boolean` | `true` | 是否显示选择列 |
-| striped | `boolean` | `true` | 是否条纹显示 |
-| size | `'small' \| 'medium' \| 'large'` | `'small'` | 表格大小 |
+| 属性                 | 类型                             | 默认值    | 说明               |
+| -------------------- | -------------------------------- | --------- | ------------------ |
+| searchConfig         | `SearchFieldConfig[]`            | -         | 搜索栏配置         |
+| actionConfig         | `ActionBarConfig`                | -         | 操作栏配置         |
+| columns              | `TableColumnConfig[]`            | -         | 表格列配置（必填） |
+| data                 | `any[]`                          | -         | 表格数据（必填）   |
+| loading              | `boolean`                        | `false`   | 加载状态           |
+| pagination           | `PaginationProps`                | -         | 分页配置           |
+| selectedKeys         | `(string \| number)[]`           | `[]`      | 选中的行键         |
+| rowKey               | `string \| Function`             | `'id'`    | 行键字段           |
+| onSearch             | `Function`                       | -         | 搜索事件           |
+| onReset              | `Function`                       | -         | 重置事件           |
+| onUpdateSelectedKeys | `Function`                       | -         | 选中行变更事件     |
+| scrollX              | `number`                         | -         | 表格滚动宽度       |
+| showIndex            | `boolean`                        | `true`    | 是否显示序号列     |
+| showSelection        | `boolean`                        | `true`    | 是否显示选择列     |
+| striped              | `boolean`                        | `true`    | 是否条纹显示       |
+| size                 | `'small' \| 'medium' \| 'large'` | `'small'` | 表格大小           |
 
 ### SearchBar
 
@@ -457,28 +461,30 @@ const actionConfig: ActionBarConfig = {
 
 ```typescript
 const {
-  data,              // 表格数据
-  loading,           // 加载状态
-  selectedKeys,      // 选中的行键
-  pagination,        // 分页配置
-  searchForm,        // 搜索表单
-  getData,           // 获取数据
-  refresh,           // 刷新数据（保持当前页）
-  reload,            // 重新加载（回到第一页）
-  updateSelectedKeys,// 更新选中行
-  clearSelection,    // 清空选中
-  hasSelection,      // 是否有选中行
-  total              // 总数据量
+  data, // 表格数据
+  loading, // 加载状态
+  selectedKeys, // 选中的行键
+  pagination, // 分页配置
+  searchForm, // 搜索表单
+  getData, // 获取数据
+  refresh, // 刷新数据（保持当前页）
+  reload, // 重新加载（回到第一页）
+  updateSelectedKeys, // 更新选中行
+  clearSelection, // 清空选中
+  hasSelection, // 是否有选中行
+  total // 总数据量
 } = useTablePage({
-  apiFn: fetchDataList,        // API 函数
-  searchConfig,                 // 搜索配置
-  initialSearchParams: {},      // 初始搜索参数
-  initialPagination: {          // 初始分页参数
+  apiFn: fetchDataList, // API 函数
+  searchConfig, // 搜索配置
+  initialSearchParams: {}, // 初始搜索参数
+  initialPagination: {
+    // 初始分页参数
     page: 1,
     pageSize: 10
   },
-  immediate: true,              // 是否立即加载
-  transformer: (response) => ({ // 数据转换器
+  immediate: true, // 是否立即加载
+  transformer: response => ({
+    // 数据转换器
     data: response.data.lists,
     total: response.data.meta.total
   })
@@ -491,18 +497,18 @@ const {
 
 ```typescript
 const {
-  formModel,      // 表单模型
-  formRef,        // 表单引用
-  updateModel,    // 更新字段
-  getValues,      // 获取表单值
-  setValues,      // 设置表单值
-  resetForm,      // 重置表单
-  handleSearch,   // 处理搜索
-  handleReset     // 处理重置
+  formModel, // 表单模型
+  formRef, // 表单引用
+  updateModel, // 更新字段
+  getValues, // 获取表单值
+  setValues, // 设置表单值
+  resetForm, // 重置表单
+  handleSearch, // 处理搜索
+  handleReset // 处理重置
 } = useSearchForm({
   config: searchConfig,
   initialValues: {},
-  onSearch: (values) => console.log(values),
+  onSearch: values => console.log(values),
   onReset: () => console.log('reset')
 });
 ```
@@ -604,4 +610,3 @@ return () => (
 - 📦 完整的 TypeScript 类型定义
 - 🚀 开箱即用的 hooks
 - 📱 响应式设计
-

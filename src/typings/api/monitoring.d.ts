@@ -31,4 +31,3 @@ declare namespace Api {
     }
   }
 }
-

@@ -53,7 +53,7 @@ export function useCanvasPan(options: UseCanvasPanOptions): UseCanvasPanReturn {
       const enableCanvasPan = config.value.interaction?.enableCanvasPan !== false;
       return panOnDrag !== false && enableCanvasPan !== false;
     },
-    canStart: (event) => {
+    canStart: event => {
       // 如果点击在节点上，不处理画布拖拽
       const target = event.target as HTMLElement;
       if (target.closest('.flow-node')) return false;
@@ -68,18 +68,21 @@ export function useCanvasPan(options: UseCanvasPanOptions): UseCanvasPanReturn {
 
       // 检查鼠标按键
       let allowedButtons: number[] = [];
-      if (Array.isArray(panOnDrag)) {  // 如果配置是数组，使用配置的按键
+      if (Array.isArray(panOnDrag)) {
+        // 如果配置是数组，使用配置的按键
         allowedButtons = panOnDrag;
-      } else if (panOnDrag === true || (panOnDrag !== false && enableCanvasPan)) {  // 如果启用左键拖拽
+      } else if (panOnDrag === true || (panOnDrag !== false && enableCanvasPan)) {
+        // 如果启用左键拖拽
         allowedButtons = [0]; // 左键
-      } else {  // 默认：中键和右键
+      } else {
+        // 默认：中键和右键
         allowedButtons = [1, 2];
       }
       return allowedButtons.includes(event.button);
     },
     // 启用增量模式：每次更新后重置起始位置，使得 deltaX/deltaY 是增量偏移
     incremental: true,
-    onDrag: (result) => {
+    onDrag: result => {
       const perfStart = performance.now();
 
       const panStart = performance.now();
@@ -101,10 +104,8 @@ export function useCanvasPan(options: UseCanvasPanOptions): UseCanvasPanReturn {
         panTime,
         changeTime
       });
-
     }
   });
-
 
   return {
     isPanning: drag.isDragging,
@@ -114,4 +115,3 @@ export function useCanvasPan(options: UseCanvasPanOptions): UseCanvasPanReturn {
     cleanup: drag.cleanup
   };
 }
-

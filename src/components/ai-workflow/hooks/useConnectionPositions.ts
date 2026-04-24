@@ -48,9 +48,10 @@ function calculatePortPosition(
   // 节点容器现在使用自定义div，宽度固定为220px（包含border）
   // 端口容器：left/right: '-10px'，端口元素宽度20px
   // 端口圆圈中心正好在节点的左/右边缘
-  const portCenterX = portType === 'output'
-    ? nodeX + NODE_WIDTH * zoom  // 输出端口：节点右边缘
-    : nodeX;                      // 输入端口：节点左边缘
+  const portCenterX =
+    portType === 'output'
+      ? nodeX + NODE_WIDTH * zoom // 输出端口：节点右边缘
+      : nodeX; // 输入端口：节点左边缘
 
   // 如果没有端口或端口列表为空，返回节点中心位置
   if (!ports || ports.length === 0) {
@@ -149,4 +150,3 @@ export function useConnectionPositions(options: UseConnectionPositionsOptions) {
     nodeMapCache
   };
 }
-

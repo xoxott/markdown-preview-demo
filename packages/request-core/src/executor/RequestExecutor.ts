@@ -20,10 +20,7 @@ export class RequestExecutor {
    * @param meta 元数据（可选，用于业务层传递额外信息）
    * @returns Promise<T>
    */
-  async execute<T>(
-    config: NormalizedRequestConfig,
-    meta?: Record<string, unknown>,
-  ): Promise<T> {
+  async execute<T>(config: NormalizedRequestConfig, meta?: Record<string, unknown>): Promise<T> {
     // 创建请求上下文
     // 如果 meta 中有 requestId，使用它；否则自动生成
     const requestId = meta?.requestId as string | undefined;
@@ -48,4 +45,3 @@ export class RequestExecutor {
     return ctx.result;
   }
 }
-

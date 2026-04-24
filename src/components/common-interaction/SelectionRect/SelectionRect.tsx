@@ -4,7 +4,15 @@
  * 提供鼠标拖拽框选功能，支持自动滚动、阈值控制等特性
  */
 
-import { computed, defineComponent, onBeforeUnmount, onMounted, ref, type CSSProperties, type PropType } from 'vue';
+import {
+  computed,
+  defineComponent,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  type CSSProperties,
+  type PropType
+} from 'vue';
 import { useEventListener, useThrottleFn } from '@vueuse/core';
 import type { Point, Rect, SelectableItem, SelectionCallbackParams } from '../types';
 import { createRectFromPoints, distance, isRectIntersect } from '../utils/geometry';
@@ -130,7 +138,9 @@ export default defineComponent({
     function getSelectableElements(): SelectableItem[] {
       if (!containerElement.value) return [];
 
-      const elements = containerElement.value.querySelectorAll<HTMLElement>(props.selectableSelector);
+      const elements = containerElement.value.querySelectorAll<HTMLElement>(
+        props.selectableSelector
+      );
       const items: SelectableItem[] = [];
 
       elements.forEach(element => {
@@ -349,13 +359,9 @@ export default defineComponent({
       <>
         {slots.default?.()}
         {isSelecting.value && selectionRect.value && (
-          <div
-            class={['selection-rect', props.rectClass]}
-            style={selectionStyle.value}
-          />
+          <div class={['selection-rect', props.rectClass]} style={selectionStyle.value} />
         )}
       </>
     );
   }
 });
-

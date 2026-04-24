@@ -8,7 +8,11 @@ export default class PreviewGenerator {
    * @param maxHeight - 最大高度
    * @returns Base64 格式的预览图
    */
-  static async generateImagePreview(file: File, maxWidth: number = 200, maxHeight: number = 200): Promise<string> {
+  static async generateImagePreview(
+    file: File,
+    maxWidth: number = 200,
+    maxHeight: number = 200
+  ): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
 
@@ -193,10 +197,10 @@ export default class PreviewGenerator {
       'application/x-7z-compressed': '🗜️',
 
       // 音频
-      audio: '🎵',
+      'audio': '🎵',
 
       // 默认
-      default: '📎'
+      'default': '📎'
     };
 
     // 检查完整 MIME 类型

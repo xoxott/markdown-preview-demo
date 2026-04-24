@@ -16,6 +16,7 @@ cp src/views/user-management/index.tsx src/views/user-management/index.backup.ts
 ### 步骤 2: 查看示例
 
 参考已迁移的示例文件：
+
 - `src/views/user-management/index-new.tsx` - 完整的用户管理页面示例
 - `src/components/table-page/examples/BasicExample.tsx` - 基础使用示例
 
@@ -41,6 +42,7 @@ npm run dev
 ```
 
 测试清单：
+
 - [ ] 搜索功能
 - [ ] 筛选功能
 - [ ] 分页功能
@@ -61,7 +63,7 @@ export default defineComponent({
     // 大量状态管理
     const selectedRowKeys = ref<number[]>([]);
     const searchForm = reactive({...});
-    
+
     // 手写表格列
     function createColumns() {
       return [
@@ -77,7 +79,7 @@ export default defineComponent({
         // ... 更多列
       ];
     }
-    
+
     // 手写 JSX
     return () => (
       <NSpace vertical>
@@ -109,14 +111,14 @@ export default defineComponent({
     const searchConfig: SearchFieldConfig[] = [...];
     const actionConfig: ActionBarConfig = {...};
     const columns: TableColumnConfig[] = [...];
-    
+
     // 使用 hook 管理状态
     const { data, loading, pagination, selectedKeys, refresh, updateSelectedKeys } = useTablePage({
       apiFn: fetchUserList,
       searchConfig,
       immediate: true
     });
-    
+
     // 简洁的 JSX
     return () => (
       <TablePage
@@ -139,13 +141,10 @@ export default defineComponent({
 ### 1. 搜索栏配置
 
 **旧版本**:
+
 ```tsx
 <NFormItem path="search">
-  <NInput
-    v-model:value={searchForm.search}
-    placeholder="搜索用户名或邮箱"
-    clearable
-  >
+  <NInput v-model:value={searchForm.search} placeholder="搜索用户名或邮箱" clearable>
     {{
       prefix: () => <div class="i-carbon-search" />
     }}
@@ -154,6 +153,7 @@ export default defineComponent({
 ```
 
 **新版本**:
+
 ```typescript
 {
   type: 'input',
@@ -167,6 +167,7 @@ export default defineComponent({
 ### 2. 操作按钮配置
 
 **旧版本**:
+
 ```tsx
 <NButton type="primary" onClick={handleAdd}>
   <div class="flex items-center gap-4px">
@@ -177,6 +178,7 @@ export default defineComponent({
 ```
 
 **新版本**:
+
 ```typescript
 {
   preset: {
@@ -191,6 +193,7 @@ export default defineComponent({
 ### 3. 表格列配置
 
 **旧版本**:
+
 ```tsx
 {
   key: 'username',
@@ -210,6 +213,7 @@ export default defineComponent({
 ```
 
 **新版本**:
+
 ```typescript
 {
   key: 'username',
@@ -286,9 +290,9 @@ A: 使用 `transformer` 自定义数据转换：
 ```typescript
 const { data, loading, pagination } = useTablePage({
   apiFn: fetchDataList,
-  transformer: (response) => ({
-    data: response.items,  // 自定义数据字段
-    total: response.count  // 自定义总数字段
+  transformer: response => ({
+    data: response.items, // 自定义数据字段
+    total: response.count // 自定义总数字段
   })
 });
 ```
@@ -348,13 +352,13 @@ mv src/views/user-management/index.backup.tsx src/views/user-management/index.ts
 
 迁移后的性能提升：
 
-| 指标 | 旧版本 | 新版本 | 提升 |
-|------|--------|--------|------|
-| 代码行数 | ~650 行 | ~300 行 | -54% |
-| 组件复杂度 | 高 | 低 | ⬇️ |
-| 可维护性 | 中 | 高 | ⬆️ |
-| 开发效率 | 中 | 高 | ⬆️ |
-| 类型安全 | 部分 | 完整 | ⬆️ |
+| 指标       | 旧版本  | 新版本  | 提升 |
+| ---------- | ------- | ------- | ---- |
+| 代码行数   | ~650 行 | ~300 行 | -54% |
+| 组件复杂度 | 高      | 低      | ⬇️   |
+| 可维护性   | 中      | 高      | ⬆️   |
+| 开发效率   | 中      | 高      | ⬆️   |
+| 类型安全   | 部分    | 完整    | ⬆️   |
 
 ## 下一步
 
@@ -366,4 +370,3 @@ mv src/views/user-management/index.backup.tsx src/views/user-management/index.ts
 4. 分享给团队成员使用
 
 祝迁移顺利！🎉
-

@@ -98,21 +98,21 @@ interface WorkflowConnection {
 
 #### 节点操作
 
-| V1 | V2 |
-|----|-----|
+| V1                   | V2                              |
+| -------------------- | ------------------------------- |
 | `canvas.nodes.value` | `canvas.nodes.value` (结构变更) |
-| `node.position` | `node.ui.position` |
-| `node.data` | `node.business` |
-| `node.config` | `node.business.config` |
+| `node.position`      | `node.ui.position`              |
+| `node.data`          | `node.business`                 |
+| `node.config`        | `node.business.config`          |
 
 #### 连接线操作
 
-| V1 | V2 |
-|----|-----|
-| `connection.source` | `connection.business.sourceNodeId` |
+| V1                        | V2                                 |
+| ------------------------- | ---------------------------------- |
+| `connection.source`       | `connection.business.sourceNodeId` |
 | `connection.sourceHandle` | `connection.business.sourcePortId` |
-| `connection.type` | `connection.ui.renderStrategy` |
-| `connection.animated` | `connection.ui.style.animated` |
+| `connection.type`         | `connection.ui.renderStrategy`     |
+| `connection.animated`     | `connection.ui.style.animated`     |
 
 ### 3. 配置系统
 
@@ -199,9 +199,7 @@ function migrateConnectionV1ToV2(v1Conn: V1.Connection): V2.WorkflowConnection {
 /**
  * 将 V1 工作流定义转换为 V2 工作流定义
  */
-function migrateWorkflowV1ToV2(
-  v1Definition: V1.WorkflowDefinition
-): V2.WorkflowDefinition {
+function migrateWorkflowV1ToV2(v1Definition: V1.WorkflowDefinition): V2.WorkflowDefinition {
   return {
     nodes: v1Definition.nodes.map(migrateNodeV1ToV2),
     connections: v1Definition.connections.map(migrateConnectionV1ToV2),
@@ -318,27 +316,17 @@ const path = `M ${x1},${y1} C ${cx1},${cy1} ${cx2},${cy2} ${x2},${y2}`;
 import { connectionRenderManager } from '@/strategies/connection-render';
 
 // 使用策略
-const path = connectionRenderManager.renderPath(
-  'bezier',
-  sourcePos,
-  targetPos,
-  { bezierControlOffset: 0.5 }
-);
+const path = connectionRenderManager.renderPath('bezier', sourcePos, targetPos, {
+  bezierControlOffset: 0.5
+});
 
 // 切换策略
-const straightPath = connectionRenderManager.renderPath(
-  'straight',
-  sourcePos,
-  targetPos
-);
+const straightPath = connectionRenderManager.renderPath('straight', sourcePos, targetPos);
 
 // 自定义策略
-const customPath = connectionRenderManager.renderPath(
-  'custom',
-  sourcePos,
-  targetPos,
-  { controlPoints: [{ x: 150, y: 150 }] }
-);
+const customPath = connectionRenderManager.renderPath('custom', sourcePos, targetPos, {
+  controlPoints: [{ x: 150, y: 150 }]
+});
 ```
 
 ---
@@ -466,7 +454,7 @@ config.updateConfig({
 });
 
 // 订阅配置变化
-const unsubscribe = config.subscribe((newConfig) => {
+const unsubscribe = config.subscribe(newConfig => {
   console.log('Config updated:', newConfig);
 });
 ```
@@ -541,11 +529,13 @@ const v2Node = adapter.toV2Node(v1Node); // 用于新代码
 是的！V2 版本在多个方面进行了性能优化：
 
 1. **渲染性能提升 50%**
+
    - 使用 transform 代替 left/top
    - GPU 加速
    - RAF 节流
 
 2. **内存使用减少 30%**
+
    - 优化数据结构
    - 减少不必要的对象创建
 
@@ -587,15 +577,15 @@ connection.ui.style = {
 ### Q5: 如何添加自定义渲染策略？
 
 ```typescript
-import { 
+import {
   connectionRenderManager,
-  type IConnectionRenderStrategy 
+  type IConnectionRenderStrategy
 } from '@/strategies/connection-render';
 
 // 1. 实现策略接口
 class MyCustomStrategy implements IConnectionRenderStrategy {
   readonly name = 'my-custom' as const;
-  
+
   computePath(source: Position, target: Position, config?: any): string {
     // 自定义路径计算逻辑
     return `M ${source.x},${source.y} L ${target.x},${target.y}`;
@@ -618,9 +608,8 @@ V2 版本虽然引入了一些破坏性变更，但带来了：
 ✅ **更好的可维护性** - 清晰的数据结构和模块划分  
 ✅ **更强的可扩展性** - 策略模式和配置系统  
 ✅ **更高的性能** - 多项性能优化  
-✅ **更好的开发体验** - 完整的类型定义和文档  
+✅ **更好的开发体验** - 完整的类型定义和文档
 
 建议所有新项目使用 V2，现有项目可以逐步迁移。
 
 如有问题，请参考 [架构文档](./ARCHITECTURE.md) 或提交 Issue。
-

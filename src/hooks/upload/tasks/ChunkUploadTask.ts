@@ -161,7 +161,11 @@ export class ChunkUploadTask {
 
   /** 检查是否是中止错误 */
   private isAbortError(error: any): boolean {
-    return error?.name === 'AbortError' || error?.code === 'ABORT_ERR' || error?.message?.includes('aborted');
+    return (
+      error?.name === 'AbortError' ||
+      error?.code === 'ABORT_ERR' ||
+      error?.message?.includes('aborted')
+    );
   }
 
   /**
@@ -246,7 +250,10 @@ export class ChunkUploadTask {
 
     // 计算最优分片大小
     const chunkSize = this.config.enableNetworkAdaptation
-      ? this.chunkManager.calculateOptimalChunkSize(this.task.file.size, this.progressManager.getAverageSpeed())
+      ? this.chunkManager.calculateOptimalChunkSize(
+          this.task.file.size,
+          this.progressManager.getAverageSpeed()
+        )
       : this.task.options.chunkSize || this.config.chunkSize;
 
     await this.chunkManager.createChunks(this.task, chunkSize);
@@ -332,7 +339,10 @@ export class ChunkUploadTask {
           }
 
           // 创建分片专用的 AbortController
-          const controller = this.uploadController.createChunkAbortController(this.task.id, chunk.index);
+          const controller = this.uploadController.createChunkAbortController(
+            this.task.id,
+            chunk.index
+          );
           const signal = controller.signal;
 
           // 执行分片上传
@@ -347,7 +357,9 @@ export class ChunkUploadTask {
           await this.callbackManager.emit('onFileProgress', this.task);
           await this.callbackManager.emit('onChunkSuccess', this.task, chunk);
 
-          console.log(`✅ 分片 ${chunk.index} 上传成功 (${this.task.uploadedChunks}/${this.task.totalChunks})`);
+          console.log(
+            `✅ 分片 ${chunk.index} 上传成功 (${this.task.uploadedChunks}/${this.task.totalChunks})`
+          );
           return;
         } catch (error: any) {
           lastError = error;
@@ -364,7 +376,10 @@ export class ChunkUploadTask {
 
           // 记录错误信息
           chunk.error = error;
-          console.error(`❌ 分片 ${chunk.index} 上传失败 (尝试 ${attempt + 1}/${maxRetries + 1}):`, error.message);
+          console.error(
+            `❌ 分片 ${chunk.index} 上传失败 (尝试 ${attempt + 1}/${maxRetries + 1}):`,
+            error.message
+          );
 
           // 判断是否需要重试
           if (attempt < maxRetries && this.retryStrategy.shouldRetry(this.task, error)) {
@@ -428,7 +443,8 @@ export class ChunkUploadTask {
       // 阶段2: 发送合并请求 (97%)
       const mergeInProgressValue = Math.max(
         this.task.progress,
-        CONSTANTS.PROGRESS.MERGE_START + (CONSTANTS.PROGRESS.MERGE_END - CONSTANTS.PROGRESS.MERGE_START) * 0.4
+        CONSTANTS.PROGRESS.MERGE_START +
+          (CONSTANTS.PROGRESS.MERGE_END - CONSTANTS.PROGRESS.MERGE_START) * 0.4
       );
       if (this.task.progress < mergeInProgressValue) {
         this.task.progress = mergeInProgressValue;
@@ -468,7 +484,8 @@ export class ChunkUploadTask {
     // 计算总耗时
     const duration = this.task.endTime - (this.task.startTime || this.task.endTime);
     const fileSize = (this.task.file.size / 1024 / 1024).toFixed(2);
-    const avgSpeed = duration > 0 ? (this.task.file.size / 1024 / (duration / 1000)).toFixed(2) : '0';
+    const avgSpeed =
+      duration > 0 ? (this.task.file.size / 1024 / (duration / 1000)).toFixed(2) : '0';
 
     console.log(`✅ 任务 ${this.task.file.name} 上传成功 (100%)`);
     console.log(`   - 文件大小: ${fileSize}MB`);

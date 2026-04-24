@@ -45,9 +45,7 @@ export default defineComponent({
         position: { x: 150, y: 150 },
         size: { width: 150, height: 60 },
         data: { label: '配置节点 1' },
-        handles: [
-          { id: 'source-c1', type: 'source', position: 'right' }
-        ]
+        handles: [{ id: 'source-c1', type: 'source', position: 'right' }]
       },
       {
         id: 'config-node-2',
@@ -55,9 +53,7 @@ export default defineComponent({
         position: { x: 350, y: 150 },
         size: { width: 150, height: 60 },
         data: { label: '配置节点 2' },
-        handles: [
-          { id: 'target-c2', type: 'target', position: 'left' }
-        ]
+        handles: [{ id: 'target-c2', type: 'target', position: 'left' }]
       }
     ]);
 
@@ -99,9 +95,7 @@ export default defineComponent({
                 updateFlowConfig({
                   edges: { animated: !flowConfig.value.edges?.animated }
                 });
-                message.success(
-                  flowConfig.value.edges?.animated ? '关闭动画' : '开启动画'
-                );
+                message.success(flowConfig.value.edges?.animated ? '关闭动画' : '开启动画');
               }}
             >
               切换动画
@@ -126,4 +120,3 @@ export default defineComponent({
     );
   }
 });
-

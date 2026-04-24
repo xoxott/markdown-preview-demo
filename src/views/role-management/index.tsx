@@ -221,15 +221,8 @@ export default defineComponent({
     }
 
     // 表格配置
-    const {
-      columns,
-      data,
-      loading,
-      pagination,
-      getData,
-      updateSearchParams,
-      resetSearchParams
-    } = useTable({
+    const { columns, data, loading, pagination, getData, updateSearchParams, resetSearchParams } =
+      useTable({
         apiFn: fetchRoleList,
         apiParams: {
           page: 1,
@@ -263,7 +256,9 @@ export default defineComponent({
         return;
       }
       await dialog.confirmDelete(
-        $t('page.roleManagement.confirmBatchDelete' as any, { count: selectedRowKeys.value.length }),
+        $t('page.roleManagement.confirmBatchDelete' as any, {
+          count: selectedRowKeys.value.length
+        }),
         async () => {
           try {
             await fetchBatchDeleteRoles({ ids: selectedRowKeys.value });
@@ -312,9 +307,7 @@ export default defineComponent({
                 <NButton type="primary" onClick={handleSearch}>
                   {$t('common.search')}
                 </NButton>
-                <NButton onClick={handleReset}>
-                  {$t('common.reset')}
-                </NButton>
+                <NButton onClick={handleReset}>{$t('common.reset')}</NButton>
               </NSpace>
             </NFormItem>
           </NForm>
@@ -326,12 +319,14 @@ export default defineComponent({
             <NButton type="primary" onClick={handleAdd}>
               {$t('common.add')}
             </NButton>
-            <NButton type="error" disabled={selectedRowKeys.value.length === 0} onClick={handleBatchDelete}>
+            <NButton
+              type="error"
+              disabled={selectedRowKeys.value.length === 0}
+              onClick={handleBatchDelete}
+            >
               {$t('common.batchDelete')}
             </NButton>
-            <NButton onClick={getData}>
-              {$t('common.refresh')}
-            </NButton>
+            <NButton onClick={getData}>{$t('common.refresh')}</NButton>
           </NSpace>
         </NCard>
 
@@ -344,7 +339,7 @@ export default defineComponent({
             pagination={pagination}
             rowKey={(row: Role) => row.id}
             checkedRowKeys={selectedRowKeys.value}
-            onUpdateCheckedRowKeys={(keys) => {
+            onUpdateCheckedRowKeys={keys => {
               selectedRowKeys.value = keys as number[];
             }}
             scrollX={1800}
@@ -354,4 +349,3 @@ export default defineComponent({
     );
   }
 });
-

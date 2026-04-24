@@ -181,16 +181,17 @@ export default defineComponent({
     }
 
     // 表格配置
-    const { columns, data, loading, pagination, getData, updateSearchParams, resetSearchParams } = useTable({
-      apiFn: fetchWorkflowList,
-      apiParams: {
-        page: 1,
-        limit: 10,
-        ...searchForm
-      },
-      columns: () => createColumns() as any,
-      showTotal: true
-    });
+    const { columns, data, loading, pagination, getData, updateSearchParams, resetSearchParams } =
+      useTable({
+        apiFn: fetchWorkflowList,
+        apiParams: {
+          page: 1,
+          limit: 10,
+          ...searchForm
+        },
+        columns: () => createColumns() as any,
+        showTotal: true
+      });
 
     // 新建工作流
     async function handleAdd() {
@@ -384,9 +385,7 @@ export default defineComponent({
                 <NButton type="primary" onClick={handleSearch}>
                   {$t('common.search')}
                 </NButton>
-                <NButton onClick={handleReset}>
-                  {$t('common.reset')}
-                </NButton>
+                <NButton onClick={handleReset}>{$t('common.reset')}</NButton>
               </NSpace>
             </NFormItem>
           </NForm>
@@ -398,12 +397,14 @@ export default defineComponent({
             <NButton type="primary" onClick={handleAdd}>
               新建工作流
             </NButton>
-            <NButton type="error" disabled={selectedRowKeys.value.length === 0} onClick={handleBatchDelete}>
+            <NButton
+              type="error"
+              disabled={selectedRowKeys.value.length === 0}
+              onClick={handleBatchDelete}
+            >
               {$t('common.batchDelete')}
             </NButton>
-            <NButton onClick={getData}>
-              {$t('common.refresh')}
-            </NButton>
+            <NButton onClick={getData}>{$t('common.refresh')}</NButton>
           </NSpace>
         </NCard>
 
@@ -426,4 +427,3 @@ export default defineComponent({
     );
   }
 });
-

@@ -38,9 +38,7 @@ export class FlowConfigValidator {
   validateOrThrow(config: FlowConfig): void {
     const result = this.validate(config);
     if (!result.valid) {
-      throw new Error(
-        `Invalid config: ${result.errors.join(', ')}`
-      );
+      throw new Error(`Invalid config: ${result.errors.join(', ')}`);
     }
   }
 
@@ -85,10 +83,7 @@ export class FlowConfigValidator {
    * @param section 要验证的部分（如 'canvas', 'nodes' 等）
    * @returns 验证结果
    */
-  validateSection(
-    config: FlowConfig,
-    section: keyof FlowConfig
-  ): ConfigValidationResult {
+  validateSection(config: FlowConfig, section: keyof FlowConfig): ConfigValidationResult {
     const sectionConfig = { [section]: config[section] } as FlowConfig;
     return this.validate(sectionConfig);
   }
@@ -100,4 +95,3 @@ export class FlowConfigValidator {
 export function createFlowConfigValidator(): FlowConfigValidator {
   return new FlowConfigValidator();
 }
-

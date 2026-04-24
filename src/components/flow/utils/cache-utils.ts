@@ -66,4 +66,3 @@ class Cache<K, V> extends Map<K, V> {
 export function createCache<K, V>(options: CacheManagerOptions = {}): Map<K, V> {
   return new Cache<K, V>(options);
 }
-

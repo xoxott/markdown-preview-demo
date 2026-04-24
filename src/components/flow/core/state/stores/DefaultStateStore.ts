@@ -343,9 +343,7 @@ export class DefaultStateStore implements IStateStore {
   addEdges(edges: FlowEdge[]): void {
     const validEdges = edges.filter(
       e =>
-        !this.edgeIdsSet.has(e.id) &&
-        this.nodeIdsSet.has(e.source) &&
-        this.nodeIdsSet.has(e.target)
+        !this.edgeIdsSet.has(e.id) && this.nodeIdsSet.has(e.source) && this.nodeIdsSet.has(e.target)
     );
 
     if (validEdges.length === 0) return;
@@ -402,7 +400,9 @@ export class DefaultStateStore implements IStateStore {
   }
 
   getNodeEdges(nodeId: string): FlowEdge[] {
-    return this.edges.filter(edge => edge.source === nodeId || edge.target === nodeId).map(edge => ({ ...edge }));
+    return this.edges
+      .filter(edge => edge.source === nodeId || edge.target === nodeId)
+      .map(edge => ({ ...edge }));
   }
 
   // ==================== 视口操作 ====================
@@ -480,4 +480,3 @@ export class DefaultStateStore implements IStateStore {
     };
   }
 }
-

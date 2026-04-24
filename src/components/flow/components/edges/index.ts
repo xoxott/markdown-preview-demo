@@ -4,4 +4,3 @@
 
 export { default as BaseEdge } from './BaseEdge';
 export type { BaseEdgeProps } from './BaseEdge';
-

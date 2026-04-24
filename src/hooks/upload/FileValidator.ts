@@ -32,7 +32,10 @@ export default class FileValidator {
    *   - valid: 验证通过的文件数组
    *   - errors: 验证失败的文件及失败原因
    */
-  validate(files: File[], existingCount: number = 0): { valid: File[]; errors: Array<{ file: File; reason: string }> } {
+  validate(
+    files: File[],
+    existingCount: number = 0
+  ): { valid: File[]; errors: Array<{ file: File; reason: string }> } {
     const valid: File[] = [];
     const errors: Array<{ file: File; reason: string }> = [];
 
@@ -103,10 +106,14 @@ export default class FileValidator {
 
     const isValidExtension =
       extension &&
-      this.config.accept.some(accept => accept.toLowerCase() === `.${extension}` || accept.toLowerCase() === extension);
+      this.config.accept.some(
+        accept => accept.toLowerCase() === `.${extension}` || accept.toLowerCase() === extension
+      );
 
     const isValidMimeType = this.config.accept.some(
-      accept => accept.toLowerCase() === mimeType || (accept.includes('/') && mimeType.startsWith(accept.split('/')[0]))
+      accept =>
+        accept.toLowerCase() === mimeType ||
+        (accept.includes('/') && mimeType.startsWith(accept.split('/')[0]))
     );
 
     return isValidExtension || isValidMimeType;

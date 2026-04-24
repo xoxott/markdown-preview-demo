@@ -219,5 +219,10 @@ export interface IStateStore {
 /**
  * 状态变化类型
  */
-export type StateChangeType = 'nodes' | 'edges' | 'viewport' | 'selectedNodeIds' | 'selectedEdgeIds' | 'all';
-
+export type StateChangeType =
+  | 'nodes'
+  | 'edges'
+  | 'viewport'
+  | 'selectedNodeIds'
+  | 'selectedEdgeIds'
+  | 'all';

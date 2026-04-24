@@ -127,10 +127,32 @@ export default defineComponent({
         if (fileItem.type === 'folder') return 'text-blue-500';
         const ext = fileItem.extension?.toLowerCase();
         if (!ext) return 'text-gray-500';
-        if (['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp'].includes(ext)) return 'text-green-500';
-        if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm'].includes(ext)) return 'text-purple-500';
+        if (['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp'].includes(ext))
+          return 'text-green-500';
+        if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm'].includes(ext))
+          return 'text-purple-500';
         if (['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'].includes(ext)) return 'text-pink-500';
-        if (['js', 'ts', 'jsx', 'tsx', 'vue', 'html', 'css', 'scss', 'json', 'xml', 'py', 'java', 'cpp', 'c', 'go', 'rs'].includes(ext)) return 'text-yellow-500';
+        if (
+          [
+            'js',
+            'ts',
+            'jsx',
+            'tsx',
+            'vue',
+            'html',
+            'css',
+            'scss',
+            'json',
+            'xml',
+            'py',
+            'java',
+            'cpp',
+            'c',
+            'go',
+            'rs'
+          ].includes(ext)
+        )
+          return 'text-yellow-500';
         if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext)) return 'text-orange-500';
         return 'text-gray-500';
       };
@@ -141,11 +163,15 @@ export default defineComponent({
         const remainingCount = Math.max(0, logic.dragDrop.dragState.value.draggedItems.length - 3);
 
         return (
-          <div key="file-preview-wrapper" class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 p-3 min-w-[240px] max-w-[320px]">
+          <div
+            key="file-preview-wrapper"
+            class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 p-3 min-w-[240px] max-w-[320px]"
+          >
             {/* 操作类型指示器 */}
             <div class="flex items-center gap-2 mb-2 pb-2 border-b border-gray-200 dark:border-gray-700">
               <span class="text-xs font-medium text-gray-600 dark:text-gray-400">
-                {logic.dragDrop.dragOperation.value === 'copy' ? '复制' : '移动'} {logic.dragDrop.dragState.value.draggedItems.length} 个项目
+                {logic.dragDrop.dragOperation.value === 'copy' ? '复制' : '移动'}{' '}
+                {logic.dragDrop.dragState.value.draggedItems.length} 个项目
               </span>
             </div>
 
@@ -207,7 +233,12 @@ export default defineComponent({
 
     /** 渲染 */
     return () => (
-      <div ref={containerRef} class="h-500px flex flex-col" tabindex={0} style={{ outline: 'none' }}>
+      <div
+        ref={containerRef}
+        class="h-500px flex flex-col"
+        tabindex={0}
+        style={{ outline: 'none' }}
+      >
         {/* 工具栏 */}
         <FileToolbar
           viewMode={logic.viewMode.value}
@@ -248,10 +279,18 @@ export default defineComponent({
 
         {/* 视图布局 */}
         <div class="flex-1 overflow-hidden">
-          <ResizableLayout v-model:collapsed={logic.collapsed.value} config={logic.layoutConfig.value}>
+          <ResizableLayout
+            v-model:collapsed={logic.collapsed.value}
+            config={logic.layoutConfig.value}
+          >
             {{
               left: (
-                <FileSidebar treeData={[]} currentPath="/" onNavigate={() => {}} collapsed={logic.collapsed.value} />
+                <FileSidebar
+                  treeData={[]}
+                  currentPath="/"
+                  onNavigate={() => {}}
+                  collapsed={logic.collapsed.value}
+                />
               ),
               default: (
                 <ViewContainer
@@ -309,7 +348,8 @@ export default defineComponent({
           placement="right"
           width="80%"
           resizable
-          contentClass='h-full'>
+          contentClass="h-full"
+        >
           <NDrawerContent closable nativeScrollbar={false}>
             {{
               header: () => (

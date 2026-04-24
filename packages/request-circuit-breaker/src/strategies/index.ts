@@ -5,4 +5,3 @@
 export { DefaultStateTransitionStrategy } from './state-transition';
 export { DefaultErrorClassificationStrategy } from './error-classification';
 export { DefaultSuccessEvaluationStrategy } from './success-evaluation';
-

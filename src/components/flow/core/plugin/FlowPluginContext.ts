@@ -29,11 +29,7 @@ export class FlowPluginContextImpl implements FlowPluginContext {
   /** Hook 注册表 */
   private hookRegistry: Map<string, any> = new Map();
 
-  constructor(
-    eventEmitter: FlowEventEmitter,
-    configManager: FlowConfigManager,
-    configId: string
-  ) {
+  constructor(eventEmitter: FlowEventEmitter, configManager: FlowConfigManager, configId: string) {
     this.eventEmitter = eventEmitter;
     this.configManager = configManager;
     this.configId = configId;
@@ -41,26 +37,20 @@ export class FlowPluginContextImpl implements FlowPluginContext {
     // 配置 API
     this.config = {
       get: () => this.configManager.getConfig(this.configId),
-      update: (partialConfig) => {
+      update: partialConfig => {
         this.configManager.updateConfig(this.configId, partialConfig);
       },
-      subscribe: (listener) => {
+      subscribe: listener => {
         return this.configManager.subscribe(this.configId, listener);
       }
     };
 
     // 事件 API
     this.events = {
-      on: <K extends keyof FlowEvents>(
-        event: K,
-        handler: FlowEvents[K]
-      ) => {
+      on: <K extends keyof FlowEvents>(event: K, handler: FlowEvents[K]) => {
         return this.eventEmitter.on(event, handler as any);
       },
-      off: <K extends keyof FlowEvents>(
-        event: K,
-        handler: FlowEvents[K]
-      ) => {
+      off: <K extends keyof FlowEvents>(event: K, handler: FlowEvents[K]) => {
         this.eventEmitter.off(event, handler as any);
       },
       emit: <K extends keyof FlowEvents>(
@@ -103,4 +93,3 @@ export class FlowPluginContextImpl implements FlowPluginContext {
     this.hookRegistry.clear();
   }
 }
-

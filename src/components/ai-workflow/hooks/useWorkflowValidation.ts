@@ -76,10 +76,12 @@ export function useWorkflowValidation({ nodes, connections }: ValidationOptions)
     cycles.forEach(cycle => {
       errors.push({
         type: 'error',
-        message: `检测到循环依赖: ${cycle.map(id => {
-          const node = nodes.value.find(n => n.id === id);
-          return node?.name || id;
-        }).join(' → ')}`
+        message: `检测到循环依赖: ${cycle
+          .map(id => {
+            const node = nodes.value.find(n => n.id === id);
+            return node?.name || id;
+          })
+          .join(' → ')}`
       });
     });
 
@@ -233,4 +235,3 @@ export function useWorkflowValidation({ nodes, connections }: ValidationOptions)
     getDownstreamNodes
   };
 }
-

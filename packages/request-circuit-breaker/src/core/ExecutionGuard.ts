@@ -11,7 +11,7 @@ import { Metrics } from './Metrics';
 export class ExecutionGuard<T> {
   constructor(
     private metrics: Metrics,
-    private fallback?: (error?: unknown) => T | Promise<T>,
+    private fallback?: (error?: unknown) => T | Promise<T>
   ) {}
 
   async checkExecution(): Promise<T | null> {
@@ -27,4 +27,3 @@ export class ExecutionGuard<T> {
     return null;
   }
 }
-

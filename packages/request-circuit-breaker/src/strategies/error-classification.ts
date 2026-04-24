@@ -7,7 +7,7 @@ import {
   NETWORK_ERROR_CODES,
   NETWORK_ERROR_KEYWORDS,
   SERVER_ERROR_STATUS_MIN,
-  SERVER_ERROR_STATUS_MAX,
+  SERVER_ERROR_STATUS_MAX
 } from '../constants';
 
 /**
@@ -16,7 +16,6 @@ import {
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
-
 
 /**
  * 检查对象是否有 code 属性
@@ -43,13 +42,8 @@ function hasResponseStatus(error: unknown): error is {
   }
 
   const response = error.response;
-  return (
-    isObject(response) &&
-    'status' in response &&
-    typeof response.status === 'number'
-  );
+  return isObject(response) && 'status' in response && typeof response.status === 'number';
 }
-
 
 /**
  * 检查是否为服务器错误（5xx）
@@ -83,7 +77,7 @@ function hasNetworkKeywords(error: unknown): boolean {
   }
 
   const message = error.message.toLowerCase();
-  return NETWORK_ERROR_KEYWORDS.some((keyword) => message.includes(keyword));
+  return NETWORK_ERROR_KEYWORDS.some(keyword => message.includes(keyword));
 }
 
 /**
@@ -109,4 +103,3 @@ export class DefaultErrorClassificationStrategy implements ErrorClassificationSt
     return false;
   }
 }
-

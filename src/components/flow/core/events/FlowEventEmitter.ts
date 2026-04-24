@@ -48,10 +48,7 @@ interface EventListenerWrapper<T extends keyof FlowEvents> {
  */
 export class FlowEventEmitter {
   /** 事件监听器存储 */
-  private listeners: Map<
-    keyof FlowEvents,
-    EventListenerWrapper<keyof FlowEvents>[]
-  > = new Map();
+  private listeners: Map<keyof FlowEvents, EventListenerWrapper<keyof FlowEvents>[]> = new Map();
 
   /**
    * 获取指定事件的监听器包装数组
@@ -133,10 +130,7 @@ export class FlowEventEmitter {
    * @param listener 监听器函数
    * @returns 取消监听的函数
    */
-  once<T extends keyof FlowEvents>(
-    event: T,
-    listener: EventListener<T>
-  ): () => void {
+  once<T extends keyof FlowEvents>(event: T, listener: EventListener<T>): () => void {
     return this.on(event, listener, { once: true });
   }
 
@@ -146,10 +140,7 @@ export class FlowEventEmitter {
    * @param event 事件名称
    * @param listener 要移除的监听器函数（如果不提供，移除所有监听器）
    */
-  off<T extends keyof FlowEvents>(
-    event: T,
-    listener?: EventListener<T>
-  ): void {
+  off<T extends keyof FlowEvents>(event: T, listener?: EventListener<T>): void {
     if (!this.listeners.has(event)) {
       return;
     }
@@ -164,9 +155,7 @@ export class FlowEventEmitter {
     }
 
     // 移除指定的监听器
-    const index = wrappers.findIndex(
-      w => w.listener === listener && !w.removed
-    );
+    const index = wrappers.findIndex(w => w.listener === listener && !w.removed);
     if (index > -1) {
       wrappers.splice(index, 1);
     }
@@ -284,4 +273,3 @@ export class FlowEventEmitter {
     return this.listenerCount(event) > 0;
   }
 }
-

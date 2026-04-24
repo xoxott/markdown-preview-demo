@@ -34,7 +34,14 @@ export class FileProcessor implements IFileProcessor {
     }
 
     // 创建任务
-    const task = this.taskQueueManager.createTask(file, processedFile, options, this.config, 0, preview);
+    const task = this.taskQueueManager.createTask(
+      file,
+      processedFile,
+      options,
+      this.config,
+      0,
+      preview
+    );
 
     if (md5) {
       task.fileMD5 = md5;

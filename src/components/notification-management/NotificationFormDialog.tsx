@@ -43,7 +43,7 @@ export default defineComponent({
     // 监听 config.formData 变化，同步到 formModel
     watch(
       () => props.config.formData,
-      (newData) => {
+      newData => {
         Object.assign(formModel, newData);
         sentAtTimestamp.value = newData.sentAt ? new Date(newData.sentAt).getTime() : null;
         expiresAtTimestamp.value = newData.expiresAt ? new Date(newData.expiresAt).getTime() : null;
@@ -62,10 +62,18 @@ export default defineComponent({
     // 表单验证规则
     const formRules = {
       title: [
-        { required: true, message: $t('page.notificationManagement.titleRequired' as any), trigger: 'blur' }
+        {
+          required: true,
+          message: $t('page.notificationManagement.titleRequired' as any),
+          trigger: 'blur'
+        }
       ],
       content: [
-        { required: true, message: $t('page.notificationManagement.contentRequired' as any), trigger: 'blur' }
+        {
+          required: true,
+          message: $t('page.notificationManagement.contentRequired' as any),
+          trigger: 'blur'
+        }
       ]
     };
 
@@ -79,7 +87,9 @@ export default defineComponent({
         const submitData = {
           ...formModel,
           sentAt: sentAtTimestamp.value ? new Date(sentAtTimestamp.value).toISOString() : '',
-          expiresAt: expiresAtTimestamp.value ? new Date(expiresAtTimestamp.value).toISOString() : ''
+          expiresAt: expiresAtTimestamp.value
+            ? new Date(expiresAtTimestamp.value).toISOString()
+            : ''
         };
         await props.config.onConfirm(submitData);
         handleClose();
@@ -103,7 +113,7 @@ export default defineComponent({
     // 监听显示状态，重置表单验证
     watch(
       () => props.show,
-      (show) => {
+      show => {
         if (show) {
           formRef.value?.restoreValidation();
         }
@@ -130,7 +140,10 @@ export default defineComponent({
               labelWidth="100px"
             >
               <NFormItem label={$t('page.notificationManagement.title' as any)} path="title">
-                <NInput v-model:value={formModel.title} placeholder={$t('page.notificationManagement.titlePlaceholder' as any)} />
+                <NInput
+                  v-model:value={formModel.title}
+                  placeholder={$t('page.notificationManagement.titlePlaceholder' as any)}
+                />
               </NFormItem>
               <NFormItem label={$t('page.notificationManagement.content' as any)} path="content">
                 <NInput
@@ -158,7 +171,10 @@ export default defineComponent({
                   style={{ width: '100%' }}
                 />
               </NFormItem>
-              <NFormItem label={$t('page.notificationManagement.targetUsers' as any)} path="targetUserIds">
+              <NFormItem
+                label={$t('page.notificationManagement.targetUsers' as any)}
+                path="targetUserIds"
+              >
                 <NSelect
                   v-model:value={formModel.targetUserIds}
                   placeholder={$t('page.notificationManagement.targetUsersPlaceholder' as any)}
@@ -169,7 +185,10 @@ export default defineComponent({
                   style={{ width: '100%' }}
                 />
               </NFormItem>
-              <NFormItem label={$t('page.notificationManagement.targetRoles' as any)} path="targetRoleCodes">
+              <NFormItem
+                label={$t('page.notificationManagement.targetRoles' as any)}
+                path="targetRoleCodes"
+              >
                 <NSelect
                   v-model:value={formModel.targetRoleCodes}
                   placeholder={$t('page.notificationManagement.targetRolesPlaceholder' as any)}
@@ -189,7 +208,10 @@ export default defineComponent({
                   style={{ width: '100%' }}
                 />
               </NFormItem>
-              <NFormItem label={$t('page.notificationManagement.expiresAt' as any)} path="expiresAt">
+              <NFormItem
+                label={$t('page.notificationManagement.expiresAt' as any)}
+                path="expiresAt"
+              >
                 <NDatePicker
                   v-model:value={expiresAtTimestamp.value}
                   type="datetime"
@@ -201,16 +223,16 @@ export default defineComponent({
               <NFormItem label={$t('page.notificationManagement.status' as any)} path="isSent">
                 <NSwitch v-model:value={formModel.isSent} />
                 <span style={{ marginLeft: '8px' }}>
-                  {formModel.isSent ? $t('page.notificationManagement.sent' as any) : $t('page.notificationManagement.unsent' as any)}
+                  {formModel.isSent
+                    ? $t('page.notificationManagement.sent' as any)
+                    : $t('page.notificationManagement.unsent' as any)}
                 </span>
               </NFormItem>
             </NForm>
           ),
           footer: () => (
             <NSpace justify="end">
-              <NButton onClick={handleCancel}>
-                {$t('common.cancel')}
-              </NButton>
+              <NButton onClick={handleCancel}>{$t('common.cancel')}</NButton>
               <NButton type="primary" onClick={handleConfirm}>
                 {$t('common.confirm')}
               </NButton>
@@ -221,4 +243,3 @@ export default defineComponent({
     );
   }
 });
-

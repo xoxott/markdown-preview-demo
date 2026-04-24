@@ -17,4 +17,3 @@ export function useAlertDialog(app?: App) {
 
 /** 导出类型 */
 export type UseAlertDialogReturn = ReturnType<typeof useAlertDialog>;
-

@@ -12,13 +12,18 @@ export default defineComponent({
   props: {
     items: { type: Array as PropType<FileItem[]>, required: true },
     selectedIds: { type: Object as PropType<Ref<Set<string>>>, required: true },
-    onSelect: { type: Function as PropType<(id: string[], event?: MouseEvent) => void>, required: true },
+    onSelect: {
+      type: Function as PropType<(id: string[], event?: MouseEvent) => void>,
+      required: true
+    },
     onOpen: { type: Function as PropType<(item: FileItem) => void>, required: true }
   },
   setup(props) {
     const themeVars = useThemeVars();
     const dragDrop = inject<FileDragDropHook>('FILE_DRAG_DROP')!;
-    const selectedItems = computed(() => props.items.filter(it => props.selectedIds.value.has(it.id)));
+    const selectedItems = computed(() =>
+      props.items.filter(it => props.selectedIds.value.has(it.id))
+    );
 
     const handleMouseEnter = (e: MouseEvent, isSelected: boolean) => {
       if (!isSelected) {
@@ -50,7 +55,8 @@ export default defineComponent({
                 style={{
                   backgroundColor:
                     isSelected ||
-                    (dragDrop.getDropZoneState(item.id)?.isOver && dragDrop.getDropZoneState(item.id)?.canDrop)
+                    (dragDrop.getDropZoneState(item.id)?.isOver &&
+                      dragDrop.getDropZoneState(item.id)?.canDrop)
                       ? `${themeVars.value.primaryColorHover}20`
                       : 'transparent'
                 }}
@@ -65,7 +71,11 @@ export default defineComponent({
                 {/* 预览区域 */}
                 <div class="relative aspect-video flex items-center justify-center overflow-hidden">
                   {item.thumbnailUrl ? (
-                    <img src={item.thumbnailUrl} alt={item.name} class="h-full w-full object-cover" />
+                    <img
+                      src={item.thumbnailUrl}
+                      alt={item.name}
+                      class="h-full w-full object-cover"
+                    />
                   ) : (
                     <FileIcon item={item} size={48} showThumbnail={false} />
                   )}
@@ -76,7 +86,9 @@ export default defineComponent({
                   <h3
                     class="truncate text-sm font-medium"
                     style={{
-                      color: isSelected ? themeVars.value.primaryColor : themeVars.value.textColorBase
+                      color: isSelected
+                        ? themeVars.value.primaryColor
+                        : themeVars.value.textColorBase
                     }}
                   >
                     {item.name}
@@ -98,7 +110,9 @@ export default defineComponent({
                     <p
                       class="mt-1 truncate text-xs"
                       style={{
-                        color: isSelected ? themeVars.value.primaryColor : themeVars.value.textColor3
+                        color: isSelected
+                          ? themeVars.value.primaryColor
+                          : themeVars.value.textColor3
                       }}
                     >
                       {item.extension.toUpperCase()} 文件

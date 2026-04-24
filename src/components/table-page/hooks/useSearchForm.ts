@@ -83,4 +83,3 @@ export function useSearchForm(options: UseSearchFormOptions) {
     handleReset
   };
 }
-

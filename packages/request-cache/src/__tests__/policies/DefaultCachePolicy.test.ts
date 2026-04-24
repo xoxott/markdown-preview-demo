@@ -14,7 +14,7 @@ describe('DefaultCachePolicy', () => {
     it('应该对 GET 请求和 cache=true 返回 true', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const meta: CacheMeta = { cache: true };
 
@@ -24,7 +24,7 @@ describe('DefaultCachePolicy', () => {
     it('应该对 GET 请求和 cache=false 返回 false', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const meta: CacheMeta = { cache: false };
 
@@ -34,7 +34,7 @@ describe('DefaultCachePolicy', () => {
     it('应该对非 GET 请求返回 false', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'POST',
+        method: 'POST'
       };
       const meta: CacheMeta = { cache: true };
 
@@ -44,7 +44,7 @@ describe('DefaultCachePolicy', () => {
     it('应该对 cache=undefined 返回 false', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       expect(policy.shouldRead(config)).toBe(false);
@@ -53,12 +53,12 @@ describe('DefaultCachePolicy', () => {
     it('应该对自定义策略对象返回 true', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const customPolicy = {
         shouldRead: () => true,
         shouldWrite: () => true,
-        getTTL: () => undefined,
+        getTTL: () => undefined
       };
       const meta: CacheMeta = { cache: customPolicy };
 
@@ -68,7 +68,7 @@ describe('DefaultCachePolicy', () => {
     it('应该对小写的 GET 方法返回 true', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'get',
+        method: 'get'
       };
       const meta: CacheMeta = { cache: true };
 
@@ -80,7 +80,7 @@ describe('DefaultCachePolicy', () => {
     it('应该对有效数据返回 true', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const meta: CacheMeta = { cache: true };
       const data = { id: 1, name: 'John' };
@@ -91,7 +91,7 @@ describe('DefaultCachePolicy', () => {
     it('应该对 null 返回 false', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const meta: CacheMeta = { cache: true };
 
@@ -101,7 +101,7 @@ describe('DefaultCachePolicy', () => {
     it('应该对 undefined 返回 false', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const meta: CacheMeta = { cache: true };
 
@@ -111,7 +111,7 @@ describe('DefaultCachePolicy', () => {
     it('应该对非 GET 请求返回 false', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'POST',
+        method: 'POST'
       };
       const meta: CacheMeta = { cache: true };
       const data = { id: 1 };
@@ -122,7 +122,7 @@ describe('DefaultCachePolicy', () => {
     it('应该对 cache=false 返回 false', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const meta: CacheMeta = { cache: false };
       const data = { id: 1 };
@@ -135,11 +135,11 @@ describe('DefaultCachePolicy', () => {
     it('应该从 meta.cacheExpireTime 获取 TTL', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const meta: CacheMeta = {
         cache: true,
-        cacheExpireTime: 10 * 60 * 1000,
+        cacheExpireTime: 10 * 60 * 1000
       };
 
       expect(policy.getTTL(config, meta)).toBe(10 * 60 * 1000);
@@ -148,10 +148,10 @@ describe('DefaultCachePolicy', () => {
     it('应该从 cache 对象的 ttl 属性获取 TTL', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const meta: CacheMeta = {
-        cache: { ttl: 5 * 60 * 1000 } as any,
+        cache: { ttl: 5 * 60 * 1000 } as any
       };
 
       expect(policy.getTTL(config, meta)).toBe(5 * 60 * 1000);
@@ -160,11 +160,11 @@ describe('DefaultCachePolicy', () => {
     it('应该优先使用 cacheExpireTime 而不是 cache.ttl', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const meta: CacheMeta = {
         cache: { ttl: 5 * 60 * 1000 } as any,
-        cacheExpireTime: 10 * 60 * 1000,
+        cacheExpireTime: 10 * 60 * 1000
       };
 
       expect(policy.getTTL(config, meta)).toBe(10 * 60 * 1000);
@@ -173,7 +173,7 @@ describe('DefaultCachePolicy', () => {
     it('应该在没有 TTL 配置时返回 undefined', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const meta: CacheMeta = { cache: true };
 
@@ -183,11 +183,10 @@ describe('DefaultCachePolicy', () => {
     it('应该在没有 meta 时返回 undefined', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       expect(policy.getTTL(config)).toBeUndefined();
     });
   });
 });
-

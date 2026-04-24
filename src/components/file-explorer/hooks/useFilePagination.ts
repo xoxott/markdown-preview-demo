@@ -195,4 +195,3 @@ export function useFilePagination(options: UseFilePaginationOptions): UseFilePag
     loadPage
   };
 }
-

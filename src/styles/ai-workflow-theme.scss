@@ -74,7 +74,9 @@ $node-border-color-error: $error-color;
 $node-border-color-success: $success-color;
 $node-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 $node-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
-$node-shadow-selected: 0 8px 24px rgba(32, 128, 240, 0.25), 0 0 0 4px rgba(32, 128, 240, 0.1);
+$node-shadow-selected:
+  0 8px 24px rgba(32, 128, 240, 0.25),
+  0 0 0 4px rgba(32, 128, 240, 0.1);
 $node-shadow-dark: 0 4px 12px rgba(0, 0, 0, 0.3);
 
 // 端口
@@ -114,7 +116,9 @@ $minimap-canvas-bg: #f8fafc;
 $minimap-canvas-bg-dark: #1e293b;
 $minimap-viewport-border: #3b82f6;
 $minimap-viewport-bg: rgba(59, 130, 246, 0.15);
-$minimap-viewport-shadow: 0 0 0 1px rgba(59, 130, 246, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+$minimap-viewport-shadow:
+  0 0 0 1px rgba(59, 130, 246, 0.3),
+  inset 0 0 0 1px rgba(255, 255, 255, 0.5);
 $minimap-node-opacity: 0.7;
 $minimap-node-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 
@@ -162,16 +166,24 @@ $transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
 
 // 动画曲线
 $ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-$ease-out: cubic-bezier(0.0, 0, 0.2, 1);
+$ease-out: cubic-bezier(0, 0, 0.2, 1);
 $ease-in: cubic-bezier(0.4, 0, 1, 1);
 
 // ==================== 阴影系统 ====================
 
 $shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-$shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+$shadow-base:
+  0 1px 3px 0 rgba(0, 0, 0, 0.1),
+  0 1px 2px 0 rgba(0, 0, 0, 0.06);
+$shadow-md:
+  0 4px 6px -1px rgba(0, 0, 0, 0.1),
+  0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$shadow-lg:
+  0 10px 15px -3px rgba(0, 0, 0, 0.1),
+  0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$shadow-xl:
+  0 20px 25px -5px rgba(0, 0, 0, 0.1),
+  0 10px 10px -5px rgba(0, 0, 0, 0.04);
 $shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 
 // ==================== Z-Index 层级 ====================
@@ -203,7 +215,9 @@ $z-index-notification: 4000;
 
 // 悬停效果
 @mixin hover-lift {
-  transition: transform $transition-normal $ease-out, box-shadow $transition-normal $ease-out;
+  transition:
+    transform $transition-normal $ease-out,
+    box-shadow $transition-normal $ease-out;
 
   &:hover {
     transform: translateY(-2px);
@@ -290,15 +304,25 @@ $breakpoint-2xl: 1536px;
 
 @mixin responsive($breakpoint) {
   @if $breakpoint == sm {
-    @media (min-width: $breakpoint-sm) { @content; }
+    @media (min-width: $breakpoint-sm) {
+      @content;
+    }
   } @else if $breakpoint == md {
-    @media (min-width: $breakpoint-md) { @content; }
+    @media (min-width: $breakpoint-md) {
+      @content;
+    }
   } @else if $breakpoint == lg {
-    @media (min-width: $breakpoint-lg) { @content; }
+    @media (min-width: $breakpoint-lg) {
+      @content;
+    }
   } @else if $breakpoint == xl {
-    @media (min-width: $breakpoint-xl) { @content; }
+    @media (min-width: $breakpoint-xl) {
+      @content;
+    }
   } @else if $breakpoint == 2xl {
-    @media (min-width: $breakpoint-2xl) { @content; }
+    @media (min-width: $breakpoint-2xl) {
+      @content;
+    }
   }
 }
 
@@ -323,7 +347,7 @@ $breakpoint-2xl: 1536px;
 // 清除浮动
 @mixin clearfix {
   &::after {
-    content: "";
+    content: '';
     display: table;
     clear: both;
   }
@@ -374,4 +398,3 @@ $breakpoint-2xl: 1536px;
     }
   }
 }
-

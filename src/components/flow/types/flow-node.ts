@@ -88,4 +88,3 @@ export interface FlowNodeType {
   /** 默认配置 */
   defaultConfig?: Partial<FlowNode>;
 }
-

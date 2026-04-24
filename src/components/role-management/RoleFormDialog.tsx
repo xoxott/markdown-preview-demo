@@ -1,13 +1,6 @@
 import type { PropType } from 'vue';
 import { defineComponent, watch, ref, reactive } from 'vue';
-import {
-  NForm,
-  NFormItem,
-  NInput,
-  NSwitch,
-  NButton,
-  NSpace
-} from 'naive-ui';
+import { NForm, NFormItem, NInput, NSwitch, NButton, NSpace } from 'naive-ui';
 import { useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
 import BaseDialog from '@/components/base-dialog';
@@ -32,7 +25,7 @@ export default defineComponent({
     // 监听 config.formData 变化，同步到 formModel
     watch(
       () => props.config.formData,
-      (newData) => {
+      newData => {
         Object.assign(formModel, newData);
       },
       { deep: true, immediate: true }
@@ -81,7 +74,7 @@ export default defineComponent({
     // 监听显示状态，重置表单验证
     watch(
       () => props.show,
-      (show) => {
+      show => {
         if (show) {
           formRef.value?.restoreValidation();
         }
@@ -108,7 +101,10 @@ export default defineComponent({
               labelWidth="100px"
             >
               <NFormItem label={$t('page.roleManagement.name' as any)} path="name">
-                <NInput v-model:value={formModel.name} placeholder={$t('page.roleManagement.namePlaceholder' as any)} />
+                <NInput
+                  v-model:value={formModel.name}
+                  placeholder={$t('page.roleManagement.namePlaceholder' as any)}
+                />
               </NFormItem>
               <NFormItem label={$t('page.roleManagement.code' as any)} path="code">
                 <NInput
@@ -128,16 +124,16 @@ export default defineComponent({
               <NFormItem label={$t('page.roleManagement.status' as any)} path="isActive">
                 <NSwitch v-model:value={formModel.isActive} />
                 <span style={{ marginLeft: '8px' }}>
-                  {formModel.isActive ? $t('page.roleManagement.active' as any) : $t('page.roleManagement.inactive' as any)}
+                  {formModel.isActive
+                    ? $t('page.roleManagement.active' as any)
+                    : $t('page.roleManagement.inactive' as any)}
                 </span>
               </NFormItem>
             </NForm>
           ),
           footer: () => (
             <NSpace justify="end">
-              <NButton onClick={handleCancel}>
-                {$t('common.cancel')}
-              </NButton>
+              <NButton onClick={handleCancel}>{$t('common.cancel')}</NButton>
               <NButton type="primary" onClick={handleConfirm}>
                 {$t('common.confirm')}
               </NButton>
@@ -148,4 +144,3 @@ export default defineComponent({
     );
   }
 });
-

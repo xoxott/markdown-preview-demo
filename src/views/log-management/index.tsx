@@ -103,18 +103,15 @@ export default defineComponent({
 
     // 删除日志
     async function handleDelete(row: Log) {
-      await dialog.confirmDelete(
-        $t('page.logManagement.confirmDelete' as any),
-        async () => {
-          try {
-            await fetchDeleteLog(row.id);
-            message.success($t('common.deleteSuccess'));
-            getData();
-          } catch (error: any) {
-            message.error(error?.message || '操作失败');
-          }
+      await dialog.confirmDelete($t('page.logManagement.confirmDelete' as any), async () => {
+        try {
+          await fetchDeleteLog(row.id);
+          message.success($t('common.deleteSuccess'));
+          getData();
+        } catch (error: any) {
+          message.error(error?.message || '操作失败');
         }
-      );
+      });
     }
 
     // 批量删除
@@ -140,19 +137,16 @@ export default defineComponent({
 
     // 清空日志
     async function handleClearLogs() {
-      await dialog.confirmDelete(
-        $t('page.logManagement.confirmClearLogs' as any),
-        async () => {
-          try {
-            await fetchClearLogs();
-            message.success($t('page.logManagement.clearLogsSuccess' as any));
-            selectedRowKeys.value = [];
-            getData();
-          } catch (error: any) {
-            message.error(error?.message || $t('common.error'));
-          }
+      await dialog.confirmDelete($t('page.logManagement.confirmClearLogs' as any), async () => {
+        try {
+          await fetchClearLogs();
+          message.success($t('page.logManagement.clearLogsSuccess' as any));
+          selectedRowKeys.value = [];
+          getData();
+        } catch (error: any) {
+          message.error(error?.message || $t('common.error'));
         }
-      );
+      });
     }
 
     // 获取状态码颜色
@@ -272,15 +266,8 @@ export default defineComponent({
     }
 
     // 表格配置
-    const {
-      columns,
-      data,
-      loading,
-      pagination,
-      getData,
-      updateSearchParams,
-      resetSearchParams
-    } = useTable<typeof fetchLogList>({
+    const { columns, data, loading, pagination, getData, updateSearchParams, resetSearchParams } =
+      useTable<typeof fetchLogList>({
         apiFn: fetchLogList,
         apiParams: {
           page: 1,
@@ -290,7 +277,9 @@ export default defineComponent({
           ip: searchForm.ip || undefined,
           statusCode: searchForm.statusCode,
           method: searchForm.method || undefined,
-          startDate: searchForm.startDate ? new Date(searchForm.startDate).toISOString() : undefined,
+          startDate: searchForm.startDate
+            ? new Date(searchForm.startDate).toISOString()
+            : undefined,
           endDate: searchForm.endDate ? new Date(searchForm.endDate).toISOString() : undefined,
           sortBy: searchForm.sortBy,
           sortOrder: searchForm.sortOrder
@@ -413,9 +402,7 @@ export default defineComponent({
                 <NButton type="primary" onClick={handleSearch}>
                   {$t('common.search')}
                 </NButton>
-                <NButton onClick={handleReset}>
-                  {$t('common.reset')}
-                </NButton>
+                <NButton onClick={handleReset}>{$t('common.reset')}</NButton>
               </NSpace>
             </NFormItem>
           </NForm>
@@ -424,15 +411,17 @@ export default defineComponent({
         {/* 操作栏 */}
         <NCard>
           <NSpace>
-            <NButton type="error" disabled={selectedRowKeys.value.length === 0} onClick={handleBatchDelete}>
+            <NButton
+              type="error"
+              disabled={selectedRowKeys.value.length === 0}
+              onClick={handleBatchDelete}
+            >
               {$t('common.batchDelete')}
             </NButton>
             <NButton type="warning" onClick={handleClearLogs}>
               {$t('page.logManagement.clearLogs' as any)}
             </NButton>
-            <NButton onClick={getData}>
-              {$t('common.refresh')}
-            </NButton>
+            <NButton onClick={getData}>{$t('common.refresh')}</NButton>
           </NSpace>
         </NCard>
 
@@ -445,7 +434,7 @@ export default defineComponent({
             pagination={pagination}
             rowKey={(row: Log) => row.id}
             checkedRowKeys={selectedRowKeys.value}
-            onUpdateCheckedRowKeys={(keys) => {
+            onUpdateCheckedRowKeys={keys => {
               selectedRowKeys.value = keys as number[];
             }}
             scrollX={1400}
@@ -477,7 +466,8 @@ export default defineComponent({
                         <strong>{$t('page.logManagement.id' as any)}:</strong> {log.id}
                       </div>
                       <div>
-                        <strong>{$t('page.logManagement.userId' as any)}:</strong> {log.userId || '-'}
+                        <strong>{$t('page.logManagement.userId' as any)}:</strong>{' '}
+                        {log.userId || '-'}
                       </div>
                       <div>
                         <strong>{$t('page.logManagement.ip' as any)}:</strong> {log.ip || '-'}
@@ -495,10 +485,12 @@ export default defineComponent({
                   <NCard title={$t('page.logManagement.requestInfo' as any)} size="small">
                     <NSpace vertical size={12}>
                       <div>
-                        <strong>{$t('page.logManagement.requestMethod' as any)}:</strong> {log.method || '-'}
+                        <strong>{$t('page.logManagement.requestMethod' as any)}:</strong>{' '}
+                        {log.method || '-'}
                       </div>
                       <div>
-                        <strong>{$t('page.logManagement.requestUrl' as any)}:</strong> {log.path || '-'}
+                        <strong>{$t('page.logManagement.requestUrl' as any)}:</strong>{' '}
+                        {log.path || '-'}
                       </div>
                     </NSpace>
                   </NCard>
@@ -515,12 +507,23 @@ export default defineComponent({
                         )}
                       </div>
                       <div>
-                        <strong>{$t('page.logManagement.duration' as any)}:</strong> {log.responseTime !== null ? `${log.responseTime}ms` : '-'}
+                        <strong>{$t('page.logManagement.duration' as any)}:</strong>{' '}
+                        {log.responseTime !== null ? `${log.responseTime}ms` : '-'}
                       </div>
                       {log.error && (
                         <div>
                           <strong>{$t('page.logManagement.error' as any)}:</strong>
-                          <pre style={{ marginTop: '8px', padding: '8px', background: '#fff1f0', borderRadius: '4px', overflow: 'auto', maxHeight: '200px', color: '#cf1322' }}>
+                          <pre
+                            style={{
+                              marginTop: '8px',
+                              padding: '8px',
+                              background: '#fff1f0',
+                              borderRadius: '4px',
+                              overflow: 'auto',
+                              maxHeight: '200px',
+                              color: '#cf1322'
+                            }}
+                          >
                             {log.error}
                           </pre>
                         </div>
@@ -532,10 +535,12 @@ export default defineComponent({
             },
             footer: () => (
               <NSpace justify="end">
-                <NButton onClick={() => {
-                  logDetailVisible.value = false;
-                  currentLogDetail.value = null;
-                }}>
+                <NButton
+                  onClick={() => {
+                    logDetailVisible.value = false;
+                    currentLogDetail.value = null;
+                  }}
+                >
                   {$t('common.close')}
                 </NButton>
               </NSpace>
@@ -546,5 +551,3 @@ export default defineComponent({
     );
   }
 });
-
-

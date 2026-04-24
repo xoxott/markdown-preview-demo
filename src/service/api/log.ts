@@ -62,4 +62,3 @@ export function fetchClearLogs(data?: Api.LogManagement.ClearLogsRequest) {
     data
   });
 }
-

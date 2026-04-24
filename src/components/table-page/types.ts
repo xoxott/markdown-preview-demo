@@ -370,4 +370,3 @@ export interface DataTableProps<T = any> {
   /** 最大高度 */
   maxHeight?: string | number;
 }
-

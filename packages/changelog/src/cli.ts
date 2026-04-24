@@ -44,11 +44,17 @@ function setupCli() {
       );
 
       // 输出 changelog 范围与提交数量
-      consola.log(cyan(options.from) + dim(' -> ') + blue(options.to) + dim(` (${commits.length} commits)`));
+      consola.log(
+        cyan(options.from) + dim(' -> ') + blue(options.to) + dim(` (${commits.length} commits)`)
+      );
 
       // 检查目标 tag 是否存在于 GitHub，不存在则跳过发布
       if (!(await hasTagOnGitHub(options.to, options.github.repo, options.github.token))) {
-        consola.error(yellow(`Current ref "${bold(options.to)}" is not available as tags on GitHub. Release skipped.`));
+        consola.error(
+          yellow(
+            `Current ref "${bold(options.to)}" is not available as tags on GitHub. Release skipped.`
+          )
+        );
 
         if (process.exitCode) {
           process.exitCode = 1;

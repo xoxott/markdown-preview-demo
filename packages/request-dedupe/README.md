@@ -18,7 +18,7 @@ import { DedupeStep } from '@suga/request-dedupe';
 
 // 创建带去重步骤的请求客户端
 const client = new RequestClient(transport, [
-  new DedupeStep(),
+  new DedupeStep()
   // ... 其他步骤
 ]);
 
@@ -27,8 +27,8 @@ await client.request({
   url: '/api/users',
   method: 'GET',
   meta: {
-    dedupe: true, // 启用去重
-  },
+    dedupe: true // 启用去重
+  }
 });
 ```
 
@@ -40,12 +40,11 @@ import { DedupeStep } from '@suga/request-dedupe';
 const dedupeStep = new DedupeStep({
   defaultOptions: {
     dedupeWindow: 2000, // 2 秒内相同请求只发送一次
-    strategy: 'exact', // 精确匹配
-  },
+    strategy: 'exact' // 精确匹配
+  }
 });
 
-const client = new RequestClient(transport)
-  .with(dedupeStep);
+const client = new RequestClient(transport).with(dedupeStep);
 ```
 
 ### 使用自定义管理器
@@ -54,19 +53,18 @@ const client = new RequestClient(transport)
 import { DedupeManager, DedupeStep } from '@suga/request-dedupe';
 
 const dedupeManager = new DedupeManager({
-  dedupeWindow: 1000, // 只设置时间窗口
+  dedupeWindow: 1000 // 只设置时间窗口
 });
 
 const dedupeStep = new DedupeStep({
   dedupeManager,
   defaultOptions: {
     strategy: 'ignore-params',
-    ignoreParams: ['timestamp'],
-  },
+    ignoreParams: ['timestamp']
+  }
 });
 
-const client = new RequestClient(transport)
-  .with(dedupeStep);
+const client = new RequestClient(transport).with(dedupeStep);
 ```
 
 注意：`DedupeManager` 构造函数只使用 `dedupeWindow` 选项，策略相关的配置（`strategy`、`ignoreParams`、`customKeyGenerator`）应在 `DedupeStep` 的 `defaultOptions` 中配置。
@@ -160,27 +158,28 @@ interface DedupeOptions {
 
 ```typescript
 // 用户快速输入时，防止发送重复的搜索请求
-const client = new RequestClient(transport)
-  .with(new DedupeStep({
+const client = new RequestClient(transport).with(
+  new DedupeStep({
     defaultOptions: {
       dedupeWindow: 500, // 500ms 内相同请求只发送一次
       strategy: 'ignore-params',
-      ignoreParams: ['timestamp'],
-    },
-  }));
+      ignoreParams: ['timestamp']
+    }
+  })
+);
 
 // 多次快速调用，只会发送一次请求
 await client.request({
   url: '/api/search',
   method: 'GET',
   params: { keyword: 'test' },
-  meta: { dedupe: true },
+  meta: { dedupe: true }
 });
 await client.request({
   url: '/api/search',
   method: 'GET',
   params: { keyword: 'test' },
-  meta: { dedupe: true },
+  meta: { dedupe: true }
 });
 ```
 
@@ -188,11 +187,15 @@ await client.request({
 
 ```typescript
 // 在 meta 中显式禁用去重
-await client.get('/api/data', {}, {
-  meta: {
-    dedupe: false, // 禁用去重
-  },
-});
+await client.get(
+  '/api/data',
+  {},
+  {
+    meta: {
+      dedupe: false // 禁用去重
+    }
+  }
+);
 ```
 
 ### 示例 3：自定义键生成
@@ -201,11 +204,11 @@ await client.get('/api/data', {}, {
 const dedupeStep = new DedupeStep({
   defaultOptions: {
     strategy: 'custom',
-    customKeyGenerator: (config) => {
+    customKeyGenerator: config => {
       // 只根据 URL 和方法生成键，忽略所有参数
       return `${config.method}_${config.url}`;
-    },
-  },
+    }
+  }
 });
 ```
 
@@ -235,4 +238,3 @@ request-dedupe/
 ## 📄 License
 
 MIT
-

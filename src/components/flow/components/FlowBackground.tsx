@@ -93,7 +93,7 @@ export default defineComponent({
     const idPrefix = computed(() => `flow-grid-${props.instanceId}`);
     // 计算网格样式
     const gridStyle = computed(() => {
-      if (!props.showGrid || props.gridType === 'none')  return { display: 'none' };
+      if (!props.showGrid || props.gridType === 'none') return { display: 'none' };
 
       const baseStyle: Record<string, any> = {
         width: '100%',
@@ -164,9 +164,11 @@ export default defineComponent({
      * 判断是否需要 GPU 加速优化
      */
     const shouldOptimize = computed(() => {
-      return props.viewport.zoom > GRID_CONSTANTS.GPU_ACCELERATION_ZOOM_THRESHOLD ||
-             props.viewport.x !== 0 ||
-             props.viewport.y !== 0;
+      return (
+        props.viewport.zoom > GRID_CONSTANTS.GPU_ACCELERATION_ZOOM_THRESHOLD ||
+        props.viewport.x !== 0 ||
+        props.viewport.y !== 0
+      );
     });
 
     /**
@@ -174,7 +176,7 @@ export default defineComponent({
      */
     const svgContainerStyle = computed(() => {
       return {
-        ...gridStyle.value as CSSProperties,
+        ...(gridStyle.value as CSSProperties),
         ...getConditionalGpuAccelerationStyle(shouldOptimize.value, {
           includeBackfaceVisibility: false // SVG 中效果有限
         })
@@ -215,8 +217,6 @@ export default defineComponent({
       });
     });
 
-
-
     return () => {
       const result = gridPatternResult.value;
       const prefix = idPrefix.value;
@@ -236,11 +236,7 @@ export default defineComponent({
                 {result.defs}
                 {result.pattern}
               </defs>
-              <rect
-                width="100%"
-                height="100%"
-                fill={`url(#${prefix}-${props.gridType})`}
-              />
+              <rect width="100%" height="100%" fill={`url(#${prefix}-${props.gridType})`} />
             </svg>
           )}
         </div>
@@ -248,4 +244,3 @@ export default defineComponent({
     };
   }
 });
-

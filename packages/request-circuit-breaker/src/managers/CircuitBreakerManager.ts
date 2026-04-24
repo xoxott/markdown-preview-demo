@@ -58,7 +58,7 @@ export class CircuitBreakerManager {
    */
   getOrCreateBreaker<T = unknown>(
     key: string,
-    options: CircuitBreakerOptions<T> = {},
+    options: CircuitBreakerOptions<T> = {}
   ): CircuitBreaker<T> {
     const now = Date.now();
     const existingEntry = this.breakers.get(key);
@@ -79,7 +79,7 @@ export class CircuitBreakerManager {
     this.breakers.set(key, {
       breaker: newBreaker,
       lastAccessTime: now,
-      createdAt: now,
+      createdAt: now
     });
 
     return newBreaker as CircuitBreaker<T>;
@@ -182,7 +182,7 @@ export class CircuitBreakerManager {
     const byState: Record<CircuitBreakerState, number> = {
       [CBState.CLOSED]: 0,
       [CBState.OPEN]: 0,
-      [CBState.HALF_OPEN]: 0,
+      [CBState.HALF_OPEN]: 0
     };
 
     for (const entry of this.breakers.values()) {
@@ -192,7 +192,7 @@ export class CircuitBreakerManager {
 
     return {
       total: this.breakers.size,
-      byState,
+      byState
     };
   }
 
@@ -207,4 +207,3 @@ export class CircuitBreakerManager {
     this.clear();
   }
 }
-

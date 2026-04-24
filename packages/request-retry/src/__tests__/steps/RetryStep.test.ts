@@ -18,7 +18,7 @@ describe('RetryStep', () => {
   it('应该在 meta 中没有 retry 时跳过', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config);
 
@@ -35,10 +35,10 @@ describe('RetryStep', () => {
   it('应该在 retry=false 时跳过', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config, undefined, {
-      retry: false,
+      retry: false
     });
 
     let nextCalled = false;
@@ -54,10 +54,10 @@ describe('RetryStep', () => {
   it('应该在 retry=undefined 时跳过', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config, undefined, {
-      retry: undefined,
+      retry: undefined
     });
 
     let nextCalled = false;
@@ -73,10 +73,10 @@ describe('RetryStep', () => {
   it('应该在 retry=true 时启用重试', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext<string>(config, undefined, {
-      retry: true,
+      retry: true
     });
 
     let requestCount = 0;
@@ -94,11 +94,11 @@ describe('RetryStep', () => {
   it('应该在请求失败时重试', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext<string>(config, undefined, {
       retry: true,
-      retryCount: 2,
+      retryCount: 2
     });
 
     let requestCount = 0;
@@ -124,11 +124,11 @@ describe('RetryStep', () => {
   it('应该在达到最大重试次数后抛出错误', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config, undefined, {
       retry: true,
-      retryCount: 1, // 减少重试次数，避免超时
+      retryCount: 1 // 减少重试次数，避免超时
     });
 
     let requestCount = 0;
@@ -152,17 +152,17 @@ describe('RetryStep', () => {
       enabled: true,
       maxRetries: 2,
       shouldRetry: () => true,
-      retryDelay: () => 10,
+      retryDelay: () => 10
     };
 
     const customStep = new RetryStep({ defaultStrategy: strategy });
 
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext<string>(config, undefined, {
-      retry: strategy,
+      retry: strategy
     });
 
     let requestCount = 0;
@@ -187,14 +187,14 @@ describe('RetryStep', () => {
   it('应该支持 RetryConfig', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext<string>(config, undefined, {
       retry: {
         retry: true,
         retryCount: 2,
-        retryOnTimeout: true,
-      },
+        retryOnTimeout: true
+      }
     });
 
     let requestCount = 0;
@@ -221,17 +221,17 @@ describe('RetryStep', () => {
       enabled: true,
       maxRetries: 3,
       shouldRetry: () => true,
-      retryDelay: () => 10,
+      retryDelay: () => 10
     };
 
     const customStep = new RetryStep({ defaultStrategy });
 
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext<string>(config, undefined, {
-      retry: true,
+      retry: true
     });
 
     let requestCount = 0;
@@ -256,11 +256,11 @@ describe('RetryStep', () => {
   it('应该在请求成功时不重试', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext<string>(config, undefined, {
       retry: true,
-      retryCount: 3,
+      retryCount: 3
     });
 
     let requestCount = 0;
@@ -278,11 +278,11 @@ describe('RetryStep', () => {
   it('应该处理不可重试的错误', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config, undefined, {
       retry: true,
-      retryCount: 3,
+      retryCount: 3
     });
 
     let requestCount = 0;
@@ -297,4 +297,3 @@ describe('RetryStep', () => {
     expect(requestCount).toBe(1); // 404 错误不应该重试
   });
 });
-

@@ -30,7 +30,9 @@ export default defineComponent({
   setup(props) {
     const themeVars = useThemeVars();
     const dragDrop = inject<FileDragDropHook>('FILE_DRAG_DROP')!;
-    const selectedItems = computed(() => props.items.filter(it => props.selectedIds.value.has(it.id)));
+    const selectedItems = computed(() =>
+      props.items.filter(it => props.selectedIds.value.has(it.id))
+    );
 
     const handleMouseEnter = (e: MouseEvent, isSelected: boolean) => {
       if (!isSelected) {
@@ -64,7 +66,8 @@ export default defineComponent({
                 style={{
                   backgroundColor:
                     isSelected ||
-                    (dragDrop.getDropZoneState(item.id)?.isOver && dragDrop.getDropZoneState(item.id)?.canDrop)
+                    (dragDrop.getDropZoneState(item.id)?.isOver &&
+                      dragDrop.getDropZoneState(item.id)?.canDrop)
                       ? `${themeVars.value.primaryColorHover}20`
                       : themeVars.value.cardColor
                 }}
@@ -87,7 +90,9 @@ export default defineComponent({
                       strong
                       class="truncate"
                       style={{
-                        color: isSelected ? themeVars.value.primaryColor : themeVars.value.textColorBase
+                        color: isSelected
+                          ? themeVars.value.primaryColor
+                          : themeVars.value.textColorBase
                       }}
                     >
                       {item.name}
@@ -99,7 +104,9 @@ export default defineComponent({
                         depth={3}
                         class="text-xs"
                         style={{
-                          color: isSelected ? themeVars.value.primaryColor : themeVars.value.textColor3
+                          color: isSelected
+                            ? themeVars.value.primaryColor
+                            : themeVars.value.textColor3
                         }}
                       >
                         {item.type === 'folder' ? '文件夹' : formatFileSize(item.size)}

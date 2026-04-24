@@ -35,19 +35,13 @@ export default defineComponent({
               </NDescriptionsItem>
             )}
             {props.environment.platform && (
-              <NDescriptionsItem label="平台">
-                {props.environment.platform}
-              </NDescriptionsItem>
+              <NDescriptionsItem label="平台">{props.environment.platform}</NDescriptionsItem>
             )}
             {props.environment.arch && (
-              <NDescriptionsItem label="架构">
-                {props.environment.arch}
-              </NDescriptionsItem>
+              <NDescriptionsItem label="架构">{props.environment.arch}</NDescriptionsItem>
             )}
             {props.environment.env && (
-              <NDescriptionsItem label="环境">
-                {props.environment.env}
-              </NDescriptionsItem>
+              <NDescriptionsItem label="环境">{props.environment.env}</NDescriptionsItem>
             )}
             {props.environment.cwd && (
               <NDescriptionsItem label="工作目录">
@@ -65,4 +59,3 @@ export default defineComponent({
     };
   }
 });
-

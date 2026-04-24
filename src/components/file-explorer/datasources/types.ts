@@ -82,4 +82,3 @@ export interface ServerFileDataSourceConfig {
   /** 请求头 */
   headers?: Record<string, string>;
 }
-

@@ -131,7 +131,9 @@ export const request = createFlatRequest<App.Service.Response, RequestInstanceSt
       const logoutAndCleanup = () => {
         handleLogout();
         window.removeEventListener('beforeunload', handleLogout);
-        request.state.errMsgStack = request.state.errMsgStack.filter(msg => msg !== response.data.message);
+        request.state.errMsgStack = request.state.errMsgStack.filter(
+          msg => msg !== response.data.message
+        );
       };
 
       // 1. 尝试刷新 token
@@ -159,7 +161,10 @@ export const request = createFlatRequest<App.Service.Response, RequestInstanceSt
       }
 
       // 3. 处理需要显示模态框的错误码
-      if (modalLogoutCodes.includes(errorCode) && !request.state.errMsgStack?.includes(response.data.message)) {
+      if (
+        modalLogoutCodes.includes(errorCode) &&
+        !request.state.errMsgStack?.includes(response.data.message)
+      ) {
         request.state.errMsgStack = [...(request.state.errMsgStack || []), response.data.message];
         window.addEventListener('beforeunload', handleLogout);
 

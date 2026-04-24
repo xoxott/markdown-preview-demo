@@ -44,7 +44,7 @@ export const CodeBlock = defineComponent({
     };
 
     return () => (
-      <NCard bordered={props.bordered} class={'mb-4 mt-4'} style={cssVars.value as any}>
+      <NCard bordered={props.bordered} class={'mb-4 mt-4'} style={cssVars.value}>
         {/* 工具栏 */}
         <ToolBar
           copyFeedback={copyFeedback.value}
@@ -58,7 +58,12 @@ export const CodeBlock = defineComponent({
         {/* 代码块 */}
         <div class="code-block-wrapper flex flex-col overflow-hidden">
           <NConfigProvider theme={darkMode.value ? darkTheme : null} hljs={hljs}>
-            <NCode code={props.meta.content} language={language.value} style={codeStyle.value} wordWrap />
+            <NCode
+              code={props.meta.content}
+              language={language.value}
+              style={codeStyle.value}
+              wordWrap
+            />
           </NConfigProvider>
         </div>
 

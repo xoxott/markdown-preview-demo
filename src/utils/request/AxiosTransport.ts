@@ -59,14 +59,15 @@ export class AxiosTransport implements Transport {
 
   constructor(options: AxiosTransportOptions) {
     if (!isAxiosInstance(options.instance)) {
-      throw new TypeError('AxiosTransport: instance must be an AxiosInstance (created by axios.create())');
+      throw new TypeError(
+        'AxiosTransport: instance must be an AxiosInstance (created by axios.create())'
+      );
     }
     this.instance = options.instance;
   }
 
   async request<T = unknown>(config: NormalizedRequestConfig): Promise<TransportResponse<T>> {
     try {
-
       const axiosConfig = config as unknown as Parameters<AxiosInstance['request']>[0];
 
       // 执行请求
@@ -77,7 +78,7 @@ export class AxiosTransport implements Transport {
         data: response.data,
         status: response.status,
         headers: normalizeHeaders(response.headers),
-        config,
+        config
       };
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {
@@ -87,11 +88,10 @@ export class AxiosTransport implements Transport {
           statusText: error.response.statusText,
           data: error.response.data,
           headers: normalizeHeaders(error.response.headers),
-          config: error.config,
+          config: error.config
         };
       }
       throw error;
     }
   }
 }
-

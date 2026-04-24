@@ -13,4 +13,3 @@ export class DefaultSuccessEvaluationStrategy implements SuccessEvaluationStrate
     return error === undefined && result !== undefined;
   }
 }
-

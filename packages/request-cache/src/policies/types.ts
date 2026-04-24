@@ -67,4 +67,3 @@ export interface CachePolicy {
  * 可以是 boolean、CachePolicy 对象或 undefined
  */
 export type CacheConfig = boolean | CachePolicy | undefined;
-

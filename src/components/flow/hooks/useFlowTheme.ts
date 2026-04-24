@@ -112,9 +112,7 @@ function calculateIsDark(theme: FlowTheme): boolean {
  * });
  * ```
  */
-export function useFlowTheme(
-  options: UseFlowThemeOptions = {}
-): UseFlowThemeReturn {
+export function useFlowTheme(options: UseFlowThemeOptions = {}): UseFlowThemeReturn {
   const {
     initialTheme = DEFAULT_THEME,
     persist = false,
@@ -171,7 +169,7 @@ export function useFlowTheme(
   // 监听主题变化，自动应用主题
   watch(
     () => theme.value,
-    (newTheme) => {
+    newTheme => {
       applyTheme(newTheme);
     },
     { immediate: true }

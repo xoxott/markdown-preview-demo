@@ -50,7 +50,15 @@ export function sanitizeSvg(svg: string): string {
   }
 
   // 移除危险的元素
-  const dangerousElements = ['script', 'iframe', 'object', 'embed', 'link', 'style', 'foreignObject'];
+  const dangerousElements = [
+    'script',
+    'iframe',
+    'object',
+    'embed',
+    'link',
+    'style',
+    'foreignObject'
+  ];
 
   dangerousElements.forEach(tagName => {
     const elements = svgElement.querySelectorAll(tagName);

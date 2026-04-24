@@ -38,7 +38,15 @@ export interface ShortcutsConfigDeps {
  * @returns 快捷键映射
  */
 export function createShortcutsConfig(deps: ShortcutsConfigDeps): ShortcutMap {
-  const { selectAll, clearSelection, selectedFiles, fileOperations, viewMode, handleOpen, message } = deps;
+  const {
+    selectAll,
+    clearSelection,
+    selectedFiles,
+    fileOperations,
+    viewMode,
+    handleOpen,
+    message
+  } = deps;
 
   return {
     // ==================== 文件操作 ====================
@@ -65,17 +73,17 @@ export function createShortcutsConfig(deps: ShortcutsConfigDeps): ShortcutMap {
     },
 
     /** Delete - 删除选中文件 */
-    Delete: (e: KeyboardEvent) => {
+    'Delete': (e: KeyboardEvent) => {
       fileOperations.deleteFiles();
     },
 
     /** F2 - 重命名（单个文件） */
-    F2: (e: KeyboardEvent) => {
+    'F2': (e: KeyboardEvent) => {
       fileOperations.startRename();
     },
 
     /** Enter - 打开选中文件 */
-    Enter: (e: KeyboardEvent) => {
+    'Enter': (e: KeyboardEvent) => {
       if (selectedFiles.value.length === 1) {
         handleOpen(selectedFiles.value[0]);
       } else if (selectedFiles.value.length > 1) {
@@ -123,7 +131,7 @@ export function createShortcutsConfig(deps: ShortcutsConfigDeps): ShortcutMap {
     // ==================== 其他操作 ====================
 
     /** F5 - 刷新视图 */
-    F5: (e: KeyboardEvent) => {
+    'F5': (e: KeyboardEvent) => {
       fileOperations.refresh();
     },
 
@@ -133,7 +141,7 @@ export function createShortcutsConfig(deps: ShortcutsConfigDeps): ShortcutMap {
     },
 
     /** Escape - 取消选择 */
-    Escape: (e: KeyboardEvent) => {
+    'Escape': (e: KeyboardEvent) => {
       clearSelection();
       message.info('已取消选择');
     }

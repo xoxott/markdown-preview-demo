@@ -8,7 +8,7 @@ import {
   PrepareContextStep,
   RequestExecutor,
   type RequestStep,
-  type Transport,
+  type Transport
 } from '@suga/request-core';
 import { CacheReadStep, CacheWriteStep } from '@suga/request-cache';
 import { RetryStep, RetryStrategy } from '@suga/request-retry';
@@ -44,21 +44,21 @@ class CustomRequestClient extends RequestClient {
 
 // 1. 日志配置
 configureLogger({
-  enabled: true,
+  enabled: true
   // logRequest: true,
   // logResponse: true,
   // logError: true,
 });
 
-onRequestStart((data) => {
+onRequestStart(data => {
   logRequestWithManager(data.config);
 });
 
-onRequestSuccess((data) => {
+onRequestSuccess(data => {
   logResponseWithManager(data.config, data.result, data.duration);
 });
 
-onRequestError((data) => {
+onRequestError(data => {
   logErrorWithManager(data.config, data.error, data.duration);
 });
 
@@ -75,9 +75,9 @@ export function createRequestClient(config?: AxiosRequestConfig) {
     baseURL,
     timeout,
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json'
     },
-    ...cfg,
+    ...cfg
   });
 
   // 创建传输层
@@ -88,19 +88,19 @@ export function createRequestClient(config?: AxiosRequestConfig) {
   // 3. 去重配置
   const dedupeConfig = {
     dedupeWindow: 1000, // 1秒内的相同请求会被去重
-    strategy: 'exact' as const, // 精确匹配
+    strategy: 'exact' as const // 精确匹配
   };
 
   // 4. 中止配置
   const abortConfig = {
     enabled: true,
-    autoAbortPrevious: true, // 自动中止相同 requestId 的旧请求
+    autoAbortPrevious: true // 自动中止相同 requestId 的旧请求
   };
 
   // 5. 队列配置
   const queueConfig = {
     maxConcurrent: 5, // 最大并发数
-    queueStrategy: 'fifo' as const, // 先进先出
+    queueStrategy: 'fifo' as const // 先进先出
   };
 
   // 6. 重试配置
@@ -120,14 +120,14 @@ export function createRequestClient(config?: AxiosRequestConfig) {
         );
       }
       return false;
-    },
+    }
   };
 
   // 7. 熔断器配置
   const circuitBreakerConfig = {
     cleanupInterval: 300000, // 5分钟清理一次
     maxSize: 100, // 最大缓存断路器数量
-    idleTimeout: 1800000, // 30分钟空闲超时
+    idleTimeout: 1800000 // 30分钟空闲超时
   };
 
   // ==================== 构建步骤链 ====================
@@ -136,23 +136,23 @@ export function createRequestClient(config?: AxiosRequestConfig) {
     new PrepareContextStep(),
     new CacheReadStep(),
     new DedupeStep({
-      defaultOptions: dedupeConfig,
+      defaultOptions: dedupeConfig
     }),
     new AbortStep({
-      defaultOptions: abortConfig,
+      defaultOptions: abortConfig
     }),
     new QueueStep({
-      defaultConfig: queueConfig,
+      defaultConfig: queueConfig
     }),
     new EventStep({ eventManager }),
     new RetryStep({
-      defaultStrategy: retryStrategy,
+      defaultStrategy: retryStrategy
     }),
     new CircuitBreakerStep({
-      managerOptions: circuitBreakerConfig,
+      managerOptions: circuitBreakerConfig
     }),
     new TransportStep(transport),
-    new CacheWriteStep(),
+    new CacheWriteStep()
   ];
 
   // 创建自定义客户端

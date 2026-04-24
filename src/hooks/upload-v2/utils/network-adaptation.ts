@@ -29,10 +29,7 @@ export function createNetworkAdaptationConfig(
 /**
  * 更新速度历史
  */
-export function updateSpeedHistory(
-  config: NetworkAdaptationConfig,
-  speed: number
-): void {
+export function updateSpeedHistory(config: NetworkAdaptationConfig, speed: number): void {
   config.speedHistory.push(speed);
   if (config.speedHistory.length > config.speedHistorySize) {
     config.speedHistory.shift();
@@ -61,4 +58,3 @@ export function canAdjust(config: NetworkAdaptationConfig): boolean {
 export function updateAdjustTime(config: NetworkAdaptationConfig): void {
   config.lastAdjustTime = Date.now();
 }
-

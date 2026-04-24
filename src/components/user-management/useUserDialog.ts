@@ -17,4 +17,3 @@ export function useUserDialog(app?: App) {
 
 /** 导出类型 */
 export type UseUserDialogReturn = ReturnType<typeof useUserDialog>;
-

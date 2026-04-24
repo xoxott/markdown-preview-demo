@@ -38,7 +38,7 @@ describe('CacheStrategyManager', () => {
       // 当添加 key3 时，应该删除最旧的（key2，因为 key1 刚被访问）
       const keysToDelete = lruManager.applyStrategy(2, 'key3', [
         ['key1', { data: { id: 1 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }],
-        ['key2', { data: { id: 2 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }],
+        ['key2', { data: { id: 2 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }]
       ]);
 
       // 应该删除 key2（最旧的，因为 key1 刚被访问）
@@ -63,7 +63,7 @@ describe('CacheStrategyManager', () => {
 
       const keysToDelete = fifoManager.applyStrategy(2, 'key3', [
         ['key1', { data: { id: 1 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }],
-        ['key2', { data: { id: 2 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }],
+        ['key2', { data: { id: 2 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }]
       ]);
 
       // 应该删除 key1（最先添加的）
@@ -77,7 +77,7 @@ describe('CacheStrategyManager', () => {
       fifoManager.addToAccessOrder('key1'); // 重复添加应该被忽略
 
       const keysToDelete = fifoManager.applyStrategy(1, 'key2', [
-        ['key1', { data: { id: 1 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }],
+        ['key1', { data: { id: 1 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }]
       ]);
 
       // key1 应该被删除（因为 maxSize 是 1）
@@ -94,7 +94,7 @@ describe('CacheStrategyManager', () => {
 
       // 当添加 key3 且 maxSize 为 1 时，应该删除 key2
       const keysToDelete = lruManager.applyStrategy(1, 'key3', [
-        ['key2', { data: { id: 2 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }],
+        ['key2', { data: { id: 2 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }]
       ]);
 
       // key2 应该被删除（因为 maxSize 是 1，且 key1 已被移除）
@@ -107,7 +107,7 @@ describe('CacheStrategyManager', () => {
       const timeManager = new CacheStrategyManager('time', 100);
       const cacheEntries: Array<[string, CacheItem]> = [
         ['key1', { data: { id: 1 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }],
-        ['key2', { data: { id: 2 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }],
+        ['key2', { data: { id: 2 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }]
       ];
 
       const keysToDelete = timeManager.applyStrategy(2, 'key3', cacheEntries);
@@ -121,7 +121,7 @@ describe('CacheStrategyManager', () => {
 
       const cacheEntries: Array<[string, CacheItem]> = [
         ['key1', { data: { id: 1 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }],
-        ['key2', { data: { id: 2 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }],
+        ['key2', { data: { id: 2 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }]
       ];
 
       const keysToDelete = lruManager.applyStrategy(2, 'key3', cacheEntries);
@@ -136,7 +136,7 @@ describe('CacheStrategyManager', () => {
 
       const cacheEntries: Array<[string, CacheItem]> = [
         ['key1', { data: { id: 1 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }],
-        ['key2', { data: { id: 2 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }],
+        ['key2', { data: { id: 2 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }]
       ];
 
       const keysToDelete = fifoManager.applyStrategy(2, 'key3', cacheEntries);
@@ -154,7 +154,7 @@ describe('CacheStrategyManager', () => {
       const cacheEntries: Array<[string, CacheItem]> = [
         ['key1', { data: { id: 1 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }],
         ['key2', { data: { id: 2 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }],
-        ['key3', { data: { id: 3 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }],
+        ['key3', { data: { id: 3 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }]
       ];
 
       const keysToDelete = customManager.applyStrategy(3, 'key4', cacheEntries);
@@ -172,7 +172,7 @@ describe('CacheStrategyManager', () => {
       const cacheEntries: Array<[string, CacheItem]> = [
         ['key1', { data: { id: 1 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }],
         ['key2', { data: { id: 2 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }],
-        ['key3', { data: { id: 3 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }],
+        ['key3', { data: { id: 3 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }]
       ];
 
       const keysToDelete = lruManager.applyStrategy(3, 'key3', cacheEntries);
@@ -187,7 +187,7 @@ describe('CacheStrategyManager', () => {
 
       const cacheEntries: Array<[string, CacheItem]> = [
         ['key1', { data: { id: 1 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }],
-        ['key2', { data: { id: 2 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }],
+        ['key2', { data: { id: 2 }, timestamp: Date.now(), expireTime: Date.now() + 5000 }]
       ];
 
       const keysToDelete = lruManager.applyStrategy(2, 'key3', cacheEntries);
@@ -240,4 +240,3 @@ describe('CacheStrategyManager', () => {
     });
   });
 });
-

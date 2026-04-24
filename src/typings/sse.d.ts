@@ -6,7 +6,14 @@ export namespace SSE {
   type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'reconnecting' | 'error';
 
   /** SSE event types for monitoring */
-  type MonitoringEventType = 'health' | 'liveness' | 'readiness' | 'metrics' | 'system' | 'performance' | 'environment';
+  type MonitoringEventType =
+    | 'health'
+    | 'liveness'
+    | 'readiness'
+    | 'metrics'
+    | 'system'
+    | 'performance'
+    | 'environment';
 
   /** SSE connection configuration */
   interface ConnectionConfig {
@@ -93,4 +100,3 @@ export namespace SSE {
     refCount: number;
   }
 }
-

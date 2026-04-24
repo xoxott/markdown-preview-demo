@@ -74,7 +74,7 @@ export function useConnectionCreation(
   /** 监听配置变化，更新处理器配置 */
   watch(
     () => config.value,
-    (newConfig) => {
+    newConfig => {
       connectionHandler.setConfig(newConfig);
     }
   );
@@ -90,12 +90,7 @@ export function useConnectionCreation(
   ) => {
     // 只有 source 端口可以开始连接
     if (handleType === 'source') {
-      connectionHandler.startConnection(
-        nodeId,
-        handleId,
-        event.clientX,
-        event.clientY
-      );
+      connectionHandler.startConnection(nodeId, handleId, event.clientX, event.clientY);
       syncState();
 
       // 阻止节点拖拽和其他事件
@@ -143,4 +138,3 @@ export function useConnectionCreation(
     handleMouseUp
   };
 }
-

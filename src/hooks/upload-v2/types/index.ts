@@ -15,4 +15,3 @@ export type { UploadStats } from './core';
 
 // 枚举需要作为值导出
 export { UploadStatus, ChunkStatus } from './core';
-

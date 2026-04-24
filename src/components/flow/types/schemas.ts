@@ -1,6 +1,6 @@
 /**
  * Flow 运行时类型验证 Schema
- * 
+ *
  * 使用 Zod 进行运行时类型验证
  */
 
@@ -11,7 +11,7 @@ import { z } from 'zod';
  */
 export const FlowPositionSchema = z.object({
   x: z.number(),
-  y: z.number(),
+  y: z.number()
 });
 
 /**
@@ -19,7 +19,7 @@ export const FlowPositionSchema = z.object({
  */
 export const FlowSizeSchema = z.object({
   width: z.number().positive(),
-  height: z.number().positive(),
+  height: z.number().positive()
 });
 
 /**
@@ -31,7 +31,7 @@ export const FlowHandleSchema = z.object({
   position: z.enum(['top', 'bottom', 'left', 'right']),
   style: z.record(z.string(), z.any()).optional(),
   hidden: z.boolean().optional(),
-  connectable: z.boolean().optional(),
+  connectable: z.boolean().optional()
 });
 
 /**
@@ -51,7 +51,7 @@ export const FlowNodeSchema = z.object({
   selectable: z.boolean().optional(),
   deletable: z.boolean().optional(),
   locked: z.boolean().optional(),
-  handles: z.array(FlowHandleSchema).optional(),
+  handles: z.array(FlowHandleSchema).optional()
 });
 
 /**
@@ -70,7 +70,7 @@ export const FlowEdgeSchema = z.object({
   animated: z.boolean().optional(),
   showArrow: z.boolean().optional(),
   label: z.string().optional(),
-  data: z.any().optional(),
+  data: z.any().optional()
 });
 
 /**
@@ -79,7 +79,7 @@ export const FlowEdgeSchema = z.object({
 export const FlowViewportSchema = z.object({
   x: z.number(),
   y: z.number(),
-  zoom: z.number().positive(),
+  zoom: z.number().positive()
 });
 
 /**
@@ -102,7 +102,7 @@ export const FlowCanvasConfigSchema = z.object({
   panOnDrag: z.union([z.boolean(), z.array(z.number())]).optional(),
   zoomOnScroll: z.boolean().optional(),
   zoomOnPinch: z.boolean().optional(),
-  zoomOnDoubleClick: z.boolean().optional(),
+  zoomOnDoubleClick: z.boolean().optional()
 });
 
 /**
@@ -121,7 +121,7 @@ export const FlowNodeConfigSchema = z.object({
   portSize: z.number().positive().optional(),
   portSpacing: z.number().min(0).optional(),
   portOffset: z.number().min(0).optional(),
-  nodeTypes: z.record(z.string(), z.any()).optional(),
+  nodeTypes: z.record(z.string(), z.any()).optional()
 });
 
 /**
@@ -145,7 +145,7 @@ export const FlowEdgeConfigSchema = z.object({
   deletable: z.boolean().optional(),
   animated: z.boolean().optional(),
   edgeTypes: z.record(z.string(), z.any()).optional(),
-  edgePathGenerators: z.record(z.string(), z.any()).optional(),
+  edgePathGenerators: z.record(z.string(), z.any()).optional()
 });
 
 /**
@@ -167,7 +167,7 @@ export const FlowInteractionConfigSchema = z.object({
   nodesConnectable: z.boolean().optional(),
   nodesSelectable: z.boolean().optional(),
   edgesSelectable: z.boolean().optional(),
-  edgesDeletable: z.boolean().optional(),
+  edgesDeletable: z.boolean().optional()
 });
 
 /**
@@ -183,7 +183,7 @@ export const FlowPerformanceConfigSchema = z.object({
   edgeCanvasThreshold: z.number().positive().optional(),
   maxHistorySize: z.number().positive().optional(),
   enableConfigCache: z.boolean().optional(),
-  cacheSizeLimit: z.number().positive().optional(),
+  cacheSizeLimit: z.number().positive().optional()
 });
 
 /**
@@ -199,7 +199,7 @@ export const FlowThemeConfigSchema = z.object({
   fontFamily: z.string().optional(),
   fontSize: z.number().positive().optional(),
   borderRadius: z.number().min(0).optional(),
-  boxShadow: z.string().optional(),
+  boxShadow: z.string().optional()
 });
 
 /**
@@ -211,7 +211,7 @@ export const FlowConfigSchema = z.object({
   edges: FlowEdgeConfigSchema.optional(),
   interaction: FlowInteractionConfigSchema.optional(),
   performance: FlowPerformanceConfigSchema.optional(),
-  theme: FlowThemeConfigSchema.optional(),
+  theme: FlowThemeConfigSchema.optional()
 });
 
 /**
@@ -245,4 +245,3 @@ export function zodSafeValidateEdge(edge: unknown) {
 export function zodSafeValidateConfig(config: unknown) {
   return FlowConfigSchema.safeParse(config);
 }
-

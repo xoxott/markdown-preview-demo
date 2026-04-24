@@ -48,7 +48,10 @@ export default {
       });
 
       // 转换锚点链接
-      content = content.replace(/\[([^\]]+)\]\(#([^)]+)\)/g, '<a href="#$2" class="anchor-link">$1</a>');
+      content = content.replace(
+        /\[([^\]]+)\]\(#([^)]+)\)/g,
+        '<a href="#$2" class="anchor-link">$1</a>'
+      );
 
       // 使用 marked 解析 Markdown
       return marked(content, {

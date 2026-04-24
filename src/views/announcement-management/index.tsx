@@ -275,15 +275,8 @@ export default defineComponent({
     }
 
     // 表格配置
-    const {
-      columns,
-      data,
-      loading,
-      pagination,
-      getData,
-      updateSearchParams,
-      resetSearchParams
-    } = useTable({
+    const { columns, data, loading, pagination, getData, updateSearchParams, resetSearchParams } =
+      useTable({
         apiFn: fetchAnnouncementList,
         apiParams: {
           page: 1,
@@ -317,7 +310,9 @@ export default defineComponent({
         return;
       }
       await dialog.confirmDelete(
-        $t('page.announcementManagement.confirmBatchDelete' as any, { count: selectedRowKeys.value.length }),
+        $t('page.announcementManagement.confirmBatchDelete' as any, {
+          count: selectedRowKeys.value.length
+        }),
         async () => {
           try {
             await fetchBatchDeleteAnnouncements({ ids: selectedRowKeys.value });
@@ -366,7 +361,10 @@ export default defineComponent({
                 clearable
                 options={[
                   { label: $t('page.announcementManagement.published' as any), value: true as any },
-                  { label: $t('page.announcementManagement.unpublished' as any), value: false as any }
+                  {
+                    label: $t('page.announcementManagement.unpublished' as any),
+                    value: false as any
+                  }
                 ]}
               />
             </NFormItem>
@@ -375,9 +373,7 @@ export default defineComponent({
                 <NButton type="primary" onClick={handleSearch}>
                   {$t('common.search')}
                 </NButton>
-                <NButton onClick={handleReset}>
-                  {$t('common.reset')}
-                </NButton>
+                <NButton onClick={handleReset}>{$t('common.reset')}</NButton>
               </NSpace>
             </NFormItem>
           </NForm>
@@ -389,12 +385,14 @@ export default defineComponent({
             <NButton type="primary" onClick={handleAdd}>
               {$t('common.add')}
             </NButton>
-            <NButton type="error" disabled={selectedRowKeys.value.length === 0} onClick={handleBatchDelete}>
+            <NButton
+              type="error"
+              disabled={selectedRowKeys.value.length === 0}
+              onClick={handleBatchDelete}
+            >
               {$t('common.batchDelete')}
             </NButton>
-            <NButton onClick={getData}>
-              {$t('common.refresh')}
-            </NButton>
+            <NButton onClick={getData}>{$t('common.refresh')}</NButton>
           </NSpace>
         </NCard>
 
@@ -407,7 +405,7 @@ export default defineComponent({
             pagination={pagination}
             rowKey={(row: Announcement) => row.id}
             checkedRowKeys={selectedRowKeys.value}
-            onUpdateCheckedRowKeys={(keys) => {
+            onUpdateCheckedRowKeys={keys => {
               selectedRowKeys.value = keys as number[];
             }}
             scrollX={2000}
@@ -417,4 +415,3 @@ export default defineComponent({
     );
   }
 });
-

@@ -17,4 +17,3 @@ export function useAnnouncementDialog(app?: App) {
 
 /** 导出类型 */
 export type UseAnnouncementDialogReturn = ReturnType<typeof useAnnouncementDialog>;
-

@@ -30,7 +30,9 @@ export function fetchAnnouncementDetail(id: number) {
  *
  * @param data Announcement data
  */
-export function fetchCreateAnnouncement(data: Api.AnnouncementManagement.CreateAnnouncementRequest) {
+export function fetchCreateAnnouncement(
+  data: Api.AnnouncementManagement.CreateAnnouncementRequest
+) {
   return request<Api.AnnouncementManagement.CreateAnnouncementResponse>({
     url: '/api/admin/announcements',
     method: 'post',
@@ -44,7 +46,10 @@ export function fetchCreateAnnouncement(data: Api.AnnouncementManagement.CreateA
  * @param id Announcement ID
  * @param data Announcement data
  */
-export function fetchUpdateAnnouncement(id: number, data: Api.AnnouncementManagement.UpdateAnnouncementRequest) {
+export function fetchUpdateAnnouncement(
+  id: number,
+  data: Api.AnnouncementManagement.UpdateAnnouncementRequest
+) {
   return request<Api.AnnouncementManagement.UpdateAnnouncementResponse>({
     url: `/api/admin/announcements/${id}`,
     method: 'put',
@@ -69,7 +74,9 @@ export function fetchDeleteAnnouncement(id: number) {
  *
  * @param data Announcement IDs
  */
-export function fetchBatchDeleteAnnouncements(data: Api.AnnouncementManagement.BatchDeleteAnnouncementsRequest) {
+export function fetchBatchDeleteAnnouncements(
+  data: Api.AnnouncementManagement.BatchDeleteAnnouncementsRequest
+) {
   return request<Api.AnnouncementManagement.BatchDeleteAnnouncementsResponse>({
     url: '/api/admin/announcements/batch',
     method: 'delete',
@@ -90,4 +97,3 @@ export function fetchToggleAnnouncementStatus(id: number, isPublished: boolean) 
     data: { isPublished }
   });
 }
-

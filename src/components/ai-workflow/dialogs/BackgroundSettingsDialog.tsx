@@ -1,5 +1,16 @@
 import { defineComponent, ref, watch, type PropType } from 'vue';
-import { NModal, NCard, NForm, NFormItem, NSelect, NColorPicker, NSlider, NSwitch, NButton, NSpace } from 'naive-ui';
+import {
+  NModal,
+  NCard,
+  NForm,
+  NFormItem,
+  NSelect,
+  NColorPicker,
+  NSlider,
+  NSwitch,
+  NButton,
+  NSpace
+} from 'naive-ui';
 import type { CanvasBackground, GridType } from '../types/canvas-settings';
 
 export default defineComponent({
@@ -25,9 +36,13 @@ export default defineComponent({
   setup(props) {
     const localSettings = ref<CanvasBackground>({ ...props.settings });
 
-    watch(() => props.settings, (newSettings) => {
-      localSettings.value = { ...newSettings };
-    }, { deep: true });
+    watch(
+      () => props.settings,
+      newSettings => {
+        localSettings.value = { ...newSettings };
+      },
+      { deep: true }
+    );
 
     const gridTypeOptions = [
       { label: '点状网格', value: 'dots' as GridType },
@@ -106,7 +121,9 @@ export default defineComponent({
           footer: () => (
             <NSpace justify="end">
               <NButton onClick={props.onClose}>取消</NButton>
-              <NButton type="primary" onClick={handleSave}>保存</NButton>
+              <NButton type="primary" onClick={handleSave}>
+                保存
+              </NButton>
             </NSpace>
           )
         }}
@@ -114,4 +131,3 @@ export default defineComponent({
     );
   }
 });
-

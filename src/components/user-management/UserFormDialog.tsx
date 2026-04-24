@@ -1,14 +1,6 @@
 import type { PropType } from 'vue';
 import { defineComponent, watch, ref, reactive } from 'vue';
-import {
-  NForm,
-  NFormItem,
-  NInput,
-  NSelect,
-  NSwitch,
-  NButton,
-  NSpace
-} from 'naive-ui';
+import { NForm, NFormItem, NInput, NSelect, NSwitch, NButton, NSpace } from 'naive-ui';
 import { useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
 import BaseDialog from '@/components/base-dialog';
@@ -33,7 +25,7 @@ export default defineComponent({
     // 监听 config.formData 变化，同步到 formModel
     watch(
       () => props.config.formData,
-      (newData) => {
+      newData => {
         Object.assign(formModel, newData);
       },
       { deep: true, immediate: true }
@@ -41,9 +33,7 @@ export default defineComponent({
 
     // 表单验证规则
     const formRules = {
-      username: [
-        { required: true, message: $t('form.userName.required'), trigger: 'blur' }
-      ],
+      username: [{ required: true, message: $t('form.userName.required'), trigger: 'blur' }],
       email: [
         { required: true, message: $t('form.email.required'), trigger: 'blur' },
         { type: 'email' as const, message: $t('form.email.invalid'), trigger: 'blur' }
@@ -63,7 +53,13 @@ export default defineComponent({
         }
       ],
       roleIds: [
-        { required: true, type: 'array' as const, min: 1, message: $t('page.userManagement.roleRequired' as any), trigger: 'change' }
+        {
+          required: true,
+          type: 'array' as const,
+          min: 1,
+          message: $t('page.userManagement.roleRequired' as any),
+          trigger: 'change'
+        }
       ]
     };
 
@@ -95,7 +91,7 @@ export default defineComponent({
     // 监听显示状态，重置表单验证
     watch(
       () => props.show,
-      (show) => {
+      show => {
         if (show) {
           formRef.value?.restoreValidation();
         }
@@ -122,7 +118,10 @@ export default defineComponent({
               labelWidth="80px"
             >
               <NFormItem label={$t('page.userManagement.username')} path="username">
-                <NInput v-model:value={formModel.username} placeholder={$t('form.userName.required')} />
+                <NInput
+                  v-model:value={formModel.username}
+                  placeholder={$t('form.userName.required')}
+                />
               </NFormItem>
               <NFormItem label={$t('page.userManagement.email')} path="email">
                 <NInput v-model:value={formModel.email} placeholder={$t('form.email.required')} />
@@ -131,7 +130,11 @@ export default defineComponent({
                 <NInput
                   v-model:value={formModel.password}
                   type="password"
-                  placeholder={props.config.isEdit ? $t('page.userManagement.passwordPlaceholderEdit' as any) : $t('page.userManagement.passwordPlaceholder' as any)}
+                  placeholder={
+                    props.config.isEdit
+                      ? $t('page.userManagement.passwordPlaceholderEdit' as any)
+                      : $t('page.userManagement.passwordPlaceholder' as any)
+                  }
                   showPasswordOn="click"
                 />
               </NFormItem>
@@ -146,16 +149,16 @@ export default defineComponent({
               <NFormItem label={$t('page.userManagement.status')} path="isActive">
                 <NSwitch v-model:value={formModel.isActive} />
                 <span style={{ marginLeft: '8px' }}>
-                  {formModel.isActive ? $t('page.userManagement.active') : $t('page.userManagement.inactive')}
+                  {formModel.isActive
+                    ? $t('page.userManagement.active')
+                    : $t('page.userManagement.inactive')}
                 </span>
               </NFormItem>
             </NForm>
           ),
           footer: () => (
             <NSpace justify="end">
-              <NButton onClick={handleCancel}>
-                {$t('common.cancel')}
-              </NButton>
+              <NButton onClick={handleCancel}>{$t('common.cancel')}</NButton>
               <NButton type="primary" onClick={handleConfirm}>
                 {$t('common.confirm')}
               </NButton>
@@ -166,4 +169,3 @@ export default defineComponent({
     );
   }
 });
-

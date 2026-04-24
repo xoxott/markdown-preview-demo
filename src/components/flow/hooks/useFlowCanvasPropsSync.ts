@@ -14,9 +14,15 @@ import type { IStateStore } from '../core/state/interfaces/IStateStore';
  */
 export interface UseFlowCanvasPropsSyncOptions {
   /** 外部传入的初始节点列表（可以是 Ref、ComputedRef 或函数，用于响应式） */
-  initialNodes?: Ref<FlowNode[] | undefined> | ComputedRef<FlowNode[] | undefined> | (() => FlowNode[] | undefined);
+  initialNodes?:
+    | Ref<FlowNode[] | undefined>
+    | ComputedRef<FlowNode[] | undefined>
+    | (() => FlowNode[] | undefined);
   /** 外部传入的初始连接线列表（可以是 Ref、ComputedRef 或函数，用于响应式） */
-  initialEdges?: Ref<FlowEdge[] | undefined> | ComputedRef<FlowEdge[] | undefined> | (() => FlowEdge[] | undefined);
+  initialEdges?:
+    | Ref<FlowEdge[] | undefined>
+    | ComputedRef<FlowEdge[] | undefined>
+    | (() => FlowEdge[] | undefined);
   /** 内部状态存储实例 */
   stateStore: IStateStore;
   /** 内部节点列表（用于比较） */
@@ -43,14 +49,11 @@ function createSyncWatcher<T extends { id: string }>(
   current: Ref<T[]>,
   setter: (items: T[]) => void
 ): WatchStopHandle {
-  return watch(
-    source,
-    (newItems) => {
-      if (newItems && newItems.length > 0 && !compareIds(current.value, newItems)) {
-        setter(newItems);
-      }
+  return watch(source, newItems => {
+    if (newItems && newItems.length > 0 && !compareIds(current.value, newItems)) {
+      setter(newItems);
     }
-  );
+  });
 }
 
 /**
@@ -85,19 +88,19 @@ export function useFlowCanvasPropsSync(
   const start = () => {
     if (initialNodes) {
       watchers.push(
-        createSyncWatcher(initialNodes, nodes, (newNodes) => stateStore.setNodes(newNodes))
+        createSyncWatcher(initialNodes, nodes, newNodes => stateStore.setNodes(newNodes))
       );
     }
 
     if (initialEdges) {
       watchers.push(
-        createSyncWatcher(initialEdges, edges, (newEdges) => stateStore.setEdges(newEdges))
+        createSyncWatcher(initialEdges, edges, newEdges => stateStore.setEdges(newEdges))
       );
     }
   };
 
   const stop = () => {
-    watchers.forEach((stop) => stop());
+    watchers.forEach(stop => stop());
     watchers.length = 0;
   };
 

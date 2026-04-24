@@ -13,4 +13,3 @@ export interface CacheItem<T = unknown> {
   /** 过期时间戳 */
   expireTime: number;
 }
-

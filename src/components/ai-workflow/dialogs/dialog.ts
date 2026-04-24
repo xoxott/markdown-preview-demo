@@ -27,4 +27,3 @@ export interface VersionHistoryDialogOptions {
   workflowId: string;
   onRestore?: (version: number) => Promise<void>;
 }
-

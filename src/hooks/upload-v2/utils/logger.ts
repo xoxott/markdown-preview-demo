@@ -39,7 +39,7 @@ class Logger {
   constructor() {
     // 根据环境设置默认日志级别
     const isDev = import.meta.env.DEV || process.env.NODE_ENV === 'development';
-    
+
     this.config = {
       level: isDev ? LogLevel.DEBUG : LogLevel.WARN,
       enableConsole: true,
@@ -63,7 +63,12 @@ class Logger {
   /**
    * 记录日志
    */
-  private log(level: LogLevel, message: string, context?: Record<string, any>, error?: Error): void {
+  private log(
+    level: LogLevel,
+    message: string,
+    context?: Record<string, any>,
+    error?: Error
+  ): void {
     if (level < this.config.level) {
       return;
     }
@@ -84,7 +89,7 @@ class Logger {
     // 存储日志
     if (this.config.enableStorage) {
       this.logs.push(entry);
-      
+
       // 限制日志数量
       if (this.logs.length > this.config.maxStorageSize) {
         this.logs.shift();
@@ -184,4 +189,3 @@ class Logger {
 
 // 导出单例
 export const logger = new Logger();
-

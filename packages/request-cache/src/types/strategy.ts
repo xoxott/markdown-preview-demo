@@ -16,4 +16,3 @@ export type CacheStrategy = 'time' | 'lru' | 'fifo' | 'custom';
  * @returns 是否应该保留该缓存项
  */
 export type CustomCacheStrategy = (key: string, value: CacheItem) => boolean;
-

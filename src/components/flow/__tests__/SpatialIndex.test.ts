@@ -13,7 +13,7 @@ describe('SpatialIndex', () => {
   beforeEach(() => {
     spatialIndex = new SpatialIndex({
       defaultWidth: 100,
-      defaultHeight: 50,
+      defaultHeight: 50
     });
 
     // 创建测试节点
@@ -22,20 +22,20 @@ describe('SpatialIndex', () => {
         id: 'node-1',
         type: 'default',
         position: { x: 0, y: 0 },
-        data: {},
+        data: {}
       },
       {
         id: 'node-2',
         type: 'default',
         position: { x: 200, y: 200 },
-        data: {},
+        data: {}
       },
       {
         id: 'node-3',
         type: 'default',
         position: { x: 400, y: 400 },
-        data: {},
-      },
+        data: {}
+      }
     ];
   });
 
@@ -53,7 +53,7 @@ describe('SpatialIndex', () => {
       maxX: 250,
       maxY: 250,
       width: 250,
-      height: 250,
+      height: 250
     });
 
     expect(result.length).toBe(2);
@@ -105,4 +105,3 @@ describe('SpatialIndex', () => {
     expect(bounds!.maxY).toBe(450); // 400 + 50
   });
 });
-

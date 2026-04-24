@@ -27,9 +27,7 @@ export interface ConfigValidationResult {
  * @param config 要验证的配置
  * @returns 验证结果
  */
-export function validateConfig(
-  config: FlowConfig
-): ConfigValidationResult {
+export function validateConfig(config: FlowConfig): ConfigValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -66,20 +64,10 @@ export function validateConfig(
         errors.push('canvas.defaultZoom must be a number');
       } else if (canvas.defaultZoom <= 0) {
         errors.push('canvas.defaultZoom must be > 0');
-      } else if (
-        canvas.minZoom !== undefined &&
-        canvas.defaultZoom < canvas.minZoom
-      ) {
-        errors.push(
-          'canvas.defaultZoom must be >= canvas.minZoom'
-        );
-      } else if (
-        canvas.maxZoom !== undefined &&
-        canvas.defaultZoom > canvas.maxZoom
-      ) {
-        errors.push(
-          'canvas.defaultZoom must be <= canvas.maxZoom'
-        );
+      } else if (canvas.minZoom !== undefined && canvas.defaultZoom < canvas.minZoom) {
+        errors.push('canvas.defaultZoom must be >= canvas.minZoom');
+      } else if (canvas.maxZoom !== undefined && canvas.defaultZoom > canvas.maxZoom) {
+        errors.push('canvas.defaultZoom must be <= canvas.maxZoom');
       }
     }
 
@@ -111,27 +99,20 @@ export function validateConfig(
     }
 
     if (nodes.defaultHeight !== undefined) {
-      if (
-        typeof nodes.defaultHeight !== 'number' ||
-        nodes.defaultHeight <= 0
-      ) {
+      if (typeof nodes.defaultHeight !== 'number' || nodes.defaultHeight <= 0) {
         errors.push('nodes.defaultHeight must be a positive number');
       }
     }
 
     if (nodes.minWidth !== undefined && nodes.defaultWidth !== undefined) {
       if (nodes.minWidth > nodes.defaultWidth) {
-        warnings.push(
-          'nodes.minWidth is greater than nodes.defaultWidth, this may cause issues'
-        );
+        warnings.push('nodes.minWidth is greater than nodes.defaultWidth, this may cause issues');
       }
     }
 
     if (nodes.minHeight !== undefined && nodes.defaultHeight !== undefined) {
       if (nodes.minHeight > nodes.defaultHeight) {
-        warnings.push(
-          'nodes.minHeight is greater than nodes.defaultHeight, this may cause issues'
-        );
+        warnings.push('nodes.minHeight is greater than nodes.defaultHeight, this may cause issues');
       }
     }
 
@@ -147,10 +128,7 @@ export function validateConfig(
     const edges = config.edges;
 
     if (edges.defaultStrokeWidth !== undefined) {
-      if (
-        typeof edges.defaultStrokeWidth !== 'number' ||
-        edges.defaultStrokeWidth <= 0
-      ) {
+      if (typeof edges.defaultStrokeWidth !== 'number' || edges.defaultStrokeWidth <= 0) {
         errors.push('edges.defaultStrokeWidth must be a positive number');
       }
     }
@@ -167,9 +145,7 @@ export function validateConfig(
         edges.bezierControlOffset < 0 ||
         edges.bezierControlOffset > 1
       ) {
-        errors.push(
-          'edges.bezierControlOffset must be between 0 and 1'
-        );
+        errors.push('edges.bezierControlOffset must be between 0 and 1');
       }
     }
   }
@@ -179,22 +155,14 @@ export function validateConfig(
     const perf = config.performance;
 
     if (perf.maxHistorySize !== undefined) {
-      if (
-        typeof perf.maxHistorySize !== 'number' ||
-        perf.maxHistorySize < 0
-      ) {
+      if (typeof perf.maxHistorySize !== 'number' || perf.maxHistorySize < 0) {
         errors.push('performance.maxHistorySize must be >= 0');
       }
     }
 
     if (perf.edgeCanvasThreshold !== undefined) {
-      if (
-        typeof perf.edgeCanvasThreshold !== 'number' ||
-        perf.edgeCanvasThreshold < 0
-      ) {
-        errors.push(
-          'performance.edgeCanvasThreshold must be >= 0'
-        );
+      if (typeof perf.edgeCanvasThreshold !== 'number' || perf.edgeCanvasThreshold < 0) {
+        errors.push('performance.edgeCanvasThreshold must be >= 0');
       }
     }
   }
@@ -270,10 +238,7 @@ export function validateNode(node: any): boolean {
     return false;
   }
 
-  if (
-    typeof node.position.x !== 'number' ||
-    typeof node.position.y !== 'number'
-  ) {
+  if (typeof node.position.x !== 'number' || typeof node.position.y !== 'number') {
     return false;
   }
 
@@ -309,4 +274,3 @@ export function validateEdge(edge: any): boolean {
 
   return true;
 }
-

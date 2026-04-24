@@ -53,4 +53,3 @@ export interface PerformanceMonitor {
   /** 重置统计 */
   reset(): void;
 }
-

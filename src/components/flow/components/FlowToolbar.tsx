@@ -139,20 +139,14 @@ export default defineComponent({
 
     // 缩放操作
     const handleZoomIn = () => {
-      const newZoom = Math.min(
-        props.maxZoom,
-        props.viewport.zoom + props.zoomStep
-      );
+      const newZoom = Math.min(props.maxZoom, props.viewport.zoom + props.zoomStep);
       if (props.onZoomChange) {
         props.onZoomChange(newZoom);
       }
     };
 
     const handleZoomOut = () => {
-      const newZoom = Math.max(
-        props.minZoom,
-        props.viewport.zoom - props.zoomStep
-      );
+      const newZoom = Math.max(props.minZoom, props.viewport.zoom - props.zoomStep);
       if (props.onZoomChange) {
         props.onZoomChange(newZoom);
       }
@@ -170,10 +164,7 @@ export default defineComponent({
       }
 
       return (
-        <div
-          class={`flow-toolbar ${props.class}`}
-          style={positionStyle.value}
-        >
+        <div class={`flow-toolbar ${props.class}`} style={positionStyle.value}>
           {/* 缩小 */}
           <button
             class="flow-toolbar-button"
@@ -257,4 +248,3 @@ export default defineComponent({
     };
   }
 });
-

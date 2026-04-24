@@ -134,4 +134,3 @@ export class TimeEstimator {
     this.lastEstimatedTime = 0;
   }
 }
-

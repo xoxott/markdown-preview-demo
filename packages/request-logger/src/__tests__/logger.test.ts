@@ -16,7 +16,7 @@ describe('logger', () => {
     output = vi.fn() as LogOutput;
     manager = new LoggerManager({
       enabled: true,
-      output,
+      output
     });
   });
 
@@ -24,7 +24,7 @@ describe('logger', () => {
     it('应该在启用时记录请求日志', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       logRequest(config, manager, true);
@@ -36,7 +36,7 @@ describe('logger', () => {
     it('应该在禁用时跳过记录', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       logRequest(config, manager, false);
@@ -48,7 +48,7 @@ describe('logger', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        params: { page: 1, limit: 10 },
+        params: { page: 1, limit: 10 }
       };
 
       logRequest(config, manager, true);
@@ -61,7 +61,7 @@ describe('logger', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'POST',
-        data: { name: 'John', age: 30 },
+        data: { name: 'John', age: 30 }
       };
 
       logRequest(config, manager, true);
@@ -74,7 +74,7 @@ describe('logger', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' }
       };
 
       logRequest(config, manager, true);
@@ -87,7 +87,7 @@ describe('logger', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        timeout: 5000,
+        timeout: 5000
       };
 
       logRequest(config, manager, true);
@@ -99,7 +99,7 @@ describe('logger', () => {
     it('应该在 method 为空时使用默认值 GET', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: '',
+        method: ''
       };
 
       logRequest(config, manager, true);
@@ -114,7 +114,7 @@ describe('logger', () => {
         params: { page: 1 },
         data: { name: 'John' },
         headers: { 'Content-Type': 'application/json' },
-        timeout: 5000,
+        timeout: 5000
       };
 
       logRequest(config, manager, true);
@@ -131,7 +131,7 @@ describe('logger', () => {
     it('应该在启用时记录响应日志', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const result = { id: 1, name: 'John' };
 
@@ -145,7 +145,7 @@ describe('logger', () => {
     it('应该在禁用时跳过记录', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const result = { id: 1, name: 'John' };
 
@@ -157,7 +157,7 @@ describe('logger', () => {
     it('应该记录响应时间和结果', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'POST',
+        method: 'POST'
       };
       const result = { success: true };
 
@@ -171,7 +171,7 @@ describe('logger', () => {
     it('应该在 method 为空时使用默认值 GET', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: '',
+        method: ''
       };
       const result = { data: [] };
 
@@ -185,7 +185,7 @@ describe('logger', () => {
     it('应该在启用时记录错误日志', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const error = new Error('Request failed');
 
@@ -199,7 +199,7 @@ describe('logger', () => {
     it('应该在禁用时跳过记录', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const error = new Error('Request failed');
 
@@ -211,7 +211,7 @@ describe('logger', () => {
     it('应该记录错误信息和响应时间', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'POST',
+        method: 'POST'
       };
       const error = { code: 'NETWORK_ERROR', message: 'Network timeout' };
 
@@ -225,7 +225,7 @@ describe('logger', () => {
     it('应该在 method 为空时使用默认值 GET', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: '',
+        method: ''
       };
       const error = new Error('Request failed');
 
@@ -239,11 +239,11 @@ describe('logger', () => {
     it('应该使用 manager 的配置来决定是否记录', () => {
       const disabledManager = new LoggerManager({
         enabled: false,
-        output: output,
+        output: output
       });
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       logRequest(config, disabledManager);
@@ -256,11 +256,11 @@ describe('logger', () => {
     it('应该使用 override 参数覆盖 manager 配置', () => {
       const disabledManager = new LoggerManager({
         enabled: false,
-        output: output,
+        output: output
       });
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       logRequest(config, disabledManager, true);
@@ -271,4 +271,3 @@ describe('logger', () => {
     });
   });
 });
-

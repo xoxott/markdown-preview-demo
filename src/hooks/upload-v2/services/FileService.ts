@@ -352,7 +352,9 @@ export class FileService {
       // 生成预览
       this.generatePreview(processedFile),
       // 计算 MD5（如果需要）
-      this.config.enableDeduplication ? this.calculateMD5(processedFile) : Promise.resolve(undefined)
+      this.config.enableDeduplication
+        ? this.calculateMD5(processedFile)
+        : Promise.resolve(undefined)
     ]);
 
     return {
@@ -363,4 +365,3 @@ export class FileService {
     };
   }
 }
-

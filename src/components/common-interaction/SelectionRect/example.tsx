@@ -56,10 +56,7 @@ export default defineComponent({
               <div
                 key={item.id}
                 data-selectable-id={item.id}
-                class={[
-                  'item',
-                  selectedIds.value.includes(item.id) && 'selected'
-                ]}
+                class={['item', selectedIds.value.includes(item.id) && 'selected']}
               >
                 {item.name}
               </div>
@@ -121,4 +118,3 @@ export default defineComponent({
     );
   }
 });
-

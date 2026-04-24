@@ -1,6 +1,11 @@
 import { Presets, SingleBar } from 'cli-progress';
 import { createOptions } from './options';
-import { getCurrentGitBranch, getFromToTags, getGitCommits, getGitCommitsAndResolvedAuthors } from './git';
+import {
+  getCurrentGitBranch,
+  getFromToTags,
+  getGitCommits,
+  getGitCommitsAndResolvedAuthors
+} from './git';
 import { generateMarkdown, isVersionInMarkdown, writeMarkdown } from './markdown';
 import type { ChangelogOption } from './types';
 /**
@@ -22,7 +27,11 @@ export async function getChangelogMarkdown(options?: Partial<ChangelogOption>, s
 
   const gitCommits = await getGitCommits(opts.from, to);
   const resolvedLogins = new Map<string, string>();
-  const { commits, contributors } = await getGitCommitsAndResolvedAuthors(gitCommits, opts.github, resolvedLogins);
+  const { commits, contributors } = await getGitCommitsAndResolvedAuthors(
+    gitCommits,
+    opts.github,
+    resolvedLogins
+  );
 
   const markdown = generateMarkdown({ commits, options: opts, showTitle, contributors });
 
@@ -40,7 +49,10 @@ export async function getChangelogMarkdown(options?: Partial<ChangelogOption>, s
  * @param showProgress 是否显示进度条（默认显示）
  * @returns 拼接好的完整 changelog 文本
  */
-export async function getTotalChangelogMarkdown(options?: Partial<ChangelogOption>, showProgress = true) {
+export async function getTotalChangelogMarkdown(
+  options?: Partial<ChangelogOption>,
+  showProgress = true
+) {
   const opts = await createOptions(options);
 
   let bar: SingleBar | null = null;
@@ -66,9 +78,18 @@ export async function getTotalChangelogMarkdown(options?: Partial<ChangelogOptio
   for await (const [index, tag] of tags.entries()) {
     const { from, to } = tag;
     const gitCommits = await getGitCommits(from, to);
-    const { commits, contributors } = await getGitCommitsAndResolvedAuthors(gitCommits, opts.github, resolvedLogins);
+    const { commits, contributors } = await getGitCommitsAndResolvedAuthors(
+      gitCommits,
+      opts.github,
+      resolvedLogins
+    );
 
-    const nextMd = generateMarkdown({ commits, options: { ...opts, from, to }, showTitle: true, contributors });
+    const nextMd = generateMarkdown({
+      commits,
+      options: { ...opts, from, to },
+      showTitle: true,
+      contributors
+    });
 
     markdown = `${nextMd}\n\n${markdown}`;
 
@@ -110,7 +131,10 @@ export async function generateChangelog(options?: Partial<ChangelogOption>) {
  *   - 结果会写入指定的输出文件（默认是 `CHANGELOG.md`）
  *   - 与 `generateChangelog` 不同的是，该函数会强制覆盖写入所有版本内容
  */
-export async function generateTotalChangelog(options?: Partial<ChangelogOption>, showProgress = true) {
+export async function generateTotalChangelog(
+  options?: Partial<ChangelogOption>,
+  showProgress = true
+) {
   const opts = await createOptions(options);
 
   const markdown = await getTotalChangelogMarkdown(opts, showProgress);

@@ -45,7 +45,7 @@ export function useTable<A extends NaiveUI.TableApiFn>(config: NaiveUI.NaiveTabl
       // New ListResponse format: { lists: [], meta: { page, limit, total, totalPages, hasPrevPage, hasNextPage } }
       // After transformBackendResponse, res.data is the inner data object (ListResponse['data'])
       // transformBackendResponse returns response.data.data, so res.data is ListResponse['data']
-      const responseData = (res.data as unknown) as ListResponseData<GetTableData<A>>;
+      const responseData = res.data as unknown as ListResponseData<GetTableData<A>>;
 
       const records: GetTableData<A>[] = responseData?.lists || [];
       const page = responseData?.meta?.page || 1;
@@ -55,12 +55,14 @@ export function useTable<A extends NaiveUI.TableApiFn>(config: NaiveUI.NaiveTabl
       // Ensure that the limit is greater than 0, If it is less than 0, it will cause paging calculation errors.
       const pageSize = limit <= 0 ? 10 : limit;
 
-      const recordsWithIndex: NaiveUI.TableDataWithIndex<GetTableData<A>>[] = records.map((item, index) => {
-        return {
-          ...(item as any),
-          index: (page - 1) * pageSize + index + 1
-        } as NaiveUI.TableDataWithIndex<GetTableData<A>>;
-      });
+      const recordsWithIndex: NaiveUI.TableDataWithIndex<GetTableData<A>>[] = records.map(
+        (item, index) => {
+          return {
+            ...(item as any),
+            index: (page - 1) * pageSize + index + 1
+          } as NaiveUI.TableDataWithIndex<GetTableData<A>>;
+        }
+      );
 
       return {
         data: recordsWithIndex,
@@ -226,7 +228,10 @@ export function useTable<A extends NaiveUI.TableApiFn>(config: NaiveUI.NaiveTabl
   };
 }
 
-export function useTableOperate<T extends TableData = TableData>(data: Ref<T[]>, getData: () => Promise<void>) {
+export function useTableOperate<T extends TableData = TableData>(
+  data: Ref<T[]>,
+  getData: () => Promise<void>
+) {
   const { bool: drawerVisible, setTrue: openDrawer, setFalse: closeDrawer } = useBoolean();
 
   const operateType = ref<NaiveUI.TableOperateType>('add');

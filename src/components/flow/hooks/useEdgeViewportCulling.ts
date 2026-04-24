@@ -34,9 +34,7 @@ export interface UseEdgeViewportCullingReturn {
 /**
  * 检查是否启用
  */
-function isEnabled(
-  enabled?: boolean | Ref<boolean> | (() => boolean)
-): boolean {
+function isEnabled(enabled?: boolean | Ref<boolean> | (() => boolean)): boolean {
   if (enabled === undefined) return true;
   if (typeof enabled === 'boolean') return enabled;
   if (typeof enabled === 'function') return enabled();
@@ -64,12 +62,7 @@ function isEnabled(
 export function useEdgeViewportCulling(
   options: UseEdgeViewportCullingOptions
 ): UseEdgeViewportCullingReturn {
-  const {
-    edges,
-    nodes,
-    viewport,
-    enabled = true
-  } = options;
+  const { edges, nodes, viewport, enabled = true } = options;
 
   // 节点 Map（用于快速查找）
   const nodesRef = computed(() => nodes.value);
@@ -144,4 +137,3 @@ export function useEdgeViewportCulling(
     visibleEdges
   };
 }
-

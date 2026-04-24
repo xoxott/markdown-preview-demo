@@ -112,13 +112,20 @@ export const MindmapRenderer = defineComponent({
         <Transition name="fade-bottom" mode="out-in" onAfterEnter={handleAfterEnter}>
           {showCode.value ? (
             <div key="code" class="mt-3">
-              <pre class="m-0 overflow-auto rounded p-3 text-sm leading-relaxed" style={codeBlockStyle.value}>
+              <pre
+                class="m-0 overflow-auto rounded p-3 text-sm leading-relaxed"
+                style={codeBlockStyle.value}
+              >
                 {content.value}
               </pre>
             </div>
           ) : (
             !errorMessage.value && (
-              <div key="svg" ref={containerRef} class="h-auto w-full touch-none select-none overflow-hidden rounded-md">
+              <div
+                key="svg"
+                ref={containerRef}
+                class="h-auto w-full touch-none select-none overflow-hidden rounded-md"
+              >
                 <svg
                   ref={svgRef}
                   width="100%"

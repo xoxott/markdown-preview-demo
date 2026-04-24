@@ -17,7 +17,8 @@ interface BreadcrumbContentProps {
   breadcrumb: App.Global.Menu;
 }
 
-const [DefineBreadcrumbContent, BreadcrumbContent] = createReusableTemplate<BreadcrumbContentProps>();
+const [DefineBreadcrumbContent, BreadcrumbContent] =
+  createReusableTemplate<BreadcrumbContentProps>();
 
 function handleClickMenu(key: RouteKey) {
   routerPushByKey(key);
@@ -29,7 +30,11 @@ function handleClickMenu(key: RouteKey) {
     <!-- define component start: BreadcrumbContent -->
     <DefineBreadcrumbContent v-slot="{ breadcrumb }">
       <div class="i-flex-y-center align-middle">
-        <component :is="breadcrumb.icon" v-if="themeStore.header.breadcrumb.showIcon" class="mr-4px text-icon" />
+        <component
+          :is="breadcrumb.icon"
+          v-if="themeStore.header.breadcrumb.showIcon"
+          class="mr-4px text-icon"
+        />
         {{ breadcrumb.label }}
       </div>
     </DefineBreadcrumbContent>

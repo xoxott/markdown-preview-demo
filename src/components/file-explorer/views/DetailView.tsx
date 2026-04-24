@@ -25,7 +25,10 @@ export default defineComponent({
   props: {
     items: { type: Array as PropType<FileItem[]>, required: true },
     selectedIds: { type: Object as PropType<Ref<Set<string>>>, required: true },
-    onSelect: { type: Function as PropType<(id: string[], event?: MouseEvent) => void>, required: true },
+    onSelect: {
+      type: Function as PropType<(id: string[], event?: MouseEvent) => void>,
+      required: true
+    },
     onOpen: { type: Function as PropType<(item: FileItem) => void>, required: true },
     sortField: { type: String as PropType<SortField>, required: true },
     sortOrder: { type: String as PropType<SortOrder>, required: true },
@@ -119,7 +122,8 @@ export default defineComponent({
         resizing.value.animationFrame = requestAnimationFrame(() => {
           if (!resizing.value) return;
 
-          const { startX, leftColumn, rightColumn, leftStartWidth, rightStartWidth } = resizing.value;
+          const { startX, leftColumn, rightColumn, leftStartWidth, rightStartWidth } =
+            resizing.value;
 
           const delta = evt.clientX - startX;
 
@@ -326,7 +330,8 @@ export default defineComponent({
               : 'none',
             zIndex: getColumnZIndex(index),
             borderBottom: `1px solid ${themeVars.value.dividerColor}`,
-            borderRight: dropTargetIndex.value === index ? `2px solid ${themeVars.value.primaryColor}` : 'none'
+            borderRight:
+              dropTargetIndex.value === index ? `2px solid ${themeVars.value.primaryColor}` : 'none'
           }}
           draggable
           onDragstart={(e: DragEvent) => startDragColumn(e, index)}
@@ -392,7 +397,10 @@ export default defineComponent({
                 opacity: isResizerHovered || isResizing ? 1 : 0.6,
                 transform: isResizerHovered || isResizing ? 'scaleY(1.2)' : 'scaleY(1)',
                 transition: isResizing ? 'none' : 'all 200ms ease-out',
-                boxShadow: isResizing || isResizerHovered ? `0 0 6px ${themeVars.value.primaryColor}80` : 'none'
+                boxShadow:
+                  isResizing || isResizerHovered
+                    ? `0 0 6px ${themeVars.value.primaryColor}80`
+                    : 'none'
               }}
             />
           </div>
@@ -425,13 +433,18 @@ export default defineComponent({
 
         case 'modifiedAt':
           return (
-            <span class="block truncate text-sm" style={textStyle} title={formatDate(item.modifiedAt)}>
+            <span
+              class="block truncate text-sm"
+              style={textStyle}
+              title={formatDate(item.modifiedAt)}
+            >
               {formatDate(item.modifiedAt)}
             </span>
           );
 
         case 'type':
-          const typeText = item.type === 'folder' ? '文件夹' : item.extension?.toUpperCase() || '文件';
+          const typeText =
+            item.type === 'folder' ? '文件夹' : item.extension?.toUpperCase() || '文件';
           return (
             <span class="block truncate text-sm" style={textStyle} title={typeText}>
               {typeText}
@@ -447,7 +460,11 @@ export default defineComponent({
           );
         case 'createdAt':
           return (
-            <span class="block truncate text-sm" style={textStyle} title={formatDate(item.createdAt)}>
+            <span
+              class="block truncate text-sm"
+              style={textStyle}
+              title={formatDate(item.createdAt)}
+            >
               {formatDate(item.createdAt)}
             </span>
           );
@@ -498,17 +515,21 @@ export default defineComponent({
                   data-selectable-id={item.id}
                   class="cursor-pointer select-none transition-colors"
                   style={{
-                    backgroundColor: isSelected ? `${themeVars.value.primaryColorHover}20` : themeVars.value.cardColor,
+                    backgroundColor: isSelected
+                      ? `${themeVars.value.primaryColorHover}20`
+                      : themeVars.value.cardColor,
                     borderBottom: `1px solid ${themeVars.value.dividerColor}`
                   }}
                   onMouseenter={(e: MouseEvent) => {
                     if (!isSelected) {
-                      (e.currentTarget as HTMLElement).style.backgroundColor = themeVars.value.hoverColor;
+                      (e.currentTarget as HTMLElement).style.backgroundColor =
+                        themeVars.value.hoverColor;
                     }
                   }}
                   onMouseleave={(e: MouseEvent) => {
                     if (!isSelected) {
-                      (e.currentTarget as HTMLElement).style.backgroundColor = themeVars.value.cardColor;
+                      (e.currentTarget as HTMLElement).style.backgroundColor =
+                        themeVars.value.cardColor;
                     }
                   }}
                   onClick={(e: MouseEvent) => props.onSelect([item.id], e)}

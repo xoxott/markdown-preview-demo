@@ -98,7 +98,12 @@ export function useCanvasZoom(options: UseCanvasZoomOptions = {}) {
   }
 
   /** 适应画布 */
-  function fitView(containerWidth: number, containerHeight: number, contentWidth: number, contentHeight: number) {
+  function fitView(
+    containerWidth: number,
+    containerHeight: number,
+    contentWidth: number,
+    contentHeight: number
+  ) {
     const scaleX = containerWidth / contentWidth;
     const scaleY = containerHeight / contentHeight;
     const scale = Math.min(scaleX, scaleY, 1) * 0.9; // 留10%边距
@@ -122,4 +127,3 @@ export function useCanvasZoom(options: UseCanvasZoomOptions = {}) {
     fitView
   };
 }
-

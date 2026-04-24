@@ -1,6 +1,6 @@
 [**changelog**](README.md)
 
-***
+---
 
 [changelog](#/README.md) / git
 
@@ -24,7 +24,7 @@ Defined in: [git.ts:14](https://github.com/xoxott/markdown-preview-demo/blob/0f5
 
 按 semver 升序排序后的标签列表
 
-***
+---
 
 <a id="gettagdatemap"></a>
 
@@ -44,7 +44,7 @@ Defined in: [git.ts:29](https://github.com/xoxott/markdown-preview-demo/blob/0f5
 
 Map<标签名, 日期字符串(YYYY-MM-DD)>
 
-***
+---
 
 <a id="getfromtotags"></a>
 
@@ -60,9 +60,9 @@ Defined in: [git.ts:64](https://github.com/xoxott/markdown-preview-demo/blob/0f5
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `tags` | `string`[] | git 标签列表 |
+| Parameter | Type       | Description  |
+| --------- | ---------- | ------------ |
+| `tags`    | `string`[] | git 标签列表 |
 
 #### Returns
 
@@ -70,7 +70,7 @@ Defined in: [git.ts:64](https://github.com/xoxott/markdown-preview-demo/blob/0f5
 
 版本区间对
 
-***
+---
 
 <a id="getcurrentgitbranch"></a>
 
@@ -90,7 +90,7 @@ Defined in: [git.ts:110](https://github.com/xoxott/markdown-preview-demo/blob/0f
 
 当前 tag 或分支名
 
-***
+---
 
 <a id="getgithubrepo"></a>
 
@@ -114,7 +114,7 @@ Defined in: [git.ts:123](https://github.com/xoxott/markdown-preview-demo/blob/0f
 
 当无法从 remote.origin.url 解析时抛出异常
 
-***
+---
 
 <a id="isprerelease"></a>
 
@@ -130,9 +130,9 @@ Defined in: [git.ts:138](https://github.com/xoxott/markdown-preview-demo/blob/0f
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `version` | `string` | 版本号 |
+| Parameter | Type     | Description |
+| --------- | -------- | ----------- |
+| `version` | `string` | 版本号      |
 
 #### Returns
 
@@ -140,7 +140,7 @@ Defined in: [git.ts:138](https://github.com/xoxott/markdown-preview-demo/blob/0f
 
 是否为 pre-release 版本
 
-***
+---
 
 <a id="getfirstgitcommit"></a>
 
@@ -160,7 +160,7 @@ Defined in: [git.ts:149](https://github.com/xoxott/markdown-preview-demo/blob/0f
 
 第一个提交的 hash
 
-***
+---
 
 <a id="getgitcommits"></a>
 
@@ -176,10 +176,10 @@ Defined in: [git.ts:263](https://github.com/xoxott/markdown-preview-demo/blob/0f
 
 #### Parameters
 
-| Parameter | Type | Default value | Description |
-| ------ | ------ | ------ | ------ |
-| `from?` | `string` | `undefined` | 起始提交/标签 |
-| `to?` | `string` | `'HEAD'` | 结束提交/标签，默认为 HEAD |
+| Parameter | Type     | Default value | Description                |
+| --------- | -------- | ------------- | -------------------------- |
+| `from?`   | `string` | `undefined`   | 起始提交/标签              |
+| `to?`     | `string` | `'HEAD'`      | 结束提交/标签，默认为 HEAD |
 
 #### Returns
 
@@ -187,7 +187,7 @@ Defined in: [git.ts:263](https://github.com/xoxott/markdown-preview-demo/blob/0f
 
 解析后的提交数据
 
-***
+---
 
 <a id="getgitcommitsandresolvedauthors"></a>
 
@@ -195,9 +195,10 @@ Defined in: [git.ts:263](https://github.com/xoxott/markdown-preview-demo/blob/0f
 
 ```ts
 function getGitCommitsAndResolvedAuthors(
-   commits, 
-   github, 
-   resolvedLogins?): Promise<{
+  commits,
+  github,
+  resolvedLogins?
+): Promise<{
   commits: GitCommit[];
   contributors: ResolvedAuthor[];
 }>;
@@ -209,15 +210,15 @@ Defined in: [git.ts:345](https://github.com/xoxott/markdown-preview-demo/blob/0f
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `commits` | [`GitCommit`](#/types.md#gitcommit)[] | 已解析的提交列表 |
-| `github` | [`GithubConfig`](#/types.md#githubconfig) | GitHub 配置 |
-| `resolvedLogins?` | `Map`\<`string`, `string`\> | 已缓存的邮箱-login 映射（可选） |
+| Parameter         | Type                                      | Description                     |
+| ----------------- | ----------------------------------------- | ------------------------------- |
+| `commits`         | [`GitCommit`](#/types.md#gitcommit)[]     | 已解析的提交列表                |
+| `github`          | [`GithubConfig`](#/types.md#githubconfig) | GitHub 配置                     |
+| `resolvedLogins?` | `Map`\<`string`, `string`\>               | 已缓存的邮箱-login 映射（可选） |
 
 #### Returns
 
 `Promise`\<\{
-  `commits`: [`GitCommit`](#/types.md#gitcommit)[];
-  `contributors`: [`ResolvedAuthor`](#/types.md#resolvedauthor)[];
+`commits`: [`GitCommit`](#/types.md#gitcommit)[];
+`contributors`: [`ResolvedAuthor`](#/types.md#resolvedauthor)[];
 \}\>

@@ -180,7 +180,16 @@ export default defineComponent({
     /**
      * 计算贝塞尔曲线在 t=1 时的切线方向（用于箭头对齐）
      */
-    const getBezierTangent = (x1: number, y1: number, cx1: number, cy1: number, cx2: number, cy2: number, x2: number, y2: number) => {
+    const getBezierTangent = (
+      x1: number,
+      y1: number,
+      cx1: number,
+      cy1: number,
+      cx2: number,
+      cy2: number,
+      x2: number,
+      y2: number
+    ) => {
       // 三次贝塞尔曲线在 t=1 处的导数
       // B'(1) = 3(P3 - P2)
       const dx = 3 * (x2 - cx2);
@@ -219,7 +228,7 @@ export default defineComponent({
       }
 
       // 判断是否显示箭头
-      const showArrow = !isDraft && (props.style?.showArrow !== false);
+      const showArrow = !isDraft && props.style?.showArrow !== false;
 
       // 获取线条类型
       const lineType = props.style?.type || 'bezier';
@@ -277,7 +286,10 @@ export default defineComponent({
           // 贝塞尔曲线（默认）
           const dx = x2 - x1;
           const minOffset = 50;
-          const controlOffset = Math.max(Math.abs(dx) * CONNECTION_LINE_CONFIG.BEZIER_CONTROL_OFFSET, minOffset);
+          const controlOffset = Math.max(
+            Math.abs(dx) * CONNECTION_LINE_CONFIG.BEZIER_CONTROL_OFFSET,
+            minOffset
+          );
 
           const cx1 = x1 + controlOffset;
           const cy1 = y1;
@@ -368,13 +380,28 @@ export default defineComponent({
           <defs>
             {/* 草稿状态渐变（紫色系） */}
             <linearGradient id="gradient-draft" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" style={{ stopColor: CONNECTION_LINE_CONFIG.DRAFT_GRADIENT_START, stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: CONNECTION_LINE_CONFIG.DRAFT_GRADIENT_END, stopOpacity: 1 }} />
+              <stop
+                offset="0%"
+                style={{ stopColor: CONNECTION_LINE_CONFIG.DRAFT_GRADIENT_START, stopOpacity: 1 }}
+              />
+              <stop
+                offset="100%"
+                style={{ stopColor: CONNECTION_LINE_CONFIG.DRAFT_GRADIENT_END, stopOpacity: 1 }}
+              />
             </linearGradient>
             {/* 选中状态渐变（粉色系） */}
             <linearGradient id="gradient-selected" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" style={{ stopColor: CONNECTION_LINE_CONFIG.SELECTED_GRADIENT_START, stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: CONNECTION_LINE_CONFIG.SELECTED_GRADIENT_END, stopOpacity: 1 }} />
+              <stop
+                offset="0%"
+                style={{
+                  stopColor: CONNECTION_LINE_CONFIG.SELECTED_GRADIENT_START,
+                  stopOpacity: 1
+                }}
+              />
+              <stop
+                offset="100%"
+                style={{ stopColor: CONNECTION_LINE_CONFIG.SELECTED_GRADIENT_END, stopOpacity: 1 }}
+              />
             </linearGradient>
             {/* 发光效果滤镜 */}
             <filter id="glow">
@@ -385,27 +412,30 @@ export default defineComponent({
               </feMerge>
             </filter>
             {/* 箭头标记（仅在已建立的连接线上显示，且配置为显示箭头） */}
-            {!props.draft && props.sourcePos && props.targetPos && (props.style?.showArrow !== false) && (
-              <marker
-                id={arrowMarkerId}
-                markerWidth="12"
-                markerHeight="12"
-                refX="1"
-                refY="6"
-                orient="auto"
-                markerUnits="userSpaceOnUse"
-              >
-                <path
-                  d="M2,2 L2,10 L10,6 z"
-                  fill={
-                    props.selected
-                      ? CONNECTION_LINE_CONFIG.ARROW_FILL_SELECTED
-                      : (props.style?.color || CONNECTION_LINE_CONFIG.ARROW_FILL_DEFAULT)
-                  }
-                  style={{ transition: `fill ${CONNECTION_LINE_CONFIG.TRANSITION_DURATION}` }}
-                />
-              </marker>
-            )}
+            {!props.draft &&
+              props.sourcePos &&
+              props.targetPos &&
+              props.style?.showArrow !== false && (
+                <marker
+                  id={arrowMarkerId}
+                  markerWidth="12"
+                  markerHeight="12"
+                  refX="1"
+                  refY="6"
+                  orient="auto"
+                  markerUnits="userSpaceOnUse"
+                >
+                  <path
+                    d="M2,2 L2,10 L10,6 z"
+                    fill={
+                      props.selected
+                        ? CONNECTION_LINE_CONFIG.ARROW_FILL_SELECTED
+                        : props.style?.color || CONNECTION_LINE_CONFIG.ARROW_FILL_DEFAULT
+                    }
+                    style={{ transition: `fill ${CONNECTION_LINE_CONFIG.TRANSITION_DURATION}` }}
+                  />
+                </marker>
+              )}
           </defs>
 
           {/* 透明的宽路径用于提高点击体验 */}
@@ -423,7 +453,11 @@ export default defineComponent({
           {(props.selected || props.draft) && (
             <path
               d={pathData.value}
-              stroke={props.draft ? CONNECTION_LINE_CONFIG.DRAFT_GRADIENT_START : CONNECTION_LINE_CONFIG.SELECTED_GRADIENT_END}
+              stroke={
+                props.draft
+                  ? CONNECTION_LINE_CONFIG.DRAFT_GRADIENT_START
+                  : CONNECTION_LINE_CONFIG.SELECTED_GRADIENT_END
+              }
               stroke-width={strokeWidth.value + CONNECTION_LINE_CONFIG.GLOW_EXTRA_WIDTH}
               fill="none"
               stroke-linecap="round"
@@ -444,9 +478,14 @@ export default defineComponent({
             stroke-linecap="round"
             stroke-linejoin="round"
             class={isAnimated.value ? 'workflow-connection-animated' : ''}
-            marker-end={!props.draft && props.sourcePos && props.targetPos && (props.style?.showArrow !== false) ? `url(#${arrowMarkerId})` : undefined}
+            marker-end={
+              !props.draft && props.sourcePos && props.targetPos && props.style?.showArrow !== false
+                ? `url(#${arrowMarkerId})`
+                : undefined
+            }
             style={{
-              filter: props.selected || props.draft ? 'drop-shadow(0 0 4px rgba(0,0,0,0.2))' : 'none',
+              filter:
+                props.selected || props.draft ? 'drop-shadow(0 0 4px rgba(0,0,0,0.2))' : 'none',
               vectorEffect: 'non-scaling-stroke'
             }}
           />
@@ -455,4 +494,3 @@ export default defineComponent({
     };
   }
 });
-

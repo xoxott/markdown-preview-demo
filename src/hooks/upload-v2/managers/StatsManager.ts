@@ -121,7 +121,7 @@ export class StatsManager {
     // 计算平均速度
     const totalSize = recentStats.reduce((sum, s) => sum + s.totalSize, 0);
     const totalTime = recentStats.reduce((sum, s) => sum + s.totalTime, 0);
-    const averageSpeed = totalTime > 0 ? (totalSize / 1024) / totalTime : 0; // KB/s
+    const averageSpeed = totalTime > 0 ? totalSize / 1024 / totalTime : 0; // KB/s
 
     // 找出峰值速度
     const peakSpeed = Math.max(...recentStats.map(s => s.averageSpeed), 0);
@@ -170,4 +170,3 @@ export class StatsManager {
     this.history = [];
   }
 }
-

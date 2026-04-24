@@ -17,28 +17,27 @@ import { RequestClient } from '@suga/request-core';
 import { EventStep, onRequestStart, onRequestSuccess, onRequestError } from '@suga/request-events';
 
 // 创建请求客户端（需要提供 transport）
-const client = new RequestClient(transport)
-  .with(new EventStep());
+const client = new RequestClient(transport).with(new EventStep());
 
 // 监听请求开始事件
-onRequestStart((data) => {
+onRequestStart(data => {
   console.log('Request started:', data.config.url);
 });
 
 // 监听请求成功事件
-onRequestSuccess((data) => {
+onRequestSuccess(data => {
   console.log('Request succeeded:', data.config.url, `(${data.duration}ms)`);
 });
 
 // 监听请求错误事件
-onRequestError((data) => {
+onRequestError(data => {
   console.error('Request failed:', data.config.url, data.error);
 });
 
 // 发送请求
 await client.request({
   url: '/api/users',
-  method: 'GET',
+  method: 'GET'
 });
 ```
 
@@ -51,14 +50,13 @@ import { EventManager, EventStep } from '@suga/request-events';
 const eventManager = new EventManager();
 
 const eventStep = new EventStep({
-  eventManager,
+  eventManager
 });
 
-const client = new RequestClient(transport)
-  .with(eventStep);
+const client = new RequestClient(transport).with(eventStep);
 
 // 使用自定义管理器监听事件
-eventManager.on('request:start', (data) => {
+eventManager.on('request:start', data => {
   console.log('Request started:', data.config.url);
 });
 ```
@@ -110,13 +108,14 @@ interface EventStepOptions {
 请求开始时触发。
 
 ```typescript
-onRequestStart((data) => {
+onRequestStart(data => {
   console.log('Request started:', data.config.url);
   console.log('Timestamp:', data.timestamp);
 });
 ```
 
 事件数据：
+
 ```typescript
 interface RequestStartEventData {
   config: NormalizedRequestConfig;
@@ -129,7 +128,7 @@ interface RequestStartEventData {
 请求成功时触发。
 
 ```typescript
-onRequestSuccess((data) => {
+onRequestSuccess(data => {
   console.log('Request succeeded:', data.config.url);
   console.log('Result:', data.result);
   console.log('Duration:', data.duration, 'ms');
@@ -137,6 +136,7 @@ onRequestSuccess((data) => {
 ```
 
 事件数据：
+
 ```typescript
 interface RequestSuccessEventData<T = unknown> {
   config: NormalizedRequestConfig;
@@ -151,7 +151,7 @@ interface RequestSuccessEventData<T = unknown> {
 请求失败时触发。
 
 ```typescript
-onRequestError((data) => {
+onRequestError(data => {
   console.error('Request failed:', data.config.url);
   console.error('Error:', data.error);
   console.error('Duration:', data.duration, 'ms');
@@ -159,6 +159,7 @@ onRequestError((data) => {
 ```
 
 事件数据：
+
 ```typescript
 interface RequestErrorEventData {
   config: NormalizedRequestConfig;
@@ -173,7 +174,7 @@ interface RequestErrorEventData {
 请求完成时触发（无论成功或失败）。
 
 ```typescript
-onRequestComplete((data) => {
+onRequestComplete(data => {
   console.log('Request completed:', data.config.url);
   console.log('Success:', data.success);
   console.log('Duration:', data.duration, 'ms');
@@ -181,6 +182,7 @@ onRequestComplete((data) => {
 ```
 
 事件数据：
+
 ```typescript
 interface RequestCompleteEventData {
   config: NormalizedRequestConfig;
@@ -199,14 +201,14 @@ import { onRequestStart, onRequestComplete } from '@suga/request-events';
 
 const performanceData: Array<{ url: string; duration: number }> = [];
 
-onRequestStart((data) => {
+onRequestStart(data => {
   // 记录请求开始时间
 });
 
-onRequestComplete((data) => {
+onRequestComplete(data => {
   performanceData.push({
     url: data.config.url || '',
-    duration: data.duration,
+    duration: data.duration
   });
 
   if (data.duration > 1000) {
@@ -220,12 +222,12 @@ onRequestComplete((data) => {
 ```typescript
 import { onRequestError } from '@suga/request-events';
 
-onRequestError((data) => {
+onRequestError(data => {
   // 发送错误到错误追踪服务
   errorTrackingService.track({
     url: data.config.url,
     error: data.error,
-    timestamp: data.timestamp,
+    timestamp: data.timestamp
   });
 });
 ```
@@ -235,16 +237,23 @@ onRequestError((data) => {
 ```typescript
 import { onRequestStart, onRequestSuccess, onRequestError } from '@suga/request-events';
 
-onRequestStart((data) => {
-  console.log(`[${new Date(data.timestamp).toISOString()}] START ${data.config.method || 'GET'} ${data.config.url}`);
+onRequestStart(data => {
+  console.log(
+    `[${new Date(data.timestamp).toISOString()}] START ${data.config.method || 'GET'} ${data.config.url}`
+  );
 });
 
-onRequestSuccess((data) => {
-  console.log(`[${new Date(data.timestamp).toISOString()}] SUCCESS ${data.config.method || 'GET'} ${data.config.url} (${data.duration}ms)`);
+onRequestSuccess(data => {
+  console.log(
+    `[${new Date(data.timestamp).toISOString()}] SUCCESS ${data.config.method || 'GET'} ${data.config.url} (${data.duration}ms)`
+  );
 });
 
-onRequestError((data) => {
-  console.error(`[${new Date(data.timestamp).toISOString()}] ERROR ${data.config.method || 'GET'} ${data.config.url} (${data.duration}ms)`, data.error);
+onRequestError(data => {
+  console.error(
+    `[${new Date(data.timestamp).toISOString()}] ERROR ${data.config.method || 'GET'} ${data.config.url} (${data.duration}ms)`,
+    data.error
+  );
 });
 ```
 
@@ -254,12 +263,12 @@ onRequestError((data) => {
 import { eventManager } from '@suga/request-events';
 
 // 监听器 1
-eventManager.on('request:start', (data) => {
+eventManager.on('request:start', data => {
   console.log('Listener 1:', data.config.url);
 });
 
 // 监听器 2
-eventManager.on('request:start', (data) => {
+eventManager.on('request:start', data => {
   console.log('Listener 2:', data.config.url);
 });
 
@@ -305,4 +314,3 @@ request-events/
 ## 📄 License
 
 MIT
-

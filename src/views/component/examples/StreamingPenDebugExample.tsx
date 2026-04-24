@@ -85,9 +85,7 @@ export default defineComponent({
 
     return () => (
       <NCard bordered class="shadow-sm">
-        <NH3 class="border-b pb-2 text-lg font-semibold mb-4">
-          🔧 笔位置调试工具
-        </NH3>
+        <NH3 class="border-b pb-2 text-lg font-semibold mb-4">🔧 笔位置调试工具</NH3>
 
         {/* 控制面板 */}
         <div class="mb-6 p-4 bg-gray-50 rounded-lg">
@@ -105,15 +103,10 @@ export default defineComponent({
                   style={{ width: '100px' }}
                 />
               </div>
-              <NSlider
-                v-model:value={offsetX.value}
-                min={-1}
-                max={1}
-                step={0.05}
-              />
+              <NSlider v-model:value={offsetX.value} min={-1} max={1} step={0.05} />
               <div class="text-xs text-gray-500 mt-1">
-                当前值: {offsetX.value.toFixed(2)} × 笔大小 = {(offsetX.value * penSize.value).toFixed(1)}px
-                （正值向右，负值向左）
+                当前值: {offsetX.value.toFixed(2)} × 笔大小 ={' '}
+                {(offsetX.value * penSize.value).toFixed(1)}px （正值向右，负值向左）
               </div>
             </div>
 
@@ -128,15 +121,10 @@ export default defineComponent({
                   style={{ width: '100px' }}
                 />
               </div>
-              <NSlider
-                v-model:value={offsetY.value}
-                min={-1.5}
-                max={0.5}
-                step={0.05}
-              />
+              <NSlider v-model:value={offsetY.value} min={-1.5} max={0.5} step={0.05} />
               <div class="text-xs text-gray-500 mt-1">
-                当前值: {offsetY.value.toFixed(2)} × 笔大小 = {(offsetY.value * penSize.value).toFixed(1)}px
-                （正值向下，负值向上）
+                当前值: {offsetY.value.toFixed(2)} × 笔大小 ={' '}
+                {(offsetY.value * penSize.value).toFixed(1)}px （正值向下，负值向上）
               </div>
             </div>
 
@@ -153,12 +141,7 @@ export default defineComponent({
                   style={{ width: '100px' }}
                 />
               </div>
-              <NSlider
-                v-model:value={penSize.value}
-                min={12}
-                max={48}
-                step={2}
-              />
+              <NSlider v-model:value={penSize.value} min={12} max={48} step={2} />
             </div>
           </div>
 
@@ -226,8 +209,12 @@ export default defineComponent({
         <div class="mt-6 p-4 bg-blue-50 rounded-lg">
           <h4 class="text-sm font-semibold mb-2 text-blue-700">💡 调试提示</h4>
           <ul class="text-sm text-blue-600 space-y-1">
-            <li>• <strong>offsetX</strong>: 控制笔的水平位置（建议 0.1 ~ 0.3）</li>
-            <li>• <strong>offsetY</strong>: 控制笔的垂直位置（建议 -1.0 ~ -0.6）</li>
+            <li>
+              • <strong>offsetX</strong>: 控制笔的水平位置（建议 0.1 ~ 0.3）
+            </li>
+            <li>
+              • <strong>offsetY</strong>: 控制笔的垂直位置（建议 -1.0 ~ -0.6）
+            </li>
             <li>• 笔尖应该对准文字的底部或略微偏上</li>
             <li>• 找到最佳参数后，在实际使用时传入这些值</li>
           </ul>

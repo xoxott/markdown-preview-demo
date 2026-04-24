@@ -22,7 +22,8 @@ export default defineComponent({
   setup(props) {
     const getTimelineType = (type: EventLog['type']): 'default' | 'success' | 'error' | 'info' => {
       if (type === 'error' || type === 'chunk-error' || type === 'all-error') return 'error';
-      if (type === 'success' || type === 'chunk-success' || type === 'all-complete') return 'success';
+      if (type === 'success' || type === 'chunk-success' || type === 'all-complete')
+        return 'success';
       return 'info';
     };
 

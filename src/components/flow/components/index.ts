@@ -19,4 +19,3 @@ export type { FlowViewportContainerProps } from './FlowViewportContainer';
 export type { FlowMinimapProps } from './FlowMinimap';
 export type { FlowToolbarProps } from './FlowToolbar';
 export type { FlowEmptyStateProps } from './FlowEmptyState';
-

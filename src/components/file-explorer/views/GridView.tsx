@@ -36,13 +36,15 @@ export default defineComponent({
     const themeVars = useThemeVars();
     const dragDrop = inject<FileDragDropHook>('FILE_DRAG_DROP')!;
     const sizeMap = {
-      small: { icon: 48, gap: 8, itemWidth: 70, padding: '4px 6px' },
-      medium: { icon: 64, gap: 10, itemWidth: 100, padding: '6px 8px' },
-      large: { icon: 96, gap: 12, itemWidth: 120, padding: '8px 10px' },
+      'small': { icon: 48, gap: 8, itemWidth: 70, padding: '4px 6px' },
+      'medium': { icon: 64, gap: 10, itemWidth: 100, padding: '6px 8px' },
+      'large': { icon: 96, gap: 12, itemWidth: 120, padding: '8px 10px' },
       'extra-large': { icon: 128, gap: 14, itemWidth: 150, padding: '10px 12px' }
     };
 
-    const selectedItems = computed(() => props.items.filter(it => props.selectedIds.value.has(it.id)));
+    const selectedItems = computed(() =>
+      props.items.filter(it => props.selectedIds.value.has(it.id))
+    );
 
     const getConfig = () => sizeMap[props.gridSize];
 
@@ -73,14 +75,20 @@ export default defineComponent({
           {props.items.map(item => {
             const isSelected = props.selectedIds.value.has(item.id);
             return (
-              <FileDropZoneWrapper key={item.id} zoneId={item.id} targetPath={item.path} item={item}>
+              <FileDropZoneWrapper
+                key={item.id}
+                zoneId={item.id}
+                targetPath={item.path}
+                item={item}
+              >
                 <div
                   class="flex-col inline-flex select-none items-center rounded-lg transition-all duration-200"
                   style={{
                     padding: config.padding,
                     backgroundColor:
                       isSelected ||
-                      (dragDrop.getDropZoneState(item.id)?.isOver && dragDrop.getDropZoneState(item.id)?.canDrop)
+                      (dragDrop.getDropZoneState(item.id)?.isOver &&
+                        dragDrop.getDropZoneState(item.id)?.canDrop)
                         ? `${themeVars.value.primaryColorHover}20`
                         : 'transparent'
                   }}
@@ -106,7 +114,9 @@ export default defineComponent({
                       lineHeight: '1.4',
                       maxWidth: `${config.itemWidth - 16}px`,
                       wordBreak: 'break-word',
-                      color: isSelected ? themeVars.value.primaryColor : themeVars.value.textColorBase
+                      color: isSelected
+                        ? themeVars.value.primaryColor
+                        : themeVars.value.textColorBase
                     }}
                   >
                     {item.name}

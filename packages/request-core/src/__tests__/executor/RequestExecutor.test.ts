@@ -19,15 +19,12 @@ describe('RequestExecutor', () => {
   });
 
   it('应该执行请求并返回结果', async () => {
-    const steps: RequestStep[] = [
-      new PrepareContextStep(),
-      new TransportStep(mockTransport),
-    ];
+    const steps: RequestStep[] = [new PrepareContextStep(), new TransportStep(mockTransport)];
 
     const executor = new RequestExecutor(steps);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     const responseData = { id: 1, name: 'John' };
@@ -39,15 +36,12 @@ describe('RequestExecutor', () => {
   });
 
   it('应该在有错误时抛出错误', async () => {
-    const steps: RequestStep[] = [
-      new PrepareContextStep(),
-      new TransportStep(mockTransport),
-    ];
+    const steps: RequestStep[] = [new PrepareContextStep(), new TransportStep(mockTransport)];
 
     const executor = new RequestExecutor(steps);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     const error = new Error('Request failed');
@@ -63,36 +57,30 @@ describe('RequestExecutor', () => {
       }
     }
 
-    const steps: RequestStep[] = [
-      new PrepareContextStep(),
-      new NoResultStep(),
-    ];
+    const steps: RequestStep[] = [new PrepareContextStep(), new NoResultStep()];
 
     const executor = new RequestExecutor(steps);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     await expect(executor.execute(config)).rejects.toThrow('Request completed but no result');
   });
 
   it('应该使用提供的 meta', async () => {
-    const steps: RequestStep[] = [
-      new PrepareContextStep(),
-      new TransportStep(mockTransport),
-    ];
+    const steps: RequestStep[] = [new PrepareContextStep(), new TransportStep(mockTransport)];
 
     const executor = new RequestExecutor(steps);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     const meta = {
       cache: true,
       retry: true,
-      customField: 'value',
+      customField: 'value'
     };
 
     mockTransport.setDefaultResponse({ success: true }, 200);
@@ -103,20 +91,17 @@ describe('RequestExecutor', () => {
   });
 
   it('应该使用 meta 中的 requestId', async () => {
-    const steps: RequestStep[] = [
-      new PrepareContextStep(),
-      new TransportStep(mockTransport),
-    ];
+    const steps: RequestStep[] = [new PrepareContextStep(), new TransportStep(mockTransport)];
 
     const executor = new RequestExecutor(steps);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     const customId = 'custom-request-id';
     const meta = {
-      requestId: customId,
+      requestId: customId
     };
 
     mockTransport.setDefaultResponse({ success: true }, 200);
@@ -147,16 +132,12 @@ describe('RequestExecutor', () => {
       }
     }
 
-    const steps: RequestStep[] = [
-      new Step1(),
-      new Step2(),
-      new TransportStep(mockTransport),
-    ];
+    const steps: RequestStep[] = [new Step1(), new Step2(), new TransportStep(mockTransport)];
 
     const executor = new RequestExecutor(steps);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     mockTransport.setDefaultResponse({ success: true }, 200);
@@ -178,13 +159,13 @@ describe('RequestExecutor', () => {
     const steps: RequestStep[] = [
       new PrepareContextStep(),
       new ModifyStep(),
-      new TransportStep(mockTransport),
+      new TransportStep(mockTransport)
     ];
 
     const executor = new RequestExecutor(steps);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     mockTransport.setDefaultResponse({ success: true }, 200);
@@ -203,15 +184,12 @@ describe('RequestExecutor', () => {
       }
     }
 
-    const steps: RequestStep[] = [
-      new PrepareContextStep(),
-      new SetErrorStep(),
-    ];
+    const steps: RequestStep[] = [new PrepareContextStep(), new SetErrorStep()];
 
     const executor = new RequestExecutor(steps);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     await expect(executor.execute(config)).rejects.toThrow('Step error');
@@ -236,13 +214,13 @@ describe('RequestExecutor', () => {
       new PrepareContextStep(),
       new LogStep(),
       new CacheStep(),
-      new TransportStep(mockTransport),
+      new TransportStep(mockTransport)
     ];
 
     const executor = new RequestExecutor(steps);
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
 
     mockTransport.setDefaultResponse({ success: true }, 200);
@@ -253,4 +231,3 @@ describe('RequestExecutor', () => {
     expect(mockTransport.getRequestHistory()).toHaveLength(1);
   });
 });
-

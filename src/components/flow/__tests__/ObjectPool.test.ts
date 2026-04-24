@@ -10,7 +10,7 @@ describe('ObjectPool', () => {
   beforeEach(() => {
     pool = new ObjectPool(
       () => ({ x: 0, y: 0 }),
-      (obj) => {
+      obj => {
         obj.x = 0;
         obj.y = 0;
       },
@@ -100,4 +100,3 @@ describe('createPositionPool', () => {
     pool.release(pos);
   });
 });
-

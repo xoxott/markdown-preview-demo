@@ -1,6 +1,6 @@
 [**changelog**](README.md)
 
-***
+---
 
 [changelog](#/README.md) / github
 
@@ -11,10 +11,7 @@
 ### hasTagOnGitHub()
 
 ```ts
-function hasTagOnGitHub(
-   tag, 
-   repo, 
-githubToken): Promise<boolean>;
+function hasTagOnGitHub(tag, repo, githubToken): Promise<boolean>;
 ```
 
 Defined in: [github.ts:25](https://github.com/xoxott/markdown-preview-demo/blob/0f58489d99b5c546a4ac6af800263848a3a5dc3e/packages/changelog/src/github.ts#L25)
@@ -23,11 +20,11 @@ Defined in: [github.ts:25](https://github.com/xoxott/markdown-preview-demo/blob/
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `tag` | `string` | 标签名 |
-| `repo` | `string` | 仓库全名（格式：owner/repo） |
-| `githubToken` | `string` | GitHub Token |
+| Parameter     | Type     | Description                  |
+| ------------- | -------- | ---------------------------- |
+| `tag`         | `string` | 标签名                       |
+| `repo`        | `string` | 仓库全名（格式：owner/repo） |
+| `githubToken` | `string` | GitHub Token                 |
 
 #### Returns
 
@@ -35,7 +32,7 @@ Defined in: [github.ts:25](https://github.com/xoxott/markdown-preview-demo/blob/
 
 存在返回 true，否则返回 false
 
-***
+---
 
 <a id="sendrelease"></a>
 
@@ -54,16 +51,16 @@ Defined in: [github.ts:45](https://github.com/xoxott/markdown-preview-demo/blob/
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
+| Parameter | Type                                            | Description                                    |
+| --------- | ----------------------------------------------- | ---------------------------------------------- |
 | `options` | [`ChangelogOption`](#/types.md#changelogoption) | changelog 配置项，包含 GitHub 仓库信息、tag 等 |
-| `content` | `string` | 生成的 changelog markdown 内容 |
+| `content` | `string`                                        | 生成的 changelog markdown 内容                 |
 
 #### Returns
 
 `Promise`\<`void`\>
 
-***
+---
 
 <a id="isreposhallow"></a>
 

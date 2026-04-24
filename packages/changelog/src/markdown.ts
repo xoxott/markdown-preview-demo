@@ -14,7 +14,11 @@ import type { ChangelogOption, GitCommit, Reference, ResolvedAuthor } from './ty
  * @param type 'issues' | 'hash'
  * @returns Markdown 格式的引用字符串
  */
-function formatReferences(references: Reference[], githubRepo: string, type: 'issues' | 'hash'): string {
+function formatReferences(
+  references: Reference[],
+  githubRepo: string,
+  type: 'issues' | 'hash'
+): string {
   const refs = references
     .filter(i => {
       if (type === 'issues') return i.type === 'issue' || i.type === 'pull-request';
@@ -44,7 +48,9 @@ function formatLine(commit: GitCommit, options: ChangelogOption) {
   const prRefs = formatReferences(commit.references, options.github.repo, 'issues');
   const hashRefs = formatReferences(commit.references, options.github.repo, 'hash');
 
-  let authors = join([...new Set(commit.resolvedAuthors.map(i => (i.login ? `@${i.login}` : `**${i.name}**`)))]).trim();
+  let authors = join([
+    ...new Set(commit.resolvedAuthors.map(i => (i.login ? `@${i.login}` : `**${i.name}**`)))
+  ]).trim();
 
   if (authors) {
     authors = `by ${authors}`;
@@ -116,7 +122,11 @@ function formatSection(commits: GitCommit[], sectionName: string, options: Chang
         prefix = `${scopeText}: `;
       }
 
-      lines.push(...scopes[scope].reverse().map(commit => `${padding}- ${prefix}${formatLine(commit, options)}`));
+      lines.push(
+        ...scopes[scope]
+          .reverse()
+          .map(commit => `${padding}- ${prefix}${formatLine(commit, options)}`)
+      );
     });
 
   return lines;
@@ -202,7 +212,9 @@ export function generateMarkdown(params: {
   const { options, showTitle, contributors } = params;
 
   // filter commits means that release version
-  const commits = params.commits.filter(commit => commit.description.match(VERSION_WITH_RELEASE) === null);
+  const commits = params.commits.filter(
+    commit => commit.description.match(VERSION_WITH_RELEASE) === null
+  );
 
   const lines: string[] = [];
 

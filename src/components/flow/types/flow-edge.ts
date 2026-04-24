@@ -84,4 +84,3 @@ export interface FlowEdgePathParams {
  * 连接线路径生成器函数
  */
 export type FlowEdgePathGenerator = (params: FlowEdgePathParams) => string;
-

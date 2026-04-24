@@ -26,14 +26,15 @@ const STATUS_TEXT_KEY_MAP: Record<UploadStatus, keyof StatusTextMap> = {
 } as const;
 
 /** 状态类型映射 */
-const STATUS_TYPE_MAP: Record<UploadStatus, 'default' | 'success' | 'warning' | 'error' | 'info'> = {
-  [UploadStatus.PENDING]: 'default',
-  [UploadStatus.UPLOADING]: 'info',
-  [UploadStatus.SUCCESS]: 'success',
-  [UploadStatus.ERROR]: 'error',
-  [UploadStatus.PAUSED]: 'warning',
-  [UploadStatus.CANCELLED]: 'default'
-} as const;
+const STATUS_TYPE_MAP: Record<UploadStatus, 'default' | 'success' | 'warning' | 'error' | 'info'> =
+  {
+    [UploadStatus.PENDING]: 'default',
+    [UploadStatus.UPLOADING]: 'info',
+    [UploadStatus.SUCCESS]: 'success',
+    [UploadStatus.ERROR]: 'error',
+    [UploadStatus.PAUSED]: 'warning',
+    [UploadStatus.CANCELLED]: 'default'
+  } as const;
 
 /**
  * 转换为 Naive UI 状态
@@ -52,7 +53,8 @@ export function getStatusText(status: UploadStatus): string {
 /**
  * 获取状态类型
  */
-export function getStatusType(status: UploadStatus): 'default' | 'success' | 'warning' | 'error' | 'info' {
+export function getStatusType(
+  status: UploadStatus
+): 'default' | 'success' | 'warning' | 'error' | 'info' {
   return STATUS_TYPE_MAP[status];
 }
-

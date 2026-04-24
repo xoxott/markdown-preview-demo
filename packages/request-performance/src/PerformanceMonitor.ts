@@ -29,7 +29,7 @@ export class PerformanceMonitorManager implements PerformanceMonitor {
     successRequests: 0,
     failedRequests: 0,
     responseTimes: [],
-    urlStats: new Map(),
+    urlStats: new Map()
   };
 
   onRequestStart(_config: NormalizedRequestConfig): void {
@@ -76,7 +76,7 @@ export class PerformanceMonitorManager implements PerformanceMonitor {
       urlStats[url] = {
         count: stats.count,
         successCount: stats.successCount,
-        averageTime: stats.count > 0 ? stats.totalTime / stats.count : 0,
+        averageTime: stats.count > 0 ? stats.totalTime / stats.count : 0
       };
     });
 
@@ -88,7 +88,7 @@ export class PerformanceMonitorManager implements PerformanceMonitor {
       minResponseTime: minTime,
       maxResponseTime: maxTime,
       successRate,
-      urlStats,
+      urlStats
     };
   }
 
@@ -98,8 +98,7 @@ export class PerformanceMonitorManager implements PerformanceMonitor {
       successRequests: 0,
       failedRequests: 0,
       responseTimes: [],
-      urlStats: new Map(),
+      urlStats: new Map()
     };
   }
 }
-

@@ -84,9 +84,7 @@ describe('边界情况和异常场景', () => {
       uploader = useChunkUpload(config);
 
       // 创建 50 个文件
-      const files = Array.from({ length: 50 }, (_, i) =>
-        new File(['content'], `file${i}.txt`)
-      );
+      const files = Array.from({ length: 50 }, (_, i) => new File(['content'], `file${i}.txt`));
 
       await (uploader as any).addFiles(files);
 
@@ -103,9 +101,7 @@ describe('边界情况和异常场景', () => {
       uploader = useChunkUpload(config);
 
       // 尝试添加 20 个文件
-      const files = Array.from({ length: 20 }, (_, i) =>
-        new File(['content'], `file${i}.txt`)
-      );
+      const files = Array.from({ length: 20 }, (_, i) => new File(['content'], `file${i}.txt`));
 
       await (uploader as any).addFiles(files);
 
@@ -170,10 +166,11 @@ describe('边界情况和异常场景', () => {
       uploader = useChunkUpload(config);
 
       // Mock 延迟响应（超过超时时间）
-      mockFetch.mockImplementationOnce(() =>
-        new Promise(resolve =>
-          setTimeout(() => resolve({ ok: true, json: async () => ({}) }), 200)
-        )
+      mockFetch.mockImplementationOnce(
+        () =>
+          new Promise(resolve =>
+            setTimeout(() => resolve({ ok: true, json: async () => ({}) }), 200)
+          )
       );
 
       const file = new File(['content'], 'test.txt');
@@ -300,4 +297,3 @@ describe('边界情况和异常场景', () => {
     });
   });
 });
-

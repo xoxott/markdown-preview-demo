@@ -1,6 +1,6 @@
 /**
  * Flow 视口裁剪器
- * 
+ *
  * 计算可见区域，过滤不可见的节点和连接线，提升渲染性能
  */
 
@@ -58,7 +58,7 @@ export class ViewportCuller {
 
   /**
    * 计算视口边界（画布坐标）
-   * 
+   *
    * @param viewport 视口状态
    * @param canvasWidth 画布宽度（屏幕像素）
    * @param canvasHeight 画布高度（屏幕像素）
@@ -90,7 +90,7 @@ export class ViewportCuller {
 
   /**
    * 裁剪节点（只返回可见节点）
-   * 
+   *
    * @param nodes 所有节点列表
    * @param bounds 视口边界
    * @returns 可见节点列表
@@ -118,17 +118,13 @@ export class ViewportCuller {
 
   /**
    * 裁剪连接线（只返回可见连接线）
-   * 
+   *
    * @param edges 所有连接线列表
    * @param nodes 所有节点列表（用于计算连接线位置）
    * @param bounds 视口边界
    * @returns 可见连接线列表
    */
-  cullEdges(
-    edges: FlowEdge[],
-    nodes: FlowNode[],
-    bounds: ViewportBounds
-  ): FlowEdge[] {
+  cullEdges(edges: FlowEdge[], nodes: FlowNode[], bounds: ViewportBounds): FlowEdge[] {
     if (!this.options.cullEdges) {
       return edges;
     }
@@ -186,7 +182,7 @@ export class ViewportCuller {
 
   /**
    * 裁剪节点和连接线
-   * 
+   *
    * @param nodes 所有节点列表
    * @param edges 所有连接线列表
    * @param viewport 视口状态
@@ -218,7 +214,7 @@ export class ViewportCuller {
 
   /**
    * 检查节点是否在视口内
-   * 
+   *
    * @param node 节点
    * @param bounds 视口边界
    * @returns 是否在视口内
@@ -239,23 +235,13 @@ export class ViewportCuller {
 
   /**
    * 检查点是否在视口内
-   * 
+   *
    * @param x X 坐标（画布坐标）
    * @param y Y 坐标（画布坐标）
    * @param bounds 视口边界
    * @returns 是否在视口内
    */
-  isPointInViewport(
-    x: number,
-    y: number,
-    bounds: ViewportBounds
-  ): boolean {
-    return (
-      x >= bounds.minX &&
-      x <= bounds.maxX &&
-      y >= bounds.minY &&
-      y <= bounds.maxY
-    );
+  isPointInViewport(x: number, y: number, bounds: ViewportBounds): boolean {
+    return x >= bounds.minX && x <= bounds.maxX && y >= bounds.minY && y <= bounds.maxY;
   }
 }
-

@@ -76,4 +76,3 @@ export interface IHistoryManager {
    */
   reset(): void;
 }
-

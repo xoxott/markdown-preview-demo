@@ -113,21 +113,14 @@ export class FlowEventManager {
    * @param toId 目标实例 ID（如果为 'global'，转发到全局）
    * @param events 要转发的事件名称数组
    */
-  forwardEvents(
-    fromId: string,
-    toId: string | 'global',
-    events: (keyof FlowEvents)[]
-  ): () => void {
+  forwardEvents(fromId: string, toId: string | 'global', events: (keyof FlowEvents)[]): () => void {
     const fromEmitter = this.getInstance(fromId);
     if (!fromEmitter) {
       logger.warn(`Event manager instance "${fromId}" not found`);
       return () => {};
     }
 
-    const toEmitter =
-      toId === 'global'
-        ? this.globalEmitter
-        : this.getOrCreateInstance(toId);
+    const toEmitter = toId === 'global' ? this.globalEmitter : this.getOrCreateInstance(toId);
 
     const unsubscribes: (() => void)[] = [];
 
@@ -145,17 +138,15 @@ export class FlowEventManager {
 
       const typedOn = fromEmitter.on as <T extends keyof FlowEvents>(
         event: T,
-        listener: FlowEvents[T] extends (...args: unknown[]) => unknown
-          ? FlowEvents[T]
-          : never,
+        listener: FlowEvents[T] extends (...args: unknown[]) => unknown ? FlowEvents[T] : never,
         options?: { once?: boolean; priority?: number; capture?: boolean }
       ) => () => void;
 
       const unsubscribe = typedOn(
         event,
-        handler as unknown as (FlowEvents[typeof event] extends (...args: unknown[]) => unknown
+        handler as unknown as FlowEvents[typeof event] extends (...args: unknown[]) => unknown
           ? FlowEvents[typeof event]
-          : never)
+          : never
       );
       unsubscribes.push(unsubscribe);
     });
@@ -239,4 +230,3 @@ export function getGlobalEventManager(): FlowEventManager {
 export function createFlowEventManager(): FlowEventManager {
   return new FlowEventManager();
 }
-

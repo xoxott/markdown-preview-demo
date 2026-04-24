@@ -91,12 +91,48 @@ const mockWorkflows: Api.Workflow.Workflow[] = [
         }
       ],
       connections: [
-        { id: 'c1', sourceNodeId: 'start-1', sourcePortId: 'output', targetNodeId: 'ai-1', targetPortId: 'input' },
-        { id: 'c2', sourceNodeId: 'ai-1', sourcePortId: 'output', targetNodeId: 'condition-1', targetPortId: 'input' },
-        { id: 'c3', sourceNodeId: 'condition-1', sourcePortId: 'true', targetNodeId: 'ai-2', targetPortId: 'input' },
-        { id: 'c4', sourceNodeId: 'condition-1', sourcePortId: 'false', targetNodeId: 'ai-3', targetPortId: 'input' },
-        { id: 'c5', sourceNodeId: 'ai-2', sourcePortId: 'output', targetNodeId: 'end-1', targetPortId: 'input' },
-        { id: 'c6', sourceNodeId: 'ai-3', sourcePortId: 'output', targetNodeId: 'end-1', targetPortId: 'input' }
+        {
+          id: 'c1',
+          sourceNodeId: 'start-1',
+          sourcePortId: 'output',
+          targetNodeId: 'ai-1',
+          targetPortId: 'input'
+        },
+        {
+          id: 'c2',
+          sourceNodeId: 'ai-1',
+          sourcePortId: 'output',
+          targetNodeId: 'condition-1',
+          targetPortId: 'input'
+        },
+        {
+          id: 'c3',
+          sourceNodeId: 'condition-1',
+          sourcePortId: 'true',
+          targetNodeId: 'ai-2',
+          targetPortId: 'input'
+        },
+        {
+          id: 'c4',
+          sourceNodeId: 'condition-1',
+          sourcePortId: 'false',
+          targetNodeId: 'ai-3',
+          targetPortId: 'input'
+        },
+        {
+          id: 'c5',
+          sourceNodeId: 'ai-2',
+          sourcePortId: 'output',
+          targetNodeId: 'end-1',
+          targetPortId: 'input'
+        },
+        {
+          id: 'c6',
+          sourceNodeId: 'ai-3',
+          sourcePortId: 'output',
+          targetNodeId: 'end-1',
+          targetPortId: 'input'
+        }
       ],
       viewport: { x: 0, y: 0, zoom: 1 }
     }
@@ -157,9 +193,27 @@ const mockWorkflows: Api.Workflow.Workflow[] = [
         }
       ],
       connections: [
-        { id: 'c1', sourceNodeId: 'start-2', sourcePortId: 'output', targetNodeId: 'db-1', targetPortId: 'input' },
-        { id: 'c2', sourceNodeId: 'db-1', sourcePortId: 'output', targetNodeId: 'transform-1', targetPortId: 'input' },
-        { id: 'c3', sourceNodeId: 'transform-1', sourcePortId: 'output', targetNodeId: 'end-2', targetPortId: 'input' }
+        {
+          id: 'c1',
+          sourceNodeId: 'start-2',
+          sourcePortId: 'output',
+          targetNodeId: 'db-1',
+          targetPortId: 'input'
+        },
+        {
+          id: 'c2',
+          sourceNodeId: 'db-1',
+          sourcePortId: 'output',
+          targetNodeId: 'transform-1',
+          targetPortId: 'input'
+        },
+        {
+          id: 'c3',
+          sourceNodeId: 'transform-1',
+          sourcePortId: 'output',
+          targetNodeId: 'end-2',
+          targetPortId: 'input'
+        }
       ],
       viewport: { x: 0, y: 0, zoom: 1 }
     }
@@ -213,8 +267,20 @@ const mockWorkflows: Api.Workflow.Workflow[] = [
         }
       ],
       connections: [
-        { id: 'c1', sourceNodeId: 'start-3', sourcePortId: 'output', targetNodeId: 'http-1', targetPortId: 'input' },
-        { id: 'c2', sourceNodeId: 'http-1', sourcePortId: 'success', targetNodeId: 'end-3', targetPortId: 'input' }
+        {
+          id: 'c1',
+          sourceNodeId: 'start-3',
+          sourcePortId: 'output',
+          targetNodeId: 'http-1',
+          targetPortId: 'input'
+        },
+        {
+          id: 'c2',
+          sourceNodeId: 'http-1',
+          sourcePortId: 'success',
+          targetNodeId: 'end-3',
+          targetPortId: 'input'
+        }
       ],
       viewport: { x: 0, y: 0, zoom: 1 }
     }
@@ -591,7 +657,11 @@ export const mockWorkflowApi = {
       if (!execution) {
         throw new Error('执行记录不存在');
       }
-      return createMockResponse({ ...execution, logs: [], nodeResults: [] } as Api.Workflow.ExecutionDetail);
+      return createMockResponse({
+        ...execution,
+        logs: [],
+        nodeResults: []
+      } as Api.Workflow.ExecutionDetail);
     }
     return createMockResponse(detail);
   },
@@ -622,4 +692,3 @@ export const mockWorkflowApi = {
     return createMockResponse(workflow);
   }
 };
-

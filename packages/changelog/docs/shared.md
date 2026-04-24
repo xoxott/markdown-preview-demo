@@ -1,6 +1,6 @@
 [**changelog**](README.md)
 
-***
+---
 
 [changelog](#/README.md) / shared
 
@@ -28,15 +28,15 @@ Defined in: [shared.ts:64](https://github.com/xoxott/markdown-preview-demo/blob/
 ###### Type Parameters
 
 | Type Parameter |
-| ------ |
-| `T` |
+| -------------- |
+| `T`            |
 
 ###### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `array` | readonly `T`[] | 原始数组 |
-| `f1` | `PartitionFilter`\<`T`\> | - |
+| Parameter | Type                     | Description |
+| --------- | ------------------------ | ----------- |
+| `array`   | readonly `T`[]           | 原始数组    |
+| `f1`      | `PartitionFilter`\<`T`\> | -           |
 
 ###### Returns
 
@@ -48,23 +48,20 @@ Defined in: [shared.ts:64](https://github.com/xoxott/markdown-preview-demo/blob/
 
 ```ts
 const [odd, even] = partition([1, 2, 3, 4], i => i % 2 !== 0);
- odd = [1, 3], even = [2, 4]
+(odd = [1, 3]), (even = [2, 4]);
 
 const [small, medium, large] = partition(
   [1, 5, 10, 20],
   i => i < 5,
   i => i < 10
 );
- //small = [1], medium = [5], large = [10, 20]
+//small = [1], medium = [5], large = [10, 20]
 ```
 
 ##### Call Signature
 
 ```ts
-function partition<T>(
-   array, 
-   f1, 
-   f2): [T[], T[], T[]];
+function partition<T>(array, f1, f2): [T[], T[], T[]];
 ```
 
 Defined in: [shared.ts:65](https://github.com/xoxott/markdown-preview-demo/blob/0f58489d99b5c546a4ac6af800263848a3a5dc3e/packages/changelog/src/shared.ts#L65)
@@ -77,16 +74,16 @@ Defined in: [shared.ts:65](https://github.com/xoxott/markdown-preview-demo/blob/
 ###### Type Parameters
 
 | Type Parameter |
-| ------ |
-| `T` |
+| -------------- |
+| `T`            |
 
 ###### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `array` | readonly `T`[] | 原始数组 |
-| `f1` | `PartitionFilter`\<`T`\> | - |
-| `f2` | `PartitionFilter`\<`T`\> | - |
+| Parameter | Type                     | Description |
+| --------- | ------------------------ | ----------- |
+| `array`   | readonly `T`[]           | 原始数组    |
+| `f1`      | `PartitionFilter`\<`T`\> | -           |
+| `f2`      | `PartitionFilter`\<`T`\> | -           |
 
 ###### Returns
 
@@ -98,24 +95,20 @@ Defined in: [shared.ts:65](https://github.com/xoxott/markdown-preview-demo/blob/
 
 ```ts
 const [odd, even] = partition([1, 2, 3, 4], i => i % 2 !== 0);
- odd = [1, 3], even = [2, 4]
+(odd = [1, 3]), (even = [2, 4]);
 
 const [small, medium, large] = partition(
   [1, 5, 10, 20],
   i => i < 5,
   i => i < 10
 );
- //small = [1], medium = [5], large = [10, 20]
+//small = [1], medium = [5], large = [10, 20]
 ```
 
 ##### Call Signature
 
 ```ts
-function partition<T>(
-   array, 
-   f1, 
-   f2, 
-   f3): [T[], T[], T[], T[]];
+function partition<T>(array, f1, f2, f3): [T[], T[], T[], T[]];
 ```
 
 Defined in: [shared.ts:66](https://github.com/xoxott/markdown-preview-demo/blob/0f58489d99b5c546a4ac6af800263848a3a5dc3e/packages/changelog/src/shared.ts#L66)
@@ -128,17 +121,17 @@ Defined in: [shared.ts:66](https://github.com/xoxott/markdown-preview-demo/blob/
 ###### Type Parameters
 
 | Type Parameter |
-| ------ |
-| `T` |
+| -------------- |
+| `T`            |
 
 ###### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `array` | readonly `T`[] | 原始数组 |
-| `f1` | `PartitionFilter`\<`T`\> | - |
-| `f2` | `PartitionFilter`\<`T`\> | - |
-| `f3` | `PartitionFilter`\<`T`\> | - |
+| Parameter | Type                     | Description |
+| --------- | ------------------------ | ----------- |
+| `array`   | readonly `T`[]           | 原始数组    |
+| `f1`      | `PartitionFilter`\<`T`\> | -           |
+| `f2`      | `PartitionFilter`\<`T`\> | -           |
+| `f3`      | `PartitionFilter`\<`T`\> | -           |
 
 ###### Returns
 
@@ -150,25 +143,20 @@ Defined in: [shared.ts:66](https://github.com/xoxott/markdown-preview-demo/blob/
 
 ```ts
 const [odd, even] = partition([1, 2, 3, 4], i => i % 2 !== 0);
- odd = [1, 3], even = [2, 4]
+(odd = [1, 3]), (even = [2, 4]);
 
 const [small, medium, large] = partition(
   [1, 5, 10, 20],
   i => i < 5,
   i => i < 10
 );
- //small = [1], medium = [5], large = [10, 20]
+//small = [1], medium = [5], large = [10, 20]
 ```
 
 ##### Call Signature
 
 ```ts
-function partition<T>(
-   array, 
-   f1, 
-   f2, 
-   f3, 
-   f4): [T[], T[], T[], T[], T[]];
+function partition<T>(array, f1, f2, f3, f4): [T[], T[], T[], T[], T[]];
 ```
 
 Defined in: [shared.ts:72](https://github.com/xoxott/markdown-preview-demo/blob/0f58489d99b5c546a4ac6af800263848a3a5dc3e/packages/changelog/src/shared.ts#L72)
@@ -181,18 +169,18 @@ Defined in: [shared.ts:72](https://github.com/xoxott/markdown-preview-demo/blob/
 ###### Type Parameters
 
 | Type Parameter |
-| ------ |
-| `T` |
+| -------------- |
+| `T`            |
 
 ###### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `array` | readonly `T`[] | 原始数组 |
-| `f1` | `PartitionFilter`\<`T`\> | - |
-| `f2` | `PartitionFilter`\<`T`\> | - |
-| `f3` | `PartitionFilter`\<`T`\> | - |
-| `f4` | `PartitionFilter`\<`T`\> | - |
+| Parameter | Type                     | Description |
+| --------- | ------------------------ | ----------- |
+| `array`   | readonly `T`[]           | 原始数组    |
+| `f1`      | `PartitionFilter`\<`T`\> | -           |
+| `f2`      | `PartitionFilter`\<`T`\> | -           |
+| `f3`      | `PartitionFilter`\<`T`\> | -           |
+| `f4`      | `PartitionFilter`\<`T`\> | -           |
 
 ###### Returns
 
@@ -204,26 +192,20 @@ Defined in: [shared.ts:72](https://github.com/xoxott/markdown-preview-demo/blob/
 
 ```ts
 const [odd, even] = partition([1, 2, 3, 4], i => i % 2 !== 0);
- odd = [1, 3], even = [2, 4]
+(odd = [1, 3]), (even = [2, 4]);
 
 const [small, medium, large] = partition(
   [1, 5, 10, 20],
   i => i < 5,
   i => i < 10
 );
- //small = [1], medium = [5], large = [10, 20]
+//small = [1], medium = [5], large = [10, 20]
 ```
 
 ##### Call Signature
 
 ```ts
-function partition<T>(
-   array, 
-   f1, 
-   f2, 
-   f3, 
-   f4, 
-   f5): [T[], T[], T[], T[], T[], T[]];
+function partition<T>(array, f1, f2, f3, f4, f5): [T[], T[], T[], T[], T[], T[]];
 ```
 
 Defined in: [shared.ts:79](https://github.com/xoxott/markdown-preview-demo/blob/0f58489d99b5c546a4ac6af800263848a3a5dc3e/packages/changelog/src/shared.ts#L79)
@@ -236,19 +218,19 @@ Defined in: [shared.ts:79](https://github.com/xoxott/markdown-preview-demo/blob/
 ###### Type Parameters
 
 | Type Parameter |
-| ------ |
-| `T` |
+| -------------- |
+| `T`            |
 
 ###### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `array` | readonly `T`[] | 原始数组 |
-| `f1` | `PartitionFilter`\<`T`\> | - |
-| `f2` | `PartitionFilter`\<`T`\> | - |
-| `f3` | `PartitionFilter`\<`T`\> | - |
-| `f4` | `PartitionFilter`\<`T`\> | - |
-| `f5` | `PartitionFilter`\<`T`\> | - |
+| Parameter | Type                     | Description |
+| --------- | ------------------------ | ----------- |
+| `array`   | readonly `T`[]           | 原始数组    |
+| `f1`      | `PartitionFilter`\<`T`\> | -           |
+| `f2`      | `PartitionFilter`\<`T`\> | -           |
+| `f3`      | `PartitionFilter`\<`T`\> | -           |
+| `f4`      | `PartitionFilter`\<`T`\> | -           |
+| `f5`      | `PartitionFilter`\<`T`\> | -           |
 
 ###### Returns
 
@@ -260,27 +242,20 @@ Defined in: [shared.ts:79](https://github.com/xoxott/markdown-preview-demo/blob/
 
 ```ts
 const [odd, even] = partition([1, 2, 3, 4], i => i % 2 !== 0);
- odd = [1, 3], even = [2, 4]
+(odd = [1, 3]), (even = [2, 4]);
 
 const [small, medium, large] = partition(
   [1, 5, 10, 20],
   i => i < 5,
   i => i < 10
 );
- //small = [1], medium = [5], large = [10, 20]
+//small = [1], medium = [5], large = [10, 20]
 ```
 
 ##### Call Signature
 
 ```ts
-function partition<T>(
-   array, 
-   f1, 
-   f2, 
-   f3, 
-   f4, 
-   f5, 
-   f6): [T[], T[], T[], T[], T[], T[], T[]];
+function partition<T>(array, f1, f2, f3, f4, f5, f6): [T[], T[], T[], T[], T[], T[], T[]];
 ```
 
 Defined in: [shared.ts:87](https://github.com/xoxott/markdown-preview-demo/blob/0f58489d99b5c546a4ac6af800263848a3a5dc3e/packages/changelog/src/shared.ts#L87)
@@ -293,20 +268,20 @@ Defined in: [shared.ts:87](https://github.com/xoxott/markdown-preview-demo/blob/
 ###### Type Parameters
 
 | Type Parameter |
-| ------ |
-| `T` |
+| -------------- |
+| `T`            |
 
 ###### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `array` | readonly `T`[] | 原始数组 |
-| `f1` | `PartitionFilter`\<`T`\> | - |
-| `f2` | `PartitionFilter`\<`T`\> | - |
-| `f3` | `PartitionFilter`\<`T`\> | - |
-| `f4` | `PartitionFilter`\<`T`\> | - |
-| `f5` | `PartitionFilter`\<`T`\> | - |
-| `f6` | `PartitionFilter`\<`T`\> | - |
+| Parameter | Type                     | Description |
+| --------- | ------------------------ | ----------- |
+| `array`   | readonly `T`[]           | 原始数组    |
+| `f1`      | `PartitionFilter`\<`T`\> | -           |
+| `f2`      | `PartitionFilter`\<`T`\> | -           |
+| `f3`      | `PartitionFilter`\<`T`\> | -           |
+| `f4`      | `PartitionFilter`\<`T`\> | -           |
+| `f5`      | `PartitionFilter`\<`T`\> | -           |
+| `f6`      | `PartitionFilter`\<`T`\> | -           |
 
 ###### Returns
 
@@ -318,14 +293,14 @@ Defined in: [shared.ts:87](https://github.com/xoxott/markdown-preview-demo/blob/
 
 ```ts
 const [odd, even] = partition([1, 2, 3, 4], i => i % 2 !== 0);
- odd = [1, 3], even = [2, 4]
+(odd = [1, 3]), (even = [2, 4]);
 
 const [small, medium, large] = partition(
   [1, 5, 10, 20],
   i => i < 5,
   i => i < 10
 );
- //small = [1], medium = [5], large = [10, 20]
+//small = [1], medium = [5], large = [10, 20]
 ```
 
 ### Other
@@ -335,10 +310,7 @@ const [small, medium, large] = partition(
 #### execCommand()
 
 ```ts
-function execCommand(
-   cmd, 
-   args, 
-options?): Promise<string>;
+function execCommand(cmd, args, options?): Promise<string>;
 ```
 
 Defined in: [shared.ts:17](https://github.com/xoxott/markdown-preview-demo/blob/0f58489d99b5c546a4ac6af800263848a3a5dc3e/packages/changelog/src/shared.ts#L17)
@@ -347,11 +319,11 @@ Defined in: [shared.ts:17](https://github.com/xoxott/markdown-preview-demo/blob/
 
 ##### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `cmd` | `string` | 要执行的命令，例如 `git` |
-| `args` | `string`[] | 命令参数数组，例如 `['status', '--short']` |
-| `options?` | `Options` | execa 的可选配置 |
+| Parameter  | Type       | Description                                |
+| ---------- | ---------- | ------------------------------------------ |
+| `cmd`      | `string`   | 要执行的命令，例如 `git`                   |
+| `args`     | `string`[] | 命令参数数组，例如 `['status', '--short']` |
+| `options?` | `Options`  | execa 的可选配置                           |
 
 ##### Returns
 
@@ -365,7 +337,7 @@ Defined in: [shared.ts:17](https://github.com/xoxott/markdown-preview-demo/blob/
 const branch = await execCommand('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
 ```
 
-***
+---
 
 <a id="notnullish"></a>
 
@@ -382,14 +354,14 @@ Defined in: [shared.ts:34](https://github.com/xoxott/markdown-preview-demo/blob/
 ##### Type Parameters
 
 | Type Parameter |
-| ------ |
-| `T` |
+| -------------- |
+| `T`            |
 
 ##### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `v?` | `null` \| `T` | 需要检查的值 |
+| Parameter | Type          | Description  |
+| --------- | ------------- | ------------ |
+| `v?`      | `null` \| `T` | 需要检查的值 |
 
 ##### Returns
 
@@ -403,17 +375,14 @@ Defined in: [shared.ts:34](https://github.com/xoxott/markdown-preview-demo/blob/
 const arr = [1, null, 2, undefined].filter(notNullish); // [1, 2]
 ```
 
-***
+---
 
 <a id="groupby"></a>
 
 #### groupBy()
 
 ```ts
-function groupBy<T>(
-   items, 
-   key, 
-groups): Record<string, T[]>;
+function groupBy<T>(items, key, groups): Record<string, T[]>;
 ```
 
 Defined in: [shared.ts:130](https://github.com/xoxott/markdown-preview-demo/blob/0f58489d99b5c546a4ac6af800263848a3a5dc3e/packages/changelog/src/shared.ts#L130)
@@ -423,16 +392,16 @@ Defined in: [shared.ts:130](https://github.com/xoxott/markdown-preview-demo/blob
 ##### Type Parameters
 
 | Type Parameter |
-| ------ |
-| `T` |
+| -------------- |
+| `T`            |
 
 ##### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `items` | `T`[] | 原始数组 |
-| `key` | `string` | 作为分组依据的字段名 |
-| `groups` | `Record`\<`string`, `T`[]\> | 可选的初始分组对象 |
+| Parameter | Type                        | Description          |
+| --------- | --------------------------- | -------------------- |
+| `items`   | `T`[]                       | 原始数组             |
+| `key`     | `string`                    | 作为分组依据的字段名 |
+| `groups`  | `Record`\<`string`, `T`[]\> | 可选的初始分组对象   |
 
 ##### Returns
 
@@ -443,12 +412,12 @@ Defined in: [shared.ts:130](https://github.com/xoxott/markdown-preview-demo/blob
 ##### Example
 
 ```ts
-const arr = [{type: 'a'}, {type: 'b'}, {type: 'a'}];
+const arr = [{ type: 'a' }, { type: 'b' }, { type: 'a' }];
 const grouped = groupBy(arr, 'type');
- // { a: [{type:'a'}, {type:'a'}], b: [{type:'b'}] }
+// { a: [{type:'a'}, {type:'a'}], b: [{type:'b'}] }
 ```
 
-***
+---
 
 <a id="capitalize"></a>
 
@@ -464,9 +433,9 @@ Defined in: [shared.ts:150](https://github.com/xoxott/markdown-preview-demo/blob
 
 ##### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `str` | `string` | 输入字符串 |
+| Parameter | Type     | Description |
+| --------- | -------- | ----------- |
+| `str`     | `string` | 输入字符串  |
 
 ##### Returns
 
@@ -477,20 +446,17 @@ Defined in: [shared.ts:150](https://github.com/xoxott/markdown-preview-demo/blob
 ##### Example
 
 ```ts
-capitalize('hello') // 'Hello'
+capitalize('hello'); // 'Hello'
 ```
 
-***
+---
 
 <a id="join"></a>
 
 #### join()
 
 ```ts
-function join(
-   array?, 
-   glue?, 
-   finalGlue?): string;
+function join(array?, glue?, finalGlue?): string;
 ```
 
 Defined in: [shared.ts:169](https://github.com/xoxott/markdown-preview-demo/blob/0f58489d99b5c546a4ac6af800263848a3a5dc3e/packages/changelog/src/shared.ts#L169)
@@ -499,11 +465,11 @@ Defined in: [shared.ts:169](https://github.com/xoxott/markdown-preview-demo/blob
 
 ##### Parameters
 
-| Parameter | Type | Default value | Description |
-| ------ | ------ | ------ | ------ |
-| `array?` | `string`[] | `undefined` | 字符串数组 |
-| `glue?` | `string` | `', '` | 连接符，默认 `", "` |
-| `finalGlue?` | `string` | `' and '` | 最后一个元素的连接符，默认 `" and "` |
+| Parameter    | Type       | Default value | Description                          |
+| ------------ | ---------- | ------------- | ------------------------------------ |
+| `array?`     | `string`[] | `undefined`   | 字符串数组                           |
+| `glue?`      | `string`   | `', '`        | 连接符，默认 `", "`                  |
+| `finalGlue?` | `string`   | `' and '`     | 最后一个元素的连接符，默认 `" and "` |
 
 ##### Returns
 
@@ -514,12 +480,12 @@ Defined in: [shared.ts:169](https://github.com/xoxott/markdown-preview-demo/blob
 ##### Example
 
 ```ts
-join(['a']) // 'a'
-join(['a', 'b']) // 'a and b'
-join(['a', 'b', 'c']) // 'a, b and c'
+join(['a']); // 'a'
+join(['a', 'b']); // 'a and b'
+join(['a', 'b', 'c']); // 'a, b and c'
 ```
 
-***
+---
 
 <a id="upperfirst"></a>
 
@@ -535,9 +501,9 @@ Defined in: [shared.ts:190](https://github.com/xoxott/markdown-preview-demo/blob
 
 ##### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `string?` | `string` | 输入字符串 |
+| Parameter | Type     | Description |
+| --------- | -------- | ----------- |
+| `string?` | `string` | 输入字符串  |
 
 ##### Returns
 
@@ -548,5 +514,5 @@ Defined in: [shared.ts:190](https://github.com/xoxott/markdown-preview-demo/blob
 ##### Example
 
 ```ts
-upperFirst('test') // 'Test'
+upperFirst('test'); // 'Test'
 ```

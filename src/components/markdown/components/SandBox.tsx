@@ -53,7 +53,7 @@ export const SandBox = defineComponent({
   },
   emits: {
     'update:show': (_value: boolean) => true,
-    close: () => true
+    'close': () => true
   },
   setup(props, { emit }) {
     const { darkMode } = useMarkdownTheme();
@@ -142,12 +142,12 @@ export const SandBox = defineComponent({
 
       // JavaScript 模式
       const {
-         run,
-         result: res,
-         error: err,
-         duration: time,
-         logs: logOutput
-        } = useRunJSCode(currentCode.value);
+        run,
+        result: res,
+        error: err,
+        duration: time,
+        logs: logOutput
+      } = useRunJSCode(currentCode.value);
 
       await run();
 
@@ -170,7 +170,12 @@ export const SandBox = defineComponent({
     });
 
     return () => (
-      <NDrawer v-model:show={showDrawer.value} placement="right" width="45%" onAfterLeave={handleClose}>
+      <NDrawer
+        v-model:show={showDrawer.value}
+        placement="right"
+        width="45%"
+        onAfterLeave={handleClose}
+      >
         <NDrawerContent closable nativeScrollbar={false}>
           {{
             header: () => (
@@ -246,7 +251,12 @@ export const SandBox = defineComponent({
                       )}
 
                       {result.value && !error.value && (
-                        <NAlert type="success" title="输出结果" class="whitespace-pre-wrap text-sm" showIcon>
+                        <NAlert
+                          type="success"
+                          title="输出结果"
+                          class="whitespace-pre-wrap text-sm"
+                          showIcon
+                        >
                           {result.value}
                         </NAlert>
                       )}

@@ -1,6 +1,6 @@
 [**changelog**](README.md)
 
-***
+---
 
 [changelog](#/README.md) / options
 
@@ -20,8 +20,8 @@ Defined in: [options.ts:74](https://github.com/xoxott/markdown-preview-demo/blob
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
+| Parameter  | Type                                                         | Description                      |
+| ---------- | ------------------------------------------------------------ | -------------------------------- |
 | `options?` | `Partial`\<[`ChangelogOption`](#/types.md#changelogoption)\> | 可选的自定义配置，会覆盖默认配置 |
 
 #### Returns

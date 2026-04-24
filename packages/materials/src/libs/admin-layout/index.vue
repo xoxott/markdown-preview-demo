@@ -58,7 +58,9 @@ const cssVars = computed(() => createLayoutCssVars(props));
 const showHeader = computed(() => Boolean(slots.header) && props.headerVisible);
 const showTab = computed(() => Boolean(slots.tab) && props.tabVisible);
 const showSider = computed(() => !props.isMobile && Boolean(slots.sider) && props.siderVisible);
-const showMobileSider = computed(() => props.isMobile && Boolean(slots.sider) && props.siderVisible);
+const showMobileSider = computed(
+  () => props.isMobile && Boolean(slots.sider) && props.siderVisible
+);
 const showFooter = computed(() => Boolean(slots.footer) && props.footerVisible);
 
 // scroll mode
@@ -69,7 +71,9 @@ const isContentScroll = computed(() => props.scrollMode === 'content');
 const isVertical = computed(() => props.mode === 'vertical');
 const isHorizontal = computed(() => props.mode === 'horizontal');
 
-const fixedHeaderAndTab = computed(() => props.fixedTop || (isHorizontal.value && isWrapperScroll.value));
+const fixedHeaderAndTab = computed(
+  () => props.fixedTop || (isHorizontal.value && isWrapperScroll.value)
+);
 
 // css
 const leftGapClass = computed(() => {

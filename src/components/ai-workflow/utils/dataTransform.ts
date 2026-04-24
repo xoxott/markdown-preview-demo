@@ -50,7 +50,7 @@ export function createNodeWithUI(
   };
 
   return {
-    business: apiNode,  // 包含 position
+    business: apiNode, // 包含 position
     ui: { ...defaultUIData, ...uiData }
   };
 }
@@ -86,9 +86,7 @@ export function createConnectionWithUI(
  * @param nodeWithUI 完整的节点数据
  * @returns 只包含业务数据的节点
  */
-export function extractNodeBusinessData(
-  nodeWithUI: WorkflowNodeWithUI
-): Api.Workflow.WorkflowNode {
+export function extractNodeBusinessData(nodeWithUI: WorkflowNodeWithUI): Api.Workflow.WorkflowNode {
   return nodeWithUI.business;
 }
 
@@ -147,9 +145,7 @@ export function saveWorkflowUIToLocal(
  * @param workflowId 工作流 ID
  * @returns 本地存储的 UI 数据，如果不存在则返回 null
  */
-export function loadWorkflowUIFromLocal(
-  workflowId: string
-): LocalWorkflowData | null {
+export function loadWorkflowUIFromLocal(workflowId: string): LocalWorkflowData | null {
   const localData = localStg.get(getWorkflowUIStorageKey(workflowId));
   if (!localData) return null;
 
@@ -226,9 +222,8 @@ export function prepareWorkflowForSave(
   viewport: Viewport
 ): Api.Workflow.WorkflowDefinition {
   return {
-    nodes: nodes.map(extractNodeBusinessData),  // 包含 position
+    nodes: nodes.map(extractNodeBusinessData), // 包含 position
     connections: connections.map(extractConnectionBusinessData),
-    viewport  // 视口状态也保存到后端
+    viewport // 视口状态也保存到后端
   };
 }
-

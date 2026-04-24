@@ -28,4 +28,3 @@ export class MemoryStorageAdapter implements StorageAdapter {
     return Array.from(this.storage.keys());
   }
 }
-

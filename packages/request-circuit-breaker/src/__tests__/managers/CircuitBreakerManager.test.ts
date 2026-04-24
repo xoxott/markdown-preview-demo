@@ -22,7 +22,7 @@ describe('CircuitBreakerManager', () => {
       const customManager = new CircuitBreakerManager({
         cleanupInterval: 10000,
         maxSize: 10,
-        idleTimeout: 60000,
+        idleTimeout: 60000
       });
 
       expect(customManager).toBeInstanceOf(CircuitBreakerManager);
@@ -47,7 +47,7 @@ describe('CircuitBreakerManager', () => {
     it('应该使用自定义配置创建熔断器', () => {
       const breaker = manager.getOrCreateBreaker('test-key', {
         failureThreshold: 3,
-        timeout: 30000,
+        timeout: 30000
       });
 
       expect(breaker).toBeDefined();
@@ -68,7 +68,7 @@ describe('CircuitBreakerManager', () => {
 
     it('应该在达到最大数量时清理最旧的', () => {
       const customManager = new CircuitBreakerManager({
-        maxSize: 2,
+        maxSize: 2
       });
 
       const breaker1 = customManager.getOrCreateBreaker('key1');
@@ -141,7 +141,7 @@ describe('CircuitBreakerManager', () => {
   describe('cleanup', () => {
     it('应该清理不活跃的 CLOSED 状态熔断器', async () => {
       const customManager = new CircuitBreakerManager({
-        idleTimeout: 100, // 100ms
+        idleTimeout: 100 // 100ms
       });
 
       const breaker1 = customManager.getOrCreateBreaker('key1');
@@ -157,11 +157,11 @@ describe('CircuitBreakerManager', () => {
 
     it('不应该清理 OPEN 状态的熔断器', async () => {
       const customManager = new CircuitBreakerManager({
-        idleTimeout: 100,
+        idleTimeout: 100
       });
 
       const breaker = customManager.getOrCreateBreaker('key1', {
-        failureThreshold: 2,
+        failureThreshold: 2
       });
 
       // 开启熔断
@@ -186,12 +186,12 @@ describe('CircuitBreakerManager', () => {
 
     it('不应该清理 HALF_OPEN 状态的熔断器', async () => {
       const customManager = new CircuitBreakerManager({
-        idleTimeout: 100,
+        idleTimeout: 100
       });
 
       const breaker = customManager.getOrCreateBreaker('key1', {
         failureThreshold: 2,
-        timeout: 50,
+        timeout: 50
       });
 
       // 开启熔断
@@ -235,7 +235,7 @@ describe('CircuitBreakerManager', () => {
     it('应该按状态分类统计', async () => {
       const breaker1 = manager.getOrCreateBreaker('key1');
       const breaker2 = manager.getOrCreateBreaker('key2', {
-        failureThreshold: 2,
+        failureThreshold: 2
       });
 
       // 开启 breaker2
@@ -269,4 +269,3 @@ describe('CircuitBreakerManager', () => {
     });
   });
 });
-

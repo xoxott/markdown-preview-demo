@@ -1,13 +1,6 @@
 import type { PropType } from 'vue';
 import { computed, defineComponent } from 'vue';
-import {
-  NButton,
-  NIcon,
-  NScrollbar,
-  NTag,
-  NText,
-  useThemeVars
-} from 'naive-ui';
+import { NButton, NIcon, NScrollbar, NTag, NText, useThemeVars } from 'naive-ui';
 import { CloseOutline, InformationCircleOutline } from '@vicons/ionicons5';
 import type { FileItem } from '../types/file-explorer';
 import { formatFileSize } from '../utils/fileHelpers';
@@ -52,7 +45,6 @@ export default defineComponent({
       });
     };
 
-
     // 多选时的统计信息
     const selectionStats = computed(() => {
       if (props.selectedFiles.length <= 1) return null;
@@ -76,7 +68,6 @@ export default defineComponent({
         typeMap: Array.from(typeMap.entries())
       };
     });
-
 
     return () => {
       if (!props.show) return null;
@@ -110,8 +101,10 @@ export default defineComponent({
           </div>
 
           {/* 内容区域 */}
-          <NScrollbar class="flex-1" contentClass='h-full'>
-            <div class={`p-4 ${props.selectedFiles.length === 0 ? 'h-full flex items-center justify-center' : ''}`}>
+          <NScrollbar class="flex-1" contentClass="h-full">
+            <div
+              class={`p-4 ${props.selectedFiles.length === 0 ? 'h-full flex items-center justify-center' : ''}`}
+            >
               {/* 多选时的统计信息 */}
               {selectionStats.value && (
                 <div class="space-y-3">
@@ -122,36 +115,48 @@ export default defineComponent({
                     选中统计
                   </div>
                   <div class="space-y-2.5 text-sm">
-                    <div class="flex justify-between items-center py-1.5 border-b border-dashed" style={{ borderColor: themeVars.value.dividerColor }}>
+                    <div
+                      class="flex justify-between items-center py-1.5 border-b border-dashed"
+                      style={{ borderColor: themeVars.value.dividerColor }}
+                    >
                       <span style={{ color: themeVars.value.textColor3 }}>总数</span>
                       <span style={{ color: themeVars.value.textColorBase }}>
                         {selectionStats.value.total} 项
                       </span>
                     </div>
-                    <div class="flex justify-between items-center py-1.5 border-b border-dashed" style={{ borderColor: themeVars.value.dividerColor }}>
+                    <div
+                      class="flex justify-between items-center py-1.5 border-b border-dashed"
+                      style={{ borderColor: themeVars.value.dividerColor }}
+                    >
                       <span style={{ color: themeVars.value.textColor3 }}>文件</span>
                       <span style={{ color: themeVars.value.textColorBase }}>
                         {selectionStats.value.fileCount} 个
                       </span>
                     </div>
-                    <div class="flex justify-between items-center py-1.5 border-b border-dashed" style={{ borderColor: themeVars.value.dividerColor }}>
+                    <div
+                      class="flex justify-between items-center py-1.5 border-b border-dashed"
+                      style={{ borderColor: themeVars.value.dividerColor }}
+                    >
                       <span style={{ color: themeVars.value.textColor3 }}>文件夹</span>
                       <span style={{ color: themeVars.value.textColorBase }}>
                         {selectionStats.value.folderCount} 个
                       </span>
                     </div>
-                    <div class="flex justify-between items-center py-1.5 border-b border-dashed" style={{ borderColor: themeVars.value.dividerColor }}>
+                    <div
+                      class="flex justify-between items-center py-1.5 border-b border-dashed"
+                      style={{ borderColor: themeVars.value.dividerColor }}
+                    >
                       <span style={{ color: themeVars.value.textColor3 }}>总大小</span>
                       <span style={{ color: themeVars.value.textColorBase }}>
                         {formatFileSize(selectionStats.value.totalSize)}
                       </span>
                     </div>
                     {selectionStats.value.typeMap.length > 0 && (
-                      <div class="mt-3 pt-2 border-t" style={{ borderColor: themeVars.value.dividerColor }}>
-                        <div
-                          class="mb-2 text-xs"
-                          style={{ color: themeVars.value.textColor3 }}
-                        >
+                      <div
+                        class="mt-3 pt-2 border-t"
+                        style={{ borderColor: themeVars.value.dividerColor }}
+                      >
+                        <div class="mb-2 text-xs" style={{ color: themeVars.value.textColor3 }}>
                           文件类型
                         </div>
                         <div class="flex flex-wrap gap-1.5">
@@ -177,7 +182,10 @@ export default defineComponent({
                     基本信息
                   </div>
                   <div class="space-y-2.5 text-sm">
-                    <div class="flex justify-between items-center py-1.5 border-b border-dashed" style={{ borderColor: themeVars.value.dividerColor }}>
+                    <div
+                      class="flex justify-between items-center py-1.5 border-b border-dashed"
+                      style={{ borderColor: themeVars.value.dividerColor }}
+                    >
                       <span style={{ color: themeVars.value.textColor3 }}>名称</span>
                       <span
                         class="truncate max-w-[60%] text-right"
@@ -187,14 +195,20 @@ export default defineComponent({
                         {currentFile.value.name}
                       </span>
                     </div>
-                    <div class="flex justify-between items-center py-1.5 border-b border-dashed" style={{ borderColor: themeVars.value.dividerColor }}>
+                    <div
+                      class="flex justify-between items-center py-1.5 border-b border-dashed"
+                      style={{ borderColor: themeVars.value.dividerColor }}
+                    >
                       <span style={{ color: themeVars.value.textColor3 }}>类型</span>
                       <span style={{ color: themeVars.value.textColorBase }}>
                         {currentFile.value.type === 'file' ? '文件' : '文件夹'}
                       </span>
                     </div>
                     {currentFile.value.size !== undefined && (
-                      <div class="flex justify-between items-center py-1.5 border-b border-dashed" style={{ borderColor: themeVars.value.dividerColor }}>
+                      <div
+                        class="flex justify-between items-center py-1.5 border-b border-dashed"
+                        style={{ borderColor: themeVars.value.dividerColor }}
+                      >
                         <span style={{ color: themeVars.value.textColor3 }}>大小</span>
                         <span style={{ color: themeVars.value.textColorBase }}>
                           {formatFileSize(currentFile.value.size)}
@@ -202,7 +216,10 @@ export default defineComponent({
                       </div>
                     )}
                     {currentFile.value.extension && (
-                      <div class="flex justify-between items-center py-1.5 border-b border-dashed" style={{ borderColor: themeVars.value.dividerColor }}>
+                      <div
+                        class="flex justify-between items-center py-1.5 border-b border-dashed"
+                        style={{ borderColor: themeVars.value.dividerColor }}
+                      >
                         <span style={{ color: themeVars.value.textColor3 }}>扩展名</span>
                         <span style={{ color: themeVars.value.textColorBase }}>
                           {currentFile.value.extension}
@@ -210,8 +227,13 @@ export default defineComponent({
                       </div>
                     )}
                     {currentFile.value.path && (
-                      <div class="flex justify-between items-start py-1.5 border-b border-dashed" style={{ borderColor: themeVars.value.dividerColor }}>
-                        <span class="flex-shrink-0" style={{ color: themeVars.value.textColor3 }}>路径</span>
+                      <div
+                        class="flex justify-between items-start py-1.5 border-b border-dashed"
+                        style={{ borderColor: themeVars.value.dividerColor }}
+                      >
+                        <span class="flex-shrink-0" style={{ color: themeVars.value.textColor3 }}>
+                          路径
+                        </span>
                         <span
                           class="truncate max-w-[65%] text-right text-xs break-all"
                           style={{ color: themeVars.value.textColor2 }}
@@ -222,23 +244,23 @@ export default defineComponent({
                       </div>
                     )}
                     {currentFile.value.createdAt && (
-                      <div class="flex justify-between items-center py-1.5 border-b border-dashed" style={{ borderColor: themeVars.value.dividerColor }}>
+                      <div
+                        class="flex justify-between items-center py-1.5 border-b border-dashed"
+                        style={{ borderColor: themeVars.value.dividerColor }}
+                      >
                         <span style={{ color: themeVars.value.textColor3 }}>创建时间</span>
-                        <span
-                          class="text-xs"
-                          style={{ color: themeVars.value.textColorBase }}
-                        >
+                        <span class="text-xs" style={{ color: themeVars.value.textColorBase }}>
                           {formatDate(currentFile.value.createdAt)}
                         </span>
                       </div>
                     )}
                     {currentFile.value.modifiedAt && (
-                      <div class="flex justify-between items-center py-1.5" style={{ borderColor: themeVars.value.dividerColor }}>
+                      <div
+                        class="flex justify-between items-center py-1.5"
+                        style={{ borderColor: themeVars.value.dividerColor }}
+                      >
                         <span style={{ color: themeVars.value.textColor3 }}>修改时间</span>
-                        <span
-                          class="text-xs"
-                          style={{ color: themeVars.value.textColorBase }}
-                        >
+                        <span class="text-xs" style={{ color: themeVars.value.textColorBase }}>
                           {formatDate(currentFile.value.modifiedAt)}
                         </span>
                       </div>
@@ -266,4 +288,3 @@ export default defineComponent({
     };
   }
 });
-

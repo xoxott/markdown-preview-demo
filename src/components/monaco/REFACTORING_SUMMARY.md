@@ -9,6 +9,7 @@
 ### 1. 从 Vue SFC 迁移到 TSX
 
 **重构前（index.vue）：**
+
 ```vue
 <script lang="ts" setup>
 // 108 行代码
@@ -30,17 +31,22 @@
 ```
 
 **重构后（index.tsx）：**
+
 ```tsx
 // 380+ 行代码
 // 使用 TSX + defineComponent
 // 完整的 TypeScript 类型支持
 export const MonacoEditor = defineComponent({
   name: 'MonacoEditor',
-  props: { /* ... */ },
-  emits: { /* ... */ },
+  props: {
+    /* ... */
+  },
+  emits: {
+    /* ... */
+  },
   setup(props, { emit }) {
     // ...
-    return () => <div>...</div>
+    return () => <div>...</div>;
   }
 });
 ```
@@ -49,28 +55,30 @@ export const MonacoEditor = defineComponent({
 
 #### 新增功能
 
-| 功能 | 说明 |
-|------|------|
-| ✅ 工具栏 | 完整的工具栏，包含多种操作按钮 |
-| ✅ 代码折叠控制 | 只读模式下可折叠/展开所有代码 |
-| ✅ 代码格式化 | 编辑模式下支持格式化 |
-| ✅ 字体大小调整 | 放大/缩小/重置字体 |
-| ✅ 全屏模式 | 支持全屏编辑/查看 |
-| ✅ 复制功能 | 一键复制代码 |
-| ✅ 只读模式优化 | 禁用编辑相关功能 |
-| ✅ 更多语言支持 | 支持 9 种语言 |
-| ✅ 文件名显示 | 工具栏显示文件名和语言 |
-| ✅ 只读标签 | 只读模式显示标签 |
+| 功能            | 说明                           |
+| --------------- | ------------------------------ |
+| ✅ 工具栏       | 完整的工具栏，包含多种操作按钮 |
+| ✅ 代码折叠控制 | 只读模式下可折叠/展开所有代码  |
+| ✅ 代码格式化   | 编辑模式下支持格式化           |
+| ✅ 字体大小调整 | 放大/缩小/重置字体             |
+| ✅ 全屏模式     | 支持全屏编辑/查看              |
+| ✅ 复制功能     | 一键复制代码                   |
+| ✅ 只读模式优化 | 禁用编辑相关功能               |
+| ✅ 更多语言支持 | 支持 9 种语言                  |
+| ✅ 文件名显示   | 工具栏显示文件名和语言         |
+| ✅ 只读标签     | 只读模式显示标签               |
 
 #### 功能对比
 
 **重构前：**
+
 - 基础编辑功能
 - 主题切换
 - 语言切换
 - 只读模式
 
 **重构后：**
+
 - ✅ 所有原有功能
 - ✅ 工具栏（10+ 功能按钮）
 - ✅ 代码折叠控制
@@ -84,25 +92,26 @@ export const MonacoEditor = defineComponent({
 
 **新增 Props：**
 
-| Prop | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `showToolbar` | `boolean` | `true` | 是否显示工具栏 |
-| `showLineNumbers` | `boolean` | `true` | 是否显示行号 |
-| `folding` | `boolean` | `true` | 是否启用代码折叠 |
-| `minimap` | `boolean` | `false` | 是否显示 minimap |
-| `fontSize` | `number` | `14` | 字体大小 |
-| `height` | `string \| number` | `'400px'` | 编辑器高度 |
+| Prop              | 类型               | 默认值    | 说明             |
+| ----------------- | ------------------ | --------- | ---------------- |
+| `showToolbar`     | `boolean`          | `true`    | 是否显示工具栏   |
+| `showLineNumbers` | `boolean`          | `true`    | 是否显示行号     |
+| `folding`         | `boolean`          | `true`    | 是否启用代码折叠 |
+| `minimap`         | `boolean`          | `false`   | 是否显示 minimap |
+| `fontSize`        | `number`           | `14`      | 字体大小         |
+| `height`          | `string \| number` | `'400px'` | 编辑器高度       |
 
 **优化的 Props：**
 
-| Prop | 重构前 | 重构后 |
-|------|--------|--------|
-| `mode` | `string` | `MonacoLanguage`（类型安全） |
+| Prop    | 重构前              | 重构后                       |
+| ------- | ------------------- | ---------------------------- |
+| `mode`  | `string`            | `MonacoLanguage`（类型安全） |
 | `theme` | `'light' \| 'dark'` | 自动跟随系统（无需手动设置） |
 
 ### 4. 样式重构
 
 **重构前：**
+
 ```vue
 <style>
 .editor {
@@ -115,6 +124,7 @@ export const MonacoEditor = defineComponent({
 ```
 
 **重构后（Tailwind CSS）：**
+
 ```tsx
 <div class="relative flex flex-col">
   <div class="flex items-center justify-between px-4 py-2 border-b border-gray-200 dark:border-gray-700">
@@ -127,6 +137,7 @@ export const MonacoEditor = defineComponent({
 ```
 
 **优势：**
+
 - ✅ 使用 Tailwind 实用类
 - ✅ 支持暗色模式（`dark:` 前缀）
 - ✅ 响应式设计
@@ -135,11 +146,13 @@ export const MonacoEditor = defineComponent({
 ### 5. 只读模式优化
 
 **重构前：**
+
 ```typescript
-readOnly: props.readonly
+readOnly: props.readonly;
 ```
 
 **重构后：**
+
 ```typescript
 readOnly: props.readonly,
 // 只读模式下的特殊配置
@@ -155,6 +168,7 @@ readOnly: props.readonly,
 ```
 
 **改进：**
+
 - ✅ 禁用上下文菜单
 - ✅ 禁用代码提示
 - ✅ 禁用参数提示
@@ -172,6 +186,7 @@ readOnly: props.readonly,
 ```
 
 **功能：**
+
 1. 文件信息显示
 2. 只读标签
 3. 折叠所有代码
@@ -191,6 +206,7 @@ readOnly: props.readonly,
 ```
 
 **功能：**
+
 1. 文件信息显示
 2. 格式化代码
 3. 字体大小控制
@@ -200,12 +216,14 @@ readOnly: props.readonly,
 ### 7. 语言支持增强
 
 **重构前：**
+
 ```typescript
 // 支持 3 种语言
-'javascript' | 'vue' | 'css'
+'javascript' | 'vue' | 'css';
 ```
 
 **重构后：**
+
 ```typescript
 // 支持 9 种语言
 type MonacoLanguage =
@@ -221,6 +239,7 @@ type MonacoLanguage =
 ```
 
 **自动推断逻辑：**
+
 ```typescript
 if (filename.endsWith('.vue')) return 'vue';
 if (filename.endsWith('.ts')) return 'typescript';
@@ -236,6 +255,7 @@ return 'javascript';
 ### 8. 代码结构优化
 
 **重构前：**
+
 ```
 index.vue (108 行)
 ├── script setup
@@ -244,6 +264,7 @@ index.vue (108 行)
 ```
 
 **重构后：**
+
 ```
 index.tsx (380+ 行)
 ├── 类型定义
@@ -261,6 +282,7 @@ REFACTORING_SUMMARY.md (本文档)
 ```
 
 **代码分区：**
+
 ```typescript
 // ==================== 状态管理 ====================
 const { darkMode } = useMarkdownTheme();
@@ -294,6 +316,7 @@ return () => <div>...</div>;
 ### 9. TypeScript 类型增强
 
 **新增类型定义：**
+
 ```typescript
 export type MonacoLanguage = 'javascript' | 'typescript' | 'vue' | /* ... */;
 
@@ -312,6 +335,7 @@ export interface MonacoEditorEmits {
 ```
 
 **Props 类型安全：**
+
 ```typescript
 props: {
   language: {
@@ -325,12 +349,14 @@ props: {
 ### 10. 主题集成
 
 **重构前：**
+
 ```typescript
 // 手动传递 theme prop
-theme: props.theme === 'light' ? 'vs' : 'vs-dark'
+theme: props.theme === 'light' ? 'vs' : 'vs-dark';
 ```
 
 **重构后：**
+
 ```typescript
 // 自动从 useMarkdownTheme 获取
 const { darkMode } = useMarkdownTheme();
@@ -341,6 +367,7 @@ const themeName = computed(() => {
 ```
 
 **优势：**
+
 - ✅ 自动跟随系统主题
 - ✅ 与其他组件主题统一
 - ✅ 无需手动管理
@@ -366,12 +393,7 @@ const themeName = computed(() => {
 ```vue
 <template>
   <!-- 基础使用 -->
-  <MonacoEditor
-    v-model="code"
-    filename="example.js"
-    :readonly="false"
-    language="javascript"
-  />
+  <MonacoEditor v-model="code" filename="example.js" :readonly="false" language="javascript" />
 
   <!-- 只读模式 + 代码折叠 -->
   <MonacoEditor
@@ -383,40 +405,41 @@ const themeName = computed(() => {
   />
 
   <!-- 自定义高度 + 无工具栏 -->
-  <MonacoEditor
-    v-model="code"
-    :height="600"
-    :show-toolbar="false"
-  />
+  <MonacoEditor v-model="code" :height="600" :show-toolbar="false" />
 </template>
 ```
 
 ## 文件变更
 
 ### 新增文件
+
 - ✅ `src/components/monaco/index.tsx` - 主组件（TSX）
 - ✅ `src/components/monaco/index.ts` - 导出文件
 - ✅ `src/components/monaco/README.md` - 完整文档
 - ✅ `src/components/monaco/REFACTORING_SUMMARY.md` - 本文档
 
 ### 保留文件
+
 - ✅ `src/components/monaco/utils.ts` - 工具函数
 - ✅ `src/components/monaco/highlight.ts` - 语法高亮
 
 ### 可删除文件
+
 - ❌ `src/components/monaco/index.vue` - 旧版本（已被 index.tsx 替代）
 
 ## 性能优化
 
 1. **使用 shallowRef**
+
    ```typescript
    const editor = shallowRef<monaco.editor.IStandaloneCodeEditor>();
    const model = shallowRef<monaco.editor.ITextModel>();
    ```
 
 2. **自动布局**
+
    ```typescript
-   automaticLayout: true  // 无需手动调用 layout()
+   automaticLayout: true; // 无需手动调用 layout()
    ```
 
 3. **资源清理**
@@ -440,6 +463,7 @@ const themeName = computed(() => {
 ### 从旧版本迁移
 
 **步骤 1：更新导入**
+
 ```typescript
 // 旧版本
 import MonacoEditor from '@/components/monaco/index.vue';
@@ -449,29 +473,19 @@ import { MonacoEditor } from '@/components/monaco';
 ```
 
 **步骤 2：更新 props**
+
 ```vue
 <!-- 旧版本 -->
-<MonacoEditor
-  v-model="code"
-  mode="javascript"
-  theme="dark"
-/>
+<MonacoEditor v-model="code" mode="javascript" theme="dark" />
 
 <!-- 新版本（theme 自动） -->
-<MonacoEditor
-  v-model="code"
-  language="javascript"
-/>
+<MonacoEditor v-model="code" language="javascript" />
 ```
 
 **步骤 3：启用新功能（可选）**
+
 ```vue
-<MonacoEditor
-  v-model="code"
-  :show-toolbar="true"
-  :folding="true"
-  :height="500"
-/>
+<MonacoEditor v-model="code" :show-toolbar="true" :folding="true" :height="500" />
 ```
 
 ## 总结
@@ -501,4 +515,3 @@ import { MonacoEditor } from '@/components/monaco';
 3. **多文件** - 支持多标签页
 4. **Diff 模式** - 支持代码对比
 5. **协作编辑** - 多人实时编辑
-

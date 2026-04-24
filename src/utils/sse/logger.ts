@@ -1,6 +1,6 @@
 /**
  * SSE Logger Utility
- * 
+ *
  * Provides controlled logging for SSE operations
  * Logs are only enabled in development mode or when explicitly enabled
  */
@@ -51,4 +51,3 @@ export const sseLogger = {
     console.error('[SSE]', ...args);
   }
 };
-

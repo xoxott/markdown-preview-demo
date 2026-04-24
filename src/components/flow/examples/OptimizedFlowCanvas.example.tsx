@@ -64,7 +64,7 @@ export default defineComponent({
         maxX: (-vp.x + container.clientWidth) / vp.zoom,
         maxY: (-vp.y + container.clientHeight) / vp.zoom,
         width: container.clientWidth / vp.zoom,
-        height: container.clientHeight / vp.zoom,
+        height: container.clientHeight / vp.zoom
       };
 
       return spatialIndex.query(bounds);
@@ -87,7 +87,7 @@ export default defineComponent({
         poolStats: positionPool.getStats(),
         historySize: commandManager.size(),
         canUndo: commandManager.canUndo(),
-        canRedo: commandManager.canRedo(),
+        canRedo: commandManager.canRedo()
       };
     });
 
@@ -158,9 +158,9 @@ export default defineComponent({
         type: 'default',
         position: {
           x: Math.random() * 1000,
-          y: Math.random() * 1000,
+          y: Math.random() * 1000
         },
-        data: {},
+        data: {}
       };
 
       nodes.value.push(newNode);
@@ -190,16 +190,20 @@ export default defineComponent({
         type: 'default',
         position: {
           x: Math.random() * 10000,
-          y: Math.random() * 10000,
+          y: Math.random() * 10000
         },
-        data: {},
+        data: {}
       }));
 
       // 测试线性查找
       console.time('线性查找 (10000节点)');
       const linearResult = testNodes.filter(node => {
-        return node.position.x >= 0 && node.position.x <= 1000 &&
-               node.position.y >= 0 && node.position.y <= 1000;
+        return (
+          node.position.x >= 0 &&
+          node.position.x <= 1000 &&
+          node.position.y >= 0 &&
+          node.position.y <= 1000
+        );
       });
       console.timeEnd('线性查找 (10000节点)');
       console.log(`找到: ${linearResult.length} 个节点`);
@@ -215,7 +219,7 @@ export default defineComponent({
         maxX: 1000,
         maxY: 1000,
         width: 1000,
-        height: 1000,
+        height: 1000
       });
       console.timeEnd('空间索引 (10000节点)');
       console.log(`找到: ${indexResult.length} 个节点`);
@@ -319,7 +323,7 @@ export default defineComponent({
         const stats = performanceStats.value;
         console.log('Performance:', {
           visible: `${stats.visibleNodes}/${stats.totalNodes}`,
-          hitRate: `${(stats.poolStats.hitRate * 100).toFixed(1)}%`,
+          hitRate: `${(stats.poolStats.hitRate * 100).toFixed(1)}%`
         });
       }, 10000);
 
@@ -336,11 +340,7 @@ export default defineComponent({
     // ============================================
 
     return () => (
-      <div
-        class="optimized-flow-canvas"
-        onKeydown={handleKeyDown}
-        tabindex={0}
-      >
+      <div class="optimized-flow-canvas" onKeydown={handleKeyDown} tabindex={0}>
         {/* 性能统计面板 */}
         {showStats.value && (
           <div class="performance-stats">
@@ -378,32 +378,16 @@ export default defineComponent({
 
         {/* 工具栏 */}
         <div class="toolbar">
-          <button
-            onClick={undo}
-            disabled={!canUndo.value}
-            title="撤销 (Ctrl+Z)"
-          >
+          <button onClick={undo} disabled={!canUndo.value} title="撤销 (Ctrl+Z)">
             ↶ 撤销
           </button>
-          <button
-            onClick={redo}
-            disabled={!canRedo.value}
-            title="重做 (Ctrl+Shift+Z)"
-          >
+          <button onClick={redo} disabled={!canRedo.value} title="重做 (Ctrl+Shift+Z)">
             ↷ 重做
           </button>
-          <button onClick={addRandomNode}>
-            + 添加节点
-          </button>
-          <button onClick={clearAllNodes}>
-            🗑️ 清空
-          </button>
-          <button onClick={() => showStats.value = !showStats.value}>
-            📊 统计
-          </button>
-          <button onClick={runPerformanceTest}>
-            ⚡ 性能测试
-          </button>
+          <button onClick={addRandomNode}>+ 添加节点</button>
+          <button onClick={clearAllNodes}>🗑️ 清空</button>
+          <button onClick={() => (showStats.value = !showStats.value)}>📊 统计</button>
+          <button onClick={runPerformanceTest}>⚡ 性能测试</button>
         </div>
 
         {/* 画布 */}
@@ -422,7 +406,7 @@ export default defineComponent({
               style={{
                 left: `${node.position.x}px`,
                 top: `${node.position.y}px`,
-                transform: `scale(${viewport.value.zoom})`,
+                transform: `scale(${viewport.value.zoom})`
               }}
               data-node-id={node.id}
               onMousedown={(e: MouseEvent) => {
@@ -441,12 +425,13 @@ export default defineComponent({
 
           {/* 提示信息 */}
           <div class="info-overlay">
-            <p>总节点: {nodes.value.length} | 可见: {visibleNodes.value.length}</p>
+            <p>
+              总节点: {nodes.value.length} | 可见: {visibleNodes.value.length}
+            </p>
             <p>使用空间索引优化，性能提升 90%</p>
           </div>
         </div>
       </div>
     );
-  },
+  }
 });
-

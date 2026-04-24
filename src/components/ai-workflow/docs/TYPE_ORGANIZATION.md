@@ -13,6 +13,7 @@
 **职责**: 定义后端 API 接口相关的数据结构
 
 **包含内容**:
+
 - 基础枚举类型（NodeType, WorkflowStatus, ExecutionStatus 等）
 - 核心数据结构（Position, Port, WorkflowNode, Connection 等）
 - 节点配置（AINodeConfig, HttpNodeConfig 等）
@@ -20,11 +21,13 @@
 - API 请求/响应类型（CreateWorkflowRequest, UpdateWorkflowRequest 等）
 
 **特点**:
+
 - 只包含业务数据，不包含 UI 相关数据
 - 与后端接口定义保持一致
 - 使用 `declare namespace Api.Workflow` 声明
 
 **示例**:
+
 ```typescript
 declare namespace Api {
   namespace Workflow {
@@ -48,6 +51,7 @@ declare namespace Api {
 **职责**: 定义组件内部使用的 UI 相关类型
 
 **包含内容**:
+
 - UI 状态类型（NodeUIState, ConnectionUIState）
 - UI 配置类型（NodeStyle, ConnectionStyle）
 - UI 数据类型（NodeUIData, ConnectionUIData）
@@ -59,11 +63,13 @@ declare namespace Api {
 - 工具类型（DeepPartial, DeepReadonly 等）
 
 **特点**:
+
 - 只包含 UI 相关数据
 - 组件内部使用，不暴露给外部
 - 使用 ES6 模块导出
 
 **示例**:
+
 ```typescript
 export interface NodeUIData {
   position: Position;
@@ -89,22 +95,25 @@ export interface WorkflowNodeWithUI {
 ```typescript
 // 完整的节点数据 = 业务数据 + UI 数据
 interface WorkflowNodeWithUI {
-  business: Api.Workflow.WorkflowNode;  // 来自 API
-  ui: NodeUIData;                        // 组件内部
+  business: Api.Workflow.WorkflowNode; // 来自 API
+  ui: NodeUIData; // 组件内部
 }
 ```
 
 ### 优势
 
 1. **清晰的职责划分**
+
    - API 类型只关注业务逻辑
    - UI 类型只关注展示逻辑
 
 2. **易于维护**
+
    - API 变更不影响 UI 类型
    - UI 优化不影响 API 类型
 
 3. **便于扩展**
+
    - 可以独立扩展 UI 功能
    - 不会污染 API 数据结构
 
@@ -192,8 +201,16 @@ export interface WorkflowConfig {
 // src/components/ai-workflow/strategies/connection-render/index.ts
 export interface IConnectionRenderStrategy {
   readonly name: ConnectionRenderStrategy;
-  computePath(sourcePos: Position, targetPos: Position, config?: Partial<ConnectionRenderConfig>): string;
-  computeArrowTransform?(sourcePos: Position, targetPos: Position, config?: Partial<ConnectionRenderConfig>): ArrowTransform;
+  computePath(
+    sourcePos: Position,
+    targetPos: Position,
+    config?: Partial<ConnectionRenderConfig>
+  ): string;
+  computeArrowTransform?(
+    sourcePos: Position,
+    targetPos: Position,
+    config?: Partial<ConnectionRenderConfig>
+  ): ArrowTransform;
 }
 ```
 
@@ -251,41 +268,44 @@ interface MyPosition {
 如果你在旧代码中使用了混合的类型定义，请按以下步骤迁移：
 
 1. **识别类型性质**
+
    - 如果是 API 数据，使用 `Api.Workflow.*`
    - 如果是 UI 数据，使用组件内部类型
 
 2. **更新导入语句**
+
    ```typescript
    // 旧代码
    import type { WorkflowNode } from '@/typings/api/workflow-v2';
-   
+
    // 新代码
    import type { Api } from '@/typings';
    const node: Api.Workflow.WorkflowNode = ...;
    ```
 
 3. **分离混合数据**
+
    ```typescript
    // 旧代码 - 混合数据
    interface OldNode {
      id: string;
      type: string;
      position: Position;
-     selected: boolean;  // UI 状态
+     selected: boolean; // UI 状态
    }
-   
+
    // 新代码 - 分离数据
    const newNode: WorkflowNodeWithUI = {
      business: {
        id: 'node-1',
        type: 'ai',
-       position: { x: 0, y: 0 },
+       position: { x: 0, y: 0 }
        // ... 其他业务数据
      },
      ui: {
        position: { x: 0, y: 0 },
        uiState: {
-         selected: false,
+         selected: false
          // ... 其他 UI 状态
        }
      }
@@ -301,4 +321,3 @@ interface MyPosition {
 - **易于维护**: 独立演进，互不影响
 
 遵循这个组织结构，可以保持代码的清晰性、可维护性和可扩展性。
-

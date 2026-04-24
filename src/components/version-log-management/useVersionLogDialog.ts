@@ -17,4 +17,3 @@ export function useVersionLogDialog(app?: App) {
 
 /** 导出类型 */
 export type UseVersionLogDialogReturn = ReturnType<typeof useVersionLogDialog>;
-

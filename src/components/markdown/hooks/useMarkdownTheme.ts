@@ -1,4 +1,5 @@
 import { computed } from 'vue';
+import type { CSSProperties } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useThemeVars } from 'naive-ui';
 import { useThemeStore } from '@/store/modules/theme';
@@ -10,7 +11,7 @@ export function useMarkdownTheme() {
   const themeVars = useThemeVars();
 
   /** CSS 变量映射 */
-  const cssVars = computed(() => ({
+  const cssVars = computed<CSSProperties>(() => ({
     '--markdown-text-color': themeVars.value.textColorBase,
     '--markdown-bg-color': themeVars.value.bodyColor,
     '--markdown-border-color': themeVars.value.borderColor,

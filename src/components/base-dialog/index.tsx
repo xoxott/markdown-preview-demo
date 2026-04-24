@@ -121,7 +121,10 @@ export default defineComponent({
       if (props.maxHeight) style.maxHeight = `${props.maxHeight}px`;
 
       // 位置
-      if (isPositioned.value || (props.position !== 'center' && typeof props.position === 'object')) {
+      if (
+        isPositioned.value ||
+        (props.position !== 'center' && typeof props.position === 'object')
+      ) {
         style.position = 'fixed';
         style.left = `${currentPosition.value.x}px`;
         style.top = `${currentPosition.value.y}px`;
@@ -415,7 +418,8 @@ export default defineComponent({
               }}
               onMousedown={(e: MouseEvent) => handleResizeStart(e, direction)}
               onMouseenter={e => {
-                (e.target as HTMLElement).style.backgroundColor = `${themeVars.value.primaryColor}33`;
+                (e.target as HTMLElement).style.backgroundColor =
+                  `${themeVars.value.primaryColor}33`;
               }}
               onMouseleave={e => {
                 (e.target as HTMLElement).style.backgroundColor = 'transparent';
@@ -508,22 +512,33 @@ export default defineComponent({
               header: () => (
                 <div
                   ref={headerRef}
-                  class={['flex items-center justify-between', props.draggable && !isFullscreen.value && 'cursor-move']}
+                  class={[
+                    'flex items-center justify-between',
+                    props.draggable && !isFullscreen.value && 'cursor-move'
+                  ]}
                   onMousedown={handleDragStart}
                   style={{
                     userSelect: 'none'
                   }}
                 >
-                  {slots.header ? slots.header() : <div class="flex-1 text-base font-medium">{props.title}</div>}
+                  {slots.header ? (
+                    slots.header()
+                  ) : (
+                    <div class="flex-1 text-base font-medium">{props.title}</div>
+                  )}
                   <div class="flex items-center gap-1">
                     {/* 全屏按钮 */}
                     {props.showFullscreen && (
                       <NButton text onClick={toggleFullscreen}>
                         {{
-                          icon: () => <NIcon size={16}>{isFullscreen.value ? <Contract /> : <Expand />}</NIcon>
+                          icon: () => (
+                            <NIcon size={16}>
+                              {isFullscreen.value ? <Contract /> : <Expand />}
+                            </NIcon>
+                          )
                         }}
-                      </NButton>)
-                    }
+                      </NButton>
+                    )}
                     {/* 关闭按钮 */}
                     {props.showClose && (
                       <NButton text onClick={handleClose}>
@@ -540,7 +555,9 @@ export default defineComponent({
                 </div>
               ),
               default: () => (
-                <div class={['flex-1 overflow-auto px-4 py-3', props.contentClass]}>{slots.default?.()}</div>
+                <div class={['flex-1 overflow-auto px-4 py-3', props.contentClass]}>
+                  {slots.default?.()}
+                </div>
               ),
               footer: slots.footer
                 ? () => <div class="flex items-center justify-end gap-2">{slots.footer?.()}</div>

@@ -4,4 +4,3 @@
 
 export { default as SelectionRect } from './SelectionRect';
 export { default } from './SelectionRect';
-

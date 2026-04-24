@@ -125,13 +125,9 @@ export default defineComponent({
         {/* 渲染正在绘制的草稿连接线 */}
         {/* 仅在用户拖拽连接时显示，提供实时视觉反馈 */}
         {props.connectionDraft && (
-          <ConnectionLine
-            draft={props.connectionDraft}
-            style={props.connectionLineStyle}
-          />
+          <ConnectionLine draft={props.connectionDraft} style={props.connectionLineStyle} />
         )}
       </svg>
     );
   }
 });
-

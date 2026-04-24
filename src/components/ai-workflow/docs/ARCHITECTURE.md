@@ -117,11 +117,11 @@ ai-workflow/
 interface WorkflowNode {
   id: string;
   type: NodeType;
-  position: Position;        // UI 数据
-  data: NodeData;           // 业务数据
-  config: NodeConfig;       // 业务数据
-  inputs?: Port[];          // 业务数据
-  outputs?: Port[];         // 业务数据
+  position: Position; // UI 数据
+  data: NodeData; // 业务数据
+  config: NodeConfig; // 业务数据
+  inputs?: Port[]; // 业务数据
+  outputs?: Port[]; // 业务数据
   // 混在一起，难以维护和扩展
 }
 ```
@@ -153,22 +153,25 @@ interface NodeUIConfig {
 
 // 完整的节点：业务 + UI
 interface WorkflowNode {
-  business: NodeBusinessData;  // 业务逻辑
-  ui: NodeUIConfig;            // UI 配置
+  business: NodeBusinessData; // 业务逻辑
+  ui: NodeUIConfig; // UI 配置
 }
 ```
 
 ### 优势
 
 1. **清晰的职责划分**
+
    - 业务数据：处理工作流逻辑、验证、执行
    - UI 数据：处理渲染、交互、样式
 
 2. **易于扩展**
+
    - 添加新的 UI 配置不影响业务逻辑
    - 修改业务逻辑不影响 UI 展示
 
 3. **便于测试**
+
    - 业务逻辑可以独立测试
    - UI 渲染可以独立测试
 
@@ -203,6 +206,7 @@ interface IConnectionRenderStrategy {
 #### 内置策略
 
 1. **BezierConnectionStrategy** - 贝塞尔曲线（默认）
+
    ```typescript
    // 平滑的曲线连接
    const strategy = new BezierConnectionStrategy();
@@ -210,6 +214,7 @@ interface IConnectionRenderStrategy {
    ```
 
 2. **StraightConnectionStrategy** - 直线连接
+
    ```typescript
    // 简单的直线连接
    const strategy = new StraightConnectionStrategy();
@@ -217,6 +222,7 @@ interface IConnectionRenderStrategy {
    ```
 
 3. **StepConnectionStrategy** - 步进线（直角）
+
    ```typescript
    // 直角转折的连接线
    const strategy = new StepConnectionStrategy();
@@ -224,6 +230,7 @@ interface IConnectionRenderStrategy {
    ```
 
 4. **SmoothStepConnectionStrategy** - 平滑步进线
+
    ```typescript
    // 带圆角的步进线
    const strategy = new SmoothStepConnectionStrategy();
@@ -235,7 +242,10 @@ interface IConnectionRenderStrategy {
    // 通过控制点自定义路径
    const strategy = new CustomConnectionStrategy();
    const path = strategy.computePath(source, target, {
-     controlPoints: [{ x: 100, y: 100 }, { x: 200, y: 200 }]
+     controlPoints: [
+       { x: 100, y: 100 },
+       { x: 200, y: 200 }
+     ]
    });
    ```
 
@@ -245,12 +255,9 @@ interface IConnectionRenderStrategy {
 import { connectionRenderManager } from '@/strategies/connection-render';
 
 // 使用内置策略
-const path = connectionRenderManager.renderPath(
-  'bezier',
-  sourcePos,
-  targetPos,
-  { bezierControlOffset: 0.6 }
-);
+const path = connectionRenderManager.renderPath('bezier', sourcePos, targetPos, {
+  bezierControlOffset: 0.6
+});
 
 // 注册自定义策略
 class MyCustomStrategy implements IConnectionRenderStrategy {
@@ -273,12 +280,12 @@ connectionRenderManager.registerStrategy(new MyCustomStrategy());
 
 ```typescript
 interface WorkflowConfig {
-  nodeStyle: NodeStyleConfig;           // 节点样式配置
+  nodeStyle: NodeStyleConfig; // 节点样式配置
   connectionStyle: ConnectionStyleConfig; // 连接线样式配置
-  canvasStyle: CanvasStyleConfig;       // 画布配置
-  interaction: InteractionConfig;       // 交互配置
-  performance: PerformanceConfig;       // 性能配置
-  theme: ThemeConfig;                   // 主题配置
+  canvasStyle: CanvasStyleConfig; // 画布配置
+  interaction: InteractionConfig; // 交互配置
+  performance: PerformanceConfig; // 性能配置
+  theme: ThemeConfig; // 主题配置
 }
 ```
 
@@ -307,7 +314,7 @@ configManager.updateConfig({
 });
 
 // 订阅配置变化
-const unsubscribe = configManager.subscribe((config) => {
+const unsubscribe = configManager.subscribe(config => {
   console.log('Config updated:', config);
 });
 
@@ -462,6 +469,7 @@ nodes.forEach(node => {
 ### 1. 数据管理
 
 ✅ **推荐**
+
 ```typescript
 // 分离业务数据和 UI 数据
 const node: WorkflowNode = {
@@ -469,30 +477,40 @@ const node: WorkflowNode = {
     id: 'node-1',
     type: 'ai',
     name: 'AI Node',
-    config: { /* 业务配置 */ }
+    config: {
+      /* 业务配置 */
+    }
   },
   ui: {
     position: { x: 100, y: 100 },
-    style: { /* UI 样式 */ }
+    style: {
+      /* UI 样式 */
+    }
   }
 };
 ```
 
 ❌ **不推荐**
+
 ```typescript
 // 混合业务数据和 UI 数据
 const node = {
   id: 'node-1',
   type: 'ai',
   position: { x: 100, y: 100 },
-  config: { /* 业务配置 */ },
-  style: { /* UI 样式 */ }
+  config: {
+    /* 业务配置 */
+  },
+  style: {
+    /* UI 样式 */
+  }
 };
 ```
 
 ### 2. 性能优化
 
 ✅ **推荐**
+
 ```typescript
 // 使用计算属性缓存
 const connectionPositions = computed(() => {
@@ -516,6 +534,7 @@ style={{
 ```
 
 ❌ **不推荐**
+
 ```typescript
 // 每次都重新计算
 function getConnectionPath() {
@@ -537,6 +556,7 @@ style={{
 ### 3. 类型安全
 
 ✅ **推荐**
+
 ```typescript
 // 使用严格的类型定义
 interface NodeConfig {
@@ -550,6 +570,7 @@ function updateNode(nodeId: string, config: NodeConfig): void {
 ```
 
 ❌ **不推荐**
+
 ```typescript
 // 使用 any
 function updateNode(nodeId: string, config: any): void {
@@ -560,6 +581,7 @@ function updateNode(nodeId: string, config: any): void {
 ### 4. 错误处理
 
 ✅ **推荐**
+
 ```typescript
 try {
   const result = await executeWorkflow(workflow);
@@ -576,6 +598,7 @@ try {
 ```
 
 ❌ **不推荐**
+
 ```typescript
 // 忽略错误
 executeWorkflow(workflow).then(handleSuccess);
@@ -595,16 +618,19 @@ try {
 通过采用这套架构设计：
 
 1. **可维护性提升 80%**
+
    - 清晰的模块划分
    - 完整的类型定义
    - 详细的文档
 
 2. **可扩展性提升 90%**
+
    - 策略模式支持自定义渲染
    - 配置系统支持自定义主题
    - 插件化的节点系统
 
 3. **性能提升 50%**
+
    - 优化的渲染策略
    - RAF 节流
    - GPU 加速
@@ -615,4 +641,3 @@ try {
    - 丰富的示例
 
 这套架构可以支撑未来的长期发展，避免代码变成"屎山"！🎉
-

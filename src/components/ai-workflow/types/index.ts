@@ -8,7 +8,15 @@
 // ==================== 基础类型 ====================
 
 /** 节点类型（与 API 保持一致） */
-export type NodeType = 'start' | 'end' | 'ai' | 'http' | 'database' | 'condition' | 'transform' | 'file';
+export type NodeType =
+  | 'start'
+  | 'end'
+  | 'ai'
+  | 'http'
+  | 'database'
+  | 'condition'
+  | 'transform'
+  | 'file';
 
 /** 连接线渲染策略 */
 export type ConnectionRenderStrategy = 'bezier' | 'straight' | 'step' | 'smooth-step' | 'custom';
@@ -334,4 +342,3 @@ export type RequiredKeys<T, K extends keyof T> = T & Required<Pick<T, K>>;
 
 /** 可选属性 */
 export type OptionalKeys<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
-

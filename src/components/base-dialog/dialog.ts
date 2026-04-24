@@ -87,7 +87,7 @@ export interface RenameDialogConfig {
 }
 
 /** 确认对话框配置 */
-export interface ConfirmDialogConfig  extends BaseDialogProps{
+export interface ConfirmDialogConfig extends BaseDialogProps {
   /** 标题 */
   title?: string;
   /** 内容 */

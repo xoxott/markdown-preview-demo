@@ -26,11 +26,11 @@ export default defineComponent({
       const canvasWidth = 1200;
       const canvasHeight = 600;
 
-      const nodeWidth = 120;  // 减小节点宽度
-      const nodeHeight = 50;  // 减小节点高度
-      const spacingX = 140;   // 减小水平间距
-      const spacingY = 70;    // 减小垂直间距
-      const padding = 30;     // 边距
+      const nodeWidth = 120; // 减小节点宽度
+      const nodeHeight = 50; // 减小节点高度
+      const spacingX = 140; // 减小水平间距
+      const spacingY = 70; // 减小垂直间距
+      const padding = 30; // 边距
 
       // 计算可用空间
       const availableWidth = canvasWidth - 2 * padding;
@@ -41,9 +41,7 @@ export default defineComponent({
       const rows = Math.ceil(count / cols);
 
       // 如果行数过多，调整布局使其更紧凑
-      const actualSpacingY = rows > (availableHeight / spacingY)
-        ? availableHeight / rows
-        : spacingY;
+      const actualSpacingY = rows > availableHeight / spacingY ? availableHeight / rows : spacingY;
 
       for (let i = 0; i < count; i++) {
         const col = i % cols;
@@ -57,9 +55,9 @@ export default defineComponent({
           position: { x, y },
           size: { width: nodeWidth, height: nodeHeight },
           data: { label: `节点 ${i + 1}` },
-          draggable: true,      // 显式启用拖拽
-          selectable: true,     // 显式启用选择
-          connectable: true,    // 显式启用连接
+          draggable: true, // 显式启用拖拽
+          selectable: true, // 显式启用选择
+          connectable: true, // 显式启用连接
           handles: [
             { id: `source-${i}`, type: 'source', position: 'right' },
             { id: `target-${i}`, type: 'target', position: 'left' }
@@ -112,7 +110,9 @@ export default defineComponent({
 
     return () => (
       <NCard bordered>
-        <NH3 class="border-b pb-2 text-lg font-semibold">Flow 示例 5: 性能测试（可配置节点数量）</NH3>
+        <NH3 class="border-b pb-2 text-lg font-semibold">
+          Flow 示例 5: 性能测试（可配置节点数量）
+        </NH3>
         <NText class="text-gray-500 mb-4 block">
           测试大量节点的渲染性能。已启用空间索引、视口裁剪、RAF节流等优化。观察性能监控面板查看实时FPS。
         </NText>
@@ -142,7 +142,14 @@ export default defineComponent({
             当前: {performanceNodes.value.length} 个节点, {performanceEdges.value.length} 条连接线
           </NText>
         </NSpace>
-        <div style={{ height: '600px', border: '1px solid #e0e0e0', borderRadius: '4px', position: 'relative' }}>
+        <div
+          style={{
+            height: '600px',
+            border: '1px solid #e0e0e0',
+            borderRadius: '4px',
+            position: 'relative'
+          }}
+        >
           <FlowCanvas
             id="performance-flow"
             initialNodes={performanceNodes.value}
@@ -163,9 +170,9 @@ export default defineComponent({
                 panOnDrag: true
               },
               nodes: {
-                draggable: true,      // 启用节点拖拽
-                selectable: true,     // 启用节点选择
-                connectable: true     // 启用节点连接
+                draggable: true, // 启用节点拖拽
+                selectable: true, // 启用节点选择
+                connectable: true // 启用节点连接
               },
               interaction: {
                 nodesDraggable: true, // 全局启用拖拽
@@ -190,4 +197,3 @@ export default defineComponent({
     );
   }
 });
-

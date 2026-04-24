@@ -185,4 +185,3 @@ export const CANVAS_CONSTANTS = {
   /** 线条连接样式 */
   LINE_JOIN: 'round' as CanvasLineJoin
 } as const;
-

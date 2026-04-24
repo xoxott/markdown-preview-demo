@@ -14,7 +14,7 @@ describe('NoCachePolicy', () => {
     it('应该始终返回 false', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const meta: CacheMeta = { cache: true };
 
@@ -24,7 +24,7 @@ describe('NoCachePolicy', () => {
     it('应该在没有 meta 时也返回 false', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       expect(policy.shouldRead(config)).toBe(false);
@@ -35,7 +35,7 @@ describe('NoCachePolicy', () => {
     it('应该始终返回 false', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const meta: CacheMeta = { cache: true };
       const data = { id: 1 };
@@ -48,7 +48,7 @@ describe('NoCachePolicy', () => {
     it('应该始终返回 undefined', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const meta: CacheMeta = { cache: true, cacheExpireTime: 1000 };
 
@@ -56,4 +56,3 @@ describe('NoCachePolicy', () => {
     });
   });
 });
-

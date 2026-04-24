@@ -87,8 +87,7 @@ export function getErrorType(error: RetryableError): ErrorType {
  * 检查是否为可应用错误类型策略的错误
  */
 export function isApplicableErrorType(
-  errorType: ErrorType,
+  errorType: ErrorType
 ): errorType is 'timeout' | 'network' | 'server' {
   return errorType !== 'unknown' && errorType !== 'client';
 }
-

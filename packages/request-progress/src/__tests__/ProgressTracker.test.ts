@@ -56,8 +56,8 @@ describe('ProgressTracker', () => {
         expect.objectContaining({
           percent: 50,
           loaded: 50,
-          total: 100,
-        }),
+          total: 100
+        })
       );
     });
 
@@ -74,8 +74,8 @@ describe('ProgressTracker', () => {
 
       expect(newCallback).toHaveBeenCalledWith(
         expect.objectContaining({
-          elapsed: 1000,
-        }),
+          elapsed: 1000
+        })
       );
 
       vi.useRealTimers();
@@ -111,8 +111,8 @@ describe('ProgressTracker', () => {
         expect.objectContaining({
           percent: 0,
           loaded: 50,
-          total: 0,
-        }),
+          total: 0
+        })
       );
     });
 
@@ -142,8 +142,8 @@ describe('ProgressTracker', () => {
       expect(callback).toHaveBeenCalledWith(
         expect.objectContaining({
           loaded: 75,
-          total: 200,
-        }),
+          total: 200
+        })
       );
     });
 
@@ -155,8 +155,8 @@ describe('ProgressTracker', () => {
         expect.objectContaining({
           percent: 100,
           loaded: 100,
-          total: 100,
-        }),
+          total: 100
+        })
       );
     });
   });
@@ -246,8 +246,8 @@ describe('ProgressTracker', () => {
       expect(cb).toHaveBeenCalledWith(
         expect.objectContaining({
           loaded: 75,
-          total: 200,
-        }),
+          total: 200
+        })
       );
     });
 
@@ -317,4 +317,3 @@ describe('ProgressTracker', () => {
     });
   });
 });
-

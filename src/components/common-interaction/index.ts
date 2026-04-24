@@ -15,4 +15,3 @@ export * from './utils/scroll';
 export { SelectionRect, default as SelectionRectComponent } from './SelectionRect';
 export { DragPreview, default as DragPreviewComponent } from './DragPreview';
 export { DropZone, default as DropZoneComponent } from './DropZone';
-

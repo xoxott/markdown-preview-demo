@@ -29,7 +29,9 @@ function handleColourWeaknessChange(value: boolean) {
   themeStore.setColourWeakness(value);
 }
 
-const showSiderInverted = computed(() => !themeStore.darkMode && themeStore.layout.mode.includes('vertical'));
+const showSiderInverted = computed(
+  () => !themeStore.darkMode && themeStore.layout.mode.includes('vertical')
+);
 </script>
 
 <template>

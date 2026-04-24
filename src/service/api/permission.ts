@@ -55,7 +55,10 @@ export function fetchCreatePermission(data: Api.PermissionManagement.CreatePermi
  * @param id Permission ID
  * @param data Permission data
  */
-export function fetchUpdatePermission(id: number, data: Api.PermissionManagement.UpdatePermissionRequest) {
+export function fetchUpdatePermission(
+  id: number,
+  data: Api.PermissionManagement.UpdatePermissionRequest
+) {
   return request<Api.PermissionManagement.UpdatePermissionResponse>({
     url: `/api/admin/permissions/${id}`,
     method: 'put',
@@ -80,7 +83,9 @@ export function fetchDeletePermission(id: number) {
  *
  * @param data Permission IDs
  */
-export function fetchBatchDeletePermissions(data: Api.PermissionManagement.BatchDeletePermissionsRequest) {
+export function fetchBatchDeletePermissions(
+  data: Api.PermissionManagement.BatchDeletePermissionsRequest
+) {
   return request<Api.PermissionManagement.BatchDeletePermissionsResponse>({
     url: '/api/admin/permissions/batch',
     method: 'delete',
@@ -108,11 +113,13 @@ export function fetchTogglePermissionStatus(id: number, isActive: boolean) {
  * @param roleId Role ID
  * @param data Permission IDs
  */
-export function fetchAssignPermissionsToRole(roleId: number, data: Api.PermissionManagement.AssignPermissionsRequest) {
+export function fetchAssignPermissionsToRole(
+  roleId: number,
+  data: Api.PermissionManagement.AssignPermissionsRequest
+) {
   return request<Api.PermissionManagement.AssignPermissionsResponse>({
     url: `/api/admin/roles/${roleId}/permissions`,
     method: 'post',
     data
   });
 }
-

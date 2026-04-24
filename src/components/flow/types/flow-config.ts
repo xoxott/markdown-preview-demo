@@ -290,4 +290,3 @@ export interface FlowConfig {
 export type PartialFlowConfig = {
   [K in keyof FlowConfig]?: Partial<FlowConfig[K]>;
 };
-

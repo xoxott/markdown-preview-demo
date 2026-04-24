@@ -10,7 +10,15 @@ declare namespace Api {
     // ==================== 基础类型 ====================
 
     /** 节点类型 */
-    type NodeType = 'start' | 'end' | 'ai' | 'http' | 'database' | 'condition' | 'transform' | 'file';
+    type NodeType =
+      | 'start'
+      | 'end'
+      | 'ai'
+      | 'http'
+      | 'database'
+      | 'condition'
+      | 'transform'
+      | 'file';
 
     /** 工作流状态 */
     type WorkflowStatus = 'draft' | 'published' | 'archived';
@@ -45,7 +53,7 @@ declare namespace Api {
       type: NodeType;
       name: string;
       description?: string;
-      position: Position;  // 节点位置需要持久化
+      position: Position; // 节点位置需要持久化
       config: NodeConfig;
       inputs?: Port[];
       outputs?: Port[];

@@ -68,19 +68,14 @@ export interface UseNodeStateReturn {
  * const state = getNodeState(node);
  * ```
  */
-export function useNodeState(
-  options: UseNodeStateOptions
-): UseNodeStateReturn {
-  const {
-    nodes,
-    selectedNodeIds,
-    lockedNodeIds,
-    draggingNodeId
-  } = options;
+export function useNodeState(options: UseNodeStateOptions): UseNodeStateReturn {
+  const { nodes, selectedNodeIds, lockedNodeIds, draggingNodeId } = options;
 
   // 性能优化：使用缓存的 Set，避免每次计算都创建新 Set
   const selectedNodeIdsSet = useCachedSet(selectedNodeIds);
-  const lockedNodeIdsSet = lockedNodeIds ? useCachedSet(lockedNodeIds) : computed(() => new Set<string>());
+  const lockedNodeIdsSet = lockedNodeIds
+    ? useCachedSet(lockedNodeIds)
+    : computed(() => new Set<string>());
 
   const stateCache = createCache<string, NodeState>({
     maxSize: PERFORMANCE_CONSTANTS.CACHE_MAX_SIZE,
@@ -156,4 +151,3 @@ export function useNodeState(
     clearCache
   };
 }
-

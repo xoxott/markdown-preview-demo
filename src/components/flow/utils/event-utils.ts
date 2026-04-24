@@ -59,7 +59,7 @@ export function createEventDelegation<T>(
 
   // 创建响应式的 ID 到数据项的映射
   const itemsMap = computed(() => {
-    const itemsArray = isRef<T[]>(items) ? items.value : items as T[];
+    const itemsArray = isRef<T[]>(items) ? items.value : (items as T[]);
     const map = new Map<string, T>();
     itemsArray.forEach((item: T) => {
       map.set(getId(item), item);
@@ -115,11 +115,10 @@ export function createNodeEventDelegation<T extends { id: string }>(
   return createEventDelegation(
     {
       items,
-      getId: (item) => item.id,
+      getId: item => item.id,
       dataAttribute: 'data-node-id',
       excludeSelector: options?.excludeSelector
     },
     handler
   );
 }
-

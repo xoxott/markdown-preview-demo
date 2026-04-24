@@ -92,10 +92,10 @@ describe('FileService', () => {
       // 使用 Promise.race 来避免无限等待
       const file = new File(['image data'], 'test.jpg', { type: 'image/jpeg' });
       const compressedPromise = service.compressFile(file);
-      const timeoutPromise = new Promise<File>((resolve) => {
+      const timeoutPromise = new Promise<File>(resolve => {
         setTimeout(() => resolve(file), 1000);
       });
-      
+
       // 如果压缩超时，返回原文件（这是可以接受的行为）
       const result = await Promise.race([compressedPromise, timeoutPromise]);
       expect(result).toBeInstanceOf(File);
@@ -120,10 +120,10 @@ describe('FileService', () => {
       // 使用 Promise.race 来避免无限等待
       const file = new File(['image data'], 'test.jpg', { type: 'image/jpeg' });
       const previewPromise = service.generatePreview(file);
-      const timeoutPromise = new Promise<undefined>((resolve) => {
+      const timeoutPromise = new Promise<undefined>(resolve => {
         setTimeout(() => resolve(undefined), 1000);
       });
-      
+
       // 如果预览超时，返回 undefined（这是可以接受的行为）
       const preview = await Promise.race([previewPromise, timeoutPromise]);
       // 由于需要真实的图片数据，这里只检查返回类型
@@ -139,4 +139,3 @@ describe('FileService', () => {
     });
   });
 });
-

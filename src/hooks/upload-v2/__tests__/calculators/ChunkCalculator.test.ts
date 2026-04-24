@@ -43,7 +43,11 @@ describe('ChunkCalculator', () => {
 
     it('应该根据文件大小调整', () => {
       const smallFile = ChunkCalculator.calculateOptimalChunkSize(5 * 1024 * 1024, 1000, config);
-      const largeFile = ChunkCalculator.calculateOptimalChunkSize(2 * 1024 * 1024 * 1024, 1000, config);
+      const largeFile = ChunkCalculator.calculateOptimalChunkSize(
+        2 * 1024 * 1024 * 1024,
+        1000,
+        config
+      );
       expect(largeFile).toBeGreaterThanOrEqual(smallFile);
     });
 
@@ -60,4 +64,3 @@ describe('ChunkCalculator', () => {
     });
   });
 });
-

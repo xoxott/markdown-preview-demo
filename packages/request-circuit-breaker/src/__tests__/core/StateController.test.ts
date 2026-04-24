@@ -19,7 +19,7 @@ describe('StateController', () => {
       new DefaultStateTransitionStrategy(),
       5, // failureThreshold
       60000, // timeout
-      2, // successThreshold
+      2 // successThreshold
     );
   });
 
@@ -193,4 +193,3 @@ describe('StateController', () => {
     });
   });
 });
-

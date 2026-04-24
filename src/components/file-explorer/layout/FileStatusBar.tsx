@@ -213,7 +213,10 @@ export default defineComponent({
             <span
               class="font-medium"
               style={{
-                color: storagePercentage.value > 90 ? themeVars.value.errorColor : themeVars.value.textColorBase
+                color:
+                  storagePercentage.value > 90
+                    ? themeVars.value.errorColor
+                    : themeVars.value.textColorBase
               }}
             >
               {storagePercentage.value}%
@@ -224,7 +227,10 @@ export default defineComponent({
         {/* 加载状态 */}
         {props.loading && (
           <div class="flex items-center gap-2">
-            <div class="h-1 w-1 animate-pulse rounded-full" style={{ backgroundColor: themeVars.value.primaryColor }} />
+            <div
+              class="h-1 w-1 animate-pulse rounded-full"
+              style={{ backgroundColor: themeVars.value.primaryColor }}
+            />
             <span style={{ color: themeVars.value.textColor3 }}>加载中...</span>
           </div>
         )}

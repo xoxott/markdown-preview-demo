@@ -27,7 +27,7 @@ export class MockTransport implements Transport {
       data,
       status,
       headers: {},
-      config: { url: '', method: 'GET' },
+      config: { url: '', method: 'GET' }
     });
   }
 
@@ -94,7 +94,7 @@ export class MockTransport implements Transport {
     if (response) {
       return {
         ...response,
-        config,
+        config
       } as TransportResponse<T>;
     }
 
@@ -103,8 +103,7 @@ export class MockTransport implements Transport {
       data: {} as T,
       status: 200,
       headers: {},
-      config,
+      config
     };
   }
 }
-

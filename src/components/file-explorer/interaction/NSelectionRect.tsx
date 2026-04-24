@@ -1,5 +1,14 @@
 import type { CSSProperties, PropType } from 'vue';
-import { Teleport, computed, defineComponent, nextTick, onBeforeUnmount, onMounted, ref, shallowRef } from 'vue';
+import {
+  Teleport,
+  computed,
+  defineComponent,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  shallowRef
+} from 'vue';
 import { useEventListener, useThrottleFn } from '@vueuse/core';
 import { useThemeVars } from 'naive-ui';
 import type { ScrollbarInst } from 'naive-ui';
@@ -231,7 +240,9 @@ export default defineComponent({
       if (!containerRef.value) return;
 
       const newSelectedIds = new Set<string>();
-      const elements = Array.from(containerRef.value.querySelectorAll<HTMLElement>(props.selectableSelector));
+      const elements = Array.from(
+        containerRef.value.querySelectorAll<HTMLElement>(props.selectableSelector)
+      );
 
       // 使用 for...of 遍历数组，性能更好
       for (const el of elements) {
@@ -331,7 +342,8 @@ export default defineComponent({
     };
 
     /** 判断是否允许拖选 */
-    const canStartDragSelection = (target: HTMLElement): boolean => !target.closest(`[${props.preventDragSelector}]`);
+    const canStartDragSelection = (target: HTMLElement): boolean =>
+      !target.closest(`[${props.preventDragSelector}]`);
 
     /** 计算鼠标在内容坐标系中的位置 */
     const getContentPoint = (e: MouseEvent): Point | null => {

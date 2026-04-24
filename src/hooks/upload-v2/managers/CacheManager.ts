@@ -136,4 +136,3 @@ export class CacheManager {
     this.cache.clear();
   }
 }
-

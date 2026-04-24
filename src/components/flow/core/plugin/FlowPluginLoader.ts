@@ -37,11 +37,7 @@ export class FlowPluginLoader {
   /** 配置实例 ID */
   private configId: string;
 
-  constructor(
-    eventEmitter: FlowEventEmitter,
-    configManager: FlowConfigManager,
-    configId: string
-  ) {
+  constructor(eventEmitter: FlowEventEmitter, configManager: FlowConfigManager, configId: string) {
     this.eventEmitter = eventEmitter;
     this.configManager = configManager;
     this.configId = configId;
@@ -63,11 +59,7 @@ export class FlowPluginLoader {
     }
 
     // 创建插件上下文
-    const context = new FlowPluginContextImpl(
-      this.eventEmitter,
-      this.configManager,
-      this.configId
-    );
+    const context = new FlowPluginContextImpl(this.eventEmitter, this.configManager, this.configId);
 
     // 创建插件实例
     const instance: PluginInstance = {
@@ -291,4 +283,3 @@ export class FlowPluginLoader {
     this.plugins.clear();
   }
 }
-

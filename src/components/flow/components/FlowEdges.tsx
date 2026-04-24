@@ -46,7 +46,6 @@ export interface FlowEdgesProps {
   config?: Readonly<FlowConfig>;
 }
 
-
 /**
  * Flow 连接线列表组件
  */
@@ -107,7 +106,6 @@ export default defineComponent({
     }
   },
   setup(props) {
-
     const edgesRef = toRef(props, 'edges');
     const nodesRef = toRef(props, 'nodes');
     const viewportRef = computed(() => props.viewport || { x: 0, y: 0, zoom: 1 });

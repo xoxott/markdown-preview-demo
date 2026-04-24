@@ -19,9 +19,7 @@ export default defineComponent({
         position: { x: 50, y: 80 },
         size: { width: 120, height: 50 },
         data: { label: '起点' },
-        handles: [
-          { id: 'source-1', type: 'source', position: 'right' }
-        ]
+        handles: [{ id: 'source-1', type: 'source', position: 'right' }]
       },
       {
         id: 'node-2',
@@ -29,9 +27,7 @@ export default defineComponent({
         position: { x: 250, y: 80 },
         size: { width: 120, height: 50 },
         data: { label: '终点' },
-        handles: [
-          { id: 'target-2', type: 'target', position: 'left' }
-        ]
+        handles: [{ id: 'target-2', type: 'target', position: 'left' }]
       }
     ];
 
@@ -97,9 +93,7 @@ export default defineComponent({
         position: { x: 50, y: 30 },
         size: { width: 100, height: 50 },
         data: { label: 'A' },
-        handles: [
-          { id: 'source-a', type: 'source', position: 'right' }
-        ]
+        handles: [{ id: 'source-a', type: 'source', position: 'right' }]
       },
       {
         id: 'node-b',
@@ -107,9 +101,7 @@ export default defineComponent({
         position: { x: 50, y: 100 },
         size: { width: 100, height: 50 },
         data: { label: 'B' },
-        handles: [
-          { id: 'source-b', type: 'source', position: 'right' }
-        ]
+        handles: [{ id: 'source-b', type: 'source', position: 'right' }]
       },
       {
         id: 'node-c',
@@ -117,9 +109,7 @@ export default defineComponent({
         position: { x: 50, y: 170 },
         size: { width: 100, height: 50 },
         data: { label: 'C' },
-        handles: [
-          { id: 'source-c', type: 'source', position: 'right' }
-        ]
+        handles: [{ id: 'source-c', type: 'source', position: 'right' }]
       },
       {
         id: 'node-d',
@@ -127,9 +117,7 @@ export default defineComponent({
         position: { x: 270, y: 100 },
         size: { width: 100, height: 50 },
         data: { label: 'D' },
-        handles: [
-          { id: 'target-d', type: 'target', position: 'left' }
-        ]
+        handles: [{ id: 'target-d', type: 'target', position: 'left' }]
       }
     ]);
     const mixedEdges = ref<FlowEdge[]>([
@@ -237,9 +225,15 @@ export default defineComponent({
                 <NText depth={3}>不同连接线使用不同弧度</NText>
               </div>
               <div class="flex items-center gap-3 ml-2">
-                <NText depth={3} class="text-sm">A→D: 0.1（小）</NText>
-                <NText depth={3} class="text-sm">B→D: 0.3（全局）</NText>
-                <NText depth={3} class="text-sm">C→D: 0.8（大）</NText>
+                <NText depth={3} class="text-sm">
+                  A→D: 0.1（小）
+                </NText>
+                <NText depth={3} class="text-sm">
+                  B→D: 0.3（全局）
+                </NText>
+                <NText depth={3} class="text-sm">
+                  C→D: 0.8（大）
+                </NText>
               </div>
             </div>
             <div style={{ height: '260px', border: '1px solid #e0e0e0', borderRadius: '4px' }}>
@@ -258,4 +252,3 @@ export default defineComponent({
     );
   }
 });
-

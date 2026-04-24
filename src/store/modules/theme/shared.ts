@@ -190,7 +190,10 @@ export function toggleCssDarkMode(darkMode = false) {
  */
 export function toggleAuxiliaryColorModes(grayscaleMode = false, colourWeakness = false) {
   const htmlElement = document.documentElement;
-  htmlElement.style.filter = [grayscaleMode ? 'grayscale(100%)' : '', colourWeakness ? 'invert(80%)' : '']
+  htmlElement.style.filter = [
+    grayscaleMode ? 'grayscale(100%)' : '',
+    colourWeakness ? 'invert(80%)' : ''
+  ]
     .filter(Boolean)
     .join(' ');
 }

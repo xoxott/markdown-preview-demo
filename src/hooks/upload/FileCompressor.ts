@@ -18,7 +18,12 @@ export default class FileCompressor {
    * @param maxHeight - 压缩后最大高度，默认 1080px
    * @returns 压缩后的文件（Promise<File>）
    */
-  static async compressImage(file: File, quality = 0.8, maxWidth = 1920, maxHeight = 1080): Promise<File> {
+  static async compressImage(
+    file: File,
+    quality = 0.8,
+    maxWidth = 1920,
+    maxHeight = 1080
+  ): Promise<File> {
     return new Promise(resolve => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d')!;

@@ -3,7 +3,11 @@
 import type { CheckFileTransformer, ChunkUploadTransformer, MergeChunksTransformer } from '../type';
 
 /** 默认分块上传参数转换器 */
-export const defaultChunkUploadTransformer: ChunkUploadTransformer = ({ task, chunk, customParams = {} }) => {
+export const defaultChunkUploadTransformer: ChunkUploadTransformer = ({
+  task,
+  chunk,
+  customParams = {}
+}) => {
   const formData = new FormData();
   formData.append('file', chunk.blob, task.file.name);
   formData.append('chunkIndex', String(chunk.index));
@@ -23,7 +27,10 @@ export const defaultChunkUploadTransformer: ChunkUploadTransformer = ({ task, ch
 };
 
 /** 默认合并分块参数转换器 */
-export const defaultMergeChunksTransformer: MergeChunksTransformer = ({ task, customParams = {} }) => {
+export const defaultMergeChunksTransformer: MergeChunksTransformer = ({
+  task,
+  customParams = {}
+}) => {
   return {
     fileMD5: task.fileMD5,
     fileName: task.file.name,

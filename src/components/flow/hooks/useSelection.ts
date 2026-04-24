@@ -272,4 +272,3 @@ export function useSelection(options: UseSelectionOptions = {}): UseSelectionRet
     shouldBoxSelect
   };
 }
-

@@ -28,7 +28,7 @@ import {
 
   // Zod 运行时验证
   zodValidateNode,
-  zodSafeValidateNode,
+  zodSafeValidateNode
 } from '../index';
 
 // 状态管理接口
@@ -41,7 +41,7 @@ import type { IStateStore } from '../core/state/interfaces/IStateStore';
 export function useOptimizedViewportCulling() {
   const spatialIndex = new SpatialIndex({
     defaultWidth: 220,
-    defaultHeight: 72,
+    defaultHeight: 72
   });
 
   const nodes = ref<FlowNode[]>([]);
@@ -60,7 +60,7 @@ export function useOptimizedViewportCulling() {
       maxX: (-viewport.x + window.innerWidth) / viewport.zoom,
       maxY: (-viewport.y + window.innerHeight) / viewport.zoom,
       width: window.innerWidth / viewport.zoom,
-      height: window.innerHeight / viewport.zoom,
+      height: window.innerHeight / viewport.zoom
     };
 
     return spatialIndex.query(bounds);
@@ -75,7 +75,7 @@ export function useOptimizedViewportCulling() {
   return {
     updateNodes,
     getVisibleNodes,
-    findNodeAtPosition,
+    findNodeAtPosition
   };
 }
 
@@ -140,14 +140,14 @@ export function useObjectPools() {
   function getPoolStats() {
     return {
       position: positionPool.getStats(),
-      bounds: boundsPool.getStats(),
+      bounds: boundsPool.getStats()
     };
   }
 
   return {
     handleMouseMove,
     calculateNodeBounds,
-    getPoolStats,
+    getPoolStats
   };
 }
 
@@ -158,7 +158,7 @@ export function useObjectPools() {
 export function useCommandBasedHistory(stateStore: IStateStore) {
   const commandManager = new CommandManager({
     maxSize: 50,
-    enableMerge: true, // 启用命令合并
+    enableMerge: true // 启用命令合并
   });
 
   // 移动节点（支持撤销/重做）
@@ -210,7 +210,7 @@ export function useCommandBasedHistory(stateStore: IStateStore) {
     return {
       canUndo: commandManager.canUndo(),
       canRedo: commandManager.canRedo(),
-      size: commandManager.size(),
+      size: commandManager.size()
     };
   }
 
@@ -220,7 +220,7 @@ export function useCommandBasedHistory(stateStore: IStateStore) {
     undo,
     redo,
     clearHistory,
-    getHistoryState,
+    getHistoryState
   };
 }
 
@@ -245,7 +245,7 @@ export function useSafeDataImport() {
         // Ensure data property exists (schema requires it, but TypeScript may not infer correctly)
         const node: FlowNode = {
           ...result.data,
-          data: result.data.data ?? {},
+          data: result.data.data ?? {}
         };
         validNodes.push(node);
       } else {
@@ -269,7 +269,7 @@ export function useSafeDataImport() {
         // Ensure data property exists (schema requires it, but TypeScript may not infer correctly)
         return {
           ...validated,
-          data: validated.data ?? {},
+          data: validated.data ?? {}
         } as FlowNode;
       } catch (error) {
         throw new Error(`Invalid node at index ${index}: ${error}`);
@@ -279,7 +279,7 @@ export function useSafeDataImport() {
 
   return {
     importNodes,
-    importNodesStrict,
+    importNodesStrict
   };
 }
 
@@ -355,7 +355,7 @@ export function useOptimizedFlowCanvas() {
       maxX: (-vp.x + window.innerWidth) / vp.zoom,
       maxY: (-vp.y + window.innerHeight) / vp.zoom,
       width: window.innerWidth / vp.zoom,
-      height: window.innerHeight / vp.zoom,
+      height: window.innerHeight / vp.zoom
     };
 
     return spatialIndex.query(bounds);
@@ -416,7 +416,7 @@ export function useOptimizedFlowCanvas() {
       poolStats: positionPool.getStats(),
       historySize: commandManager.size(),
       canUndo: commandManager.canUndo(),
-      canRedo: commandManager.canRedo(),
+      canRedo: commandManager.canRedo()
     };
   }
 
@@ -429,7 +429,7 @@ export function useOptimizedFlowCanvas() {
     moveNodeOptimized,
     undo,
     redo,
-    getPerformanceStats,
+    getPerformanceStats
   };
 }
 
@@ -442,7 +442,7 @@ export function performanceComparison() {
     id: `node-${i}`,
     type: 'default',
     position: { x: Math.random() * 10000, y: Math.random() * 10000 },
-    data: {},
+    data: {}
   }));
 
   const viewport = {
@@ -451,7 +451,7 @@ export function performanceComparison() {
     maxX: 1000,
     maxY: 1000,
     width: 1000,
-    height: 1000,
+    height: 1000
   };
 
   // 方法 1: 线性查找（优化前）
@@ -459,8 +459,7 @@ export function performanceComparison() {
   const result1 = nodes.filter(node => {
     const x = node.position.x;
     const y = node.position.y;
-    return x >= viewport.minX && x <= viewport.maxX &&
-           y >= viewport.minY && y <= viewport.maxY;
+    return x >= viewport.minX && x <= viewport.maxX && y >= viewport.minY && y <= viewport.maxY;
   });
   console.timeEnd('Linear Search');
   console.log('Found (linear):', result1.length);
@@ -476,4 +475,3 @@ export function performanceComparison() {
 
   // 预期结果：空间索引快 10-20 倍
 }
-

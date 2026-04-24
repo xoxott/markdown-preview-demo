@@ -8,7 +8,7 @@ import type {
   RequestStartEventData,
   RequestSuccessEventData,
   RequestErrorEventData,
-  RequestCompleteEventData,
+  RequestCompleteEventData
 } from '../../types';
 
 describe('EventManager', () => {
@@ -28,7 +28,7 @@ describe('EventManager', () => {
       manager.on('request:start', handler);
       manager.emit('request:start', {
         config: { url: '/api/users', method: 'GET' },
-        timestamp: Date.now(),
+        timestamp: Date.now()
       });
 
       expect(called).toBe(true);
@@ -47,7 +47,7 @@ describe('EventManager', () => {
       manager.on('request:start', handler2);
       manager.emit('request:start', {
         config: { url: '/api/users', method: 'GET' },
-        timestamp: Date.now(),
+        timestamp: Date.now()
       });
 
       expect(callCount).toBe(2);
@@ -74,25 +74,25 @@ describe('EventManager', () => {
 
       manager.emit('request:start', {
         config: { url: '/api/users', method: 'GET' },
-        timestamp: Date.now(),
+        timestamp: Date.now()
       });
       manager.emit('request:success', {
         config: { url: '/api/users', method: 'GET' },
         result: 'success',
         timestamp: Date.now(),
-        duration: 100,
+        duration: 100
       });
       manager.emit('request:error', {
         config: { url: '/api/users', method: 'GET' },
         error: new Error('Test error'),
         timestamp: Date.now(),
-        duration: 100,
+        duration: 100
       });
       manager.emit('request:complete', {
         config: { url: '/api/users', method: 'GET' },
         timestamp: Date.now(),
         duration: 100,
-        success: true,
+        success: true
       });
 
       expect(startCalled).toBe(true);
@@ -113,7 +113,7 @@ describe('EventManager', () => {
       manager.off('request:start', handler);
       manager.emit('request:start', {
         config: { url: '/api/users', method: 'GET' },
-        timestamp: Date.now(),
+        timestamp: Date.now()
       });
 
       expect(called).toBe(false);
@@ -133,7 +133,7 @@ describe('EventManager', () => {
       manager.off('request:start', handler1);
       manager.emit('request:start', {
         config: { url: '/api/users', method: 'GET' },
-        timestamp: Date.now(),
+        timestamp: Date.now()
       });
 
       expect(callCount).toBe(1);
@@ -166,13 +166,13 @@ describe('EventManager', () => {
       manager.removeAllListeners('request:start');
       manager.emit('request:start', {
         config: { url: '/api/users', method: 'GET' },
-        timestamp: Date.now(),
+        timestamp: Date.now()
       });
       manager.emit('request:success', {
         config: { url: '/api/users', method: 'GET' },
         result: 'success',
         timestamp: Date.now(),
-        duration: 100,
+        duration: 100
       });
 
       expect(callCount).toBe(1); // 只有 success 事件的监听器被调用
@@ -189,13 +189,13 @@ describe('EventManager', () => {
       manager.removeAllListeners();
       manager.emit('request:start', {
         config: { url: '/api/users', method: 'GET' },
-        timestamp: Date.now(),
+        timestamp: Date.now()
       });
       manager.emit('request:success', {
         config: { url: '/api/users', method: 'GET' },
         result: 'success',
         timestamp: Date.now(),
-        duration: 100,
+        duration: 100
       });
 
       expect(callCount).toBe(0);
@@ -212,7 +212,7 @@ describe('EventManager', () => {
       manager.on('request:start', handler);
       const eventData: RequestStartEventData = {
         config: { url: '/api/users', method: 'GET' },
-        timestamp: Date.now(),
+        timestamp: Date.now()
       };
       manager.emit('request:start', eventData);
 
@@ -230,7 +230,7 @@ describe('EventManager', () => {
         config: { url: '/api/users', method: 'GET' },
         result: 'success',
         timestamp: Date.now(),
-        duration: 100,
+        duration: 100
       };
       manager.emit('request:success', eventData);
 
@@ -249,7 +249,7 @@ describe('EventManager', () => {
         config: { url: '/api/users', method: 'GET' },
         error,
         timestamp: Date.now(),
-        duration: 100,
+        duration: 100
       };
       manager.emit('request:error', eventData);
 
@@ -267,7 +267,7 @@ describe('EventManager', () => {
         config: { url: '/api/users', method: 'GET' },
         timestamp: Date.now(),
         duration: 100,
-        success: true,
+        success: true
       };
       manager.emit('request:complete', eventData);
 
@@ -278,7 +278,7 @@ describe('EventManager', () => {
       expect(() => {
         manager.emit('request:start', {
           config: { url: '/api/users', method: 'GET' },
-          timestamp: Date.now(),
+          timestamp: Date.now()
         });
       }).not.toThrow();
     });
@@ -292,7 +292,7 @@ describe('EventManager', () => {
       manager.on('request:start', handler);
       manager.emit('request:start', {
         config: { url: '/api/users', method: 'GET' },
-        timestamp: Date.now(),
+        timestamp: Date.now()
       });
 
       expect(consoleErrorSpy).toHaveBeenCalled();
@@ -313,7 +313,7 @@ describe('EventManager', () => {
       manager.on('request:start', handler2);
       manager.emit('request:start', {
         config: { url: '/api/users', method: 'GET' },
-        timestamp: Date.now(),
+        timestamp: Date.now()
       });
 
       expect(callCount).toBe(1);
@@ -374,4 +374,3 @@ describe('EventManager', () => {
     });
   });
 });
-

@@ -1,6 +1,12 @@
 import process from 'node:process';
 import { readFile } from 'node:fs/promises';
-import { getFirstGitCommit, getGitHubRepo, getTagDateMap, getTotalGitTags, isPrerelease } from './git';
+import {
+  getFirstGitCommit,
+  getGitHubRepo,
+  getTagDateMap,
+  getTotalGitTags,
+  isPrerelease
+} from './git';
 import type { ChangelogOption } from './types';
 
 /**

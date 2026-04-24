@@ -65,7 +65,11 @@ export function extractSvgDimensions(svg: string): {
  * @param height - 高度
  * @returns 修改后的 SVG 字符串
  */
-export function setSvgDimensions(svg: string, width?: string | number, height?: string | number): string {
+export function setSvgDimensions(
+  svg: string,
+  width?: string | number,
+  height?: string | number
+): string {
   const parser = new DOMParser();
   const doc = parser.parseFromString(svg, 'image/svg+xml');
   const svgElement = doc.querySelector('svg');
@@ -120,7 +124,13 @@ export function optimizeSvg(
 
   // 移除注释
   if (removeComments) {
-    const comments = doc.evaluate('//comment()', doc, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+    const comments = doc.evaluate(
+      '//comment()',
+      doc,
+      null,
+      XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
+      null
+    );
     for (let i = 0; i < comments.snapshotLength; i++) {
       const comment = comments.snapshotItem(i);
       comment?.parentNode?.removeChild(comment);

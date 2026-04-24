@@ -54,9 +54,12 @@ export async function sendRelease(options: ChangelogOption, content: string) {
 
   try {
     // 检查 release 是否已经存在
-    const exists = await ofetch(`https://api.github.com/repos/${github}/releases/tags/${options.to}`, {
-      headers
-    });
+    const exists = await ofetch(
+      `https://api.github.com/repos/${github}/releases/tags/${options.to}`,
+      {
+        headers
+      }
+    );
     if (exists.url) {
       // 如果存在，则使用 PATCH 更新 release
       url = exists.url;
@@ -83,7 +86,9 @@ export async function sendRelease(options: ChangelogOption, content: string) {
 
   try {
     // 输出日志
-    consola.log(cyan(method === 'POST' ? 'Creating release notes...' : 'Updating release notes...'));
+    consola.log(
+      cyan(method === 'POST' ? 'Creating release notes...' : 'Updating release notes...')
+    );
     // 发起 GitHub API 请求
     const res = await ofetch(url, {
       method,
@@ -95,7 +100,9 @@ export async function sendRelease(options: ChangelogOption, content: string) {
     consola.log(green(`Released on ${res.html_url}`));
   } catch (e) {
     // 出现错误时，提示用户手动操作
-    consola.error(red('Failed to create the release. Using the following link to create it manually:'));
+    consola.error(
+      red('Failed to create the release. Using the following link to create it manually:')
+    );
     consola.error(yellow(webUrl));
 
     throw e;

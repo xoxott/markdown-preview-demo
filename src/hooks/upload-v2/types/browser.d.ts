@@ -13,7 +13,7 @@ export interface NetworkInformation extends EventTarget {
 }
 
 /** 连接类型 */
-export type ConnectionType = 
+export type ConnectionType =
   | 'bluetooth'
   | 'cellular'
   | 'ethernet'
@@ -38,4 +38,3 @@ export interface WindowWithLogger extends Window {
     error: (message: string, context?: Record<string, unknown>, error?: Error) => void;
   };
 }
-

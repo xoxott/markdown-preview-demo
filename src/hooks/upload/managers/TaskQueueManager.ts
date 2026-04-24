@@ -58,7 +58,9 @@ export default class TaskQueueManager {
   isDuplicate(file: File, allTasks: FileTask[]): boolean {
     return allTasks.some(
       task =>
-        task.file.name === file.name && task.file.size === file.size && task.file.lastModified === file.lastModified
+        task.file.name === file.name &&
+        task.file.size === file.size &&
+        task.file.lastModified === file.lastModified
     );
   }
 
@@ -103,7 +105,11 @@ export default class TaskQueueManager {
       fileMD5: '',
       options: {
         maxRetries: config.maxRetries,
-        chunkSize: SmartChunkCalculator.calculateOptimalChunkSize(processedFile.size, avgSpeed, config),
+        chunkSize: SmartChunkCalculator.calculateOptimalChunkSize(
+          processedFile.size,
+          avgSpeed,
+          config
+        ),
         priority: 'normal',
         customParams: {},
         metadata: {

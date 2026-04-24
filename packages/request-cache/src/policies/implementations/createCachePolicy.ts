@@ -21,4 +21,3 @@ export function createCachePolicy(cache?: CacheConfig): CachePolicy {
   // 默认使用默认策略
   return new DefaultCachePolicy();
 }
-

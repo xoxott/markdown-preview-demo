@@ -103,17 +103,11 @@ export default defineComponent({
           }
         }}
       >
-        <NForm
-          ref={formRef}
-          model={model}
-          rules={rules.value}
-          size="large"
-          showLabel={false}
-        >
+        <NForm ref={formRef} model={model} rules={rules.value} size="large" showLabel={false}>
           <NFormItem path="email" class="mb-10px">
             <NInput
               value={model.email}
-              onUpdateValue={(value) => (model.email = value)}
+              onUpdateValue={value => (model.email = value)}
               placeholder={$t('page.login.codeLogin.emailPlaceholder')}
               class="h-40px"
             >
@@ -127,7 +121,7 @@ export default defineComponent({
             <div class="flex-y-center w-full gap-8px">
               <NInput
                 value={model.verificationCode}
-                onUpdateValue={(value) => (model.verificationCode = value)}
+                onUpdateValue={value => (model.verificationCode = value)}
                 placeholder={$t('page.login.common.codePlaceholder')}
                 maxlength={6}
                 class="flex-1 h-40px"
@@ -168,30 +162,18 @@ export default defineComponent({
                 <div class="w-full border-t border-gray-200 dark:border-gray-700" />
               </div>
               <div class="relative flex justify-center text-11px">
-                <NText class="px-8px">
-                  其他登录方式
-                </NText>
+                <NText class="px-8px">其他登录方式</NText>
               </div>
             </div>
 
             <div class="flex gap-8px">
-              <NButton
-                class="flex-1 h-36px"
-                round
-                secondary
-                onClick={handleSwitchToPwdLogin}
-              >
+              <NButton class="flex-1 h-36px" round secondary onClick={handleSwitchToPwdLogin}>
                 <div class="flex items-center justify-center gap-4px text-13px">
                   <div class="i-carbon-password text-15px" />
                   <span>{$t(loginModuleRecord['pwd-login'])}</span>
                 </div>
               </NButton>
-              <NButton
-                class="flex-1 h-36px"
-                round
-                secondary
-                onClick={handleSwitchToRegister}
-              >
+              <NButton class="flex-1 h-36px" round secondary onClick={handleSwitchToRegister}>
                 <div class="flex items-center justify-center gap-4px text-13px">
                   <div class="i-carbon-user-follow text-15px" />
                   <span>{$t(loginModuleRecord.register)}</span>
@@ -204,4 +186,3 @@ export default defineComponent({
     );
   }
 });
-

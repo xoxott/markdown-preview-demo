@@ -49,7 +49,7 @@ export default defineComponent({
         css: 'css',
         html: 'html',
         json: 'json',
-        md: 'markdown',
+        md: 'markdown'
         // xml: 'xml',
         // yaml: 'yaml',
         // yml: 'yaml',
@@ -66,7 +66,7 @@ export default defineComponent({
     // 监听内容变化
     watch(
       () => props.content,
-      (newContent) => {
+      newContent => {
         if (editorContent.value !== newContent) {
           editorContent.value = newContent;
           isDirty.value = false;
@@ -176,4 +176,3 @@ export default defineComponent({
     );
   }
 });
-

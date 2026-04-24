@@ -3,11 +3,7 @@
  */
 
 // 导出类和相关接口，但不导出共享类型（共享类型在 types/flow-interaction.ts 中）
-export {
-  FlowDragHandler,
-  type DragState,
-  type DragOptions
-} from './FlowDragHandler';
+export { FlowDragHandler, type DragState, type DragOptions } from './FlowDragHandler';
 export {
   FlowConnectionHandler,
   type ConnectionDraft,
@@ -25,4 +21,3 @@ export {
   type KeyHandler,
   type KeyBindingRegistration
 } from './FlowKeyboardHandler';
-

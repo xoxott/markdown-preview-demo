@@ -44,7 +44,10 @@ export function fetchCreateVersionLog(data: Api.VersionLogManagement.CreateVersi
  * @param id Version log ID
  * @param data Version log data
  */
-export function fetchUpdateVersionLog(id: number, data: Api.VersionLogManagement.UpdateVersionLogRequest) {
+export function fetchUpdateVersionLog(
+  id: number,
+  data: Api.VersionLogManagement.UpdateVersionLogRequest
+) {
   return request<Api.VersionLogManagement.UpdateVersionLogResponse>({
     url: `/api/admin/changelogs/${id}`,
     method: 'put',
@@ -69,7 +72,9 @@ export function fetchDeleteVersionLog(id: number) {
  *
  * @param data Version log IDs
  */
-export function fetchBatchDeleteVersionLogs(data: Api.VersionLogManagement.BatchDeleteVersionLogsRequest) {
+export function fetchBatchDeleteVersionLogs(
+  data: Api.VersionLogManagement.BatchDeleteVersionLogsRequest
+) {
   return request<Api.VersionLogManagement.BatchDeleteVersionLogsResponse>({
     url: '/api/admin/changelogs/batch',
     method: 'delete',
@@ -90,4 +95,3 @@ export function fetchToggleVersionLogStatus(id: number, isPublished: boolean) {
     data: { isPublished }
   });
 }
-

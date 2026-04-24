@@ -14,10 +14,7 @@ import {
   EDGE_COLORS,
   STROKE_WIDTHS
 } from '../../constants/edge-constants';
-import {
-  calculateArrowSize,
-  calculateStrokeWidth
-} from '../../utils/edge-style-utils';
+import { calculateArrowSize, calculateStrokeWidth } from '../../utils/edge-style-utils';
 
 /**
  * EdgeCanvasRenderer 组件属性
@@ -183,4 +180,3 @@ export default defineComponent({
     );
   }
 });
-

@@ -43,9 +43,11 @@ export default defineComponent({
     // 监听 config.formData 变化，同步到 formModel
     watch(
       () => props.config.formData,
-      (newData) => {
+      newData => {
         Object.assign(formModel, newData);
-        publishedAtTimestamp.value = newData.publishedAt ? new Date(newData.publishedAt).getTime() : null;
+        publishedAtTimestamp.value = newData.publishedAt
+          ? new Date(newData.publishedAt).getTime()
+          : null;
         expiresAtTimestamp.value = newData.expiresAt ? new Date(newData.expiresAt).getTime() : null;
       },
       { deep: true, immediate: true }
@@ -62,10 +64,18 @@ export default defineComponent({
     // 表单验证规则
     const formRules = {
       title: [
-        { required: true, message: $t('page.announcementManagement.titleRequired' as any), trigger: 'blur' }
+        {
+          required: true,
+          message: $t('page.announcementManagement.titleRequired' as any),
+          trigger: 'blur'
+        }
       ],
       content: [
-        { required: true, message: $t('page.announcementManagement.contentRequired' as any), trigger: 'blur' }
+        {
+          required: true,
+          message: $t('page.announcementManagement.contentRequired' as any),
+          trigger: 'blur'
+        }
       ]
     };
 
@@ -78,8 +88,12 @@ export default defineComponent({
         // 将时间戳转换为 ISO 字符串
         const submitData = {
           ...formModel,
-          publishedAt: publishedAtTimestamp.value ? new Date(publishedAtTimestamp.value).toISOString() : '',
-          expiresAt: expiresAtTimestamp.value ? new Date(expiresAtTimestamp.value).toISOString() : ''
+          publishedAt: publishedAtTimestamp.value
+            ? new Date(publishedAtTimestamp.value).toISOString()
+            : '',
+          expiresAt: expiresAtTimestamp.value
+            ? new Date(expiresAtTimestamp.value).toISOString()
+            : ''
         };
         await props.config.onConfirm(submitData);
         handleClose();
@@ -103,7 +117,7 @@ export default defineComponent({
     // 监听显示状态，重置表单验证
     watch(
       () => props.show,
-      (show) => {
+      show => {
         if (show) {
           formRef.value?.restoreValidation();
         }
@@ -130,7 +144,10 @@ export default defineComponent({
               labelWidth="100px"
             >
               <NFormItem label={$t('page.announcementManagement.title' as any)} path="title">
-                <NInput v-model:value={formModel.title} placeholder={$t('page.announcementManagement.titlePlaceholder' as any)} />
+                <NInput
+                  v-model:value={formModel.title}
+                  placeholder={$t('page.announcementManagement.titlePlaceholder' as any)}
+                />
               </NFormItem>
               <NFormItem label={$t('page.announcementManagement.content' as any)} path="content">
                 <NInput
@@ -158,7 +175,10 @@ export default defineComponent({
                   style={{ width: '100%' }}
                 />
               </NFormItem>
-              <NFormItem label={$t('page.announcementManagement.publishedAt' as any)} path="publishedAt">
+              <NFormItem
+                label={$t('page.announcementManagement.publishedAt' as any)}
+                path="publishedAt"
+              >
                 <NDatePicker
                   v-model:value={publishedAtTimestamp.value}
                   type="datetime"
@@ -167,7 +187,10 @@ export default defineComponent({
                   style={{ width: '100%' }}
                 />
               </NFormItem>
-              <NFormItem label={$t('page.announcementManagement.expiresAt' as any)} path="expiresAt">
+              <NFormItem
+                label={$t('page.announcementManagement.expiresAt' as any)}
+                path="expiresAt"
+              >
                 <NDatePicker
                   v-model:value={expiresAtTimestamp.value}
                   type="datetime"
@@ -179,16 +202,16 @@ export default defineComponent({
               <NFormItem label={$t('page.announcementManagement.status' as any)} path="isPublished">
                 <NSwitch v-model:value={formModel.isPublished} />
                 <span style={{ marginLeft: '8px' }}>
-                  {formModel.isPublished ? $t('page.announcementManagement.published' as any) : $t('page.announcementManagement.unpublished' as any)}
+                  {formModel.isPublished
+                    ? $t('page.announcementManagement.published' as any)
+                    : $t('page.announcementManagement.unpublished' as any)}
                 </span>
               </NFormItem>
             </NForm>
           ),
           footer: () => (
             <NSpace justify="end">
-              <NButton onClick={handleCancel}>
-                {$t('common.cancel')}
-              </NButton>
+              <NButton onClick={handleCancel}>{$t('common.cancel')}</NButton>
               <NButton type="primary" onClick={handleConfirm}>
                 {$t('common.confirm')}
               </NButton>
@@ -199,4 +222,3 @@ export default defineComponent({
     );
   }
 });
-

@@ -37,7 +37,9 @@ const inverted = computed(() => !themeStore.darkMode && themeStore.sider.inverte
 
 const hasChildMenus = computed(() => childLevelMenus.value.length > 0);
 
-const showDrawer = computed(() => hasChildMenus.value && (drawerVisible.value || appStore.mixSiderFixed));
+const showDrawer = computed(
+  () => hasChildMenus.value && (drawerVisible.value || appStore.mixSiderFixed)
+);
 
 function handleSelectMixMenu(menu: App.Global.Menu) {
   setActiveFirstLevelMenuKey(menu.key);
@@ -93,14 +95,22 @@ watch(
       </FirstLevelMenu>
       <div
         class="relative h-full transition-width-300"
-        :style="{ width: appStore.mixSiderFixed && hasChildMenus ? themeStore.sider.mixChildMenuWidth + 'px' : '0px' }"
+        :style="{
+          width:
+            appStore.mixSiderFixed && hasChildMenus
+              ? themeStore.sider.mixChildMenuWidth + 'px'
+              : '0px'
+        }"
       >
         <DarkModeContainer
           class="absolute-lt h-full flex-col-stretch nowrap-hidden shadow-sm transition-all-300"
           :inverted="inverted"
           :style="{ width: showDrawer ? themeStore.sider.mixChildMenuWidth + 'px' : '0px' }"
         >
-          <header class="flex-y-center justify-between px-12px" :style="{ height: themeStore.header.height + 'px' }">
+          <header
+            class="flex-y-center justify-between px-12px"
+            :style="{ height: themeStore.header.height + 'px' }"
+          >
             <h2 class="text-16px text-primary font-bold">{{ $t('system.title') }}</h2>
             <PinToggler
               :pin="appStore.mixSiderFixed"

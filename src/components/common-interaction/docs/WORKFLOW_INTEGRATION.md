@@ -31,6 +31,7 @@ export function useSelectionBox() {
 ```
 
 **使用方式**:
+
 ```typescript
 const { selectionBox, startSelection } = useSelectionBox();
 
@@ -61,7 +62,7 @@ export default defineComponent({
     function handleNodesSelection(params: SelectionCallbackParams) {
       // 更新选中的节点
       selectedNodeIds.value = params.selectedIds;
-      
+
       // 通知父组件
       emit('nodes-selected', params.selectedIds);
     }
@@ -187,7 +188,7 @@ export default defineComponent({
 import { useEventListener } from '@vueuse/core';
 
 // 全选
-useEventListener('keydown', (e) => {
+useEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
     e.preventDefault();
     selectedNodeIds.value = nodes.value.map(n => n.id);
@@ -195,7 +196,7 @@ useEventListener('keydown', (e) => {
 });
 
 // 取消选择
-useEventListener('keydown', (e) => {
+useEventListener('keydown', e => {
   if (e.key === 'Escape') {
     selectedNodeIds.value = [];
   }
@@ -222,13 +223,13 @@ useEventListener('keydown', (e) => {
   item-extractor={(element) => {
     const nodeId = element.dataset.nodeId;
     const node = nodes.value.find(n => n.id === nodeId);
-    
+
     // 转换坐标
     const screenPos = {
       x: node.position.x * viewport.zoom + viewport.x,
       y: node.position.y * viewport.zoom + viewport.y
     };
-    
+
     return { ...node, screenPos };
   }}
 />
@@ -324,13 +325,14 @@ const canvas = useWorkflowCanvas();
 ## 示例代码
 
 完整的集成示例请参考：
+
 - `src/components/common-interaction/SelectionRect/example.tsx`
 - `src/components/ai-workflow/canvas/WorkflowCanvas.tsx` (迁移后)
 
 ## 反馈和改进
 
 如果在使用过程中遇到问题或有改进建议，请：
+
 1. 查看 [常见问题](#常见问题)
 2. 查看 [MIGRATION_PLAN.md](../MIGRATION_PLAN.md)
 3. 提交 Issue 或 PR
-

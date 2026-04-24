@@ -7,14 +7,17 @@
 ### 核心目标
 
 - **传输层解耦**
+
   - 不绑定 Axios、fetch、XHR
   - Transport 可替换
 
 - **能力可组合**
+
   - 缓存、重试、熔断、取消等能力以插件方式存在
   - 不通过 if / config 堆叠控制
 
 - **职责严格分离**
+
   - 请求执行
   - 状态管理
   - 能力治理
@@ -61,21 +64,22 @@
 
 ```typescript
 interface RequestContext<T = unknown> {
-  readonly id: string
-  readonly config: NormalizedRequestConfig
+  readonly id: string;
+  readonly config: NormalizedRequestConfig;
   state: {
-    aborted: boolean
-    fromCache: boolean
-    retrying: boolean
-    retryCount: number
-  }
-  meta: Record<string, unknown>
-  result?: T
-  error?: unknown
+    aborted: boolean;
+    fromCache: boolean;
+    retrying: boolean;
+    retryCount: number;
+  };
+  meta: Record<string, unknown>;
+  result?: T;
+  error?: unknown;
 }
 ```
 
 **设计原则**
+
 - 请求生命周期内唯一共享对象
 - 禁止通过 config 传递运行态数据
 - 所有 Step 只能通过 Context 通信
@@ -85,11 +89,12 @@ interface RequestContext<T = unknown> {
 
 ```typescript
 interface Transport {
-  request<T>(config: NormalizedRequestConfig): Promise<TransportResponse<T>>
+  request<T>(config: NormalizedRequestConfig): Promise<TransportResponse<T>>;
 }
 ```
 
 **特点**
+
 - 只关心「如何发请求」
 - 不感知缓存、熔断、重试、取消等概念
 - 可被 mock、替换、测试
@@ -99,14 +104,12 @@ interface Transport {
 
 ```typescript
 interface RequestStep {
-  execute<T>(
-    ctx: RequestContext<T>,
-    next: () => Promise<void>
-  ): Promise<void>
+  execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void>;
 }
 ```
 
 **设计约束**
+
 - 单一职责
 - 可插拔
 - 可排序
@@ -117,22 +120,23 @@ interface RequestStep {
 
 ```typescript
 interface NormalizedRequestConfig {
-  readonly url: string
-  readonly method: string
-  readonly baseURL?: string
-  readonly timeout?: number
-  readonly headers?: Record<string, string>
-  readonly params?: unknown
-  readonly data?: unknown
-  readonly responseType?: string
-  readonly signal?: AbortSignal
-  readonly onUploadProgress?: (progressEvent: unknown) => void
-  readonly onDownloadProgress?: (progressEvent: unknown) => void
-  [key: string]: unknown
+  readonly url: string;
+  readonly method: string;
+  readonly baseURL?: string;
+  readonly timeout?: number;
+  readonly headers?: Record<string, string>;
+  readonly params?: unknown;
+  readonly data?: unknown;
+  readonly responseType?: string;
+  readonly signal?: AbortSignal;
+  readonly onUploadProgress?: (progressEvent: unknown) => void;
+  readonly onDownloadProgress?: (progressEvent: unknown) => void;
+  [key: string]: unknown;
 }
 ```
 
 **特点**
+
 - 只包含传输层需要的字段
 - 不包含业务逻辑相关字段
 - 业务配置通过 `meta` 传递
@@ -145,19 +149,14 @@ interface NormalizedRequestConfig {
 
 ```typescript
 class RequestExecutor {
-  constructor(
-    private readonly steps: RequestStep[],
-  ) {}
+  constructor(private readonly steps: RequestStep[]) {}
 
-  async execute<T>(
-    config: NormalizedRequestConfig,
-    meta?: Record<string, unknown>
-  ): Promise<T> {
-    const ctx = createRequestContext<T>(config, undefined, meta)
-    const composed = composeSteps(this.steps)
-    await composed(ctx)
-    if (ctx.error) throw ctx.error
-    return ctx.result as T
+  async execute<T>(config: NormalizedRequestConfig, meta?: Record<string, unknown>): Promise<T> {
+    const ctx = createRequestContext<T>(config, undefined, meta);
+    const composed = composeSteps(this.steps);
+    await composed(ctx);
+    if (ctx.error) throw ctx.error;
+    return ctx.result as T;
   }
 }
 ```
@@ -175,6 +174,7 @@ PrepareContextStep
 ```
 
 **说明：**
+
 - Step 按添加顺序执行
 - `next()` 调用下一个 Step
 - 可以在 `next()` 前后执行逻辑
@@ -187,15 +187,18 @@ PrepareContextStep
 ### 5.1 缓存（CacheStep）
 
 **职责**
+
 - 读缓存
 - 写缓存
 - 标记 `ctx.state.fromCache`
 
 **禁止**
+
 - 判断 HTTP 方法（由业务层决定）
 - 判断业务语义（由业务层决定）
 
 **示例：**
+
 ```typescript
 class CacheStep implements RequestStep {
   async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
@@ -224,10 +227,12 @@ class CacheStep implements RequestStep {
 ### 5.2 取消（AbortStep）
 
 **职责**
+
 - 检查取消状态
 - 使用 AbortSignal
 
 **实现：**
+
 ```typescript
 class AbortStep implements RequestStep {
   async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
@@ -244,11 +249,13 @@ class AbortStep implements RequestStep {
 ### 5.3 重试（RetryStep）
 
 **职责**
+
 - 基于策略对象重试
 - 不嵌套 try/catch
 - 不污染 Transport
 
 **实现：**
+
 ```typescript
 class RetryStep implements RequestStep {
   async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
@@ -276,11 +283,13 @@ class RetryStep implements RequestStep {
 ### 5.4 熔断（CircuitBreakerStep）
 
 **职责**
+
 - 熔断保护
 - 默认关闭
 - 仅适用于高频 / 高价值请求
 
 **特点**
+
 - 不作为全局默认能力
 - 通过 meta 配置启用
 
@@ -290,18 +299,13 @@ class RetryStep implements RequestStep {
 
 ```typescript
 class RequestClient {
-  constructor(
-    private readonly transport: Transport,
-  ) {}
+  constructor(private readonly transport: Transport) {}
 
   with(step: RequestStep): RequestClient {
     // 链式添加步骤
   }
 
-  request<T>(
-    config: NormalizedRequestConfig,
-    meta?: Record<string, unknown>
-  ): Promise<T> {
+  request<T>(config: NormalizedRequestConfig, meta?: Record<string, unknown>): Promise<T> {
     // 执行请求
   }
 }
@@ -310,11 +314,7 @@ class RequestClient {
 **可扩展用法**
 
 ```typescript
-client
-  .with(cacheStep)
-  .with(retryStep)
-  .with(circuitBreakerStep)
-  .request<T>(config, meta)
+client.with(cacheStep).with(retryStep).with(circuitBreakerStep).request<T>(config, meta);
 ```
 
 ---
@@ -322,28 +322,31 @@ client
 ## 7. 配置设计原则
 
 ❌ **禁止设计**
+
 ```typescript
-config.cache = true
-config.retry = 3
-config.circuitBreaker = true
+config.cache = true;
+config.retry = 3;
+config.circuitBreaker = true;
 ```
 
 ✅ **推荐设计**
+
 ```typescript
 request(
   {
     url: '/list',
-    method: 'GET',
+    method: 'GET'
   },
   {
     cache: true,
     retry: true,
-    retryCount: 3,
+    retryCount: 3
   }
-)
+);
 ```
 
 **原因：**
+
 - `config` 只包含传输层需要的字段
 - 业务配置通过 `meta` 传递
 - 保持核心库的纯净性
@@ -353,22 +356,27 @@ request(
 ## 8. 架构约束（强制）
 
 1. **不允许在 Transport 层引入业务逻辑**
+
    - Transport 只负责发送请求和接收响应
    - 错误处理、Token 注入等应在 Step 中实现
 
 2. **不允许 Step 直接相互调用**
+
    - Step 之间通过 Context 通信
    - 使用 `next()` 调用下一个 Step
 
 3. **不允许 Step 修改 config**
+
    - `config` 是只读的
    - 需要修改配置时，创建新的配置对象
 
 4. **所有状态变化必须写入 Context**
+
    - 不通过全局变量或闭包保存状态
    - 状态变化可追踪
 
 5. **不允许新增"全局 manager"保存请求态**
+
    - 所有状态在 Context 中管理
    - 避免全局状态污染
 
@@ -466,14 +474,12 @@ export class ApiClient {
     // 创建 Axios 实例（业务层负责）
     const axiosInstance = axios.create({
       baseURL: '/api',
-      timeout: 10000,
+      timeout: 10000
     });
 
     // 创建 Transport（业务层实现，实现 Transport 接口）
     // const transport = new AxiosTransport({ instance: axiosInstance });
-    this.client = new RequestClient(transport)
-      .with(new CacheStep())
-      .with(new RetryStep());
+    this.client = new RequestClient(transport).with(new CacheStep()).with(new RetryStep());
   }
 
   // 将业务配置转换为标准化配置
@@ -483,13 +489,13 @@ export class ApiClient {
       method: 'GET',
       baseURL: config?.baseURL,
       timeout: config?.timeout,
-      headers: config?.headers,
+      headers: config?.headers
     };
 
     const meta = {
       cache: config?.cache,
       retry: config?.retry,
-      loading: config?.loading,
+      loading: config?.loading
       // ... 其他业务配置
     };
 
@@ -511,7 +517,7 @@ function normalizeConfig(businessConfig: BusinessConfig): {
 
   return {
     normalized: { url, method, baseURL, timeout, headers },
-    meta: businessFields,
+    meta: businessFields
   };
 }
 ```
@@ -569,10 +575,12 @@ const client = new RequestClient(transport)
 ## 12. 性能考虑
 
 1. **Context 创建开销**
+
    - Context 创建是轻量级的
    - 避免在 Context 中存储大量数据
 
 2. **Step 链执行**
+
    - Step 链是同步执行的
    - 避免在 Step 中执行耗时操作
 
@@ -593,4 +601,3 @@ const client = new RequestClient(transport)
 5. **业务逻辑隔离** - 核心库不包含业务逻辑
 
 这使得核心库可以独立发布和维护，同时业务层可以基于核心库构建自己的请求系统。
-

@@ -138,4 +138,3 @@ export const i18n = new I18nManager();
 
 // 导出默认文本（用于直接使用）
 export { zhCNTexts, enUSTexts };
-

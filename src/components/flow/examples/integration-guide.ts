@@ -23,9 +23,9 @@ import type { IStateStore } from '../core/state/interfaces/IStateStore';
  */
 export function useOptimizedViewportCulling() {
   const spatialIndex = new SpatialIndex({
-      defaultWidth: 220,
-      defaultHeight: 72,
-    });
+    defaultWidth: 220,
+    defaultHeight: 72
+  });
 
   /**
    * 获取可见节点（使用空间索引优化）
@@ -46,7 +46,7 @@ export function useOptimizedViewportCulling() {
       maxX: (-viewport.x + containerWidth) / viewport.zoom,
       maxY: (-viewport.y + containerHeight) / viewport.zoom,
       width: containerWidth / viewport.zoom,
-      height: containerHeight / viewport.zoom,
+      height: containerHeight / viewport.zoom
     };
 
     // 使用空间索引查询（O(log n) 复杂度）
@@ -55,7 +55,7 @@ export function useOptimizedViewportCulling() {
 
   return {
     getVisibleNodes,
-    spatialIndex,
+    spatialIndex
   };
 }
 
@@ -72,11 +72,7 @@ export function useOptimizedNodeMovement() {
   /**
    * 移动节点（使用对象池）
    */
-  function moveNode(
-    node: FlowNode,
-    deltaX: number,
-    deltaY: number
-  ): FlowNode {
+  function moveNode(node: FlowNode, deltaX: number, deltaY: number): FlowNode {
     // 从对象池获取位置对象
     const newPos = positionPool.acquire();
 
@@ -87,7 +83,7 @@ export function useOptimizedNodeMovement() {
       // 返回更新后的节点
       return {
         ...node,
-        position: { x: newPos.x, y: newPos.y },
+        position: { x: newPos.x, y: newPos.y }
       };
     } finally {
       // 释放对象回池
@@ -97,7 +93,7 @@ export function useOptimizedNodeMovement() {
 
   return {
     moveNode,
-    positionPool,
+    positionPool
   };
 }
 
@@ -111,7 +107,7 @@ export function useOptimizedNodeMovement() {
 export function useOptimizedFlowState(stateStore: IStateStore) {
   const commandManager = new CommandManager({
     maxSize: 50,
-    enableMerge: true, // 启用命令合并
+    enableMerge: true // 启用命令合并
   });
 
   /**
@@ -175,7 +171,7 @@ export function useOptimizedFlowState(stateStore: IStateStore) {
     redo,
     canUndo: () => commandManager.canUndo(),
     canRedo: () => commandManager.canRedo(),
-    clearHistory,
+    clearHistory
   };
 }
 
@@ -250,16 +246,20 @@ export function useOptimizedFlow() {
       maxX: (-vp.x + window.innerWidth) / vp.zoom,
       maxY: (-vp.y + window.innerHeight) / vp.zoom,
       width: window.innerWidth / vp.zoom,
-      height: window.innerHeight / vp.zoom,
+      height: window.innerHeight / vp.zoom
     };
 
     return spatialIndex.query(bounds);
   });
 
   // 监听节点变化，更新空间索引
-  watch(nodes, (newNodes) => {
-    spatialIndex.updateNodes(newNodes);
-  }, { deep: true });
+  watch(
+    nodes,
+    newNodes => {
+      spatialIndex.updateNodes(newNodes);
+    },
+    { deep: true }
+  );
 
   /**
    * 优化的节点移动（使用对象池和命令模式）
@@ -355,6 +355,6 @@ export function useOptimizedFlow() {
     // 工具
     spatialIndex,
     positionPool,
-    commandManager,
+    commandManager
   };
 }

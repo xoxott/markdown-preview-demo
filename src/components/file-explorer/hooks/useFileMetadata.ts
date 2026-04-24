@@ -3,7 +3,7 @@ import type { FileMetadata } from '../types/file-explorer';
 
 /**
  * 文件元数据管理 Hook
- * 
+ *
  * 管理文件的标签和备注数据，使用内存存储
  * 可选：支持 localStorage 持久化（后续扩展）
  */
@@ -136,4 +136,3 @@ export function useFileMetadata() {
     clearAllMetadata
   };
 }
-

@@ -73,7 +73,7 @@ export class CacheStrategyManager {
   private applyOrderBasedStrategy(
     strategyType: 'lru' | 'fifo',
     currentSize: number,
-    newKey: string,
+    newKey: string
   ): string[] {
     if (this.strategy !== strategyType || currentSize < this.maxSize) {
       return [];
@@ -133,7 +133,7 @@ export class CacheStrategyManager {
   applyStrategy(
     currentSize: number,
     newKey: string,
-    cacheEntries: Array<[string, CacheItem]>,
+    cacheEntries: Array<[string, CacheItem]>
   ): string[] {
     switch (this.strategy) {
       case 'time':
@@ -194,4 +194,3 @@ export class CacheStrategyManager {
     return this.maxSize;
   }
 }
-

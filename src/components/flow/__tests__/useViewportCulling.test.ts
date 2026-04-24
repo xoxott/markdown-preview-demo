@@ -11,13 +11,13 @@ import type { FlowNode, FlowViewport } from '../types';
 Object.defineProperty(window, 'innerWidth', {
   writable: true,
   configurable: true,
-  value: 1000,
+  value: 1000
 });
 
 Object.defineProperty(window, 'innerHeight', {
   writable: true,
   configurable: true,
-  value: 800,
+  value: 800
 });
 
 describe('useViewportCulling', () => {
@@ -33,28 +33,28 @@ describe('useViewportCulling', () => {
         type: 'default',
         position: { x: 100, y: 100 },
         data: {},
-        size: { width: 100, height: 50 },
+        size: { width: 100, height: 50 }
       },
       {
         id: 'node-2',
         type: 'default',
         position: { x: 300, y: 300 },
         data: {},
-        size: { width: 100, height: 50 },
+        size: { width: 100, height: 50 }
       },
       {
         id: 'node-3',
         type: 'default',
         position: { x: 2000, y: 2000 }, // 视口外
         data: {},
-        size: { width: 100, height: 50 },
-      },
+        size: { width: 100, height: 50 }
+      }
     ]);
 
     viewport = ref({
       x: 0,
       y: 0,
-      zoom: 1,
+      zoom: 1
     } as FlowViewport);
 
     enabled = ref(true);
@@ -65,7 +65,7 @@ describe('useViewportCulling', () => {
       const { visibleNodes } = useViewportCulling({
         nodes,
         viewport,
-        enabled,
+        enabled
       });
 
       // 初始应该只包含视口内的节点
@@ -82,7 +82,7 @@ describe('useViewportCulling', () => {
       const { visibleNodes } = useViewportCulling({
         nodes,
         viewport,
-        enabled,
+        enabled
       });
 
       expect(visibleNodes.value.length).toBe(3);
@@ -94,7 +94,7 @@ describe('useViewportCulling', () => {
       const { visibleNodes } = useViewportCulling({
         nodes,
         viewport,
-        enabled,
+        enabled
       });
 
       const initialCount = visibleNodes.value.length;
@@ -103,7 +103,7 @@ describe('useViewportCulling', () => {
       viewport.value = {
         x: -1900,
         y: -1900,
-        zoom: 1,
+        zoom: 1
       } as FlowViewport;
 
       await nextTick();
@@ -116,7 +116,7 @@ describe('useViewportCulling', () => {
       const { visibleNodes } = useViewportCulling({
         nodes,
         viewport,
-        enabled,
+        enabled
       });
 
       // 放大时，视口范围变小，可见节点可能减少
@@ -125,7 +125,7 @@ describe('useViewportCulling', () => {
         viewport.value = {
           x: currentViewport.x,
           y: currentViewport.y,
-          zoom: 2,
+          zoom: 2
         };
       }
 
@@ -143,7 +143,7 @@ describe('useViewportCulling', () => {
         nodes,
         viewport,
         enabled,
-        isPanning,
+        isPanning
       });
 
       // 记录初始可见节点
@@ -158,7 +158,7 @@ describe('useViewportCulling', () => {
       viewport.value = {
         x: -500,
         y: -500,
-        zoom: 1,
+        zoom: 1
       };
 
       await nextTick();
@@ -178,7 +178,7 @@ describe('useViewportCulling', () => {
         nodes,
         viewport,
         enabled,
-        isPanning,
+        isPanning
       });
 
       // 开始平移
@@ -189,7 +189,7 @@ describe('useViewportCulling', () => {
       viewport.value = {
         x: -1900,
         y: -1900,
-        zoom: 1,
+        zoom: 1
       } as FlowViewport;
       await nextTick();
 
@@ -209,7 +209,7 @@ describe('useViewportCulling', () => {
       const { visibleNodes } = useViewportCulling({
         nodes,
         viewport,
-        enabled,
+        enabled
         // 不传递 isPanning
       });
 
@@ -222,7 +222,7 @@ describe('useViewportCulling', () => {
         nodes,
         viewport,
         enabled,
-        isPanning,
+        isPanning
       });
 
       const initialCount = visibleNodes.value.length;
@@ -235,8 +235,8 @@ describe('useViewportCulling', () => {
           type: 'default',
           position: { x: 150, y: 150 },
           data: {},
-          size: { width: 100, height: 50 },
-        },
+          size: { width: 100, height: 50 }
+        }
       ];
 
       await nextTick();
@@ -254,7 +254,7 @@ describe('useViewportCulling', () => {
       const { visibleNodes } = useViewportCulling({
         nodes,
         viewport,
-        enabled,
+        enabled
       });
 
       expect(visibleNodes.value).toEqual([]);
@@ -266,7 +266,7 @@ describe('useViewportCulling', () => {
       const { visibleNodes } = useViewportCulling({
         nodes,
         viewport,
-        enabled: enabledFn,
+        enabled: enabledFn
       });
 
       expect(visibleNodes.value.length).toBeGreaterThan(0);
@@ -276,7 +276,7 @@ describe('useViewportCulling', () => {
       const { visibleNodes } = useViewportCulling({
         nodes,
         viewport,
-        enabled: true,
+        enabled: true
       });
 
       expect(visibleNodes.value.length).toBeGreaterThan(0);
@@ -289,7 +289,7 @@ describe('useViewportCulling', () => {
         type: 'default',
         position: { x: 1000, y: 800 }, // 刚好在视口边缘
         data: {},
-        size: { width: 100, height: 50 },
+        size: { width: 100, height: 50 }
       };
 
       nodes.value = [edgeNode];
@@ -298,7 +298,7 @@ describe('useViewportCulling', () => {
         nodes,
         viewport,
         enabled,
-        buffer: 200, // 较大的缓冲区
+        buffer: 200 // 较大的缓冲区
       });
 
       // 由于有缓冲区，节点应该可见
@@ -311,7 +311,7 @@ describe('useViewportCulling', () => {
       const { visibleNodes } = useViewportCulling({
         nodes,
         viewport,
-        enabled,
+        enabled
       });
 
       const initialRef = visibleNodes.value;
@@ -322,7 +322,7 @@ describe('useViewportCulling', () => {
         viewport.value = {
           x: 1, // 微小变化
           y: currentViewport.y,
-          zoom: currentViewport.zoom,
+          zoom: currentViewport.zoom
         };
       }
 
@@ -341,13 +341,17 @@ describe('useViewportCulling', () => {
         nodes,
         viewport,
         enabled,
-        isPanning,
+        isPanning
       });
 
       // 监听更新（通过 watch visibleNodes）
-      const stopWatcher = watch(visibleNodes, () => {
-        updateCount++;
-      }, { immediate: false });
+      const stopWatcher = watch(
+        visibleNodes,
+        () => {
+          updateCount++;
+        },
+        { immediate: false }
+      );
 
       // 开始平移
       isPanning.value = true;
@@ -358,7 +362,7 @@ describe('useViewportCulling', () => {
         viewport.value = {
           x: -i * 100,
           y: -i * 100,
-          zoom: 1,
+          zoom: 1
         } as FlowViewport;
         await nextTick();
       }
@@ -377,4 +381,3 @@ describe('useViewportCulling', () => {
     });
   });
 });
-

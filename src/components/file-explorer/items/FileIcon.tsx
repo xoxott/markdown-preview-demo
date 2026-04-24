@@ -20,7 +20,10 @@ export default defineComponent({
       // 优先显示缩略图（严格判断字符串非空）
       if (showThumbnail && typeof item.thumbnailUrl === 'string' && item.thumbnailUrl.trim()) {
         return (
-          <div class={`rounded-lg overflow-hidden bg-gray-100`} style={{ width: `${size}px`, height: `${size}px` }}>
+          <div
+            class={`rounded-lg overflow-hidden bg-gray-100`}
+            style={{ width: `${size}px`, height: `${size}px` }}
+          >
             <img
               src={item.thumbnailUrl!}
               alt={item.name}
@@ -42,7 +45,8 @@ export default defineComponent({
           {IconComp ? (
             <NIcon>
               {{
-                default: () => h(IconComp as any, { style: { color, fontSize: size }, strokeWidth: 1.5 })
+                default: () =>
+                  h(IconComp as any, { style: { color, fontSize: size }, strokeWidth: 1.5 })
               }}
             </NIcon>
           ) : (

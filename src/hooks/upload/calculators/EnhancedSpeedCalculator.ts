@@ -98,7 +98,8 @@ export default class EnhancedSpeedCalculator {
     if (this.lastSpeed === 0) {
       this.lastSpeed = instantSpeed;
     } else {
-      this.lastSpeed = this.smoothingFactor * instantSpeed + (1 - this.smoothingFactor) * this.lastSpeed;
+      this.lastSpeed =
+        this.smoothingFactor * instantSpeed + (1 - this.smoothingFactor) * this.lastSpeed;
     }
 
     // 确保返回有效值

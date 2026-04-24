@@ -42,6 +42,22 @@ const TASK_INFO = {
 const TASK_LIST_ITEM_REGEX = /^\[([ xX])\]\s*/;
 
 /**
+ * 安全的 CSS 类名验证正则
+ * 只允许字母、数字、连字符和下划线，防止 XSS 注入
+ */
+const SAFE_CLASS_NAME_REGEX = /^[a-zA-Z][a-zA-Z0-9_-]*$/;
+
+/**
+ * 验证 CSS 类名是否安全
+ *
+ * @param className - 要验证的类名
+ * @returns 是否安全
+ */
+function isSafeClassName(className: string): boolean {
+  return SAFE_CLASS_NAME_REGEX.test(className);
+}
+
+/**
  * Token 查找结果接口
  */
 interface TokenSearchResult {
@@ -70,14 +86,14 @@ function startsWithTaskListMarker(token: Token): boolean | null {
     return null;
   }
 
-    const firstChild = token.children[0];
+  const firstChild = token.children[0];
   if (firstChild.type !== TOKEN_TYPES.TEXT) {
     return null;
   }
 
-      const match = firstChild.content.match(TASK_LIST_ITEM_REGEX);
+  const match = firstChild.content.match(TASK_LIST_ITEM_REGEX);
   return match ? match[1].toLowerCase() === 'x' : null;
-      }
+}
 
 /**
  * 在列表项内查找相关 token
@@ -171,14 +187,14 @@ function removeTaskListMarker(token: Token): void {
     return;
   }
 
-    const firstChild = token.children[0];
+  const firstChild = token.children[0];
   if (firstChild.type === TOKEN_TYPES.TEXT) {
-      firstChild.content = firstChild.content.replace(TASK_LIST_ITEM_REGEX, '');
-      // 如果替换后内容为空，则移除该 token
-      if (firstChild.content === '') {
-        token.children.shift();
-      }
+    firstChild.content = firstChild.content.replace(TASK_LIST_ITEM_REGEX, '');
+    // 如果替换后内容为空，则移除该 token
+    if (firstChild.content === '') {
+      token.children.shift();
     }
+  }
 }
 
 /**
@@ -206,7 +222,10 @@ function markParentAsTaskList(tokens: Token[], index: number, listClass: string)
   // 向上查找最近的 bullet_list_open 或 ordered_list_open
   for (let i = index - 1; i >= 0; i--) {
     const token = tokens[i];
-    if (token.type === TOKEN_TYPES.BULLET_LIST_OPEN || token.type === TOKEN_TYPES.ORDERED_LIST_OPEN) {
+    if (
+      token.type === TOKEN_TYPES.BULLET_LIST_OPEN ||
+      token.type === TOKEN_TYPES.ORDERED_LIST_OPEN
+    ) {
       addClassName(token, listClass);
       break;
     }
@@ -331,10 +350,27 @@ export default function markdownItTaskLists(md: MarkdownIt, userOptions?: TaskLi
     ...userOptions
   };
 
+  // 验证 CSS 类名安全性，防止 XSS 注入
+  if (!isSafeClassName(options.checkboxClass)) {
+    throw new Error(
+      `Invalid checkboxClass: "${options.checkboxClass}". Only alphanumeric characters, hyphens, and underscores are allowed.`
+    );
+  }
+  if (!isSafeClassName(options.itemClass)) {
+    throw new Error(
+      `Invalid itemClass: "${options.itemClass}". Only alphanumeric characters, hyphens, and underscores are allowed.`
+    );
+  }
+  if (!isSafeClassName(options.listClass)) {
+    throw new Error(
+      `Invalid listClass: "${options.listClass}". Only alphanumeric characters, hyphens, and underscores are allowed.`
+    );
+  }
+
   // 注册核心规则：在 inline 之后处理任务列表
   // 这个规则会在 token 流中插入 html_inline token（checkbox 和 label）
   // 这样可以兼容 markdown-it-render-vnode，html_inline 会被自动转换为 VNode
-  md.core.ruler.after('inline', 'task-lists', (state) => {
+  md.core.ruler.after('inline', 'task-lists', state => {
     taskListsRule(state, options);
   });
 }

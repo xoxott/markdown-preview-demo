@@ -4,4 +4,3 @@
 
 export { default as DragPreview } from './DragPreview';
 export { default } from './DragPreview';
-

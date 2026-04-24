@@ -33,7 +33,7 @@ export class EventStep implements RequestStep {
     // 触发请求开始事件
     this.eventManager.emit('request:start', {
       config: ctx.config,
-      timestamp: startTime,
+      timestamp: startTime
     });
 
     try {
@@ -48,7 +48,7 @@ export class EventStep implements RequestStep {
           config: ctx.config,
           error: ctx.error,
           timestamp: Date.now(),
-          duration,
+          duration
         });
       } else if (ctx.result !== undefined) {
         // 触发请求成功事件
@@ -56,7 +56,7 @@ export class EventStep implements RequestStep {
           config: ctx.config,
           result: ctx.result,
           timestamp: Date.now(),
-          duration,
+          duration
         });
       }
 
@@ -65,7 +65,7 @@ export class EventStep implements RequestStep {
         config: ctx.config,
         timestamp: Date.now(),
         duration,
-        success: ctx.error === undefined,
+        success: ctx.error === undefined
       });
     } catch (error) {
       const duration = Date.now() - startTime;
@@ -76,7 +76,7 @@ export class EventStep implements RequestStep {
         config: ctx.config,
         error,
         timestamp: Date.now(),
-        duration,
+        duration
       });
 
       // 触发请求完成事件
@@ -84,11 +84,10 @@ export class EventStep implements RequestStep {
         config: ctx.config,
         timestamp: Date.now(),
         duration,
-        success: false,
+        success: false
       });
 
       throw error;
     }
   }
 }
-

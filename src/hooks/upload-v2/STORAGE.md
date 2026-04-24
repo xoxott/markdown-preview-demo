@@ -21,27 +21,27 @@ import { useChunkUpload } from '@/hooks/upload-v2';
 const uploader = useChunkUpload({
   uploadChunkUrl: 'https://your-minio-server.com/api/upload/chunk',
   mergeChunksUrl: 'https://your-minio-server.com/api/upload/complete',
-  
+
   // MinIO 分片上传参数转换器
   chunkUploadTransformer: ({ task, chunk, customParams = {} }) => {
     const formData = new FormData();
     const blob = chunk.blob || task.file.slice(chunk.start, chunk.end);
-    
+
     // MinIO 分片上传参数
     formData.append('file', blob);
     formData.append('chunk_number', String(chunk.index));
     formData.append('upload_id', task.id); // 或使用 task.fileMD5
     formData.append('total_chunks', String(task.totalChunks));
     formData.append('filename', task.file.name);
-    
+
     // 如果需要认证
     if (customParams.token) {
       formData.append('Authorization', customParams.token);
     }
-    
+
     return formData;
   },
-  
+
   // MinIO 合并分片参数转换器
   mergeChunksTransformer: ({ task, customParams = {} }) => {
     return {
@@ -53,7 +53,7 @@ const uploader = useChunkUpload({
       ...customParams
     };
   },
-  
+
   // 其他配置
   maxConcurrentFiles: 3,
   maxConcurrentChunks: 5,
@@ -69,6 +69,7 @@ const uploader = useChunkUpload({
 **请求方式**: `POST`
 
 **请求参数**:
+
 - `file`: 分片文件 (FormData)
 - `chunk_number`: 分片序号 (从 0 开始)
 - `upload_id`: 上传任务 ID
@@ -76,6 +77,7 @@ const uploader = useChunkUpload({
 - `filename`: 文件名
 
 **响应格式**:
+
 ```json
 {
   "success": true,
@@ -90,6 +92,7 @@ const uploader = useChunkUpload({
 **请求方式**: `POST`
 
 **请求参数**:
+
 - `upload_id`: 上传任务 ID
 - `filename`: 文件名
 - `total_chunks`: 总分片数
@@ -97,6 +100,7 @@ const uploader = useChunkUpload({
 - `file_size`: 文件大小
 
 **响应格式**:
+
 ```json
 {
   "success": true,
@@ -111,25 +115,25 @@ const uploader = useChunkUpload({
 const uploader = useChunkUpload({
   uploadChunkUrl: 'https://minio.example.com/api/upload/chunk',
   mergeChunksUrl: 'https://minio.example.com/api/upload/complete',
-  
+
   headers: {
     'Authorization': 'Bearer your-token',
     'Content-Type': 'multipart/form-data'
   },
-  
+
   chunkUploadTransformer: ({ task, chunk }) => {
     const formData = new FormData();
     const blob = chunk.blob || task.file.slice(chunk.start, chunk.end);
-    
+
     formData.append('file', blob, task.file.name);
     formData.append('chunk_number', String(chunk.index));
     formData.append('upload_id', task.id);
     formData.append('total_chunks', String(task.totalChunks));
     formData.append('filename', task.file.name);
-    
+
     return formData;
   },
-  
+
   mergeChunksTransformer: ({ task }) => {
     return {
       upload_id: task.id,
@@ -139,7 +143,7 @@ const uploader = useChunkUpload({
       file_size: task.file.size
     };
   },
-  
+
   // MinIO 推荐配置
   chunkSize: 5 * 1024 * 1024, // 5MB
   maxConcurrentChunks: 5,
@@ -161,24 +165,24 @@ const uploader = useChunkUpload({
   // 阿里云 OSS 分片上传接口
   uploadChunkUrl: 'https://your-bucket.oss-cn-hangzhou.aliyuncs.com',
   mergeChunksUrl: 'https://your-bucket.oss-cn-hangzhou.aliyuncs.com',
-  
+
   // 阿里云 OSS 分片上传参数转换器
   chunkUploadTransformer: ({ task, chunk, customParams = {} }) => {
     const formData = new FormData();
     const blob = chunk.blob || task.file.slice(chunk.start, chunk.end);
-    
+
     // 阿里云 OSS Multipart Upload 参数
     // 注意：OSS 需要先调用 InitiateMultipartUpload 获取 uploadId
     formData.append('partNumber', String(chunk.index + 1)); // OSS 从 1 开始
     formData.append('uploadId', task.id); // 从 InitiateMultipartUpload 获取
     formData.append('key', task.file.name); // 对象键
-    
+
     // 分片内容
     formData.append('file', blob);
-    
+
     return formData;
   },
-  
+
   // 阿里云 OSS 合并分片参数转换器
   mergeChunksTransformer: ({ task, customParams = {} }) => {
     // OSS CompleteMultipartUpload 需要所有分片的 ETag
@@ -189,7 +193,7 @@ const uploader = useChunkUpload({
         ETag: c.etag
       }))
       .sort((a, b) => a.PartNumber - b.PartNumber);
-    
+
     return {
       uploadId: task.id,
       key: task.file.name,
@@ -199,7 +203,7 @@ const uploader = useChunkUpload({
       ...customParams
     };
   },
-  
+
   // 其他配置
   maxConcurrentFiles: 3,
   maxConcurrentChunks: 5,
@@ -233,7 +237,7 @@ const initUpload = async (fileName: string) => {
       action: 'InitiateMultipartUpload'
     })
   });
-  
+
   const { uploadId } = await response.json();
   return uploadId;
 };
@@ -242,20 +246,20 @@ const initUpload = async (fileName: string) => {
 const uploader = useChunkUpload({
   uploadChunkUrl: 'https://your-bucket.oss-cn-hangzhou.aliyuncs.com',
   mergeChunksUrl: 'https://your-bucket.oss-cn-hangzhou.aliyuncs.com',
-  
+
   chunkUploadTransformer: ({ task, chunk }) => {
     const formData = new FormData();
     const blob = chunk.blob || task.file.slice(chunk.start, chunk.end);
-    
+
     // OSS UploadPart 参数
     formData.append('partNumber', String(chunk.index + 1));
     formData.append('uploadId', task.id); // 从 InitiateMultipartUpload 获取
     formData.append('key', task.file.name);
     formData.append('file', blob);
-    
+
     return formData;
   },
-  
+
   mergeChunksTransformer: ({ task }) => {
     // OSS CompleteMultipartUpload
     const parts = task.chunks
@@ -265,7 +269,7 @@ const uploader = useChunkUpload({
         ETag: c.etag
       }))
       .sort((a, b) => a.PartNumber - b.PartNumber);
-    
+
     return {
       uploadId: task.id,
       key: task.file.name,
@@ -312,23 +316,23 @@ const uploader = useChunkUpload({
   // 后端代理 OSS 的接口
   uploadChunkUrl: '/api/oss/upload-part',
   mergeChunksUrl: '/api/oss/complete',
-  
+
   headers: {
-    'Authorization': 'Bearer your-token'
+    Authorization: 'Bearer your-token'
   },
-  
+
   chunkUploadTransformer: ({ task, chunk }) => {
     const formData = new FormData();
     const blob = chunk.blob || task.file.slice(chunk.start, chunk.end);
-    
+
     formData.append('file', blob);
     formData.append('partNumber', String(chunk.index + 1));
     formData.append('uploadId', task.id);
     formData.append('key', task.file.name);
-    
+
     return formData;
   },
-  
+
   mergeChunksTransformer: ({ task }) => {
     // 后端会从任务中获取所有分片的 ETag
     return {
@@ -347,12 +351,14 @@ const uploader = useChunkUpload({
 **请求方式**: `PUT` 或 `POST`
 
 **请求参数**:
+
 - `file`: 分片文件
 - `partNumber`: 分片序号（从 1 开始）
 - `uploadId`: 上传任务 ID（从 InitiateMultipartUpload 获取）
 - `key`: 对象键（文件名）
 
 **响应头**:
+
 - `ETag`: 分片的 ETag（必须保存，用于合并）
 
 #### 合并分片接口
@@ -360,11 +366,13 @@ const uploader = useChunkUpload({
 **请求方式**: `POST`
 
 **请求参数**:
+
 - `uploadId`: 上传任务 ID
 - `key`: 对象键
 - `completeMultipartUpload.Part[]`: 所有分片的 PartNumber 和 ETag
 
 **响应格式**:
+
 ```json
 {
   "success": true,
@@ -391,14 +399,14 @@ chunkUploadTransformer: ({ task, chunk, customParams }) => {
   // 根据存储服务的 API 要求构建请求参数
   const formData = new FormData();
   const blob = chunk.blob || task.file.slice(chunk.start, chunk.end);
-  
+
   // 添加存储服务需要的参数
   formData.append('file', blob);
   formData.append('chunkIndex', String(chunk.index));
   // ... 其他参数
-  
+
   return formData;
-}
+};
 ```
 
 ### 3. 处理响应格式
@@ -409,8 +417,8 @@ chunkUploadTransformer: ({ task, chunk, customParams }) => {
 interface ChunkUploadResponse {
   success: boolean;
   chunkIndex: number;
-  etag?: string;      // 某些服务需要
-  uploadId?: string;  // 某些服务需要
+  etag?: string; // 某些服务需要
+  uploadId?: string; // 某些服务需要
   error?: string;
 }
 ```
@@ -432,7 +440,7 @@ mergeChunksTransformer: ({ task, customParams }) => {
         etag: c.etag
       }))
   };
-}
+};
 ```
 
 ## 最佳实践
@@ -442,6 +450,7 @@ mergeChunksTransformer: ({ task, customParams }) => {
 推荐使用后端代理存储服务的接口，而不是直接调用：
 
 **优点**：
+
 - 安全性：不暴露存储服务的 AccessKey
 - 统一性：统一的错误处理和日志记录
 - 灵活性：可以在后端做额外的处理（如文件校验、病毒扫描等）
@@ -451,7 +460,7 @@ const uploader = useChunkUpload({
   // 使用后端代理接口
   uploadChunkUrl: '/api/storage/upload-chunk',
   mergeChunksUrl: '/api/storage/merge-chunks',
-  
+
   // 后端会处理具体的存储服务调用
   chunkUploadTransformer: ({ task, chunk }) => {
     const formData = new FormData();
@@ -524,6 +533,7 @@ A: upload-v2 是通用的分片上传工具，通过自定义请求转换器可�
 ### Q: 是否需要后端支持？
 
 A: 推荐使用后端代理，因为：
+
 1. 安全性：不暴露存储服务的密钥
 2. 统一性：统一的错误处理
 3. 灵活性：可以在后端做额外处理
@@ -548,7 +558,7 @@ chunkUploadTransformer: ({ task, chunk }) => {
   // 根据存储服务的特殊要求构建参数
   // 例如：OSS 需要 partNumber 从 1 开始
   // MinIO 可能需要特定的参数格式
-}
+};
 ```
 
 ## 总结
@@ -560,22 +570,3 @@ upload-v2 通过灵活的请求转换器机制，可以适配任何支持分片�
 3. 确保服务端返回正确的响应格式
 
 推荐使用后端代理的方式，这样更安全、更灵活。
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -78,7 +78,10 @@ export class NetworkAdaptationManager {
         this.config.maxConcurrentChunks - 1
       );
 
-      if (oldFiles !== this.config.maxConcurrentFiles || oldChunks !== this.config.maxConcurrentChunks) {
+      if (
+        oldFiles !== this.config.maxConcurrentFiles ||
+        oldChunks !== this.config.maxConcurrentChunks
+      ) {
         logger.info('网络自适应：降低并发', {
           avgSpeed,
           maxConcurrentFiles: this.config.maxConcurrentFiles,
@@ -100,7 +103,10 @@ export class NetworkAdaptationManager {
         this.config.maxConcurrentChunks + 1
       );
 
-      if (oldFiles !== this.config.maxConcurrentFiles || oldChunks !== this.config.maxConcurrentChunks) {
+      if (
+        oldFiles !== this.config.maxConcurrentFiles ||
+        oldChunks !== this.config.maxConcurrentChunks
+      ) {
         logger.info('网络自适应：提高并发', {
           avgSpeed,
           maxConcurrentFiles: this.config.maxConcurrentFiles,
@@ -123,4 +129,3 @@ export class NetworkAdaptationManager {
     updateAdjustTime(this.networkAdaptation);
   }
 }
-

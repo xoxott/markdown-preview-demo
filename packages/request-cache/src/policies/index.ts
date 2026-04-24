@@ -6,9 +6,4 @@
 export type { CachePolicy, CacheConfig, CacheMeta } from './types';
 
 // 导出实现
-export {
-  DefaultCachePolicy,
-  NoCachePolicy,
-  createCachePolicy,
-} from './implementations';
-
+export { DefaultCachePolicy, NoCachePolicy, createCachePolicy } from './implementations';

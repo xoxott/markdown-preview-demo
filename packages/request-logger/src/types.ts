@@ -24,4 +24,3 @@ export interface InternalLoggerOptions extends LoggerOptions {
   /** 日志输出函数 */
   output?: LogOutput;
 }
-

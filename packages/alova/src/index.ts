@@ -1,5 +1,10 @@
 import { createAlova } from 'alova';
-import type { AlovaDefaultCacheAdapter, AlovaGenerics, AlovaGlobalCacheAdapter, AlovaRequestAdapter } from 'alova';
+import type {
+  AlovaDefaultCacheAdapter,
+  AlovaGenerics,
+  AlovaGlobalCacheAdapter,
+  AlovaRequestAdapter
+} from 'alova';
 import VueHook from 'alova/vue';
 import type { VueHookType } from 'alova/vue';
 import adapterFetch from 'alova/fetch';
@@ -18,7 +23,9 @@ export const createAlovaRequest = <
   customConfig: CustomAlovaConfig<
     AlovaGenerics<any, any, RequestConfig, ResponseType, ResponseHeader, L1Cache, L2Cache, any>
   >,
-  options: RequestOptions<AlovaGenerics<any, any, RequestConfig, ResponseType, ResponseHeader, L1Cache, L2Cache, any>>
+  options: RequestOptions<
+    AlovaGenerics<any, any, RequestConfig, ResponseType, ResponseHeader, L1Cache, L2Cache, any>
+  >
 ) => {
   const { tokenRefresher } = options;
   const { onAuthRequired, onResponseRefreshToken } = createServerTokenAuthentication<

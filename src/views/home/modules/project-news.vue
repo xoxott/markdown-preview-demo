@@ -22,7 +22,13 @@ const newses = computed<NewsItem[]>(() => [
 </script>
 
 <template>
-  <NCard :title="$t('page.home.projectNews.title')" :bordered="false" size="small" segmented class="card-wrapper">
+  <NCard
+    :title="$t('page.home.projectNews.title')"
+    :bordered="false"
+    size="small"
+    segmented
+    class="card-wrapper"
+  >
     <template #header-extra>
       <a class="text-primary" href="javascript:;">{{ $t('page.home.projectNews.moreNews') }}</a>
     </template>

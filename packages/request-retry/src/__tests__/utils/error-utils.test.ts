@@ -10,7 +10,7 @@ import {
   isRetryableClientError,
   isCanceledError,
   getErrorType,
-  isApplicableErrorType,
+  isApplicableErrorType
 } from '../../utils/error-utils';
 import type { RetryableError } from '../../types';
 
@@ -88,7 +88,7 @@ describe('error-utils', () => {
     it('应该识别 ERR_CANCELED 错误代码', () => {
       const error: RetryableError = {
         code: 'ERR_CANCELED',
-        message: 'Request canceled',
+        message: 'Request canceled'
       };
       expect(isCanceledError(error)).toBe(true);
     });
@@ -96,28 +96,28 @@ describe('error-utils', () => {
     it('应该识别 ECONNABORTED 错误代码', () => {
       const error: RetryableError = {
         code: 'ECONNABORTED',
-        message: 'Connection aborted',
+        message: 'Connection aborted'
       };
       expect(isCanceledError(error)).toBe(true);
     });
 
     it('应该识别包含 "canceled" 的错误消息', () => {
       const error: RetryableError = {
-        message: 'Request was canceled',
+        message: 'Request was canceled'
       };
       expect(isCanceledError(error)).toBe(true);
     });
 
     it('应该识别包含 "aborted" 的错误消息', () => {
       const error: RetryableError = {
-        message: 'Request was aborted',
+        message: 'Request was aborted'
       };
       expect(isCanceledError(error)).toBe(true);
     });
 
     it('不应该识别普通错误', () => {
       const error: RetryableError = {
-        message: 'Request failed',
+        message: 'Request failed'
       };
       expect(isCanceledError(error)).toBe(false);
     });
@@ -127,21 +127,21 @@ describe('error-utils', () => {
     it('应该识别超时错误（ECONNABORTED）', () => {
       const error: RetryableError = {
         code: 'ECONNABORTED',
-        message: 'Request timeout',
+        message: 'Request timeout'
       };
       expect(getErrorType(error)).toBe('timeout');
     });
 
     it('应该识别超时错误（消息包含 timeout）', () => {
       const error: RetryableError = {
-        message: 'Request timeout',
+        message: 'Request timeout'
       };
       expect(getErrorType(error)).toBe('timeout');
     });
 
     it('应该识别网络错误（无状态码）', () => {
       const error: RetryableError = {
-        message: 'Network error',
+        message: 'Network error'
       };
       expect(getErrorType(error)).toBe('network');
     });
@@ -149,7 +149,7 @@ describe('error-utils', () => {
     it('应该识别服务器错误（5xx）', () => {
       const error: RetryableError = {
         message: 'Server error',
-        status: 500,
+        status: 500
       };
       expect(getErrorType(error)).toBe('server');
     });
@@ -158,8 +158,8 @@ describe('error-utils', () => {
       const error: RetryableError = {
         message: 'Server error',
         response: {
-          status: 503,
-        },
+          status: 503
+        }
       };
       expect(getErrorType(error)).toBe('server');
     });
@@ -167,7 +167,7 @@ describe('error-utils', () => {
     it('应该识别客户端错误（4xx）', () => {
       const error: RetryableError = {
         message: 'Client error',
-        status: 404,
+        status: 404
       };
       expect(getErrorType(error)).toBe('client');
     });
@@ -175,7 +175,7 @@ describe('error-utils', () => {
     it('应该返回 unknown 对于未知错误', () => {
       const error: RetryableError = {
         message: 'Unknown error',
-        status: 200,
+        status: 200
       };
       expect(getErrorType(error)).toBe('unknown');
     });
@@ -203,4 +203,3 @@ describe('error-utils', () => {
     });
   });
 });
-

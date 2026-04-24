@@ -24,4 +24,3 @@ export interface RequestCacheOptions {
   /** 存储适配器（可选，用于自定义存储实现） */
   storageAdapter?: StorageAdapter;
 }
-

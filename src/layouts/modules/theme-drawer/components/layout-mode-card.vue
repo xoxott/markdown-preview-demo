@@ -34,7 +34,7 @@ type LayoutConfig = Record<
 >;
 
 const layoutConfig: LayoutConfig = {
-  vertical: {
+  'vertical': {
     placement: 'bottom',
     headerClass: '',
     menuClass: 'w-1/3 h-full',
@@ -46,7 +46,7 @@ const layoutConfig: LayoutConfig = {
     menuClass: 'w-1/4 h-full',
     mainClass: 'w-2/3 h-3/4'
   },
-  horizontal: {
+  'horizontal': {
     placement: 'bottom',
     headerClass: '',
     menuClass: 'w-full h-1/4',

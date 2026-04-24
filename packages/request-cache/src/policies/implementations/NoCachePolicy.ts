@@ -19,4 +19,3 @@ export class NoCachePolicy implements CachePolicy {
     return undefined;
   }
 }
-

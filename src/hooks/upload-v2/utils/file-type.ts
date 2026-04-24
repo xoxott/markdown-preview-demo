@@ -59,7 +59,8 @@ export function detectFileType(mimeType: string): keyof typeof FILE_TYPE_MAP {
   if (mimeType.startsWith('video/')) return 'video';
   if (mimeType.startsWith('audio/')) return 'audio';
   if (mimeType.includes('pdf')) return 'pdf';
-  if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('7z')) return 'archive';
+  if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('7z'))
+    return 'archive';
   return 'default';
 }
 
@@ -83,4 +84,3 @@ export function getFileColor(mimeType: string): string {
 export function getFileTypeConfig(mimeType: string): FileTypeConfig {
   return FILE_TYPE_MAP[detectFileType(mimeType)];
 }
-

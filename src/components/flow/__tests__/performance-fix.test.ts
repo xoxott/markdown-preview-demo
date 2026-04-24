@@ -102,8 +102,7 @@ describe('Performance Fixes', () => {
       const preciseKey = (x: number, y: number) => `${x}-${y}`;
 
       // 简化缓存键（容忍5px误差）
-      const simplifiedKey = (x: number, y: number) =>
-        `${Math.round(x/5)}-${Math.round(y/5)}`;
+      const simplifiedKey = (x: number, y: number) => `${Math.round(x / 5)}-${Math.round(y / 5)}`;
 
       // 测试精确缓存
       let preciseHits = 0;
@@ -172,4 +171,3 @@ describe('Performance Fixes', () => {
     });
   });
 });
-

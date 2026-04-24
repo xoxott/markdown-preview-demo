@@ -66,7 +66,10 @@ export function useCodeTools() {
    * @param content - 要复制的内容
    * @param errorMessage - 可选的错误信息引用
    */
-  const copyCode = async (content: string, errorMessage?: Ref<string | null> | null | undefined): Promise<void> => {
+  const copyCode = async (
+    content: string,
+    errorMessage?: Ref<string | null> | null | undefined
+  ): Promise<void> => {
     // 检查浏览器支持
     if (!isSupported.value) {
       if (errorMessage) {

@@ -45,7 +45,8 @@
   }
 
   @keyframes pulse {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 1;
     }
     50% {
@@ -608,4 +609,3 @@
     border: 1px solid #ccc !important;
   }
 }
-

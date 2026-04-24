@@ -190,7 +190,11 @@ async function initRoute(to: RouteLocationNormalized): Promise<RouteLocationRaw 
   return null;
 }
 
-function handleRouteSwitch(to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) {
+function handleRouteSwitch(
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalized,
+  next: NavigationGuardNext
+) {
   // route with href
   if (to.meta.href) {
     window.open(to.meta.href, '_blank');

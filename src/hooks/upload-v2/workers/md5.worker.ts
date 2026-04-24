@@ -26,7 +26,7 @@ interface MD5Progress {
 
 type MD5WorkerMessage = MD5Message | MD5Result | MD5Progress;
 
-self.onmessage = function(e: MessageEvent<MD5Message>) {
+self.onmessage = function (e: MessageEvent<MD5Message>) {
   const { fileChunks, chunkIndex } = e.data;
 
   try {
@@ -35,7 +35,7 @@ self.onmessage = function(e: MessageEvent<MD5Message>) {
 
     fileChunks.forEach((chunk, index) => {
       spark.append(chunk);
-      
+
       // 发送进度更新
       const progress = Math.round(((index + 1) / totalChunks) * 100);
       self.postMessage({
@@ -61,4 +61,3 @@ self.onmessage = function(e: MessageEvent<MD5Message>) {
     });
   }
 };
-

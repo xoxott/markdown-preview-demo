@@ -222,13 +222,13 @@
   list-style-type: none;
 }
 
-.markdown-body .task-list-item input[type="checkbox"] {
+.markdown-body .task-list-item input[type='checkbox'] {
   margin-right: 0.5em;
   margin-left: -1.5em;
   cursor: pointer;
 }
 
-.markdown-body .task-list-item input[type="checkbox"]:checked + * {
+.markdown-body .task-list-item input[type='checkbox']:checked + * {
   text-decoration: line-through;
   opacity: 0.7;
 }
@@ -267,4 +267,3 @@
 .markdown-container.color-mode-dark .markdown-body ol {
   color: #c9d1d9 !important;
 }
-

@@ -17,7 +17,7 @@ describe('PerformanceMonitorManager', () => {
     it('应该增加总请求数', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       monitor.onRequestStart(config);
@@ -29,7 +29,7 @@ describe('PerformanceMonitorManager', () => {
     it('应该多次调用时累计增加', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       monitor.onRequestStart(config);
@@ -45,7 +45,7 @@ describe('PerformanceMonitorManager', () => {
     it('应该增加成功请求数和响应时间', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       monitor.onRequestStart(config);
@@ -59,7 +59,7 @@ describe('PerformanceMonitorManager', () => {
     it('应该更新 URL 统计信息', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       monitor.onRequestStart(config);
@@ -75,11 +75,11 @@ describe('PerformanceMonitorManager', () => {
     it('应该支持多个 URL 的统计', () => {
       const config1: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const config2: NormalizedRequestConfig = {
         url: '/api/posts',
-        method: 'GET',
+        method: 'GET'
       };
 
       monitor.onRequestStart(config1);
@@ -97,7 +97,7 @@ describe('PerformanceMonitorManager', () => {
     it('应该计算平均响应时间', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       monitor.onRequestStart(config);
@@ -114,7 +114,7 @@ describe('PerformanceMonitorManager', () => {
     it('应该处理没有 URL 的情况', () => {
       const config: NormalizedRequestConfig = {
         url: '',
-        method: 'GET',
+        method: 'GET'
       };
 
       monitor.onRequestStart(config);
@@ -130,7 +130,7 @@ describe('PerformanceMonitorManager', () => {
     it('应该增加失败请求数和响应时间', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const error = new Error('Request failed');
 
@@ -145,7 +145,7 @@ describe('PerformanceMonitorManager', () => {
     it('应该更新 URL 统计信息（失败请求）', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const error = new Error('Request failed');
 
@@ -162,7 +162,7 @@ describe('PerformanceMonitorManager', () => {
     it('应该同时跟踪成功和失败请求', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const error = new Error('Request failed');
 
@@ -195,7 +195,7 @@ describe('PerformanceMonitorManager', () => {
     it('应该计算平均响应时间', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       monitor.onRequestStart(config);
@@ -212,7 +212,7 @@ describe('PerformanceMonitorManager', () => {
     it('应该计算最小和最大响应时间', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       monitor.onRequestStart(config);
@@ -230,7 +230,7 @@ describe('PerformanceMonitorManager', () => {
     it('应该计算成功率', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const error = new Error('Request failed');
 
@@ -248,7 +248,7 @@ describe('PerformanceMonitorManager', () => {
     it('应该计算 100% 成功率', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       monitor.onRequestStart(config);
@@ -263,7 +263,7 @@ describe('PerformanceMonitorManager', () => {
     it('应该计算 0% 成功率', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const error = new Error('Request failed');
 
@@ -279,11 +279,11 @@ describe('PerformanceMonitorManager', () => {
     it('应该返回所有 URL 的统计信息', () => {
       const config1: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const config2: NormalizedRequestConfig = {
         url: '/api/posts',
-        method: 'GET',
+        method: 'GET'
       };
 
       monitor.onRequestStart(config1);
@@ -300,7 +300,7 @@ describe('PerformanceMonitorManager', () => {
     it('应该正确统计成功和失败请求', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const error = new Error('Request failed');
 
@@ -322,7 +322,7 @@ describe('PerformanceMonitorManager', () => {
     it('应该重置所有指标', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       monitor.onRequestStart(config);
@@ -340,7 +340,7 @@ describe('PerformanceMonitorManager', () => {
     it('应该在重置后可以重新开始统计', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       monitor.onRequestStart(config);
@@ -363,7 +363,7 @@ describe('PerformanceMonitorManager', () => {
     it('应该正确跟踪完整的请求生命周期', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       monitor.onRequestStart(config);
@@ -380,7 +380,7 @@ describe('PerformanceMonitorManager', () => {
     it('应该正确处理混合成功和失败的场景', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const error = new Error('Request failed');
 
@@ -410,11 +410,11 @@ describe('PerformanceMonitorManager', () => {
     it('应该正确处理多个不同 URL 的场景', () => {
       const config1: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const config2: NormalizedRequestConfig = {
         url: '/api/posts',
-        method: 'GET',
+        method: 'GET'
       };
       const error = new Error('Request failed');
 
@@ -439,4 +439,3 @@ describe('PerformanceMonitorManager', () => {
     });
   });
 });
-

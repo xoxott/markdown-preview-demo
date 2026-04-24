@@ -30,10 +30,7 @@ export default defineComponent({
     return () => (
       <div style="position: relative;">
         <span ref={textRef}>{text.value}</span>
-        <StreamingPenEffect
-          isWriting={isTyping.value}
-          targetRef={textRef.value}
-        />
+        <StreamingPenEffect isWriting={isTyping.value} targetRef={textRef.value} />
       </div>
     );
   }
@@ -59,39 +56,42 @@ export default defineComponent({
   targetRef={textRef.value}
   penColor="#92400e"
   size={24}
-  offsetX={0.3}        // 向右偏移更多
-  offsetY={-0.9}       // 向上偏移更多
-  positionChangeThreshold={{ x: 60, y: 25 }}  // 调整换行检测阈值
-  transitionDuration={0.08}  // 更快的过渡动画
+  offsetX={0.3} // 向右偏移更多
+  offsetY={-0.9} // 向上偏移更多
+  positionChangeThreshold={{ x: 60, y: 25 }} // 调整换行检测阈值
+  transitionDuration={0.08} // 更快的过渡动画
 />
 ```
 
 ## 🎛️ Props
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `isWriting` | `boolean` | `true` | 是否正在书写（控制显示/隐藏） |
-| `targetRef` | `HTMLElement \| null` | `null` | **必需** - 文字容器的 ref，用于追踪位置 |
-| `penColor` | `string` | `'#92400e'` | 笔的颜色（CSS 颜色值） |
-| `size` | `number` | `24` | 笔的大小（像素） |
-| `offsetX` | `number` | `0.2` | 笔相对于文字末尾的 X 轴偏移（相对于笔的大小） |
-| `offsetY` | `number` | `-0.8` | 笔相对于文字末尾的 Y 轴偏移（相对于笔的大小） |
-| `positionChangeThreshold` | `{ x: number, y: number }` | `{ x: 50, y: 20 }` | 位置变化阈值，用于检测换行等大幅位置变化 |
-| `transitionDuration` | `number` | `0.05` | 位置过渡动画时长（秒） |
+| 属性                      | 类型                       | 默认值             | 说明                                          |
+| ------------------------- | -------------------------- | ------------------ | --------------------------------------------- |
+| `isWriting`               | `boolean`                  | `true`             | 是否正在书写（控制显示/隐藏）                 |
+| `targetRef`               | `HTMLElement \| null`      | `null`             | **必需** - 文字容器的 ref，用于追踪位置       |
+| `penColor`                | `string`                   | `'#92400e'`        | 笔的颜色（CSS 颜色值）                        |
+| `size`                    | `number`                   | `24`               | 笔的大小（像素）                              |
+| `offsetX`                 | `number`                   | `0.2`              | 笔相对于文字末尾的 X 轴偏移（相对于笔的大小） |
+| `offsetY`                 | `number`                   | `-0.8`             | 笔相对于文字末尾的 Y 轴偏移（相对于笔的大小） |
+| `positionChangeThreshold` | `{ x: number, y: number }` | `{ x: 50, y: 20 }` | 位置变化阈值，用于检测换行等大幅位置变化      |
+| `transitionDuration`      | `number`                   | `0.05`             | 位置过渡动画时长（秒）                        |
 
 ## 🎨 动画效果
 
 ### 书写动画
+
 - 笔尖上下轻微移动，模拟按压效果
 - 左右轻微摆动，增加自然感
 - 旋转角度变化（-12° 到 -18°）
 
 ### 墨迹效果
+
 - 笔尖处有细微的墨迹点
 - 墨迹会向下掉落并逐渐消失
 - 增强书写的真实感
 
 ### 过渡效果
+
 - 淡入：从小到大，带旋转
 - 淡出：缩小并下落
 
@@ -104,6 +104,7 @@ export default defineComponent({
 ```
 
 演示包含：
+
 - 默认样式
 - 不同颜色示例
 - 不同大小示例
@@ -141,6 +142,7 @@ export default defineComponent({
 ```
 
 **重要提示：**
+
 - 文字容器必须设置 `position: relative` 或其他定位上下文
 - `targetRef` 必须指向实际的文字容器元素
 
@@ -151,15 +153,18 @@ export default defineComponent({
 采用 **Range API** 实现精确的文字末尾定位：
 
 1. **文本节点查找**
+
    - 使用 `TreeWalker` 遍历所有文本节点
    - 过滤空白节点，只处理有效文本
 
 2. **位置计算**
+
    - 使用 `Range.getBoundingClientRect()` 获取精确位置
    - 相对于容器计算偏移量
    - 自动处理多行文本
 
 3. **变化监听**
+
    - `MutationObserver` 监听 DOM 变化（childList, subtree, characterData）
    - 自动检测文字内容更新
    - 使用 `requestAnimationFrame` 进行流畅的位置更新
@@ -231,9 +236,9 @@ const rect = range.getBoundingClientRect();
 
 ```typescript
 observer.observe(targetElement, {
-  childList: true,      // 监听子节点变化
-  subtree: true,        // 监听所有后代节点
-  characterData: true   // 监听文本内容变化
+  childList: true, // 监听子节点变化
+  subtree: true, // 监听所有后代节点
+  characterData: true // 监听文本内容变化
 });
 ```
 
@@ -248,6 +253,7 @@ observer.observe(targetElement, {
 ## 📝 更新日志
 
 ### v2.1.0 (2026-01-21) - 🚀 简化优化版本
+
 - ✅ **简化更新机制**：移除冗余的连续更新逻辑，仅使用 `MutationObserver` + `requestAnimationFrame`
 - ✅ **性能优化**：减少不必要的 `setInterval` 调用，降低性能开销
 - ✅ **新增 Props**：`offsetX`、`offsetY`、`positionChangeThreshold`、`transitionDuration`
@@ -255,6 +261,7 @@ observer.observe(targetElement, {
 - ✅ **代码清理**：移除未使用的类型定义和配置项
 
 ### v2.0.0 (2026-01-21) - 🎯 智能追踪版本
+
 - ✅ **重大更新**：从 Vue 模板改为 TSX 实现
 - ✅ **智能追踪**：使用 Range API 实现精确位置追踪
 - ✅ **自动更新**：MutationObserver 监听文字变化
@@ -263,6 +270,7 @@ observer.observe(targetElement, {
 - ⚠️ **Breaking Change**：现在需要传入 `targetRef` prop
 
 ### v1.0.0 (2026-01-21)
+
 - ✅ 初始版本（固定位置）
 - ✅ 基础书写动画
 - ✅ 墨迹掉落效果

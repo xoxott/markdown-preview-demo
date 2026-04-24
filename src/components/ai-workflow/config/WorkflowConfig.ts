@@ -1,6 +1,6 @@
 /**
  * 工作流配置系统
- * 
+ *
  * 提供全局配置管理，支持主题、样式、行为等自定义
  */
 
@@ -400,4 +400,3 @@ export class WorkflowConfigManager {
 
 // 导出单例访问函数
 export const getWorkflowConfig = () => WorkflowConfigManager.getInstance();
-

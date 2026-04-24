@@ -113,103 +113,105 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
       const event = pendingMouseMove;
       pendingMouseMove = null;
 
-    // 更新框选区域
-    if (selectionBox.isSelecting.value && canvasRef.value) {
-      const rect = canvasRef.value.getBoundingClientRect();
+      // 更新框选区域
+      if (selectionBox.isSelecting.value && canvasRef.value) {
+        const rect = canvasRef.value.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
-      selectionBox.updateSelection(x, y);
+        selectionBox.updateSelection(x, y);
 
-      // 实时更新选中的节点
-      const NODE_WIDTH = 220;
-      const NODE_HEIGHT = 72;
-      const selectedIds: string[] = [];
+        // 实时更新选中的节点
+        const NODE_WIDTH = 220;
+        const NODE_HEIGHT = 72;
+        const selectedIds: string[] = [];
 
-      nodeDragDrop.nodes.value.forEach(node => {
-        if (selectionBox.isNodeInSelection(
-          node.position.x,
-          node.position.y,
-          NODE_WIDTH,
-          NODE_HEIGHT,
-          zoom.viewport.value.zoom,
-          zoom.viewport.value.x,
-          zoom.viewport.value.y
-        )) {
-          selectedIds.push(node.id);
-        }
-      });
+        nodeDragDrop.nodes.value.forEach(node => {
+          if (
+            selectionBox.isNodeInSelection(
+              node.position.x,
+              node.position.y,
+              NODE_WIDTH,
+              NODE_HEIGHT,
+              zoom.viewport.value.zoom,
+              zoom.viewport.value.x,
+              zoom.viewport.value.y
+            )
+          ) {
+            selectedIds.push(node.id);
+          }
+        });
 
-      nodeDragDrop.selectedNodeIds.value = selectedIds;
-      return;
-    }
+        nodeDragDrop.selectedNodeIds.value = selectedIds;
+        return;
+      }
 
-    // 更新连接线位置（如果正在连接）
-    if (connection.isConnecting.value && canvasRef.value) {
-      const canvasRect = canvasRef.value.getBoundingClientRect();
+      // 更新连接线位置（如果正在连接）
+      if (connection.isConnecting.value && canvasRef.value) {
+        const canvasRect = canvasRef.value.getBoundingClientRect();
         const x = event.clientX - canvasRect.left;
         const y = event.clientY - canvasRect.top;
-      connection.updateConnection(x, y);
-    }
+        connection.updateConnection(x, y);
+      }
 
-    // 平移画布（右键/中键）
-    if (isPanning.value) {
+      // 平移画布（右键/中键）
+      if (isPanning.value) {
         const deltaX = event.clientX - panStart.value.x;
         const deltaY = event.clientY - panStart.value.y;
-      zoom.pan(deltaX, deltaY);
+        zoom.pan(deltaX, deltaY);
         panStart.value = { x: event.clientX, y: event.clientY };
-      return;
-    }
+        return;
+      }
 
-    // 拖拽画布（左键空白处）
-    if (isCanvasDragging.value) {
+      // 拖拽画布（左键空白处）
+      if (isCanvasDragging.value) {
         const deltaX = event.clientX - canvasDragStart.value.x;
         const deltaY = event.clientY - canvasDragStart.value.y;
 
-      // 只有移动超过阈值才开始拖拽（避免误触）
-      if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
-        zoom.pan(deltaX, deltaY);
+        // 只有移动超过阈值才开始拖拽（避免误触）
+        if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
+          zoom.pan(deltaX, deltaY);
           canvasDragStart.value = { x: event.clientX, y: event.clientY };
+        }
+        return;
       }
-      return;
-    }
 
-    // 拖拽节点
-    if (nodeDragDrop.draggingNodeId.value && nodeDragState.value) {
-      // 检查是否超过移动阈值
+      // 拖拽节点
+      if (nodeDragDrop.draggingNodeId.value && nodeDragState.value) {
+        // 检查是否超过移动阈值
         const totalDeltaX = Math.abs(event.clientX - nodeDragState.value.startX);
         const totalDeltaY = Math.abs(event.clientY - nodeDragState.value.startY);
 
-      if (totalDeltaX > 3 || totalDeltaY > 3) {
-        nodeDragState.value.hasMoved = true;
+        if (totalDeltaX > 3 || totalDeltaY > 3) {
+          nodeDragState.value.hasMoved = true;
 
           // 使用绝对位置计算增量，避免丢失中间帧
           if (lastProcessedMousePos) {
             const deltaX = (event.clientX - lastProcessedMousePos.x) / zoom.viewport.value.zoom;
             const deltaY = (event.clientY - lastProcessedMousePos.y) / zoom.viewport.value.zoom;
 
-        if (nodeDragDrop.selectedNodeIds.value.length > 1) {
-          // 移动所有选中的节点
-          nodeDragDrop.moveNodes(nodeDragDrop.selectedNodeIds.value, deltaX, deltaY);
-        } else {
-          // 移动单个节点
-          nodeDragDrop.moveNode(nodeDragDrop.draggingNodeId.value, deltaX, deltaY);
-        }
+            if (nodeDragDrop.selectedNodeIds.value.length > 1) {
+              // 移动所有选中的节点
+              nodeDragDrop.moveNodes(nodeDragDrop.selectedNodeIds.value, deltaX, deltaY);
+            } else {
+              // 移动单个节点
+              nodeDragDrop.moveNode(nodeDragDrop.draggingNodeId.value, deltaX, deltaY);
+            }
           }
 
           // 更新上一次处理的位置
           lastProcessedMousePos = { x: event.clientX, y: event.clientY };
+        }
+        return;
       }
-      return;
-    }
 
-    // 更新连接线位置
-    if (connection.isConnecting.value && canvasRef.value) {
-      // 转换为相对于画布的坐标
-      const canvasRect = canvasRef.value.getBoundingClientRect();
+      // 更新连接线位置
+      if (connection.isConnecting.value && canvasRef.value) {
+        // 转换为相对于画布的坐标
+        const canvasRect = canvasRef.value.getBoundingClientRect();
         const x = event.clientX - canvasRect.left;
         const y = event.clientY - canvasRect.top;
-      connection.updateConnection(x, y);
-    }
+        connection.updateConnection(x, y);
+      }
     });
   }
 
@@ -355,11 +357,7 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
     const node = nodeDragDrop.getNode(nodeId);
     if (node) {
       const rect = (e.target as HTMLElement).getBoundingClientRect();
-      nodeDragDrop.startDragExistingNode(
-        nodeId,
-        e.clientX - rect.left,
-        e.clientY - rect.top
-      );
+      nodeDragDrop.startDragExistingNode(nodeId, e.clientX - rect.left, e.clientY - rect.top);
     }
   }
 
@@ -380,7 +378,12 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
   }
 
   /** 端口鼠标按下（开始连接） */
-  function handlePortMouseDown(nodeId: string, portId: string, type: 'input' | 'output', e: MouseEvent) {
+  function handlePortMouseDown(
+    nodeId: string,
+    portId: string,
+    type: 'input' | 'output',
+    e: MouseEvent
+  ) {
     e.stopPropagation();
 
     if (type === 'output') {
@@ -403,7 +406,12 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
   }
 
   /** 端口鼠标抬起（完成连接） */
-  function handlePortMouseUp(nodeId: string, portId: string, type: 'input' | 'output', e: MouseEvent) {
+  function handlePortMouseUp(
+    nodeId: string,
+    portId: string,
+    type: 'input' | 'output',
+    e: MouseEvent
+  ) {
     e.stopPropagation();
 
     if (connection.isConnecting.value) {
@@ -452,7 +460,9 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
 
     // 复制相关的连接（只复制选中节点之间的连接）
     const copiedConnections = connection.connections.value
-      .filter(conn => selectedNodeIds.has(conn.sourceNodeId) && selectedNodeIds.has(conn.targetNodeId))
+      .filter(
+        conn => selectedNodeIds.has(conn.sourceNodeId) && selectedNodeIds.has(conn.targetNodeId)
+      )
       .map(conn => JSON.parse(JSON.stringify(conn)));
 
     clipboard.value = {
@@ -602,7 +612,10 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
     }
 
     // Delete 或 Backspace 删除选中节点
-    if ((e.key === 'Delete' || e.key === 'Backspace') && nodeDragDrop.selectedNodeIds.value.length > 0) {
+    if (
+      (e.key === 'Delete' || e.key === 'Backspace') &&
+      nodeDragDrop.selectedNodeIds.value.length > 0
+    ) {
       e.preventDefault();
       deleteSelectedNodes();
       saveHistory();
@@ -743,8 +756,12 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
     // UI Configuration
     showGrid,
     showMinimap,
-    toggleGrid: () => { showGrid.value = !showGrid.value; },
-    toggleMinimap: () => { showMinimap.value = !showMinimap.value; },
+    toggleGrid: () => {
+      showGrid.value = !showGrid.value;
+    },
+    toggleMinimap: () => {
+      showMinimap.value = !showMinimap.value;
+    },
 
     // Node Lock
     lockedNodeIds,
@@ -761,4 +778,3 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
     clearCanvas
   };
 }
-

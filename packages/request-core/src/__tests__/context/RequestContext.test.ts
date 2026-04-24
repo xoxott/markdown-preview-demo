@@ -10,7 +10,7 @@ describe('RequestContext', () => {
     it('应该创建基本的请求上下文', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       const ctx = createRequestContext(config);
@@ -29,7 +29,7 @@ describe('RequestContext', () => {
     it('应该使用提供的 id', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       const customId = 'custom-request-id';
@@ -41,13 +41,13 @@ describe('RequestContext', () => {
     it('应该使用提供的 meta', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       const meta = {
         cache: true,
         retry: true,
-        customField: 'value',
+        customField: 'value'
       };
 
       const ctx = createRequestContext(config, undefined, meta);
@@ -58,12 +58,12 @@ describe('RequestContext', () => {
     it('应该生成不同的 id 对于不同的请求', () => {
       const config1: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       const config2: NormalizedRequestConfig = {
         url: '/api/posts',
-        method: 'GET',
+        method: 'GET'
       };
 
       const ctx1 = createRequestContext(config1);
@@ -76,7 +76,7 @@ describe('RequestContext', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        params: { page: 1 },
+        params: { page: 1 }
       };
 
       const ctx1 = createRequestContext(config);
@@ -89,7 +89,7 @@ describe('RequestContext', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        params: { page: 1, limit: 10 },
+        params: { page: 1, limit: 10 }
       };
 
       const ctx = createRequestContext(config);
@@ -101,7 +101,7 @@ describe('RequestContext', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'POST',
-        data: { name: 'John', age: 30 },
+        data: { name: 'John', age: 30 }
       };
 
       const ctx = createRequestContext(config);
@@ -115,15 +115,15 @@ describe('RequestContext', () => {
         method: 'GET',
         headers: {
           'Authorization': 'Bearer token',
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json'
+        }
       };
 
       const ctx = createRequestContext(config);
 
       expect(ctx.config.headers).toEqual({
         'Authorization': 'Bearer token',
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       });
     });
 
@@ -131,7 +131,7 @@ describe('RequestContext', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        baseURL: 'https://api.example.com',
+        baseURL: 'https://api.example.com'
       };
 
       const ctx = createRequestContext(config);
@@ -143,7 +143,7 @@ describe('RequestContext', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        timeout: 5000,
+        timeout: 5000
       };
 
       const ctx = createRequestContext(config);
@@ -156,7 +156,7 @@ describe('RequestContext', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        signal: controller.signal,
+        signal: controller.signal
       };
 
       const ctx = createRequestContext(config);
@@ -167,7 +167,7 @@ describe('RequestContext', () => {
     it('应该允许修改 state', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       const ctx = createRequestContext(config);
@@ -186,7 +186,7 @@ describe('RequestContext', () => {
     it('应该允许修改 meta', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       const ctx = createRequestContext(config);
@@ -201,7 +201,7 @@ describe('RequestContext', () => {
     it('应该允许设置 result', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       const ctx = createRequestContext<{ id: number; name: string }>(config);
@@ -214,7 +214,7 @@ describe('RequestContext', () => {
     it('应该允许设置 error', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       const ctx = createRequestContext(config);
@@ -228,7 +228,7 @@ describe('RequestContext', () => {
     it('应该保持 config 为只读', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
 
       const ctx = createRequestContext(config);
@@ -242,4 +242,3 @@ describe('RequestContext', () => {
     });
   });
 });
-

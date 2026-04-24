@@ -16,10 +16,7 @@ import type { FlowPosition } from '../types/flow-node';
  * @param viewport 视口状态
  * @returns 屏幕坐标的中心位置
  */
-export function getNodeCenterScreen(
-  node: FlowNode,
-  viewport: FlowViewport
-): FlowPosition {
+export function getNodeCenterScreen(node: FlowNode, viewport: FlowViewport): FlowPosition {
   // 先获取画布坐标的中心
   const centerCanvas = getNodeCenterCanvas(node);
   // 转换为屏幕坐标
@@ -75,4 +72,3 @@ export function getHandlePositionScreen(
   // 转换为屏幕坐标
   return canvasToScreen(handleX, handleY, viewport);
 }
-

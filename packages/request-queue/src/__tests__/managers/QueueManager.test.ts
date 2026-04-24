@@ -11,7 +11,7 @@ describe('QueueManager', () => {
   beforeEach(() => {
     manager = new QueueManager({
       maxConcurrent: 2,
-      queueStrategy: 'fifo',
+      queueStrategy: 'fifo'
     });
   });
 
@@ -24,7 +24,7 @@ describe('QueueManager', () => {
 
     it('应该使用默认策略', () => {
       const defaultManager = new QueueManager({
-        maxConcurrent: 5,
+        maxConcurrent: 5
       });
 
       expect(defaultManager).toBeInstanceOf(QueueManager);
@@ -35,13 +35,10 @@ describe('QueueManager', () => {
     it('应该立即执行请求当未达到并发限制', async () => {
       let executed = false;
 
-      const promise = manager.enqueue(
-        { url: '/api/users', method: 'GET' },
-        async () => {
-          executed = true;
-          return 'result';
-        },
-      );
+      const promise = manager.enqueue({ url: '/api/users', method: 'GET' }, async () => {
+        executed = true;
+        return 'result';
+      });
 
       const result = await promise;
 
@@ -56,14 +53,11 @@ describe('QueueManager', () => {
       // 创建 5 个请求，但并发限制为 2
       for (let i = 0; i < 5; i++) {
         promises.push(
-          manager.enqueue(
-            { url: `/api/users/${i}`, method: 'GET' },
-            async () => {
-              executionOrder.push(i);
-              await new Promise(resolve => setTimeout(resolve, 50));
-              return `result-${i}`;
-            },
-          ),
+          manager.enqueue({ url: `/api/users/${i}`, method: 'GET' }, async () => {
+            executionOrder.push(i);
+            await new Promise(resolve => setTimeout(resolve, 50));
+            return `result-${i}`;
+          })
         );
       }
 
@@ -80,14 +74,11 @@ describe('QueueManager', () => {
       const promises: Promise<string>[] = [];
       for (let i = 0; i < 3; i++) {
         promises.push(
-          manager.enqueue(
-            { url: `/api/users/${i}`, method: 'GET' },
-            async () => {
-              await new Promise(resolve => setTimeout(resolve, 10));
-              executionOrder.push(i);
-              return `result-${i}`;
-            },
-          ),
+          manager.enqueue({ url: `/api/users/${i}`, method: 'GET' }, async () => {
+            await new Promise(resolve => setTimeout(resolve, 10));
+            executionOrder.push(i);
+            return `result-${i}`;
+          })
         );
       }
 
@@ -100,7 +91,7 @@ describe('QueueManager', () => {
     it('应该按优先级策略执行', async () => {
       const priorityManager = new QueueManager({
         maxConcurrent: 1, // 一次只执行一个，确保顺序
-        queueStrategy: 'priority',
+        queueStrategy: 'priority'
       });
 
       const executionOrder: string[] = [];
@@ -113,7 +104,7 @@ describe('QueueManager', () => {
           executionOrder.push('low');
           return 'low-result';
         },
-        'low',
+        'low'
       );
 
       // 立即添加高优先级请求（会在队列中等待，但会排在前面）
@@ -124,7 +115,7 @@ describe('QueueManager', () => {
           executionOrder.push('high');
           return 'high-result';
         },
-        'high',
+        'high'
       );
 
       await Promise.all([promise1, promise2]);
@@ -138,12 +129,9 @@ describe('QueueManager', () => {
       const error = new Error('Request failed');
 
       await expect(
-        manager.enqueue(
-          { url: '/api/users', method: 'GET' },
-          async () => {
-            throw error;
-          },
-        ),
+        manager.enqueue({ url: '/api/users', method: 'GET' }, async () => {
+          throw error;
+        })
       ).rejects.toThrow('Request failed');
     });
 
@@ -154,14 +142,11 @@ describe('QueueManager', () => {
       const promises: Promise<string>[] = [];
       for (let i = 0; i < 3; i++) {
         promises.push(
-          manager.enqueue(
-            { url: `/api/users/${i}`, method: 'GET' },
-            async () => {
-              executionOrder.push(i);
-              await new Promise(resolve => setTimeout(resolve, 20));
-              return `result-${i}`;
-            },
-          ),
+          manager.enqueue({ url: `/api/users/${i}`, method: 'GET' }, async () => {
+            executionOrder.push(i);
+            await new Promise(resolve => setTimeout(resolve, 20));
+            return `result-${i}`;
+          })
         );
       }
 
@@ -180,13 +165,10 @@ describe('QueueManager', () => {
       const promises: Promise<string>[] = [];
       for (let i = 0; i < 5; i++) {
         promises.push(
-          manager.enqueue(
-            { url: `/api/users/${i}`, method: 'GET' },
-            async () => {
-              await new Promise(resolve => setTimeout(resolve, 100));
-              return `result-${i}`;
-            },
-          ),
+          manager.enqueue({ url: `/api/users/${i}`, method: 'GET' }, async () => {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            return `result-${i}`;
+          })
         );
       }
 
@@ -211,13 +193,10 @@ describe('QueueManager', () => {
       const promises: Promise<string>[] = [];
       for (let i = 0; i < 3; i++) {
         promises.push(
-          manager.enqueue(
-            { url: `/api/users/${i}`, method: 'GET' },
-            async () => {
-              await new Promise(resolve => setTimeout(resolve, 100));
-              return `result-${i}`;
-            },
-          ),
+          manager.enqueue({ url: `/api/users/${i}`, method: 'GET' }, async () => {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            return `result-${i}`;
+          })
         );
       }
 
@@ -240,13 +219,10 @@ describe('QueueManager', () => {
       const promises: Promise<string>[] = [];
       for (let i = 0; i < 5; i++) {
         promises.push(
-          manager.enqueue(
-            { url: `/api/users/${i}`, method: 'GET' },
-            async () => {
-              await new Promise(resolve => setTimeout(resolve, 200));
-              return `result-${i}`;
-            },
-          ),
+          manager.enqueue({ url: `/api/users/${i}`, method: 'GET' }, async () => {
+            await new Promise(resolve => setTimeout(resolve, 200));
+            return `result-${i}`;
+          })
         );
       }
 
@@ -265,13 +241,10 @@ describe('QueueManager', () => {
       const promises: Promise<string>[] = [];
       for (let i = 0; i < 3; i++) {
         promises.push(
-          manager.enqueue(
-            { url: `/api/users/${i}`, method: 'GET' },
-            async () => {
-              await new Promise(resolve => setTimeout(resolve, 200));
-              return `result-${i}`;
-            },
-          ),
+          manager.enqueue({ url: `/api/users/${i}`, method: 'GET' }, async () => {
+            await new Promise(resolve => setTimeout(resolve, 200));
+            return `result-${i}`;
+          })
         );
       }
 
@@ -296,13 +269,10 @@ describe('QueueManager', () => {
       const promises: Promise<string>[] = [];
       for (let i = 0; i < 10; i++) {
         promises.push(
-          manager.enqueue(
-            { url: `/api/users/${i}`, method: 'GET' },
-            async () => {
-              await new Promise(resolve => setTimeout(resolve, 10));
-              return `result-${i}`;
-            },
-          ),
+          manager.enqueue({ url: `/api/users/${i}`, method: 'GET' }, async () => {
+            await new Promise(resolve => setTimeout(resolve, 10));
+            return `result-${i}`;
+          })
         );
       }
 
@@ -319,7 +289,7 @@ describe('QueueManager', () => {
     it('应该更新队列策略', async () => {
       const priorityManager = new QueueManager({
         maxConcurrent: 1, // 一次只执行一个，确保顺序
-        queueStrategy: 'fifo',
+        queueStrategy: 'fifo'
       });
 
       priorityManager.updateConfig({ queueStrategy: 'priority' });
@@ -334,7 +304,7 @@ describe('QueueManager', () => {
           executionOrder.push('low');
           return 'low-result';
         },
-        'low',
+        'low'
       );
 
       // 立即添加高优先级请求（会在队列中等待，但会排在前面）
@@ -345,7 +315,7 @@ describe('QueueManager', () => {
           executionOrder.push('high');
           return 'high-result';
         },
-        'high',
+        'high'
       );
 
       await Promise.all([promise1, promise2]);
@@ -360,7 +330,7 @@ describe('QueueManager', () => {
     it('应该按优先级值排序', async () => {
       const priorityManager = new QueueManager({
         maxConcurrent: 1, // 一次只执行一个，确保顺序
-        queueStrategy: 'priority',
+        queueStrategy: 'priority'
       });
 
       const executionOrder: string[] = [];
@@ -373,7 +343,7 @@ describe('QueueManager', () => {
           executionOrder.push('low');
           return 'low-result';
         },
-        'low',
+        'low'
       );
 
       // 立即添加其他请求（它们会在队列中等待）
@@ -384,7 +354,7 @@ describe('QueueManager', () => {
           executionOrder.push('normal');
           return 'normal-result';
         },
-        'normal',
+        'normal'
       );
 
       const promise3 = priorityManager.enqueue(
@@ -394,7 +364,7 @@ describe('QueueManager', () => {
           executionOrder.push('high');
           return 'high-result';
         },
-        'high',
+        'high'
       );
 
       await Promise.all([promise1, promise2, promise3]);
@@ -410,7 +380,7 @@ describe('QueueManager', () => {
     it('应该按创建时间排序当优先级相同时', async () => {
       const priorityManager = new QueueManager({
         maxConcurrent: 1,
-        queueStrategy: 'priority',
+        queueStrategy: 'priority'
       });
 
       const executionOrder: number[] = [];
@@ -423,7 +393,7 @@ describe('QueueManager', () => {
             executionOrder.push(1);
             return 'result-1';
           },
-          'normal',
+          'normal'
         ),
         priorityManager.enqueue(
           { url: '/api/2', method: 'GET' },
@@ -431,7 +401,7 @@ describe('QueueManager', () => {
             executionOrder.push(2);
             return 'result-2';
           },
-          'normal',
+          'normal'
         ),
         priorityManager.enqueue(
           { url: '/api/3', method: 'GET' },
@@ -439,8 +409,8 @@ describe('QueueManager', () => {
             executionOrder.push(3);
             return 'result-3';
           },
-          'normal',
-        ),
+          'normal'
+        )
       ];
 
       await Promise.all(promises);
@@ -450,4 +420,3 @@ describe('QueueManager', () => {
     });
   });
 });
-

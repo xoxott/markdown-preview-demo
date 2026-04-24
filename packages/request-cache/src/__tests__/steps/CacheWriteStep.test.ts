@@ -22,7 +22,7 @@ describe('CacheWriteStep', () => {
   it('应该在请求成功且 cache=true 时写入缓存', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const result = { id: 1, name: 'John' };
     const ctx = createRequestContext<typeof result>(config, 'test-key', { cache: true });
@@ -42,7 +42,7 @@ describe('CacheWriteStep', () => {
   it('应该在请求有错误时不写入缓存', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config, 'test-key', { cache: true });
     ctx.result = { id: 1 };
@@ -62,7 +62,7 @@ describe('CacheWriteStep', () => {
   it('应该在 result 为 undefined 时不写入缓存', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config, 'test-key', { cache: true });
     ctx.result = undefined;
@@ -81,7 +81,7 @@ describe('CacheWriteStep', () => {
   it('应该在 cache=false 时不写入缓存', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const result = { id: 1 };
     const ctx = createRequestContext<typeof result>(config, 'test-key', { cache: false });
@@ -101,7 +101,7 @@ describe('CacheWriteStep', () => {
   it('应该在 cache=undefined 时不写入缓存', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const result = { id: 1 };
     const ctx = createRequestContext<typeof result>(config, 'test-key');
@@ -124,12 +124,12 @@ describe('CacheWriteStep', () => {
 
     const customStep = new CacheWriteStep({
       requestCacheManager: cacheManager,
-      policyFactory,
+      policyFactory
     });
 
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const result = { id: 1 };
     const ctx = createRequestContext<typeof result>(config, 'test-key', { cache: true });
@@ -152,17 +152,17 @@ describe('CacheWriteStep', () => {
 
     const customStep = new CacheWriteStep({
       requestCacheManager: cacheManager,
-      policyFactory,
+      policyFactory
     });
 
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const result = { id: 1 };
     const ctx = createRequestContext<typeof result>(config, 'test-key', {
       cache: true,
-      cacheExpireTime: 10 * 60 * 1000, // 10 分钟
+      cacheExpireTime: 10 * 60 * 1000 // 10 分钟
     });
     ctx.result = result;
 
@@ -180,7 +180,7 @@ describe('CacheWriteStep', () => {
   it('应该使用 ctx.id 作为缓存键', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const customId = 'custom-request-id';
     const result = { id: 1, name: 'John' };
@@ -201,7 +201,7 @@ describe('CacheWriteStep', () => {
   it('应该先执行 next 再写入缓存', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const result = { id: 1 };
     const ctx = createRequestContext<typeof result>(config, 'test-key', { cache: true });
@@ -221,4 +221,3 @@ describe('CacheWriteStep', () => {
     expect(cached).toEqual(result);
   });
 });
-

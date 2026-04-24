@@ -69,7 +69,8 @@ export class SpeedCalculator {
     if (this.lastSpeed === 0) {
       this.lastSpeed = instantSpeed;
     } else {
-      this.lastSpeed = this.smoothingFactor * instantSpeed + (1 - this.smoothingFactor) * this.lastSpeed;
+      this.lastSpeed =
+        this.smoothingFactor * instantSpeed + (1 - this.smoothingFactor) * this.lastSpeed;
     }
 
     return Math.max(0, Number.isFinite(this.lastSpeed) ? this.lastSpeed : 0);
@@ -100,4 +101,3 @@ export class SpeedCalculator {
     this.lastSpeed = 0;
   }
 }
-

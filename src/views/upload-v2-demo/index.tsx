@@ -86,7 +86,9 @@ export default defineComponent({
       });
 
       uploadHook.uploader.onFileError((task: FileTask, error: Error) => {
-        addEventLog('error', `文件上传失败: ${task.file.name}`, { error: error.message || String(error) });
+        addEventLog('error', `文件上传失败: ${task.file.name}`, {
+          error: error.message || String(error)
+        });
         message.error(`上传失败: ${task.file.name} - ${error.message || String(error)}`);
       });
 
@@ -107,7 +109,9 @@ export default defineComponent({
       });
 
       uploadHook.uploader.onChunkError((task: FileTask, chunk: ChunkInfo, error: Error) => {
-        addEventLog('chunk-error', `分片上传失败: ${task.file.name} - 分片 ${chunk.index + 1}`, { error });
+        addEventLog('chunk-error', `分片上传失败: ${task.file.name} - 分片 ${chunk.index + 1}`, {
+          error
+        });
       });
 
       uploadHook.uploader.onAllComplete((tasks: FileTask[]) => {
@@ -144,7 +148,9 @@ export default defineComponent({
       });
     };
 
-    const handleToggleDrawer = (type: 'settings' | 'stats' | 'performance' | 'events' | 'i18n'): void => {
+    const handleToggleDrawer = (
+      type: 'settings' | 'stats' | 'performance' | 'events' | 'i18n'
+    ): void => {
       switch (type) {
         case 'settings':
           drawers.openSettings(
@@ -269,4 +275,3 @@ export default defineComponent({
     );
   }
 });
-

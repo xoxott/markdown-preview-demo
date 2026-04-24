@@ -21,7 +21,8 @@ export default defineComponent({
       if (!show) return null;
 
       // Check if button should be disabled
-      const disabled = typeof button.disabled === 'function' ? button.disabled(row) : button.disabled;
+      const disabled =
+        typeof button.disabled === 'function' ? button.disabled(row) : button.disabled;
 
       const buttonNode = (
         <NButton
@@ -84,9 +85,7 @@ export default defineComponent({
       const dropdownOptions = moreButtons.map((button, index) => ({
         label: button.label,
         key: index,
-        icon: button.icon
-          ? () => <div class={`${button.icon} text-16px`} />
-          : undefined,
+        icon: button.icon ? () => <div class={`${button.icon} text-16px`} /> : undefined,
         disabled: typeof button.disabled === 'function' ? button.disabled(row) : button.disabled,
         props: {
           onClick: () => {
@@ -126,4 +125,3 @@ export default defineComponent({
     };
   }
 });
-

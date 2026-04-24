@@ -63,4 +63,3 @@ export const CSS_VARIABLES = {
   NODE_SHADOW_SELECTED_VALUE: 'flow-node-shadow-selected-value',
   NODE_SHADOW_HOVER_VALUE: 'flow-node-shadow-hover-value'
 } as const;
-

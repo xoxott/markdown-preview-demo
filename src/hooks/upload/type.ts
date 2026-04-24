@@ -21,7 +21,11 @@ export enum ChunkStatus {
 
 /** 分块上传请求参数转换器 */
 export interface ChunkUploadTransformer {
-  (params: { task: FileTask; chunk: ChunkInfo; customParams?: Record<string, any> }): FormData | Record<string, any>;
+  (params: {
+    task: FileTask;
+    chunk: ChunkInfo;
+    customParams?: Record<string, any>;
+  }): FormData | Record<string, any>;
 }
 
 /** 合并分块请求参数转换器 */
@@ -235,6 +239,10 @@ export interface IFileProcessor {
 
 export interface IChunkManager {
   createChunks(task: FileTask, chunkSize: number): Promise<ChunkInfo[]>;
-  uploadChunk(task: FileTask, chunk: ChunkInfo, abortSignal: AbortSignal): Promise<ChunkUploadResponse>;
+  uploadChunk(
+    task: FileTask,
+    chunk: ChunkInfo,
+    abortSignal: AbortSignal
+  ): Promise<ChunkUploadResponse>;
   mergeChunks(task: FileTask, abortSignal: AbortSignal): Promise<MergeResponse>;
 }

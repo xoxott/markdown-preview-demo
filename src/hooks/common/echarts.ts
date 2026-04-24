@@ -1,7 +1,15 @@
 import { computed, effectScope, nextTick, onScopeDispose, ref, watch } from 'vue';
 import { useElementSize } from '@vueuse/core';
 import * as echarts from 'echarts/core';
-import { BarChart, GaugeChart, LineChart, PictorialBarChart, PieChart, RadarChart, ScatterChart } from 'echarts/charts';
+import {
+  BarChart,
+  GaugeChart,
+  LineChart,
+  PictorialBarChart,
+  PieChart,
+  RadarChart,
+  ScatterChart
+} from 'echarts/charts';
 import type {
   BarSeriesOption,
   GaugeSeriesOption,
@@ -130,7 +138,9 @@ export function useEcharts<T extends ECOption>(optionsFactory: () => T, hooks: C
    *
    * @param callback callback function
    */
-  async function updateOptions(callback: (opts: T, optsFactory: () => T) => ECOption = () => chartOptions) {
+  async function updateOptions(
+    callback: (opts: T, optsFactory: () => T) => ECOption = () => chartOptions
+  ) {
     if (!isRendered()) return;
 
     const updatedOpts = callback(chartOptions, optionsFactory);

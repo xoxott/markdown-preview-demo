@@ -16,6 +16,7 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
+    "isolatedModules": true,
     "skipLibCheck": true,
     "outDir": "./dist",
     "rootDir": "./src"
@@ -23,4 +24,3 @@
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }
-

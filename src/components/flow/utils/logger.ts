@@ -107,4 +107,3 @@ class Logger {
  * 默认日志实例
  */
 export const logger = new Logger();
-

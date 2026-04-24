@@ -51,7 +51,7 @@ export function useEstimatedTime(
   // 监听 estimatedTime 变化
   watch(
     estimatedTime,
-    (newTime) => {
+    newTime => {
       const diff = Math.abs(newTime - localTime);
       if (diff > 5 || timeCountdownTimer === null) {
         startTimeCountdown(newTime);
@@ -71,4 +71,3 @@ export function useEstimatedTime(
     displayEstimatedTime
   };
 }
-

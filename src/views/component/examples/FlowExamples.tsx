@@ -68,6 +68,5 @@ export const FlowExamples = defineComponent({
         </div>
       </div>
     );
-  },
+  }
 });
-

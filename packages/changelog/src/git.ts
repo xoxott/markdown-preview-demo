@@ -4,7 +4,14 @@ import { consola } from 'consola';
 import semver from 'semver';
 import { execCommand, notNullish } from './shared';
 import { VERSION_REG } from './constant';
-import type { GitCommit, GitCommitAuthor, GithubConfig, RawGitCommit, Reference, ResolvedAuthor } from './types';
+import type {
+  GitCommit,
+  GitCommitAuthor,
+  GithubConfig,
+  RawGitCommit,
+  Reference,
+  ResolvedAuthor
+} from './types';
 
 /**
  * 获取所有符合语义化版本的 git 标签，并进行排序
@@ -192,7 +199,8 @@ async function getGitDiff(from?: string, to = 'HEAD'): Promise<RawGitCommit[]> {
 function parseGitCommit(commit: RawGitCommit): GitCommit | null {
   // https://www.conventionalcommits.org/en/v1.0.0/
   // https://regex101.com/r/FSfNvA/1
-  const ConventionalCommitRegex = /(?<type>[a-z]+)(\((?<scope>.+)\))?(?<breaking>!)?: (?<description>.+)/i;
+  const ConventionalCommitRegex =
+    /(?<type>[a-z]+)(\((?<scope>.+)\))?(?<breaking>!)?: (?<description>.+)/i;
   const CoAuthoredByRegex = /co-authored-by:\s*(?<name>.+)(<(?<email>.+)>)/gim;
   const PullRequestRE = /\([a-z]*(#\d+)\s*\)/gm;
   const IssueRE = /(#\d+)/gm;
@@ -318,9 +326,12 @@ async function getResolvedAuthorLogin(github: GithubConfig, commitHashes: string
   }
 
   try {
-    const data = await ofetch(`https://api.github.com/search/users?q=${encodeURIComponent(email)}`, {
-      headers: getHeaders(token)
-    });
+    const data = await ofetch(
+      `https://api.github.com/search/users?q=${encodeURIComponent(email)}`,
+      {
+        headers: getHeaders(token)
+      }
+    );
     login = data.items[0].login;
   } catch (e) {
     consola.log('e: ', e);

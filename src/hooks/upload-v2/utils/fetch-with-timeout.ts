@@ -58,7 +58,13 @@ export async function fetchWithTimeout(
     }
 
     // 如果是超时导致的中止，抛出超时错误
-    if (error && typeof error === 'object' && 'name' in error && error.name === 'AbortError' && timeoutId) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      error.name === 'AbortError' &&
+      timeoutId
+    ) {
       const timeoutError = new Error(`请求超时 (${timeout}ms)`);
       timeoutError.name = 'TimeoutError';
       throw timeoutError;
@@ -71,9 +77,10 @@ export async function fetchWithTimeout(
 /**
  * 构建请求体（统一处理 FormData 和 JSON）
  */
-export function buildRequestBody(
-  data: FormData | Record<string, unknown>
-): { body: string | FormData; headers: Record<string, string> } {
+export function buildRequestBody(data: FormData | Record<string, unknown>): {
+  body: string | FormData;
+  headers: Record<string, string>;
+} {
   const isFormData = data instanceof FormData;
 
   return {
@@ -81,4 +88,3 @@ export function buildRequestBody(
     headers: isFormData ? {} : { 'Content-Type': 'application/json' }
   };
 }
-

@@ -11,6 +11,7 @@
 ### 1. 类型定义
 
 - **`src/typings/api/workflow-v2.d.ts`** - V2 版本的完整类型定义
+
   - 分离业务数据和 UI 数据
   - 支持策略模式
   - 完整的类型安全
@@ -45,6 +46,7 @@
 ### 4. 文档
 
 - **`src/components/ai-workflow/docs/ARCHITECTURE.md`** - 架构设计文档
+
   - 设计原则
   - 核心概念
   - 数据结构设计
@@ -65,30 +67,34 @@
 ### 1. 数据结构重构 ✅
 
 #### 问题
+
 ```typescript
 // ❌ V1: 业务数据和 UI 数据耦合
 interface WorkflowNode {
   id: string;
   type: NodeType;
-  position: Position;        // UI 数据
-  data: NodeData;           // 业务数据
-  config: NodeConfig;       // 业务数据
+  position: Position; // UI 数据
+  data: NodeData; // 业务数据
+  config: NodeConfig; // 业务数据
   // 混在一起，难以维护
 }
 ```
 
 #### 解决方案
+
 ```typescript
 // ✅ V2: 清晰分离
 interface WorkflowNode {
-  business: {              // 纯业务逻辑
+  business: {
+    // 纯业务逻辑
     id: string;
     type: NodeType;
     name: string;
     config: NodeConfig;
     // ...
   };
-  ui: {                    // 纯 UI 配置
+  ui: {
+    // 纯 UI 配置
     position: Position;
     style: NodeStyle;
     locked: boolean;
@@ -98,6 +104,7 @@ interface WorkflowNode {
 ```
 
 **优势：**
+
 - ✅ 职责清晰，易于维护
 - ✅ 业务逻辑可独立测试
 - ✅ UI 配置可独立修改
@@ -106,6 +113,7 @@ interface WorkflowNode {
 ### 2. 策略模式 ✅
 
 #### 问题
+
 ```typescript
 // ❌ V1: 硬编码渲染逻辑
 function renderConnection() {
@@ -117,6 +125,7 @@ function renderConnection() {
 ```
 
 #### 解决方案
+
 ```typescript
 // ✅ V2: 策略模式
 interface IConnectionRenderStrategy {
@@ -124,11 +133,15 @@ interface IConnectionRenderStrategy {
 }
 
 class BezierConnectionStrategy implements IConnectionRenderStrategy {
-  computePath(source, target) { /* ... */ }
+  computePath(source, target) {
+    /* ... */
+  }
 }
 
 class StraightConnectionStrategy implements IConnectionRenderStrategy {
-  computePath(source, target) { /* ... */ }
+  computePath(source, target) {
+    /* ... */
+  }
 }
 
 // 轻松切换策略
@@ -137,6 +150,7 @@ const path2 = connectionRenderManager.renderPath('straight', source, target);
 ```
 
 **优势：**
+
 - ✅ 支持多种渲染方式
 - ✅ 易于扩展新策略
 - ✅ 运行时切换策略
@@ -145,6 +159,7 @@ const path2 = connectionRenderManager.renderPath('straight', source, target);
 ### 3. 配置系统 ✅
 
 #### 问题
+
 ```typescript
 // ❌ V1: 硬编码配置
 const NODE_WIDTH = 220;
@@ -154,6 +169,7 @@ const PORT_SIZE = 20;
 ```
 
 #### 解决方案
+
 ```typescript
 // ✅ V2: 统一配置管理
 import { getWorkflowConfig } from '@/config/WorkflowConfig';
@@ -171,12 +187,13 @@ config.updateConfig({
 });
 
 // 订阅配置变化
-config.subscribe((newConfig) => {
+config.subscribe(newConfig => {
   // 响应配置变化
 });
 ```
 
 **优势：**
+
 - ✅ 集中管理所有配置
 - ✅ 支持运行时修改
 - ✅ 支持主题切换
@@ -185,6 +202,7 @@ config.subscribe((newConfig) => {
 ### 4. 类型安全 ✅
 
 #### 改进
+
 - ✅ 完整的 TypeScript 类型定义
 - ✅ 严格的类型检查
 - ✅ 更好的 IDE 支持
@@ -196,13 +214,14 @@ config.subscribe((newConfig) => {
 
 ### 连接线渲染优化
 
-| 优化项 | 优化前 | 优化后 | 提升 |
-|--------|--------|--------|------|
-| 计算时间 | ~15ms | ~3ms | **80%** |
-| 帧率 | 30-40 FPS | 55-60 FPS | **50%** |
-| 内存占用 | 高 | 低 | **30%** |
+| 优化项   | 优化前    | 优化后    | 提升    |
+| -------- | --------- | --------- | ------- |
+| 计算时间 | ~15ms     | ~3ms      | **80%** |
+| 帧率     | 30-40 FPS | 55-60 FPS | **50%** |
+| 内存占用 | 高        | 低        | **30%** |
 
 **优化手段：**
+
 - ✅ 预计算常量
 - ✅ 内联函数，减少调用开销
 - ✅ 使用 for 循环代替 forEach
@@ -212,13 +231,14 @@ config.subscribe((newConfig) => {
 
 ### 节点拖拽优化
 
-| 优化项 | 优化前 | 优化后 | 提升 |
-|--------|--------|--------|------|
+| 优化项   | 优化前    | 优化后    | 提升     |
+| -------- | --------- | --------- | -------- |
 | 拖拽帧率 | 20-30 FPS | 55-60 FPS | **100%** |
-| 重排次数 | 每次移动 | 0 次 | **100%** |
-| 响应延迟 | 明显 | 无感知 | ✅ |
+| 重排次数 | 每次移动  | 0 次      | **100%** |
+| 响应延迟 | 明显      | 无感知    | ✅       |
 
 **优化手段：**
+
 - ✅ 使用 `transform` 代替 `left/top`
 - ✅ requestAnimationFrame 节流
 - ✅ GPU 加速
@@ -280,8 +300,12 @@ const MyNode = defineComponent({
 // 3. 注册
 NODE_TYPES['my-node'] = {
   component: MyNode,
-  defaultData: { /* ... */ },
-  defaultConfig: { /* ... */ }
+  defaultData: {
+    /* ... */
+  },
+  defaultConfig: {
+    /* ... */
+  }
 };
 ```
 
@@ -292,6 +316,7 @@ NODE_TYPES['my-node'] = {
 ### 新增文档
 
 1. **架构设计文档** (`ARCHITECTURE.md`)
+
    - 设计原则
    - 核心概念
    - 数据结构详解
@@ -300,6 +325,7 @@ NODE_TYPES['my-node'] = {
    - 最佳实践
 
 2. **迁移指南** (`MIGRATION_GUIDE.md`)
+
    - V1 到 V2 迁移步骤
    - API 对比表
    - 数据转换工具
@@ -320,15 +346,21 @@ NODE_TYPES['my-node'] = {
 ```typescript
 // ✅ 推荐：分离业务和 UI
 const node: WorkflowNode = {
-  business: { /* 业务逻辑 */ },
-  ui: { /* UI 配置 */ }
+  business: {
+    /* 业务逻辑 */
+  },
+  ui: {
+    /* UI 配置 */
+  }
 };
 
 // ❌ 不推荐：混合数据
 const node = {
   id: 'node-1',
   position: { x: 100, y: 100 },
-  config: { /* ... */ }
+  config: {
+    /* ... */
+  }
 };
 ```
 
@@ -383,12 +415,14 @@ function updateNode(id: string, config: any): void {
 虽然 V2 引入了破坏性变更，但我们提供了：
 
 1. **数据转换工具**
+
    ```typescript
    import { migrateWorkflowV1ToV2 } from '@/utils/migration';
    const v2Workflow = migrateWorkflowV1ToV2(v1Workflow);
    ```
 
 2. **兼容适配器**
+
    ```typescript
    const adapter = new V1CompatibilityAdapter();
    const v1Node = adapter.toV1Node(v2Node);
@@ -402,13 +436,13 @@ function updateNode(id: string, config: any): void {
 
 ## 📈 代码质量提升
 
-| 指标 | 优化前 | 优化后 | 提升 |
-|------|--------|--------|------|
-| 可维护性 | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | **+80%** |
-| 可扩展性 | ⭐⭐ | ⭐⭐⭐⭐⭐ | **+90%** |
-| 性能 | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | **+50%** |
-| 类型安全 | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | **+70%** |
-| 文档完善度 | ⭐⭐ | ⭐⭐⭐⭐⭐ | **+100%** |
+| 指标       | 优化前 | 优化后     | 提升      |
+| ---------- | ------ | ---------- | --------- |
+| 可维护性   | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | **+80%**  |
+| 可扩展性   | ⭐⭐   | ⭐⭐⭐⭐⭐ | **+90%**  |
+| 性能       | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | **+50%**  |
+| 类型安全   | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | **+70%**  |
+| 文档完善度 | ⭐⭐   | ⭐⭐⭐⭐⭐ | **+100%** |
 
 ---
 
@@ -421,7 +455,7 @@ function updateNode(id: string, config: any): void {
 ✅ **配置系统** - 统一管理所有配置，支持主题切换  
 ✅ **性能优化** - 渲染性能提升 50%，拖拽性能提升 100%  
 ✅ **类型安全** - 完整的 TypeScript 类型定义  
-✅ **文档完善** - 详细的架构文档和迁移指南  
+✅ **文档完善** - 详细的架构文档和迁移指南
 
 **代码不再是"屎山"，而是一个高质量、可维护、可扩展的企业级工作流编辑器！** 🎉
 
@@ -441,6 +475,7 @@ function updateNode(id: string, config: any): void {
 欢迎提交 Issue 和 Pull Request！
 
 在提交代码前，请确保：
+
 - ✅ 遵循架构设计原则
 - ✅ 添加完整的类型定义
 - ✅ 编写单元测试
@@ -451,4 +486,3 @@ function updateNode(id: string, config: any): void {
 ## 📄 License
 
 MIT License
-

@@ -13,7 +13,7 @@ export { CircuitBreaker };
  * 创建熔断器实例（工厂函数）
  */
 export function createCircuitBreaker<T = unknown>(
-  options: CircuitBreakerOptions<T> = {},
+  options: CircuitBreakerOptions<T> = {}
 ): CircuitBreaker<T> {
   return new CircuitBreaker<T>(options);
 }
@@ -30,7 +30,7 @@ export type { CircuitBreakerStepOptions } from './steps/CircuitBreakerStep';
 export {
   DefaultStateTransitionStrategy,
   DefaultErrorClassificationStrategy,
-  DefaultSuccessEvaluationStrategy,
+  DefaultSuccessEvaluationStrategy
 } from './strategies';
 
 // 导出类型
@@ -41,6 +41,5 @@ export {
   DEFAULT_CIRCUIT_BREAKER_CONFIG,
   DEFAULT_CIRCUIT_BREAKER_MANAGER_CONFIG,
   NETWORK_ERROR_CODES,
-  NETWORK_ERROR_KEYWORDS,
+  NETWORK_ERROR_KEYWORDS
 } from './constants';
-

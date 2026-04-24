@@ -26,4 +26,3 @@ export interface AlertFormDialogConfig {
   /** 取消回调 */
   onCancel?: () => void;
 }
-

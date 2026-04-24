@@ -1,5 +1,10 @@
 import type { RouteLocationNormalizedLoaded, RouteRecordRaw } from 'vue-router';
-import type { ElegantConstRoute, LastLevelRouteKey, RouteKey, RouteMap } from '@elegant-router/types';
+import type {
+  ElegantConstRoute,
+  LastLevelRouteKey,
+  RouteKey,
+  RouteMap
+} from '@elegant-router/types';
 import { useSvgIcon } from '@/hooks/common/icon';
 import { $t } from '@/locales';
 
@@ -31,7 +36,9 @@ function filterAuthRouteByRoles(route: ElegantConstRoute, roles: string[]): Eleg
   const filterRoute = { ...route };
 
   if (filterRoute.children?.length) {
-    filterRoute.children = filterRoute.children.flatMap(item => filterAuthRouteByRoles(item, roles));
+    filterRoute.children = filterRoute.children.flatMap(item =>
+      filterAuthRouteByRoles(item, roles)
+    );
   }
 
   // Exclude the route if it has no children after filtering
@@ -49,7 +56,9 @@ function filterAuthRouteByRoles(route: ElegantConstRoute, roles: string[]): Eleg
  */
 function sortRouteByOrder(route: ElegantConstRoute) {
   if (route.children?.length) {
-    route.children.sort((next, prev) => (Number(next.meta?.order) || 0) - (Number(prev.meta?.order) || 0));
+    route.children.sort(
+      (next, prev) => (Number(next.meta?.order) || 0) - (Number(prev.meta?.order) || 0)
+    );
     route.children.forEach(sortRouteByOrder);
   }
 
@@ -128,7 +137,13 @@ function getGlobalMenuByBaseRoute(route: RouteLocationNormalizedLoaded | Elegant
   const { SvgIconVNode } = useSvgIcon();
 
   const { name, path } = route;
-  const { title, i18nKey, icon = import.meta.env.VITE_MENU_ICON, localIcon, iconFontSize } = route.meta ?? {};
+  const {
+    title,
+    i18nKey,
+    icon = import.meta.env.VITE_MENU_ICON,
+    localIcon,
+    iconFontSize
+  } = route.meta ?? {};
 
   const label = i18nKey ? $t(i18nKey) : title!;
 
@@ -321,7 +336,10 @@ export function getBreadcrumbsByRoute(
  * @param menus - menus
  * @param treeMap
  */
-export function transformMenuToSearchMenus(menus: App.Global.Menu[], treeMap: App.Global.Menu[] = []) {
+export function transformMenuToSearchMenus(
+  menus: App.Global.Menu[],
+  treeMap: App.Global.Menu[] = []
+) {
   if (menus && menus.length === 0) return [];
   return menus.reduce((acc, cur) => {
     if (!cur.children) {

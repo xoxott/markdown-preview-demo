@@ -39,4 +39,3 @@ export function useCachedSet<T>(arrayRef: Ref<T[] | undefined> | Ref<T[]>): Ref<
     return lastSet;
   });
 }
-

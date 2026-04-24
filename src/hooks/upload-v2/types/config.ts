@@ -88,4 +88,3 @@ export interface ExtendedUploadConfig extends UploadConfig {
   mergeChunksTransformer?: MergeChunksTransformer;
   checkFileTransformer?: CheckFileTransformer;
 }
-

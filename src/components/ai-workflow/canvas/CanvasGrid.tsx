@@ -127,7 +127,9 @@ export default defineComponent({
      * 计算大网格的实际大小
      * 小网格大小乘以倍数，形成粗网格参考线
      */
-    const largePatternSize = computed(() => props.size * GRID_CONFIG.LARGE_GRID_MULTIPLIER * props.zoom);
+    const largePatternSize = computed(
+      () => props.size * GRID_CONFIG.LARGE_GRID_MULTIPLIER * props.zoom
+    );
 
     /**
      * 计算小网格模式的 X 偏移
@@ -284,4 +286,3 @@ export default defineComponent({
     );
   }
 });
-

@@ -171,7 +171,11 @@ init();
 <template>
   <DarkModeContainer class="size-full flex-y-center px-16px shadow-tab">
     <div ref="bsWrapper" class="h-full flex-1-hidden">
-      <BetterScroll ref="bsScroll" :options="{ scrollX: true, scrollY: false, click: !isPCFlag }" @click="removeFocus">
+      <BetterScroll
+        ref="bsScroll"
+        :options="{ scrollX: true, scrollY: false, click: !isPCFlag }"
+        @click="removeFocus"
+      >
         <div
           ref="tabRef"
           class="h-full flex pr-18px"
@@ -191,7 +195,11 @@ init();
             @contextmenu="handleContextMenu($event, tab.id)"
           >
             <template #prefix>
-              <SvgIcon :icon="tab.icon" :local-icon="tab.localIcon" class="inline-block align-text-bottom text-16px" />
+              <SvgIcon
+                :icon="tab.icon"
+                :local-icon="tab.localIcon"
+                class="inline-block align-text-bottom text-16px"
+              />
             </template>
             <div class="max-w-240px ellipsis-text">{{ tab.label }}</div>
           </PageTab>

@@ -146,7 +146,9 @@ export function getNodesByCategory() {
 }
 
 /** 创建默认节点数据 */
-export function createDefaultNodeData(type: Api.Workflow.NodeType): Partial<Api.Workflow.WorkflowNode> {
+export function createDefaultNodeData(
+  type: Api.Workflow.NodeType
+): Partial<Api.Workflow.WorkflowNode> {
   const config = NODE_TYPES[type];
   return {
     type,
@@ -157,4 +159,3 @@ export function createDefaultNodeData(type: Api.Workflow.NodeType): Partial<Api.
     config: {}
   };
 }
-

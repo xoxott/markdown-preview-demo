@@ -288,7 +288,6 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
     startTargetX: number = 0,
     startTargetY: number = 0
   ) => {
-
     // 检查是否启用
     const isEnabled = isFunctionType(enabled) ? enabled() : enabled.value;
     if (!isEnabled) {
@@ -358,4 +357,3 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
     cleanup
   };
 }
-

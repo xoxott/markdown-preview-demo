@@ -39,4 +39,3 @@ export function cancellableDelay(ms: number): {
 
   return { promise, cancel };
 }
-

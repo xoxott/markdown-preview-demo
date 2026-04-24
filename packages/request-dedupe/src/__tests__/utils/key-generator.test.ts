@@ -12,16 +12,16 @@ describe('generateRequestKey', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        params: { page: 1 },
+        params: { page: 1 }
       };
 
       const key1 = generateRequestKey(config, {
         strategy: 'exact',
-        ignoreParams: [],
+        ignoreParams: []
       });
       const key2 = generateRequestKey(config, {
         strategy: 'exact',
-        ignoreParams: [],
+        ignoreParams: []
       });
 
       expect(key1).toBe(key2);
@@ -31,22 +31,22 @@ describe('generateRequestKey', () => {
       const config1: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        params: { page: 1 },
+        params: { page: 1 }
       };
 
       const config2: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        params: { page: 2 },
+        params: { page: 2 }
       };
 
       const key1 = generateRequestKey(config1, {
         strategy: 'exact',
-        ignoreParams: [],
+        ignoreParams: []
       });
       const key2 = generateRequestKey(config2, {
         strategy: 'exact',
-        ignoreParams: [],
+        ignoreParams: []
       });
 
       expect(key1).not.toBe(key2);
@@ -56,22 +56,22 @@ describe('generateRequestKey', () => {
       const config1: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'POST',
-        data: { name: 'John' },
+        data: { name: 'John' }
       };
 
       const config2: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'POST',
-        data: { name: 'Jane' },
+        data: { name: 'Jane' }
       };
 
       const key1 = generateRequestKey(config1, {
         strategy: 'exact',
-        ignoreParams: [],
+        ignoreParams: []
       });
       const key2 = generateRequestKey(config2, {
         strategy: 'exact',
-        ignoreParams: [],
+        ignoreParams: []
       });
 
       expect(key1).not.toBe(key2);
@@ -83,22 +83,22 @@ describe('generateRequestKey', () => {
       const config1: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        params: { page: 1, limit: 10 },
+        params: { page: 1, limit: 10 }
       };
 
       const config2: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        params: { page: 2, limit: 20 },
+        params: { page: 2, limit: 20 }
       };
 
       const key1 = generateRequestKey(config1, {
         strategy: 'ignore-params',
-        ignoreParams: [],
+        ignoreParams: []
       });
       const key2 = generateRequestKey(config2, {
         strategy: 'ignore-params',
-        ignoreParams: [],
+        ignoreParams: []
       });
 
       expect(key1).toBe(key2);
@@ -108,22 +108,22 @@ describe('generateRequestKey', () => {
       const config1: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        params: { page: 1, timestamp: 123456 },
+        params: { page: 1, timestamp: 123456 }
       };
 
       const config2: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        params: { page: 1, timestamp: 789012 },
+        params: { page: 1, timestamp: 789012 }
       };
 
       const key1 = generateRequestKey(config1, {
         strategy: 'ignore-params',
-        ignoreParams: ['timestamp'],
+        ignoreParams: ['timestamp']
       });
       const key2 = generateRequestKey(config2, {
         strategy: 'ignore-params',
-        ignoreParams: ['timestamp'],
+        ignoreParams: ['timestamp']
       });
 
       expect(key1).toBe(key2);
@@ -133,22 +133,22 @@ describe('generateRequestKey', () => {
       const config1: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        params: { page: 1, timestamp: 123456 },
+        params: { page: 1, timestamp: 123456 }
       };
 
       const config2: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        params: { page: 2, timestamp: 123456 },
+        params: { page: 2, timestamp: 123456 }
       };
 
       const key1 = generateRequestKey(config1, {
         strategy: 'ignore-params',
-        ignoreParams: ['timestamp'],
+        ignoreParams: ['timestamp']
       });
       const key2 = generateRequestKey(config2, {
         strategy: 'ignore-params',
-        ignoreParams: ['timestamp'],
+        ignoreParams: ['timestamp']
       });
 
       expect(key1).not.toBe(key2);
@@ -158,22 +158,22 @@ describe('generateRequestKey', () => {
       const config1: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        params: { page: 1, timestamp: 123456, nonce: 'abc' },
+        params: { page: 1, timestamp: 123456, nonce: 'abc' }
       };
 
       const config2: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        params: { page: 1, timestamp: 789012, nonce: 'xyz' },
+        params: { page: 1, timestamp: 789012, nonce: 'xyz' }
       };
 
       const key1 = generateRequestKey(config1, {
         strategy: 'ignore-params',
-        ignoreParams: ['timestamp', 'nonce'],
+        ignoreParams: ['timestamp', 'nonce']
       });
       const key2 = generateRequestKey(config2, {
         strategy: 'ignore-params',
-        ignoreParams: ['timestamp', 'nonce'],
+        ignoreParams: ['timestamp', 'nonce']
       });
 
       expect(key1).toBe(key2);
@@ -183,22 +183,22 @@ describe('generateRequestKey', () => {
       const config1: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'POST',
-        data: { name: 'John', timestamp: 123456 },
+        data: { name: 'John', timestamp: 123456 }
       };
 
       const config2: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'POST',
-        data: { name: 'John', timestamp: 789012 },
+        data: { name: 'John', timestamp: 789012 }
       };
 
       const key1 = generateRequestKey(config1, {
         strategy: 'ignore-params',
-        ignoreParams: ['timestamp'],
+        ignoreParams: ['timestamp']
       });
       const key2 = generateRequestKey(config2, {
         strategy: 'ignore-params',
-        ignoreParams: ['timestamp'],
+        ignoreParams: ['timestamp']
       });
 
       expect(key1).toBe(key2);
@@ -210,7 +210,7 @@ describe('generateRequestKey', () => {
       const config: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        params: { page: 1 },
+        params: { page: 1 }
       };
 
       const customKeyGenerator = (cfg: NormalizedRequestConfig) => {
@@ -220,7 +220,7 @@ describe('generateRequestKey', () => {
       const key = generateRequestKey(config, {
         strategy: 'custom',
         ignoreParams: [],
-        customKeyGenerator,
+        customKeyGenerator
       });
 
       expect(key).toBe('GET_/api/users');
@@ -230,13 +230,13 @@ describe('generateRequestKey', () => {
       const config1: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        params: { page: 1 },
+        params: { page: 1 }
       };
 
       const config2: NormalizedRequestConfig = {
         url: '/api/users',
         method: 'GET',
-        params: { page: 2 },
+        params: { page: 2 }
       };
 
       const customKeyGenerator = (cfg: NormalizedRequestConfig) => {
@@ -246,16 +246,15 @@ describe('generateRequestKey', () => {
       const key1 = generateRequestKey(config1, {
         strategy: 'custom',
         ignoreParams: [],
-        customKeyGenerator,
+        customKeyGenerator
       });
       const key2 = generateRequestKey(config2, {
         strategy: 'custom',
         ignoreParams: [],
-        customKeyGenerator,
+        customKeyGenerator
       });
 
       expect(key1).toBe(key2);
     });
   });
 });
-

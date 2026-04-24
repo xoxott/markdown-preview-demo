@@ -105,8 +105,14 @@ export function useSignal<T>(initialValue: T, options?: SignalOptions): Signal<T
   return createSignal(state);
 }
 
-export function useComputed<T>(getter: ComputedGetter<T>, debugOptions?: DebuggerOptions): ReadonlySignal<T>;
-export function useComputed<T>(options: WritableComputedOptions<T>, debugOptions?: DebuggerOptions): Signal<T>;
+export function useComputed<T>(
+  getter: ComputedGetter<T>,
+  debugOptions?: DebuggerOptions
+): ReadonlySignal<T>;
+export function useComputed<T>(
+  options: WritableComputedOptions<T>,
+  debugOptions?: DebuggerOptions
+): Signal<T>;
 export function useComputed<T>(
   getterOrOptions: ComputedGetter<T> | WritableComputedOptions<T>,
   debugOptions?: DebuggerOptions

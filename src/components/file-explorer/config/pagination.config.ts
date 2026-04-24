@@ -34,4 +34,3 @@ export function getPageSizeByViewMode(viewMode: ViewMode, gridSize?: GridSize): 
       return 40;
   }
 }
-

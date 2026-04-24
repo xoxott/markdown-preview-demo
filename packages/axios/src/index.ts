@@ -51,14 +51,18 @@ function createCommonRequest<ResponseData = any>(
   /**
    * 检查错误响应是否是业务错误格式（包含 statusCode 和 errorCode）
    */
-  function isBusinessErrorResponse(data: any): data is { statusCode: number; errorCode?: number | string } {
+  function isBusinessErrorResponse(
+    data: any
+  ): data is { statusCode: number; errorCode?: number | string } {
     return data && typeof data === 'object' && 'statusCode' in data;
   }
 
   /**
    * 将 HTTP 401 错误转换为业务错误响应格式，以便复用 onBackendFail 逻辑
    */
-  function createBusinessErrorResponse(error: AxiosError<ResponseData>): AxiosResponse<ResponseData> | null {
+  function createBusinessErrorResponse(
+    error: AxiosError<ResponseData>
+  ): AxiosResponse<ResponseData> | null {
     if (error.response?.status !== 401 || !error.response?.data) {
       return null;
     }
@@ -158,11 +162,15 @@ export function createRequest<ResponseData = any, State = Record<string, unknown
   axiosConfig?: CreateAxiosDefaults,
   options?: Partial<RequestOption<ResponseData>>
 ) {
-  const { instance, opts, cancelRequest, cancelAllRequest } = createCommonRequest<ResponseData>(axiosConfig, options);
+  const { instance, opts, cancelRequest, cancelAllRequest } = createCommonRequest<ResponseData>(
+    axiosConfig,
+    options
+  );
 
-  const request: RequestInstance<State> = async function request<T = any, R extends ResponseType = 'json'>(
-    config: CustomAxiosRequestConfig
-  ) {
+  const request: RequestInstance<State> = async function request<
+    T = any,
+    R extends ResponseType = 'json'
+  >(config: CustomAxiosRequestConfig) {
     const response: AxiosResponse<ResponseData> = await instance(config);
 
     const responseType = response.config?.responseType || 'json';
@@ -193,7 +201,10 @@ export function createFlatRequest<ResponseData = any, State = Record<string, unk
   axiosConfig?: CreateAxiosDefaults,
   options?: Partial<RequestOption<ResponseData>>
 ) {
-  const { instance, opts, cancelRequest, cancelAllRequest } = createCommonRequest<ResponseData>(axiosConfig, options);
+  const { instance, opts, cancelRequest, cancelAllRequest } = createCommonRequest<ResponseData>(
+    axiosConfig,
+    options
+  );
 
   const flatRequest: FlatRequestInstance<State, ResponseData> = async function flatRequest<
     T = any,

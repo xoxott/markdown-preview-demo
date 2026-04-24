@@ -19,6 +19,7 @@
 ### 1. FlowCanvas 组件职责过重
 
 **问题**：
+
 - `FlowCanvas.tsx` 包含了过多的 hooks 初始化（10+ 个 hooks）
 - 组件 setup 函数超过 400 行，可读性差
 - 多个功能模块耦合在一起
@@ -70,6 +71,7 @@ export function useFlowCanvasCore(props, emit) {
 ### 2. Hook 依赖关系复杂
 
 **问题**：
+
 - Hooks 之间相互依赖，难以单独测试
 - 循环依赖风险
 - 难以理解数据流
@@ -77,6 +79,7 @@ export function useFlowCanvasCore(props, emit) {
 **优化建议**：
 
 1. **明确依赖层次**：
+
    ```
    基础层：useFlowConfig, useFlowState
    ↓
@@ -86,6 +89,7 @@ export function useFlowCanvasCore(props, emit) {
    ```
 
 2. **使用依赖注入模式**：
+
    ```typescript
    // 创建 FlowContext
    export const FlowContext = createContext<FlowContextValue>();
@@ -104,6 +108,7 @@ export function useFlowCanvasCore(props, emit) {
 ### 3. 组件层级过深
 
 **问题**：
+
 - FlowCanvas → FlowNodes → BaseNode → 自定义节点
 - 事件需要层层传递
 - Props drilling 问题
@@ -111,6 +116,7 @@ export function useFlowCanvasCore(props, emit) {
 **优化建议**：
 
 1. **使用 Provide/Inject**：
+
    ```typescript
    // FlowCanvas 中
    provide('flowConfig', config);
@@ -135,6 +141,7 @@ export function useFlowCanvasCore(props, emit) {
 ### 1. 响应式数据过多
 
 **问题**：
+
 - 大量 `computed` 和 `ref` 使用（295+ 处）
 - 可能触发不必要的响应式更新
 - 深度响应式监听性能开销大
@@ -142,6 +149,7 @@ export function useFlowCanvasCore(props, emit) {
 **优化建议**：
 
 1. **使用 `shallowRef` 和 `shallowReactive`**：
+
    ```typescript
    // 对于大型数组，使用 shallowRef
    const nodes = shallowRef<FlowNode[]>([]);
@@ -149,6 +157,7 @@ export function useFlowCanvasCore(props, emit) {
    ```
 
 2. **减少 computed 依赖链**：
+
    ```typescript
    // 避免深层 computed
    // ❌ 不好
@@ -174,12 +183,14 @@ export function useFlowCanvasCore(props, emit) {
 ### 2. 状态更新批量处理
 
 **问题**：
+
 - `useFlowState.ts` 中已有批量更新机制，但可以进一步优化
 - 频繁的状态更新可能导致多次渲染
 
 **优化建议**：
 
 1. **使用 `nextTick` 批量更新**（已实现，可优化）：
+
    ```typescript
    // 当前实现
    nextTick(() => flushUpdates());
@@ -195,6 +206,7 @@ export function useFlowCanvasCore(props, emit) {
    ```
 
 2. **实现事务性更新**：
+
    ```typescript
    class StateStore {
      private transaction: Set<StateChangeType> = new Set();
@@ -218,12 +230,14 @@ export function useFlowCanvasCore(props, emit) {
 ### 3. 视口裁剪优化
 
 **问题**：
+
 - 视口裁剪逻辑分散在多个地方
 - 可能重复计算
 
 **优化建议**：
 
 1. **统一视口裁剪逻辑**：
+
    ```typescript
    // 创建统一的视口裁剪管理器
    class ViewportCullingManager {
@@ -241,6 +255,7 @@ export function useFlowCanvasCore(props, emit) {
    ```
 
 2. **缓存裁剪结果**：
+
    ```typescript
    private cachedVisibleNodes: FlowNode[] | null = null;
    private cachedViewport: FlowViewport | null = null;
@@ -261,12 +276,14 @@ export function useFlowCanvasCore(props, emit) {
 ### 4. 事件处理性能
 
 **问题**：
+
 - `useFlowCanvasEvents.ts` 中事件监听器较多
 - 事件委托可能不够高效
 
 **优化建议**：
 
 1. **使用事件委托优化**：
+
    ```typescript
    // 当前：每个节点都有事件监听器
    // 优化：使用事件委托
@@ -276,6 +293,7 @@ export function useFlowCanvasCore(props, emit) {
    ```
 
 2. **防抖/节流事件处理**：
+
    ```typescript
    const handleMouseMove = useRafThrottle((event: MouseEvent) => {
      // 处理逻辑
@@ -294,12 +312,14 @@ export function useFlowCanvasCore(props, emit) {
 ### 5. Canvas 渲染优化
 
 **问题**：
+
 - EdgeCanvasRenderer 可能可以进一步优化
 - 大量连接线时性能可能下降
 
 **优化建议**：
 
 1. **使用 OffscreenCanvas**（如果支持）：
+
    ```typescript
    const offscreenCanvas = new OffscreenCanvas(width, height);
    const ctx = offscreenCanvas.getContext('2d');
@@ -307,6 +327,7 @@ export function useFlowCanvasCore(props, emit) {
    ```
 
 2. **分层渲染**：
+
    ```typescript
    // 背景层：静态，不更新
    // 连接线层：使用 Canvas
@@ -314,6 +335,7 @@ export function useFlowCanvasCore(props, emit) {
    ```
 
 3. **增量渲染**：
+
    ```typescript
    // 只重绘变化的连接线
    private dirtyEdges: Set<string> = new Set();
@@ -333,6 +355,7 @@ export function useFlowCanvasCore(props, emit) {
 ### 1. 文件结构优化
 
 **当前结构**：
+
 ```
 flow/
 ├── components/
@@ -345,6 +368,7 @@ flow/
 **优化建议**：
 
 1. **按功能模块组织**：
+
    ```
    flow/
    ├── core/              # 核心逻辑（框架无关）
@@ -376,12 +400,14 @@ flow/
 ### 2. 类型定义优化
 
 **问题**：
+
 - 类型定义分散在多个文件
 - 可能存在类型重复
 
 **优化建议**：
 
 1. **统一类型导出**：
+
    ```typescript
    // types/index.ts - 统一导出
    export type { FlowNode } from './flow-node';
@@ -390,6 +416,7 @@ flow/
    ```
 
 2. **使用类型工具**：
+
    ```typescript
    // 使用 Utility Types
    type PartialFlowNode = Partial<FlowNode>;
@@ -410,12 +437,14 @@ flow/
 ### 3. 工具函数优化
 
 **问题**：
+
 - 工具函数分散在多个文件
 - 可能存在功能重复
 
 **优化建议**：
 
 1. **按功能分类**：
+
    ```
    utils/
    ├── math/          # 数学计算
@@ -441,12 +470,14 @@ flow/
 ### 1. 严格类型检查
 
 **问题**：
+
 - 部分地方使用 `any` 类型
 - Props 类型可能不够严格
 
 **优化建议**：
 
 1. **移除 `any` 类型**：
+
    ```typescript
    // ❌ 不好
    style?: Record<string, any>;
@@ -456,6 +487,7 @@ flow/
    ```
 
 2. **使用泛型**：
+
    ```typescript
    interface FlowNode<T = any> {
      data?: T;
@@ -472,11 +504,13 @@ flow/
 ### 2. 运行时类型验证
 
 **问题**：
+
 - 已有 Zod schemas，但可能使用不够充分
 
 **优化建议**：
 
 1. **在关键入口点验证**：
+
    ```typescript
    export function useFlowState(options: UseFlowStateOptions) {
      // 验证初始数据
@@ -504,11 +538,13 @@ flow/
 ### 1. 对象池模式
 
 **问题**：
+
 - 已有 `ObjectPool.ts`，但可能使用不够充分
 
 **优化建议**：
 
 1. **扩展对象池使用**：
+
    ```typescript
    // 对于频繁创建的对象使用对象池
    const edgePathPool = new ObjectPool<EdgePath>(() => ({
@@ -530,12 +566,14 @@ flow/
 ### 2. 内存泄漏预防
 
 **问题**：
+
 - 事件监听器可能未正确清理
 - 定时器可能未清理
 
 **优化建议**：
 
 1. **统一清理机制**：
+
    ```typescript
    export function useFlowCanvas() {
      const cleanup: (() => void)[] = [];
@@ -565,11 +603,13 @@ flow/
 ### 1. 事件优先级管理
 
 **问题**：
+
 - 事件优先级逻辑在 `useFlowCanvasEvents` 中，可能不够清晰
 
 **优化建议**：
 
 1. **使用事件优先级系统**：
+
    ```typescript
    enum EventPriority {
      CONNECTION = 3,
@@ -602,11 +642,13 @@ flow/
 ### 2. 事件委托优化
 
 **问题**：
+
 - 事件委托在 `FlowNodes.tsx` 中已实现，但可以进一步优化
 
 **优化建议**：
 
 1. **使用更精确的选择器**：
+
    ```typescript
    // 当前
    target.closest('.flow-node');
@@ -629,11 +671,13 @@ flow/
 ### 1. 增量更新优化
 
 **问题**：
+
 - `DefaultStateStore` 已有增量更新，但可以进一步优化
 
 **优化建议**：
 
 1. **更细粒度的更新标记**：
+
    ```typescript
    private updatedFields: Map<string, Set<string>> = new Map();
 
@@ -663,11 +707,13 @@ flow/
 ### 2. 状态快照优化
 
 **问题**：
+
 - 历史记录可能占用大量内存
 
 **优化建议**：
 
 1. **压缩快照**：
+
    ```typescript
    createSnapshot(): FlowStateSnapshot {
      return {
@@ -698,12 +744,14 @@ flow/
 ### 1. 错误处理
 
 **问题**：
+
 - 部分地方缺少错误处理
 - 错误信息可能不够友好
 
 **优化建议**：
 
 1. **统一错误处理**：
+
    ```typescript
    class FlowError extends Error {
      constructor(
@@ -736,11 +784,13 @@ flow/
 ### 2. 日志系统
 
 **问题**：
+
 - 已有 `logger.ts`，但可能使用不够充分
 
 **优化建议**：
 
 1. **分级日志**：
+
    ```typescript
    logger.debug('节点拖拽开始', { nodeId });
    logger.info('节点添加成功', { nodeId });
@@ -797,4 +847,3 @@ flow/
 - [Vue 3 性能优化指南](https://vuejs.org/guide/best-practices/performance.html)
 - [React Flow 架构设计](https://reactflow.dev/)
 - [VueFlow 源码分析](https://github.com/bcakmakoglu/vue-flow)
-

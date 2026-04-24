@@ -47,7 +47,7 @@ export class Metrics {
       failures: this.failures,
       successes: this.successes,
       lastFailureTime: this.lastFailureTime,
-      state: this.state,
+      state: this.state
     };
   }
 
@@ -61,8 +61,7 @@ export class Metrics {
       failures: this.failures,
       successes: this.successes,
       lastFailureTime: this.lastFailureTime,
-      state: this.state,
+      state: this.state
     };
   }
 }
-

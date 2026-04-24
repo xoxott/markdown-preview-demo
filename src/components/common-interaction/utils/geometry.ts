@@ -118,4 +118,3 @@ export function isRectContains(outer: Rect, inner: Rect): boolean {
     inner.top + inner.height <= outer.top + outer.height
   );
 }
-

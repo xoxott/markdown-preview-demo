@@ -23,9 +23,14 @@ declare namespace NaiveUI {
 
   type TableData = Api.Common.CommonRecord<object>;
 
-  type TableColumnWithKey<T> = SetTableColumnKey<DataTableBaseColumn<T>, T> | SetTableColumnKey<TableColumnGroup<T>, T>;
+  type TableColumnWithKey<T> =
+    | SetTableColumnKey<DataTableBaseColumn<T>, T>
+    | SetTableColumnKey<TableColumnGroup<T>, T>;
 
-  type TableColumn<T> = TableColumnWithKey<T> | DataTableSelectionColumn<T> | DataTableExpandColumn<T>;
+  type TableColumn<T> =
+    | TableColumnWithKey<T>
+    | DataTableSelectionColumn<T>
+    | DataTableExpandColumn<T>;
 
   type TableApiFn<T = any, R = Api.Common.PaginationParams> = (
     params: R
@@ -39,12 +44,14 @@ declare namespace NaiveUI {
    */
   type TableOperateType = 'add' | 'edit';
 
-  type GetTableData<A extends TableApiFn> = A extends TableApiFn<infer T>
-    ? T
-    : never;
+  type GetTableData<A extends TableApiFn> = A extends TableApiFn<infer T> ? T : never;
 
   type NaiveTableConfig<A extends TableApiFn> = Pick<
-    import('@suga/hooks').TableConfig<A, GetTableData<A>, TableColumn<TableDataWithIndex<GetTableData<A>>>>,
+    import('@suga/hooks').TableConfig<
+      A,
+      GetTableData<A>,
+      TableColumn<TableDataWithIndex<GetTableData<A>>>
+    >,
     'apiFn' | 'apiParams' | 'columns' | 'immediate'
   > & {
     /**

@@ -26,6 +26,5 @@ export const DEFAULT_RETRY_CONFIG = {
   SERVER_ERROR_MAX: 599,
   /** 客户端错误状态码范围 */
   CLIENT_ERROR_MIN: 400,
-  CLIENT_ERROR_MAX: 499,
+  CLIENT_ERROR_MAX: 499
 } as const;
-

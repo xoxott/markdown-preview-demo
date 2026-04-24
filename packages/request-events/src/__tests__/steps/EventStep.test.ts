@@ -31,13 +31,13 @@ describe('EventStep', () => {
   describe('请求开始事件', () => {
     it('应该在请求开始时触发 request:start 事件', async () => {
       let startEventData: unknown = null;
-      eventManager.on('request:start', (data) => {
+      eventManager.on('request:start', data => {
         startEventData = data;
       });
 
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext<string>(config);
 
@@ -51,7 +51,9 @@ describe('EventStep', () => {
       expect(startEventData).toHaveProperty('config');
       expect(startEventData).toHaveProperty('timestamp');
       if (startEventData && typeof startEventData === 'object' && 'config' in startEventData) {
-        expect((startEventData as { config: NormalizedRequestConfig }).config.url).toBe('/api/users');
+        expect((startEventData as { config: NormalizedRequestConfig }).config.url).toBe(
+          '/api/users'
+        );
       }
     });
   });
@@ -59,13 +61,13 @@ describe('EventStep', () => {
   describe('请求成功事件', () => {
     it('应该在请求成功时触发 request:success 事件', async () => {
       let successEventData: unknown = null;
-      eventManager.on('request:success', (data) => {
+      eventManager.on('request:success', data => {
         successEventData = data;
       });
 
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext<string>(config);
 
@@ -91,18 +93,18 @@ describe('EventStep', () => {
 
     it('应该计算请求持续时间', async () => {
       let duration = 0;
-      eventManager.on('request:success', (data) => {
+      eventManager.on('request:success', data => {
         duration = data.duration;
       });
 
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext<string>(config);
 
       const next = async (): Promise<void> => {
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, 50));
         ctx.result = 'success';
       };
 
@@ -120,7 +122,7 @@ describe('EventStep', () => {
 
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext(config);
 
@@ -137,13 +139,13 @@ describe('EventStep', () => {
   describe('请求错误事件', () => {
     it('应该在请求错误时触发 request:error 事件（通过 ctx.error）', async () => {
       let errorEventData: unknown = null;
-      eventManager.on('request:error', (data) => {
+      eventManager.on('request:error', data => {
         errorEventData = data;
       });
 
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext(config);
 
@@ -159,24 +161,20 @@ describe('EventStep', () => {
       expect(errorEventData).toHaveProperty('error');
       expect(errorEventData).toHaveProperty('timestamp');
       expect(errorEventData).toHaveProperty('duration');
-      if (
-        errorEventData &&
-        typeof errorEventData === 'object' &&
-        'error' in errorEventData
-      ) {
+      if (errorEventData && typeof errorEventData === 'object' && 'error' in errorEventData) {
         expect((errorEventData as { error: Error }).error).toBe(error);
       }
     });
 
     it('应该在请求抛出错误时触发 request:error 事件', async () => {
       let errorEventData: unknown = null;
-      eventManager.on('request:error', (data) => {
+      eventManager.on('request:error', data => {
         errorEventData = data;
       });
 
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext(config);
 
@@ -192,29 +190,25 @@ describe('EventStep', () => {
       expect(errorEventData).toHaveProperty('error');
       expect(errorEventData).toHaveProperty('timestamp');
       expect(errorEventData).toHaveProperty('duration');
-      if (
-        errorEventData &&
-        typeof errorEventData === 'object' &&
-        'error' in errorEventData
-      ) {
+      if (errorEventData && typeof errorEventData === 'object' && 'error' in errorEventData) {
         expect((errorEventData as { error: Error }).error).toBe(error);
       }
     });
 
     it('应该计算错误请求的持续时间', async () => {
       let duration = 0;
-      eventManager.on('request:error', (data) => {
+      eventManager.on('request:error', data => {
         duration = data.duration;
       });
 
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext(config);
 
       const next = async (): Promise<void> => {
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, 50));
         ctx.error = new Error('Test error');
       };
 
@@ -228,13 +222,13 @@ describe('EventStep', () => {
   describe('请求完成事件', () => {
     it('应该在请求成功时触发 request:complete 事件（success=true）', async () => {
       let completeEventData: unknown = null;
-      eventManager.on('request:complete', (data) => {
+      eventManager.on('request:complete', data => {
         completeEventData = data;
       });
 
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext<string>(config);
 
@@ -260,13 +254,13 @@ describe('EventStep', () => {
 
     it('应该在请求错误时触发 request:complete 事件（success=false）', async () => {
       let completeEventData: unknown = null;
-      eventManager.on('request:complete', (data) => {
+      eventManager.on('request:complete', data => {
         completeEventData = data;
       });
 
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext(config);
 
@@ -292,13 +286,13 @@ describe('EventStep', () => {
 
     it('应该在请求抛出错误时触发 request:complete 事件（success=false）', async () => {
       let completeEventData: unknown = null;
-      eventManager.on('request:complete', (data) => {
+      eventManager.on('request:complete', data => {
         completeEventData = data;
       });
 
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext(config);
 
@@ -339,7 +333,7 @@ describe('EventStep', () => {
 
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext<string>(config);
 
@@ -367,7 +361,7 @@ describe('EventStep', () => {
 
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext(config);
 
@@ -395,7 +389,7 @@ describe('EventStep', () => {
 
       const config: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx = createRequestContext(config);
 
@@ -418,13 +412,13 @@ describe('EventStep', () => {
 
       const config1: NormalizedRequestConfig = {
         url: '/api/users',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx1 = createRequestContext<string>(config1);
 
       const config2: NormalizedRequestConfig = {
         url: '/api/posts',
-        method: 'GET',
+        method: 'GET'
       };
       const ctx2 = createRequestContext<string>(config2);
 
@@ -442,4 +436,3 @@ describe('EventStep', () => {
     });
   });
 });
-

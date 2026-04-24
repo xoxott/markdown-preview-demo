@@ -11,10 +11,7 @@ import type { SSE } from '@/typings/sse';
  * @param connectionId - Connection ID for logging
  * @returns Parsed SSE message or null if parsing fails
  */
-export function parseSSEMessage(
-  rawData: string,
-  connectionId: string
-): SSE.SSEMessage | null {
+export function parseSSEMessage(rawData: string, connectionId: string): SSE.SSEMessage | null {
   if (!rawData || !rawData.trim()) {
     return null;
   }
@@ -59,5 +56,3 @@ export function parseSSEMessage(
     return null;
   }
 }
-
-

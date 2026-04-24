@@ -72,7 +72,7 @@ function generateIgnoreParamsKey(config: NormalizedRequestConfig, ignoreParams: 
  */
 export function generateRequestKey(
   config: NormalizedRequestConfig,
-  options: KeyGeneratorOptions,
+  options: KeyGeneratorOptions
 ): string {
   if (options.customKeyGenerator) {
     return options.customKeyGenerator(config);
@@ -85,4 +85,3 @@ export function generateRequestKey(
   // 默认精确匹配
   return generateExactKey(config);
 }
-

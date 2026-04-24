@@ -56,7 +56,9 @@ export default defineComponent({
       props.accept ? props.accept.split(',').map(ext => ext.trim().toLowerCase()) : []
     );
 
-    const canAddMore = computed(() => props.max === Infinity || processedFileCount.value < props.max);
+    const canAddMore = computed(
+      () => props.max === Infinity || processedFileCount.value < props.max
+    );
 
     const isDisabledOrFull = computed(() => props.disabled || !canAddMore.value);
 
@@ -76,7 +78,9 @@ export default defineComponent({
 
       // 类型验证
       if (acceptedExtensions.value.length > 0) {
-        const isAccepted = acceptedExtensions.value.some(ext => fileExt === normalizeExtension(ext).toLowerCase());
+        const isAccepted = acceptedExtensions.value.some(
+          ext => fileExt === normalizeExtension(ext).toLowerCase()
+        );
         if (!isAccepted) {
           emit('error', { file, message: `文件类型不支持: ${file.name}` });
           return false;
@@ -104,7 +108,8 @@ export default defineComponent({
     const handleFiles = async (files: File[]) => {
       if (props.disabled || files.length === 0) return;
 
-      const remainingSlots = props.max === Infinity ? files.length : Math.max(0, props.max - processedFileCount.value);
+      const remainingSlots =
+        props.max === Infinity ? files.length : Math.max(0, props.max - processedFileCount.value);
 
       if (remainingSlots === 0) {
         emit('exceed', { files, max: props.max });
@@ -287,11 +292,18 @@ export default defineComponent({
                     </NIcon>
                   </div>
 
-                  <NText class="mb-2 block text-base font-medium" style={{ color: themeVars.value.textColor1 }}>
+                  <NText
+                    class="mb-2 block text-base font-medium"
+                    style={{ color: themeVars.value.textColor1 }}
+                  >
                     {isDragOver.value ? '释放以上传文件' : '点击或拖拽文件到此区域'}
                   </NText>
 
-                  <NText depth={3} class="mb-3 block text-sm" style={{ color: themeVars.value.textColor3 }}>
+                  <NText
+                    depth={3}
+                    class="mb-3 block text-sm"
+                    style={{ color: themeVars.value.textColor3 }}
+                  >
                     {props.multiple ? '支持单个或批量上传' : '支持单个文件上传'}
                   </NText>
 
@@ -303,7 +315,10 @@ export default defineComponent({
                     }}
                   >
                     <span>已上传: </span>
-                    <span class="ml-1 font-semibold" style={{ color: themeVars.value.primaryColor }}>
+                    <span
+                      class="ml-1 font-semibold"
+                      style={{ color: themeVars.value.primaryColor }}
+                    >
                       {processedFileCount.value}
                     </span>
                     <span class="mx-1">/</span>

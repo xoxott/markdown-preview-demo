@@ -12,7 +12,9 @@
 
 .drag-preview-enter-active,
 .drag-preview-leave-active {
-  transition: opacity 0.2s, transform 0.2s;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
 }
 
 .drag-preview-enter-from {
@@ -96,7 +98,9 @@
 
 .drop-zone-hint-enter-active,
 .drop-zone-hint-leave-active {
-  transition: opacity 0.2s, transform 0.2s;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
 }
 
 .drop-zone-hint-enter-from,
@@ -104,4 +108,3 @@
   opacity: 0;
   transform: translate(-50%, -50%) scale(0.9);
 }
-

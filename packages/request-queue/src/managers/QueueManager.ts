@@ -109,7 +109,7 @@ export class QueueManager {
   async enqueue<T>(
     config: NormalizedRequestConfig,
     requestFn: () => Promise<T>,
-    priority: RequestPriority = DEFAULT_QUEUE_CONFIG.DEFAULT_PRIORITY,
+    priority: RequestPriority = DEFAULT_QUEUE_CONFIG.DEFAULT_PRIORITY
   ): Promise<T> {
     return new Promise((resolve, reject) => {
       const queuedRequest: QueuedRequest<T> = {
@@ -118,7 +118,7 @@ export class QueueManager {
         priority,
         resolve,
         reject,
-        createdAt: Date.now(),
+        createdAt: Date.now()
       };
 
       // 添加到队列
@@ -166,4 +166,3 @@ export class QueueManager {
     }
   }
 }
-

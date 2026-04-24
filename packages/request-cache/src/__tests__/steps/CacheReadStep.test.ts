@@ -22,7 +22,7 @@ describe('CacheReadStep', () => {
   it('应该在缓存未命中时继续执行下一步', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config, undefined, { cache: true });
 
@@ -41,7 +41,7 @@ describe('CacheReadStep', () => {
   it('应该在缓存命中时返回缓存数据并跳过下一步', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const cachedData = { id: 1, name: 'John' };
     const ctx = createRequestContext<typeof cachedData>(config, 'test-key', { cache: true });
@@ -64,7 +64,7 @@ describe('CacheReadStep', () => {
   it('应该在 cache=false 时跳过缓存检查', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config, 'test-key', { cache: false });
 
@@ -86,7 +86,7 @@ describe('CacheReadStep', () => {
   it('应该在 cache=undefined 时跳过缓存检查', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config, 'test-key');
 
@@ -110,12 +110,12 @@ describe('CacheReadStep', () => {
 
     const customStep = new CacheReadStep({
       requestCacheManager: cacheManager,
-      policyFactory,
+      policyFactory
     });
 
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const ctx = createRequestContext(config, 'test-key', { cache: true });
 
@@ -140,13 +140,13 @@ describe('CacheReadStep', () => {
 
     const customStep = new CacheReadStep({
       requestCacheManager: cacheManager,
-      policyFactory,
+      policyFactory
     });
 
     // POST 请求应该被策略拒绝
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'POST',
+      method: 'POST'
     };
     const ctx = createRequestContext(config, 'test-key', { cache: true });
 
@@ -168,7 +168,7 @@ describe('CacheReadStep', () => {
   it('应该使用 ctx.id 作为缓存键', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',
-      method: 'GET',
+      method: 'GET'
     };
     const customId = 'custom-request-id';
     const cachedData = { id: 1, name: 'John' };
@@ -189,4 +189,3 @@ describe('CacheReadStep', () => {
     expect(ctx.state.fromCache).toBe(true);
   });
 });
-

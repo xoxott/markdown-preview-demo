@@ -41,7 +41,14 @@ declare namespace UnionKey {
   type ThemeScrollMode = import('@suga/materials').LayoutScrollMode;
 
   /** Page animate mode */
-  type ThemePageAnimateMode = 'fade' | 'fade-slide' | 'fade-bottom' | 'fade-scale' | 'zoom-fade' | 'zoom-out' | 'none';
+  type ThemePageAnimateMode =
+    | 'fade'
+    | 'fade-slide'
+    | 'fade-bottom'
+    | 'fade-scale'
+    | 'zoom-fade'
+    | 'zoom-out'
+    | 'none';
 
   /**
    * Tab mode

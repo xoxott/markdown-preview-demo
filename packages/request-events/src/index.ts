@@ -4,10 +4,7 @@
  */
 
 import { EventManager } from './managers/EventManager';
-import type {
-  RequestEventHandler,
-  RequestEventType
-} from './types';
+import type { RequestEventHandler, RequestEventType } from './types';
 
 // 导出事件步骤
 export { EventStep } from './steps/EventStep';
@@ -84,4 +81,3 @@ export function offRequestComplete(handler: RequestEventHandler<'request:complet
 export function removeAllEventListeners(event?: RequestEventType): void {
   eventManager.removeAllListeners(event);
 }
-

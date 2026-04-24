@@ -135,7 +135,12 @@ export default defineComponent({
               }}
             </NTooltip>
 
-            <NButton size="small" onClick={props.onResetZoom} secondary class="min-w-16 font-medium">
+            <NButton
+              size="small"
+              onClick={props.onResetZoom}
+              secondary
+              class="min-w-16 font-medium"
+            >
               {zoomPercentage()}
             </NButton>
 
@@ -174,12 +179,7 @@ export default defineComponent({
               {{
                 default: () => '撤销 (Ctrl + Z)',
                 trigger: () => (
-                  <NButton
-                    size="small"
-                    onClick={props.onUndo}
-                    disabled={!props.canUndo}
-                    secondary
-                  >
+                  <NButton size="small" onClick={props.onUndo} disabled={!props.canUndo} secondary>
                     <NIcon>
                       <Icon icon="mdi:undo" />
                     </NIcon>
@@ -192,12 +192,7 @@ export default defineComponent({
               {{
                 default: () => '重做 (Ctrl + Y)',
                 trigger: () => (
-                  <NButton
-                    size="small"
-                    onClick={props.onRedo}
-                    disabled={!props.canRedo}
-                    secondary
-                  >
+                  <NButton size="small" onClick={props.onRedo} disabled={!props.canRedo} secondary>
                     <NIcon>
                       <Icon icon="mdi:redo" />
                     </NIcon>
@@ -305,7 +300,7 @@ export default defineComponent({
             {props.onToggleGrid && (
               <NTooltip>
                 {{
-                  default: () => props.showGrid ? '隐藏网格' : '显示网格',
+                  default: () => (props.showGrid ? '隐藏网格' : '显示网格'),
                   trigger: () => (
                     <NButton
                       size="small"
@@ -325,7 +320,7 @@ export default defineComponent({
             {props.onToggleMinimap && (
               <NTooltip>
                 {{
-                  default: () => props.showMinimap ? '隐藏小地图' : '显示小地图',
+                  default: () => (props.showMinimap ? '隐藏小地图' : '显示小地图'),
                   trigger: () => (
                     <NButton
                       size="small"
@@ -464,4 +459,3 @@ export default defineComponent({
     );
   }
 });
-

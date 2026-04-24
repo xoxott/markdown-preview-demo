@@ -48,8 +48,12 @@ export class DefaultHistoryManager implements IHistoryManager {
       nodes: this.store.getNodes().map(node => ({ ...node })),
       edges: this.store.getEdges().map(edge => ({ ...edge })),
       viewport: { ...this.store.getViewport() },
-      selectedNodeIds: this.store.getSelectedNodeIds?.() ? [...this.store.getSelectedNodeIds()!] : [],
-      selectedEdgeIds: this.store.getSelectedEdgeIds?.() ? [...this.store.getSelectedEdgeIds()!] : [],
+      selectedNodeIds: this.store.getSelectedNodeIds?.()
+        ? [...this.store.getSelectedNodeIds()!]
+        : [],
+      selectedEdgeIds: this.store.getSelectedEdgeIds?.()
+        ? [...this.store.getSelectedEdgeIds()!]
+        : [],
       timestamp: Date.now()
     };
 
@@ -147,8 +151,12 @@ export class DefaultHistoryManager implements IHistoryManager {
       nodes: this.store.getNodes().map(node => ({ ...node })),
       edges: this.store.getEdges().map(edge => ({ ...edge })),
       viewport: { ...this.store.getViewport() },
-      selectedNodeIds: this.store.getSelectedNodeIds?.() ? [...this.store.getSelectedNodeIds()!] : [],
-      selectedEdgeIds: this.store.getSelectedEdgeIds?.() ? [...this.store.getSelectedEdgeIds()!] : [],
+      selectedNodeIds: this.store.getSelectedNodeIds?.()
+        ? [...this.store.getSelectedNodeIds()!]
+        : [],
+      selectedEdgeIds: this.store.getSelectedEdgeIds?.()
+        ? [...this.store.getSelectedEdgeIds()!]
+        : [],
       timestamp: Date.now()
     };
   }
@@ -191,4 +199,3 @@ export class DefaultHistoryManager implements IHistoryManager {
     this.clearHistory();
   }
 }
-

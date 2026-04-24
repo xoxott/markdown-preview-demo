@@ -50,10 +50,7 @@ export interface UseFlowCanvasConfigSyncReturn {
 export function useFlowCanvasConfigSync(
   options: UseFlowCanvasConfigSyncOptions
 ): UseFlowCanvasConfigSyncReturn {
-  const {
-    config,
-    setSelectionOptions
-  } = options;
+  const { config, setSelectionOptions } = options;
 
   let stopWatch: (() => void) | null = null;
 
@@ -62,12 +59,13 @@ export function useFlowCanvasConfigSync(
    */
   const start = () => {
     stopWatch = watch(
-      () => [
-        config.value.interaction?.enableMultiSelection,
-        config.value.interaction?.multiSelectKey,
-        config.value.interaction?.enableBoxSelection,
-        config.value.interaction?.boxSelectionKey
-      ] as const,
+      () =>
+        [
+          config.value.interaction?.enableMultiSelection,
+          config.value.interaction?.multiSelectKey,
+          config.value.interaction?.enableBoxSelection,
+          config.value.interaction?.boxSelectionKey
+        ] as const,
       ([enableMultiSelection, multiSelectKey, enableBoxSelection, boxSelectionKey]) => {
         setSelectionOptions({
           enableMultiSelection: enableMultiSelection !== false,
@@ -95,4 +93,3 @@ export function useFlowCanvasConfigSync(
     stop
   };
 }
-

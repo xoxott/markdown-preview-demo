@@ -162,7 +162,8 @@ export default defineComponent({
 
       // 取消按钮
       if (options.cancelButton !== false) {
-        const cancelConfig = typeof options.cancelButton === 'object' ? options.cancelButton : { text: '取消' };
+        const cancelConfig =
+          typeof options.cancelButton === 'object' ? options.cancelButton : { text: '取消' };
 
         buttons.push(
           <NButton
@@ -180,7 +181,8 @@ export default defineComponent({
 
       // 确认按钮
       if (options.confirmButton !== false) {
-        const confirmConfig = typeof options.confirmButton === 'object' ? options.confirmButton : { text: '确定' };
+        const confirmConfig =
+          typeof options.confirmButton === 'object' ? options.confirmButton : { text: '确定' };
 
         buttons.push(
           <NButton

@@ -17,7 +17,7 @@
 ### 函数签名
 
 ```typescript
-function useChunkUpload(config?: Partial<UploadConfig>): UploadHookReturn
+function useChunkUpload(config?: Partial<UploadConfig>): UploadHookReturn;
 ```
 
 ### 返回值
@@ -48,10 +48,12 @@ addFiles(
 ```
 
 **参数**：
+
 - `files`: 要上传的文件
 - `options`: 文件上传选项
 
 **示例**：
+
 ```typescript
 await uploader.addFiles([file1, file2], {
   priority: 'high',
@@ -183,37 +185,37 @@ interface UploadConfig {
   chunkUploadTransformer?: ChunkUploadTransformer;
   mergeChunksTransformer?: MergeChunksTransformer;
   checkFileTransformer?: CheckFileTransformer;
-  
+
   // 并发控制
   maxConcurrentFiles: number;
   maxConcurrentChunks: number;
-  
+
   // 切片配置
   chunkSize: number;
   minChunkSize: number;
   maxChunkSize: number;
-  
+
   // 重试配置
   maxRetries: number;
   retryDelay: number;
   retryBackoff: number;
-  
+
   // 接口配置
   uploadChunkUrl: string;
   mergeChunksUrl: string;
   checkFileUrl?: string;
   cancelUploadUrl?: string;
-  
+
   // 请求配置
   headers: Record<string, string>;
   timeout: number;
   customParams: Record<string, any>;
-  
+
   // 文件过滤
   accept?: string[];
   maxFileSize?: number;
   maxFiles?: number;
-  
+
   // 功能开关
   enableResume: boolean;
   enableDeduplication: boolean;
@@ -223,7 +225,7 @@ interface UploadConfig {
   enableCache: boolean;
   enableNetworkAdaptation: boolean;
   enableSmartRetry: boolean;
-  
+
   // 压缩和预览配置
   compressionQuality: number;
   previewMaxWidth: number;
@@ -237,24 +239,24 @@ interface UploadConfig {
 
 ```typescript
 interface FileTask {
-  id: string;                    // 任务 ID
-  file: File;                     // 文件对象
-  status: UploadStatus;          // 上传状态
-  progress: number;              // 上传进度（0-100）
-  speed: number;                  // 上传速度（KB/s）
-  uploadedChunks: number;         // 已上传分片数
-  totalChunks: number;            // 总分片数
-  uploadedSize: number;           // 已上传大小（字节）
-  startTime: number | null;       // 开始时间
-  endTime: number | null;         // 结束时间
-  pausedTime: number;             // 暂停时间
-  resumeTime: number;             // 恢复时间
-  retryCount: number;             // 重试次数
-  error: UploadError | null;      // 错误信息
+  id: string; // 任务 ID
+  file: File; // 文件对象
+  status: UploadStatus; // 上传状态
+  progress: number; // 上传进度（0-100）
+  speed: number; // 上传速度（KB/s）
+  uploadedChunks: number; // 已上传分片数
+  totalChunks: number; // 总分片数
+  uploadedSize: number; // 已上传大小（字节）
+  startTime: number | null; // 开始时间
+  endTime: number | null; // 结束时间
+  pausedTime: number; // 暂停时间
+  resumeTime: number; // 恢复时间
+  retryCount: number; // 重试次数
+  error: UploadError | null; // 错误信息
   result: ChunkUploadResponse | null; // 上传结果
-  chunks: ChunkInfo[];            // 分片信息
-  fileMD5: string;                // 文件 MD5
-  options: FileUploadOptions;     // 上传选项
+  chunks: ChunkInfo[]; // 分片信息
+  fileMD5: string; // 文件 MD5
+  options: FileUploadOptions; // 上传选项
 }
 ```
 
@@ -264,13 +266,13 @@ interface FileTask {
 
 ```typescript
 interface FileUploadOptions {
-  category?: string;             // 分类
-  tags?: string[];                // 标签
+  category?: string; // 分类
+  tags?: string[]; // 标签
   metadata?: Record<string, any>; // 元数据
   customParams?: Record<string, any>; // 自定义参数
   priority?: 'low' | 'normal' | 'high'; // 优先级
-  maxRetries?: number;           // 最大重试次数
-  chunkSize?: number;            // 分片大小
+  maxRetries?: number; // 最大重试次数
+  chunkSize?: number; // 分片大小
 }
 ```
 
@@ -280,12 +282,12 @@ interface FileUploadOptions {
 
 ```typescript
 enum UploadStatus {
-  PENDING = 'pending',      // 等待中
-  UPLOADING = 'uploading',  // 上传中
-  SUCCESS = 'success',      // 成功
-  ERROR = 'error',          // 失败
-  PAUSED = 'paused',        // 暂停
-  CANCELLED = 'cancelled'   // 取消
+  PENDING = 'pending', // 等待中
+  UPLOADING = 'uploading', // 上传中
+  SUCCESS = 'success', // 成功
+  ERROR = 'error', // 失败
+  PAUSED = 'paused', // 暂停
+  CANCELLED = 'cancelled' // 取消
 }
 ```
 
@@ -295,11 +297,11 @@ enum UploadStatus {
 
 ```typescript
 enum ChunkStatus {
-  PENDING = 'pending',      // 等待中
-  UPLOADING = 'uploading',  // 上传中
-  SUCCESS = 'success',      // 成功
-  ERROR = 'error',          // 失败
-  RETRYING = 'retrying'     // 重试中
+  PENDING = 'pending', // 等待中
+  UPLOADING = 'uploading', // 上传中
+  SUCCESS = 'success', // 成功
+  ERROR = 'error', // 失败
+  RETRYING = 'retrying' // 重试中
 }
 ```
 
@@ -309,19 +311,19 @@ enum ChunkStatus {
 
 ```typescript
 interface UploadStats {
-  completed: number;        // 已完成数量
-  active: number;           // 进行中数量
-  pending: number;         // 等待中数量
-  failed: number;          // 失败数量
-  paused: number;          // 暂停数量
-  cancelled: number;       // 取消数量
-  total: number;           // 总数量
-  totalSize: number;       // 总大小（字节）
-  uploadedSize: number;     // 已上传大小（字节）
-  averageSpeed: number;    // 平均速度（KB/s）
-  estimatedTime: number;   // 预计剩余时间（秒）
-  instantSpeed: number;    // 瞬时速度（KB/s）
-  networkQuality: string;  // 网络质量
+  completed: number; // 已完成数量
+  active: number; // 进行中数量
+  pending: number; // 等待中数量
+  failed: number; // 失败数量
+  paused: number; // 暂停数量
+  cancelled: number; // 取消数量
+  total: number; // 总数量
+  totalSize: number; // 总大小（字节）
+  uploadedSize: number; // 已上传大小（字节）
+  averageSpeed: number; // 平均速度（KB/s）
+  estimatedTime: number; // 预计剩余时间（秒）
+  instantSpeed: number; // 瞬时速度（KB/s）
+  networkQuality: string; // 网络质量
 }
 ```
 
@@ -357,6 +359,7 @@ on<K extends keyof CallbackMap>(
 ```
 
 **可用事件**：
+
 - `onFileProgress`: `(task: FileTask) => void` - 文件上传进度
 - `onFileSuccess`: `(task: FileTask, result: ChunkUploadResponse) => void` - 文件上传成功
 - `onFileError`: `(task: FileTask, error: UploadError) => void` - 文件上传失败
@@ -369,6 +372,7 @@ on<K extends keyof CallbackMap>(
 - `onAllError`: `(error: Error) => void` - 所有文件失败
 
 **示例**：
+
 ```typescript
 uploader.callbackManager.on('onFileSuccess', (task, result) => {
   console.log('上传成功:', task.file.name);
@@ -417,10 +421,11 @@ emit<K extends keyof CallbackMap>(
 格式化文件大小。
 
 ```typescript
-function formatFileSize(size: number): string
+function formatFileSize(size: number): string;
 ```
 
 **示例**：
+
 ```typescript
 formatFileSize(1024 * 1024); // '1.00 MB'
 ```
@@ -430,10 +435,11 @@ formatFileSize(1024 * 1024); // '1.00 MB'
 格式化上传速度。
 
 ```typescript
-function formatSpeed(speed: number): string
+function formatSpeed(speed: number): string;
 ```
 
 **示例**：
+
 ```typescript
 formatSpeed(1024); // '1.00 MB/s'
 ```
@@ -443,10 +449,11 @@ formatSpeed(1024); // '1.00 MB/s'
 格式化时间。
 
 ```typescript
-function formatTime(seconds: number): string
+function formatTime(seconds: number): string;
 ```
 
 **示例**：
+
 ```typescript
 formatTime(3661); // '1小时1分1秒'
 ```
@@ -458,7 +465,7 @@ formatTime(3661); // '1小时1分1秒'
 获取文件图标。
 
 ```typescript
-function getFileIcon(file: File): string
+function getFileIcon(file: File): string;
 ```
 
 #### getFileColor
@@ -466,7 +473,7 @@ function getFileIcon(file: File): string
 获取文件颜色。
 
 ```typescript
-function getFileColor(file: File): string
+function getFileColor(file: File): string;
 ```
 
 ### 状态映射函数
@@ -476,7 +483,7 @@ function getFileColor(file: File): string
 获取状态文本。
 
 ```typescript
-function getStatusText(status: UploadStatus): string
+function getStatusText(status: UploadStatus): string;
 ```
 
 #### getStatusType
@@ -484,7 +491,7 @@ function getStatusText(status: UploadStatus): string
 获取状态类型。
 
 ```typescript
-function getStatusType(status: UploadStatus): 'default' | 'success' | 'error' | 'warning'
+function getStatusType(status: UploadStatus): 'default' | 'success' | 'error' | 'warning';
 ```
 
 #### convertToNaiveStatus
@@ -492,7 +499,9 @@ function getStatusType(status: UploadStatus): 'default' | 'success' | 'error' | 
 转换为 Naive UI 状态。
 
 ```typescript
-function convertToNaiveStatus(status: UploadStatus): 'pending' | 'uploading' | 'finished' | 'error' | 'removed'
+function convertToNaiveStatus(
+  status: UploadStatus
+): 'pending' | 'uploading' | 'finished' | 'error' | 'removed';
 ```
 
 ## 管理器
@@ -510,6 +519,7 @@ getTodayStats(): TodayStats
 ```
 
 返回：
+
 ```typescript
 {
   totalFiles: number;
@@ -530,6 +540,7 @@ getHistoryStats(days?: number): HistoryStats
 ```
 
 返回：
+
 ```typescript
 {
   days: Array<{
@@ -552,6 +563,7 @@ getTrendAnalysis(days?: number): TrendAnalysis
 ```
 
 返回：
+
 ```typescript
 {
   uploadTrend: 'up' | 'down' | 'stable';
@@ -655,7 +667,7 @@ checkCompatibility(): CompatibilityResult
 验证并警告配置。
 
 ```typescript
-function validateAndWarnConfig(config: Partial<UploadConfig>): void
+function validateAndWarnConfig(config: Partial<UploadConfig>): void;
 ```
 
 ## 常量
@@ -688,8 +700,7 @@ const CONSTANTS = {
     MAX_CHUNK_SIZE: 20 * 1024 * 1024,
     MAX_FILESIZE: 1 * 1024 * 1024 * 1024,
     MAX_FILES: 500
-  },
+  }
   // ...
-}
+};
 ```
-

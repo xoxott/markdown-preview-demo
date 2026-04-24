@@ -34,4 +34,3 @@ export interface StorageAdapter {
    */
   getAllKeys(): string[];
 }
-

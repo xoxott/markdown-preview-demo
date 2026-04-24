@@ -23,7 +23,13 @@ export function useContextMenuOptions({ selectedIds, onSelect }: UseContextMenuO
   // 空白区菜单（固定 show）
   const blankOptions: ContextMenuItem[] = [
     { key: 'refresh', label: '刷新', icon: OpenOutline, shortcut: 'F5', show: true },
-    { key: 'new-folder', label: '新建文件夹', icon: CreateOutline, shortcut: 'Ctrl+Shift+N', show: true },
+    {
+      key: 'new-folder',
+      label: '新建文件夹',
+      icon: CreateOutline,
+      shortcut: 'Ctrl+Shift+N',
+      show: true
+    },
     { key: 'paste', label: '粘贴', icon: CopyOutline, shortcut: 'Ctrl+V', show: true },
     {
       key: 'sort',
@@ -55,10 +61,28 @@ export function useContextMenuOptions({ selectedIds, onSelect }: UseContextMenuO
         show: true
       },
       { key: 'divider-1', label: '', divider: true },
-      { key: 'cut', label: '剪切', icon: CutOutline, shortcut: 'Ctrl+X', show: selectedIds.value.size > 0 },
-      { key: 'copy', label: '复制', icon: CopyOutline, shortcut: 'Ctrl+C', show: selectedIds.value.size > 0 },
+      {
+        key: 'cut',
+        label: '剪切',
+        icon: CutOutline,
+        shortcut: 'Ctrl+X',
+        show: selectedIds.value.size > 0
+      },
+      {
+        key: 'copy',
+        label: '复制',
+        icon: CopyOutline,
+        shortcut: 'Ctrl+C',
+        show: selectedIds.value.size > 0
+      },
       { key: 'divider-2', label: '', divider: true },
-      { key: 'rename', label: '重命名', icon: CreateOutline, shortcut: 'F2', show: selectedIds.value.size === 1 },
+      {
+        key: 'rename',
+        label: '重命名',
+        icon: CreateOutline,
+        shortcut: 'F2',
+        show: selectedIds.value.size === 1
+      },
       {
         key: 'delete',
         label: `删除 ${selectedIds.value.size} 个项目`,

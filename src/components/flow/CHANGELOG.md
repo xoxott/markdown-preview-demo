@@ -9,11 +9,13 @@ All notable changes to the Flow component library will be documented in this fil
 #### Added
 
 - **框架无关的核心层** - `core/interaction/` 和 `core/state/`
+
   - Core 层完全独立于 Vue，可在 React、Angular 等其他框架中使用
   - 清晰的职责分离：核心逻辑与响应式封装分离
   - 统一的交互处理架构
 
 - **可插拔状态管理** - `core/state/interfaces/` 和 `core/state/stores/`
+
   - `IStateStore` 接口：定义状态存储标准接口
   - `IHistoryManager` 接口：定义历史记录管理标准接口
   - `DefaultStateStore`：默认状态存储实现（框架无关）
@@ -29,11 +31,13 @@ All notable changes to the Flow component library will be documented in this fil
 #### Changed
 
 - **状态管理架构重构**
+
   - 移除了 `FlowStateManager`，拆分为 `IStateStore` 和 `IHistoryManager`
   - `useFlowState` 现在使用 `DefaultStateStore` 和 `DefaultHistoryManager`
   - 所有状态操作通过接口进行，支持自定义实现
 
 - **交互处理架构重构**
+
   - `useDrag`、`useCanvasPan`、`useNodeDrag` 现在基于 `FlowDragHandler`
   - `useConnectionCreation` 现在基于 `FlowConnectionHandler`
   - `useSelection` 现在基于 `FlowSelectionHandler`
@@ -47,6 +51,7 @@ All notable changes to the Flow component library will be documented in this fil
 #### Documentation
 
 - **更新 README.md**
+
   - 更新目录结构，反映新的状态管理架构
   - 添加架构重构说明
   - 更新状态管理使用示例
@@ -68,18 +73,21 @@ All notable changes to the Flow component library will be documented in this fil
 #### Added
 
 - **空间索引 (R-Tree)** - `core/performance/SpatialIndex.ts`
+
   - 节点查询性能从 O(n) 优化到 O(log n)
   - 10000节点查询时间从 50ms 降至 5ms (90% 提升)
   - 支持视口查询、点查询、矩形查询、相交查询、附近节点查询
   - 完整的单元测试覆盖 (8个测试)
 
 - **对象池模式** - `core/performance/ObjectPool.ts`
+
   - 减少频繁对象创建/销毁的 GC 压力 30-50%
   - 预定义池：Position、Bounds、Array、Map、Set
   - 支持池大小限制、预热、收缩、统计信息
   - 完整的单元测试覆盖 (9个测试)
 
 - **命令模式** - `core/commands/`
+
   - 撤销/重做内存占用减少 80% (200MB → 40MB)
   - 支持命令合并（连续移动只记录一次）
   - 支持宏命令（批量操作作为一个命令）
@@ -94,6 +102,7 @@ All notable changes to the Flow component library will be documented in this fil
 #### Testing & Quality
 
 - **测试框架配置** - `vitest.config.ts`
+
   - Vitest + happy-dom 环境
   - 覆盖率报告配置
   - 测试设置文件
@@ -106,21 +115,25 @@ All notable changes to the Flow component library will be documented in this fil
 #### Documentation
 
 - **优化总结** - `OPTIMIZATION_SUMMARY.md`
+
   - 完整的优化说明和使用指南
   - 性能对比数据
   - 集成建议
 
 - **迁移指南** - `MIGRATION.md`
+
   - 详细的迁移步骤
   - API 变更说明
   - 常见问题解答
 
 - **快速开始** - `QUICKSTART.md`
+
   - 5分钟上手指南
   - 推荐集成顺序
   - 实用代码示例
 
 - **脚本说明** - `SCRIPTS.md`
+
   - package.json 脚本配置
   - CI/CD 集成建议
 
@@ -130,11 +143,11 @@ All notable changes to the Flow component library will be documented in this fil
 
 ### 📊 Performance Improvements
 
-| 指标 | v1.0 | v2.0 | 提升 |
-|------|------|------|------|
-| 10000节点视口查询 | 50ms | 5ms | **90%** |
-| 对象创建/销毁 GC | 高压力 | 低压力 | **30-50%** |
-| 撤销/重做内存占用 | 200MB | 40MB | **80%** |
+| 指标              | v1.0   | v2.0   | 提升       |
+| ----------------- | ------ | ------ | ---------- |
+| 10000节点视口查询 | 50ms   | 5ms    | **90%**    |
+| 对象创建/销毁 GC  | 高压力 | 低压力 | **30-50%** |
+| 撤销/重做内存占用 | 200MB  | 40MB   | **80%**    |
 
 ### 🔧 Technical Details
 
@@ -249,7 +262,7 @@ pnpm test -- --coverage
 
 ### P2: 功能增强 (计划中)
 
-- [ ] 智能路由 (A* 算法)
+- [ ] 智能路由 (A\* 算法)
 - [ ] 动画系统
 - [ ] CRDT 协作支持
 - [ ] 开发工具插件
@@ -264,6 +277,7 @@ pnpm test -- --coverage
 ---
 
 **Legend:**
+
 - 🚀 Major features
 - ✨ Minor features
 - 🐛 Bug fixes
@@ -271,4 +285,3 @@ pnpm test -- --coverage
 - 📖 Documentation
 - ⚠️ Breaking changes
 - 🔧 Technical details
-

@@ -1,5 +1,10 @@
 import type { FileItem } from '../types/file-explorer';
-import type { IFileDataSource, ServerFileDataSourceConfig, PaginationParams, PaginationResult } from './types';
+import type {
+  IFileDataSource,
+  ServerFileDataSourceConfig,
+  PaginationParams,
+  PaginationResult
+} from './types';
 
 /** 服务器文件数据源实现 */
 export class ServerFileDataSource implements IFileDataSource {
@@ -79,7 +84,9 @@ export class ServerFileDataSource implements IFileDataSource {
 
   async listFiles(path: string = '/'): Promise<FileItem[]> {
     const normalizedPath = this.normalizePath(path);
-    const endpoint = normalizedPath ? `/api/files/list?path=${encodeURIComponent(normalizedPath)}` : '/api/files/list';
+    const endpoint = normalizedPath
+      ? `/api/files/list?path=${encodeURIComponent(normalizedPath)}`
+      : '/api/files/list';
 
     const response = await this.request<{ files: any[] }>(endpoint);
     const parentPath = normalizedPath || '';
@@ -99,7 +106,12 @@ export class ServerFileDataSource implements IFileDataSource {
     }
 
     const endpoint = `/api/files/list?${queryParams.toString()}`;
-    const response = await this.request<{ files: any[]; total: number; page: number; pageSize: number }>(endpoint);
+    const response = await this.request<{
+      files: any[];
+      total: number;
+      page: number;
+      pageSize: number;
+    }>(endpoint);
 
     const parentPath = normalizedPath || '';
     const items = response.files.map(file => this.serverFileToFileItem(file, parentPath));
@@ -125,7 +137,8 @@ export class ServerFileDataSource implements IFileDataSource {
     }
 
     const contentType = response.headers.get('content-type') || '';
-    const isText = contentType.includes('text/') ||
+    const isText =
+      contentType.includes('text/') ||
       contentType.includes('application/json') ||
       contentType.includes('application/javascript') ||
       contentType.includes('application/xml');
@@ -258,4 +271,3 @@ export class ServerFileDataSource implements IFileDataSource {
     }
   }
 }
-

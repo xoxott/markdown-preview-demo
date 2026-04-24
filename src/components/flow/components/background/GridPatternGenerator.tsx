@@ -63,7 +63,16 @@ export interface GridPatternGenerator {
  */
 class DotsGridGenerator implements GridPatternGenerator {
   generate(options: GridPatternGeneratorOptions): GridPatternResult {
-    const { patternSize, gridColor, gridOpacity, zoom, idPrefix, patternX, patternY, patternCenter } = options;
+    const {
+      patternSize,
+      gridColor,
+      gridOpacity,
+      zoom,
+      idPrefix,
+      patternX,
+      patternY,
+      patternCenter
+    } = options;
     const dotRadius = GRID_CONSTANTS.DOT_RADIUS_MULTIPLIER * zoom;
 
     const defs = (
@@ -84,7 +93,11 @@ class DotsGridGenerator implements GridPatternGenerator {
         patternUnits={SVG_PATTERN_UNITS.USER_SPACE_ON_USE}
         patternContentUnits={SVG_PATTERN_UNITS.USER_SPACE_ON_USE}
       >
-        <use href={`#${idPrefix}-${GRID_ELEMENT_ID_SUFFIXES.DOT_SHAPE}`} x={patternCenter} y={patternCenter} />
+        <use
+          href={`#${idPrefix}-${GRID_ELEMENT_ID_SUFFIXES.DOT_SHAPE}`}
+          x={patternCenter}
+          y={patternCenter}
+        />
       </pattern>
     );
 
@@ -149,7 +162,16 @@ class LinesGridGenerator implements GridPatternGenerator {
  */
 class CrossGridGenerator implements GridPatternGenerator {
   generate(options: GridPatternGeneratorOptions): GridPatternResult {
-    const { patternSize, gridColor, gridOpacity, zoom, idPrefix, patternX, patternY, patternCenter } = options;
+    const {
+      patternSize,
+      gridColor,
+      gridOpacity,
+      zoom,
+      idPrefix,
+      patternX,
+      patternY,
+      patternCenter
+    } = options;
     const strokeWidth = GRID_CONSTANTS.LINE_STROKE_WIDTH_MULTIPLIER * zoom;
     const crossLength = patternSize * GRID_CONSTANTS.CROSS_LENGTH_RATIO;
     const halfLength = crossLength / 2;
@@ -189,8 +211,16 @@ class CrossGridGenerator implements GridPatternGenerator {
         patternUnits={SVG_PATTERN_UNITS.USER_SPACE_ON_USE}
         patternContentUnits={SVG_PATTERN_UNITS.USER_SPACE_ON_USE}
       >
-        <use href={`#${idPrefix}-${GRID_ELEMENT_ID_SUFFIXES.CROSS_V}`} x={patternCenter} y={patternCenter} />
-        <use href={`#${idPrefix}-${GRID_ELEMENT_ID_SUFFIXES.CROSS_H}`} x={patternCenter} y={patternCenter} />
+        <use
+          href={`#${idPrefix}-${GRID_ELEMENT_ID_SUFFIXES.CROSS_V}`}
+          x={patternCenter}
+          y={patternCenter}
+        />
+        <use
+          href={`#${idPrefix}-${GRID_ELEMENT_ID_SUFFIXES.CROSS_H}`}
+          x={patternCenter}
+          y={patternCenter}
+        />
       </pattern>
     );
 
@@ -219,10 +249,7 @@ const gridGenerators = new Map<FlowGridType, GridPatternGenerator>([
  * registerGridGenerator('hexagon', new HexagonGridGenerator());
  * ```
  */
-export function registerGridGenerator(
-  type: FlowGridType,
-  generator: GridPatternGenerator
-): void {
+export function registerGridGenerator(type: FlowGridType, generator: GridPatternGenerator): void {
   gridGenerators.set(type, generator);
 }
 
@@ -270,4 +297,3 @@ export function generateGridPattern(
   }
   return generator.generate(options);
 }
-

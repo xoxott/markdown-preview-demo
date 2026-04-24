@@ -84,10 +84,8 @@ export const SvgRenderer = defineComponent({
 
     // ==================== Hooks ====================
     // 使用 SVG 工具（缩放、拖拽等）
-    const { downloadSVG, startDrag, scale, zoom, position, isDragging, transformStyle } = useSvgTools(
-      containerRef,
-      svgInfo
-    );
+    const { downloadSVG, startDrag, scale, zoom, position, isDragging, transformStyle } =
+      useSvgTools(containerRef, svgInfo);
 
     // ==================== 事件处理 ====================
     // 处理复制
@@ -133,7 +131,7 @@ export const SvgRenderer = defineComponent({
         <NCard
           bordered={props.bordered}
           class={`mb-4 mt-4 ${darkMode.value ? 'color-mode-dark' : 'color-mode-light'}`}
-          style={cssVars.value as any}
+          style={cssVars.value}
         >
           {/* 工具栏 */}
           {props.showToolbar && (
@@ -158,7 +156,10 @@ export const SvgRenderer = defineComponent({
             <Transition name="fade-bottom" mode="out-in">
               {showCode.value ? (
                 <div key="code">
-                  <pre class="m-0 overflow-auto rounded p-3 text-sm leading-relaxed" style={codeBlockStyle.value}>
+                  <pre
+                    class="m-0 overflow-auto rounded p-3 text-sm leading-relaxed"
+                    style={codeBlockStyle.value}
+                  >
                     {svgContent.value}
                   </pre>
                 </div>
@@ -169,7 +170,11 @@ export const SvgRenderer = defineComponent({
                   class="relative min-h-[200px] w-full flex touch-none select-none items-center justify-center overflow-hidden rounded-md"
                   style={containerBgStyle.value}
                 >
-                  <div style={transformStyle.value} onMousedown={startDrag} onTouchstart={startDrag}>
+                  <div
+                    style={transformStyle.value}
+                    onMousedown={startDrag}
+                    onTouchstart={startDrag}
+                  >
                     <div innerHTML={svgContent.value} />
                   </div>
                 </div>

@@ -4,7 +4,7 @@ import type { PropType } from 'vue';
 import { defineComponent, nextTick, ref, watch } from 'vue';
 import { NButton, NInput, NSpace, useThemeVars } from 'naive-ui';
 import type { RenameDialogConfig } from '../../base-dialog/dialog';
-import BaseDialog from '@/components/base-dialog'
+import BaseDialog from '@/components/base-dialog';
 
 export default defineComponent({
   name: 'RenameDialog',

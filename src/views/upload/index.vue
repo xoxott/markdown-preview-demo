@@ -85,8 +85,8 @@ const {
   checkFileUrl: '/api/upload/check',
   headers: {
     'custom-origin': 'https://testaigc.umi6.com',
-    origin: 'https://testaigc.umi6.com',
-    authorization: 'Bearer 6992fcd36dce4d24b9ddf26a110a17cf'
+    'origin': 'https://testaigc.umi6.com',
+    'authorization': 'Bearer 6992fcd36dce4d24b9ddf26a110a17cf'
   },
   chunkUploadTransformer: ({ task, chunk }) => {
     const formData = new FormData();
@@ -255,7 +255,14 @@ const handleSettingChange = () => {
             <NIcon :component="SettingsOutline" />
           </template>
         </NButton>
-        <NButton v-if="uploadStats.total > 0" size="small" quaternary circle type="error" @click="clear">
+        <NButton
+          v-if="uploadStats.total > 0"
+          size="small"
+          quaternary
+          circle
+          type="error"
+          @click="clear"
+        >
           <template #icon>
             <NIcon :component="TrashOutline" />
           </template>
@@ -299,21 +306,37 @@ const handleSettingChange = () => {
 
         <div class="flex flex-col justify-between gap-4 md:w-[260px]">
           <div class="flex flex-wrap gap-2">
-            <NButton size="small" :disabled="failedCount === 0" type="warning" class="flex-1" @click="retryFailed">
+            <NButton
+              size="small"
+              :disabled="failedCount === 0"
+              type="warning"
+              class="flex-1"
+              @click="retryFailed"
+            >
               <template #icon>
                 <NIcon :component="RefreshOutline" />
               </template>
               重试失败 ({{ failedCount }})
             </NButton>
 
-            <NButton size="small" :disabled="!isUploading || isPaused" class="flex-1" @click="pauseAll">
+            <NButton
+              size="small"
+              :disabled="!isUploading || isPaused"
+              class="flex-1"
+              @click="pauseAll"
+            >
               <template #icon>
                 <NIcon :component="PauseOutline" />
               </template>
               暂停
             </NButton>
 
-            <NButton size="small" :disabled="!isPaused || isUploading" class="flex-1" @click="resumeAll">
+            <NButton
+              size="small"
+              :disabled="!isPaused || isUploading"
+              class="flex-1"
+              @click="resumeAll"
+            >
               <template #icon>
                 <NIcon :component="PlayOutline" />
               </template>
@@ -342,7 +365,9 @@ const handleSettingChange = () => {
       </div>
 
       <!-- 上传统计 -->
-      <div class="min-w-[300px] flex-1 rounded-lg bg-white p-6 shadow transition-all duration-300 dark:bg-gray-800">
+      <div
+        class="min-w-[300px] flex-1 rounded-lg bg-white p-6 shadow transition-all duration-300 dark:bg-gray-800"
+      >
         <div class="mb-4 flex items-start justify-between gap-4">
           <h3 class="text-lg text-gray-600 font-medium dark:text-gray-200">上传统计</h3>
 
@@ -367,7 +392,12 @@ const handleSettingChange = () => {
               已完成: {{ uploadStats.completed }}
             </NTag>
 
-            <NTag v-if="uploadStats.failed > 0" :bordered="false" type="error" class="flex items-center">
+            <NTag
+              v-if="uploadStats.failed > 0"
+              :bordered="false"
+              type="error"
+              class="flex items-center"
+            >
               <template #icon><NIcon :component="CloseCircleOutline" /></template>
               失败: {{ uploadStats.failed }}
             </NTag>
@@ -387,7 +417,9 @@ const handleSettingChange = () => {
         </div>
 
         <!-- 详细 info -->
-        <div class="grid grid-cols-1 mt-2 items-center gap-3 text-sm text-gray-600 sm:grid-cols-3 dark:text-gray-400">
+        <div
+          class="grid grid-cols-1 mt-2 items-center gap-3 text-sm text-gray-600 sm:grid-cols-3 dark:text-gray-400"
+        >
           <div class="flex items-center gap-2">
             <NIcon :component="SpeedometerOutline" />
             <span>{{ formatSpeed(uploadSpeed) }}</span>
@@ -402,7 +434,13 @@ const handleSettingChange = () => {
           <div class="flex items-center gap-2">
             <NIcon :component="WifiOutline" />
             <NTag
-              :type="networkQuality === 'good' ? 'success' : networkQuality === 'fair' ? 'warning' : 'error'"
+              :type="
+                networkQuality === 'good'
+                  ? 'success'
+                  : networkQuality === 'fair'
+                    ? 'warning'
+                    : 'error'
+              "
               size="small"
               :bordered="false"
             >
@@ -502,16 +540,30 @@ const handleSettingChange = () => {
             />
           </NFormItem>
           <NFormItem label="最大重试次数">
-            <NInputNumber v-model:value="settings.maxRetries" :min="0" :max="10" @update:value="handleSettingChange" />
+            <NInputNumber
+              v-model:value="settings.maxRetries"
+              :min="0"
+              :max="10"
+              @update:value="handleSettingChange"
+            />
           </NFormItem>
           <NFormItem label="网络自适应">
-            <NSwitch v-model:value="settings.enableNetworkAdaptation" @update:value="handleSettingChange" />
+            <NSwitch
+              v-model:value="settings.enableNetworkAdaptation"
+              @update:value="handleSettingChange"
+            />
           </NFormItem>
           <NFormItem label="智能重试">
-            <NSwitch v-model:value="settings.enableSmartRetry" @update:value="handleSettingChange" />
+            <NSwitch
+              v-model:value="settings.enableSmartRetry"
+              @update:value="handleSettingChange"
+            />
           </NFormItem>
           <NFormItem label="秒传检测">
-            <NSwitch v-model:value="settings.enableDeduplication" @update:value="handleSettingChange" />
+            <NSwitch
+              v-model:value="settings.enableDeduplication"
+              @update:value="handleSettingChange"
+            />
           </NFormItem>
           <NFormItem label="使用 Worker">
             <NSwitch v-model:value="settings.useWorker" @update:value="handleSettingChange" />

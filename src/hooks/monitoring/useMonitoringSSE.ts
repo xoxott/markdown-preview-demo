@@ -64,11 +64,7 @@ export interface UseMonitoringSSEReturn {
  * Provides a convenient way to connect to monitoring SSE stream and subscribe to events
  */
 export function useMonitoringSSE(options: UseMonitoringSSEOptions = {}): UseMonitoringSSEReturn {
-  const {
-    autoConnect = true,
-    autoReconnect = true,
-    maxReconnectAttempts = 5
-  } = options;
+  const { autoConnect = true, autoReconnect = true, maxReconnectAttempts = 5 } = options;
 
   // Connection status
   const status = ref<SSE.ConnectionStatus>('disconnected');
@@ -166,10 +162,12 @@ export function useMonitoringSSE(options: UseMonitoringSSEOptions = {}): UseMoni
       'performance'
     ] as const satisfies readonly Exclude<SSE.MonitoringEventType, 'environment'>[];
 
-    const statuses = eventTypes.map(eventType => {
-      const connectionId = MONITORING_SSE_CONNECTION_IDS[eventType];
-      return sseManager.getStatus(connectionId);
-    }).filter(Boolean) as SSE.ConnectionStatus[];
+    const statuses = eventTypes
+      .map(eventType => {
+        const connectionId = MONITORING_SSE_CONNECTION_IDS[eventType];
+        return sseManager.getStatus(connectionId);
+      })
+      .filter(Boolean) as SSE.ConnectionStatus[];
 
     if (statuses.length === 0) {
       status.value = 'disconnected';
@@ -239,25 +237,24 @@ export function useMonitoringSSE(options: UseMonitoringSSEOptions = {}): UseMoni
     }, 100);
 
     // Subscribe to 'data' event type, as the SSE stream will send data messages
-    const unsubscribe = sseManager.subscribe(
-      connectionId,
-      'data',
-      ((data: any) => {
-        // The data should already be parsed and routed correctly
-        // But we need to extract the actual data from the message
-        if (data && typeof data === 'object') {
-          // If data has eventType, verify it matches
-          if (data.eventType && data.eventType !== eventType) {
-            return; // Not for this listener
-          }
-          // Extract actual data - message.data contains the actual payload
-          const actualData = data.data !== undefined ? data.data : data;
-          throttledListener(actualData, new MessageEvent('data', { data: JSON.stringify(actualData) }));
-        } else {
-          throttledListener(data, new MessageEvent('data', { data: JSON.stringify(data) }));
+    const unsubscribe = sseManager.subscribe(connectionId, 'data', ((data: any) => {
+      // The data should already be parsed and routed correctly
+      // But we need to extract the actual data from the message
+      if (data && typeof data === 'object') {
+        // If data has eventType, verify it matches
+        if (data.eventType && data.eventType !== eventType) {
+          return; // Not for this listener
         }
-      }) as SSE.EventListener
-    );
+        // Extract actual data - message.data contains the actual payload
+        const actualData = data.data !== undefined ? data.data : data;
+        throttledListener(
+          actualData,
+          new MessageEvent('data', { data: JSON.stringify(actualData) })
+        );
+      } else {
+        throttledListener(data, new MessageEvent('data', { data: JSON.stringify(data) }));
+      }
+    }) as SSE.EventListener);
 
     unsubscribeFunctions.push(unsubscribe);
     return unsubscribe;
@@ -329,7 +326,7 @@ export function useMonitoringSSE(options: UseMonitoringSSEOptions = {}): UseMoni
     ] as const satisfies readonly Exclude<SSE.MonitoringEventType, 'environment'>[];
 
     eventTypes.forEach(eventType => {
-      const unsubscribe = subscribe(eventType, (data) => {
+      const unsubscribe = subscribe(eventType, data => {
         listener(eventType, data);
       });
       unsubscribes.push(unsubscribe);
@@ -403,4 +400,3 @@ export function useMonitoringSSE(options: UseMonitoringSSEOptions = {}): UseMoni
     onAll
   };
 }
-

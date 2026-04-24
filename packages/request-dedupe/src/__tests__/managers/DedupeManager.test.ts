@@ -20,7 +20,7 @@ describe('DedupeManager', () => {
 
     it('应该使用自定义去重时间窗口', () => {
       const customManager = new DedupeManager({
-        dedupeWindow: 2000,
+        dedupeWindow: 2000
       });
 
       expect(customManager).toBeInstanceOf(DedupeManager);
@@ -66,7 +66,7 @@ describe('DedupeManager', () => {
 
     it('应该在时间窗口外创建新请求', async () => {
       const customManager = new DedupeManager({
-        dedupeWindow: 100, // 100ms
+        dedupeWindow: 100 // 100ms
       });
 
       let requestCount = 0;
@@ -142,7 +142,7 @@ describe('DedupeManager', () => {
 
     it('应该在请求成功后延迟移除', async () => {
       const customManager = new DedupeManager({
-        dedupeWindow: 200, // 200ms
+        dedupeWindow: 200 // 200ms
       });
 
       await customManager.getOrCreateRequestByKey('test-key', async () => 'result');
@@ -159,7 +159,7 @@ describe('DedupeManager', () => {
 
     it('应该清理过期的请求', async () => {
       const customManager = new DedupeManager({
-        dedupeWindow: 100,
+        dedupeWindow: 100
       });
 
       // 创建请求
@@ -192,7 +192,7 @@ describe('DedupeManager', () => {
 
     it('应该清理所有定时器', async () => {
       const customManager = new DedupeManager({
-        dedupeWindow: 1000,
+        dedupeWindow: 1000
       });
 
       await customManager.getOrCreateRequestByKey('test-key', async () => 'result');
@@ -246,4 +246,3 @@ describe('DedupeManager', () => {
     });
   });
 });
-

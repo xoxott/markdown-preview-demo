@@ -18,7 +18,7 @@ export function createFileHandlers(
   const handleFilesChange = async (files: CustomUploadFileInfo[]): Promise<void> => {
     if (!files || files.length === 0) return;
     try {
-      const fileList = files.map((f) => f.file);
+      const fileList = files.map(f => f.file);
       await uploadHook.addFiles(fileList);
       addEventLog('add-files', `添加了 ${files.length} 个文件到队列`);
       message.success(`已添加 ${files.length} 个文件`);
@@ -215,4 +215,3 @@ export function createFileOperationHandlers(
     handleClear
   };
 }
-

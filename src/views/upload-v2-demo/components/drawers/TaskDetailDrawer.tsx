@@ -100,7 +100,9 @@ export default defineComponent({
             </div>
             <div class="flex items-center justify-between">
               <span class="text-gray-600 dark:text-gray-400">已上传大小：</span>
-              <span class="font-semibold">{props.formatFileSize(props.task.uploadedSize || 0)}</span>
+              <span class="font-semibold">
+                {props.formatFileSize(props.task.uploadedSize || 0)}
+              </span>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-gray-600 dark:text-gray-400">上传速度：</span>
@@ -115,25 +117,33 @@ export default defineComponent({
             {props.task.startTime && (
               <div class="flex items-center justify-between">
                 <span class="text-gray-600 dark:text-gray-400">开始时间：</span>
-                <span class="font-semibold text-sm">{new Date(props.task.startTime).toLocaleString()}</span>
+                <span class="font-semibold text-sm">
+                  {new Date(props.task.startTime).toLocaleString()}
+                </span>
               </div>
             )}
             {props.task.endTime && (
               <div class="flex items-center justify-between">
                 <span class="text-gray-600 dark:text-gray-400">结束时间：</span>
-                <span class="font-semibold text-sm">{new Date(props.task.endTime).toLocaleString()}</span>
+                <span class="font-semibold text-sm">
+                  {new Date(props.task.endTime).toLocaleString()}
+                </span>
               </div>
             )}
             {props.task.pausedTime > 0 && (
               <div class="flex items-center justify-between">
                 <span class="text-gray-600 dark:text-gray-400">暂停时间：</span>
-                <span class="font-semibold text-sm">{new Date(props.task.pausedTime).toLocaleString()}</span>
+                <span class="font-semibold text-sm">
+                  {new Date(props.task.pausedTime).toLocaleString()}
+                </span>
               </div>
             )}
             {props.task.resumeTime > 0 && (
               <div class="flex items-center justify-between">
                 <span class="text-gray-600 dark:text-gray-400">恢复时间：</span>
-                <span class="font-semibold text-sm">{new Date(props.task.resumeTime).toLocaleString()}</span>
+                <span class="font-semibold text-sm">
+                  {new Date(props.task.resumeTime).toLocaleString()}
+                </span>
               </div>
             )}
             {props.task.startTime && props.task.endTime && (
@@ -156,14 +166,16 @@ export default defineComponent({
               </div>
               <NScrollbar style="max-height: 300px">
                 <div class="space-y-1">
-                  {props.task.chunks.slice(0, 50).map((chunk) => (
+                  {props.task.chunks.slice(0, 50).map(chunk => (
                     <div
                       key={chunk.index}
                       class="flex items-center justify-between p-2 rounded border border-gray-200 dark:border-gray-700"
                     >
                       <span class="text-sm">分片 {chunk.index + 1}</span>
                       <NSpace size="small">
-                        <span class="text-xs text-gray-500">{props.formatFileSize(chunk.size)}</span>
+                        <span class="text-xs text-gray-500">
+                          {props.formatFileSize(chunk.size)}
+                        </span>
                         <NTag type={getChunkStatusType(chunk.status)} size="small">
                           {getChunkStatusText(chunk.status)}
                         </NTag>

@@ -23,4 +23,3 @@ declare namespace Api {
   // All API types are now defined in separate files
   // This file only contains references to maintain the Api namespace structure
 }
-

@@ -21,14 +21,16 @@ export function abortAll(controllers: AbortController[]): void {
 /**
  * 创建组合的 AbortSignal（合并多个信号）
  */
-export function combineAbortSignals(...signals: (AbortSignal | undefined)[]): AbortSignal | undefined {
+export function combineAbortSignals(
+  ...signals: (AbortSignal | undefined)[]
+): AbortSignal | undefined {
   const validSignals = signals.filter((s): s is AbortSignal => s !== undefined);
-  
+
   if (validSignals.length === 0) return undefined;
   if (validSignals.length === 1) return validSignals[0];
-  
+
   const combinedController = new AbortController();
-  
+
   const onAbort = () => combinedController.abort();
   validSignals.forEach(signal => {
     if (signal.aborted) {
@@ -37,7 +39,6 @@ export function combineAbortSignals(...signals: (AbortSignal | undefined)[]): Ab
       signal.addEventListener('abort', onAbort);
     }
   });
-  
+
   return combinedController.signal;
 }
-

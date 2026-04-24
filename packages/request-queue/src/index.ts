@@ -25,4 +25,3 @@ export { DEFAULT_QUEUE_CONFIG } from './constants';
 export function createRequestQueue(config: QueueConfig): QueueManager {
   return new QueueManager(config);
 }
-

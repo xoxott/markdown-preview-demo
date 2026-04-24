@@ -36,7 +36,9 @@ const props = withDefaults(defineProps<Props>(), {
 
 const source = ref(props.startValue);
 
-const transition = computed(() => (props.useEasing ? TransitionPresets[props.transition] : undefined));
+const transition = computed(() =>
+  props.useEasing ? TransitionPresets[props.transition] : undefined
+);
 
 const outputValue = useTransition(source, {
   disabled: false,
