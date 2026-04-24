@@ -1,6 +1,4 @@
-/**
- * Flow 工具函数导出
- */
+/** Flow 工具函数导出 */
 
 export * from './array-utils';
 export * from './cache-utils';

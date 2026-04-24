@@ -4,7 +4,7 @@
  * 负责渲染所有节点，支持视口裁剪、虚拟滚动等性能优化
  */
 
-import { computed, toRef, defineComponent, type PropType, type CSSProperties } from 'vue';
+import { type CSSProperties, type PropType, computed, defineComponent, toRef } from 'vue';
 import { useNodeState } from '../hooks/useNodeState';
 import { useNodeStyle } from '../hooks/useNodeStyle';
 import { useSpatialIndex } from '../hooks/useSpatialIndex';
@@ -12,12 +12,10 @@ import { useViewportCulling } from '../hooks/useViewportCulling';
 import { createNodeEventDelegation } from '../utils/event-utils';
 import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
 import { performanceMonitor } from '../utils/performance-monitor';
-import type { FlowNode, FlowViewport, FlowConfig } from '../types';
+import type { FlowConfig, FlowNode, FlowViewport } from '../types';
 import BaseNode from './nodes/BaseNode';
 
-/**
- * 性能监控配置
- */
+/** 性能监控配置 */
 const PERFORMANCE_CONFIG = {
   /** 渲染耗时警告阈值（毫秒） */
   RENDER_WARNING_THRESHOLD: 10,
@@ -25,9 +23,7 @@ const PERFORMANCE_CONFIG = {
   ENABLE_DEBUG_LOG: import.meta.env.DEV
 } as const;
 
-/**
- * FlowNodes 组件属性
- */
+/** FlowNodes 组件属性 */
 export interface FlowNodesProps {
   /** 节点列表 */
   nodes: FlowNode[];
@@ -95,9 +91,7 @@ export interface FlowNodesProps {
   onNodeMouseDown?: (node: FlowNode, event: MouseEvent) => void;
 }
 
-/**
- * Flow 节点列表组件
- */
+/** Flow 节点列表组件 */
 export default defineComponent({
   name: 'FlowNodes',
   props: {
@@ -327,10 +321,10 @@ export default defineComponent({
 
       if (PERFORMANCE_CONFIG.ENABLE_DEBUG_LOG) {
         console.log('[Performance] FlowNodes 渲染:', {
-          time: renderTime.toFixed(3) + 'ms',
-          nodesTime: nodesTime.toFixed(3) + 'ms',
+          time: `${renderTime.toFixed(3)}ms`,
+          nodesTime: `${nodesTime.toFixed(3)}ms`,
           nodeCount,
-          avgPerNode: nodeCount > 0 ? (nodesTime / nodeCount).toFixed(3) + 'ms' : '0ms',
+          avgPerNode: nodeCount > 0 ? `${(nodesTime / nodeCount).toFixed(3)}ms` : '0ms',
           isPanning: props.isPanning,
           renderCount
         });
@@ -338,10 +332,10 @@ export default defineComponent({
 
       if (renderTime > PERFORMANCE_CONFIG.RENDER_WARNING_THRESHOLD) {
         console.warn('[Performance] FlowNodes 渲染过慢:', {
-          total: renderTime.toFixed(2) + 'ms',
-          nodesTime: nodesTime.toFixed(2) + 'ms',
+          total: `${renderTime.toFixed(2)}ms`,
+          nodesTime: `${nodesTime.toFixed(2)}ms`,
           nodeCount,
-          avgPerNode: nodeCount > 0 ? (nodesTime / nodeCount).toFixed(3) + 'ms' : '0ms'
+          avgPerNode: nodeCount > 0 ? `${(nodesTime / nodeCount).toFixed(3)}ms` : '0ms'
         });
       }
 

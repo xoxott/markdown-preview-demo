@@ -4,14 +4,12 @@
  * 提供插件使用的 API 和工具
  */
 
-import { FlowConfigManager } from '../../config/FlowConfigManager';
+import type { FlowConfigManager } from '../../config/FlowConfigManager';
 import type { FlowEvents } from '../../types/flow-events';
 import type { FlowPluginContext } from '../../types/flow-plugin';
-import { FlowEventEmitter } from '../events/FlowEventEmitter';
+import type { FlowEventEmitter } from '../events/FlowEventEmitter';
 
-/**
- * Flow 插件上下文实现
- */
+/** Flow 插件上下文实现 */
 export class FlowPluginContextImpl implements FlowPluginContext {
   /** 配置管理器 */
   public readonly config: FlowPluginContext['config'];
@@ -72,23 +70,17 @@ export class FlowPluginContextImpl implements FlowPluginContext {
     };
   }
 
-  /**
-   * 获取事件发射器（内部使用）
-   */
+  /** 获取事件发射器（内部使用） */
   getEventEmitter(): FlowEventEmitter {
     return this.eventEmitter;
   }
 
-  /**
-   * 获取配置管理器（内部使用）
-   */
+  /** 获取配置管理器（内部使用） */
   getConfigManager(): FlowConfigManager {
     return this.configManager;
   }
 
-  /**
-   * 清理资源
-   */
+  /** 清理资源 */
   cleanup(): void {
     this.hookRegistry.clear();
   }

@@ -4,18 +4,16 @@
  * 提供视口裁剪功能，支持空间索引优化和线性查找回退
  */
 
-import { shallowRef, watch, type Ref, computed } from 'vue';
+import { type Ref, computed, shallowRef, watch } from 'vue';
 import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
 import type { SpatialIndex } from '../core/performance/SpatialIndex';
 import type { FlowNode, FlowViewport } from '../types';
 import { filterNodesByOriginalOrder } from '../utils/node-order-utils';
 import { isBoolean, isFunction } from '../utils/type-utils';
-import { useRafThrottle } from './useRafThrottle';
 import { performanceMonitor } from '../utils/performance-monitor';
+import { useRafThrottle } from './useRafThrottle';
 
-/**
- * 视口裁剪 Hook 选项
- */
+/** 视口裁剪 Hook 选项 */
 export interface UseViewportCullingOptions {
   /** 节点列表 */
   nodes: Ref<FlowNode[]>;
@@ -37,9 +35,7 @@ export interface UseViewportCullingOptions {
   isPanning?: Ref<boolean>;
 }
 
-/**
- * 视口裁剪 Hook 返回值
- */
+/** 视口裁剪 Hook 返回值 */
 export interface UseViewportCullingReturn {
   /** 可见节点列表（稳定引用，避免不必要的重新渲染） */
   visibleNodes: Ref<FlowNode[]>;
@@ -105,18 +101,18 @@ function isNodeVisible(
  *
  * 自动计算可见节点，支持空间索引优化
  *
+ * @example
+ *   ```typescript
+ *   const { visibleNodes } = useViewportCulling({
+ *     nodes: nodesRef,
+ *     viewport: viewportRef,
+ *     enabled: computed(() => enableCulling.value),
+ *     spatialIndex: spatialIndexRef
+ *   });
+ *   ```;
+ *
  * @param options Hook 选项
  * @returns 可见节点列表
- *
- * @example
- * ```typescript
- * const { visibleNodes } = useViewportCulling({
- *   nodes: nodesRef,
- *   viewport: viewportRef,
- *   enabled: computed(() => enableCulling.value),
- *   spatialIndex: spatialIndexRef
- * });
- * ```
  */
 export function useViewportCulling(options: UseViewportCullingOptions): UseViewportCullingReturn {
   const {
@@ -135,18 +131,14 @@ export function useViewportCulling(options: UseViewportCullingOptions): UseViewp
   const visibleNodesRef = shallowRef<FlowNode[]>([]);
   const lastVisibleNodeIds = new Set<string>();
 
-  /**
-   * 检查是否启用
-   */
+  /** 检查是否启用 */
   const enabledRef = computed(() => {
     if (isBoolean(enabled)) return enabled;
     if (isFunction(enabled)) return enabled();
     return enabled.value;
   });
 
-  /**
-   * 计算可见节点
-   */
+  /** 计算可见节点 */
   const calculateVisibleNodes = (): FlowNode[] => {
     const perfStart = performance.now();
 
@@ -195,11 +187,11 @@ export function useViewportCulling(options: UseViewportCullingOptions): UseViewp
 
       // 如果视口裁剪耗时超过阈值，立即输出警告
       if (totalTime > 5) {
-        console.warn('[Performance] viewportCulling 耗时:', totalTime.toFixed(2) + 'ms', {
+        console.warn('[Performance] viewportCulling 耗时:', `${totalTime.toFixed(2)}ms`, {
           nodesCount: nodes.value.length,
           visibleCount: newVisibleNodes.length,
-          queryTime: (queryTime - queryStart).toFixed(2) + 'ms',
-          filterTime: (filterTime - filterStart).toFixed(2) + 'ms',
+          queryTime: `${(queryTime - queryStart).toFixed(2)}ms`,
+          filterTime: `${(filterTime - filterStart).toFixed(2)}ms`,
           isPanning: isPanning?.value
         });
       }
@@ -219,7 +211,7 @@ export function useViewportCulling(options: UseViewportCullingOptions): UseViewp
 
       // 如果视口裁剪耗时超过阈值，立即输出警告
       if (totalTime > 5) {
-        console.warn('[Performance] viewportCulling 耗时:', totalTime.toFixed(2) + 'ms', {
+        console.warn('[Performance] viewportCulling 耗时:', `${totalTime.toFixed(2)}ms`, {
           nodesCount: nodes.value.length,
           visibleCount: newVisibleNodes.length,
           isPanning: isPanning?.value
@@ -248,11 +240,9 @@ export function useViewportCulling(options: UseViewportCullingOptions): UseViewp
   /**
    * 更新可见节点
    *
-   * 性能优化：只有当可见节点 ID 集合真正变化时才更新引用
-   * 避免因 viewport 变化但可见节点列表不变时的不必要重新渲染
+   * 性能优化：只有当可见节点 ID 集合真正变化时才更新引用 避免因 viewport 变化但可见节点列表不变时的不必要重新渲染
    *
-   * 注意：即使节点 ID 集合没变，如果节点对象引用变化了（比如节点位置更新），
-   * 也需要更新 visibleNodesRef，否则 FlowNodes 无法检测到节点位置变化
+   * 注意：即使节点 ID 集合没变，如果节点对象引用变化了（比如节点位置更新）， 也需要更新 visibleNodesRef，否则 FlowNodes 无法检测到节点位置变化
    */
   const updateVisibleNodes = () => {
     const updateStart = performance.now();
@@ -280,7 +270,7 @@ export function useViewportCulling(options: UseViewportCullingOptions): UseViewp
       const updateTime = performance.now() - updateStart;
       if (updateTime > 1 || idsChanged) {
         console.log('[Performance] useViewportCulling 更新可见节点:', {
-          time: updateTime.toFixed(3) + 'ms',
+          time: `${updateTime.toFixed(3)}ms`,
           visibleCount: newVisibleNodes.length,
           idsChanged,
           nodesRefChanged
@@ -291,7 +281,7 @@ export function useViewportCulling(options: UseViewportCullingOptions): UseViewp
       const updateTime = performance.now() - updateStart;
       if (updateTime > 1) {
         console.log('[Performance] useViewportCulling 跳过更新（可见节点未变化）:', {
-          time: updateTime.toFixed(3) + 'ms',
+          time: `${updateTime.toFixed(3)}ms`,
           visibleCount: newVisibleNodes.length,
           idsChanged: false,
           nodesRefChanged: false
@@ -319,12 +309,12 @@ export function useViewportCulling(options: UseViewportCullingOptions): UseViewp
       performanceMonitor.record('nodesWatch', watchTime, {
         nodesCount: nodes.value.length,
         enabled: enabledRef.value,
-        hasSpatialIndex: !!spatialIndex?.value
+        hasSpatialIndex: Boolean(spatialIndex?.value)
       });
 
       // 记录所有 watch 触发（用于调试）
       console.log('[Performance] nodesWatch 触发:', {
-        time: watchTime.toFixed(3) + 'ms',
+        time: `${watchTime.toFixed(3)}ms`,
         nodesCount: nodes.value.length,
         enabled: enabledRef.value
       });

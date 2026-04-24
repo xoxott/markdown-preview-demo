@@ -1,6 +1,4 @@
-/**
- * Permission Management API types
- */
+/** Permission Management API types */
 
 /// <reference path="./common.d.ts" />
 

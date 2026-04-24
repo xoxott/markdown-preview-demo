@@ -1,6 +1,4 @@
-/**
- * Log Management API types
- */
+/** Log Management API types */
 
 /// <reference path="./common.d.ts" />
 

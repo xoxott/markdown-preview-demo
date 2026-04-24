@@ -1,6 +1,4 @@
-/**
- * DefaultStateTransitionStrategy 测试
- */
+/** DefaultStateTransitionStrategy 测试 */
 
 import { describe, expect, it } from 'vitest';
 import { DefaultStateTransitionStrategy } from '../../strategies/state-transition';

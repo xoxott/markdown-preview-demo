@@ -6,7 +6,7 @@
 
 import type Token from 'markdown-it/lib/token.mjs';
 import type Renderer from 'markdown-it/lib/renderer.mjs';
-import type { FrameworkNode, FrameworkComponent } from './adapters/types';
+import type { FrameworkComponent, FrameworkNode } from './adapters/types';
 
 /** 导出 Token 类型 */
 export type { Token, Renderer };
@@ -130,9 +130,7 @@ export interface FrameworkPluginOptions {
   /**
    * 流式渲染模式配置
    *
-   * 启用后激活包级块缓存和稳定 key 等流式渲染优化。
-   * 注意：当前块级缓存已在应用层（MarkdownPreview 组件）实现，
-   * 此选项预留用于未来将缓存逻辑下沉至包级。
+   * 启用后激活包级块缓存和稳定 key 等流式渲染优化。 注意：当前块级缓存已在应用层（MarkdownPreview 组件）实现， 此选项预留用于未来将缓存逻辑下沉至包级。
    */
   streaming?: {
     /** 是否启用流式渲染优化（默认 false） */

@@ -1,8 +1,6 @@
-/**
- * 画布圈选框组件
- */
+/** 画布圈选框组件 */
 
-import { defineComponent, type PropType, type CSSProperties } from 'vue';
+import { type CSSProperties, type PropType, defineComponent } from 'vue';
 
 export interface SelectionBox {
   left: number;

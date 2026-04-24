@@ -1,23 +1,22 @@
 /**
  * 连接预览线组件
  *
- * 显示正在创建连接时的预览线
- * 复用 BaseEdge 组件，减少重复代码
+ * 显示正在创建连接时的预览线 复用 BaseEdge 组件，减少重复代码
  */
 
-import { defineComponent, computed, ref, watch, type PropType } from 'vue';
+import { type PropType, computed, defineComponent, ref, watch } from 'vue';
 import { getHandlePositionScreen } from '../utils/node-utils';
 import { generateEdgePath } from '../utils/edge-path-generator';
 import {
-  EDGE_COLORS,
   ANIMATION_CONSTANTS,
+  EDGE_COLORS,
   ID_PREFIXES,
   MARKER_SUFFIXES
 } from '../constants/edge-constants';
 import { calculateArrowMarkerConfig } from '../utils/edge-style-utils';
-import BaseEdge from './edges/BaseEdge';
-import type { FlowNode, FlowViewport, FlowEdge } from '../types';
+import type { FlowEdge, FlowNode, FlowViewport } from '../types';
 import type { EdgePositions } from '../hooks/useEdgePositions';
+import BaseEdge from './edges/BaseEdge';
 
 export interface ConnectionPreviewProps {
   /** 源节点 ID */
@@ -81,15 +80,11 @@ export default defineComponent({
     /**
      * 缓存源端口位置（屏幕坐标）
      *
-     * 使用 watch 替代 computed，只在节点/端口变化时重新计算
-     * 避免每次 nodes 数组变化都重新计算
-     * 直接使用工具函数获取屏幕坐标，避免重复计算
+     * 使用 watch 替代 computed，只在节点/端口变化时重新计算 避免每次 nodes 数组变化都重新计算 直接使用工具函数获取屏幕坐标，避免重复计算
      */
     const sourceHandlePosition = ref<{ x: number; y: number } | null>(null);
 
-    /**
-     * 更新源端口位置
-     */
+    /** 更新源端口位置 */
     const updateSourceHandlePosition = () => {
       const sourceNode = props.nodes.find(n => n.id === props.sourceNodeId);
       if (!sourceNode) {
@@ -128,8 +123,7 @@ export default defineComponent({
     /**
      * 计算箭头标记配置
      *
-     * 使用工具函数统一计算箭头配置
-     * 使用 Math.round 减少精度变化导致的重新计算
+     * 使用工具函数统一计算箭头配置 使用 Math.round 减少精度变化导致的重新计算
      */
     const arrowMarkerConfig = computed(() => {
       const zoom = Math.round(props.viewport.zoom * 100) / 100;

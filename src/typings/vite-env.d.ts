@@ -32,22 +32,27 @@ declare namespace Env {
      * success code of backend service
      *
      * when the code is received, the request is successful
-     * @example "200,201"
+     *
+     * @example
+     *   200, 201;
      */
     readonly VITE_SERVICE_SUCCESS_CODE: string;
     /**
      * logout codes of backend service (business error codes only)
      *
-     * when the code is received, the user will be logged out immediately and redirected to login page
+     * when the code is received, the user will be logged out immediately and redirected to login
+     * page
      *
      * Note: Only configure business error codes (code field), not HTTP status codes
-     * @example "1200,1201,1203,1204,1205"
-     * - 1200: AUTHENTICATION_FAILED
-     * - 1201: INVALID_CREDENTIALS
-     * - 1203: TOKEN_INVALID
-     * - 1204: TOKEN_REVOKED
-     * - 1205: SESSION_EXPIRED
-     * use "," to separate multiple codes
+     *
+     * @example
+     *   1200,1201,1203,1204,1205
+     *   - 1200: AUTHENTICATION_FAILED
+     *   - 1201: INVALID_CREDENTIALS
+     *   - 1203: TOKEN_INVALID
+     *   - 1204: TOKEN_REVOKED
+     *   - 1205: SESSION_EXPIRED
+     *   use "," to separate multiple codes
      */
     readonly VITE_SERVICE_LOGOUT_CODES: string;
     /**
@@ -56,11 +61,13 @@ declare namespace Env {
      * when the code is received, the user will be logged out by displaying a modal first
      *
      * Note: Only configure business error codes (code field), not HTTP status codes
-     * @example "1206,1207,2000"
-     * - 1206: ACCOUNT_LOCKED
-     * - 1207: ACCOUNT_DISABLED
-     * - 2000: ACCOUNT_BLACKLISTED
-     * use "," to separate multiple codes
+     *
+     * @example
+     *   1206,1207,2000
+     *   - 1206: ACCOUNT_LOCKED
+     *   - 1207: ACCOUNT_DISABLED
+     *   - 2000: ACCOUNT_BLACKLISTED
+     *   use "," to separate multiple codes
      */
     readonly VITE_SERVICE_MODAL_LOGOUT_CODES: string;
     /**
@@ -69,9 +76,11 @@ declare namespace Env {
      * when the code is received, it will refresh the token and resend the request
      *
      * Note: Only configure business error codes (code field), not HTTP status codes
-     * @example "1202"
-     * - 1202: TOKEN_EXPIRED (Access token has expired but can be refreshed)
-     * use "," to separate multiple codes
+     *
+     * @example
+     *   1202
+     *   - 1202: TOKEN_EXPIRED (Access token has expired but can be refreshed)
+     *   use "," to separate multiple codes
      */
     readonly VITE_SERVICE_EXPIRED_TOKEN_CODES: string;
     /** when the route mode is static, the defined super role */
@@ -98,8 +107,8 @@ declare namespace Env {
     /**
      * The home route key
      *
-     * It only has effect when the auth route mode is static, if the route mode is dynamic, the home route key is
-     * defined in the back-end
+     * It only has effect when the auth route mode is static, if the route mode is dynamic, the home
+     * route key is defined in the back-end
      */
     readonly VITE_ROUTE_HOME: import('@elegant-router/types').LastLevelRouteKey;
     /**
@@ -113,7 +122,8 @@ declare namespace Env {
     /**
      * Iconify api provider url
      *
-     * If the project is deployed in intranet, you can set the api provider url to the local iconify server
+     * If the project is deployed in intranet, you can set the api provider url to the local iconify
+     * server
      *
      * @link https://docs.iconify.design/api/providers.html
      */

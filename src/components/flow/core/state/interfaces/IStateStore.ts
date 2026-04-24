@@ -1,17 +1,14 @@
 /**
  * 状态存储接口（框架无关）
  *
- * 定义状态存储的标准接口，允许外部实现自定义状态管理
- * （如 Pinia、Vuex、Zustand 等）
+ * 定义状态存储的标准接口，允许外部实现自定义状态管理 （如 Pinia、Vuex、Zustand 等）
  */
 
 import type { FlowNode } from '../../../types/flow-node';
 import type { FlowEdge } from '../../../types/flow-edge';
 import type { FlowViewport } from '../../../types/flow-config';
 
-/**
- * 取消订阅函数类型
- */
+/** 取消订阅函数类型 */
 export type Unsubscribe = () => void;
 
 /**
@@ -207,8 +204,7 @@ export interface IStateStore {
   /**
    * 订阅状态变化
    *
-   * 用于实现响应式更新（如 Vue、React 等）
-   * 支持细粒度变化通知，避免不必要的深度监听
+   * 用于实现响应式更新（如 Vue、React 等） 支持细粒度变化通知，避免不必要的深度监听
    *
    * @param callback 变化回调函数，接收变化类型参数
    * @returns 取消订阅函数
@@ -216,9 +212,7 @@ export interface IStateStore {
   subscribe?(callback: (changeType: StateChangeType) => void): Unsubscribe;
 }
 
-/**
- * 状态变化类型
- */
+/** 状态变化类型 */
 export type StateChangeType =
   | 'nodes'
   | 'edges'

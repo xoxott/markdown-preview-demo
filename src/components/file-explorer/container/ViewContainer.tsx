@@ -14,8 +14,8 @@ import ContextMenu from '../interaction/ContextMenu';
 import type { FileItem, GridSize, SortField, SortOrder, ViewMode } from '../types/file-explorer';
 import NSelectionRect from '../interaction/NSelectionRect';
 import FileLoading from '../feedback/FileLoading';
-import FileViewRenderer from './FileViewRenderer';
 import FilePagination from '../layout/FilePagination';
+import FileViewRenderer from './FileViewRenderer';
 
 export default defineComponent({
   name: 'ViewContainer',
@@ -94,7 +94,7 @@ export default defineComponent({
               show={props.showPagination}
               onPageChange={props.onPageChange || (() => {})}
               onPageSizeChange={props.onPageSizeChange}
-              showPageSizeSelector={!!props.onPageSizeChange}
+              showPageSizeSelector={Boolean(props.onPageSizeChange)}
             />
           )}
         </div>

@@ -1,5 +1,5 @@
 import { defineComponent, ref } from 'vue';
-import { NCard, NCollapse, NCollapseItem, NIcon, NEmpty, NScrollbar } from 'naive-ui';
+import { NCard, NCollapse, NCollapseItem, NEmpty, NIcon, NScrollbar } from 'naive-ui';
 import { Icon } from '@iconify/vue';
 import { getNodesByCategory } from '../nodes/NodeRegistry';
 
@@ -48,10 +48,10 @@ export default defineComponent({
     };
 
     return () => (
-      <div class="node-library-panel h-full flex flex-col w-64">
+      <div class="node-library-panel h-full w-64 flex flex-col">
         {/* 标题栏 - 与工具栏高度一致 */}
-        <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm">
-          <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+        <div class="border-b border-gray-200 bg-white/90 px-4 py-2 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/90">
+          <h3 class="flex items-center gap-2 text-sm text-gray-800 font-semibold dark:text-gray-100">
             <NIcon size={18}>
               <Icon icon="mdi:view-grid-plus-outline" />
             </NIcon>
@@ -75,7 +75,7 @@ export default defineComponent({
                       {nodes.map(({ type, config }) => (
                         <div
                           key={type}
-                          class="node-library-item group p-3 bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg cursor-move hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
+                          class="node-library-item group cursor-move border border-gray-200 rounded-lg bg-white p-3 transition-all duration-200 hover:scale-[1.02] dark:border-gray-600 hover:border-blue-400 dark:bg-gray-700/50 hover:shadow-lg dark:hover:border-blue-500"
                           draggable
                           onDragstart={(e: DragEvent) => handleDragStart(type, e)}
                           style={{
@@ -85,7 +85,7 @@ export default defineComponent({
                         >
                           <div class="flex items-center gap-3">
                             <div
-                              class="flex-shrink-0 flex items-center justify-center group-hover:scale-110 transition-transform"
+                              class="flex flex-shrink-0 items-center justify-center transition-transform group-hover:scale-110"
                               style={{
                                 width: '40px',
                                 height: '40px',
@@ -99,11 +99,11 @@ export default defineComponent({
                                 <Icon icon={config.icon} />
                               </NIcon>
                             </div>
-                            <div class="flex-1 min-w-0">
-                              <div class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-0.5">
+                            <div class="min-w-0 flex-1">
+                              <div class="mb-0.5 text-sm text-gray-800 font-semibold dark:text-gray-100">
                                 {config.label}
                               </div>
-                              <div class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">
+                              <div class="line-clamp-2 text-xs text-gray-500 dark:text-gray-400">
                                 {config.description}
                               </div>
                             </div>

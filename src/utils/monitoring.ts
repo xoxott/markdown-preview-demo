@@ -1,10 +1,6 @@
-/**
- * 监控相关的工具函数
- */
+/** 监控相关的工具函数 */
 
-/**
- * 格式化字节数为可读格式
- */
+/** 格式化字节数为可读格式 */
 export function formatBytes(bytes: number, decimals = 2): string {
   if (bytes === 0) return '0 Bytes';
 
@@ -14,12 +10,10 @@ export function formatBytes(bytes: number, decimals = 2): string {
 
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+  return `${Number.parseFloat((bytes / k ** i).toFixed(dm))} ${sizes[i]}`;
 }
 
-/**
- * 格式化运行时间（秒）为可读格式
- */
+/** 格式化运行时间（秒）为可读格式 */
 export function formatUptime(seconds: number): string {
   if (seconds < 60) {
     return `${Math.floor(seconds)}秒`;
@@ -39,17 +33,13 @@ export function formatUptime(seconds: number): string {
   return parts.join(' ') || '0秒';
 }
 
-/**
- * 格式化百分比
- */
+/** 格式化百分比 */
 export function formatPercent(value: number | string, decimals = 2): string {
-  const num = typeof value === 'string' ? parseFloat(value) : value;
+  const num = typeof value === 'string' ? Number.parseFloat(value) : value;
   return `${num.toFixed(decimals)}%`;
 }
 
-/**
- * 格式化 CPU 时间（微秒）为可读格式
- */
+/** 格式化 CPU 时间（微秒）为可读格式 */
 export function formatCpuTime(microseconds: number): string {
   if (microseconds < 1000) {
     return `${microseconds}μs`;
@@ -60,9 +50,7 @@ export function formatCpuTime(microseconds: number): string {
   return `${(microseconds / 1000000).toFixed(2)}s`;
 }
 
-/**
- * 格式化时间戳
- */
+/** 格式化时间戳 */
 export function formatTimestamp(timestamp: string | number | Date): string {
   const date =
     typeof timestamp === 'string' || typeof timestamp === 'number'
@@ -80,26 +68,20 @@ export function formatTimestamp(timestamp: string | number | Date): string {
   });
 }
 
-/**
- * 计算内存使用百分比
- */
+/** 计算内存使用百分比 */
 export function calculateMemoryUsagePercent(used: number, total: number): number {
   if (total === 0) return 0;
   return (used / total) * 100;
 }
 
-/**
- * 获取内存使用状态颜色
- */
+/** 获取内存使用状态颜色 */
 export function getMemoryUsageColor(percent: number): string {
   if (percent < 50) return '#18a058'; // 绿色
   if (percent < 80) return '#f0a020'; // 橙色
   return '#d03050'; // 红色
 }
 
-/**
- * 获取 CPU 使用状态颜色
- */
+/** 获取 CPU 使用状态颜色 */
 export function getCpuUsageColor(percent: number): string {
   if (percent < 50) return '#18a058'; // 绿色
   if (percent < 80) return '#f0a020'; // 橙色

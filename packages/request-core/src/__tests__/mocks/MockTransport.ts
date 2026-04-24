@@ -1,6 +1,4 @@
-/**
- * Mock Transport 用于测试
- */
+/** Mock Transport 用于测试 */
 
 import type { Transport, TransportResponse } from '../../transport/Transport';
 import type { NormalizedRequestConfig } from '../../context/RequestContext';
@@ -12,16 +10,12 @@ export class MockTransport implements Transport {
   private failError: Error | null = null;
   private delay = 0;
 
-  /**
-   * 设置响应
-   */
+  /** 设置响应 */
   setResponse<T>(key: string, response: TransportResponse<T>): void {
     this.responses.set(key, response);
   }
 
-  /**
-   * 设置默认响应
-   */
+  /** 设置默认响应 */
   setDefaultResponse<T>(data: T, status = 200): void {
     this.responses.set('default', {
       data,
@@ -31,38 +25,28 @@ export class MockTransport implements Transport {
     });
   }
 
-  /**
-   * 设置是否应该失败
-   */
+  /** 设置是否应该失败 */
   setShouldFail(shouldFail: boolean, error?: Error): void {
     this.shouldFail = shouldFail;
     this.failError = error || new Error('Mock transport error');
   }
 
-  /**
-   * 设置延迟
-   */
+  /** 设置延迟 */
   setDelay(delay: number): void {
     this.delay = delay;
   }
 
-  /**
-   * 获取请求历史
-   */
+  /** 获取请求历史 */
   getRequestHistory(): NormalizedRequestConfig[] {
     return this.requestHistory;
   }
 
-  /**
-   * 清空请求历史
-   */
+  /** 清空请求历史 */
   clearHistory(): void {
     this.requestHistory = [];
   }
 
-  /**
-   * 清空所有设置
-   */
+  /** 清空所有设置 */
   reset(): void {
     this.responses.clear();
     this.requestHistory = [];

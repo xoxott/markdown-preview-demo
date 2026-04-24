@@ -1,7 +1,5 @@
-/**
- * UploadController 测试
- */
-import { describe, expect, it, beforeEach } from 'vitest';
+/** UploadController 测试 */
+import { beforeEach, describe, expect, it } from 'vitest';
 import { UploadController } from '../../controllers/UploadController';
 import type { FileTask } from '../../types';
 import { UploadStatus } from '../../types';

@@ -1,6 +1,4 @@
-/**
- * Route API types
- */
+/** Route API types */
 
 declare namespace Api {
   /**

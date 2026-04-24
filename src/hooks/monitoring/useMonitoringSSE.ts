@@ -1,18 +1,16 @@
-import { ref, computed, onBeforeUnmount, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import type { Ref } from 'vue';
-import type { SSE } from '@/typings/sse';
-import { sseManager } from '@/utils/sse/SSEManager';
-import { throttle } from '@/utils/debounce';
 import {
   MONITORING_SSE_CONNECTION_IDS,
-  createMonitoringSSEConfig,
-  type MonitoringEventListener
+  type MonitoringEventListener,
+  createMonitoringSSEConfig
 } from '@/service/api/monitoring-stream';
+import { sseManager } from '@/utils/sse/SSEManager';
+import { throttle } from '@/utils/debounce';
 import { localStg } from '@/utils/storage';
+import type { SSE } from '@/typings/sse';
 
-/**
- * Monitoring SSE Hook Options
- */
+/** Monitoring SSE Hook Options */
 export interface UseMonitoringSSEOptions {
   /** Auto connect on mount */
   autoConnect?: boolean;
@@ -22,9 +20,7 @@ export interface UseMonitoringSSEOptions {
   maxReconnectAttempts?: number;
 }
 
-/**
- * Monitoring SSE Hook Return Type
- */
+/** Monitoring SSE Hook Return Type */
 export interface UseMonitoringSSEReturn {
   /** Connection status */
   status: Ref<SSE.ConnectionStatus>;
@@ -78,9 +74,7 @@ export function useMonitoringSSE(options: UseMonitoringSSEOptions = {}): UseMoni
   // Unsubscribe functions
   const unsubscribeFunctions: Array<() => void> = [];
 
-  /**
-   * Connect to monitoring SSE (all event types)
-   */
+  /** Connect to monitoring SSE (all event types) */
   const connect = () => {
     // Get token
     const token = localStg.get('token') || localStg.get('accessToken');
@@ -175,10 +169,10 @@ export function useMonitoringSSE(options: UseMonitoringSSEOptions = {}): UseMoni
     }
 
     // Determine overall status
-    if (statuses.some(s => s === 'error')) {
+    if (statuses.includes('error')) {
       status.value = 'error';
     } else if (statuses.some(s => s === 'connecting' || s === 'reconnecting')) {
-      status.value = statuses.some(s => s === 'reconnecting') ? 'reconnecting' : 'connecting';
+      status.value = statuses.includes('reconnecting') ? 'reconnecting' : 'connecting';
     } else if (statuses.every(s => s === 'connected')) {
       status.value = 'connected';
     } else {
@@ -189,8 +183,8 @@ export function useMonitoringSSE(options: UseMonitoringSSEOptions = {}): UseMoni
   /**
    * Disconnect from monitoring SSE (all event types)
    *
-   * Closes all SSE connections and cleans up listeners
-   * Uses reference counting - only disconnects when ref count reaches 0
+   * Closes all SSE connections and cleans up listeners Uses reference counting - only disconnects
+   * when ref count reaches 0
    */
   const disconnect = () => {
     // Unsubscribe all listeners
@@ -217,9 +211,7 @@ export function useMonitoringSSE(options: UseMonitoringSSEOptions = {}): UseMoni
     error.value = null;
   };
 
-  /**
-   * Subscribe to specific event type
-   */
+  /** Subscribe to specific event type */
   const subscribe = <T extends Exclude<SSE.MonitoringEventType, 'environment'>>(
     eventType: T,
     listener: MonitoringEventListener<T>
@@ -260,59 +252,45 @@ export function useMonitoringSSE(options: UseMonitoringSSEOptions = {}): UseMoni
     return unsubscribe;
   };
 
-  /**
-   * Subscribe to health event
-   */
+  /** Subscribe to health event */
   const onHealth = (listener: MonitoringEventListener<'health'>) => {
     return subscribe('health', listener);
   };
 
-  /**
-   * Subscribe to liveness event
-   */
+  /** Subscribe to liveness event */
   const onLiveness = (listener: MonitoringEventListener<'liveness'>) => {
     return subscribe('liveness', listener);
   };
 
-  /**
-   * Subscribe to readiness event
-   */
+  /** Subscribe to readiness event */
   const onReadiness = (listener: MonitoringEventListener<'readiness'>) => {
     return subscribe('readiness', listener);
   };
 
-  /**
-   * Subscribe to metrics event
-   */
+  /** Subscribe to metrics event */
   const onMetrics = (listener: MonitoringEventListener<'metrics'>) => {
     return subscribe('metrics', listener);
   };
 
-  /**
-   * Subscribe to system event
-   */
+  /** Subscribe to system event */
   const onSystem = (listener: MonitoringEventListener<'system'>) => {
     return subscribe('system', listener);
   };
 
-  /**
-   * Subscribe to performance event
-   */
+  /** Subscribe to performance event */
   const onPerformance = (listener: MonitoringEventListener<'performance'>) => {
     return subscribe('performance', listener);
   };
 
   /**
-   * Subscribe to environment event
-   * Note: Environment doesn't have a dedicated SSE endpoint, so this is a no-op
+   * Subscribe to environment event Note: Environment doesn't have a dedicated SSE endpoint, so this
+   * is a no-op
    */
   const onEnvironment = (_listener: MonitoringEventListener<'environment'>) => {
     return () => {};
   };
 
-  /**
-   * Subscribe to all events
-   */
+  /** Subscribe to all events */
   const onAll = (listener: (eventType: SSE.MonitoringEventType, data: any) => void) => {
     const unsubscribes: Array<() => void> = [];
 

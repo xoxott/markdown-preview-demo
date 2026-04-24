@@ -1,9 +1,7 @@
-/**
- * ProgressManager 测试
- */
-import { describe, expect, it, beforeEach } from 'vitest';
+/** ProgressManager 测试 */
+import { beforeEach, describe, expect, it } from 'vitest';
 import { ProgressManager } from '../../managers/ProgressManager';
-import type { FileTask, ChunkInfo } from '../../types';
+import type { ChunkInfo, FileTask } from '../../types';
 import { ChunkStatus, UploadStatus } from '../../types';
 
 describe('ProgressManager', () => {

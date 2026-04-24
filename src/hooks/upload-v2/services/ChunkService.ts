@@ -1,37 +1,29 @@
-/**
- * 分片服务
- * 负责分片的创建、上传和合并
- */
+/** 分片服务 负责分片的创建、上传和合并 */
 import type {
-  FileTask,
   ChunkInfo,
   ChunkUploadResponse,
+  FileTask,
   MergeResponse,
   UploadConfig
 } from '../types';
 import { ChunkStatus } from '../types';
 import { calculateFileMD5 } from '../utils/hash';
 import { calculateFileMD5Smart } from '../utils/hash-worker';
-import { withRetry, classifyError, ErrorType } from '../utils/retry';
-import { fetchWithTimeout, buildRequestBody } from '../utils/fetch-with-timeout';
+import { ErrorType, classifyError, withRetry } from '../utils/retry';
+import { buildRequestBody, fetchWithTimeout } from '../utils/fetch-with-timeout';
 import { CONSTANTS } from '../constants';
 import { logger } from '../utils/logger';
-import { UploadError, NetworkError, TimeoutError, ServerError } from '../types/error';
+import { NetworkError, ServerError, TimeoutError, UploadError } from '../types/error';
 import { performanceMonitor } from '../utils/performance-monitor';
 
-/**
- * 分片服务
- */
+/** 分片服务 */
 export class ChunkService {
   constructor(
     private config: UploadConfig,
     private progressCallback: (chunk: ChunkInfo, size: number, uploadTime: number) => void
   ) {}
 
-  /**
-   * 创建分片（延迟创建 blob，只在需要时创建）
-   * 如果分片已存在且部分已成功，则保留已成功的分片状态
-   */
+  /** 创建分片（延迟创建 blob，只在需要时创建） 如果分片已存在且部分已成功，则保留已成功的分片状态 */
   async createChunks(task: FileTask, chunkSize: number): Promise<ChunkInfo[]> {
     const totalChunks = Math.ceil(task.file.size / chunkSize);
 
@@ -136,9 +128,7 @@ export class ChunkService {
     return chunks;
   }
 
-  /**
-   * 获取分片的 blob（延迟创建）
-   */
+  /** 获取分片的 blob（延迟创建） */
   getChunkBlob(task: FileTask, chunk: ChunkInfo): Blob {
     if (!chunk.blob) {
       chunk.blob = task.file.slice(chunk.start, chunk.end);
@@ -146,9 +136,7 @@ export class ChunkService {
     return chunk.blob;
   }
 
-  /**
-   * 上传单个分片（带重试机制）
-   */
+  /** 上传单个分片（带重试机制） */
   async uploadChunk(
     task: FileTask,
     chunk: ChunkInfo,
@@ -318,9 +306,7 @@ export class ChunkService {
     }
   }
 
-  /**
-   * 合并分片（带超时和错误处理）
-   */
+  /** 合并分片（带超时和错误处理） */
   async mergeChunks(task: FileTask, abortSignal: AbortSignal): Promise<MergeResponse> {
     try {
       const requestData = this.config.mergeChunksTransformer!({

@@ -1,8 +1,6 @@
-/**
- * SpatialIndex 测试
- */
+/** SpatialIndex 测试 */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { SpatialIndex } from '../core/performance/SpatialIndex';
 import type { FlowNode } from '../types/flow-node';
 

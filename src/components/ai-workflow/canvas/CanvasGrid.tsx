@@ -1,9 +1,7 @@
-import { defineComponent, computed, type PropType } from 'vue';
+import { type PropType, computed, defineComponent } from 'vue';
 import type { GridType } from '../types/canvas-settings';
 
-/**
- * 网格组件常量配置
- */
+/** 网格组件常量配置 */
 const GRID_CONFIG = {
   /** 大网格相对于小网格的倍数 */
   LARGE_GRID_MULTIPLIER: 5,
@@ -28,12 +26,13 @@ const GRID_CONFIG = {
 /**
  * CanvasGrid 组件
  *
- * 用于在 AI 工作流画布中显示背景网格，帮助用户对齐和定位节点。
- * 采用双层网格设计：
+ * 用于在 AI 工作流画布中显示背景网格，帮助用户对齐和定位节点。 采用双层网格设计：
+ *
  * 1. 小网格点：细密的点状网格，提供精确的对齐参考
  * 2. 大网格线：粗网格线，提供主要的结构参考
  *
  * 功能特性：
+ *
  * - 支持缩放：网格大小随画布缩放自动调整
  * - 支持平移：网格位置随画布平移同步移动
  * - 双层视觉层次：小点 + 大线，清晰而不干扰
@@ -41,22 +40,22 @@ const GRID_CONFIG = {
  * - 不拦截事件：pointer-events: none，不影响交互
  *
  * @example
- * ```tsx
- * <CanvasGrid
- *   size={20}
- *   color="#e5e7eb"
- *   offsetX={100}
- *   offsetY={50}
- *   zoom={1.5}
- * />
- * ```
+ *   ```tsx
+ *   <CanvasGrid
+ *     size={20}
+ *     color="#e5e7eb"
+ *     offsetX={100}
+ *     offsetY={50}
+ *     zoom={1.5}
+ *   />
+ *   ```;
  */
 export default defineComponent({
   name: 'CanvasGrid',
   props: {
     /**
-     * 网格基础大小（像素）
-     * 小网格的间距，会根据 zoom 自动缩放
+     * 网格基础大小（像素） 小网格的间距，会根据 zoom 自动缩放
+     *
      * @default 20
      */
     size: {
@@ -64,8 +63,8 @@ export default defineComponent({
       default: GRID_CONFIG.DEFAULT_GRID_SIZE
     },
     /**
-     * 网格颜色
-     * 用于小网格点和大网格线的颜色
+     * 网格颜色 用于小网格点和大网格线的颜色
+     *
      * @default '#e5e7eb'
      */
     color: {
@@ -73,8 +72,8 @@ export default defineComponent({
       default: GRID_CONFIG.DEFAULT_GRID_COLOR
     },
     /**
-     * 画布水平偏移量（像素）
-     * 用于同步网格位置与画布平移
+     * 画布水平偏移量（像素） 用于同步网格位置与画布平移
+     *
      * @default 0
      */
     offsetX: {
@@ -82,8 +81,8 @@ export default defineComponent({
       default: 0
     },
     /**
-     * 画布垂直偏移量（像素）
-     * 用于同步网格位置与画布平移
+     * 画布垂直偏移量（像素） 用于同步网格位置与画布平移
+     *
      * @default 0
      */
     offsetY: {
@@ -91,8 +90,8 @@ export default defineComponent({
       default: 0
     },
     /**
-     * 画布缩放比例
-     * 网格大小会随缩放比例自动调整，保持视觉一致性
+     * 画布缩放比例 网格大小会随缩放比例自动调整，保持视觉一致性
+     *
      * @default 1
      */
     zoom: {
@@ -101,6 +100,7 @@ export default defineComponent({
     },
     /**
      * 网格类型
+     *
      * @default 'dots'
      */
     gridType: {
@@ -109,6 +109,7 @@ export default defineComponent({
     },
     /**
      * 背景颜色
+     *
      * @default '#ffffff'
      */
     backgroundColor: {
@@ -117,47 +118,27 @@ export default defineComponent({
     }
   },
   setup(props) {
-    /**
-     * 计算小网格的实际大小
-     * 基础大小乘以缩放比例，确保网格随画布缩放
-     */
+    /** 计算小网格的实际大小 基础大小乘以缩放比例，确保网格随画布缩放 */
     const smallPatternSize = computed(() => props.size * props.zoom);
 
-    /**
-     * 计算大网格的实际大小
-     * 小网格大小乘以倍数，形成粗网格参考线
-     */
+    /** 计算大网格的实际大小 小网格大小乘以倍数，形成粗网格参考线 */
     const largePatternSize = computed(
       () => props.size * GRID_CONFIG.LARGE_GRID_MULTIPLIER * props.zoom
     );
 
-    /**
-     * 计算小网格模式的 X 偏移
-     * 使用取模运算实现网格的连续滚动效果
-     */
+    /** 计算小网格模式的 X 偏移 使用取模运算实现网格的连续滚动效果 */
     const patternX = computed(() => props.offsetX % smallPatternSize.value);
 
-    /**
-     * 计算小网格模式的 Y 偏移
-     * 使用取模运算实现网格的连续滚动效果
-     */
+    /** 计算小网格模式的 Y 偏移 使用取模运算实现网格的连续滚动效果 */
     const patternY = computed(() => props.offsetY % smallPatternSize.value);
 
-    /**
-     * 计算大网格模式的 X 偏移
-     * 使用取模运算实现网格的连续滚动效果
-     */
+    /** 计算大网格模式的 X 偏移 使用取模运算实现网格的连续滚动效果 */
     const largePatternX = computed(() => props.offsetX % largePatternSize.value);
 
-    /**
-     * 计算大网格模式的 Y 偏移
-     * 使用取模运算实现网格的连续滚动效果
-     */
+    /** 计算大网格模式的 Y 偏移 使用取模运算实现网格的连续滚动效果 */
     const largePatternY = computed(() => props.offsetY % largePatternSize.value);
 
-    /**
-     * 渲染不同类型的网格图案
-     */
+    /** 渲染不同类型的网格图案 */
     const renderGridPattern = () => {
       switch (props.gridType) {
         case 'dots':

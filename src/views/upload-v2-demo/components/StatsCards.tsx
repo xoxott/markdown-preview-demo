@@ -1,10 +1,10 @@
-import { defineComponent, type PropType } from 'vue';
+import { type PropType, defineComponent } from 'vue';
 import { NCard, NGrid, NGridItem, NIcon, NStatistic } from 'naive-ui';
 import {
-  DocumentsOutline,
   ArrowUpOutline,
   CheckmarkCircleOutline,
-  CloseCircleOutline
+  CloseCircleOutline,
+  DocumentsOutline
 } from '@vicons/ionicons5';
 import type { UploadStats } from '@/hooks/upload-v2';
 

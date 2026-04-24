@@ -1,10 +1,10 @@
 import { type PropType, computed, defineComponent } from 'vue';
 import { NCard, NCode, NConfigProvider, darkTheme } from 'naive-ui';
 import hljs from 'highlight.js';
+import type { CodeBlockMeta } from '@suga/markdown-it-render-vnode';
 import { useToggle } from '@/hooks/customer/useToggle';
 import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
 import { useCodeTools } from '../hooks/useToolbar';
-import type { CodeBlockMeta } from '@suga/markdown-it-render-vnode';
 import { RUN_CODE_LANGS } from '../constants';
 import { ToolBar } from './ToolBar';
 import { SandBox } from './SandBox';

@@ -1,6 +1,4 @@
-/**
- * 核心类统一导出
- */
+/** 核心类统一导出 */
 
 export { Metrics } from './Metrics';
 export { StateController } from './StateController';

@@ -49,7 +49,8 @@ export interface Signal<T> {
   /**
    * Update the value of the signal using an updater function
    *
-   * It recommend use `update` for non-primitive values, only the first level of the object will be reactive.
+   * It recommend use `update` for non-primitive values, only the first level of the object will be
+   * reactive.
    *
    * @param updater
    */

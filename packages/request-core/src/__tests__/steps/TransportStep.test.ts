@@ -1,6 +1,4 @@
-/**
- * TransportStep 测试
- */
+/** TransportStep 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { NormalizedRequestConfig } from '../../context/RequestContext';

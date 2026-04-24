@@ -1,15 +1,10 @@
-/**
- * 中止步骤
- * 职责：管理请求中止，使用 AbortController 支持按条件中止请求
- */
+/** 中止步骤 职责：管理请求中止，使用 AbortController 支持按条件中止请求 */
 
-import type { RequestStep, RequestContext } from '@suga/request-core';
-import type { AbortOptions, AbortMeta } from '../types';
+import type { RequestContext, RequestStep } from '@suga/request-core';
+import type { AbortMeta, AbortOptions } from '../types';
 import { AbortControllerManager } from '../managers/AbortControllerManager';
 
-/**
- * 中止步骤配置
- */
+/** 中止步骤配置 */
 export interface AbortStepOptions {
   /** AbortController 管理器实例 */
   abortControllerManager?: AbortControllerManager;
@@ -17,16 +12,12 @@ export interface AbortStepOptions {
   defaultOptions?: AbortOptions;
 }
 
-/**
- * 类型守卫：判断 meta 是否包含 AbortMeta
- */
+/** 类型守卫：判断 meta 是否包含 AbortMeta */
 function isAbortMeta(meta: Record<string, unknown>): meta is AbortMeta {
   return typeof meta === 'object' && meta !== null;
 }
 
-/**
- * 解析中止配置
- */
+/** 解析中止配置 */
 function parseAbortConfig(
   config: boolean | AbortOptions | undefined,
   defaultOptions?: AbortOptions
@@ -46,9 +37,7 @@ function parseAbortConfig(
   return undefined;
 }
 
-/**
- * 中止步骤
- */
+/** 中止步骤 */
 export class AbortStep implements RequestStep {
   private abortControllerManager: AbortControllerManager;
   private defaultOptions?: AbortOptions;
@@ -98,9 +87,7 @@ export class AbortStep implements RequestStep {
     }
   }
 
-  /**
-   * 获取 AbortController 管理器（用于外部中止请求）
-   */
+  /** 获取 AbortController 管理器（用于外部中止请求） */
   getAbortControllerManager(): AbortControllerManager {
     return this.abortControllerManager;
   }

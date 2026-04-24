@@ -1,7 +1,4 @@
-/**
- * 请求客户端（Request Client）
- * 对外 API，支持链式配置
- */
+/** 请求客户端（Request Client） 对外 API，支持链式配置 */
 
 import type { NormalizedRequestConfig } from '../context/RequestContext';
 import { RequestExecutor } from '../executor/RequestExecutor';
@@ -10,9 +7,7 @@ import type { Transport } from '../transport/Transport';
 import { TransportStep } from '../steps/TransportStep';
 import { PrepareContextStep } from '../steps/PrepareContextStep';
 
-/**
- * 请求客户端
- */
+/** 请求客户端 */
 export class RequestClient {
   private steps: RequestStep[] = [];
   private executor: RequestExecutor | null = null;
@@ -26,6 +21,7 @@ export class RequestClient {
 
   /**
    * 添加步骤（链式调用）
+   *
    * @param step 请求步骤
    * @returns RequestClient
    */
@@ -46,6 +42,7 @@ export class RequestClient {
 
   /**
    * 执行请求
+   *
    * @param config 标准化请求配置
    * @param meta 元数据（可选，用于业务层传递额外信息）
    * @returns Promise<T>
@@ -60,9 +57,7 @@ export class RequestClient {
     return this.executor.execute<T>(config, meta);
   }
 
-  /**
-   * GET 请求
-   */
+  /** GET 请求 */
   get<T = unknown>(
     url: string,
     params?: unknown,
@@ -80,9 +75,7 @@ export class RequestClient {
     );
   }
 
-  /**
-   * POST 请求
-   */
+  /** POST 请求 */
   post<T = unknown>(
     url: string,
     data?: unknown,
@@ -100,9 +93,7 @@ export class RequestClient {
     );
   }
 
-  /**
-   * PUT 请求
-   */
+  /** PUT 请求 */
   put<T = unknown>(
     url: string,
     data?: unknown,
@@ -120,9 +111,7 @@ export class RequestClient {
     );
   }
 
-  /**
-   * DELETE 请求
-   */
+  /** DELETE 请求 */
   delete<T = unknown>(
     url: string,
     config?: Partial<NormalizedRequestConfig>,
@@ -138,9 +127,7 @@ export class RequestClient {
     );
   }
 
-  /**
-   * PATCH 请求
-   */
+  /** PATCH 请求 */
   patch<T = unknown>(
     url: string,
     data?: unknown,

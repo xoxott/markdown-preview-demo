@@ -1,10 +1,6 @@
-/**
- * 带超时的 fetch 包装器
- */
+/** 带超时的 fetch 包装器 */
 
-/**
- * 带超时的 fetch 请求
- */
+/** 带超时的 fetch 请求 */
 export async function fetchWithTimeout(
   url: string,
   options: RequestInit & { timeout?: number } = {}
@@ -74,9 +70,7 @@ export async function fetchWithTimeout(
   }
 }
 
-/**
- * 构建请求体（统一处理 FormData 和 JSON）
- */
+/** 构建请求体（统一处理 FormData 和 JSON） */
 export function buildRequestBody(data: FormData | Record<string, unknown>): {
   body: string | FormData;
   headers: Record<string, string>;

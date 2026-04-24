@@ -1,6 +1,4 @@
-/**
- * 画布设置类型定义
- */
+/** 画布设置类型定义 */
 
 /** 连接线类型 */
 export type ConnectionLineType = 'bezier' | 'straight' | 'step' | 'smoothstep';

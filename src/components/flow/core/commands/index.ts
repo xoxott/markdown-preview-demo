@@ -1,6 +1,4 @@
-/**
- * 命令系统导出
- */
+/** 命令系统导出 */
 
 export * from './Command';
 export * from './CommandManager';

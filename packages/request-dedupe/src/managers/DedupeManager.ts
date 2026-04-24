@@ -1,13 +1,9 @@
-/**
- * 请求去重管理器
- */
+/** 请求去重管理器 */
 
 import type { DedupeOptions, PendingRequest } from '../types';
 import { DEFAULT_DEDUPE_CONFIG } from '../constants';
 
-/**
- * 请求去重管理器
- */
+/** 请求去重管理器 */
 export class DedupeManager {
   private pendingRequests = new Map<string, PendingRequest>();
   private dedupeWindow: number;
@@ -16,9 +12,7 @@ export class DedupeManager {
     this.dedupeWindow = options.dedupeWindow ?? DEFAULT_DEDUPE_CONFIG.DEFAULT_DEDUPE_WINDOW;
   }
 
-  /**
-   * 清理过期的请求
-   */
+  /** 清理过期的请求 */
   private cleanupExpiredRequests(): void {
     const now = Date.now();
     for (const [key, request] of this.pendingRequests.entries()) {
@@ -28,16 +22,12 @@ export class DedupeManager {
     }
   }
 
-  /**
-   * 检查请求是否在时间窗口内
-   */
+  /** 检查请求是否在时间窗口内 */
   private isWithinTimeWindow(timestamp: number): boolean {
     return Date.now() - timestamp < this.dedupeWindow;
   }
 
-  /**
-   * 处理请求成功
-   */
+  /** 处理请求成功 */
   private handleRequestSuccess<T>(key: string, timestamp: number, result: T): T {
     // 请求完成后，延迟移除（避免立即重复请求）
     const timeoutId = setTimeout(() => {
@@ -56,9 +46,7 @@ export class DedupeManager {
     return result;
   }
 
-  /**
-   * 处理请求失败
-   */
+  /** 处理请求失败 */
   private handleRequestFailure(key: string, error: unknown): never {
     // 请求失败，立即移除并清理定时器
     const currentRequest = this.pendingRequests.get(key);
@@ -69,9 +57,7 @@ export class DedupeManager {
     throw error;
   }
 
-  /**
-   * 通过键获取或创建请求（直接使用 ctx.id）
-   */
+  /** 通过键获取或创建请求（直接使用 ctx.id） */
   getOrCreateRequestByKey<T>(key: string, requestFn: () => Promise<T>): Promise<T> {
     // 清理过期请求
     this.cleanupExpiredRequests();
@@ -104,9 +90,7 @@ export class DedupeManager {
     return promise;
   }
 
-  /**
-   * 清除所有待处理的请求
-   */
+  /** 清除所有待处理的请求 */
   clear(): void {
     // 清理所有定时器
     this.pendingRequests.forEach(request => {
@@ -117,16 +101,12 @@ export class DedupeManager {
     this.pendingRequests.clear();
   }
 
-  /**
-   * 获取当前待处理的请求数量
-   */
+  /** 获取当前待处理的请求数量 */
   getPendingCount(): number {
     return this.pendingRequests.size;
   }
 
-  /**
-   * 设置去重时间窗口
-   */
+  /** 设置去重时间窗口 */
   setDedupeWindow(window: number): void {
     this.dedupeWindow = window;
   }

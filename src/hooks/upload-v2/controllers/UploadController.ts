@@ -1,12 +1,9 @@
-/**
- * 上传控制器
- * 负责控制上传任务的暂停、恢复和取消
- */
+/** 上传控制器 负责控制上传任务的暂停、恢复和取消 */
 import { ref } from 'vue';
 import type { FileTask, IUploadController } from '../types';
 import { UploadStatus } from '../types';
 import { logger } from '../utils/logger';
-import { safeAbort, abortAll, combineAbortSignals } from '../utils/abort-controller';
+import { abortAll, combineAbortSignals, safeAbort } from '../utils/abort-controller';
 
 export class UploadController implements IUploadController {
   private taskAbortControllers = new Map<string, AbortController>();
@@ -38,9 +35,7 @@ export class UploadController implements IUploadController {
     logger.info('任务已暂停', { taskId, fileName: task.file.name });
   }
 
-  /**
-   * 检查是否可以暂停
-   */
+  /** 检查是否可以暂停 */
   private canPause(task: FileTask | undefined, taskId: string): boolean {
     // 允许暂停正在上传或待上传的任务
     if (!task || (task.status !== UploadStatus.UPLOADING && task.status !== UploadStatus.PENDING)) {
@@ -50,9 +45,7 @@ export class UploadController implements IUploadController {
     return true;
   }
 
-  /**
-   * 更新任务状态（统一方法）
-   */
+  /** 更新任务状态（统一方法） */
   private updateTaskStatus(
     task: FileTask,
     status: UploadStatus,
@@ -76,9 +69,7 @@ export class UploadController implements IUploadController {
     logger.info('任务已恢复', { taskId, fileName: task.file.name });
   }
 
-  /**
-   * 检查是否可以恢复
-   */
+  /** 检查是否可以恢复 */
   private canResume(task: FileTask | undefined, taskId: string): boolean {
     if (!task || task.status !== UploadStatus.PAUSED) {
       logger.debug('恢复任务失败：任务不存在或未暂停', { taskId, status: task?.status });
@@ -119,9 +110,7 @@ export class UploadController implements IUploadController {
     this.clearAll();
   }
 
-  /**
-   * 清空所有控制器
-   */
+  /** 清空所有控制器 */
   private clearAll(): void {
     this.taskAbortControllers.clear();
     this.chunkAbortControllers.clear();

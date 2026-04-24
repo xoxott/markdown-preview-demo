@@ -1,11 +1,9 @@
-/**
- * 文件工具函数测试
- */
+/** 文件工具函数测试 */
 import { describe, expect, it } from 'vitest';
 import { getFileExtension, getFileNameWithoutExtension } from '../../utils/file';
 import { generateId, generateUUID } from '../../utils/id';
-import { delay, cancellableDelay } from '../../utils/delay';
-import { throttle, debounce } from '../../utils/throttle';
+import { cancellableDelay, delay } from '../../utils/delay';
+import { debounce, throttle } from '../../utils/throttle';
 
 describe('文件工具函数', () => {
   describe('generateId', () => {

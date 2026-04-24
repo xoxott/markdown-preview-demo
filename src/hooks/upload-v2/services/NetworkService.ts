@@ -1,14 +1,9 @@
-/**
- * 网络服务
- * 负责网络适配和请求处理
- */
+/** 网络服务 负责网络适配和请求处理 */
 import type { UploadConfig } from '../types';
-import type { NetworkInformation, NavigatorWithConnection } from '../types/browser';
+import type { NavigatorWithConnection, NetworkInformation } from '../types/browser';
 import { CONSTANTS } from '../constants';
 
-/**
- * 网络服务
- */
+/** 网络服务 */
 export class NetworkService {
   // 网络状态历史记录
   private speedHistory: number[] = [];
@@ -191,9 +186,7 @@ export class NetworkService {
     };
   }
 
-  /**
-   * 获取自适应配置
-   */
+  /** 获取自适应配置 */
   getAdaptiveConfig(): {
     chunkSize: number;
     maxConcurrentFiles: number;

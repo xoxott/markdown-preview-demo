@@ -1,15 +1,9 @@
-/**
- * 重试常量定义
- */
+/** 重试常量定义 */
 
-/**
- * 可重试的 HTTP 状态码
- */
+/** 可重试的 HTTP 状态码 */
 const RETRYABLE_STATUS_CODES: readonly number[] = [408, 429] as const;
 
-/**
- * 默认重试配置
- */
+/** 默认重试配置 */
 export const DEFAULT_RETRY_CONFIG = {
   /** 默认重试次数 */
   DEFAULT_RETRY_COUNT: 3,

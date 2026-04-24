@@ -4,23 +4,15 @@
  * 实现命令模式，支持撤销/重做功能
  */
 
-/**
- * 命令接口
- */
+/** 命令接口 */
 export interface Command {
-  /**
-   * 执行命令
-   */
+  /** 执行命令 */
   execute(): void;
 
-  /**
-   * 撤销命令
-   */
+  /** 撤销命令 */
   undo(): void;
 
-  /**
-   * 重做命令（默认调用 execute）
-   */
+  /** 重做命令（默认调用 execute） */
   redo(): void;
 
   /**
@@ -31,15 +23,11 @@ export interface Command {
    */
   merge?(other: Command): boolean;
 
-  /**
-   * 获取命令描述（可选，用于调试）
-   */
+  /** 获取命令描述（可选，用于调试） */
   getDescription?(): string;
 }
 
-/**
- * 抽象命令基类
- */
+/** 抽象命令基类 */
 export abstract class BaseCommand implements Command {
   abstract execute(): void;
   abstract undo(): void;

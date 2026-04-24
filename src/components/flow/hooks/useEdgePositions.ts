@@ -4,18 +4,16 @@
  * 提供连接线位置计算和缓存功能，优化渲染性能
  */
 
-import { computed, type Ref } from 'vue';
-import { useNodesMap } from './useNodesMap';
-import { getNodeCenterScreen, getHandlePositionScreen } from '../utils/node-utils';
+import { type Ref, computed } from 'vue';
+import { getHandlePositionScreen, getNodeCenterScreen } from '../utils/node-utils';
 import { createCache } from '../utils/cache-utils';
 import { floorCoordinate, roundZoomKey } from '../utils/cache-key-utils';
 import type { FlowEdge, FlowNode, FlowViewport } from '../types';
 import type { FlowPosition } from '../types/flow-node';
 import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
+import { useNodesMap } from './useNodesMap';
 
-/**
- * 连接线位置信息
- */
+/** 连接线位置信息 */
 export interface EdgePositions {
   sourceX: number;
   sourceY: number;
@@ -27,17 +25,13 @@ export interface EdgePositions {
   targetHandleY?: number;
 }
 
-/**
- * 缓存项
- */
+/** 缓存项 */
 interface EdgePositionCacheItem {
   positions: EdgePositions;
   timestamp: number;
 }
 
-/**
- * 连接线位置计算 Hook 选项
- */
+/** 连接线位置计算 Hook 选项 */
 export interface UseEdgePositionsOptions {
   /** 连接线列表 */
   edges: Ref<FlowEdge[]>;
@@ -55,9 +49,7 @@ export interface UseEdgePositionsOptions {
   draggingNodeIds?: Ref<Set<string>>;
 }
 
-/**
- * 连接线位置计算 Hook 返回值
- */
+/** 连接线位置计算 Hook 返回值 */
 export interface UseEdgePositionsReturn {
   /** 获取连接线位置（带缓存） */
   getEdgePositions: (edge: FlowEdge) => EdgePositions | null;
@@ -158,19 +150,19 @@ function calculateEdgePositions(
  *
  * 提供带缓存的连接线位置计算功能
  *
+ * @example
+ *   ```typescript
+ *   const { getEdgePositions, clearCache } = useEdgePositions({
+ *     edges: edgesRef,
+ *     nodes: nodesRef,
+ *     viewport: viewportRef
+ *   });
+ *
+ *   const positions = getEdgePositions(edge);
+ *   ```;
+ *
  * @param options Hook 选项
  * @returns 位置计算函数和缓存管理
- *
- * @example
- * ```typescript
- * const { getEdgePositions, clearCache } = useEdgePositions({
- *   edges: edgesRef,
- *   nodes: nodesRef,
- *   viewport: viewportRef
- * });
- *
- * const positions = getEdgePositions(edge);
- * ```
  */
 export function useEdgePositions(options: UseEdgePositionsOptions): UseEdgePositionsReturn {
   const {
@@ -186,9 +178,7 @@ export function useEdgePositions(options: UseEdgePositionsOptions): UseEdgePosit
   /**
    * 根据节点数量动态调整缓存 TTL
    *
-   * 小规模场景（< 50 节点）：使用较长的 TTL，减少计算
-   * 中规模场景（50-500 节点）：使用标准 TTL
-   * 大规模场景（>= 500 节点）：使用较短的 TTL，确保实时性
+   * 小规模场景（< 50 节点）：使用较长的 TTL，减少计算 中规模场景（50-500 节点）：使用标准 TTL 大规模场景（>= 500 节点）：使用较短的 TTL，确保实时性
    */
   const dynamicCacheTTL = computed(() => {
     if (cacheTTL !== undefined) {
@@ -270,9 +260,7 @@ export function useEdgePositions(options: UseEdgePositionsOptions): UseEdgePosit
     return positions;
   };
 
-  /**
-   * 清除缓存
-   */
+  /** 清除缓存 */
   const clearCache = () => {
     positionCache.clear();
   };

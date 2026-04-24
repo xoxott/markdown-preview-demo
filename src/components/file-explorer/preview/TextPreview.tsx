@@ -1,8 +1,9 @@
 import type { PropType } from 'vue';
 import { computed, defineComponent } from 'vue';
 import { NScrollbar, useThemeVars } from 'naive-ui';
+import type { MonacoLanguage } from '@/components/monaco';
+import { MonacoEditor } from '@/components/monaco';
 import type { FileItem } from '../types/file-explorer';
-import { MonacoEditor, MonacoLanguage } from '@/components/monaco';
 
 export default defineComponent({
   name: 'TextPreview',
@@ -27,10 +28,9 @@ export default defineComponent({
     const previewContent = computed(() => {
       const lines = props.content.split('\n');
       if (lines.length > props.maxLines) {
-        return (
-          lines.slice(0, props.maxLines).join('\n') +
-          `\n\n... (已截断，共 ${lines.length} 行，仅显示前 ${props.maxLines} 行)`
-        );
+        return `${lines
+          .slice(0, props.maxLines)
+          .join('\n')}\n\n... (已截断，共 ${lines.length} 行，仅显示前 ${props.maxLines} 行)`;
       }
       return props.content;
     });

@@ -1,21 +1,16 @@
-/**
- * 请求缓存管理器
- * 协调者：组合内存缓存、存储缓存、CacheStrategyManager 等模块
- */
+/** 请求缓存管理器 协调者：组合内存缓存、存储缓存、CacheStrategyManager 等模块 */
 
 import { safeParseJSON, safeStringify } from '@suga/utils';
 import type { StorageAdapter } from '@suga/storage';
 import { defaultStorageAdapter } from '@suga/storage';
 import { CacheStrategyManager } from '../strategies/CacheStrategyManager';
-import { isValidCacheItem, isCacheItemExpired, getCacheStats } from '../utils/cache-utils';
+import { getCacheStats, isCacheItemExpired, isValidCacheItem } from '../utils/cache-utils';
 import type { CacheItem } from '../types/cache-item';
 import type { CacheStrategy, CustomCacheStrategy } from '../types/strategy';
 import type { RequestCacheOptions } from '../types/request-cache';
 import { DEFAULT_CACHE_CONFIG } from '../constants';
 
-/**
- * 请求缓存管理器
- */
+/** 请求缓存管理器 */
 export class RequestCacheManager {
   // 内存缓存（直接使用 Map）
   private memoryCache = new Map<string, CacheItem>();
@@ -42,16 +37,12 @@ export class RequestCacheManager {
     );
   }
 
-  /**
-   * 获取存储键名（带前缀）
-   */
+  /** 获取存储键名（带前缀） */
   private getStorageKey(key: string): string {
     return this.storageCache ? `${this.storageCache.prefix}${key}` : key;
   }
 
-  /**
-   * 从内存缓存获取有效数据
-   */
+  /** 从内存缓存获取有效数据 */
   private getFromMemoryCache<T>(key: string): T | null {
     const now = Date.now();
     const item = this.memoryCache.get(key) as CacheItem<T> | undefined;
@@ -70,9 +61,7 @@ export class RequestCacheManager {
     return item.data;
   }
 
-  /**
-   * 从存储缓存获取有效数据
-   */
+  /** 从存储缓存获取有效数据 */
   private getFromStorageCache<T>(key: string): T | null {
     if (!this.storageCache) {
       return null;
@@ -96,9 +85,7 @@ export class RequestCacheManager {
     return item.data;
   }
 
-  /**
-   * 通过键获取缓存（直接使用 ctx.id）
-   */
+  /** 通过键获取缓存（直接使用 ctx.id） */
   getByKey<T = unknown>(key: string): T | null {
     const memoryData = this.getFromMemoryCache<T>(key);
 
@@ -109,9 +96,7 @@ export class RequestCacheManager {
     return this.getFromStorageCache<T>(key);
   }
 
-  /**
-   * 应用缓存策略，清理超出限制的缓存
-   */
+  /** 应用缓存策略，清理超出限制的缓存 */
   private applyCacheStrategy(key: string): void {
     const currentSize = this.memoryCache.size;
     const cacheEntries = Array.from(this.memoryCache.entries());
@@ -126,9 +111,7 @@ export class RequestCacheManager {
     }
   }
 
-  /**
-   * 通过键设置缓存（直接使用 ctx.id）
-   */
+  /** 通过键设置缓存（直接使用 ctx.id） */
   setByKey<T = unknown>(key: string, data: T, expireTime?: number): void {
     const now = Date.now();
     const expire = expireTime ?? this.defaultExpireTime;
@@ -156,9 +139,7 @@ export class RequestCacheManager {
     }
   }
 
-  /**
-   * 通过键删除缓存（直接使用 ctx.id）
-   */
+  /** 通过键删除缓存（直接使用 ctx.id） */
   deleteByKey(key: string): void {
     this.memoryCache.delete(key);
     this.strategyManager.removeFromAccessOrder(key);
@@ -168,9 +149,7 @@ export class RequestCacheManager {
     }
   }
 
-  /**
-   * 清空所有缓存
-   */
+  /** 清空所有缓存 */
   clear(): void {
     this.memoryCache.clear();
     this.strategyManager = new CacheStrategyManager(
@@ -188,9 +167,7 @@ export class RequestCacheManager {
     }
   }
 
-  /**
-   * 清理过期缓存
-   */
+  /** 清理过期缓存 */
   cleanup(_force: boolean = false): void {
     const cacheEntries = Array.from(this.memoryCache.entries());
     const now = Date.now();
@@ -206,9 +183,7 @@ export class RequestCacheManager {
     }
   }
 
-  /**
-   * 获取缓存统计信息
-   */
+  /** 获取缓存统计信息 */
   getStats(): { memoryCount: number; storageCount: number } {
     const memoryCount = this.memoryCache.size;
     const storageCount = this.storageCache
@@ -219,23 +194,17 @@ export class RequestCacheManager {
     return getCacheStats(memoryCount, storageCount);
   }
 
-  /**
-   * 设置默认过期时间
-   */
+  /** 设置默认过期时间 */
   setDefaultExpireTime(expireTime: number): void {
     this.defaultExpireTime = expireTime;
   }
 
-  /**
-   * 设置缓存策略
-   */
+  /** 设置缓存策略 */
   setStrategy(strategy: CacheStrategy): void {
     this.strategyManager.setStrategy(strategy);
   }
 
-  /**
-   * 设置最大缓存数量
-   */
+  /** 设置最大缓存数量 */
   setMaxSize(maxSize: number): void {
     const currentSize = this.memoryCache.size;
     const strategy = this.strategyManager.getStrategy();
@@ -260,9 +229,7 @@ export class RequestCacheManager {
     }
   }
 
-  /**
-   * 设置自定义缓存策略
-   */
+  /** 设置自定义缓存策略 */
   setCustomStrategy(strategy: CustomCacheStrategy): void {
     this.strategyManager.setCustomStrategy(strategy);
   }

@@ -1,6 +1,4 @@
-/**
- * DedupeManager 测试
- */
+/** DedupeManager 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
 import { DedupeManager } from '../../managers/DedupeManager';

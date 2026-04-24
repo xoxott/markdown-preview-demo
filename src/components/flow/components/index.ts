@@ -1,6 +1,4 @@
-/**
- * Flow 组件导出
- */
+/** Flow 组件导出 */
 
 export { default as FlowCanvas } from './FlowCanvas';
 export { default as FlowNodes } from './FlowNodes';

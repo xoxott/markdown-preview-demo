@@ -11,13 +11,13 @@ import type { Ref } from 'vue';
  *
  * 使用引用比较，避免不必要的响应式更新
  *
+ * @example
+ *   ```typescript
+ *   safeUpdateRef(nodesRef, newNodes);
+ *   ```;
+ *
  * @param ref 要更新的 Ref
  * @param newValue 新值
- *
- * @example
- * ```typescript
- * safeUpdateRef(nodesRef, newNodes);
- * ```
  */
 export function safeUpdateRef<T>(ref: Ref<T>, newValue: T): void {
   if (ref.value !== newValue) {
@@ -30,14 +30,14 @@ export function safeUpdateRef<T>(ref: Ref<T>, newValue: T): void {
  *
  * 比较指定键的值，只在有变化时更新
  *
+ * @example
+ *   ```typescript
+ *   shallowUpdateRef(viewportRef, newViewport, ['x', 'y', 'zoom']);
+ *   ```;
+ *
  * @param ref 要更新的 Ref
  * @param newValue 新值
  * @param keys 要比较的键
- *
- * @example
- * ```typescript
- * shallowUpdateRef(viewportRef, newViewport, ['x', 'y', 'zoom']);
- * ```
  */
 export function shallowUpdateRef<T extends Record<string, any>>(
   ref: Ref<T>,

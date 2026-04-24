@@ -1,6 +1,4 @@
-/**
- * 浏览器 API 类型声明
- */
+/** 浏览器 API 类型声明 */
 
 /** 网络信息接口（Network Information API） */
 export interface NetworkInformation extends EventTarget {

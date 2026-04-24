@@ -4,18 +4,16 @@ import WorkflowFormDialog from './WorkflowFormDialog';
 import ExecutionDetailDialog from './ExecutionDetailDialog';
 import VersionHistoryDialog from './VersionHistoryDialog';
 import type {
-  WorkflowDialogOptions,
   ExecutionDetailDialogOptions,
-  VersionHistoryDialogOptions
+  VersionHistoryDialogOptions,
+  WorkflowDialogOptions
 } from './dialog';
 
 export function useWorkflowDialog() {
   const dialog = useDialog();
   const message = useMessage();
 
-  /**
-   * 显示工作流表单对话框
-   */
+  /** 显示工作流表单对话框 */
   async function showWorkflowForm(options: WorkflowDialogOptions) {
     return new Promise<void>((resolve, reject) => {
       const d = dialog.create({
@@ -46,9 +44,7 @@ export function useWorkflowDialog() {
     });
   }
 
-  /**
-   * 显示执行详情对话框
-   */
+  /** 显示执行详情对话框 */
   function showExecutionDetail(options: ExecutionDetailDialogOptions) {
     dialog.create({
       title: '执行详情',
@@ -59,9 +55,7 @@ export function useWorkflowDialog() {
     });
   }
 
-  /**
-   * 显示版本历史对话框
-   */
+  /** 显示版本历史对话框 */
   function showVersionHistory(options: VersionHistoryDialogOptions) {
     dialog.create({
       title: '版本历史',

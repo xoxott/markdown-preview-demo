@@ -1,9 +1,7 @@
 import type { CustomUploadFileInfo } from '@/components/custom-upload';
 import type { EventLog, UploadHookReturn } from '../types';
 
-/**
- * 创建文件处理函数
- */
+/** 创建文件处理函数 */
 export function createFileHandlers(
   uploadHook: UploadHookReturn,
   addEventLog: (type: EventLog['type'], message: string, data?: unknown) => void,
@@ -49,9 +47,7 @@ export function createFileHandlers(
   };
 }
 
-/**
- * 创建上传控制函数
- */
+/** 创建上传控制函数 */
 export function createUploadHandlers(
   uploadHook: UploadHookReturn,
   addEventLog: (type: EventLog['type'], message: string, data?: unknown) => void,
@@ -128,9 +124,7 @@ export function createUploadHandlers(
   };
 }
 
-/**
- * 创建文件操作函数
- */
+/** 创建文件操作函数 */
 export function createFileOperationHandlers(
   uploadHook: UploadHookReturn,
   addEventLog: (type: EventLog['type'], message: string, data?: unknown) => void,

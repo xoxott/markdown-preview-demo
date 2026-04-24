@@ -1,9 +1,6 @@
 import type { Router } from 'vue-router';
 
-/**
- * 创建路由预加载守卫
- * 在鼠标悬停在菜单项上时预加载对应路由组件
- */
+/** 创建路由预加载守卫 在鼠标悬停在菜单项上时预加载对应路由组件 */
 export function setupRoutePrefetch(router: Router) {
   // 预加载缓存
   const prefetchedRoutes = new Set<string>();

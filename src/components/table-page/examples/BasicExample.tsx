@@ -8,8 +8,8 @@ import { defineComponent } from 'vue';
 import { useMessage } from 'naive-ui';
 import { TablePage, useTablePage } from '@/components/table-page';
 import type {
-  SearchFieldConfig,
   ActionBarConfig,
+  SearchFieldConfig,
   TableColumnConfig
 } from '@/components/table-page';
 

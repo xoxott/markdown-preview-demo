@@ -1,14 +1,13 @@
 /**
  * 画布平移 Hook
  *
- * 处理画布的拖拽平移功能，基于通用的 useDrag hook 实现。
- * 支持配置鼠标按键、检查拖拽条件等。
+ * 处理画布的拖拽平移功能，基于通用的 useDrag hook 实现。 支持配置鼠标按键、检查拖拽条件等。
  */
 
-import { watch, type Ref } from 'vue';
+import { type Ref, watch } from 'vue';
 import type { FlowConfig, FlowViewport } from '../types';
-import { useDrag } from './useDrag';
 import { performanceMonitor } from '../utils/performance-monitor';
+import { useDrag } from './useDrag';
 
 export interface UseCanvasPanOptions {
   /** 画布配置 */
@@ -37,8 +36,7 @@ export interface UseCanvasPanReturn {
 /**
  * 画布平移 Hook
  *
- * 基于通用的 useDrag hook 实现画布平移功能。
- * 支持配置鼠标按键、检查拖拽条件等。
+ * 基于通用的 useDrag hook 实现画布平移功能。 支持配置鼠标按键、检查拖拽条件等。
  *
  * @param options 画布平移配置选项
  * @returns 画布平移相关的状态和方法

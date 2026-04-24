@@ -1,6 +1,4 @@
-/**
- * CacheWriteStep 测试
- */
+/** CacheWriteStep 测试 */
 
 import type { NormalizedRequestConfig } from '@suga/request-core';
 import { createRequestContext } from '@suga/request-core';

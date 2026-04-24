@@ -1,6 +1,4 @@
-/**
- * Announcement Management API types
- */
+/** Announcement Management API types */
 
 /// <reference path="./common.d.ts" />
 

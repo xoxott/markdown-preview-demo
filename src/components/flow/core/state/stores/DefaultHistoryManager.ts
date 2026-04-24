@@ -1,17 +1,14 @@
 /**
  * 默认历史记录管理器（框架无关）
  *
- * 实现 IHistoryManager 接口，管理状态历史记录
- * 支持撤销/重做功能
+ * 实现 IHistoryManager 接口，管理状态历史记录 支持撤销/重做功能
  */
 
 import type { IHistoryManager } from '../interfaces/IHistoryManager';
 import type { IStateStore } from '../interfaces/IStateStore';
 import type { FlowStateSnapshot } from '../types';
 
-/**
- * 默认历史记录管理器选项
- */
+/** 默认历史记录管理器选项 */
 export interface DefaultHistoryManagerOptions {
   /** 最大历史记录数量 */
   maxHistorySize?: number;
@@ -40,9 +37,7 @@ export class DefaultHistoryManager implements IHistoryManager {
     this.pushHistory();
   }
 
-  /**
-   * 保存当前状态到历史记录
-   */
+  /** 保存当前状态到历史记录 */
   pushHistory(): void {
     const snapshot: FlowStateSnapshot = {
       nodes: this.store.getNodes().map(node => ({ ...node })),
@@ -122,9 +117,7 @@ export class DefaultHistoryManager implements IHistoryManager {
     return this.historyIndex < this.history.length - 1;
   }
 
-  /**
-   * 清空历史记录
-   */
+  /** 清空历史记录 */
   clearHistory(): void {
     this.history = [];
     this.historyIndex = -1;
@@ -183,9 +176,7 @@ export class DefaultHistoryManager implements IHistoryManager {
     }
   }
 
-  /**
-   * 重置到初始状态
-   */
+  /** 重置到初始状态 */
   reset(): void {
     this.store.setNodes([]);
     this.store.setEdges([]);

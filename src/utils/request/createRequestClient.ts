@@ -1,17 +1,16 @@
-/**
- * 创建请求客户端
- */
+/** 创建请求客户端 */
 
 import axios, { type AxiosInstance, type AxiosRequestConfig } from 'axios';
 import {
-  RequestClient,
   PrepareContextStep,
+  RequestClient,
   RequestExecutor,
   type RequestStep,
   type Transport
 } from '@suga/request-core';
 import { CacheReadStep, CacheWriteStep } from '@suga/request-cache';
-import { RetryStep, RetryStrategy } from '@suga/request-retry';
+import type { RetryStrategy } from '@suga/request-retry';
+import { RetryStep } from '@suga/request-retry';
 import { CircuitBreakerStep } from '@suga/request-circuit-breaker';
 import { DedupeStep } from '@suga/request-dedupe';
 import { QueueStep } from '@suga/request-queue';
@@ -25,15 +24,13 @@ import {
 } from '@suga/request-events';
 import {
   configureLogger,
+  logErrorWithManager,
   logRequestWithManager,
-  logResponseWithManager,
-  logErrorWithManager
+  logResponseWithManager
 } from '@suga/request-logger';
 import { AxiosTransport, TransportStep } from './index';
 
-/**
- * 自定义 RequestClient，支持手动指定步骤链
- */
+/** 自定义 RequestClient，支持手动指定步骤链 */
 class CustomRequestClient extends RequestClient {
   constructor(transport: Transport, steps: RequestStep[]) {
     super(transport);
@@ -62,9 +59,7 @@ onRequestError(data => {
   logErrorWithManager(data.config, data.error, data.duration);
 });
 
-/**
- * 创建请求客户端
- */
+/** 创建请求客户端 */
 export function createRequestClient(config?: AxiosRequestConfig) {
   const cfg = config || {};
   const baseURL = cfg.baseURL || '/api';

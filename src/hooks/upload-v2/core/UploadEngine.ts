@@ -1,7 +1,4 @@
-/**
- * 上传引擎
- * 负责核心上传流程的执行
- */
+/** 上传引擎 负责核心上传流程的执行 */
 import { CONSTANTS } from '../constants';
 import type { UploadController } from '../controllers/UploadController';
 import type { CacheManager } from '../managers/CacheManager';
@@ -16,10 +13,7 @@ import { delay } from '../utils/delay';
 import { logger } from '../utils/logger';
 import { filterTasksByStatus } from '../utils/task-helpers';
 
-/**
- * 上传引擎
- * 负责执行核心上传流程
- */
+/** 上传引擎 负责执行核心上传流程 */
 export class UploadEngine {
   constructor(
     private config: UploadConfig,
@@ -31,9 +25,7 @@ export class UploadEngine {
     private statsManager?: StatsManager
   ) {}
 
-  /**
-   * 处理上传队列
-   */
+  /** 处理上传队列 */
   async processQueue(
     uploadQueue: FileTask[],
     activeUploads: Map<string, FileTask>,
@@ -117,9 +109,7 @@ export class UploadEngine {
     await Promise.allSettled(uploadTasks.map(t => t.wait()));
   }
 
-  /**
-   * 处理上传完成（使用工具函数优化）
-   */
+  /** 处理上传完成（使用工具函数优化） */
   async handleUploadComplete(completedUploads: FileTask[]): Promise<void> {
     const successTasks = filterTasksByStatus(completedUploads, UploadStatus.SUCCESS);
     const errorTasks = filterTasksByStatus(completedUploads, UploadStatus.ERROR);

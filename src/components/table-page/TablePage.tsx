@@ -1,7 +1,7 @@
-import { defineComponent, type PropType } from 'vue';
+import { type PropType, defineComponent } from 'vue';
 import { NCard } from 'naive-ui';
 import type { PaginationProps } from 'naive-ui';
-import type { SearchFieldConfig, ActionBarConfig, TableColumnConfig } from './types';
+import type { ActionBarConfig, SearchFieldConfig, TableColumnConfig } from './types';
 import SearchBar from './SearchBar';
 import ActionBar from './ActionBar';
 import DataTable from './DataTable';

@@ -67,12 +67,11 @@ export function generateStepPath(params: FlowEdgePathParams, radius: number = 10
     const x1 = midX - r;
     const x2 = midX + r;
     return `M ${sourceX},${sourceY} L ${x1},${sourceY} A ${r},${r} 0 0,${dy > 0 ? 1 : 0} ${midX},${midY} L ${x2},${midY} A ${r},${r} 0 0,${dy > 0 ? 1 : 0} ${targetX},${targetY} L ${targetX},${targetY}`;
-  } else {
-    // 垂直优先
-    const y1 = midY - r;
-    const y2 = midY + r;
-    return `M ${sourceX},${sourceY} L ${sourceX},${y1} A ${r},${r} 0 0,${dx > 0 ? 1 : 0} ${midX},${midY} L ${midX},${y2} A ${r},${r} 0 0,${dx > 0 ? 1 : 0} ${targetX},${targetY} L ${targetX},${targetY}`;
   }
+  // 垂直优先
+  const y1 = midY - r;
+  const y2 = midY + r;
+  return `M ${sourceX},${sourceY} L ${sourceX},${y1} A ${r},${r} 0 0,${dx > 0 ? 1 : 0} ${midX},${midY} L ${midX},${y2} A ${r},${r} 0 0,${dx > 0 ? 1 : 0} ${targetX},${targetY} L ${targetX},${targetY}`;
 }
 
 /**
@@ -100,12 +99,11 @@ export function generateSmoothStepPath(params: FlowEdgePathParams, radius: numbe
     const x1 = midX - r;
     const x2 = midX + r;
     return `M ${sourceX},${sourceY} L ${x1},${sourceY} Q ${midX},${sourceY} ${midX},${midY} L ${x2},${midY} Q ${midX},${targetY} ${targetX},${targetY} L ${targetX},${targetY}`;
-  } else {
-    // 垂直优先，使用平滑曲线
-    const y1 = midY - r;
-    const y2 = midY + r;
-    return `M ${sourceX},${sourceY} L ${sourceX},${y1} Q ${sourceX},${midY} ${midX},${midY} L ${midX},${y2} Q ${targetX},${midY} ${targetX},${targetY} L ${targetX},${targetY}`;
   }
+  // 垂直优先，使用平滑曲线
+  const y1 = midY - r;
+  const y2 = midY + r;
+  return `M ${sourceX},${sourceY} L ${sourceX},${y1} Q ${sourceX},${midY} ${midX},${midY} L ${midX},${y2} Q ${targetX},${midY} ${targetX},${targetY} L ${targetX},${targetY}`;
 }
 
 /**
@@ -181,9 +179,9 @@ export function calculatePathLength(pathData: string): number {
           const p3 = { x: coords[4], y: coords[5] };
           // 简化的长度计算
           length +=
-            Math.sqrt(Math.pow(p1.x - p0.x, 2) + Math.pow(p1.y - p0.y, 2)) +
-            Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2)) +
-            Math.sqrt(Math.pow(p3.x - p2.x, 2) + Math.pow(p3.y - p2.y, 2));
+            Math.sqrt((p1.x - p0.x) ** 2 + (p1.y - p0.y) ** 2) +
+            Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2) +
+            Math.sqrt((p3.x - p2.x) ** 2 + (p3.y - p2.y) ** 2);
           lastX = coords[4];
           lastY = coords[5];
         }
@@ -206,10 +204,10 @@ export function getPointOnPath(pathData: string, t: number): { x: number; y: num
   // 对于复杂路径，需要使用更精确的算法
   const match = pathData.match(/M\s*([\d.-]+),([\d.-]+)\s*L\s*([\d.-]+),([\d.-]+)/);
   if (match) {
-    const x1 = parseFloat(match[1]);
-    const y1 = parseFloat(match[2]);
-    const x2 = parseFloat(match[3]);
-    const y2 = parseFloat(match[4]);
+    const x1 = Number.parseFloat(match[1]);
+    const y1 = Number.parseFloat(match[2]);
+    const x2 = Number.parseFloat(match[3]);
+    const y2 = Number.parseFloat(match[4]);
     return {
       x: x1 + (x2 - x1) * t,
       y: y1 + (y2 - y1) * t

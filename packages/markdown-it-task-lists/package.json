@@ -7,8 +7,20 @@
     "email": "212920320@qq.com"
   },
   "license": "MIT",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/markdown-it-task-lists",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xoxott/suga-tools.git",
+    "directory": "packages/markdown-it-task-lists"
+  },
+  "bugs": {
+    "url": "https://github.com/xoxott/suga-tools/issues"
+  },
+  "keywords": ["markdown", "markdown-it", "task-list", "checkbox", "plugin", "typescript"],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "sideEffects": false,
   "exports": {
     ".": {
@@ -16,33 +28,16 @@
       "default": "./src/index.ts"
     }
   },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "typesVersions": {
     "*": {
-      "*": [
-        "./src/*"
-      ]
+      "*": ["./src/*"]
     }
   },
-  "keywords": [
-    "markdown",
-    "markdown-it",
-    "task-list",
-    "checkbox",
-    "plugin",
-    "typescript"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/xoxott/suga-tools.git",
-    "directory": "packages/markdown-it-task-lists"
-  },
-  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/markdown-it-task-lists",
-  "bugs": {
-    "url": "https://github.com/xoxott/suga-tools/issues"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
+  "scripts": {
+    "test": "vitest",
+    "test:run": "vitest run"
   },
   "peerDependencies": {
     "markdown-it": "^14.0.0"
@@ -51,10 +46,6 @@
     "markdown-it": {
       "optional": false
     }
-  },
-  "scripts": {
-    "test": "vitest",
-    "test:run": "vitest run"
   },
   "devDependencies": {
     "@types/markdown-it": "^14.1.2",

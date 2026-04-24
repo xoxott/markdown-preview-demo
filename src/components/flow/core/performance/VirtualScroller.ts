@@ -6,11 +6,9 @@
 
 import type { FlowNode } from '../../types/flow-node';
 import type { FlowViewport } from '../../types/flow-config';
-import { ViewportCuller, type ViewportBounds } from './ViewportCuller';
+import { type ViewportBounds, ViewportCuller } from './ViewportCuller';
 
-/**
- * 虚拟滚动选项
- */
+/** 虚拟滚动选项 */
 export interface VirtualScrollOptions {
   /** 缓冲区大小（像素） */
   buffer?: number;
@@ -20,9 +18,7 @@ export interface VirtualScrollOptions {
   threshold?: number;
 }
 
-/**
- * Flow 虚拟滚动器
- */
+/** Flow 虚拟滚动器 */
 export class VirtualScroller {
   /** 视口裁剪器 */
   private culler: ViewportCuller;
@@ -37,9 +33,7 @@ export class VirtualScroller {
     this.culler = culler || new ViewportCuller();
   }
 
-  /**
-   * 设置虚拟滚动选项
-   */
+  /** 设置虚拟滚动选项 */
   setOptions(options: Partial<VirtualScrollOptions>): void {
     this.options = { ...this.options, ...options };
     this.culler.setOptions({ buffer: this.options.buffer });

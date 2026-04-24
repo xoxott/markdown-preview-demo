@@ -4,12 +4,12 @@
  * 展示如何使用 Pinia 作为状态存储，实现自定义状态管理
  */
 
-import { computed, type Ref } from 'vue';
+import { type Ref, computed } from 'vue';
 import { defineStore } from 'pinia';
 import type {
   IStateStore,
-  Unsubscribe,
-  StateChangeType
+  StateChangeType,
+  Unsubscribe
 } from '../core/state/interfaces/IStateStore';
 import type { FlowNode } from '../types/flow-node';
 import type { FlowEdge } from '../types/flow-edge';
@@ -18,9 +18,7 @@ import { DefaultHistoryManager } from '../core/state/stores/DefaultHistoryManage
 import { FlowSelectionHandler } from '../core/interaction/FlowSelectionHandler';
 import type { SelectionOptions } from '../core/interaction/FlowSelectionHandler';
 
-/**
- * Pinia Store 定义
- */
+/** Pinia Store 定义 */
 export const useFlowStore = defineStore('flow', {
   state: () => ({
     nodes: [] as FlowNode[],
@@ -97,9 +95,7 @@ export const useFlowStore = defineStore('flow', {
   }
 });
 
-/**
- * Pinia 状态存储实现
- */
+/** Pinia 状态存储实现 */
 class PiniaStateStore implements IStateStore {
   private store: ReturnType<typeof useFlowStore>;
   private subscribers: Set<(changeType: StateChangeType) => void> = new Set();
@@ -148,7 +144,7 @@ class PiniaStateStore implements IStateStore {
   }
 
   hasNode(nodeId: string): boolean {
-    return !!this.store.getNodeById(nodeId);
+    return Boolean(this.store.getNodeById(nodeId));
   }
 
   // 连接线操作
@@ -248,18 +244,18 @@ class PiniaStateStore implements IStateStore {
  * 使用 Pinia 的 Flow 状态管理 Hook
  *
  * @example
- * ```typescript
- * const {
- *   nodes,
- *   edges,
- *   addNode,
- *   selectNode
- * } = useFlowStateWithPinia({
- *   selectionOptions: {
- *     enableMultiSelection: true
- *   }
- * });
- * ```
+ *   ```typescript
+ *   const {
+ *     nodes,
+ *     edges,
+ *     addNode,
+ *     selectNode
+ *   } = useFlowStateWithPinia({
+ *     selectionOptions: {
+ *       enableMultiSelection: true
+ *     }
+ *   });
+ *   ```;
  */
 export function useFlowStateWithPinia(options?: {
   maxHistorySize?: number;

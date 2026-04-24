@@ -1,17 +1,12 @@
-/**
- * 缓存读取步骤
- * 职责：读缓存、标记 ctx.state.fromCache
- */
+/** 缓存读取步骤 职责：读缓存、标记 ctx.state.fromCache */
 
-import type { RequestStep, RequestContext } from '@suga/request-core';
-import type { CachePolicy, CacheConfig } from '../policies';
+import type { RequestContext, RequestStep } from '@suga/request-core';
+import type { CacheConfig, CachePolicy } from '../policies';
 import { createCachePolicy } from '../policies';
 import { RequestCacheManager } from '../managers/RequestCacheManager';
 import type { CacheReadStepOptions } from '../types/steps';
 
-/**
- * 缓存读取步骤
- */
+/** 缓存读取步骤 */
 export class CacheReadStep implements RequestStep {
   private requestCacheManager: RequestCacheManager;
   private policyFactory: (cache?: CacheConfig) => CachePolicy;

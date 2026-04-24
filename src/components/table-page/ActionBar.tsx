@@ -1,5 +1,5 @@
-import { defineComponent, type PropType } from 'vue';
-import { NButton, NSpace, NBadge, NText } from 'naive-ui';
+import { type PropType, defineComponent } from 'vue';
+import { NBadge, NButton, NSpace, NText } from 'naive-ui';
 import { $t } from '@/locales';
 import type { ActionBarProps, PresetButtonType } from './types';
 

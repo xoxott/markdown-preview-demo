@@ -1,6 +1,4 @@
-/**
- * LoggerManager 测试
- */
+/** LoggerManager 测试 */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LoggerManager } from '../../managers/LoggerManager';

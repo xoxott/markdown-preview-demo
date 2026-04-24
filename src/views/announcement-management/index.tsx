@@ -1,17 +1,4 @@
-import type { AnnouncementFormData } from '@/components/announcement-management/dialog';
-import { useAnnouncementDialog } from '@/components/announcement-management/useAnnouncementDialog';
-import { useNaiveForm } from '@/hooks/common/form';
-import { useTable } from '@/hooks/common/table';
-import { $t } from '@/locales';
-import {
-  fetchBatchDeleteAnnouncements,
-  fetchCreateAnnouncement,
-  fetchDeleteAnnouncement,
-  fetchAnnouncementDetail,
-  fetchAnnouncementList,
-  fetchToggleAnnouncementStatus,
-  fetchUpdateAnnouncement
-} from '@/service/api/announcement';
+import { defineComponent, getCurrentInstance, reactive, ref } from 'vue';
 import {
   NButton,
   NCard,
@@ -25,7 +12,20 @@ import {
   NTag,
   useMessage
 } from 'naive-ui';
-import { defineComponent, getCurrentInstance, reactive, ref } from 'vue';
+import {
+  fetchAnnouncementDetail,
+  fetchAnnouncementList,
+  fetchBatchDeleteAnnouncements,
+  fetchCreateAnnouncement,
+  fetchDeleteAnnouncement,
+  fetchToggleAnnouncementStatus,
+  fetchUpdateAnnouncement
+} from '@/service/api/announcement';
+import { useNaiveForm } from '@/hooks/common/form';
+import { useTable } from '@/hooks/common/table';
+import type { AnnouncementFormData } from '@/components/announcement-management/dialog';
+import { useAnnouncementDialog } from '@/components/announcement-management/useAnnouncementDialog';
+import { $t } from '@/locales';
 import { useDialog } from '@/components/base-dialog/useDialog';
 
 type Announcement = Api.AnnouncementManagement.Announcement;
@@ -190,7 +190,7 @@ export default defineComponent({
           width: 300,
           render: (row: Announcement) => {
             const content = row.content || '-';
-            return content.length > 50 ? content.substring(0, 50) + '...' : content;
+            return content.length > 50 ? `${content.substring(0, 50)}...` : content;
           }
         },
         {

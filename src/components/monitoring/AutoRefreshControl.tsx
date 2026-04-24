@@ -1,4 +1,5 @@
-import { defineComponent, PropType } from 'vue';
+import type { PropType } from 'vue';
+import { defineComponent } from 'vue';
 import { NButton, NSpace } from 'naive-ui';
 import { $t } from '@/locales';
 

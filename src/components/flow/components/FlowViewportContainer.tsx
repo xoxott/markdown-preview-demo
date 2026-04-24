@@ -4,13 +4,11 @@
  * 提供视口变换（平移和缩放）的容器，用于包裹需要应用视口变换的子组件
  */
 
-import { defineComponent, computed, type PropType, CSSProperties } from 'vue';
+import type { CSSProperties, type PropType, computed, defineComponent } from 'vue';
 import type { FlowViewport } from '../types';
 import { performanceMonitor } from '../utils/performance-monitor';
 
-/**
- * FlowViewportContainer 组件属性
- */
+/** FlowViewportContainer 组件属性 */
 export interface FlowViewportContainerProps {
   /** 视口状态 */
   viewport: FlowViewport;
@@ -45,8 +43,8 @@ export default defineComponent({
     /**
      * 计算容器样式
      *
-     * 应用视口的平移和缩放变换
-     * 性能优化：
+     * 应用视口的平移和缩放变换 性能优化：
+     *
      * 1. 使用 translate3d 替代 translate，触发 GPU 加速
      */
     const transformValue = computed(() => {

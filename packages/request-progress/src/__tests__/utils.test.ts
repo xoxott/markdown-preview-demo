@@ -1,6 +1,4 @@
-/**
- * utils 函数测试
- */
+/** utils 函数测试 */
 
 import { describe, expect, it } from 'vitest';
 import { calculateProgress, formatFileSize, formatSpeed } from '../utils';

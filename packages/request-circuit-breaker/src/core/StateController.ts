@@ -1,14 +1,10 @@
-/**
- * 状态控制器
- */
+/** 状态控制器 */
 
 import type { StateTransitionStrategy } from '../types';
 import { CircuitBreakerState } from '../types';
-import { Metrics } from './Metrics';
+import type { Metrics } from './Metrics';
 
-/**
- * 状态控制器类
- */
+/** 状态控制器类 */
 export class StateController {
   constructor(
     private metrics: Metrics,

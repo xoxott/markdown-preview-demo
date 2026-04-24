@@ -1,6 +1,4 @@
-/**
- * Flow 交互系统导出
- */
+/** Flow 交互系统导出 */
 
 // 导出类和相关接口，但不导出共享类型（共享类型在 types/flow-interaction.ts 中）
 export { FlowDragHandler, type DragState, type DragOptions } from './FlowDragHandler';

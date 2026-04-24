@@ -1,13 +1,9 @@
-/**
- * 错误工具函数
- */
+/** 错误工具函数 */
 
-import type { RetryableError, ErrorType } from '../types';
+import type { ErrorType, RetryableError } from '../types';
 import { DEFAULT_RETRY_CONFIG } from '../constants';
 
-/**
- * 检查是否为服务器错误（5xx）
- */
+/** 检查是否为服务器错误（5xx） */
 export function isServerError(status: number): boolean {
   return (
     status >= DEFAULT_RETRY_CONFIG.SERVER_ERROR_MIN &&
@@ -15,9 +11,7 @@ export function isServerError(status: number): boolean {
   );
 }
 
-/**
- * 检查是否为客户端错误（4xx）
- */
+/** 检查是否为客户端错误（4xx） */
 export function isClientError(status: number): boolean {
   return (
     status >= DEFAULT_RETRY_CONFIG.CLIENT_ERROR_MIN &&
@@ -25,9 +19,7 @@ export function isClientError(status: number): boolean {
   );
 }
 
-/**
- * 检查是否为可重试的状态码
- */
+/** 检查是否为可重试的状态码 */
 export function isRetryableStatusCode(status: number): boolean {
   if (isServerError(status)) {
     return true;
@@ -36,9 +28,7 @@ export function isRetryableStatusCode(status: number): boolean {
   return DEFAULT_RETRY_CONFIG.RETRYABLE_STATUS_CODES.includes(status);
 }
 
-/**
- * 检查是否为可重试的客户端错误
- */
+/** 检查是否为可重试的客户端错误 */
 export function isRetryableClientError(status: number): boolean {
   return (
     status >= DEFAULT_RETRY_CONFIG.CLIENT_ERROR_MIN &&
@@ -47,9 +37,7 @@ export function isRetryableClientError(status: number): boolean {
   );
 }
 
-/**
- * 检查请求是否被取消
- */
+/** 检查请求是否被取消 */
 export function isCanceledError(error: RetryableError): boolean {
   return (
     error.code === 'ERR_CANCELED' ||
@@ -59,9 +47,7 @@ export function isCanceledError(error: RetryableError): boolean {
   );
 }
 
-/**
- * 获取错误类型
- */
+/** 获取错误类型 */
 export function getErrorType(error: RetryableError): ErrorType {
   if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
     return 'timeout';
@@ -83,9 +69,7 @@ export function getErrorType(error: RetryableError): ErrorType {
   return 'unknown';
 }
 
-/**
- * 检查是否为可应用错误类型策略的错误
- */
+/** 检查是否为可应用错误类型策略的错误 */
 export function isApplicableErrorType(
   errorType: ErrorType
 ): errorType is 'timeout' | 'network' | 'server' {

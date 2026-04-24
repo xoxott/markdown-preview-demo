@@ -1,14 +1,14 @@
 import type { PropType } from 'vue';
-import { defineComponent, watch, reactive } from 'vue';
+import { defineComponent, reactive, watch } from 'vue';
 import {
+  NButton,
   NForm,
   NFormItem,
   NInput,
-  NSelect,
   NInputNumber,
-  NSwitch,
-  NButton,
-  NSpace
+  NSelect,
+  NSpace,
+  NSwitch
 } from 'naive-ui';
 import { useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';

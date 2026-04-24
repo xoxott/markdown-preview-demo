@@ -26,30 +26,22 @@ export function useSearchForm(options: UseSearchFormOptions) {
   // Form ref for validation
   const formRef = ref();
 
-  /**
-   * Update model field
-   */
+  /** Update model field */
   const updateModel = (field: string, value: any) => {
     formModel[field] = value;
   };
 
-  /**
-   * Get form values
-   */
+  /** Get form values */
   const getValues = () => {
     return { ...formModel };
   };
 
-  /**
-   * Set form values
-   */
+  /** Set form values */
   const setValues = (values: Record<string, any>) => {
     Object.assign(formModel, values);
   };
 
-  /**
-   * Reset form
-   */
+  /** Reset form */
   const resetForm = () => {
     config.forEach(field => {
       formModel[field.field] = initialValues[field.field] ?? undefined;
@@ -58,16 +50,12 @@ export function useSearchForm(options: UseSearchFormOptions) {
     onReset?.();
   };
 
-  /**
-   * Handle search
-   */
+  /** Handle search */
   const handleSearch = () => {
     onSearch?.(getValues());
   };
 
-  /**
-   * Handle reset
-   */
+  /** Handle reset */
   const handleReset = () => {
     resetForm();
   };

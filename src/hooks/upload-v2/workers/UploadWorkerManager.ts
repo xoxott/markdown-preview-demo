@@ -1,7 +1,4 @@
-/**
- * Worker 管理器
- * 负责管理 Web Worker 的生命周期和任务分配
- */
+/** Worker 管理器 负责管理 Web Worker 的生命周期和任务分配 */
 import type { ChunkInfo } from '../types';
 import { CONSTANTS } from '../constants';
 
@@ -25,10 +22,7 @@ export interface WorkerManagerConfig {
   enableWorker?: boolean;
 }
 
-/**
- * Worker 管理器
- * 管理多个 Worker 实例，实现任务队列和负载均衡
- */
+/** Worker 管理器 管理多个 Worker 实例，实现任务队列和负载均衡 */
 export class UploadWorkerManager {
   private workers: Worker[] = [];
   private taskQueue: WorkerTask[] = [];
@@ -44,16 +38,12 @@ export class UploadWorkerManager {
     this.enableWorker = config.enableWorker ?? true;
   }
 
-  /**
-   * 检查是否支持 Worker
-   */
+  /** 检查是否支持 Worker */
   static isSupported(): boolean {
     return typeof Worker !== 'undefined';
   }
 
-  /**
-   * 初始化 Worker 池
-   */
+  /** 初始化 Worker 池 */
   private initializeWorkers(): void {
     if (!this.enableWorker || !UploadWorkerManager.isSupported()) {
       return;
@@ -72,9 +62,7 @@ export class UploadWorkerManager {
     }
   }
 
-  /**
-   * 处理 Worker 消息
-   */
+  /** 处理 Worker 消息 */
   private handleWorkerMessage(worker: Worker, event: MessageEvent): void {
     // 查找对应的任务
     const activeTask = Array.from(this.activeTasks.entries()).find(
@@ -107,9 +95,7 @@ export class UploadWorkerManager {
     }
   }
 
-  /**
-   * 处理 Worker 错误
-   */
+  /** 处理 Worker 错误 */
   private handleWorkerError(worker: Worker, error: ErrorEvent): void {
     console.error('Worker 错误:', error);
 
@@ -127,9 +113,7 @@ export class UploadWorkerManager {
     }
   }
 
-  /**
-   * 完成任务
-   */
+  /** 完成任务 */
   private completeTask(taskId: string): void {
     const activeTask = this.activeTasks.get(taskId);
     if (activeTask) {
@@ -139,9 +123,7 @@ export class UploadWorkerManager {
     }
   }
 
-  /**
-   * 处理任务队列
-   */
+  /** 处理任务队列 */
   private processQueue(): void {
     if (this.taskQueue.length === 0) {
       return;
@@ -174,9 +156,7 @@ export class UploadWorkerManager {
     availableWorker.postMessage(messageData);
   }
 
-  /**
-   * 提交任务
-   */
+  /** 提交任务 */
   submitTask(task: WorkerTask): Promise<unknown> {
     return new Promise((resolve, reject) => {
       // 如果 Worker 不可用，直接拒绝
@@ -220,9 +200,7 @@ export class UploadWorkerManager {
     });
   }
 
-  /**
-   * 取消任务
-   */
+  /** 取消任务 */
   cancelTask(taskId: string): boolean {
     const activeTask = this.activeTasks.get(taskId);
     if (activeTask) {
@@ -242,9 +220,7 @@ export class UploadWorkerManager {
     return false;
   }
 
-  /**
-   * 获取任务状态
-   */
+  /** 获取任务状态 */
   getTaskStatus(taskId: string): 'pending' | 'running' | 'completed' | 'error' | 'not-found' {
     if (this.activeTasks.has(taskId)) {
       return 'running';
@@ -257,9 +233,7 @@ export class UploadWorkerManager {
     return 'not-found';
   }
 
-  /**
-   * 销毁所有 Worker
-   */
+  /** 销毁所有 Worker */
   destroy(): void {
     // 取消所有任务
     this.activeTasks.forEach(({ task }) => {
@@ -279,9 +253,7 @@ export class UploadWorkerManager {
     this.workers = [];
   }
 
-  /**
-   * 获取统计信息
-   */
+  /** 获取统计信息 */
   getStats(): {
     totalWorkers: number;
     activeTasks: number;

@@ -1,10 +1,6 @@
-/**
- * 进度跟踪类型定义
- */
+/** 进度跟踪类型定义 */
 
-/**
- * 进度事件数据
- */
+/** 进度事件数据 */
 export interface ProgressEvent {
   /** 已传输字节数 */
   loaded: number;
@@ -12,9 +8,7 @@ export interface ProgressEvent {
   total: number;
 }
 
-/**
- * 进度信息
- */
+/** 进度信息 */
 export interface ProgressInfo {
   /** 进度百分比 (0-100) */
   percent: number;
@@ -28,7 +22,5 @@ export interface ProgressInfo {
   elapsed: number;
 }
 
-/**
- * 进度回调函数
- */
+/** 进度回调函数 */
 export type ProgressCallback = (progress: ProgressInfo) => void;

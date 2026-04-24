@@ -1,6 +1,4 @@
-/**
- * 配置验证工具
- */
+/** 配置验证工具 */
 import type { UploadConfig } from '../types';
 import { CONSTANTS } from '../constants';
 import { logger } from './logger';
@@ -13,9 +11,7 @@ export interface ConfigValidationResult {
   suggestions: string[];
 }
 
-/**
- * 验证上传配置
- */
+/** 验证上传配置 */
 export function validateConfig(config: Partial<UploadConfig>): ConfigValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -121,9 +117,7 @@ export function validateConfig(config: Partial<UploadConfig>): ConfigValidationR
   };
 }
 
-/**
- * 验证 URL（支持完整 URL 和相对路径）
- */
+/** 验证 URL（支持完整 URL 和相对路径） */
 function isValidUrl(url: string): boolean {
   // 空字符串不是有效 URL
   if (!url || url.trim() === '') {
@@ -144,9 +138,7 @@ function isValidUrl(url: string): boolean {
   }
 }
 
-/**
- * 验证并输出配置问题（开发环境）
- */
+/** 验证并输出配置问题（开发环境） */
 export function validateAndWarnConfig(config: Partial<UploadConfig>): void {
   const result = validateConfig(config);
 

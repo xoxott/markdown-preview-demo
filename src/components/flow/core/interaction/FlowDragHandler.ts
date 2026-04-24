@@ -1,18 +1,15 @@
 /**
  * Flow 拖拽处理器
  *
- * 处理节点拖拽和画布拖拽功能
- * 支持 RAF 节流、增量模式、灵活的坐标转换等高级特性
+ * 处理节点拖拽和画布拖拽功能 支持 RAF 节流、增量模式、灵活的坐标转换等高级特性
  */
 
 import type { FlowNode } from '../../types/flow-node';
 import type { FlowViewport } from '../../types/flow-config';
-import type { DragTransformResult, CoordinateTransform } from '../../types/flow-interaction';
+import type { CoordinateTransform, DragTransformResult } from '../../types/flow-interaction';
 import { RafThrottle } from '../../utils/raf-throttle';
 
-/**
- * 拖拽状态
- */
+/** 拖拽状态 */
 export interface DragState {
   /** 是否正在拖拽 */
   isDragging: boolean;
@@ -39,9 +36,7 @@ export interface DragState {
   hasMoved: boolean;
 }
 
-/**
- * 拖拽选项
- */
+/** 拖拽选项 */
 export interface DragOptions {
   /** 是否启用网格吸附 */
   snapToGrid?: boolean;
@@ -69,9 +64,7 @@ export interface DragOptions {
   onDragEnd?: (hasMoved: boolean) => void;
 }
 
-/**
- * Flow 拖拽处理器
- */
+/** Flow 拖拽处理器 */
 export class FlowDragHandler {
   /** 拖拽状态 */
   private dragState: DragState = {
@@ -105,9 +98,7 @@ export class FlowDragHandler {
   /** RAF 节流工具 */
   private rafThrottle = new RafThrottle<MouseEvent>();
 
-  /**
-   * 设置拖拽选项
-   */
+  /** 设置拖拽选项 */
   setOptions(options: Partial<DragOptions>): void {
     this.options = { ...this.options, ...options };
   }
@@ -315,11 +306,11 @@ export class FlowDragHandler {
   /**
    * 更新拖拽位置（兼容旧 API）
    *
+   * @deprecated 使用 updateDrag(event) 替代
    * @param currentX 当前 X 坐标（屏幕坐标）
    * @param currentY 当前 Y 坐标（屏幕坐标）
    * @param viewport 当前视口（用于计算节点位置）
    * @returns 更新后的位置信息
-   * @deprecated 使用 updateDrag(event) 替代
    */
   updateDragLegacy(
     currentX: number,
@@ -388,9 +379,7 @@ export class FlowDragHandler {
     return null;
   }
 
-  /**
-   * 结束拖拽
-   */
+  /** 结束拖拽 */
   endDrag(): void {
     const wasMoved = this.dragState.hasMoved;
 
@@ -421,9 +410,7 @@ export class FlowDragHandler {
     }
   }
 
-  /**
-   * 取消 RAF（清理资源）
-   */
+  /** 取消 RAF（清理资源） */
   private cancelRaf(): void {
     this.rafThrottle.cancel();
   }
@@ -438,44 +425,32 @@ export class FlowDragHandler {
     this.endDrag();
   }
 
-  /**
-   * 获取当前拖拽状态
-   */
+  /** 获取当前拖拽状态 */
   getDragState(): Readonly<DragState> {
     return { ...this.dragState };
   }
 
-  /**
-   * 检查是否正在拖拽
-   */
+  /** 检查是否正在拖拽 */
   isDragging(): boolean {
     return this.dragState.isDragging;
   }
 
-  /**
-   * 检查是否是节点拖拽
-   */
+  /** 检查是否是节点拖拽 */
   isNodeDragging(): boolean {
     return this.dragState.isDragging && this.dragState.type === 'node';
   }
 
-  /**
-   * 检查是否是画布拖拽
-   */
+  /** 检查是否是画布拖拽 */
   isCanvasDragging(): boolean {
     return this.dragState.isDragging && this.dragState.type === 'canvas';
   }
 
-  /**
-   * 获取拖拽的节点 ID
-   */
+  /** 获取拖拽的节点 ID */
   getDraggingNodeId(): string | null {
     return this.dragState.nodeId;
   }
 
-  /**
-   * 检查是否已移动（超过阈值）
-   */
+  /** 检查是否已移动（超过阈值） */
   hasMoved(): boolean {
     return this.dragState.hasMoved;
   }

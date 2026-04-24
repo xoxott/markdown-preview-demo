@@ -1,7 +1,4 @@
-/**
- * Mock data for AI Workflow
- * 用于前端功能演示，后续替换为真实API
- */
+/** Mock data for AI Workflow 用于前端功能演示，后续替换为真实API */
 
 import { v4 as uuidv4 } from 'uuid';
 

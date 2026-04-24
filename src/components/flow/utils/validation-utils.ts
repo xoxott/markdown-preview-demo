@@ -7,9 +7,7 @@
 import type { FlowConfig } from '../types/flow-config';
 import type { FlowEdge } from '../types/flow-edge';
 
-/**
- * 配置验证结果
- */
+/** 配置验证结果 */
 export interface ConfigValidationResult {
   /** 是否有效 */
   valid: boolean;

@@ -1,7 +1,4 @@
-/**
- * 节点尺寸常量配置
- * 与 BaseNode 组件保持一致
- */
+/** 节点尺寸常量配置 与 BaseNode 组件保持一致 */
 
 export const NODE_DIMENSIONS = {
   WIDTH: 220,
@@ -14,9 +11,7 @@ export const NODE_DIMENSIONS = {
   ACTUAL_SCALE: 0.8 // 节点的实际渲染缩放比例
 } as const;
 
-/**
- * 预计算的常量（性能优化）
- */
+/** 预计算的常量（性能优化） */
 export const PORT_RADIUS = NODE_DIMENSIONS.PORT_SIZE / 2;
 export const PORT_OFFSET_SCALED = NODE_DIMENSIONS.PORT_OFFSET;
 export const NODE_WIDTH = NODE_DIMENSIONS.WIDTH;

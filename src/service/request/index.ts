@@ -10,39 +10,28 @@ import type { RequestInstanceState } from './type';
 const isHttpProxy = import.meta.env.DEV && import.meta.env.VITE_HTTP_PROXY === 'Y';
 const { baseURL, otherBaseURL } = getServiceBaseURL(import.meta.env, isHttpProxy);
 
-/**
- * 获取可刷新的 token 错误码列表
- * 默认: 1202 = TOKEN_EXPIRED (Access token has expired)
- */
+/** 获取可刷新的 token 错误码列表 默认: 1202 = TOKEN_EXPIRED (Access token has expired) */
 function getExpiredTokenCodes(): string[] {
   const codes = import.meta.env.VITE_SERVICE_EXPIRED_TOKEN_CODES?.split(',').filter(Boolean);
   return codes && codes.length > 0 ? codes : ['1202'];
 }
 
-/**
- * 获取登出码列表
- */
+/** 获取登出码列表 */
 function getLogoutCodes(): string[] {
   return import.meta.env.VITE_SERVICE_LOGOUT_CODES?.split(',').filter(Boolean) || [];
 }
 
-/**
- * 获取模态框登出码列表
- */
+/** 获取模态框登出码列表 */
 function getModalLogoutCodes(): string[] {
   return import.meta.env.VITE_SERVICE_MODAL_LOGOUT_CODES?.split(',').filter(Boolean) || [];
 }
 
-/**
- * 提取错误响应中的业务错误码
- */
+/** 提取错误响应中的业务错误码 */
 function extractErrorCode(errorData: Api.ErrorResponse): string {
   return String(errorData.code);
 }
 
-/**
- * 创建重试请求配置
- */
+/** 创建重试请求配置 */
 function createRetryConfig(response: AxiosResponse, newToken: string) {
   return {
     ...response.config,
@@ -53,10 +42,7 @@ function createRetryConfig(response: AxiosResponse, newToken: string) {
   };
 }
 
-/**
- * 刷新 token 专用的请求实例
- * 不携带 Authorization header，避免循环问题
- */
+/** 刷新 token 专用的请求实例 不携带 Authorization header，避免循环问题 */
 export const refreshTokenRequest = createFlatRequest<App.Service.Response, RequestInstanceState>(
   {
     baseURL,

@@ -9,9 +9,7 @@ import type { CircuitBreakerOptions } from './types';
 // 导出熔断器核心类
 export { CircuitBreaker };
 
-/**
- * 创建熔断器实例（工厂函数）
- */
+/** 创建熔断器实例（工厂函数） */
 export function createCircuitBreaker<T = unknown>(
   options: CircuitBreakerOptions<T> = {}
 ): CircuitBreaker<T> {

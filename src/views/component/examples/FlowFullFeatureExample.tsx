@@ -1,15 +1,12 @@
-/**
- * Flow 示例 4: 完整功能（带工具组件）
- */
+/** Flow 示例 4: 完整功能（带工具组件） */
 
 import { defineComponent, ref } from 'vue';
-import { NCard, NH3, NText } from 'naive-ui';
-import { useMessage } from 'naive-ui';
+import { NCard, NH3, NText, useMessage } from 'naive-ui';
 import FlowCanvas from '@/components/flow/components/FlowCanvas';
 import FlowBackground from '@/components/flow/components/FlowBackground';
 import FlowMinimap from '@/components/flow/components/FlowMinimap';
 import FlowToolbar from '@/components/flow/components/FlowToolbar';
-import type { FlowNode, FlowEdge, FlowViewport } from '@/components/flow';
+import type { FlowEdge, FlowNode, FlowViewport } from '@/components/flow';
 
 export default defineComponent({
   name: 'FlowFullFeatureExample',
@@ -110,7 +107,7 @@ export default defineComponent({
     return () => (
       <NCard bordered>
         <NH3 class="border-b pb-2 text-lg font-semibold">Flow 示例 4: 完整功能（带工具组件）</NH3>
-        <NText class="text-gray-500 mb-4 block">
+        <NText class="mb-4 block text-gray-500">
           包含网格背景、小地图、工具栏等完整功能的 Flow 画布
         </NText>
         <div

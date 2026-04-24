@@ -1,8 +1,6 @@
 import { request } from '@/service/request';
 
-/**
- * 获取工作流列表
- */
+/** 获取工作流列表 */
 export function fetchWorkflowList(params: Api.Workflow.WorkflowListParams) {
   return request<Api.ListData<Api.Workflow.Workflow>>({
     url: '/workflow/list',
@@ -11,9 +9,7 @@ export function fetchWorkflowList(params: Api.Workflow.WorkflowListParams) {
   });
 }
 
-/**
- * 获取工作流详情
- */
+/** 获取工作流详情 */
 export function fetchWorkflowDetail(id: string) {
   return request<Api.Workflow.Workflow>({
     url: `/workflow/${id}`,
@@ -21,9 +17,7 @@ export function fetchWorkflowDetail(id: string) {
   });
 }
 
-/**
- * 创建工作流
- */
+/** 创建工作流 */
 export function fetchCreateWorkflow(data: Api.Workflow.CreateWorkflowRequest) {
   return request<Api.Workflow.Workflow>({
     url: '/workflow',
@@ -32,9 +26,7 @@ export function fetchCreateWorkflow(data: Api.Workflow.CreateWorkflowRequest) {
   });
 }
 
-/**
- * 更新工作流
- */
+/** 更新工作流 */
 export function fetchUpdateWorkflow(id: string, data: Api.Workflow.UpdateWorkflowRequest) {
   return request<Api.Workflow.Workflow>({
     url: `/workflow/${id}`,
@@ -43,9 +35,7 @@ export function fetchUpdateWorkflow(id: string, data: Api.Workflow.UpdateWorkflo
   });
 }
 
-/**
- * 删除工作流
- */
+/** 删除工作流 */
 export function fetchDeleteWorkflow(id: string) {
   return request<void>({
     url: `/workflow/${id}`,
@@ -53,9 +43,7 @@ export function fetchDeleteWorkflow(id: string) {
   });
 }
 
-/**
- * 批量删除工作流
- */
+/** 批量删除工作流 */
 export function fetchBatchDeleteWorkflows(data: { ids: string[] }) {
   return request<void>({
     url: '/workflow/batch-delete',
@@ -64,9 +52,7 @@ export function fetchBatchDeleteWorkflows(data: { ids: string[] }) {
   });
 }
 
-/**
- * 复制工作流
- */
+/** 复制工作流 */
 export function fetchCopyWorkflow(id: string, name?: string) {
   return request<Api.Workflow.Workflow>({
     url: `/workflow/${id}/copy`,
@@ -75,9 +61,7 @@ export function fetchCopyWorkflow(id: string, name?: string) {
   });
 }
 
-/**
- * 发布工作流
- */
+/** 发布工作流 */
 export function fetchPublishWorkflow(id: string) {
   return request<Api.Workflow.Workflow>({
     url: `/workflow/${id}/publish`,
@@ -85,9 +69,7 @@ export function fetchPublishWorkflow(id: string) {
   });
 }
 
-/**
- * 归档工作流
- */
+/** 归档工作流 */
 export function fetchArchiveWorkflow(id: string) {
   return request<Api.Workflow.Workflow>({
     url: `/workflow/${id}/archive`,
@@ -95,9 +77,7 @@ export function fetchArchiveWorkflow(id: string) {
   });
 }
 
-/**
- * 执行工作流
- */
+/** 执行工作流 */
 export function fetchExecuteWorkflow(id: string, params?: Api.Workflow.ExecutionParams) {
   return request<Api.Workflow.Execution>({
     url: `/workflow/${id}/execute`,
@@ -106,9 +86,7 @@ export function fetchExecuteWorkflow(id: string, params?: Api.Workflow.Execution
   });
 }
 
-/**
- * 获取执行历史
- */
+/** 获取执行历史 */
 export function fetchExecutionHistory(params: Api.Workflow.ExecutionHistoryParams) {
   return request<Api.ListData<Api.Workflow.Execution>>({
     url: '/workflow/executions',
@@ -117,9 +95,7 @@ export function fetchExecutionHistory(params: Api.Workflow.ExecutionHistoryParam
   });
 }
 
-/**
- * 获取执行详情
- */
+/** 获取执行详情 */
 export function fetchExecutionDetail(executionId: string) {
   return request<Api.Workflow.ExecutionDetail>({
     url: `/workflow/execution/${executionId}`,
@@ -127,9 +103,7 @@ export function fetchExecutionDetail(executionId: string) {
   });
 }
 
-/**
- * 取消执行
- */
+/** 取消执行 */
 export function fetchCancelExecution(executionId: string) {
   return request<void>({
     url: `/workflow/execution/${executionId}/cancel`,
@@ -137,9 +111,7 @@ export function fetchCancelExecution(executionId: string) {
   });
 }
 
-/**
- * 获取工作流版本历史
- */
+/** 获取工作流版本历史 */
 export function fetchWorkflowVersions(workflowId: string) {
   return request<Api.Workflow.WorkflowVersion[]>({
     url: `/workflow/${workflowId}/versions`,
@@ -147,9 +119,7 @@ export function fetchWorkflowVersions(workflowId: string) {
   });
 }
 
-/**
- * 恢复到指定版本
- */
+/** 恢复到指定版本 */
 export function fetchRestoreWorkflowVersion(workflowId: string, version: number) {
   return request<Api.Workflow.Workflow>({
     url: `/workflow/${workflowId}/restore/${version}`,
@@ -157,9 +127,7 @@ export function fetchRestoreWorkflowVersion(workflowId: string, version: number)
   });
 }
 
-/**
- * 导出工作流
- */
+/** 导出工作流 */
 export function fetchExportWorkflow(id: string) {
   return request<Blob>({
     url: `/workflow/${id}/export`,
@@ -168,9 +136,7 @@ export function fetchExportWorkflow(id: string) {
   });
 }
 
-/**
- * 导入工作流
- */
+/** 导入工作流 */
 export function fetchImportWorkflow(file: File) {
   const formData = new FormData();
   formData.append('file', file);

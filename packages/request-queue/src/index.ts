@@ -19,9 +19,7 @@ export type * from './types';
 // 导出常量
 export { DEFAULT_QUEUE_CONFIG } from './constants';
 
-/**
- * 创建请求队列管理器（工厂函数）
- */
+/** 创建请求队列管理器（工厂函数） */
 export function createRequestQueue(config: QueueConfig): QueueManager {
   return new QueueManager(config);
 }

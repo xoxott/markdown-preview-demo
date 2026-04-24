@@ -1,10 +1,10 @@
 import { type PropType, Transition, computed, defineComponent, ref, watch } from 'vue';
 import { NCard } from 'naive-ui';
+import type { CodeBlockMeta } from '@suga/markdown-it-render-vnode';
 import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
 import { useMindmap } from '../hooks/useMindmap';
 import { useCodeTools, useSvgTools } from '../hooks/useToolbar';
 import { debounce } from '../utils';
-import type { CodeBlockMeta } from '@suga/markdown-it-render-vnode';
 import { ToolBar } from './ToolBar';
 import { ErrorMessage } from './ErrorMessage';
 
@@ -47,7 +47,7 @@ export const MindmapRenderer = defineComponent({
     }
   },
   setup(props) {
-    const { darkMode, themeVars, codeBlockStyle } = useMarkdownTheme();
+    const { darkMode, codeBlockStyle } = useMarkdownTheme();
     const showCode = ref(false);
     const containerRef = ref<HTMLElement>();
     const svgRef = ref();

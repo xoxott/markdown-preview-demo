@@ -4,9 +4,7 @@
  * 统一管理性能优化相关的配置常量
  */
 
-/**
- * 性能优化常量
- */
+/** 性能优化常量 */
 export const PERFORMANCE_CONSTANTS = {
   /** 空间索引启用阈值（节点数量超过此值使用空间索引） */
   SPATIAL_INDEX_THRESHOLD: 50,
@@ -66,7 +64,7 @@ export const PERFORMANCE_CONSTANTS = {
   Z_INDEX_DRAGGING: 2147483647, // CSS z-index 的最大值（32位整数）
   /** 普通节点的 z-index（基础层级，在连接线前面） */
   Z_INDEX_NODE_BASE: 1,
-  /** 连接线的  */
+  /** 连接线的 */
   Z_INDEX_EDGE: 0,
   /** z-index 基础值（用于递增分配，拖拽结束后提升的节点从此值开始，需高于选中节点） */
   Z_INDEX_BASE: 1000

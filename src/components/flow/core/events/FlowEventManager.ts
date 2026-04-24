@@ -5,12 +5,10 @@
  */
 
 import { logger } from '../../utils/logger';
-import { FlowEventEmitter } from './FlowEventEmitter';
 import type { FlowEvents } from '../../types/flow-events';
+import { FlowEventEmitter } from './FlowEventEmitter';
 
-/**
- * 事件管理器实例
- */
+/** 事件管理器实例 */
 interface EventManagerInstance {
   /** 实例 ID */
   id: string;
@@ -193,9 +191,7 @@ export class FlowEventManager {
     return this.instances.has(id);
   }
 
-  /**
-   * 清理所有实例
-   */
+  /** 清理所有实例 */
   clear(): void {
     this.instances.forEach(instance => {
       instance.emitter.removeAllListeners();
@@ -205,9 +201,7 @@ export class FlowEventManager {
   }
 }
 
-/**
- * 全局事件管理器单例
- */
+/** 全局事件管理器单例 */
 let globalEventManager: FlowEventManager | null = null;
 
 /**

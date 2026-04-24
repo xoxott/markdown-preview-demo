@@ -1,17 +1,14 @@
-/**
- * StreamingPenEffect 组件
- * 实现光标位置追踪，让笔跟随文字末尾移动
- */
+/** StreamingPenEffect 组件 实现光标位置追踪，让笔跟随文字末尾移动 */
 import {
-  defineComponent,
-  ref,
-  watch,
-  onMounted,
-  onBeforeUnmount,
-  nextTick,
+  type CSSProperties,
   type PropType,
   computed,
-  type CSSProperties
+  defineComponent,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch
 } from 'vue';
 import './index.scss';
 
@@ -39,10 +36,7 @@ const DEFAULT_CONFIG = {
 
 // ==================== SVG 路径定义（可扩展） ====================
 
-/**
- * 生成羽毛笔 SVG 路径
- * 可以轻松替换为其他笔的样式
- */
+/** 生成羽毛笔 SVG 路径 可以轻松替换为其他笔的样式 */
 const createQuillPenSVG = (penColor: string) => ({
   // 羽毛笔主体
   mainBody: {
@@ -92,10 +86,7 @@ const createQuillPenSVG = (penColor: string) => ({
 
 // ==================== 工具函数 ====================
 
-/**
- * 获取最后一个文本节点（优化版本）
- * 从后往前查找，找到第一个有效节点就停止，避免遍历整个树
- */
+/** 获取最后一个文本节点（优化版本） 从后往前查找，找到第一个有效节点就停止，避免遍历整个树 */
 const getLastTextNode = (element: HTMLElement): Text | null => {
   const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
     acceptNode: node => {
@@ -116,6 +107,7 @@ const getLastTextNode = (element: HTMLElement): Text | null => {
 
 /**
  * 递归获取所有文本节点（保留用于兼容性，但已优化为使用 getLastTextNode）
+ *
  * @deprecated 优先使用 getLastTextNode
  */
 const getTextNodes = (element: HTMLElement): Text[] => {
@@ -135,16 +127,12 @@ const getTextNodes = (element: HTMLElement): Text[] => {
   return textNodes;
 };
 
-/**
- * 验证位置是否有效
- */
+/** 验证位置是否有效 */
 const isValidPosition = (x: number, y: number): boolean => {
   return !isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y);
 };
 
-/**
- * 计算位置变化距离
- */
+/** 计算位置变化距离 */
 const calculatePositionDelta = (
   oldPos: PenPosition,
   newPos: PenPosition
@@ -205,10 +193,7 @@ export default defineComponent({
 
     // ==================== 核心功能函数 ====================
 
-    /**
-     * 获取文字末尾的位置（优化版本）
-     * 使用缓存和优化的查找策略，提升长文档性能
-     */
+    /** 获取文字末尾的位置（优化版本） 使用缓存和优化的查找策略，提升长文档性能 */
     const getTextEndPosition = (): PenPosition | null => {
       const target = props.targetRef;
       if (!target) {
@@ -275,9 +260,7 @@ export default defineComponent({
     let initialRetryCount = 0;
     const MAX_INITIAL_RETRIES = 3;
 
-    /**
-     * 更新笔的位置
-     */
+    /** 更新笔的位置 */
     const updatePenPosition = (): void => {
       if (!props.isWriting || !props.targetRef) {
         isVisible.value = false;
@@ -325,10 +308,7 @@ export default defineComponent({
 
     // ==================== 更新机制 ====================
 
-    /**
-     * 使用 RAF 优化性能的更新函数
-     * 移除更新频率限制，确保实时跟随
-     */
+    /** 使用 RAF 优化性能的更新函数 移除更新频率限制，确保实时跟随 */
     const scheduleUpdate = (): void => {
       if (rafId !== null) {
         cancelAnimationFrame(rafId);
@@ -343,10 +323,7 @@ export default defineComponent({
 
     // ==================== 监听器管理 ====================
 
-    /**
-     * 监听目标元素的变化
-     * 优化：对结构变化（childList）使用防抖，对文本变化（characterData）立即更新
-     */
+    /** 监听目标元素的变化 优化：对结构变化（childList）使用防抖，对文本变化（characterData）立即更新 */
     const observeTarget = (): void => {
       if (observer) {
         observer.disconnect();
@@ -406,9 +383,7 @@ export default defineComponent({
       });
     };
 
-    /**
-     * 清理所有资源
-     */
+    /** 清理所有资源 */
     const cleanup = (): void => {
       if (rafId !== null) {
         cancelAnimationFrame(rafId);

@@ -1,15 +1,9 @@
-/**
- * 重试类型定义
- */
+/** 重试类型定义 */
 
-/**
- * 错误类型
- */
+/** 错误类型 */
 export type ErrorType = 'timeout' | 'network' | 'server' | 'client' | 'unknown';
 
-/**
- * 通用错误接口
- */
+/** 通用错误接口 */
 export interface RetryableError {
   /** 错误代码 */
   code?: string;
@@ -27,9 +21,7 @@ export interface RetryableError {
   };
 }
 
-/**
- * 重试策略配置
- */
+/** 重试策略配置 */
 export interface RetryStrategy {
   /** 是否启用重试 */
   enabled: boolean;
@@ -48,9 +40,7 @@ export interface RetryStrategy {
   };
 }
 
-/**
- * 重试配置
- */
+/** 重试配置 */
 export interface RetryConfig {
   /** 是否启用重试 */
   retry?: boolean;
@@ -60,13 +50,11 @@ export interface RetryConfig {
   retryOnTimeout?: boolean;
 }
 
-/**
- * 重试元数据接口
- * 定义重试相关的元数据字段
- */
+/** 重试元数据接口 定义重试相关的元数据字段 */
 export interface RetryMeta {
   /**
    * 重试配置
+   *
    * - `true`: 启用重试（使用默认策略）
    * - `false`: 禁用重试
    * - `RetryStrategy`: 使用自定义策略
@@ -75,9 +63,6 @@ export interface RetryMeta {
    */
   retry?: boolean | RetryStrategy | RetryConfig;
 
-  /**
-   * 其他扩展字段
-   * 允许策略实现添加自定义字段
-   */
+  /** 其他扩展字段 允许策略实现添加自定义字段 */
   [key: string]: unknown;
 }

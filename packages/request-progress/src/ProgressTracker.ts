@@ -1,13 +1,9 @@
-/**
- * 进度追踪器
- */
+/** 进度追踪器 */
 
-import type { ProgressEvent, ProgressInfo, ProgressCallback } from './types';
+import type { ProgressCallback, ProgressEvent, ProgressInfo } from './types';
 import { calculateProgress, formatSpeed } from './utils';
 
-/**
- * 进度追踪器
- */
+/** 进度追踪器 */
 export class ProgressTracker {
   private startTime: number;
   private lastLoaded: number;
@@ -21,9 +17,7 @@ export class ProgressTracker {
     this.onProgress = onProgress;
   }
 
-  /**
-   * 更新进度
-   */
+  /** 更新进度 */
   update(progressEvent: ProgressEvent): void {
     const now = Date.now();
     const elapsed = now - this.startTime;
@@ -54,9 +48,7 @@ export class ProgressTracker {
     }
   }
 
-  /**
-   * 重置追踪器
-   */
+  /** 重置追踪器 */
   reset(): void {
     this.startTime = Date.now();
     this.lastLoaded = 0;
@@ -64,9 +56,7 @@ export class ProgressTracker {
   }
 }
 
-/**
- * 创建进度追踪器（工厂函数）
- */
+/** 创建进度追踪器（工厂函数） */
 export function createProgressTracker(
   onProgress?: ProgressCallback
 ): (progressEvent: ProgressEvent) => void {

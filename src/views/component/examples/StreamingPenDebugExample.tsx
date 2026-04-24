@@ -1,9 +1,6 @@
-/**
- * StreamingPenEffect 调试工具
- * 用于实时调整笔的位置参数
- */
-import { defineComponent, ref, onMounted, onBeforeUnmount } from 'vue';
-import { NCard, NH3, NButton, NSpace, NSlider, NInputNumber } from 'naive-ui';
+/** StreamingPenEffect 调试工具 用于实时调整笔的位置参数 */
+import { defineComponent, onBeforeUnmount, onMounted, ref } from 'vue';
+import { NButton, NCard, NH3, NInputNumber, NSlider, NSpace } from 'naive-ui';
 import StreamingPenEffect from '@/components/streaming-pen-effect/index';
 
 export default defineComponent({
@@ -30,9 +27,7 @@ export default defineComponent({
     笔的位置参数。这是一段测试文字，用于调试笔的位置。你可以通过下面的滑块实时调整笔的位置
     参数。这是一段测试文字，用于调试笔的位置。你可以通过下面的滑块实时调整笔的位置参数。这是一段测试文字，用于调试笔的位置。你 可以通过下面的滑块实时调整笔的位置参数。这 是一段测试文字，用于调试笔的位置。你可以通过下面的 滑块实时调整笔的位置参数。这是一段测试文字，用于调试笔的位 置。你可以通过下面的滑块实时调整笔的位置参数。这是一段测试文 字，用于调试笔的位置。你可以通过下面的滑块实时调整笔的位置参 数。这是一段测试文字，用于调试笔的位置。你可以通过下面的滑块实时调整 笔的位置参数。这是一段测试文字，用于调试笔的位置。你可以通过下面的滑块实时调整 笔的位置参数。这是一段测试文字，用于调试笔的位置。你可以通过下面的滑块实时调整笔的位置 参数。这是一段测试文字，用于调试笔的位置。你可以通过下面的滑块实时调整笔的位置参数。`;
 
-    /**
-     * 模拟流式打字效果
-     */
+    /** 模拟流式打字效果 */
     const startTyping = () => {
       if (isTyping.value) return;
 
@@ -85,16 +80,16 @@ export default defineComponent({
 
     return () => (
       <NCard bordered class="shadow-sm">
-        <NH3 class="border-b pb-2 text-lg font-semibold mb-4">🔧 笔位置调试工具</NH3>
+        <NH3 class="mb-4 border-b pb-2 text-lg font-semibold">🔧 笔位置调试工具</NH3>
 
         {/* 控制面板 */}
-        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
-          <h4 class="text-sm font-semibold mb-3 text-gray-700">位置调整参数</h4>
+        <div class="mb-6 rounded-lg bg-gray-50 p-4">
+          <h4 class="mb-3 text-sm text-gray-700 font-semibold">位置调整参数</h4>
 
           <div class="space-y-4">
             {/* X 轴偏移 */}
             <div>
-              <div class="flex items-center justify-between mb-2">
+              <div class="mb-2 flex items-center justify-between">
                 <label class="text-sm text-gray-600">X 轴偏移（offsetX）:</label>
                 <NInputNumber
                   v-model:value={offsetX.value}
@@ -104,7 +99,7 @@ export default defineComponent({
                 />
               </div>
               <NSlider v-model:value={offsetX.value} min={-1} max={1} step={0.05} />
-              <div class="text-xs text-gray-500 mt-1">
+              <div class="mt-1 text-xs text-gray-500">
                 当前值: {offsetX.value.toFixed(2)} × 笔大小 ={' '}
                 {(offsetX.value * penSize.value).toFixed(1)}px （正值向右，负值向左）
               </div>
@@ -112,7 +107,7 @@ export default defineComponent({
 
             {/* Y 轴偏移 */}
             <div>
-              <div class="flex items-center justify-between mb-2">
+              <div class="mb-2 flex items-center justify-between">
                 <label class="text-sm text-gray-600">Y 轴偏移（offsetY）:</label>
                 <NInputNumber
                   v-model:value={offsetY.value}
@@ -122,7 +117,7 @@ export default defineComponent({
                 />
               </div>
               <NSlider v-model:value={offsetY.value} min={-1.5} max={0.5} step={0.05} />
-              <div class="text-xs text-gray-500 mt-1">
+              <div class="mt-1 text-xs text-gray-500">
                 当前值: {offsetY.value.toFixed(2)} × 笔大小 ={' '}
                 {(offsetY.value * penSize.value).toFixed(1)}px （正值向下，负值向上）
               </div>
@@ -130,7 +125,7 @@ export default defineComponent({
 
             {/* 笔大小 */}
             <div>
-              <div class="flex items-center justify-between mb-2">
+              <div class="mb-2 flex items-center justify-between">
                 <label class="text-sm text-gray-600">笔大小（size）:</label>
                 <NInputNumber
                   v-model:value={penSize.value}
@@ -161,7 +156,7 @@ export default defineComponent({
 
         {/* 演示区域 */}
         <div class="demo-area">
-          <h4 class="text-sm font-semibold mb-3 text-gray-700">预览效果</h4>
+          <h4 class="mb-3 text-sm text-gray-700 font-semibold">预览效果</h4>
           <div
             class="text-box"
             style={{
@@ -206,8 +201,8 @@ export default defineComponent({
         </div>
 
         {/* 使用说明 */}
-        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-          <h4 class="text-sm font-semibold mb-2 text-blue-700">💡 调试提示</h4>
+        <div class="mt-6 rounded-lg bg-blue-50 p-4">
+          <h4 class="mb-2 text-sm text-blue-700 font-semibold">💡 调试提示</h4>
           <ul class="text-sm text-blue-600 space-y-1">
             <li>
               • <strong>offsetX</strong>: 控制笔的水平位置（建议 0.1 ~ 0.3）
@@ -221,7 +216,7 @@ export default defineComponent({
         </div>
 
         {/* 代码示例 */}
-        <div class="mt-4 p-4 bg-gray-800 rounded-lg text-white text-sm overflow-x-auto">
+        <div class="mt-4 overflow-x-auto rounded-lg bg-gray-800 p-4 text-sm text-white">
           <pre style={{ margin: 0 }}>{`<StreamingPenEffect
   isWriting={true}
   targetRef={textRef.value}

@@ -1,6 +1,6 @@
-import { Edit } from '@vicons/tabler';
-import { NButton, NIcon, NInput, NText } from 'naive-ui';
 import { defineComponent, nextTick, ref, watch } from 'vue';
+import { NButton, NIcon, NInput, NText } from 'naive-ui';
+import { Edit } from '@vicons/tabler';
 
 export default defineComponent({
   name: 'EditableText',

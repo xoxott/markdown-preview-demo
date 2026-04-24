@@ -1,11 +1,11 @@
 /**
  * Flow 状态管理 Hook
  *
- * 提供 Vue 3 Composition API 的状态管理 Hook
- * 使用新的架构：DefaultStateStore + DefaultHistoryManager + FlowSelectionHandler
+ * 提供 Vue 3 Composition API 的状态管理 Hook 使用新的架构：DefaultStateStore + DefaultHistoryManager +
+ * FlowSelectionHandler
  */
 
-import { ref, shallowRef, computed, onUnmounted, markRaw, type Ref } from 'vue';
+import { type Ref, computed, markRaw, onUnmounted, ref, shallowRef } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
 import { DefaultStateStore } from '../core/state/stores/DefaultStateStore';
 import { performanceMonitor } from '../utils/performance-monitor';
@@ -20,9 +20,7 @@ import type { FlowEdge } from '../types/flow-edge';
 import type { FlowViewport } from '../types/flow-config';
 import type { FlowStateSnapshot } from '../core/state/types';
 
-/**
- * useFlowState 选项
- */
+/** useFlowState 选项 */
 export interface UseFlowStateOptions {
   /** 初始节点列表 */
   initialNodes?: FlowNode[];
@@ -38,9 +36,7 @@ export interface UseFlowStateOptions {
   selectionOptions?: SelectionOptions;
 }
 
-/**
- * useFlowState 返回值
- */
+/** useFlowState 返回值 */
 export interface UseFlowStateReturn {
   /** 节点列表（响应式） */
   nodes: Ref<FlowNode[]>;
@@ -120,29 +116,29 @@ export interface UseFlowStateReturn {
  *
  * 提供响应式的状态管理功能
  *
+ * @example
+ *   ```typescript
+ *   const {
+ *     nodes,
+ *     edges,
+ *     addNode,
+ *     removeNode,
+ *     selectNode
+ *   } = useFlowState({
+ *     initialNodes: [node1, node2],
+ *     initialEdges: [edge1]
+ *   });
+ *
+ *   // 响应式访问
+ *   console.log(nodes.value);
+ *
+ *   // 操作状态
+ *   addNode(newNode);
+ *   selectNode('node-1');
+ *   ```;
+ *
  * @param options Hook 选项
  * @returns 状态相关的响应式数据和方法
- *
- * @example
- * ```typescript
- * const {
- *   nodes,
- *   edges,
- *   addNode,
- *   removeNode,
- *   selectNode
- * } = useFlowState({
- *   initialNodes: [node1, node2],
- *   initialEdges: [edge1]
- * });
- *
- * // 响应式访问
- * console.log(nodes.value);
- *
- * // 操作状态
- * addNode(newNode);
- * selectNode('node-1');
- * ```
  */
 export function useFlowState(options: UseFlowStateOptions = {}): UseFlowStateReturn {
   const {
@@ -185,17 +181,12 @@ export function useFlowState(options: UseFlowStateOptions = {}): UseFlowStateRet
 
   // ==================== 订阅状态变化，同步到 Ref（性能优化：移除深度监听）====================
 
-  /**
-   * 批量更新标志，用于在 requestAnimationFrame 中批量更新
-   * 使用 RAF 替代 nextTick，可以更好地与浏览器渲染周期同步，提升性能
-   */
-  let pendingUpdates: Set<string> = new Set();
+  /** 批量更新标志，用于在 requestAnimationFrame 中批量更新 使用 RAF 替代 nextTick，可以更好地与浏览器渲染周期同步，提升性能 */
+  const pendingUpdates: Set<string> = new Set();
   let updateScheduled = false;
   let rafId: number | null = null;
 
-  /**
-   * 批量更新响应式引用
-   */
+  /** 批量更新响应式引用 */
   const flushUpdates = () => {
     const perfStart = performance.now();
 
@@ -245,9 +236,7 @@ export function useFlowState(options: UseFlowStateOptions = {}): UseFlowStateRet
     });
   };
 
-  /**
-   * 订阅状态变化（细粒度更新，避免深度监听）
-   */
+  /** 订阅状态变化（细粒度更新，避免深度监听） */
   store.subscribe(changeType => {
     pendingUpdates.add(changeType);
     if (!updateScheduled) {

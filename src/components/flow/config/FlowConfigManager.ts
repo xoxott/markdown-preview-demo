@@ -1,19 +1,16 @@
 /**
  * Flow 配置管理器
  *
- * 支持多实例的配置管理，每个画布可以有独立的配置
- * 提供配置的创建、获取、更新、订阅等功能
+ * 支持多实例的配置管理，每个画布可以有独立的配置 提供配置的创建、获取、更新、订阅等功能
  */
 
 import type { FlowConfig, PartialFlowConfig } from '../types/flow-config';
 import { logger } from '../utils';
-import { normalizeConfig, mergeConfig, cloneConfig } from '../utils/config-utils';
+import { cloneConfig, mergeConfig, normalizeConfig } from '../utils/config-utils';
 import { FlowConfigValidator } from './FlowConfigValidator';
 import { DEFAULT_FLOW_CONFIG } from './default-config';
 
-/**
- * 配置实例
- */
+/** 配置实例 */
 interface ConfigInstance {
   /** 配置 ID */
   id: string;
@@ -234,9 +231,7 @@ export class FlowConfigManager {
     });
   }
 
-  /**
-   * 清理所有配置实例
-   */
+  /** 清理所有配置实例 */
   clear(): void {
     this.instances.forEach(instance => {
       instance.listeners.clear();
@@ -245,9 +240,7 @@ export class FlowConfigManager {
   }
 }
 
-/**
- * 全局配置管理器单例
- */
+/** 全局配置管理器单例 */
 let globalConfigManager: FlowConfigManager | null = null;
 
 /**

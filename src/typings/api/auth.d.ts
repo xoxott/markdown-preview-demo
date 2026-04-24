@@ -1,6 +1,4 @@
-/**
- * Auth API types
- */
+/** Auth API types */
 
 /// <reference path="./common.d.ts" />
 

@@ -1,10 +1,6 @@
-/**
- * 请求队列常量配置
- */
+/** 请求队列常量配置 */
 
-/**
- * 默认队列配置
- */
+/** 默认队列配置 */
 export const DEFAULT_QUEUE_CONFIG = {
   /** 默认最大并发数 */
   DEFAULT_MAX_CONCURRENT: 10,

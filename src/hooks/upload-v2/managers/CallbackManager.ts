@@ -1,7 +1,4 @@
-/**
- * 回调管理器
- * 负责管理上传过程中的各种回调函数
- */
+/** 回调管理器 负责管理上传过程中的各种回调函数 */
 import type { UploadCallbacks } from '../types';
 import type { WindowWithLogger } from '../types/browser';
 
@@ -16,9 +13,7 @@ export class CallbackManager {
   private callbacks: UploadCallbacks = {};
   private callbackItems = new Map<keyof UploadCallbacks, CallbackItem[]>();
 
-  /**
-   * 注册回调（支持优先级和一次性回调）
-   */
+  /** 注册回调（支持优先级和一次性回调） */
   private registerCallback<K extends keyof UploadCallbacks>(
     event: K,
     callback: NonNullable<UploadCallbacks[K]>,
@@ -42,9 +37,7 @@ export class CallbackManager {
     return this;
   }
 
-  /**
-   * 移除回调
-   */
+  /** 移除回调 */
   removeCallback<K extends keyof UploadCallbacks>(
     event: K,
     callback?: NonNullable<UploadCallbacks[K]>
@@ -259,9 +252,7 @@ export class CallbackManager {
     }
   }
 
-  /**
-   * 清空所有回调
-   */
+  /** 清空所有回调 */
   clear(): this {
     this.callbacks = {};
     this.callbackItems.clear();

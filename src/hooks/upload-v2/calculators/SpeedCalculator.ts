@@ -1,7 +1,4 @@
-/**
- * 速度计算器
- * 用于计算上传速度
- */
+/** 速度计算器 用于计算上传速度 */
 export class SpeedCalculator {
   private dataPoints: Array<{ size: number; time: number; timestamp: number }> = [];
   private readonly windowSize: number;
@@ -14,9 +11,7 @@ export class SpeedCalculator {
     this.windowTime = windowTime;
   }
 
-  /**
-   * 添加新的上传数据点
-   */
+  /** 添加新的上传数据点 */
   addData(size: number, time: number): void {
     if (!Number.isFinite(size) || size < 0 || !Number.isFinite(time) || time <= 0) {
       return;
@@ -32,9 +27,7 @@ export class SpeedCalculator {
     this.cleanup(now);
   }
 
-  /**
-   * 清理过期或超出窗口数量的数据点
-   */
+  /** 清理过期或超出窗口数量的数据点 */
   private cleanup(now: number): void {
     const cutoff = now - this.windowTime;
     this.dataPoints = this.dataPoints.filter(point => point.timestamp > cutoff);
@@ -44,9 +37,7 @@ export class SpeedCalculator {
     }
   }
 
-  /**
-   * 获取当前上传速度（bytes/s）
-   */
+  /** 获取当前上传速度（bytes/s） */
   getSpeed(): number {
     if (this.dataPoints.length === 0) return 0;
 
@@ -76,9 +67,7 @@ export class SpeedCalculator {
     return Math.max(0, Number.isFinite(this.lastSpeed) ? this.lastSpeed : 0);
   }
 
-  /**
-   * 获取平均上传速度（bytes/s）
-   */
+  /** 获取平均上传速度（bytes/s） */
   getAverageSpeed(): number {
     if (this.dataPoints.length === 0) return 0;
 
@@ -93,9 +82,7 @@ export class SpeedCalculator {
     return Number.isFinite(avgSpeed) ? Math.max(0, avgSpeed) : 0;
   }
 
-  /**
-   * 重置速度计算器
-   */
+  /** 重置速度计算器 */
   reset(): void {
     this.dataPoints = [];
     this.lastSpeed = 0;

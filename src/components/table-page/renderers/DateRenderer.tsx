@@ -1,4 +1,4 @@
-import { defineComponent, type PropType } from 'vue';
+import { type PropType, defineComponent } from 'vue';
 import { NText } from 'naive-ui';
 import type { DateRendererConfig } from '../types';
 

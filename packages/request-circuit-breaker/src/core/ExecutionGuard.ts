@@ -1,13 +1,9 @@
-/**
- * 执行守卫
- */
+/** 执行守卫 */
 
 import { CircuitBreakerState } from '../types';
-import { Metrics } from './Metrics';
+import type { Metrics } from './Metrics';
 
-/**
- * 执行守卫类
- */
+/** 执行守卫类 */
 export class ExecutionGuard<T> {
   constructor(
     private metrics: Metrics,

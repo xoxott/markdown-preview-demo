@@ -51,7 +51,7 @@ export default defineComponent({
 
     return () => (
       <div
-        class="flex h-full items-center justify-center overflow-auto p-4"
+        class="h-full flex items-center justify-center overflow-auto p-4"
         style={{ backgroundColor: themeVars.value.bodyColor }}
       >
         {loading.value ? (

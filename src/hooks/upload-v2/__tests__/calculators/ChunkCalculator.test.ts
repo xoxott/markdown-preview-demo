@@ -1,6 +1,4 @@
-/**
- * ChunkCalculator 测试
- */
+/** ChunkCalculator 测试 */
 import { describe, expect, it } from 'vitest';
 import { ChunkCalculator } from '../../calculators/ChunkCalculator';
 import { CONSTANTS } from '../../constants';

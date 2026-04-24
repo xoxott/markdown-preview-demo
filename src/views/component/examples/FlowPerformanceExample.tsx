@@ -1,13 +1,10 @@
-/**
- * Flow 示例 5: 性能测试（可配置节点数量）
- */
+/** Flow 示例 5: 性能测试（可配置节点数量） */
 
 import { defineComponent, ref } from 'vue';
-import { NCard, NH3, NText, NSpace, NButton, NInputNumber } from 'naive-ui';
-import { useMessage } from 'naive-ui';
+import { NButton, NCard, NH3, NInputNumber, NSpace, NText, useMessage } from 'naive-ui';
 import FlowCanvas from '@/components/flow/components/FlowCanvas';
 import FlowPerformanceMonitor from '@/components/flow/components/FlowPerformanceMonitor';
-import type { FlowNode, FlowEdge } from '@/components/flow';
+import type { FlowEdge, FlowNode } from '@/components/flow';
 
 export default defineComponent({
   name: 'FlowPerformanceExample',
@@ -113,7 +110,7 @@ export default defineComponent({
         <NH3 class="border-b pb-2 text-lg font-semibold">
           Flow 示例 5: 性能测试（可配置节点数量）
         </NH3>
-        <NText class="text-gray-500 mb-4 block">
+        <NText class="mb-4 block text-gray-500">
           测试大量节点的渲染性能。已启用空间索引、视口裁剪、RAF节流等优化。观察性能监控面板查看实时FPS。
         </NText>
         <NSpace class="mb-4" vertical>

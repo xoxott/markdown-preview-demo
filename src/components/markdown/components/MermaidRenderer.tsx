@@ -15,12 +15,12 @@ import {
   watch
 } from 'vue';
 import { NCard } from 'naive-ui';
+import type { CodeBlockMeta } from '@suga/markdown-it-render-vnode';
 import { useToggle } from '@/hooks/customer/useToggle';
 import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
 import { useMermaid } from '../hooks/useMermaid';
 import { useCodeTools, useSvgTools } from '../hooks/useToolbar';
 import { debounce } from '../utils';
-import type { CodeBlockMeta } from '@suga/markdown-it-render-vnode';
 import { ToolBar } from './ToolBar';
 import { ErrorMessage } from './ErrorMessage';
 
@@ -76,7 +76,7 @@ export const MermaidRenderer = defineComponent({
   },
   setup(props) {
     // ==================== 状态管理 ====================
-    const { darkMode, themeVars, cssVars, codeBlockStyle, containerBgStyle } = useMarkdownTheme();
+    const { darkMode, cssVars, codeBlockStyle, containerBgStyle } = useMarkdownTheme();
     const { state: showCode, toggle: toggleCode } = useToggle(false);
     const containerRef = ref<HTMLElement>();
     const isRendering = ref(false);

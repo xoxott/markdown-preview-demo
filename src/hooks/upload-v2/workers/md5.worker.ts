@@ -1,7 +1,4 @@
-/**
- * MD5 计算 Worker
- * 在 Web Worker 中计算文件 MD5，避免阻塞主线程
- */
+/** MD5 计算 Worker 在 Web Worker 中计算文件 MD5，避免阻塞主线程 */
 
 // @ts-ignore - SparkMD5 类型定义可能不完整
 importScripts('https://cdn.jsdelivr.net/npm/spark-md5@3.0.2/spark-md5.min.js');

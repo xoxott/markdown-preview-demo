@@ -1,4 +1,4 @@
-import { type VNode, defineComponent, watch, Component, type PropType, shallowRef } from 'vue';
+import type { Component, type PropType, type VNode, defineComponent, shallowRef, watch } from 'vue';
 import MarkdownIt from 'markdown-it';
 import markdownItMultimdTable from 'markdown-it-multimd-table';
 import markdownItKatex from '@vscode/markdown-it-katex';

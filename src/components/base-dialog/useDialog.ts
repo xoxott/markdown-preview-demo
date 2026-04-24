@@ -1,10 +1,10 @@
 /** useDialog - 弹窗管理 Hook 提供命令式API来显示各种对话框 */
 
-import { useThemeStore } from '@/store/modules/theme';
-import { NConfigProvider, darkTheme } from 'naive-ui';
-import { storeToRefs } from 'pinia';
 import type { App } from 'vue';
 import { createVNode, nextTick, ref, render, watchEffect } from 'vue';
+import { storeToRefs } from 'pinia';
+import { NConfigProvider, darkTheme } from 'naive-ui';
+import { useThemeStore } from '@/store/modules/theme';
 import ConfirmDialog from './ConfirmDialog';
 import type { ConfirmDialogConfig, DialogInstance } from './dialog';
 

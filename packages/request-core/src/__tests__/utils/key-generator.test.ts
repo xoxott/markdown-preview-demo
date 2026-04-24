@@ -1,8 +1,6 @@
-/**
- * key-generator 测试
- */
+/** key-generator 测试 */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { generateRequestKey } from '../../utils/key-generator';
 import type { NormalizedRequestConfig } from '../../context/RequestContext';
 

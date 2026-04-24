@@ -1,22 +1,15 @@
-/**
- * 任务服务
- * 负责任务的创建、管理和调度
- */
+/** 任务服务 负责任务的创建、管理和调度 */
 import type { FileTask, FileUploadOptions, UploadConfig } from '../types';
 import { UploadStatus } from '../types';
 import { generateUUID } from '../utils/id';
 
-/**
- * 任务服务
- */
+/** 任务服务 */
 export class TaskService {
   private priorities = { high: 3, normal: 2, low: 1 } as const;
 
   constructor(private config: UploadConfig) {}
 
-  /**
-   * 创建任务
-   */
+  /** 创建任务 */
   createTask(
     file: File,
     processedFile: File,
@@ -66,9 +59,7 @@ export class TaskService {
     };
   }
 
-  /**
-   * 对任务队列进行排序
-   */
+  /** 对任务队列进行排序 */
   sort(queue: FileTask[]): void {
     queue.sort((a, b) => {
       const aPriorityKey: keyof typeof this.priorities = (a.options.priority ||
@@ -87,9 +78,7 @@ export class TaskService {
     });
   }
 
-  /**
-   * 判断文件是否重复
-   */
+  /** 判断文件是否重复 */
   isDuplicate(file: File, allTasks: FileTask[]): boolean {
     return allTasks.some(
       task =>
@@ -99,9 +88,7 @@ export class TaskService {
     );
   }
 
-  /**
-   * 计算分片大小（简化版）
-   */
+  /** 计算分片大小（简化版） */
   private calculateChunkSize(fileSize: number, averageSpeed: number): number {
     // 基础分片大小
     let chunkSize = this.config.chunkSize;

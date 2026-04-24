@@ -1,8 +1,6 @@
-/**
- * 验证工具函数测试
- */
+/** 验证工具函数测试 */
 import { describe, expect, it } from 'vitest';
-import { validateFileType, validateFileSize } from '../../utils/validation';
+import { validateFileSize, validateFileType } from '../../utils/validation';
 
 describe('验证工具函数', () => {
   describe('validateFileType', () => {

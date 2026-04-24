@@ -184,11 +184,6 @@ export function registerCustomGridPatterns(): void {
  * // export type FlowGridType = 'dots' | 'lines' | 'cross' | 'none' | 'hexagon' | 'large-dots' | 'dashed-lines';
  *
  * // 3. 在组件中使用
- * <FlowBackground
- *   gridType="hexagon"
- *   gridSize={20}
- *   gridColor="#d1d5db"
- *   viewport={viewport}
- * />
+ * <FlowBackground gridType="hexagon" gridSize={20} gridColor="#d1d5db" viewport={viewport} />;
  * ```
  */

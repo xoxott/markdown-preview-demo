@@ -1,7 +1,7 @@
-import { defineComponent, type PropType } from 'vue';
-import { NCard, NDataTable, NGrid, NGridItem, NStatistic, NTag, NTabs, NTabPane } from 'naive-ui';
-import type { TodayStatsData, HistoryStatsData, TrendAnalysisData } from '../../types';
+import { type PropType, defineComponent } from 'vue';
+import { NCard, NDataTable, NGrid, NGridItem, NStatistic, NTabPane, NTabs, NTag } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
+import type { HistoryStatsData, TodayStatsData, TrendAnalysisData } from '../../types';
 
 interface Props {
   todayStatsData: TodayStatsData;

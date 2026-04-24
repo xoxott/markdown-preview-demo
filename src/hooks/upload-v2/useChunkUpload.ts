@@ -1,15 +1,12 @@
-/**
- * 上传 Hook
- * 提供简洁的 API 接口
- */
-import type { UploadFileInfo } from 'naive-ui';
+/** 上传 Hook 提供简洁的 API 接口 */
 import { computed, onUnmounted } from 'vue';
+import type { UploadFileInfo } from 'naive-ui';
 import { UploadOrchestrator } from './core/UploadOrchestrator';
 import type { UploadConfig } from './types';
 import { createMethodWrappers, createPropertyAccessors } from './utils/api-wrapper';
 import { getFileColor, getFileIcon } from './utils/file-type';
 import { formatFileSize, formatSpeed, formatTime } from './utils/format';
-import { i18n, type StatusTextMap } from './utils/i18n';
+import { type StatusTextMap, i18n } from './utils/i18n';
 import { performanceMonitor } from './utils/performance-monitor';
 import { convertToNaiveStatus, getStatusText, getStatusType } from './utils/status-mapper';
 
@@ -53,9 +50,7 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
     'destroy'
   ] as const);
 
-  /**
-   * 创建 Naive UI 文件列表
-   */
+  /** 创建 Naive UI 文件列表 */
   const createNaiveFileList = (): UploadFileInfo[] => {
     const allTasks = [
       ...state.uploadQueue.value,
@@ -78,9 +73,7 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
     );
   };
 
-  /**
-   * 统计信息 API
-   */
+  /** 统计信息 API */
   const statsManager = uploader.getStatsManager();
   const getTodayStats = () => statsManager.getTodayStats();
   const getHistoryStats = (days = 7) => statsManager.getHistoryStats(days);
@@ -90,9 +83,7 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
   const todayStats = computed(() => getTodayStats());
   const trendAnalysis = computed(() => getTrendAnalysis(7));
 
-  /**
-   * 获取进度条状态
-   */
+  /** 获取进度条状态 */
   const getProgressStatus = (): 'default' | 'success' | 'error' => {
     const stats = state.uploadStats.value;
     if (stats.failed > 0) return 'error';
@@ -100,17 +91,13 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
     return 'default';
   };
 
-  /**
-   * 国际化 API
-   */
+  /** 国际化 API */
   const setLanguage = (language: 'zh-CN' | 'en-US') => i18n.setLanguage(language);
   const setCustomTexts = (texts: Partial<{ status: Partial<StatusTextMap> }>) => {
     i18n.setCustomTexts(texts as any);
   };
 
-  /**
-   * 性能监控 API
-   */
+  /** 性能监控 API */
   const getPerformanceReport = () => performanceMonitor.generateReport();
   const getPerformanceMetrics = () => performanceMonitor.getMetrics();
 

@@ -1,20 +1,13 @@
-/**
- * 文件处理服务
- * 整合文件验证、压缩、预览生成等功能
- */
-import type { UploadConfig, FileUploadOptions } from '../types';
-import { validateFileType, validateFileSize } from '../utils/validation';
+/** 文件处理服务 整合文件验证、压缩、预览生成等功能 */
+import type { FileUploadOptions, UploadConfig } from '../types';
+import { validateFileSize, validateFileType } from '../utils/validation';
 import { formatFileSize } from '../utils/format';
 import { calculateFileMD5 } from '../utils/hash';
 import { calculateFileMD5Smart } from '../utils/hash-worker';
 
-/**
- * 文件压缩器（静态方法）
- */
+/** 文件压缩器（静态方法） */
 class FileCompressor {
-  /**
-   * 压缩图片文件
-   */
+  /** 压缩图片文件 */
   static async compressImage(
     file: File,
     quality = 0.8,
@@ -58,13 +51,9 @@ class FileCompressor {
   }
 }
 
-/**
- * 预览生成器（静态方法）
- */
+/** 预览生成器（静态方法） */
 class PreviewGenerator {
-  /**
-   * 生成图片预览
-   */
+  /** 生成图片预览 */
   static async generateImagePreview(
     file: File,
     maxWidth: number = 200,
@@ -118,9 +107,7 @@ class PreviewGenerator {
     });
   }
 
-  /**
-   * 生成视频预览（截取第一帧）
-   */
+  /** 生成视频预览（截取第一帧） */
   static async generateVideoPreview(
     file: File,
     maxWidth: number = 200,
@@ -199,15 +186,11 @@ class PreviewGenerator {
   }
 }
 
-/**
- * 文件处理服务
- */
+/** 文件处理服务 */
 export class FileService {
   constructor(private config: UploadConfig) {}
 
-  /**
-   * 批量验证文件列表（优化：使用 reduce）
-   */
+  /** 批量验证文件列表（优化：使用 reduce） */
   validate(
     files: File[],
     existingCount: number = 0
@@ -229,9 +212,7 @@ export class FileService {
     );
   }
 
-  /**
-   * 验证单个文件
-   */
+  /** 验证单个文件 */
   private validateSingleFile(file: File, totalCount: number): string | null {
     // 检查文件是否为空
     if (file.size === 0) {
@@ -258,9 +239,7 @@ export class FileService {
     return null;
   }
 
-  /**
-   * 压缩文件（如果是图片）
-   */
+  /** 压缩文件（如果是图片） */
   async compressFile(file: File): Promise<File> {
     if (!this.config.enableCompression || !file.type.startsWith('image/')) {
       return file;
@@ -282,9 +261,7 @@ export class FileService {
     }
   }
 
-  /**
-   * 生成预览
-   */
+  /** 生成预览 */
   async generatePreview(file: File): Promise<string | undefined> {
     if (!this.config.enablePreview || !PreviewGenerator.canGeneratePreview(file)) {
       return undefined;
@@ -315,9 +292,7 @@ export class FileService {
     }
   }
 
-  /**
-   * 计算文件 MD5（支持 Worker）
-   */
+  /** 计算文件 MD5（支持 Worker） */
   async calculateMD5(file: File, onProgress?: (progress: number) => void): Promise<string> {
     if (this.config.useWorker) {
       return calculateFileMD5Smart(file, true, onProgress);
@@ -325,10 +300,7 @@ export class FileService {
     return calculateFileMD5(file, onProgress);
   }
 
-  /**
-   * 处理文件（验证、压缩、生成预览、计算 MD5）
-   * 优化：并行处理可以并行的步骤
-   */
+  /** 处理文件（验证、压缩、生成预览、计算 MD5） 优化：并行处理可以并行的步骤 */
   async processFile(
     file: File,
     options: FileUploadOptions

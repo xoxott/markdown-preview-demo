@@ -1,16 +1,16 @@
-import { defineComponent, ref, watch, type PropType } from 'vue';
+import { type PropType, defineComponent, ref, watch } from 'vue';
 import {
-  NModal,
+  NButton,
   NCard,
+  NColorPicker,
+  NDivider,
   NForm,
   NFormItem,
+  NModal,
   NSelect,
-  NColorPicker,
   NSlider,
-  NSwitch,
-  NButton,
   NSpace,
-  NDivider
+  NSwitch
 } from 'naive-ui';
 import type { ConnectionLineStyle, ConnectionLineType } from '../types/canvas-settings';
 

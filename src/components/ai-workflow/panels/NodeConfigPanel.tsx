@@ -1,15 +1,15 @@
-import { defineComponent, computed, reactive, watch, type PropType } from 'vue';
+import { type PropType, computed, defineComponent, reactive, watch } from 'vue';
 import {
+  NButton,
   NCard,
+  NDivider,
+  NEmpty,
   NForm,
   NFormItem,
   NInput,
-  NSelect,
   NInputNumber,
-  NSwitch,
-  NButton,
-  NEmpty,
-  NDivider
+  NSelect,
+  NSwitch
 } from 'naive-ui';
 import MonacoEditor from '@/components/monaco/MonacoEditor';
 
@@ -249,7 +249,7 @@ export default defineComponent({
 
       return (
         <div class="node-config-panel h-full flex flex-col bg-white dark:bg-gray-800">
-          <div class="p-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <div class="flex items-center justify-between border-b border-gray-200 p-3 dark:border-gray-700">
             <h3 class="text-sm font-medium">节点配置</h3>
             {props.onClose && (
               <NButton text onClick={props.onClose}>
@@ -281,7 +281,7 @@ export default defineComponent({
             </NForm>
           </div>
 
-          <div class="p-3 border-t border-gray-200 dark:border-gray-700">
+          <div class="border-t border-gray-200 p-3 dark:border-gray-700">
             <NButton type="primary" block onClick={handleSave}>
               保存配置
             </NButton>

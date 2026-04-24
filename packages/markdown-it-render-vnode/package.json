@@ -7,25 +7,14 @@
     "email": "212920320@qq.com"
   },
   "license": "MIT",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
-  "sideEffects": false,
-  "exports": {
-    ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
-    },
-    "./adapters": {
-      "types": "./src/adapters/types.ts",
-      "default": "./src/adapters/types.ts"
-    }
+  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/markdown-it-render-vnode",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xoxott/suga-tools.git",
+    "directory": "packages/markdown-it-render-vnode"
   },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "./src/*"
-      ]
-    }
+  "bugs": {
+    "url": "https://github.com/xoxott/suga-tools/issues"
   },
   "keywords": [
     "markdown",
@@ -37,18 +26,27 @@
     "vue",
     "react"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/xoxott/suga-tools.git",
-    "directory": "packages/markdown-it-render-vnode"
-  },
-  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/markdown-it-render-vnode",
-  "bugs": {
-    "url": "https://github.com/xoxott/suga-tools/issues"
-  },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
+  },
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./adapters": {
+      "types": "./src/adapters/types.ts",
+      "default": "./src/adapters/types.ts"
+    }
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "typesVersions": {
+    "*": {
+      "*": ["./src/*"]
+    }
   },
   "peerDependencies": {
     "markdown-it": "^14.0.0"
@@ -62,7 +60,7 @@
     "@suga/markdown-it-render-vnode-vue": "workspace:*",
     "@types/markdown-it": "^14.1.2",
     "typescript": "^5.6.3",
-    "vue": "^3.5.13",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.8",
+    "vue": "^3.5.13"
   }
 }

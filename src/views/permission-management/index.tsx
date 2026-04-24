@@ -1,17 +1,4 @@
-import type { PermissionFormData } from '@/components/permission-management/dialog';
-import { usePermissionDialog } from '@/components/permission-management/usePermissionDialog';
-import { useNaiveForm } from '@/hooks/common/form';
-import { useTable } from '@/hooks/common/table';
-import { $t } from '@/locales';
-import {
-  fetchBatchDeletePermissions,
-  fetchCreatePermission,
-  fetchDeletePermission,
-  fetchPermissionDetail,
-  fetchPermissionList,
-  fetchTogglePermissionStatus,
-  fetchUpdatePermission
-} from '@/service/api/permission';
+import { defineComponent, getCurrentInstance, reactive, ref } from 'vue';
 import {
   NButton,
   NCard,
@@ -24,7 +11,20 @@ import {
   NSwitch,
   useMessage
 } from 'naive-ui';
-import { defineComponent, getCurrentInstance, reactive, ref } from 'vue';
+import {
+  fetchBatchDeletePermissions,
+  fetchCreatePermission,
+  fetchDeletePermission,
+  fetchPermissionDetail,
+  fetchPermissionList,
+  fetchTogglePermissionStatus,
+  fetchUpdatePermission
+} from '@/service/api/permission';
+import { useNaiveForm } from '@/hooks/common/form';
+import { useTable } from '@/hooks/common/table';
+import type { PermissionFormData } from '@/components/permission-management/dialog';
+import { usePermissionDialog } from '@/components/permission-management/usePermissionDialog';
+import { $t } from '@/locales';
 import { useDialog } from '@/components/base-dialog/useDialog';
 
 type Permission = Api.PermissionManagement.Permission;

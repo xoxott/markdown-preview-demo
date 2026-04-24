@@ -11,12 +11,12 @@
  */
 import { defineComponent } from 'vue';
 import {
-  ClockLoadingExample,
   BasicComponentsExample,
+  ClockLoadingExample,
   FlowExamples,
   RequestClientExample,
-  StreamingPenExample,
   StreamingPenDebugExample,
+  StreamingPenExample,
   StreamingPenPositionCompareExample
 } from './examples';
 
@@ -27,68 +27,68 @@ export default defineComponent({
       <div class="p-4 space-y-6">
         {/* ==================== 加载组件 (Loading Components) ==================== */}
         <section class="space-y-4">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="h-1 w-12 bg-blue-500 rounded"></div>
-            <h1 class="text-3xl font-bold text-gray-900">加载组件</h1>
-            <div class="h-1 flex-1 bg-gray-200 rounded"></div>
+          <div class="mb-4 flex items-center gap-3">
+            <div class="h-1 w-12 rounded bg-blue-500"></div>
+            <h1 class="text-3xl text-gray-900 font-bold">加载组件</h1>
+            <div class="h-1 flex-1 rounded bg-gray-200"></div>
           </div>
           <ClockLoadingExample />
         </section>
 
         {/* ==================== 基础组件 (Basic Components) ==================== */}
         <section class="space-y-4">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="h-1 w-12 bg-green-500 rounded"></div>
-            <h1 class="text-3xl font-bold text-gray-900">基础组件</h1>
-            <div class="h-1 flex-1 bg-gray-200 rounded"></div>
+          <div class="mb-4 flex items-center gap-3">
+            <div class="h-1 w-12 rounded bg-green-500"></div>
+            <h1 class="text-3xl text-gray-900 font-bold">基础组件</h1>
+            <div class="h-1 flex-1 rounded bg-gray-200"></div>
           </div>
-          <div class="bg-white p-6 rounded-lg shadow-sm">
+          <div class="rounded-lg bg-white p-6 shadow-sm">
             <BasicComponentsExample />
           </div>
         </section>
 
         {/* ==================== 流程图组件 (Flow Components) ==================== */}
         <section class="space-y-4">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="h-1 w-12 bg-purple-500 rounded"></div>
-            <h1 class="text-3xl font-bold text-gray-900">流程图组件</h1>
-            <div class="h-1 flex-1 bg-gray-200 rounded"></div>
+          <div class="mb-4 flex items-center gap-3">
+            <div class="h-1 w-12 rounded bg-purple-500"></div>
+            <h1 class="text-3xl text-gray-900 font-bold">流程图组件</h1>
+            <div class="h-1 flex-1 rounded bg-gray-200"></div>
           </div>
           <FlowExamples />
         </section>
 
         {/* ==================== RequestClient 组件 (Request Client) ==================== */}
         <section class="space-y-4">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="h-1 w-12 bg-orange-500 rounded"></div>
-            <h1 class="text-3xl font-bold text-gray-900">RequestClient</h1>
-            <div class="h-1 flex-1 bg-gray-200 rounded"></div>
+          <div class="mb-4 flex items-center gap-3">
+            <div class="h-1 w-12 rounded bg-orange-500"></div>
+            <h1 class="text-3xl text-gray-900 font-bold">RequestClient</h1>
+            <div class="h-1 flex-1 rounded bg-gray-200"></div>
           </div>
-          <div class="bg-white p-6 rounded-lg shadow-sm">
+          <div class="rounded-lg bg-white p-6 shadow-sm">
             <RequestClientExample />
           </div>
         </section>
 
         {/* ==================== 流式笔写效果 (Streaming Pen Effect) ==================== */}
         <section class="space-y-4">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="h-1 w-12 bg-pink-500 rounded"></div>
-            <h1 class="text-3xl font-bold text-gray-900">流式笔写效果</h1>
-            <div class="h-1 flex-1 bg-gray-200 rounded"></div>
+          <div class="mb-4 flex items-center gap-3">
+            <div class="h-1 w-12 rounded bg-pink-500"></div>
+            <h1 class="text-3xl text-gray-900 font-bold">流式笔写效果</h1>
+            <div class="h-1 flex-1 rounded bg-gray-200"></div>
           </div>
 
           {/* 位置对比工具 */}
-          <div class="bg-white p-6 rounded-lg shadow-sm">
+          <div class="rounded-lg bg-white p-6 shadow-sm">
             <StreamingPenPositionCompareExample />
           </div>
 
           {/* 调试工具 */}
-          <div class="bg-white p-6 rounded-lg shadow-sm">
+          <div class="rounded-lg bg-white p-6 shadow-sm">
             <StreamingPenDebugExample />
           </div>
 
           {/* 标准示例 */}
-          <div class="bg-white p-6 rounded-lg shadow-sm">
+          <div class="rounded-lg bg-white p-6 shadow-sm">
             <StreamingPenExample />
           </div>
         </section>

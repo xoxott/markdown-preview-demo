@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 import { v4 as uuidv4 } from 'uuid';
 import { createDefaultNodeData } from '../nodes/NodeRegistry';
 

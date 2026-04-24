@@ -1,6 +1,7 @@
-import { defineComponent, PropType, computed } from 'vue';
-import { NCard, NProgress, NDescriptions, NDescriptionsItem, NStatistic, NSpace } from 'naive-ui';
-import { formatBytes, calculateMemoryUsagePercent, getMemoryUsageColor } from '@/utils/monitoring';
+import type { PropType } from 'vue';
+import { computed, defineComponent } from 'vue';
+import { NCard, NDescriptions, NDescriptionsItem, NProgress, NSpace, NStatistic } from 'naive-ui';
+import { calculateMemoryUsagePercent, formatBytes, getMemoryUsageColor } from '@/utils/monitoring';
 
 interface MemoryData {
   total?: number;
@@ -35,7 +36,7 @@ export default defineComponent({
       if (!props.memory) return 0;
 
       if (props.memory.usagePercent) {
-        return parseFloat(props.memory.usagePercent);
+        return Number.parseFloat(props.memory.usagePercent);
       }
 
       if (props.memory.total && props.memory.used !== undefined) {

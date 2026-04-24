@@ -4,6 +4,8 @@
  * @module markdown-it-render-vnode-vue
  */
 
+import type { Component, VNode } from 'vue';
+import { Comment, Fragment, Text, createVNode } from 'vue';
 import type {
   FrameworkAdapter,
   FrameworkComponent,
@@ -11,12 +13,8 @@ import type {
   NodeChildren,
   NodeProps
 } from '@suga/markdown-it-render-vnode/adapters';
-import type { Component, VNode } from 'vue';
-import { Comment, Fragment, Text, createVNode } from 'vue';
 
-/**
- * 规范化子节点
- */
+/** 规范化子节点 */
 function normalizeChildren(children: NodeChildren): VNode[] {
   if (!children) {
     return [];
@@ -35,9 +33,7 @@ function normalizeChildren(children: NodeChildren): VNode[] {
   return [children as VNode];
 }
 
-/**
- * Vue 适配器实现
- */
+/** Vue 适配器实现 */
 export const vueAdapter: FrameworkAdapter = {
   createElement(
     tag: string | FrameworkComponent,

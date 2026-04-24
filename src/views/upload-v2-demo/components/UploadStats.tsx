@@ -1,11 +1,11 @@
-import { defineComponent, type PropType } from 'vue';
+import { type PropType, defineComponent } from 'vue';
 import { NCard, NIcon, NProgress, NTag } from 'naive-ui';
 import {
+  DocumentsOutline,
+  FolderOpenOutline,
   SpeedometerOutline,
   TimeOutline,
-  WifiOutline,
-  DocumentsOutline,
-  FolderOpenOutline
+  WifiOutline
 } from '@vicons/ionicons5';
 
 interface Props {
@@ -72,7 +72,7 @@ export default defineComponent({
   },
   setup(props) {
     return () => (
-      <NCard class="flex-1 max-w-[280px]" title="上传统计">
+      <NCard class="max-w-[280px] flex-1" title="上传统计">
         <div class="flex flex-col gap-4">
           {/* 全局进度 */}
           <div>
@@ -91,7 +91,7 @@ export default defineComponent({
           </div>
 
           {/* 详细信息 */}
-          <div class="space-y-2 text-sm">
+          <div class="text-sm space-y-2">
             <div class="flex items-center justify-between">
               <span class="flex items-center gap-2">
                 <NIcon component={SpeedometerOutline} size={16} />

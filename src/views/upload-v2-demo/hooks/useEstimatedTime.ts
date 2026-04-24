@@ -1,8 +1,6 @@
-import { ref, watch, onBeforeUnmount, type Ref } from 'vue';
+import { type Ref, onBeforeUnmount, ref, watch } from 'vue';
 
-/**
- * 预计剩余时间计算 Hook
- */
+/** 预计剩余时间计算 Hook */
 export function useEstimatedTime(
   estimatedTime: Ref<number>,
   isUploading: Ref<boolean> | { value: boolean },
@@ -13,9 +11,7 @@ export function useEstimatedTime(
   let lastUpdateTime = 0;
   let timeCountdownTimer: number | null = null;
 
-  /**
-   * 启动倒计时
-   */
+  /** 启动倒计时 */
   const startTimeCountdown = (initialTime: number): void => {
     if (timeCountdownTimer) {
       clearInterval(timeCountdownTimer);

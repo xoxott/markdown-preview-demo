@@ -1,6 +1,4 @@
-/**
- * 统一日志系统
- */
+/** 统一日志系统 */
 
 /** 日志级别 */
 export enum LogLevel {
@@ -28,9 +26,7 @@ interface LogEntry {
   error?: Error;
 }
 
-/**
- * 日志管理器
- */
+/** 日志管理器 */
 class Logger {
   private config: LoggerConfig;
   private logs: LogEntry[] = [];
@@ -53,16 +49,12 @@ class Logger {
     }
   }
 
-  /**
-   * 更新配置
-   */
+  /** 更新配置 */
   updateConfig(config: Partial<LoggerConfig>): void {
     this.config = { ...this.config, ...config };
   }
 
-  /**
-   * 记录日志
-   */
+  /** 记录日志 */
   private log(
     level: LogLevel,
     message: string,
@@ -99,9 +91,7 @@ class Logger {
     }
   }
 
-  /**
-   * 输出到控制台
-   */
+  /** 输出到控制台 */
   private logToConsole(entry: LogEntry): void {
     const timestamp = new Date(entry.timestamp).toISOString();
     const prefix = `[Upload-V2] [${timestamp}]`;
@@ -122,9 +112,7 @@ class Logger {
     }
   }
 
-  /**
-   * 保存日志到 localStorage
-   */
+  /** 保存日志到 localStorage */
   private saveLogs(): void {
     try {
       const logsJson = JSON.stringify(this.logs);
@@ -135,9 +123,7 @@ class Logger {
     }
   }
 
-  /**
-   * 从 localStorage 加载日志
-   */
+  /** 从 localStorage 加载日志 */
   private loadLogs(): void {
     try {
       const logsJson = localStorage.getItem(this.storageKey);
@@ -149,9 +135,7 @@ class Logger {
     }
   }
 
-  /**
-   * 获取日志
-   */
+  /** 获取日志 */
   getLogs(level?: LogLevel): LogEntry[] {
     if (level !== undefined) {
       return this.logs.filter(log => log.level >= level);
@@ -159,9 +143,7 @@ class Logger {
     return [...this.logs];
   }
 
-  /**
-   * 清空日志
-   */
+  /** 清空日志 */
   clearLogs(): void {
     this.logs = [];
     if (this.config.enableStorage) {

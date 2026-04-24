@@ -1,22 +1,6 @@
-/**
- * RequestClient 完整功能示例
- * 展示所有功能的使用方法，确保功能正常
- */
+/** RequestClient 完整功能示例 展示所有功能的使用方法，确保功能正常 */
 
-import {
-  onRequestComplete,
-  onRequestError,
-  onRequestStart,
-  onRequestSuccess
-} from '@suga/request-events';
-import {
-  configureLogger,
-  logErrorWithManager,
-  logRequestWithManager,
-  logResponseWithManager
-} from '@suga/request-logger';
-import { createRequestClient } from '@/utils/request/createRequestClient';
-import type { AxiosProgressEvent } from 'axios';
+import { defineComponent, onMounted, ref } from 'vue';
 import {
   NAlert,
   NButton,
@@ -30,7 +14,20 @@ import {
   NSpace,
   NText
 } from 'naive-ui';
-import { defineComponent, onMounted, ref } from 'vue';
+import type { AxiosProgressEvent } from 'axios';
+import {
+  onRequestComplete,
+  onRequestError,
+  onRequestStart,
+  onRequestSuccess
+} from '@suga/request-events';
+import {
+  configureLogger,
+  logErrorWithManager,
+  logRequestWithManager,
+  logResponseWithManager
+} from '@suga/request-logger';
+import { createRequestClient } from '@/utils/request/createRequestClient';
 
 // 创建请求客户端（仅配置 Axios 基础配置，步骤配置已写死在 createRequestClient 内部）
 const client = createRequestClient({
@@ -439,8 +436,8 @@ export default defineComponent({
     return () => (
       <div class="space-y-6">
         <NCard bordered>
-          <NH3 class="border-b pb-2 text-lg font-semibold mb-4">RequestClient 功能示例</NH3>
-          <NText class="text-gray-500 mb-4 block">
+          <NH3 class="mb-4 border-b pb-2 text-lg font-semibold">RequestClient 功能示例</NH3>
+          <NText class="mb-4 block text-gray-500">
             展示业务层封装的请求客户端功能，包括缓存、重试、熔断、去重、队列、日志、进度监控、请求取消等。
           </NText>
 
@@ -525,7 +522,7 @@ export default defineComponent({
           {/* 结果显示 */}
           {result.value && (
             <div class="mt-4">
-              <NText class="text-sm font-semibold mb-2 block">请求结果:</NText>
+              <NText class="mb-2 block text-sm font-semibold">请求结果:</NText>
               <NScrollbar style="max-height: 300px;">
                 <NCode language="json" code={JSON.stringify(result.value, null, 2)} />
               </NScrollbar>
@@ -535,7 +532,7 @@ export default defineComponent({
 
         {/* 日志面板 */}
         <NCard bordered>
-          <div class="flex items-center justify-between mb-4">
+          <div class="mb-4 flex items-center justify-between">
             <NH3 class="text-lg font-semibold">请求日志</NH3>
             <NButton size="small" onClick={clearLogs}>
               清空日志
@@ -549,7 +546,7 @@ export default defineComponent({
                 logs.value.map((log, index) => (
                   <div
                     key={index}
-                    class="text-sm font-mono text-gray-700 py-1 px-2 hover:bg-gray-50 rounded"
+                    class="rounded px-2 py-1 text-sm text-gray-700 font-mono hover:bg-gray-50"
                   >
                     {log}
                   </div>

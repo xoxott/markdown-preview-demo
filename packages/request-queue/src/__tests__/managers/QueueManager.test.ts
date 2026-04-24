@@ -1,6 +1,4 @@
-/**
- * QueueManager 测试
- */
+/** QueueManager 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
 import { QueueManager } from '../../managers/QueueManager';

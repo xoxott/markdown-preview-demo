@@ -1,11 +1,9 @@
-import { reactive, type Ref } from 'vue';
+import { type Ref, reactive } from 'vue';
 import { CONSTANTS } from '@/hooks/upload-v2';
 import type { UploadConfig } from '@/hooks/upload-v2';
 import type { ChunkSizeOption } from '../types';
 
-/**
- * 上传配置管理 Hook
- */
+/** 上传配置管理 Hook */
 export function useUploadSettings() {
   const settings = reactive<Partial<UploadConfig>>({
     maxConcurrentFiles: CONSTANTS.CONCURRENT.DEFAULT_FILES,

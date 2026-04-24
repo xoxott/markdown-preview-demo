@@ -4,7 +4,7 @@
  * 运行命令: pnpm vitest bench
  */
 
-import { describe, bench } from 'vitest';
+import { bench, describe } from 'vitest';
 import { SpatialIndex } from '../core/performance/SpatialIndex';
 import { ObjectPool, createPositionPool } from '../core/performance/ObjectPool';
 import { CommandManager } from '../core/commands/CommandManager';

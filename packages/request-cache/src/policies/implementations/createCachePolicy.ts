@@ -1,9 +1,6 @@
-/**
- * 创建缓存策略工厂函数
- * 根据配置创建合适的策略实例
- */
+/** 创建缓存策略工厂函数 根据配置创建合适的策略实例 */
 
-import type { CachePolicy, CacheConfig } from '../types';
+import type { CacheConfig, CachePolicy } from '../types';
 import { DefaultCachePolicy } from './DefaultCachePolicy';
 import { NoCachePolicy } from './NoCachePolicy';
 

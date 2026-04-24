@@ -4,8 +4,9 @@ import type { SSE } from '@/typings/sse';
  * Parse SSE message from raw data string
  *
  * Handles both single and double-encoded JSON formats:
+ *
  * - Single: {"type":"data","data":{...}}
- * - Double: {"data":"{\"type\":\"data\",\"data\":{...}}"}
+ * - Double: {"data":"{"type":"data","data":{...}}"}
  *
  * @param rawData - Raw data string from SSE stream
  * @param connectionId - Connection ID for logging

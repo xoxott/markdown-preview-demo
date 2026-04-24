@@ -1,7 +1,5 @@
-/**
- * SpeedCalculator 测试
- */
-import { describe, expect, it, beforeEach } from 'vitest';
+/** SpeedCalculator 测试 */
+import { beforeEach, describe, expect, it } from 'vitest';
 import { SpeedCalculator } from '../../calculators/SpeedCalculator';
 
 describe('SpeedCalculator', () => {

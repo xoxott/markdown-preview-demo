@@ -1,9 +1,7 @@
-/**
- * 基础组件示例
- */
+/** 基础组件示例 */
 
 import { defineComponent } from 'vue';
-import { NCard, NH3, NForm, NFormItem, NText, NScrollbar } from 'naive-ui';
+import { NCard, NForm, NFormItem, NH3, NScrollbar, NText } from 'naive-ui';
 import type { FileItem } from '@/components/file-explorer/types/file-explorer';
 import NSelectionRect from '@/components/file-explorer/interaction/NSelectionRect';
 import CustomUpload from '@/components/custom-upload';

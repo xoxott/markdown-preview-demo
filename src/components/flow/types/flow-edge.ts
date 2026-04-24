@@ -46,9 +46,7 @@ export interface FlowEdge<T = any> {
   [key: string]: any;
 }
 
-/**
- * 连接线类型注册表项
- */
+/** 连接线类型注册表项 */
 export interface FlowEdgeType {
   /** 连接线类型名称 */
   name: string;
@@ -58,9 +56,7 @@ export interface FlowEdgeType {
   defaultConfig?: Partial<FlowEdge>;
 }
 
-/**
- * 连接线路径生成器参数
- */
+/** 连接线路径生成器参数 */
 export interface FlowEdgePathParams {
   /** 源节点位置 */
   sourceX: number;
@@ -80,7 +76,5 @@ export interface FlowEdgePathParams {
   [key: string]: any;
 }
 
-/**
- * 连接线路径生成器函数
- */
+/** 连接线路径生成器函数 */
 export type FlowEdgePathGenerator = (params: FlowEdgePathParams) => string;

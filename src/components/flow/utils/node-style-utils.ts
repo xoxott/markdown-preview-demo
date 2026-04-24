@@ -4,13 +4,11 @@
  * 提供节点样式计算相关的工具函数
  */
 
-import { getCssVariable } from './theme-utils';
 import { CSS_VARIABLES } from '../constants/theme-constants';
 import type { FlowNode } from '../types';
+import { getCssVariable } from './theme-utils';
 
-/**
- * 节点容器样式选项
- */
+/** 节点容器样式选项 */
 export interface NodeContainerStyleOptions {
   /** 节点数据 */
   node: FlowNode;

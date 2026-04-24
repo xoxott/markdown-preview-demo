@@ -1,15 +1,11 @@
-/**
- * 请求键生成器
- */
+/** 请求键生成器 */
 
 import type { NormalizedRequestConfig } from '@suga/request-core';
 import { generateRequestKey as generateCoreRequestKey } from '@suga/request-core';
 import { generateKey } from '@suga/utils';
 import type { DedupeStrategy } from '../types';
 
-/**
- * 键生成器选项
- */
+/** 键生成器选项 */
 export interface KeyGeneratorOptions {
   /** 去重策略 */
   strategy: DedupeStrategy;
@@ -19,9 +15,7 @@ export interface KeyGeneratorOptions {
   customKeyGenerator?: (config: NormalizedRequestConfig) => string;
 }
 
-/**
- * 过滤掉需要忽略的参数
- */
+/** 过滤掉需要忽略的参数 */
 function filterIgnoredParams(obj: unknown, ignoreParams: string[]): unknown {
   if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
     return obj;
@@ -38,18 +32,12 @@ function filterIgnoredParams(obj: unknown, ignoreParams: string[]): unknown {
   return filtered;
 }
 
-/**
- * 生成请求唯一标识（精确匹配）
- * 复用 request-core 的键生成函数，确保格式一致
- */
+/** 生成请求唯一标识（精确匹配） 复用 request-core 的键生成函数，确保格式一致 */
 function generateExactKey(config: NormalizedRequestConfig): string {
   return generateCoreRequestKey(config);
 }
 
-/**
- * 生成请求唯一标识（忽略参数）
- * 如果配置了 ignoreParams，则只忽略指定的参数；否则忽略所有参数
- */
+/** 生成请求唯一标识（忽略参数） 如果配置了 ignoreParams，则只忽略指定的参数；否则忽略所有参数 */
 function generateIgnoreParamsKey(config: NormalizedRequestConfig, ignoreParams: string[]): string {
   const { url, method, params, data } = config;
   const methodUpper = (method || 'GET').toUpperCase();
@@ -67,9 +55,7 @@ function generateIgnoreParamsKey(config: NormalizedRequestConfig, ignoreParams: 
   return generateKey(methodUpper, url || '', filteredParams, filteredData);
 }
 
-/**
- * 生成请求唯一标识
- */
+/** 生成请求唯一标识 */
 export function generateRequestKey(
   config: NormalizedRequestConfig,
   options: KeyGeneratorOptions

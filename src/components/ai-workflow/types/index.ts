@@ -1,8 +1,7 @@
 /**
  * AI Workflow 组件类型定义
  *
- * 提供组件内部使用的 UI 相关类型定义
- * 这些数据只在前端缓存，不会持久化到后端
+ * 提供组件内部使用的 UI 相关类型定义 这些数据只在前端缓存，不会持久化到后端
  */
 
 // ==================== 基础类型 ====================
@@ -46,8 +45,7 @@ export interface Rect extends Position, Size {}
 /**
  * 视口配置
  *
- * 注意：视口状态会随工作流定义一起保存到后端
- * 这样可以保证多设备间的一致性
+ * 注意：视口状态会随工作流定义一起保存到后端 这样可以保证多设备间的一致性
  */
 export interface Viewport {
   x: number;
@@ -98,6 +96,7 @@ export interface NodeUIData {
  * 完整的节点数据（业务数据 + UI 数据）
  *
  * 数据分类：
+ *
  * - business: 包含位置、配置等，需要持久化到后端
  * - ui: 样式、状态等前端临时数据，存储在 localStorage
  */
@@ -153,6 +152,7 @@ export interface ConnectionUIData {
  * 完整的连接线数据（业务数据 + UI 数据）
  *
  * 使用场景：
+ *
  * - business: 从后端获取的连接关系，保存时也只保存这部分
  * - ui: 前端维护的样式和状态，存储在 localStorage/sessionStorage
  */
@@ -165,10 +165,7 @@ export interface WorkflowConnectionWithUI {
 
 // ==================== 画布类型（前端配置） ====================
 
-/**
- * 网格配置（前端用户偏好设置）
- * 存储在 localStorage
- */
+/** 网格配置（前端用户偏好设置） 存储在 localStorage */
 export interface GridConfig {
   enabled: boolean;
   size: number;
@@ -177,10 +174,7 @@ export interface GridConfig {
   snap: boolean;
 }
 
-/**
- * 小地图配置（前端用户偏好设置）
- * 存储在 localStorage
- */
+/** 小地图配置（前端用户偏好设置） 存储在 localStorage */
 export interface MinimapConfig {
   enabled: boolean;
   position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
@@ -188,10 +182,7 @@ export interface MinimapConfig {
   height: number;
 }
 
-/**
- * 主题配置（前端用户偏好设置）
- * 存储在 localStorage
- */
+/** 主题配置（前端用户偏好设置） 存储在 localStorage */
 export interface ThemeConfig {
   mode: 'light' | 'dark' | 'auto';
   primaryColor?: string;
@@ -199,10 +190,7 @@ export interface ThemeConfig {
   customTheme?: Record<string, any>;
 }
 
-/**
- * 画布配置（前端缓存）
- * 包含所有前端 UI 相关的配置
- */
+/** 画布配置（前端缓存） 包含所有前端 UI 相关的配置 */
 export interface CanvasConfig {
   viewport: Viewport;
   grid?: GridConfig;
@@ -309,6 +297,7 @@ export interface CanvasEvent {
  * 用于 localStorage 存储前端临时数据
  *
  * 注意：
+ *
  * - 节点位置（position）和视口（viewport）已在后端保存，不需要在这里存储
  * - 这里只存储纯 UI 相关的数据：样式、状态等
  */

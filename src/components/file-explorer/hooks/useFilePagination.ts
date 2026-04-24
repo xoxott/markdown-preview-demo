@@ -1,5 +1,5 @@
-import { ref, computed, type Ref } from 'vue';
-import type { FileItem, ViewMode, GridSize } from '../types/file-explorer';
+import { type Ref, computed, ref } from 'vue';
+import type { FileItem, GridSize, ViewMode } from '../types/file-explorer';
 import type { IFileDataSource } from '../datasources/types';
 import { getPageSizeByViewMode } from '../config/pagination.config';
 
@@ -43,10 +43,7 @@ export interface UseFilePaginationReturn {
   loadPage: () => Promise<void>;
 }
 
-/**
- * 文件分页 Hook
- * 根据数据源类型自动选择前端分页或接口分页
- */
+/** 文件分页 Hook 根据数据源类型自动选择前端分页或接口分页 */
 export function useFilePagination(options: UseFilePaginationOptions): UseFilePaginationReturn {
   const { dataSource, currentPath, viewMode, gridSize, onRefresh } = options;
 
@@ -85,9 +82,7 @@ export function useFilePagination(options: UseFilePaginationOptions): UseFilePag
     // 这里先不实现，在 useFileExplorerLogic 中处理
   }
 
-  /**
-   * 加载分页数据
-   */
+  /** 加载分页数据 */
   const loadPage = async () => {
     if (!dataSource.value) {
       paginatedItems.value = [];
@@ -126,9 +121,7 @@ export function useFilePagination(options: UseFilePaginationOptions): UseFilePag
     }
   };
 
-  /**
-   * 跳转到指定页
-   */
+  /** 跳转到指定页 */
   const goToPage = async (page: number) => {
     if (page < 1 || page > totalPages.value || page === currentPage.value) {
       return;
@@ -137,27 +130,21 @@ export function useFilePagination(options: UseFilePaginationOptions): UseFilePag
     await loadPage();
   };
 
-  /**
-   * 上一页
-   */
+  /** 上一页 */
   const prevPage = async () => {
     if (currentPage.value > 1) {
       await goToPage(currentPage.value - 1);
     }
   };
 
-  /**
-   * 下一页
-   */
+  /** 下一页 */
   const nextPage = async () => {
     if (currentPage.value < totalPages.value) {
       await goToPage(currentPage.value + 1);
     }
   };
 
-  /**
-   * 设置每页数量
-   */
+  /** 设置每页数量 */
   const setPageSize = async (size: number) => {
     if (size < 1 || size === pageSize.value) {
       return;
@@ -171,9 +158,7 @@ export function useFilePagination(options: UseFilePaginationOptions): UseFilePag
     await loadPage();
   };
 
-  /**
-   * 重置到第一页
-   */
+  /** 重置到第一页 */
   const reset = () => {
     currentPage.value = 1;
     total.value = 0;

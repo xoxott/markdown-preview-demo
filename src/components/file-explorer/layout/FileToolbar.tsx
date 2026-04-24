@@ -19,14 +19,14 @@ import {
   ReorderFourOutline
 } from '@vicons/ionicons5';
 import {
+  Cloud,
+  DeviceDesktop,
   Folder,
   Plus,
   Search,
   SortAscending,
   SortDescending,
-  Upload,
-  Cloud,
-  DeviceDesktop
+  Upload
 } from '@vicons/tabler';
 import type { GridSize, SortField, SortOrder, ViewMode } from '../types/file-explorer';
 import type { DataSourceType } from '../datasources/types';
@@ -341,7 +341,7 @@ export default defineComponent({
 
           {/* 中间：搜索框（桌面/平板） */}
           {!isMobile.value && (
-            <div class="mx-4 max-w-md flex flex-1 min-w-0">
+            <div class="mx-4 max-w-md min-w-0 flex flex-1">
               <NInput
                 value={props.searchQuery}
                 placeholder="搜索文件..."

@@ -1,6 +1,7 @@
-import { defineComponent, PropType } from 'vue';
+import type { PropType } from 'vue';
+import { defineComponent } from 'vue';
 import { NCard, NDescriptions, NDescriptionsItem } from 'naive-ui';
-import { formatUptime, formatBytes } from '@/utils/monitoring';
+import { formatBytes, formatUptime } from '@/utils/monitoring';
 
 interface ProcessInfo {
   pid?: number;

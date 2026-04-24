@@ -1,9 +1,6 @@
-/**
- * Markdown 编辑器页面
- * 支持流式渲染和笔写效果
- */
+/** Markdown 编辑器页面 支持流式渲染和笔写效果 */
 import { computed, defineComponent, ref } from 'vue';
-import { NInput, NButton, useThemeVars } from 'naive-ui';
+import { NButton, NInput, useThemeVars } from 'naive-ui';
 import Markdown from '@/components/markdown';
 import README from './README.md?raw';
 

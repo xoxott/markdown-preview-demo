@@ -1,17 +1,4 @@
-import type { RoleFormData } from '@/components/role-management/dialog';
-import { useRoleDialog } from '@/components/role-management/useRoleDialog';
-import { useNaiveForm } from '@/hooks/common/form';
-import { useTable } from '@/hooks/common/table';
-import { $t } from '@/locales';
-import {
-  fetchBatchDeleteRoles,
-  fetchCreateRole,
-  fetchDeleteRole,
-  fetchRoleDetail,
-  fetchRoleList,
-  fetchToggleRoleStatus,
-  fetchUpdateRole
-} from '@/service/api/role';
+import { defineComponent, getCurrentInstance, reactive, ref } from 'vue';
 import {
   NButton,
   NCard,
@@ -24,7 +11,20 @@ import {
   NSwitch,
   useMessage
 } from 'naive-ui';
-import { defineComponent, getCurrentInstance, reactive, ref } from 'vue';
+import {
+  fetchBatchDeleteRoles,
+  fetchCreateRole,
+  fetchDeleteRole,
+  fetchRoleDetail,
+  fetchRoleList,
+  fetchToggleRoleStatus,
+  fetchUpdateRole
+} from '@/service/api/role';
+import { useNaiveForm } from '@/hooks/common/form';
+import { useTable } from '@/hooks/common/table';
+import type { RoleFormData } from '@/components/role-management/dialog';
+import { useRoleDialog } from '@/components/role-management/useRoleDialog';
+import { $t } from '@/locales';
 import { useDialog } from '@/components/base-dialog/useDialog';
 
 type Role = Api.RoleManagement.Role;

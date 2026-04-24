@@ -1,6 +1,4 @@
-/**
- * CircuitBreakerManager 测试
- */
+/** CircuitBreakerManager 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CircuitBreakerManager } from '../../managers/CircuitBreakerManager';

@@ -1,11 +1,8 @@
-import { describe, expect, it, beforeEach, vi, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useChunkUpload } from '../../useChunkUpload';
 import type { UploadConfig } from '../../types';
 
-/**
- * 集成测试：边界情况和异常场景
- * 测试大文件、并发极限、网络异常等场景
- */
+/** 集成测试：边界情况和异常场景 测试大文件、并发极限、网络异常等场景 */
 describe('边界情况和异常场景', () => {
   let uploader: ReturnType<typeof useChunkUpload>;
   let mockFetch: ReturnType<typeof vi.fn>;

@@ -1,17 +1,4 @@
-import type { VersionLogFormData } from '@/components/version-log-management/dialog';
-import { useVersionLogDialog } from '@/components/version-log-management/useVersionLogDialog';
-import { useNaiveForm } from '@/hooks/common/form';
-import { useTable } from '@/hooks/common/table';
-import { $t } from '@/locales';
-import {
-  fetchBatchDeleteVersionLogs,
-  fetchCreateVersionLog,
-  fetchDeleteVersionLog,
-  fetchVersionLogDetail,
-  fetchVersionLogList,
-  fetchToggleVersionLogStatus,
-  fetchUpdateVersionLog
-} from '@/service/api/version-log';
+import { defineComponent, getCurrentInstance, reactive, ref } from 'vue';
 import {
   NButton,
   NCard,
@@ -25,7 +12,20 @@ import {
   NTag,
   useMessage
 } from 'naive-ui';
-import { defineComponent, getCurrentInstance, reactive, ref } from 'vue';
+import {
+  fetchBatchDeleteVersionLogs,
+  fetchCreateVersionLog,
+  fetchDeleteVersionLog,
+  fetchToggleVersionLogStatus,
+  fetchUpdateVersionLog,
+  fetchVersionLogDetail,
+  fetchVersionLogList
+} from '@/service/api/version-log';
+import { useNaiveForm } from '@/hooks/common/form';
+import { useTable } from '@/hooks/common/table';
+import type { VersionLogFormData } from '@/components/version-log-management/dialog';
+import { useVersionLogDialog } from '@/components/version-log-management/useVersionLogDialog';
+import { $t } from '@/locales';
 import { useDialog } from '@/components/base-dialog/useDialog';
 
 type VersionLog = Api.VersionLogManagement.VersionLog;
@@ -252,7 +252,7 @@ export default defineComponent({
           width: 300,
           render: (row: VersionLog) => {
             const content = row.content || '-';
-            return content.length > 50 ? content.substring(0, 50) + '...' : content;
+            return content.length > 50 ? `${content.substring(0, 50)}...` : content;
           }
         },
         {

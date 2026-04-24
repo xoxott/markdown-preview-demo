@@ -1,4 +1,4 @@
-import { defineComponent, computed, Transition, type PropType } from 'vue';
+import { type PropType, Transition, computed, defineComponent } from 'vue';
 import { NCard } from 'naive-ui';
 import { getPaletteColorByNumber, mixColor } from '@suga/color';
 import { loginModuleRecord } from '@/constants/app';
@@ -106,15 +106,15 @@ export default defineComponent({
 
         {/* 毛玻璃登录卡片 */}
         <div
-          class="relative z-4 w-auto rd-12px p-24px lt-sm:p-16px shadow-2xl"
+          class="relative z-4 w-auto rd-12px p-24px shadow-2xl lt-sm:p-16px"
           style={cardStyle.value}
         >
           {/* 主题和语言切换 - 右上角 */}
-          <div class="absolute top-16px right-16px flex items-center gap-8px lt-sm:(top-12px right-12px gap-6px)">
+          <div class="absolute right-16px top-16px flex items-center gap-8px lt-sm:(right-12px top-12px gap-6px)">
             <ThemeSchemaSwitch
               themeSchema={themeStore.themeScheme}
               showTooltip={false}
-              class="text-18px lt-sm:text-16px cursor-pointer hover:text-primary transition-colors opacity-70 hover:opacity-100"
+              class="cursor-pointer text-18px opacity-70 transition-colors lt-sm:text-16px hover:text-primary hover:opacity-100"
               onSwitch={themeStore.toggleThemeScheme}
             />
             {themeStore.header.multilingual.visible && (
@@ -130,11 +130,11 @@ export default defineComponent({
 
           <div class="w-360px lt-sm:w-280px">
             {/* 头部 - Logo和标题 */}
-            <header class="flex-col items-center mb-16px">
-              <div class="flex items-center justify-center mb-6px">
+            <header class="mb-16px flex-col items-center">
+              <div class="mb-6px flex items-center justify-center">
                 <SystemLogo class="text-48px text-primary lt-sm:text-40px" />
               </div>
-              <h3 class="text-20px text-primary font-600 text-center mb-3px lt-sm:text-18px">
+              <h3 class="mb-3px text-center text-20px text-primary font-600 lt-sm:text-18px">
                 {$t('system.title')}
               </h3>
               {/* <p class="text-12px text-gray-500 dark:text-gray-400 text-center">

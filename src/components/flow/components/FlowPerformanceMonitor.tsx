@@ -5,13 +5,13 @@
  */
 
 import {
-  defineComponent,
-  ref,
-  computed,
-  watch,
-  onUnmounted,
+  type CSSProperties,
   type PropType,
-  type CSSProperties
+  computed,
+  defineComponent,
+  onUnmounted,
+  ref,
+  watch
 } from 'vue';
 import { useRafLoop } from '../hooks/useRafLoop';
 
@@ -25,9 +25,7 @@ export interface PerformanceMetrics {
   memoryUsage?: number;
 }
 
-/**
- * 性能等级枚举
- */
+/** 性能等级枚举 */
 export enum PerformanceLevel {
   EXCELLENT = 'excellent',
   GOOD = 'good',
@@ -35,9 +33,7 @@ export enum PerformanceLevel {
   POOR = 'poor'
 }
 
-/**
- * 性能等级配置
- */
+/** 性能等级配置 */
 const PERFORMANCE_CONFIG = {
   [PerformanceLevel.EXCELLENT]: {
     label: '优秀',
@@ -61,9 +57,7 @@ const PERFORMANCE_CONFIG = {
   }
 } as const;
 
-/**
- * 性能颜色常量
- */
+/** 性能颜色常量 */
 const PERFORMANCE_COLORS = {
   EXCELLENT: '#52c41a',
   GOOD: '#1890ff',
@@ -74,9 +68,7 @@ const PERFORMANCE_COLORS = {
   DEFAULT: '#8c8c8c'
 } as const;
 
-/**
- * 性能阈值常量
- */
+/** 性能阈值常量 */
 const PERFORMANCE_THRESHOLDS = {
   EXCELLENT_FPS: 55,
   GOOD_FPS: 40,
@@ -86,17 +78,13 @@ const PERFORMANCE_THRESHOLDS = {
   FRAME_TIME_WARNING: 20
 } as const;
 
-/**
- * 更新间隔常量（毫秒）
- */
+/** 更新间隔常量（毫秒） */
 const UPDATE_INTERVALS = {
   DISPLAY: 500,
   MEMORY: 1000
 } as const;
 
-/**
- * 显示文本常量
- */
+/** 显示文本常量 */
 const LABELS = {
   TITLE: '性能监控',
   FPS: 'FPS',
@@ -154,9 +142,7 @@ export default defineComponent({
     let currentMinFps = 60;
     let currentMaxFrameTime = 0;
 
-    /**
-     * RAF 循环回调：只累加帧数和记录单帧时间
-     */
+    /** RAF 循环回调：只累加帧数和记录单帧时间 */
     const onFrame = () => {
       const now = performance.now();
       frameCount++;
@@ -179,9 +165,7 @@ export default defineComponent({
       }
     };
 
-    /**
-     * 定时更新显示值（每 500ms 执行一次）
-     */
+    /** 定时更新显示值（每 500ms 执行一次） */
     const updateDisplayValues = () => {
       const now = performance.now();
       const elapsed = now - lastTime;
@@ -189,9 +173,9 @@ export default defineComponent({
       if (elapsed > 0 && frameCount > 0) {
         // 只计算 FPS，frameTime 通过倒数获得（避免重复计算）
         fps.value = Math.round((frameCount * 1000) / elapsed);
-        frameTime.value = parseFloat((1000 / fps.value).toFixed(2));
+        frameTime.value = Number.parseFloat((1000 / fps.value).toFixed(2));
         minFps.value = currentMinFps;
-        maxFrameTime.value = parseFloat(currentMaxFrameTime.toFixed(2));
+        maxFrameTime.value = Number.parseFloat(currentMaxFrameTime.toFixed(2));
 
         // 重置计数器和最值
         frameCount = 0;
@@ -201,14 +185,11 @@ export default defineComponent({
       }
     };
 
-    /**
-     * 单独的内存监控（每 1s 执行一次，降低开销）
-     * 性能优化：内存查询有开销，使用慢频率定时器
-     */
+    /** 单独的内存监控（每 1s 执行一次，降低开销） 性能优化：内存查询有开销，使用慢频率定时器 */
     const updateMemoryUsage = () => {
       if ('memory' in performance) {
         const memory = (performance as any).memory;
-        memoryUsage.value = parseFloat((memory.usedJSHeapSize / 1024 / 1024).toFixed(1));
+        memoryUsage.value = Number.parseFloat((memory.usedJSHeapSize / 1024 / 1024).toFixed(1));
       }
     };
 

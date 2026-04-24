@@ -1,4 +1,4 @@
-import { request, refreshTokenRequest } from '../request';
+import { refreshTokenRequest, request } from '../request';
 
 /**
  * Login step 1 - Initial login with username and password
@@ -78,8 +78,7 @@ export function fetchSendRegistrationCode(email: string) {
 /**
  * Refresh access token
  *
- * @param refreshToken Refresh token
- * 注意：使用 refreshTokenRequest 而不是 request，避免携带过期的 accessToken
+ * @param refreshToken Refresh token 注意：使用 refreshTokenRequest 而不是 request，避免携带过期的 accessToken
  */
 export function fetchRefreshToken(refreshToken: string) {
   return refreshTokenRequest<Api.Auth.RefreshTokenResponse>({
@@ -91,16 +90,12 @@ export function fetchRefreshToken(refreshToken: string) {
   });
 }
 
-/**
- * Get user info
- */
+/** Get user info */
 export function fetchGetUserInfo() {
   return request<Api.Auth.UserInfo>({ url: '/api/admin/users/me' });
 }
 
-/**
- * Logout
- */
+/** Logout */
 export function fetchLogout() {
   return request<Api.Auth.LogoutResponse>({
     url: '/api/admin/auth/logout',

@@ -1,5 +1,5 @@
-import { defineComponent, computed, type PropType } from 'vue';
-import { NIcon, NTag, NButton } from 'naive-ui';
+import { type PropType, computed, defineComponent } from 'vue';
+import { NButton, NIcon, NTag } from 'naive-ui';
 import { Icon } from '@iconify/vue';
 
 /** 节点显示数据 */
@@ -139,7 +139,7 @@ export default defineComponent({
               return (
                 <div
                   key={port.id}
-                  class="node-port node-port-input hover:scale-125 transition-transform"
+                  class="node-port node-port-input transition-transform hover:scale-125"
                   data-node-id={props.id}
                   data-port-id={port.id}
                   data-port-type="input"
@@ -181,7 +181,7 @@ export default defineComponent({
               return (
                 <div
                   key={port.id}
-                  class="node-port node-port-output hover:scale-125 transition-transform"
+                  class="node-port node-port-output transition-transform hover:scale-125"
                   data-node-id={props.id}
                   data-port-id={port.id}
                   data-port-type="output"
@@ -217,7 +217,7 @@ export default defineComponent({
             circle
             type="error"
             onClick={handleDelete}
-            class="absolute -top-2 -right-1 z-20 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            class="absolute z-20 opacity-0 shadow-md transition-opacity duration-200 -right-1 -top-2 group-hover:opacity-100"
             style={{
               width: '14px',
               height: '14px',
@@ -238,7 +238,7 @@ export default defineComponent({
 
         {/* 节点主体 - 使用自定义div替代NCard以确保尺寸可控 */}
         <div
-          class="group-hover:shadow-xl transition-all duration-200"
+          class="transition-all duration-200 group-hover:shadow-xl"
           style={{
             width: '100%',
             height: '100%',
@@ -258,11 +258,11 @@ export default defineComponent({
             willChange: props.selected ? 'border-color, box-shadow' : 'auto'
           }}
         >
-          <div class="flex items-center gap-3 w-full">
+          <div class="w-full flex items-center gap-3">
             {/* 图标 */}
             {props.data.icon && (
               <div
-                class="flex-shrink-0 flex items-center justify-center group-hover:scale-110 transition-transform"
+                class="flex flex-shrink-0 items-center justify-center transition-transform group-hover:scale-110"
                 style={{
                   width: '40px',
                   height: '40px',
@@ -279,12 +279,12 @@ export default defineComponent({
             )}
 
             {/* 内容 */}
-            <div class="flex-1 min-w-0">
-              <div class="font-semibold text-sm text-gray-800 dark:text-gray-100 truncate">
+            <div class="min-w-0 flex-1">
+              <div class="truncate text-sm text-gray-800 font-semibold dark:text-gray-100">
                 {props.data.label}
               </div>
               {props.data.description && (
-                <div class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                <div class="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
                   {props.data.description}
                 </div>
               )}

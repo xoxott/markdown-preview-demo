@@ -4,11 +4,10 @@
  * 负责使用 SVG 渲染连接线，支持贝塞尔曲线和箭头
  */
 
-import { defineComponent, computed, type PropType, CSSProperties } from 'vue';
+import type { CSSProperties, type PropType, computed, defineComponent } from 'vue';
 import { getGpuAccelerationStyle } from '../../utils/style-utils';
 import { useEventHandlers } from '../../hooks/useEventHandlers';
 import { generateEdgePath } from '../../utils/edge-path-generator';
-import BaseEdge from './BaseEdge';
 import type { FlowEdge, FlowViewport } from '../../types';
 import type { EdgePositions } from '../../hooks/useEdgePositions';
 import {
@@ -19,10 +18,9 @@ import {
   MARKER_SUFFIXES
 } from '../../constants/edge-constants';
 import { calculateArrowMarkerConfig } from '../../utils/edge-style-utils';
+import BaseEdge from './BaseEdge';
 
-/**
- * EdgeSvgRenderer 组件属性
- */
+/** EdgeSvgRenderer 组件属性 */
 export interface EdgeSvgRendererProps {
   /** 可见连接线列表 */
   visibleEdges: FlowEdge[];
@@ -44,9 +42,7 @@ export interface EdgeSvgRendererProps {
   onEdgeMouseLeave?: (edge: FlowEdge, event: MouseEvent) => void;
 }
 
-/**
- * 连接线 SVG 渲染器组件
- */
+/** 连接线 SVG 渲染器组件 */
 export default defineComponent({
   name: 'EdgeSvgRenderer',
   props: {

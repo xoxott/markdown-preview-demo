@@ -1,13 +1,8 @@
-/**
- * 分片计算器
- * 根据文件大小和网络速度计算最优分片大小
- */
+/** 分片计算器 根据文件大小和网络速度计算最优分片大小 */
 import type { UploadConfig } from '../types';
 
 export class ChunkCalculator {
-  /**
-   * 计算最优分片大小
-   */
+  /** 计算最优分片大小 */
   static calculateOptimalChunkSize(
     fileSize: number,
     networkSpeed: number,

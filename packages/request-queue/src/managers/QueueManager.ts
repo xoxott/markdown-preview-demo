@@ -1,14 +1,10 @@
-/**
- * 请求队列管理器
- */
+/** 请求队列管理器 */
 
 import type { NormalizedRequestConfig } from '@suga/request-core';
 import type { QueueConfig, QueuedRequest, RequestPriority } from '../types';
 import { DEFAULT_QUEUE_CONFIG } from '../constants';
 
-/**
- * 请求队列管理器
- */
+/** 请求队列管理器 */
 export class QueueManager {
   private queue: QueuedRequest[] = [];
   private running: Set<QueuedRequest> = new Set();
@@ -20,9 +16,7 @@ export class QueueManager {
     this.queueStrategy = config.queueStrategy ?? DEFAULT_QUEUE_CONFIG.DEFAULT_STRATEGY;
   }
 
-  /**
-   * 获取请求优先级数值（用于排序）
-   */
+  /** 获取请求优先级数值（用于排序） */
   private getPriorityValue(priority: RequestPriority): number {
     switch (priority) {
       case 'high':
@@ -36,9 +30,7 @@ export class QueueManager {
     }
   }
 
-  /**
-   * 排序队列（根据策略）
-   */
+  /** 排序队列（根据策略） */
   private sortQueue(): void {
     if (this.queueStrategy === 'priority') {
       this.queue.sort((a, b) => {
@@ -53,9 +45,7 @@ export class QueueManager {
     // FIFO 策略不需要排序，保持插入顺序
   }
 
-  /**
-   * 处理请求完成后的清理和后续处理
-   */
+  /** 处理请求完成后的清理和后续处理 */
   private handleRequestComplete(queuedRequest: QueuedRequest): void {
     // 从运行中集合移除
     this.running.delete(queuedRequest);
@@ -63,9 +53,7 @@ export class QueueManager {
     this.processNext();
   }
 
-  /**
-   * 处理队列中的下一个请求
-   */
+  /** 处理队列中的下一个请求 */
   private processNext(): void {
     // 如果已达到最大并发数，不处理
     if (this.running.size >= this.maxConcurrent) {
@@ -103,9 +91,7 @@ export class QueueManager {
       });
   }
 
-  /**
-   * 添加请求到队列
-   */
+  /** 添加请求到队列 */
   async enqueue<T>(
     config: NormalizedRequestConfig,
     requestFn: () => Promise<T>,
@@ -129,23 +115,17 @@ export class QueueManager {
     });
   }
 
-  /**
-   * 获取队列长度
-   */
+  /** 获取队列长度 */
   getQueueLength(): number {
     return this.queue.length;
   }
 
-  /**
-   * 获取运行中的请求数量
-   */
+  /** 获取运行中的请求数量 */
   getRunningCount(): number {
     return this.running.size;
   }
 
-  /**
-   * 清空队列
-   */
+  /** 清空队列 */
   clear(): void {
     // 取消所有待处理的请求
     this.queue.forEach(queuedRequest => {
@@ -154,9 +134,7 @@ export class QueueManager {
     this.queue = [];
   }
 
-  /**
-   * 更新配置
-   */
+  /** 更新配置 */
   updateConfig(config: Partial<QueueConfig>): void {
     if (config.maxConcurrent !== undefined) {
       this.maxConcurrent = config.maxConcurrent;

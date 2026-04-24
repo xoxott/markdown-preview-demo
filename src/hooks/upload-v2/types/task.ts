@@ -1,6 +1,4 @@
-/**
- * 任务相关类型定义
- */
+/** 任务相关类型定义 */
 import type { UploadFileInfo } from 'naive-ui';
 import type { UploadStatus } from './core';
 import type { ChunkInfo } from './chunk';

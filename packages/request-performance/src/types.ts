@@ -1,12 +1,8 @@
-/**
- * 性能监控类型定义
- */
+/** 性能监控类型定义 */
 
 import type { NormalizedRequestConfig } from '@suga/request-core';
 
-/**
- * URL 统计信息
- */
+/** URL 统计信息 */
 export interface UrlStats {
   /** 请求总数 */
   count: number;
@@ -16,9 +12,7 @@ export interface UrlStats {
   averageTime: number;
 }
 
-/**
- * 性能监控指标
- */
+/** 性能监控指标 */
 export interface PerformanceMetrics {
   /** 请求总数 */
   totalRequests: number;
@@ -38,9 +32,7 @@ export interface PerformanceMetrics {
   urlStats: Record<string, UrlStats>;
 }
 
-/**
- * 性能监控器接口
- */
+/** 性能监控器接口 */
 export interface PerformanceMonitor {
   /** 请求开始 */
   onRequestStart(config: NormalizedRequestConfig): void;

@@ -1,6 +1,4 @@
-/**
- * DefaultSuccessEvaluationStrategy 测试
- */
+/** DefaultSuccessEvaluationStrategy 测试 */
 
 import { describe, expect, it } from 'vitest';
 import { DefaultSuccessEvaluationStrategy } from '../../strategies/success-evaluation';

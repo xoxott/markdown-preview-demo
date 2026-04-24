@@ -1,11 +1,10 @@
 /**
  * 键盘快捷键管理 Hook
  *
- * 处理键盘快捷键的注册和处理，基于 FlowKeyboardHandler 核心逻辑
- * 提供 Vue 响应式封装
+ * 处理键盘快捷键的注册和处理，基于 FlowKeyboardHandler 核心逻辑 提供 Vue 响应式封装
  */
 
-import { onUnmounted, type Ref } from 'vue';
+import { type Ref, onUnmounted } from 'vue';
 import { useEventListener } from '@vueuse/core';
 import { FlowKeyboardHandler } from '../core/interaction/FlowKeyboardHandler';
 import type { KeyBinding, KeyHandler } from '../core/interaction/FlowKeyboardHandler';
@@ -45,9 +44,7 @@ export interface UseKeyboardReturn {
   clear: () => void;
 }
 
-/**
- * 键盘快捷键管理 Hook
- */
+/** 键盘快捷键管理 Hook */
 export function useKeyboard(options: UseKeyboardOptions = {}): UseKeyboardReturn {
   const { enabled = true, target, onKeyDown } = options;
 

@@ -1,6 +1,4 @@
-/**
- * 错误类型定义
- */
+/** 错误类型定义 */
 import { ErrorType } from '../utils/retry';
 import { i18n } from '../utils/i18n';
 
@@ -40,9 +38,7 @@ export class UploadError extends Error {
     }
   }
 
-  /**
-   * 转换为用户友好的错误消息（支持国际化）
-   */
+  /** 转换为用户友好的错误消息（支持国际化） */
   toUserMessage(): string {
     switch (this.errorType) {
       case ErrorType.NETWORK_ERROR:
@@ -59,9 +55,7 @@ export class UploadError extends Error {
     }
   }
 
-  /**
-   * 转换为 JSON
-   */
+  /** 转换为 JSON */
   toJSON(): Record<string, any> {
     return {
       name: this.name,

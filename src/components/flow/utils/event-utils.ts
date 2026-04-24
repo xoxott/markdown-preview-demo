@@ -4,12 +4,10 @@
  * 提供事件处理相关的工具函数，包括事件委托
  */
 
-import { computed, type Ref } from 'vue';
+import { type Ref, computed } from 'vue';
 import { isRef } from './type-utils';
 
-/**
- * 事件委托选项
- */
+/** 事件委托选项 */
 export interface EventDelegationOptions<T> {
   /** 数据项列表（可以是响应式引用） */
   items: T[] | Ref<T[]>;
@@ -26,30 +24,30 @@ export interface EventDelegationOptions<T> {
  *
  * 用于在容器元素上统一处理子元素的事件，避免为每个子元素创建事件处理函数
  *
+ * @example
+ *   ```typescript
+ *   const handleClick = createEventDelegation(
+ *     {
+ *       items: visibleNodes.value,
+ *       getId: (node) => node.id,
+ *       dataAttribute: 'data-node-id'
+ *     },
+ *     (node, event) => {
+ *       console.log('节点被点击', node);
+ *     }
+ *   );
+ *
+ *   // 在容器上使用
+ *   <div onClick={handleClick}>
+ *     {nodes.map(node => (
+ *       <div data-node-id={node.id}>...</div>
+ *     ))}
+ *   </div>
+ *   ```;
+ *
  * @param options 事件委托选项
  * @param handler 事件处理函数
  * @returns 事件委托处理函数
- *
- * @example
- * ```typescript
- * const handleClick = createEventDelegation(
- *   {
- *     items: visibleNodes.value,
- *     getId: (node) => node.id,
- *     dataAttribute: 'data-node-id'
- *   },
- *   (node, event) => {
- *     console.log('节点被点击', node);
- *   }
- * );
- *
- * // 在容器上使用
- * <div onClick={handleClick}>
- *   {nodes.map(node => (
- *     <div data-node-id={node.id}>...</div>
- *   ))}
- * </div>
- * ```
  */
 export function createEventDelegation<T>(
   options: EventDelegationOptions<T>,
@@ -91,19 +89,19 @@ export function createEventDelegation<T>(
  *
  * 为节点列表创建事件委托，使用默认的配置
  *
+ * @example
+ *   ```typescript
+ *   const handleNodeClick = createNodeEventDelegation(
+ *     visibleNodes,
+ *     props.onNodeClick,
+ *     { excludeSelector: '.flow-handle' }
+ *   );
+ *   ```;
+ *
  * @param items 节点列表（响应式）
  * @param handler 事件处理函数（可选）
  * @param options 额外选项
  * @returns 事件处理函数或 undefined
- *
- * @example
- * ```typescript
- * const handleNodeClick = createNodeEventDelegation(
- *   visibleNodes,
- *   props.onNodeClick,
- *   { excludeSelector: '.flow-handle' }
- * );
- * ```
  */
 export function createNodeEventDelegation<T extends { id: string }>(
   items: Ref<T[]>,

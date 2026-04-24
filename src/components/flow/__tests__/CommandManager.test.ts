@@ -1,6 +1,4 @@
-/**
- * CommandManager 测试
- */
+/** CommandManager 测试 */
 
 import { BaseCommand, type Command } from '../core/commands/Command';
 import { CommandManager } from '../core/commands/CommandManager';

@@ -1,10 +1,10 @@
 import { type PropType, Transition, computed, defineComponent, ref } from 'vue';
 import { NCard } from 'naive-ui';
+import type { CodeBlockMeta } from '@suga/markdown-it-render-vnode';
 import { useToggle } from '@/hooks/customer/useToggle';
 import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
 import { useCodeTools, useSvgTools } from '../hooks/useToolbar';
 import { extractSvgMeta, isValidSvg } from '../utils/svg-utils';
-import type { CodeBlockMeta } from '@suga/markdown-it-render-vnode';
 import type { SvgMeta } from '../plugins/types';
 import { ToolBar } from './ToolBar';
 import { ErrorMessage } from './ErrorMessage';
@@ -49,7 +49,7 @@ export const SvgRenderer = defineComponent({
   },
   setup(props) {
     // ==================== 状态管理 ====================
-    const { darkMode, themeVars, cssVars, codeBlockStyle, containerBgStyle } = useMarkdownTheme();
+    const { darkMode, cssVars, codeBlockStyle, containerBgStyle } = useMarkdownTheme();
     const { copyCode, copyFeedback } = useCodeTools();
     const { state: showCode, toggle: toggleCode } = useToggle(false);
 

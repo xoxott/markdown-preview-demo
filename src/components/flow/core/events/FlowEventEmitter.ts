@@ -1,25 +1,20 @@
 /**
  * Flow 事件发射器
  *
- * 提供类型安全的事件注册和触发功能
- * 支持事件监听器管理、一次性监听器、事件优先级等
+ * 提供类型安全的事件注册和触发功能 支持事件监听器管理、一次性监听器、事件优先级等
  */
 
 import { logger } from '../../utils/logger';
 import type { FlowEvents } from '../../types/flow-events';
 
-/**
- * 事件监听器类型
- */
+/** 事件监听器类型 */
 type EventListener<T extends keyof FlowEvents> = FlowEvents[T] extends (
   ...args: unknown[]
 ) => unknown
   ? FlowEvents[T]
   : never;
 
-/**
- * 事件监听器选项
- */
+/** 事件监听器选项 */
 export interface EventListenerOptions {
   /** 是否只触发一次 */
   once?: boolean;
@@ -29,9 +24,7 @@ export interface EventListenerOptions {
   capture?: boolean;
 }
 
-/**
- * 事件监听器包装
- */
+/** 事件监听器包装 */
 interface EventListenerWrapper<T extends keyof FlowEvents> {
   /** 监听器函数 */
   listener: EventListener<T>;
@@ -68,23 +61,23 @@ export class FlowEventEmitter {
   /**
    * 注册事件监听器
    *
+   * @example
+   *   ```typescript
+   *   const emitter = new FlowEventEmitter();
+   *
+   *   // 注册监听器
+   *   const unsubscribe = emitter.on('onNodeClick', (node, event) => {
+   *     console.log('Node clicked:', node);
+   *   });
+   *
+   *   // 取消监听
+   *   unsubscribe();
+   *   ```;
+   *
    * @param event 事件名称
    * @param listener 监听器函数
    * @param options 监听器选项
    * @returns 取消监听的函数
-   *
-   * @example
-   * ```typescript
-   * const emitter = new FlowEventEmitter();
-   *
-   * // 注册监听器
-   * const unsubscribe = emitter.on('onNodeClick', (node, event) => {
-   *   console.log('Node clicked:', node);
-   * });
-   *
-   * // 取消监听
-   * unsubscribe();
-   * ```
    */
   on<T extends keyof FlowEvents>(
     event: T,
@@ -168,14 +161,14 @@ export class FlowEventEmitter {
   /**
    * 触发事件
    *
+   * @example
+   *   ```typescript
+   *   emitter.emit('onNodeClick', node, mouseEvent);
+   *   ```;
+   *
    * @param event 事件名称
    * @param args 事件参数
    * @returns 是否有监听器处理了事件
-   *
-   * @example
-   * ```typescript
-   * emitter.emit('onNodeClick', node, mouseEvent);
-   * ```
    */
   emit<T extends keyof FlowEvents>(
     event: T,

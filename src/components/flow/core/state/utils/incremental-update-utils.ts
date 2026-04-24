@@ -6,9 +6,7 @@
 
 import type { FlowNode } from '../../../types/flow-node';
 
-/**
- * 节点位置比较结果
- */
+/** 节点位置比较结果 */
 export interface NodePositionComparison {
   /** 位置是否变化 */
   positionChanged: boolean;
@@ -38,19 +36,19 @@ export function compareNodePosition(oldNode: FlowNode, newNode: FlowNode): NodeP
  *
  * 按照原始数组顺序构建新数组，只更新变化的节点，保持其他节点引用不变
  *
+ * @example
+ *   ```typescript
+ *   const { result, hasChanges } = incrementalUpdateNodes(
+ *     this.nodes,
+ *     this.lastNodesArray,
+ *     this.updatedNodeIds
+ *   );
+ *   ```;
+ *
  * @param originalNodes 原始节点数组（保持顺序）
  * @param lastNodesArray 上次返回的节点数组
  * @param updatedNodeIds 已更新的节点 ID 集合
  * @returns 更新后的节点数组和是否有变化
- *
- * @example
- * ```typescript
- * const { result, hasChanges } = incrementalUpdateNodes(
- *   this.nodes,
- *   this.lastNodesArray,
- *   this.updatedNodeIds
- * );
- * ```
  */
 export function incrementalUpdateNodes(
   originalNodes: FlowNode[],

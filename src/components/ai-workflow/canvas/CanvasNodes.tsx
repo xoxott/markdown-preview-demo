@@ -1,9 +1,6 @@
-/**
- * 画布节点层组件
- * 负责渲染所有工作流节点
- */
+/** 画布节点层组件 负责渲染所有工作流节点 */
 
-import { defineComponent, h, type PropType } from 'vue';
+import { type PropType, defineComponent, h } from 'vue';
 import { NODE_TYPES } from '../nodes/NodeRegistry';
 
 export interface CanvasNodesProps {

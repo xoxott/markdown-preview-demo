@@ -7,9 +7,7 @@
 import type { FlowNode } from '../../types/flow-node';
 import type { FlowEdge } from '../../types/flow-edge';
 
-/**
- * 选择框状态
- */
+/** 选择框状态 */
 export interface SelectionBox {
   /** 是否显示选择框 */
   visible: boolean;
@@ -23,9 +21,7 @@ export interface SelectionBox {
   currentY: number;
 }
 
-/**
- * 选择选项
- */
+/** 选择选项 */
 export interface SelectionOptions {
   /** 是否启用多选 */
   enableMultiSelection?: boolean;
@@ -37,9 +33,7 @@ export interface SelectionOptions {
   boxSelectionKey?: 'shift' | 'alt' | 'ctrl';
 }
 
-/**
- * 选择处理器选项
- */
+/** 选择处理器选项 */
 export interface FlowSelectionHandlerOptions {
   /** 选择选项 */
   options?: Partial<SelectionOptions>;
@@ -50,8 +44,7 @@ export interface FlowSelectionHandlerOptions {
 /**
  * Flow 选择处理器
  *
- * 完全独立的选择逻辑处理器，不依赖任何状态管理器
- * 通过回调函数通知选择变化
+ * 完全独立的选择逻辑处理器，不依赖任何状态管理器 通过回调函数通知选择变化
  */
 export class FlowSelectionHandler {
   /** 选中的节点 ID 列表 */
@@ -83,9 +76,7 @@ export class FlowSelectionHandler {
     this.onSelectionChange = handlerOptions?.onSelectionChange;
   }
 
-  /**
-   * 设置选择选项
-   */
+  /** 设置选择选项 */
   setOptions(options: Partial<SelectionOptions>): void {
     this.options = { ...this.options, ...options };
   }
@@ -99,9 +90,7 @@ export class FlowSelectionHandler {
     this.onSelectionChange = callback;
   }
 
-  /**
-   * 通知选择变化
-   */
+  /** 通知选择变化 */
   private notifySelectionChange(): void {
     if (this.onSelectionChange) {
       this.onSelectionChange(Array.from(this.selectedNodeIds), Array.from(this.selectedEdgeIds));
@@ -174,9 +163,7 @@ export class FlowSelectionHandler {
     this.notifySelectionChange();
   }
 
-  /**
-   * 取消所有选择
-   */
+  /** 取消所有选择 */
   deselectAll(): void {
     this.selectedNodeIds.clear();
     this.selectedEdgeIds.clear();
@@ -336,9 +323,7 @@ export class FlowSelectionHandler {
     return selectedNodeIds;
   }
 
-  /**
-   * 取消框选
-   */
+  /** 取消框选 */
   cancelBoxSelection(): void {
     this.selectionBox.visible = false;
   }

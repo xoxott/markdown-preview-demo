@@ -1,8 +1,8 @@
-import { defineComponent, computed, ref, type PropType } from 'vue';
-import { NCard, NButton, NIcon } from 'naive-ui';
+import { type PropType, computed, defineComponent, ref } from 'vue';
+import { NButton, NCard, NIcon } from 'naive-ui';
 import { Icon } from '@iconify/vue';
 import { NODE_TYPES } from '../nodes/NodeRegistry';
-import { NODE_WIDTH, NODE_HEIGHT } from '../constants/node-dimensions';
+import { NODE_HEIGHT, NODE_WIDTH } from '../constants/node-dimensions';
 
 const MINIMAP_PADDING = 100;
 const MAX_SCALE = 0.2;
@@ -178,7 +178,7 @@ export default defineComponent({
             }}
           >
             {/* 折叠按钮 - 放在外层容器 */}
-            <div class="absolute -top-2 -right-2 z-20">
+            <div class="absolute z-20 -right-2 -top-2">
               <NButton
                 circle
                 size="tiny"
@@ -248,7 +248,7 @@ export default defineComponent({
                 })}
 
                 <div
-                  class="absolute border-2 border-blue-500 pointer-events-none"
+                  class="pointer-events-none absolute border-2 border-blue-500"
                   style={{
                     left: `${viewportRect.value.x}px`,
                     top: `${viewportRect.value.y}px`,

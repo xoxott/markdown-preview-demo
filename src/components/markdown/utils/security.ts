@@ -5,15 +5,15 @@
  */
 
 // 从包中导入基础工具函数
+// 导入 isUrlSafe 用于函数内部使用
+import { isUrlSafe } from '@suga/markdown-it-render-vnode';
+
 export {
   escapeHtml,
   unescapeAll,
   validateAttrName,
   isUrlSafe
 } from '@suga/markdown-it-render-vnode';
-
-// 导入 isUrlSafe 用于函数内部使用
-import { isUrlSafe } from '@suga/markdown-it-render-vnode';
 
 // 组件特有的安全函数
 
@@ -25,6 +25,16 @@ const SENSITIVE_ATTR_REG = /^href|src|xlink:href|poster|srcset$/i;
 
 /** 事件属性正则 */
 const ATTR_EVENT_REG = /^on/i;
+
+/**
+ * 检查 URL 是否安全
+ *
+ * @param url - URL 字符串
+ * @returns 是否安全
+ */
+export function isUrlSafeExtended(url: string): boolean {
+  return !SENSITIVE_URL_REG.test(url.trim());
+}
 
 /**
  * 清理 SVG 内容，移除危险元素和属性

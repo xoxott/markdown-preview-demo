@@ -1,13 +1,10 @@
-/**
- * Flow 示例 3: 状态管理
- */
+/** Flow 示例 3: 状态管理 */
 
 import { defineComponent, ref } from 'vue';
-import { NCard, NH3, NText, NSpace, NButton } from 'naive-ui';
-import { useMessage } from 'naive-ui';
+import { NButton, NCard, NH3, NSpace, NText, useMessage } from 'naive-ui';
 import FlowCanvas from '@/components/flow/components/FlowCanvas';
 import { useFlowState } from '@/components/flow';
-import type { FlowNode, FlowEdge } from '@/components/flow';
+import type { FlowEdge, FlowNode } from '@/components/flow';
 
 export default defineComponent({
   name: 'FlowStateExample',
@@ -86,7 +83,7 @@ export default defineComponent({
     return () => (
       <NCard bordered>
         <NH3 class="border-b pb-2 text-lg font-semibold">Flow 示例 3: 状态管理</NH3>
-        <NText class="text-gray-500 mb-4 block">
+        <NText class="mb-4 block text-gray-500">
           演示状态管理功能，包括添加/删除节点、撤销/重做等操作
         </NText>
         <NSpace class="mb-4">
@@ -114,7 +111,7 @@ export default defineComponent({
             重做
           </NButton>
         </NSpace>
-        <NText class="text-sm text-gray-400 mb-4 block">
+        <NText class="mb-4 block text-sm text-gray-400">
           节点数: {stateNodes.value.length}, 连接数: {stateEdges.value.length}, 选中节点:{' '}
           {selectedNodeIds.value.join(', ') || '无'}
         </NText>

@@ -4,24 +4,18 @@
  * 提供主题切换和管理功能
  */
 
-import { ref, computed, watch, onMounted, onUnmounted, type Ref } from 'vue';
+import { type Ref, computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
-/**
- * 主题类型
- */
+/** 主题类型 */
 export type FlowTheme = 'light' | 'dark' | 'auto';
 
-/**
- * 主题常量
- */
+/** 主题常量 */
 const THEME_VALUES = ['light', 'dark', 'auto'] as const;
 const DEFAULT_THEME: FlowTheme = 'light';
 const DEFAULT_STORAGE_KEY = 'flow-theme';
 const DARK_MEDIA_QUERY = '(prefers-color-scheme: dark)';
 
-/**
- * 主题管理 Hook 选项
- */
+/** 主题管理 Hook 选项 */
 export interface UseFlowThemeOptions {
   /** 初始主题 */
   initialTheme?: FlowTheme;
@@ -33,9 +27,7 @@ export interface UseFlowThemeOptions {
   onThemeChange?: (theme: FlowTheme) => void;
 }
 
-/**
- * 主题管理 Hook 返回值
- */
+/** 主题管理 Hook 返回值 */
 export interface UseFlowThemeReturn {
   /** 当前主题 */
   theme: Ref<FlowTheme>;
@@ -47,9 +39,7 @@ export interface UseFlowThemeReturn {
   isDark: Ref<boolean>;
 }
 
-/**
- * 获取系统主题偏好
- */
+/** 获取系统主题偏好 */
 function getSystemTheme(): 'light' | 'dark' {
   if (typeof window === 'undefined') {
     return 'light';
@@ -57,17 +47,13 @@ function getSystemTheme(): 'light' | 'dark' {
   return window.matchMedia(DARK_MEDIA_QUERY).matches ? 'dark' : 'light';
 }
 
-/**
- * 应用主题到 DOM
- */
+/** 应用主题到 DOM */
 function applyTheme(theme: FlowTheme, rootElement?: HTMLElement): void {
   const root = rootElement || document.documentElement;
   root.setAttribute('data-flow-theme', theme);
 }
 
-/**
- * 从 localStorage 读取主题
- */
+/** 从 localStorage 读取主题 */
 function getStoredTheme(storageKey: string): FlowTheme | null {
   if (typeof window === 'undefined') {
     return null;
@@ -79,18 +65,14 @@ function getStoredTheme(storageKey: string): FlowTheme | null {
   return null;
 }
 
-/**
- * 保存主题到 localStorage
- */
+/** 保存主题到 localStorage */
 function saveTheme(storageKey: string, theme: FlowTheme): void {
   if (typeof window !== 'undefined') {
     localStorage.setItem(storageKey, theme);
   }
 }
 
-/**
- * 计算是否为深色模式
- */
+/** 计算是否为深色模式 */
 function calculateIsDark(theme: FlowTheme): boolean {
   if (theme === 'auto') {
     return getSystemTheme() === 'dark';
@@ -101,16 +83,16 @@ function calculateIsDark(theme: FlowTheme): boolean {
 /**
  * Flow 主题管理 Hook
  *
+ * @example
+ *   ```typescript
+ *   const { theme, setTheme, toggleTheme, isDark } = useFlowTheme({
+ *     initialTheme: 'auto',
+ *     persist: true
+ *   });
+ *   ```;
+ *
  * @param options Hook 选项
  * @returns 主题管理功能
- *
- * @example
- * ```typescript
- * const { theme, setTheme, toggleTheme, isDark } = useFlowTheme({
- *   initialTheme: 'auto',
- *   persist: true
- * });
- * ```
  */
 export function useFlowTheme(options: UseFlowThemeOptions = {}): UseFlowThemeReturn {
   const {
@@ -127,9 +109,7 @@ export function useFlowTheme(options: UseFlowThemeOptions = {}): UseFlowThemeRet
   // 计算是否为深色模式（使用 computed 自动响应主题变化）
   const isDark = computed<boolean>(() => calculateIsDark(theme.value));
 
-  /**
-   * 设置主题
-   */
+  /** 设置主题 */
   const setTheme = (newTheme: FlowTheme) => {
     theme.value = newTheme;
     applyTheme(newTheme);
@@ -143,9 +123,7 @@ export function useFlowTheme(options: UseFlowThemeOptions = {}): UseFlowThemeRet
     onThemeChange?.(newTheme);
   };
 
-  /**
-   * 切换主题（在 light 和 dark 之间切换）
-   */
+  /** 切换主题（在 light 和 dark 之间切换） */
   const toggleTheme = () => {
     if (theme.value === 'auto') {
       // 如果当前是 auto，切换到系统主题的相反主题

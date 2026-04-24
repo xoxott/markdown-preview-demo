@@ -1,6 +1,4 @@
-/**
- * DefaultErrorClassificationStrategy 测试
- */
+/** DefaultErrorClassificationStrategy 测试 */
 
 import { describe, expect, it } from 'vitest';
 import { DefaultErrorClassificationStrategy } from '../../strategies/error-classification';

@@ -1,4 +1,4 @@
-import { defineComponent, type PropType } from 'vue';
+import { type PropType, defineComponent } from 'vue';
 import { NBadge, NText } from 'naive-ui';
 import type { BadgeRendererConfig } from '../types';
 

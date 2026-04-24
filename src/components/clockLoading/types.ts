@@ -1,36 +1,38 @@
-import { CSSProperties } from 'vue';
+import type { CSSProperties } from 'vue';
 
-/**
- * ClockLoading 组件的属性接口
- */
+/** ClockLoading 组件的属性接口 */
 export interface ClockLoadingProps {
   /**
    * 整体尺寸(px)
+   *
    * @default 50
    */
   size?: number;
 
   /**
    * 上方显示的文字
+   *
    * @default '请稍等'
    */
   text?: string;
 
   /**
    * 主题颜色(支持任何CSS颜色值)
+   *
    * @default '#4da6ff'
    */
   color?: string;
 
   /**
    * 是否显示文字
+   *
    * @default true
    */
   showText?: boolean;
 
   /**
-   * 旋转速度(秒/圈)
-   * 数值越小旋转越快
+   * 旋转速度(秒/圈) 数值越小旋转越快
+   *
    * @default 2
    * @range 1-10
    */
@@ -38,42 +40,40 @@ export interface ClockLoadingProps {
 
   /**
    * 背景颜色
+   *
    * @default 'transparent'
    */
   background?: string;
 
   /**
    * 是否显示背景
+   *
    * @default false
    */
   showBackground?: boolean;
 
-  /**
-   * 自定义容器样式
-   */
+  /** 自定义容器样式 */
   containerStyle?: CSSProperties;
 
-  /**
-   * 自定义类名
-   */
+  /** 自定义类名 */
   className?: string;
 
   /**
    * 表盘背景色
+   *
    * @default '#ffffff'
    */
   clockBg?: string;
 
   /**
    * 表盘边框色
+   *
    * @default '#d0d0d0'
    */
   clockBorder?: string;
 }
 
-/**
- * 预设主题颜色
- */
+/** 预设主题颜色 */
 export const THEME_COLORS = {
   /** 蓝色(默认) */
   blue: '#4da6ff',
@@ -93,9 +93,7 @@ export const THEME_COLORS = {
   gold: '#faad14'
 } as const;
 
-/**
- * 预设速度
- */
+/** 预设速度 */
 export const SPEED_PRESETS = {
   /** 极速 - 1秒/圈 */
   fast: 1,
@@ -105,9 +103,7 @@ export const SPEED_PRESETS = {
   slow: 4
 } as const;
 
-/**
- * 预设尺寸
- */
+/** 预设尺寸 */
 export const SIZE_PRESETS = {
   /** 小 - 30px */
   small: 30,

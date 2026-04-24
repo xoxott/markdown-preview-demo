@@ -16,8 +16,8 @@ import { createContextMenuHandler } from '../config/contextmenu.config';
 import type { LayoutConfig } from '../layout/ResizableLayout';
 import { useFileDialog } from '../hooks/useFileDialog';
 import type {
-  IFileDataSource,
   DataSourceType,
+  IFileDataSource,
   ServerFileDataSourceConfig
 } from '../datasources/types';
 import { LocalFileDataSource, ServerFileDataSource } from '../datasources';

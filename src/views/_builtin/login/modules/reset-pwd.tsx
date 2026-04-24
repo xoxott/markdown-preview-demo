@@ -1,10 +1,10 @@
-import { defineComponent, reactive, computed, ref } from 'vue';
+import { computed, defineComponent, reactive, ref } from 'vue';
 import { NButton, NForm, NFormItem, NInput, NSpace } from 'naive-ui';
 import { useAuthStore } from '@/store/modules/auth';
 import { useRouterPush } from '@/hooks/common/router';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
-import { $t } from '@/locales';
 import { calculateStringMD5 } from '@/hooks/upload-v2/utils/hash';
+import { $t } from '@/locales';
 
 interface FormModel {
   email: string;
@@ -56,9 +56,7 @@ export default defineComponent({
       };
     });
 
-    /**
-     * Start countdown
-     */
+    /** Start countdown */
     function startCountdown() {
       if (countdownTimer) {
         clearInterval(countdownTimer);
@@ -80,9 +78,7 @@ export default defineComponent({
       }, 1000);
     }
 
-    /**
-     * Send verification code for reset password
-     */
+    /** Send verification code for reset password */
     const handleSendCode = async () => {
       if (isCounting.value || loading.value) {
         return;
@@ -115,9 +111,7 @@ export default defineComponent({
       }
     };
 
-    /**
-     * Reset countdown
-     */
+    /** Reset countdown */
     function resetCountdown() {
       if (countdownTimer) {
         clearInterval(countdownTimer);
@@ -183,7 +177,7 @@ export default defineComponent({
                 onUpdateValue={value => (model.verificationCode = value)}
                 placeholder="请输入验证码"
                 maxlength={6}
-                class="flex-1 h-40px"
+                class="h-40px flex-1"
               >
                 {{
                   prefix: () => <div class="i-carbon-password text-16px text-gray-400" />
@@ -195,7 +189,7 @@ export default defineComponent({
                 disabled={isCounting.value}
                 loading={loading.value}
                 onClick={handleSendCode}
-                class="whitespace-nowrap w-110px h-40px text-12px"
+                class="h-40px w-110px whitespace-nowrap text-12px"
               >
                 {label.value}
               </NButton>
@@ -236,7 +230,7 @@ export default defineComponent({
               round
               block
               onClick={handleSubmit}
-              class="h-40px text-14px font-500 shadow-lg hover:shadow-xl transition-all"
+              class="h-40px text-14px font-500 shadow-lg transition-all hover:shadow-xl"
             >
               {$t('common.confirm')}
             </NButton>

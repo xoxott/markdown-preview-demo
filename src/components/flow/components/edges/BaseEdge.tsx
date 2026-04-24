@@ -4,7 +4,7 @@
  * 提供通用的连接线容器，支持路径渲染、箭头、样式、动画等
  */
 
-import { defineComponent, computed, type PropType } from 'vue';
+import { type PropType, computed, defineComponent } from 'vue';
 import { getConditionalGpuAccelerationStyle } from '../../utils/style-utils';
 import type { FlowEdge } from '../../types/flow-edge';
 import {
@@ -18,9 +18,7 @@ import {
 } from '../../constants/edge-constants';
 import { calculateStrokeWidth } from '../../utils/edge-style-utils';
 
-/**
- * BaseEdge 组件属性
- */
+/** BaseEdge 组件属性 */
 export interface BaseEdgeProps {
   /** 连接线数据 */
   edge: FlowEdge;
@@ -54,9 +52,7 @@ export interface BaseEdgeProps {
   markerEnd?: string;
 }
 
-/**
- * 基础连接线组件
- */
+/** 基础连接线组件 */
 export default defineComponent({
   name: 'BaseEdge',
   props: {
@@ -250,6 +246,7 @@ export default defineComponent({
      * 判断是否需要 GPU 加速优化
      *
      * 仅在以下情况启用优化：
+     *
      * - 连接线被选中（可能频繁更新样式）
      * - 连接线被悬停（交互状态变化）
      * - 连接线有动画（持续变化）
@@ -260,9 +257,7 @@ export default defineComponent({
       return props.selected || props.hovered || props.edge.animated === true;
     });
 
-    /**
-     * 计算容器样式（仅在需要时应用 GPU 加速）
-     */
+    /** 计算容器样式（仅在需要时应用 GPU 加速） */
     const containerStyle = computed(() => {
       return getConditionalGpuAccelerationStyle(shouldOptimize.value, {
         includeBackfaceVisibility: false // SVG 中效果有限

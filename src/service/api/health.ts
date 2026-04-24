@@ -1,8 +1,6 @@
 import { request } from '../request';
 
-/**
- * Get application health status
- */
+/** Get application health status */
 export function fetchHealthCheck() {
   return request<Api.Health.HealthCheckResponse>({
     url: '/api/admin/health',
@@ -10,9 +8,7 @@ export function fetchHealthCheck() {
   });
 }
 
-/**
- * Get liveness probe status
- */
+/** Get liveness probe status */
 export function fetchLiveness() {
   return request<Api.Health.LivenessResponse>({
     url: '/api/admin/health/liveness',
@@ -20,9 +16,7 @@ export function fetchLiveness() {
   });
 }
 
-/**
- * Get readiness probe status
- */
+/** Get readiness probe status */
 export function fetchReadiness() {
   return request<Api.Health.ReadinessResponse>({
     url: '/api/admin/health/readiness',

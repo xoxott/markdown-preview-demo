@@ -3,14 +3,13 @@
  *
  * 本文件展示如何将新的优化功能集成到现有的 Flow 组件中
  *
- * 注意：这是一个概念性示例，展示了如何使用优化功能。
- * 实际集成时可以使用 DefaultStateStore 或实现自定义的 IStateStore
+ * 注意：这是一个概念性示例，展示了如何使用优化功能。 实际集成时可以使用 DefaultStateStore 或实现自定义的 IStateStore
  */
 
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-import type { FlowNode, FlowEdge, FlowViewport } from '../types';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import type { FlowEdge, FlowNode, FlowViewport } from '../types';
 import { SpatialIndex } from '../core/performance/SpatialIndex';
-import { createPositionPool, createBoundsPool } from '../core/performance/ObjectPool';
+import { createBoundsPool, createPositionPool } from '../core/performance/ObjectPool';
 import { CommandManager, MoveNodeCommand } from '../core/commands';
 import type { IStateStore } from '../core/state/interfaces/IStateStore';
 
@@ -18,18 +17,14 @@ import type { IStateStore } from '../core/state/interfaces/IStateStore';
 // 集成示例 1: 在 ViewportCuller 中使用空间索引
 // ============================================
 
-/**
- * 优化后的视口裁剪器
- */
+/** 优化后的视口裁剪器 */
 export function useOptimizedViewportCulling() {
   const spatialIndex = new SpatialIndex({
     defaultWidth: 220,
     defaultHeight: 72
   });
 
-  /**
-   * 获取可见节点（使用空间索引优化）
-   */
+  /** 获取可见节点（使用空间索引优化） */
   function getVisibleNodes(
     nodes: FlowNode[],
     viewport: FlowViewport,
@@ -63,15 +58,11 @@ export function useOptimizedViewportCulling() {
 // 集成示例 2: 使用对象池优化节点移动
 // ============================================
 
-/**
- * 使用对象池优化的节点移动
- */
+/** 使用对象池优化的节点移动 */
 export function useOptimizedNodeMovement() {
   const positionPool = createPositionPool(100, 1000);
 
-  /**
-   * 移动节点（使用对象池）
-   */
+  /** 移动节点（使用对象池） */
   function moveNode(node: FlowNode, deltaX: number, deltaY: number): FlowNode {
     // 从对象池获取位置对象
     const newPos = positionPool.acquire();
@@ -101,18 +92,14 @@ export function useOptimizedNodeMovement() {
 // 集成示例 3: 使用命令模式实现撤销/重做
 // ============================================
 
-/**
- * 使用命令模式的状态管理
- */
+/** 使用命令模式的状态管理 */
 export function useOptimizedFlowState(stateStore: IStateStore) {
   const commandManager = new CommandManager({
     maxSize: 50,
     enableMerge: true // 启用命令合并
   });
 
-  /**
-   * 移动节点（支持撤销/重做）
-   */
+  /** 移动节点（支持撤销/重做） */
   const moveNode = (nodeId: string, newPosition: { x: number; y: number }) => {
     const node = stateStore.getNode(nodeId);
     if (!node) return;
@@ -129,9 +116,7 @@ export function useOptimizedFlowState(stateStore: IStateStore) {
     commandManager.execute(command);
   };
 
-  /**
-   * 批量移动节点
-   */
+  /** 批量移动节点 */
   const moveNodes = (updates: Array<{ id: string; position: { x: number; y: number } }>) => {
     // 可以创建一个宏命令来批量执行
     updates.forEach(({ id, position }) => {
@@ -139,27 +124,21 @@ export function useOptimizedFlowState(stateStore: IStateStore) {
     });
   };
 
-  /**
-   * 撤销
-   */
+  /** 撤销 */
   const undo = () => {
     if (commandManager.canUndo()) {
       commandManager.undo();
     }
   };
 
-  /**
-   * 重做
-   */
+  /** 重做 */
   const redo = () => {
     if (commandManager.canRedo()) {
       commandManager.redo();
     }
   };
 
-  /**
-   * 清空历史
-   */
+  /** 清空历史 */
   const clearHistory = () => {
     commandManager.clear();
   };
@@ -179,10 +158,7 @@ export function useOptimizedFlowState(stateStore: IStateStore) {
 // 集成示例 4: 完整的优化 Flow 组件
 // ============================================
 
-/**
- * 完整的优化 Flow 组件 Hook
- * 集成所有优化功能
- */
+/** 完整的优化 Flow 组件 Hook 集成所有优化功能 */
 export function useOptimizedFlow() {
   // 状态
   const nodes = ref<FlowNode[]>([]);
@@ -261,9 +237,7 @@ export function useOptimizedFlow() {
     { deep: true }
   );
 
-  /**
-   * 优化的节点移动（使用对象池和命令模式）
-   */
+  /** 优化的节点移动（使用对象池和命令模式） */
   const moveNodeOptimized = (nodeId: string, deltaX: number, deltaY: number) => {
     const node = stateStore.getNode(nodeId);
     if (!node) return;
@@ -297,9 +271,7 @@ export function useOptimizedFlow() {
     }
   };
 
-  /**
-   * 撤销
-   */
+  /** 撤销 */
   const undo = () => {
     if (commandManager.canUndo()) {
       commandManager.undo();
@@ -308,9 +280,7 @@ export function useOptimizedFlow() {
     }
   };
 
-  /**
-   * 重做
-   */
+  /** 重做 */
   const redo = () => {
     if (commandManager.canRedo()) {
       commandManager.redo();
@@ -319,18 +289,14 @@ export function useOptimizedFlow() {
     }
   };
 
-  /**
-   * 添加节点
-   */
+  /** 添加节点 */
   const addNode = (node: FlowNode) => {
     stateStore.addNode(node);
     nodes.value = [...stateStore.getNodes()];
     spatialIndex.updateNodes(stateStore.getNodes());
   };
 
-  /**
-   * 清空所有节点
-   */
+  /** 清空所有节点 */
   const clearAllNodes = () => {
     stateStore.setNodes([]);
     nodes.value = [];

@@ -1,17 +1,18 @@
-import { defineComponent, PropType, ref, watch, computed, onBeforeUnmount } from 'vue';
+import type { PropType } from 'vue';
+import { computed, defineComponent, onBeforeUnmount, ref, watch } from 'vue';
 import {
-  NDrawer,
-  NDrawerContent,
-  NCard,
-  NGrid,
-  NGi,
   NAlert,
-  NSpin,
+  NCard,
+  NCollapse,
+  NCollapseItem,
   NDescriptions,
   NDescriptionsItem,
+  NDrawer,
+  NDrawerContent,
+  NGi,
+  NGrid,
   NSpace,
-  NCollapse,
-  NCollapseItem
+  NSpin
 } from 'naive-ui';
 import { useMonitoringSSE } from '@/hooks/monitoring/useMonitoringSSE';
 import { formatTimestamp } from '@/utils/monitoring';

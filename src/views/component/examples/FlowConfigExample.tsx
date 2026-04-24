@@ -1,13 +1,10 @@
-/**
- * Flow 示例 2: 配置管理
- */
+/** Flow 示例 2: 配置管理 */
 
 import { defineComponent, ref } from 'vue';
-import { NCard, NH3, NText, NSpace, NButton } from 'naive-ui';
-import { useMessage } from 'naive-ui';
+import { NButton, NCard, NH3, NSpace, NText, useMessage } from 'naive-ui';
 import FlowCanvas from '@/components/flow/components/FlowCanvas';
 import { useFlowConfig } from '@/components/flow';
-import type { FlowNode, FlowEdge } from '@/components/flow';
+import type { FlowEdge, FlowNode } from '@/components/flow';
 
 export default defineComponent({
   name: 'FlowConfigExample',
@@ -62,7 +59,7 @@ export default defineComponent({
     return () => (
       <NCard bordered>
         <NH3 class="border-b pb-2 text-lg font-semibold">Flow 示例 2: 配置管理</NH3>
-        <NText class="text-gray-500 mb-4 block">
+        <NText class="mb-4 block text-gray-500">
           演示配置管理功能，可以动态修改画布配置（网格、缩放、节点行为等）
         </NText>
         <NSpace class="mb-4" vertical>

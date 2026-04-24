@@ -1,6 +1,4 @@
-/**
- * Health API types
- */
+/** Health API types */
 
 declare namespace Api {
   /**

@@ -1,9 +1,7 @@
-/**
- * RequestContext 测试
- */
+/** RequestContext 测试 */
 
-import { describe, it, expect } from 'vitest';
-import { createRequestContext, type NormalizedRequestConfig } from '../../context/RequestContext';
+import { describe, expect, it } from 'vitest';
+import { type NormalizedRequestConfig, createRequestContext } from '../../context/RequestContext';
 
 describe('RequestContext', () => {
   describe('createRequestContext', () => {

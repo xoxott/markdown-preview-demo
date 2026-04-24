@@ -1,17 +1,14 @@
 /**
  * Flow 空间索引
  *
- * 使用 R-Tree 实现高效的空间查询
- * 将节点查询从 O(n) 优化到 O(log n)
+ * 使用 R-Tree 实现高效的空间查询 将节点查询从 O(n) 优化到 O(log n)
  */
 
 import RBush from 'rbush';
 import type { FlowNode } from '../../types/flow-node';
 import type { ViewportBounds } from './ViewportCuller';
 
-/**
- * R-Tree 数据项
- */
+/** R-Tree 数据项 */
 interface RTreeItem {
   minX: number;
   minY: number;
@@ -20,9 +17,7 @@ interface RTreeItem {
   node: FlowNode;
 }
 
-/**
- * 空间索引选项
- */
+/** 空间索引选项 */
 export interface SpatialIndexOptions {
   /** 默认节点宽度 */
   defaultWidth?: number;
@@ -90,8 +85,8 @@ export class SpatialIndex {
   }
 
   /**
-   * 只更新变化的节点，不重建整个索引
-   * 性能: O(log n) vs O(n log n)
+   * 只更新变化的节点，不重建整个索引 性能: O(log n) vs O(n log n)
+   *
    * @param node 要更新的节点
    */
   updateNode(node: FlowNode): void {
@@ -120,7 +115,7 @@ export class SpatialIndex {
   }
 
   /**
-   *  批量增量更新多个节点
+   * 批量增量更新多个节点
    *
    * @param nodes 所有节点列表
    * @param changedNodeIds 变化的节点 ID 集合（如果为空则全量更新）
@@ -259,9 +254,7 @@ export class SpatialIndex {
     return this.nodeMap.get(nodeId);
   }
 
-  /**
-   * 清空索引
-   */
+  /** 清空索引 */
   clear(): void {
     this.tree.clear();
     this.nodeMap.clear();

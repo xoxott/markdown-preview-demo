@@ -1,4 +1,4 @@
-import { defineComponent, type PropType } from 'vue';
+import { type PropType, defineComponent } from 'vue';
 import { NTabPane, NTabs } from 'naive-ui';
 import type { UploadConfig } from '@/hooks/upload-v2';
 import type { ChunkSizeOption } from '../../types';

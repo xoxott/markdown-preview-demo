@@ -1,9 +1,9 @@
 import { defineComponent, onMounted, ref } from 'vue';
 import { NButton, NDrawer, NDrawerContent, useMessage } from 'naive-ui';
 import DrawerExample from '@/components/base-drawer/DrawerExample';
-import ViewContainer from './container/ViewContainer';
 import { DragPreview } from '@/components/common-interaction';
 import type { DragItem } from '@/components/common-interaction';
+import ViewContainer from './container/ViewContainer';
 import FileBreadcrumb from './layout/FileBreadcrumb';
 import FileSidebar from './layout/FileSidebar';
 import FileStatusBar from './layout/FileStatusBar';
@@ -165,11 +165,11 @@ export default defineComponent({
         return (
           <div
             key="file-preview-wrapper"
-            class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 p-3 min-w-[240px] max-w-[320px]"
+            class="max-w-[320px] min-w-[240px] border border-gray-200 rounded-lg bg-white p-3 shadow-2xl dark:border-gray-700 dark:bg-gray-800"
           >
             {/* 操作类型指示器 */}
-            <div class="flex items-center gap-2 mb-2 pb-2 border-b border-gray-200 dark:border-gray-700">
-              <span class="text-xs font-medium text-gray-600 dark:text-gray-400">
+            <div class="mb-2 flex items-center gap-2 border-b border-gray-200 pb-2 dark:border-gray-700">
+              <span class="text-xs text-gray-600 font-medium dark:text-gray-400">
                 {logic.dragDrop.dragOperation.value === 'copy' ? '复制' : '移动'}{' '}
                 {logic.dragDrop.dragState.value.draggedItems.length} 个项目
               </span>
@@ -180,13 +180,13 @@ export default defineComponent({
               {displayItems.map((fileItem, idx) => (
                 <div
                   key={fileItem.id}
-                  class="flex items-center gap-2 p-1.5 rounded bg-gray-50 dark:bg-gray-700/50"
+                  class="flex items-center gap-2 rounded bg-gray-50 p-1.5 dark:bg-gray-700/50"
                   style={{ opacity: 1 - idx * 0.15 }}
                 >
                   <div class={['flex-shrink-0', getFileColor()]}>
                     <FileIcon item={fileItem} size={20} />
                   </div>
-                  <span class="flex-1 text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                  <span class="flex-1 truncate text-sm text-gray-900 font-medium dark:text-gray-100">
                     {fileItem.name}
                   </span>
                   <span class="flex-shrink-0 text-xs text-gray-500 dark:text-gray-400">
@@ -198,8 +198,8 @@ export default defineComponent({
 
             {/* 更多项提示 */}
             {remainingCount > 0 && (
-              <div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700 flex items-center gap-2">
-                <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+              <div class="mt-2 flex items-center gap-2 border-t border-gray-200 pt-2 dark:border-gray-700">
+                <span class="inline-flex items-center justify-center rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-600 font-medium dark:bg-blue-900/30 dark:text-blue-400">
                   +{remainingCount}
                 </span>
                 <span class="text-xs text-gray-500 dark:text-gray-400">

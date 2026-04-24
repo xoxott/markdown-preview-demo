@@ -1,8 +1,8 @@
+import type { Ref } from 'vue';
 import type { MessageApiInjection } from 'naive-ui/es/message/src/MessageProvider';
 import type { FileOperationsOptions } from '../hooks/useFileOperations';
 import type { FileItem } from '../types/file-explorer';
 import type { IFileDataSource } from '../datasources/types';
-import type { Ref } from 'vue';
 
 /**
  * 创建文件操作配置

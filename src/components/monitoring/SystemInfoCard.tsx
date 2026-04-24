@@ -1,4 +1,5 @@
-import { defineComponent, PropType } from 'vue';
+import type { PropType } from 'vue';
+import { defineComponent } from 'vue';
 import { NCard, NDescriptions, NDescriptionsItem } from 'naive-ui';
 import { formatUptime } from '@/utils/monitoring';
 

@@ -15,7 +15,7 @@ export function formatError(error: unknown, context: string): string {
 /** 防抖 */
 export function debounce<T extends (...args: any[]) => void>(fn: T, delay = 300): T {
   let timer: ReturnType<typeof setTimeout> | null = null;
-  return function (this: any, ...args: any[]) {
+  return function debounceWrapper(this: any, ...args: any[]) {
     if (timer) clearTimeout(timer);
     timer = setTimeout(() => fn.apply(this, args), delay);
   } as T;
@@ -24,8 +24,7 @@ export function debounce<T extends (...args: any[]) => void>(fn: T, delay = 300)
 /**
  * 节流函数（leading + trailing 模式）
  *
- * 首次调用立即执行（leading），后续调用按间隔触发。
- * 最后一次调用保证在间隔结束后执行（trailing），确保不丢失更新。
+ * 首次调用立即执行（leading），后续调用按间隔触发。 最后一次调用保证在间隔结束后执行（trailing），确保不丢失更新。
  *
  * @param fn - 要节流的函数
  * @param interval - 节流间隔（毫秒）
@@ -34,7 +33,7 @@ export function throttle<T extends (...args: any[]) => void>(fn: T, interval: nu
   let lastTime = 0;
   let trailingTimer: ReturnType<typeof setTimeout> | null = null;
 
-  return function (this: any, ...args: any[]) {
+  return function throttleWrapper(this: any, ...args: any[]) {
     const now = Date.now();
     const elapsed = now - lastTime;
 

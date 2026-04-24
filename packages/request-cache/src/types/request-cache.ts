@@ -1,13 +1,9 @@
-/**
- * 请求缓存管理器相关类型定义
- */
+/** 请求缓存管理器相关类型定义 */
 
-import type { CacheStrategy, CustomCacheStrategy } from './strategy';
 import type { StorageAdapter } from '@suga/storage';
+import type { CacheStrategy, CustomCacheStrategy } from './strategy';
 
-/**
- * 请求缓存配置
- */
+/** 请求缓存配置 */
 export interface RequestCacheOptions {
   /** 默认缓存过期时间（毫秒），默认 5 分钟 */
   defaultExpireTime?: number;

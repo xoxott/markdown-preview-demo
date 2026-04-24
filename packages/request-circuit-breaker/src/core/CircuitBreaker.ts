@@ -1,27 +1,23 @@
-/**
- * 熔断器核心类
- */
+/** 熔断器核心类 */
 
 import type {
-  CircuitBreakerOptions,
   CircuitBreakerMetrics,
+  CircuitBreakerOptions,
   ErrorClassificationStrategy,
   SuccessEvaluationStrategy
 } from '../types';
 import { CircuitBreakerState } from '../types';
 import { DEFAULT_CIRCUIT_BREAKER_CONFIG } from '../constants';
 import {
-  DefaultStateTransitionStrategy,
   DefaultErrorClassificationStrategy,
+  DefaultStateTransitionStrategy,
   DefaultSuccessEvaluationStrategy
 } from '../strategies';
 import { Metrics } from './Metrics';
 import { StateController } from './StateController';
 import { ExecutionGuard } from './ExecutionGuard';
 
-/**
- * 熔断器类
- */
+/** 熔断器类 */
 export class CircuitBreaker<T = unknown> {
   private readonly metrics: Metrics;
   private readonly stateController: StateController;
@@ -47,9 +43,7 @@ export class CircuitBreaker<T = unknown> {
       options.successEvaluationStrategy ?? new DefaultSuccessEvaluationStrategy();
   }
 
-  /**
-   * 执行请求（带熔断保护）
-   */
+  /** 执行请求（带熔断保护） */
   async execute(requestFn: () => Promise<T>): Promise<T> {
     if (!this.enabled) {
       return requestFn();
@@ -102,30 +96,22 @@ export class CircuitBreaker<T = unknown> {
     }
   }
 
-  /**
-   * 获取当前状态（只读，不会触发状态变更）
-   */
+  /** 获取当前状态（只读，不会触发状态变更） */
   getState(): CircuitBreakerState {
     return this.metrics.getSnapshot().state;
   }
 
-  /**
-   * 获取统计信息（只读快照，不会触发状态变更）
-   */
+  /** 获取统计信息（只读快照，不会触发状态变更） */
   getMetrics(): CircuitBreakerMetrics {
     return this.metrics.getSnapshot();
   }
 
-  /**
-   * 重置熔断器
-   */
+  /** 重置熔断器 */
   reset(): void {
     this.metrics.reset();
   }
 
-  /**
-   * 手动推进状态（用于测试或外部控制）
-   */
+  /** 手动推进状态（用于测试或外部控制） */
   advanceState(): CircuitBreakerState {
     return this.stateController.advanceState(Date.now());
   }

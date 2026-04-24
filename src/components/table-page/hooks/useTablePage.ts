@@ -1,4 +1,4 @@
-import { ref, reactive, computed } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import type { PaginationProps } from 'naive-ui';
 import type { SearchFieldConfig } from '../types';
 import { useSearchForm } from './useSearchForm';
@@ -72,9 +72,7 @@ export function useTablePage<T = any>(options: UseTablePageOptions<T>) {
     }
   });
 
-  /**
-   * Get table data
-   */
+  /** Get table data */
   const getData = async () => {
     loading.value = true;
     try {
@@ -105,16 +103,12 @@ export function useTablePage<T = any>(options: UseTablePageOptions<T>) {
     }
   };
 
-  /**
-   * Refresh data (keep current page)
-   */
+  /** Refresh data (keep current page) */
   const refresh = () => {
     getData();
   };
 
-  /**
-   * Reset and reload data
-   */
+  /** Reset and reload data */
   const reload = () => {
     pagination.page = 1;
     selectedKeys.value = [];
@@ -122,16 +116,12 @@ export function useTablePage<T = any>(options: UseTablePageOptions<T>) {
     getData();
   };
 
-  /**
-   * Update selected keys
-   */
+  /** Update selected keys */
   const updateSelectedKeys = (keys: (string | number)[]) => {
     selectedKeys.value = keys;
   };
 
-  /**
-   * Clear selected keys
-   */
+  /** Clear selected keys */
   const clearSelection = () => {
     selectedKeys.value = [];
   };

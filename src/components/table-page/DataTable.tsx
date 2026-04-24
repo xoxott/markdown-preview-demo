@@ -1,14 +1,14 @@
-import { defineComponent, type PropType, computed } from 'vue';
+import { type PropType, computed, defineComponent } from 'vue';
 import { NDataTable } from 'naive-ui';
 import { $t } from '@/locales';
-import type { DataTableProps, TableColumnConfig, PresetRendererType } from './types';
+import type { DataTableProps, PresetRendererType, TableColumnConfig } from './types';
 import {
-  AvatarRenderer,
-  StatusRenderer,
-  DateRenderer,
-  TagRenderer,
-  BadgeRenderer,
   ActionRenderer,
+  AvatarRenderer,
+  BadgeRenderer,
+  DateRenderer,
+  StatusRenderer,
+  TagRenderer,
   TextRenderer
 } from './renderers';
 

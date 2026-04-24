@@ -1,21 +1,15 @@
 /**
  * Flow 配置 Hook
  *
- * 提供 Vue 3 Composition API 的配置管理 Hook
- * 封装配置的创建、获取、更新、订阅等功能
+ * 提供 Vue 3 Composition API 的配置管理 Hook 封装配置的创建、获取、更新、订阅等功能
  */
 
-import { computed, onUnmounted, ref, type Ref } from 'vue';
-import {
-  FlowConfigManager,
-  createFlowConfigManager,
-  getGlobalConfigManager
-} from '../config/FlowConfigManager';
+import { type Ref, computed, onUnmounted, ref } from 'vue';
+import type { FlowConfigManager } from '../config/FlowConfigManager';
+import { createFlowConfigManager, getGlobalConfigManager } from '../config/FlowConfigManager';
 import type { FlowConfig, PartialFlowConfig } from '../types/flow-config';
 
-/**
- * useFlowConfig 选项
- */
+/** useFlowConfig 选项 */
 export interface UseFlowConfigOptions {
   /** 配置实例 ID（如果不提供，会自动生成） */
   id?: string;
@@ -29,9 +23,7 @@ export interface UseFlowConfigOptions {
   autoCreate?: boolean;
 }
 
-/**
- * useFlowConfig 返回值
- */
+/** useFlowConfig 返回值 */
 export interface UseFlowConfigReturn {
   /** 配置实例 ID */
   id: string;
@@ -52,9 +44,7 @@ export interface UseFlowConfigReturn {
   getThemeConfig: () => Readonly<FlowConfig['theme']>;
 }
 
-/**
- * 生成唯一的配置实例 ID
- */
+/** 生成唯一的配置实例 ID */
 let instanceIdCounter = 0;
 function generateInstanceId(): string {
   return `flow-config-${Date.now()}-${++instanceIdCounter}`;
@@ -65,25 +55,25 @@ function generateInstanceId(): string {
  *
  * 提供响应式的配置管理功能
  *
+ * @example
+ *   ```typescript
+ *   const { config, updateConfig } = useFlowConfig({
+ *     id: 'my-canvas',
+ *     initialConfig: {
+ *       canvas: { minZoom: 0.1, maxZoom: 4 },
+ *       nodes: { draggable: true }
+ *     }
+ *   });
+ *
+ *   // 响应式访问配置
+ *   console.log(config.value.canvas.minZoom);
+ *
+ *   // 更新配置
+ *   updateConfig({ canvas: { minZoom: 0.2 } });
+ *   ```;
+ *
  * @param options Hook 选项
  * @returns 配置相关的响应式数据和方法
- *
- * @example
- * ```typescript
- * const { config, updateConfig } = useFlowConfig({
- *   id: 'my-canvas',
- *   initialConfig: {
- *     canvas: { minZoom: 0.1, maxZoom: 4 },
- *     nodes: { draggable: true }
- *   }
- * });
- *
- * // 响应式访问配置
- * console.log(config.value.canvas.minZoom);
- *
- * // 更新配置
- * updateConfig({ canvas: { minZoom: 0.2 } });
- * ```
  */
 export function useFlowConfig(options: UseFlowConfigOptions = {}): UseFlowConfigReturn {
   const {

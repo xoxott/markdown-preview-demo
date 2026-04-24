@@ -1,5 +1,5 @@
-import { defineComponent, reactive, ref, type PropType } from 'vue';
-import { NButton, NForm, NFormItem, NInput, NSelect, NSpace, NDynamicTags } from 'naive-ui';
+import { type PropType, defineComponent, reactive, ref } from 'vue';
+import { NButton, NDynamicTags, NForm, NFormItem, NInput, NSelect, NSpace } from 'naive-ui';
 import { useNaiveForm } from '@/hooks/common/form';
 import type { WorkflowFormData } from './dialog';
 
@@ -102,7 +102,7 @@ export default defineComponent({
           )}
         </NForm>
 
-        <div class="flex justify-end mt-4">
+        <div class="mt-4 flex justify-end">
           <NSpace>
             <NButton onClick={props.onCancel}>取消</NButton>
             <NButton type="primary" loading={loading.value} onClick={handleConfirm}>

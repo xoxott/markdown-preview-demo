@@ -1,10 +1,8 @@
-/**
- * ChunkService 测试
- */
-import { describe, expect, it, beforeEach, vi } from 'vitest';
+/** ChunkService 测试 */
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ChunkService } from '../../services/ChunkService';
 import { CONSTANTS } from '../../constants';
-import type { UploadConfig, FileTask } from '../../types';
+import type { FileTask, UploadConfig } from '../../types';
 import { UploadStatus } from '../../types';
 
 describe('ChunkService', () => {

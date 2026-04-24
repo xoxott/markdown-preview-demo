@@ -1,8 +1,7 @@
 /**
  * AI Workflow API Type Definitions
  *
- * 仅包含需要持久化到后端的业务数据
- * UI 相关的数据（位置、样式、状态等）由前端管理，不入库
+ * 仅包含需要持久化到后端的业务数据 UI 相关的数据（位置、样式、状态等）由前端管理，不入库
  */
 
 declare namespace Api {

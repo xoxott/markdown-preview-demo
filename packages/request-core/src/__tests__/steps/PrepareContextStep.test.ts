@@ -1,6 +1,4 @@
-/**
- * PrepareContextStep 测试
- */
+/** PrepareContextStep 测试 */
 
 import { describe, expect, it } from 'vitest';
 import type { NormalizedRequestConfig } from '../../context/RequestContext';

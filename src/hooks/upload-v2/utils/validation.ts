@@ -1,6 +1,4 @@
-/**
- * 文件验证工具函数
- */
+/** 文件验证工具函数 */
 import { formatFileSize, parseSize } from './format';
 
 /** 验证文件类型 */

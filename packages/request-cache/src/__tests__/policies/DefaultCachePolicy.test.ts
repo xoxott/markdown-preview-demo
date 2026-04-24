@@ -1,10 +1,8 @@
-/**
- * DefaultCachePolicy 测试
- */
+/** DefaultCachePolicy 测试 */
 
 import { describe, expect, it } from 'vitest';
-import { DefaultCachePolicy } from '../../policies/implementations/DefaultCachePolicy';
 import type { NormalizedRequestConfig } from '@suga/request-core';
+import { DefaultCachePolicy } from '../../policies/implementations/DefaultCachePolicy';
 import type { CacheMeta } from '../../policies/types';
 
 describe('DefaultCachePolicy', () => {

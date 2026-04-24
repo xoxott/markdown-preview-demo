@@ -1,14 +1,10 @@
 import type { VNode } from 'vue';
 import type { PaginationProps } from 'naive-ui';
 
-/**
- * 搜索字段类型
- */
+/** 搜索字段类型 */
 export type SearchFieldType = 'input' | 'select' | 'date-range' | 'date' | 'custom';
 
-/**
- * 搜索字段配置
- */
+/** 搜索字段配置 */
 export interface SearchFieldConfig {
   /** 字段类型 */
   type: SearchFieldType;
@@ -32,14 +28,10 @@ export interface SearchFieldConfig {
   showLabel?: boolean;
 }
 
-/**
- * 预设按钮类型
- */
+/** 预设按钮类型 */
 export type PresetButtonType = 'add' | 'batchDelete' | 'refresh' | 'export';
 
-/**
- * 预设按钮配置
- */
+/** 预设按钮配置 */
 export interface PresetButtonConfig {
   /** 是否显示 */
   show?: boolean;
@@ -55,9 +47,7 @@ export interface PresetButtonConfig {
   loading?: boolean;
 }
 
-/**
- * 自定义按钮配置
- */
+/** 自定义按钮配置 */
 export interface CustomButtonConfig {
   /** 按钮标签 */
   label: string;
@@ -75,9 +65,7 @@ export interface CustomButtonConfig {
   loading?: boolean;
 }
 
-/**
- * 操作栏配置
- */
+/** 操作栏配置 */
 export interface ActionBarConfig {
   /** 预设按钮配置 */
   preset?: Partial<Record<PresetButtonType, PresetButtonConfig>>;
@@ -89,14 +77,10 @@ export interface ActionBarConfig {
   statsRender?: (total: number, selected: number) => VNode | string;
 }
 
-/**
- * 预设渲染器类型
- */
+/** 预设渲染器类型 */
 export type PresetRendererType = 'avatar' | 'status' | 'date' | 'tag' | 'badge' | 'action' | 'text';
 
-/**
- * 头像渲染器配置
- */
+/** 头像渲染器配置 */
 export interface AvatarRendererConfig {
   /** 头像字段名 */
   avatarField?: string;
@@ -110,9 +94,7 @@ export interface AvatarRendererConfig {
   onlineStatusField?: string;
 }
 
-/**
- * 状态渲染器配置
- */
+/** 状态渲染器配置 */
 export interface StatusRendererConfig {
   /** 渲染类型 */
   type: 'switch' | 'tag';
@@ -128,9 +110,7 @@ export interface StatusRendererConfig {
   falseType?: 'success' | 'info' | 'warning' | 'error' | 'default';
 }
 
-/**
- * 日期渲染器配置
- */
+/** 日期渲染器配置 */
 export interface DateRendererConfig {
   /** 格式化类型 */
   format?: 'datetime' | 'date' | 'time' | 'relative' | 'smart';
@@ -140,9 +120,7 @@ export interface DateRendererConfig {
   emptyText?: string;
 }
 
-/**
- * 标签渲染器配置
- */
+/** 标签渲染器配置 */
 export interface TagRendererConfig {
   /** 渲染类型 */
   type?: 'simple' | 'badge' | 'popover';
@@ -160,9 +138,7 @@ export interface TagRendererConfig {
   };
 }
 
-/**
- * 徽章渲染器配置
- */
+/** 徽章渲染器配置 */
 export interface BadgeRendererConfig {
   /** 徽章值字段 */
   valueField?: string;
@@ -174,9 +150,7 @@ export interface BadgeRendererConfig {
   max?: number;
 }
 
-/**
- * 操作按钮配置
- */
+/** 操作按钮配置 */
 export interface ActionButtonItemConfig {
   /** 按钮标签 */
   label: string;
@@ -199,9 +173,7 @@ export interface ActionButtonItemConfig {
   };
 }
 
-/**
- * 操作渲染器配置
- */
+/** 操作渲染器配置 */
 export interface ActionRendererConfig {
   /** 按钮列表 */
   buttons: ActionButtonItemConfig[];
@@ -211,9 +183,7 @@ export interface ActionRendererConfig {
   moreText?: string;
 }
 
-/**
- * 文本渲染器配置
- */
+/** 文本渲染器配置 */
 export interface TextRendererConfig {
   /** 空值显示 */
   emptyText?: string;
@@ -227,9 +197,7 @@ export interface TextRendererConfig {
   lineClamp?: number;
 }
 
-/**
- * 渲染器配置联合类型
- */
+/** 渲染器配置联合类型 */
 export type RendererConfig =
   | AvatarRendererConfig
   | StatusRendererConfig
@@ -239,9 +207,7 @@ export type RendererConfig =
   | ActionRendererConfig
   | TextRendererConfig;
 
-/**
- * 扩展的表格列配置
- */
+/** 扩展的表格列配置 */
 export interface TableColumnConfig<T = any> {
   /** 列键 */
   key: string | number;
@@ -261,9 +227,7 @@ export interface TableColumnConfig<T = any> {
   [key: string]: any;
 }
 
-/**
- * 表格页面 Props
- */
+/** 表格页面 Props */
 export interface TablePageProps {
   /** 搜索栏配置 */
   searchConfig?: SearchFieldConfig[];
@@ -305,9 +269,7 @@ export interface TablePageProps {
   class?: string;
 }
 
-/**
- * 搜索栏 Props
- */
+/** 搜索栏 Props */
 export interface SearchBarProps {
   /** 搜索字段配置 */
   config: SearchFieldConfig[];
@@ -325,9 +287,7 @@ export interface SearchBarProps {
   showLabel?: boolean;
 }
 
-/**
- * 操作栏 Props
- */
+/** 操作栏 Props */
 export interface ActionBarProps {
   /** 操作栏配置 */
   config: ActionBarConfig;
@@ -337,9 +297,7 @@ export interface ActionBarProps {
   total: number;
 }
 
-/**
- * 数据表格 Props
- */
+/** 数据表格 Props */
 export interface DataTableProps<T = any> {
   /** 表格列配置 */
   columns: TableColumnConfig<T>[];

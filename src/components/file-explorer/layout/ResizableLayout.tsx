@@ -105,7 +105,7 @@ export default defineComponent({
     const renderRightResizeHandle = () => {
       return (
         <div
-          class="group absolute bottom-0 left-0 top-0 w-1 cursor-col-resize transition-all z-10"
+          class="group absolute bottom-0 left-0 top-0 z-10 w-1 cursor-col-resize transition-all"
           onMousedown={handleRightMouseDown}
         >
           {/* 分隔线 */}

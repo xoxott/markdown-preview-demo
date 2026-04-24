@@ -1,4 +1,4 @@
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useCanvasZoom } from './useCanvasZoom';
 import { useNodeDragDrop } from './useNodeDragDrop';
 import { useNodeConnection } from './useNodeConnection';
@@ -368,10 +368,8 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
       // 多选
       if (e.ctrlKey || e.metaKey) {
         nodeDragDrop.selectNode(nodeId, true);
-      } else {
-        if (!nodeDragDrop.selectedNodeIds.value.includes(nodeId)) {
-          nodeDragDrop.selectNode(nodeId, false);
-        }
+      } else if (!nodeDragDrop.selectedNodeIds.value.includes(nodeId)) {
+        nodeDragDrop.selectNode(nodeId, false);
       }
     }
     nodeDragState.value = null;

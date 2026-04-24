@@ -1,9 +1,8 @@
-/**
- * 节流工具函数
- */
+/** 节流工具函数 */
 
 /**
  * 节流函数
+ *
  * @param func 要节流的函数
  * @param delay 延迟时间（毫秒）
  * @returns 节流后的函数
@@ -37,6 +36,7 @@ export function throttle<T extends (...args: any[]) => any>(
 
 /**
  * 防抖函数
+ *
  * @param func 要防抖的函数
  * @param delay 延迟时间（毫秒）
  * @returns 防抖后的函数
@@ -60,6 +60,7 @@ export function debounce<T extends (...args: any[]) => any>(
 
 /**
  * 批量更新函数（收集一段时间内的更新，然后批量执行）
+ *
  * @param func 要批量执行的函数
  * @param delay 批量延迟时间（毫秒）
  * @param maxBatchSize 最大批量大小

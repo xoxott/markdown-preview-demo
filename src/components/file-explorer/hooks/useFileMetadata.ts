@@ -1,11 +1,10 @@
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 import type { FileMetadata } from '../types/file-explorer';
 
 /**
  * 文件元数据管理 Hook
  *
- * 管理文件的标签和备注数据，使用内存存储
- * 可选：支持 localStorage 持久化（后续扩展）
+ * 管理文件的标签和备注数据，使用内存存储 可选：支持 localStorage 持久化（后续扩展）
  */
 export function useFileMetadata() {
   // 使用 Map 存储文件 ID 到元数据的映射
@@ -13,6 +12,7 @@ export function useFileMetadata() {
 
   /**
    * 获取文件的元数据
+   *
    * @param fileId 文件 ID
    * @returns 元数据对象，如果不存在则返回默认值
    */
@@ -31,6 +31,7 @@ export function useFileMetadata() {
 
   /**
    * 获取文件的标签
+   *
    * @param fileId 文件 ID
    * @returns 标签数组
    */
@@ -40,6 +41,7 @@ export function useFileMetadata() {
 
   /**
    * 获取文件的备注
+   *
    * @param fileId 文件 ID
    * @returns 备注文本
    */
@@ -49,6 +51,7 @@ export function useFileMetadata() {
 
   /**
    * 设置文件的标签
+   *
    * @param fileId 文件 ID
    * @param tags 标签数组
    */
@@ -60,6 +63,7 @@ export function useFileMetadata() {
 
   /**
    * 设置文件的备注
+   *
    * @param fileId 文件 ID
    * @param notes 备注文本
    */
@@ -71,6 +75,7 @@ export function useFileMetadata() {
 
   /**
    * 添加标签
+   *
    * @param fileId 文件 ID
    * @param tag 标签文本
    */
@@ -87,6 +92,7 @@ export function useFileMetadata() {
 
   /**
    * 移除标签
+   *
    * @param fileId 文件 ID
    * @param tag 标签文本
    */
@@ -98,6 +104,7 @@ export function useFileMetadata() {
 
   /**
    * 清除文件的所有元数据
+   *
    * @param fileId 文件 ID
    */
   const clearMetadata = (fileId: string) => {
@@ -106,15 +113,14 @@ export function useFileMetadata() {
 
   /**
    * 获取所有文件的元数据
+   *
    * @returns 元数据数组
    */
   const getAllMetadata = computed(() => {
     return Array.from(metadataMap.value.values());
   });
 
-  /**
-   * 清除所有元数据
-   */
+  /** 清除所有元数据 */
   const clearAllMetadata = () => {
     metadataMap.value.clear();
   };

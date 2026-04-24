@@ -1,7 +1,4 @@
-/**
- * 默认存储适配器实现
- * 根据环境自动选择：浏览器环境使用 localStorage，否则使用内存存储
- */
+/** 默认存储适配器实现 根据环境自动选择：浏览器环境使用 localStorage，否则使用内存存储 */
 
 import type { StorageAdapter } from '../types';
 import { LocalStorageAdapter } from './LocalStorageAdapter';
@@ -39,7 +36,5 @@ class DefaultStorageAdapter implements StorageAdapter {
   }
 }
 
-/**
- * 默认存储适配器实例
- */
+/** 默认存储适配器实例 */
 export const defaultStorageAdapter = new DefaultStorageAdapter();

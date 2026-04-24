@@ -4,16 +4,14 @@
  * 提供空间索引的创建、更新和管理功能，支持增量更新优化
  */
 
-import { ref, markRaw, watch, onUnmounted, type Ref, computed } from 'vue';
-import { useRafThrottle } from './useRafThrottle';
+import { type Ref, computed, markRaw, onUnmounted, ref, watch } from 'vue';
 import { SpatialIndex } from '../core/performance/SpatialIndex';
 import { floorCoordinate } from '../utils/cache-key-utils';
 import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
 import type { FlowNode } from '../types';
+import { useRafThrottle } from './useRafThrottle';
 
-/**
- * 空间索引 Hook 选项
- */
+/** 空间索引 Hook 选项 */
 export interface UseSpatialIndexOptions {
   /** 节点列表 */
   nodes: Ref<FlowNode[]>;
@@ -27,9 +25,7 @@ export interface UseSpatialIndexOptions {
   incrementalThreshold?: number;
 }
 
-/**
- * 空间索引 Hook 返回值
- */
+/** 空间索引 Hook 返回值 */
 export interface UseSpatialIndexReturn {
   /** 空间索引实例 */
   spatialIndex: Ref<SpatialIndex>;
@@ -42,8 +38,7 @@ export interface UseSpatialIndexReturn {
 /**
  * 计算节点位置哈希值
  *
- * 使用位运算快速计算哈希，用于检测节点位置变化
- * 优化：只计算前 N 个节点，提升大规模场景下的性能
+ * 使用位运算快速计算哈希，用于检测节点位置变化 优化：只计算前 N 个节点，提升大规模场景下的性能
  *
  * @param nodes 节点列表
  * @returns 哈希值
@@ -63,11 +58,11 @@ function getNodesPositionHash(nodes: FlowNode[]): number {
     // 使用位运算计算哈希（标准哈希算法：hash = hash * 31 + value）
     hash = (hash << HASH_SHIFT_BITS) - hash + x;
     hash = (hash << HASH_SHIFT_BITS) - hash + y;
-    hash = hash | 0; // Convert to 32bit integer
+    hash |= 0; // Convert to 32bit integer
   }
   // 将节点数量也加入哈希，确保节点数量变化时哈希值变化
   hash = (hash << HASH_SHIFT_BITS) - hash + nodes.length;
-  hash = hash | 0;
+  hash |= 0;
   return hash;
 }
 
@@ -76,16 +71,16 @@ function getNodesPositionHash(nodes: FlowNode[]): number {
  *
  * 自动管理空间索引的创建和更新，支持增量更新优化
  *
+ * @example
+ *   ```typescript
+ *   const { spatialIndex, updateIndex } = useSpatialIndex({
+ *     nodes: nodesRef,
+ *     enabled: computed(() => enableCulling.value)
+ *   });
+ *   ```;
+ *
  * @param options Hook 选项
  * @returns 空间索引相关功能
- *
- * @example
- * ```typescript
- * const { spatialIndex, updateIndex } = useSpatialIndex({
- *   nodes: nodesRef,
- *   enabled: computed(() => enableCulling.value)
- * });
- * ```
  */
 export function useSpatialIndex(options: UseSpatialIndexOptions): UseSpatialIndexReturn {
   const {
@@ -99,9 +94,8 @@ export function useSpatialIndex(options: UseSpatialIndexOptions): UseSpatialInde
   /**
    * 动态调整增量更新阈值，根据节点数量智能选择策略
    *
-   * 小规模场景（< 100 节点）：使用较高的阈值（20%），减少全量更新
-   * 中规模场景（100-1000 节点）：使用标准阈值（10%）
-   * 大规模场景（>= 1000 节点）：使用较低的阈值（5%），更频繁地使用增量更新
+   * 小规模场景（< 100 节点）：使用较高的阈值（20%），减少全量更新 中规模场景（100-1000 节点）：使用标准阈值（10%） 大规模场景（>= 1000
+   * 节点）：使用较低的阈值（5%），更频繁地使用增量更新
    */
   const dynamicIncrementalThreshold = computed(() => {
     if (incrementalThreshold !== undefined) {
@@ -135,9 +129,7 @@ export function useSpatialIndex(options: UseSpatialIndexOptions): UseSpatialInde
   const lastNodePositions = new Map<string, { x: number; y: number }>();
   let lastHash = 0;
 
-  /**
-   * 检查是否启用
-   */
+  /** 检查是否启用 */
   const isEnabled = (): boolean => {
     if (typeof enabled === 'boolean') return enabled;
     if (typeof enabled === 'function') return enabled();
@@ -162,6 +154,7 @@ export function useSpatialIndex(options: UseSpatialIndexOptions): UseSpatialInde
    * 更新空间索引
    *
    * 智能选择增量更新或全量更新：
+   *
    * - 变化节点 < 10%：使用增量更新（O(log n)）
    * - 变化节点 >= 10%：使用全量更新（O(n log n)）
    */
@@ -235,9 +228,7 @@ export function useSpatialIndex(options: UseSpatialIndexOptions): UseSpatialInde
     { deep: false }
   );
 
-  /**
-   * 手动更新空间索引
-   */
+  /** 手动更新空间索引 */
   const updateIndex = () => {
     if (isEnabled() && nodes.value.length > 0) {
       spatialIndex.value.updateNodes(nodes.value);
@@ -246,9 +237,7 @@ export function useSpatialIndex(options: UseSpatialIndexOptions): UseSpatialInde
     }
   };
 
-  /**
-   * 清理资源
-   */
+  /** 清理资源 */
   const cleanup = () => {
     cancelThrottledUpdate();
     lastNodePositions.clear();

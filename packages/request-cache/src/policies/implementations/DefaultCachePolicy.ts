@@ -1,6 +1,4 @@
-/**
- * 默认缓存策略实现
- */
+/** 默认缓存策略实现 */
 
 import type { NormalizedRequestConfig } from '@suga/request-core';
 import type { CacheConfig, CacheMeta, CachePolicy } from '../types';

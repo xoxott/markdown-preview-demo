@@ -1,7 +1,5 @@
-/**
- * FileService 测试
- */
-import { describe, expect, it, beforeEach } from 'vitest';
+/** FileService 测试 */
+import { beforeEach, describe, expect, it } from 'vitest';
 import { FileService } from '../../services/FileService';
 import { CONSTANTS } from '../../constants';
 import type { UploadConfig } from '../../types';

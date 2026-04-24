@@ -1,17 +1,13 @@
-/**
- * 传输步骤（Transport Step）
- */
+/** 传输步骤（Transport Step） */
 
 import type {
-  RequestStep,
+  NormalizedRequestConfig,
   RequestContext,
-  Transport,
-  NormalizedRequestConfig
+  RequestStep,
+  Transport
 } from '@suga/request-core';
 
-/**
- * 传输步骤
- */
+/** 传输步骤 */
 export class TransportStep implements RequestStep {
   private transport: Transport;
 

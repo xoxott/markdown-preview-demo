@@ -1,17 +1,13 @@
-import { defineComponent, computed, type PropType } from 'vue';
+import { type PropType, computed, defineComponent } from 'vue';
 import type { ConnectionLineStyle } from '../types/canvas-settings';
 
-/**
- * 连接线位置坐标接口
- */
+/** 连接线位置坐标接口 */
 interface ConnectionPosition {
   x: number;
   y: number;
 }
 
-/**
- * 草稿连接线数据接口
- */
+/** 草稿连接线数据接口 */
 interface ConnectionDraft {
   startX: number;
   startY: number;
@@ -19,9 +15,7 @@ interface ConnectionDraft {
   endY: number;
 }
 
-/**
- * 连接线组件常量配置
- */
+/** 连接线组件常量配置 */
 const CONNECTION_LINE_CONFIG = {
   /** 贝塞尔曲线控制点偏移比例 */
   BEZIER_CONTROL_OFFSET: 0.5,
@@ -64,12 +58,13 @@ const CONNECTION_LINE_CONFIG = {
 /**
  * ConnectionLine 组件
  *
- * 用于在 AI 工作流画布中渲染节点之间的连接线。
- * 支持两种模式：
+ * 用于在 AI 工作流画布中渲染节点之间的连接线。 支持两种模式：
+ *
  * 1. 已建立的连接线：使用 connection、sourcePos、targetPos 属性
  * 2. 正在绘制的草稿连接线：使用 draft 属性
  *
  * 功能特性：
+ *
  * - 使用贝塞尔曲线绘制平滑的连接线
  * - 支持选中状态高亮显示
  * - 支持动画效果（流动的虚线）
@@ -78,69 +73,53 @@ const CONNECTION_LINE_CONFIG = {
  * - 发光效果增强视觉反馈
  *
  * @example
- * ```tsx
- * // 已建立的连接线
- * <ConnectionLine
- *   connection={connection}
- *   sourcePos={{ x: 100, y: 50 }}
- *   targetPos={{ x: 300, y: 150 }}
- *   selected={true}
- *   animated={false}
- *   onClick={(id) => handleDelete(id)}
- * />
+ *   ```tsx
+ *   // 已建立的连接线
+ *   <ConnectionLine
+ *     connection={connection}
+ *     sourcePos={{ x: 100, y: 50 }}
+ *     targetPos={{ x: 300, y: 150 }}
+ *     selected={true}
+ *     animated={false}
+ *     onClick={(id) => handleDelete(id)}
+ *   />
  *
- * // 正在绘制的草稿连接线
- * <ConnectionLine
- *   draft={{ startX: 100, startY: 50, endX: 200, endY: 100 }}
- * />
- * ```
+ *   // 正在绘制的草稿连接线
+ *   <ConnectionLine
+ *     draft={{ startX: 100, startY: 50, endX: 200, endY: 100 }}
+ *   />
+ *   ```;
  */
 export default defineComponent({
   name: 'ConnectionLine',
   props: {
-    /**
-     * 连接线数据对象
-     * 包含连接的源节点、目标节点等信息
-     * 仅在已建立的连接线模式下使用
-     */
+    /** 连接线数据对象 包含连接的源节点、目标节点等信息 仅在已建立的连接线模式下使用 */
     connection: {
       type: Object as PropType<Api.Workflow.Connection>,
       required: false,
       default: undefined
     },
-    /**
-     * 草稿连接线数据
-     * 用于正在绘制中的连接线，包含起始和结束坐标
-     * 与 connection/sourcePos/targetPos 互斥
-     */
+    /** 草稿连接线数据 用于正在绘制中的连接线，包含起始和结束坐标 与 connection/sourcePos/targetPos 互斥 */
     draft: {
       type: Object as PropType<ConnectionDraft>,
       required: false,
       default: undefined
     },
-    /**
-     * 源节点端口位置坐标
-     * 连接线的起始点位置
-     * 仅在已建立的连接线模式下使用，需与 targetPos 同时提供
-     */
+    /** 源节点端口位置坐标 连接线的起始点位置 仅在已建立的连接线模式下使用，需与 targetPos 同时提供 */
     sourcePos: {
       type: Object as PropType<ConnectionPosition>,
       required: false,
       default: undefined
     },
-    /**
-     * 目标节点端口位置坐标
-     * 连接线的结束点位置
-     * 仅在已建立的连接线模式下使用，需与 sourcePos 同时提供
-     */
+    /** 目标节点端口位置坐标 连接线的结束点位置 仅在已建立的连接线模式下使用，需与 sourcePos 同时提供 */
     targetPos: {
       type: Object as PropType<ConnectionPosition>,
       required: false,
       default: undefined
     },
     /**
-     * 是否选中状态
-     * 选中时会显示高亮颜色和更粗的线条
+     * 是否选中状态 选中时会显示高亮颜色和更粗的线条
+     *
      * @default false
      */
     selected: {
@@ -148,28 +127,21 @@ export default defineComponent({
       default: false
     },
     /**
-     * 是否启用动画效果
-     * 启用后会显示流动的虚线动画
+     * 是否启用动画效果 启用后会显示流动的虚线动画
+     *
      * @default false
      */
     animated: {
       type: Boolean,
       default: false
     },
-    /**
-     * 点击连接线时的回调函数
-     * 参数为连接线的 ID
-     * 通常用于删除连接线
-     */
+    /** 点击连接线时的回调函数 参数为连接线的 ID 通常用于删除连接线 */
     onClick: {
       type: Function as PropType<(id: string) => void>,
       required: false,
       default: undefined
     },
-    /**
-     * 连接线样式配置
-     * 包含颜色、宽度、类型等样式信息
-     */
+    /** 连接线样式配置 包含颜色、宽度、类型等样式信息 */
     style: {
       type: Object as PropType<ConnectionLineStyle>,
       required: false,
@@ -177,9 +149,7 @@ export default defineComponent({
     }
   },
   setup(props) {
-    /**
-     * 计算贝塞尔曲线在 t=1 时的切线方向（用于箭头对齐）
-     */
+    /** 计算贝塞尔曲线在 t=1 时的切线方向（用于箭头对齐） */
     const getBezierTangent = (
       x1: number,
       y1: number,
@@ -198,13 +168,12 @@ export default defineComponent({
       return { dx: dx / length, dy: dy / length };
     };
 
-    /**
-     * 计算 SVG 路径数据
-     * 根据起始点和结束点生成贝塞尔曲线路径
-     * 使用三次贝塞尔曲线（Cubic Bezier）实现平滑的连接效果
-     */
+    /** 计算 SVG 路径数据 根据起始点和结束点生成贝塞尔曲线路径 使用三次贝塞尔曲线（Cubic Bezier）实现平滑的连接效果 */
     const pathData = computed(() => {
-      let x1: number, y1: number, x2: number, y2: number;
+      let x1: number;
+      let x2: number;
+      let y1: number;
+      let y2: number;
       let isDraft = false;
 
       // 优先使用草稿数据（正在绘制中）
@@ -258,7 +227,7 @@ export default defineComponent({
           // 阶梯线（直角转折）
           const midX = (x1 + x2) / 2;
           let endX = x2;
-          let endY = y2;
+          const endY = y2;
 
           if (showArrow) {
             endX = x2 - CONNECTION_LINE_CONFIG.ARROW_LENGTH;
@@ -272,7 +241,7 @@ export default defineComponent({
           const midX = (x1 + x2) / 2;
           const radius = 10;
           let endX = x2;
-          let endY = y2;
+          const endY = y2;
 
           if (showArrow) {
             endX = x2 - CONNECTION_LINE_CONFIG.ARROW_LENGTH;
@@ -310,10 +279,7 @@ export default defineComponent({
       }
     });
 
-    /**
-     * 计算描边颜色
-     * 根据状态和样式配置返回不同的颜色或渐变
-     */
+    /** 计算描边颜色 根据状态和样式配置返回不同的颜色或渐变 */
     const strokeColor = computed(() => {
       if (props.draft) {
         // 草稿线条：优先使用草稿颜色配置，其次使用默认渐变
@@ -326,10 +292,7 @@ export default defineComponent({
       return props.style?.color || CONNECTION_LINE_CONFIG.DEFAULT_STROKE_COLOR;
     });
 
-    /**
-     * 计算描边宽度
-     * 根据状态和样式配置返回不同的线条粗细
-     */
+    /** 计算描边宽度 根据状态和样式配置返回不同的线条粗细 */
     const strokeWidth = computed(() => {
       if (props.selected) {
         return CONNECTION_LINE_CONFIG.SELECTED_STROKE_WIDTH;
@@ -342,18 +305,12 @@ export default defineComponent({
       return props.style?.width || CONNECTION_LINE_CONFIG.DEFAULT_STROKE_WIDTH;
     });
 
-    /**
-     * 判断是否启用动画
-     * 根据 props 和样式配置
-     */
+    /** 判断是否启用动画 根据 props 和样式配置 */
     const isAnimated = computed(() => {
       return props.animated || props.style?.animated || false;
     });
 
-    /**
-     * 处理连接线点击事件
-     * 阻止事件冒泡，并调用 onClick 回调
-     */
+    /** 处理连接线点击事件 阻止事件冒泡，并调用 onClick 回调 */
     const handleClick = (e: MouseEvent) => {
       e.stopPropagation();
       if (props.connection?.id && props.onClick) {

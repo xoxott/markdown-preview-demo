@@ -1,8 +1,7 @@
 /**
  * Flow 连接处理器
  *
- * 处理连接线的创建、验证、预览等功能
- * 支持 RAF 节流的预览位置更新
+ * 处理连接线的创建、验证、预览等功能 支持 RAF 节流的预览位置更新
  */
 
 import type { FlowEdge } from '../../types/flow-edge';
@@ -11,9 +10,7 @@ import type { FlowConfig } from '../../types/flow-config';
 import { validateConnection } from '../../utils/validation-utils';
 import { RafThrottle } from '../../utils/raf-throttle';
 
-/**
- * 连接草稿状态
- */
+/** 连接草稿状态 */
 export interface ConnectionDraft {
   /** 源节点 ID */
   sourceNodeId: string;
@@ -29,9 +26,7 @@ export interface ConnectionDraft {
   currentY: number;
 }
 
-/**
- * 预览位置
- */
+/** 预览位置 */
 export interface PreviewPosition {
   /** X 坐标（屏幕坐标） */
   x: number;
@@ -39,9 +34,7 @@ export interface PreviewPosition {
   y: number;
 }
 
-/**
- * 连接选项
- */
+/** 连接选项 */
 export interface ConnectionOptions {
   /** 连接模式 */
   mode?: 'loose' | 'strict';
@@ -57,9 +50,7 @@ export interface ConnectionOptions {
   onConnect?: (edge: FlowEdge) => void;
 }
 
-/**
- * Flow 连接处理器
- */
+/** Flow 连接处理器 */
 export class FlowConnectionHandler {
   /** 连接草稿 */
   private draft: ConnectionDraft | null = null;
@@ -76,16 +67,12 @@ export class FlowConnectionHandler {
   /** RAF 节流工具 */
   private rafThrottle = new RafThrottle<MouseEvent>();
 
-  /**
-   * 设置连接选项
-   */
+  /** 设置连接选项 */
   setOptions(options: Partial<ConnectionOptions>): void {
     this.options = { ...this.options, ...options };
   }
 
-  /**
-   * 设置配置（用于连接验证）
-   */
+  /** 设置配置（用于连接验证） */
   setConfig(config: FlowConfig): void {
     this.config = config;
   }
@@ -165,9 +152,9 @@ export class FlowConnectionHandler {
   /**
    * 更新连接预览位置（兼容旧 API）
    *
+   * @deprecated 使用 updatePreviewPosition(event) 替代
    * @param currentX 当前 X 坐标（屏幕坐标）
    * @param currentY 当前 Y 坐标（屏幕坐标）
-   * @deprecated 使用 updatePreviewPosition(event) 替代
    */
   updateConnection(currentX: number, currentY: number): void {
     if (this.draft) {
@@ -288,9 +275,7 @@ export class FlowConnectionHandler {
     return null;
   }
 
-  /**
-   * 取消连接
-   */
+  /** 取消连接 */
   cancelConnection(): void {
     // 取消待执行的 RAF
     this.cancelRaf();
@@ -300,9 +285,7 @@ export class FlowConnectionHandler {
     this.previewPosition = null;
   }
 
-  /**
-   * 取消 RAF（清理资源）
-   */
+  /** 取消 RAF（清理资源） */
   private cancelRaf(): void {
     this.rafThrottle.cancel();
   }

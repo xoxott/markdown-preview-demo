@@ -1,7 +1,8 @@
-import type { ViewMode, GridSize } from '../types/file-explorer';
+import type { GridSize, ViewMode } from '../types/file-explorer';
 
 /**
  * 根据视图模式和网格大小获取每页显示数量
+ *
  * @param viewMode 视图模式
  * @param gridSize 网格大小（仅在 grid 模式下有效）
  * @returns 每页显示数量

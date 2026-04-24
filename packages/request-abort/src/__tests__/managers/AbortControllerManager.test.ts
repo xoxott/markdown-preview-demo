@@ -1,6 +1,4 @@
-/**
- * AbortControllerManager 测试
- */
+/** AbortControllerManager 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
 import { AbortControllerManager } from '../../managers/AbortControllerManager';

@@ -4,7 +4,7 @@
  * 提供事件处理函数的缓存功能，避免每次渲染都创建新函数
  */
 
-import { computed, type Ref } from 'vue';
+import { type Ref, computed } from 'vue';
 import { isRef } from '../utils/type-utils';
 
 /**
@@ -19,9 +19,7 @@ export interface EventHandlerMap<T> {
   onMouseLeave?: (event: MouseEvent) => void;
 }
 
-/**
- * 事件处理函数缓存 Hook 选项
- */
+/** 事件处理函数缓存 Hook 选项 */
 export interface UseEventHandlersOptions<T> {
   /** 数据项列表 */
   items: T[] | Ref<T[]>;
@@ -36,9 +34,7 @@ export interface UseEventHandlersOptions<T> {
   };
 }
 
-/**
- * 事件处理函数缓存 Hook 返回值
- */
+/** 事件处理函数缓存 Hook 返回值 */
 export interface UseEventHandlersReturn<T> {
   /** 事件处理函数映射（ID -> 处理函数） */
   eventHandlers: Ref<Map<string, EventHandlerMap<T>> | null>;
@@ -49,24 +45,24 @@ export interface UseEventHandlersReturn<T> {
  *
  * 缓存事件处理函数映射，避免每次渲染都创建新函数
  *
+ * @example
+ *   ```typescript
+ *   const { eventHandlers } = useEventHandlers({
+ *     items: visibleEdges,
+ *     getId: (edge) => edge.id,
+ *     handlers: {
+ *       onClick: (edge, event) => props.onEdgeClick!(edge, event),
+ *       onDoubleClick: (edge, event) => props.onEdgeDoubleClick!(edge, event)
+ *     }
+ *   });
+ *
+ *   // 使用
+ *   const handler = eventHandlers.value?.get(edge.id);
+ *   <BaseEdge onClick={handler?.onClick} />
+ *   ```;
+ *
  * @param options Hook 选项
  * @returns 事件处理函数映射
- *
- * @example
- * ```typescript
- * const { eventHandlers } = useEventHandlers({
- *   items: visibleEdges,
- *   getId: (edge) => edge.id,
- *   handlers: {
- *     onClick: (edge, event) => props.onEdgeClick!(edge, event),
- *     onDoubleClick: (edge, event) => props.onEdgeDoubleClick!(edge, event)
- *   }
- * });
- *
- * // 使用
- * const handler = eventHandlers.value?.get(edge.id);
- * <BaseEdge onClick={handler?.onClick} />
- * ```
  */
 export function useEventHandlers<T>(
   options: UseEventHandlersOptions<T>

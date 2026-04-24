@@ -102,9 +102,9 @@ export default defineComponent({
         )}
 
         {/* 中间：分页器 */}
-        <div class="flex-1 flex items-center justify-center gap-3">
+        <div class="flex flex-1 items-center justify-center gap-3">
           {/* 当前页范围显示 */}
-          <span class="text-xs whitespace-nowrap" style={{ color: themeVars.value.textColor3 }}>
+          <span class="whitespace-nowrap text-xs" style={{ color: themeVars.value.textColor3 }}>
             {(() => {
               const start = props.total === 0 ? 0 : (props.currentPage - 1) * props.pageSize + 1;
               const end = Math.min(props.currentPage * props.pageSize, props.total);

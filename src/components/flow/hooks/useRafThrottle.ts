@@ -1,53 +1,50 @@
 /**
  * RAF 节流 Hook
  *
- * 使用 requestAnimationFrame 对函数执行进行节流，确保在每帧最多执行一次。
- * 适用于需要高频触发但不需要每帧都执行的场景，如：
+ * 使用 requestAnimationFrame 对函数执行进行节流，确保在每帧最多执行一次。 适用于需要高频触发但不需要每帧都执行的场景，如：
+ *
  * - 监听数据变化并更新空间索引
  * - 调度渲染操作
  * - 节流事件处理
  *
  * @example
- * ```typescript
- * // 基础用法：节流执行函数
- * const { throttled, cancel } = useRafThrottle(() => {
- *   console.log('节流执行');
- * });
+ *   ```typescript
+ *   // 基础用法：节流执行函数
+ *   const { throttled, cancel } = useRafThrottle(() => {
+ *     console.log('节流执行');
+ *   });
  *
- * // 在 watch 中使用
- * watch(() => data.value, () => {
- *   throttled(); // 每帧最多执行一次
- * });
+ *   // 在 watch 中使用
+ *   watch(() => data.value, () => {
+ *     throttled(); // 每帧最多执行一次
+ *   });
  *
- * // 手动取消
- * cancel();
- * ```
+ *   // 手动取消
+ *   cancel();
+ *   ```;
  *
  * @example
- * ```typescript
- * // 带参数的函数
- * const { throttled } = useRafThrottle((value: number) => {
- *   updateIndex(value);
- * });
+ *   ```typescript
+ *   // 带参数的函数
+ *   const { throttled } = useRafThrottle((value: number) => {
+ *     updateIndex(value);
+ *   });
  *
- * watch(() => count.value, (newVal) => {
- *   throttled(newVal); // 参数会被保留，使用最新的参数执行
- * });
- * ```
+ *   watch(() => count.value, (newVal) => {
+ *     throttled(newVal); // 参数会被保留，使用最新的参数执行
+ *   });
+ *   ```;
  */
 
-import { onUnmounted, ref, type Ref } from 'vue';
+import { type Ref, onUnmounted, ref } from 'vue';
 import { isFunction as isFunctionType } from '../utils/type-utils';
 
-/**
- * RAF 节流配置选项
- */
+/** RAF 节流配置选项 */
 export interface UseRafThrottleOptions {
   /**
    * 是否立即执行第一次调用
    *
-   * 如果为 true，第一次调用会立即执行，后续调用才进行节流
-   * 如果为 false，所有调用都进行节流
+   * 如果为 true，第一次调用会立即执行，后续调用才进行节流 如果为 false，所有调用都进行节流
    *
    * @default false
    */
@@ -63,15 +60,12 @@ export interface UseRafThrottleOptions {
   enabled?: Ref<boolean> | (() => boolean);
 }
 
-/**
- * RAF 节流 Hook 返回值
- */
+/** RAF 节流 Hook 返回值 */
 export interface UseRafThrottleReturn<T extends (...args: any[]) => any> {
   /**
    * 节流后的函数
    *
-   * 调用此函数会进行 RAF 节流，确保每帧最多执行一次
-   * 如果多次调用，会使用最新的参数执行
+   * 调用此函数会进行 RAF 节流，确保每帧最多执行一次 如果多次调用，会使用最新的参数执行
    */
   throttled: T;
 
@@ -93,24 +87,23 @@ export interface UseRafThrottleReturn<T extends (...args: any[]) => any> {
 /**
  * RAF 节流 Hook
  *
- * 使用 requestAnimationFrame 对函数执行进行节流。
- * 确保在每帧最多执行一次，避免过度执行导致的性能问题。
+ * 使用 requestAnimationFrame 对函数执行进行节流。 确保在每帧最多执行一次，避免过度执行导致的性能问题。
+ *
+ * @example
+ *   ```typescript
+ *   // 节流更新空间索引
+ *   const { throttled: updateSpatialIndex } = useRafThrottle(() => {
+ *     spatialIndex.value.updateNodes(nodes.value);
+ *   });
+ *
+ *   watch(() => nodes.value, () => {
+ *     updateSpatialIndex();
+ *   });
+ *   ```;
  *
  * @param fn 需要节流的函数
  * @param options 配置选项
  * @returns 节流后的函数和控制方法
- *
- * @example
- * ```typescript
- * // 节流更新空间索引
- * const { throttled: updateSpatialIndex } = useRafThrottle(() => {
- *   spatialIndex.value.updateNodes(nodes.value);
- * });
- *
- * watch(() => nodes.value, () => {
- *   updateSpatialIndex();
- * });
- * ```
  */
 export function useRafThrottle<T extends (...args: any[]) => any>(
   fn: T,

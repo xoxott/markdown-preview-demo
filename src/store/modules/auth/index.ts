@@ -1,23 +1,23 @@
-import { SetupStoreId } from '@/enum';
-import { useRouterPush } from '@/hooks/common/router';
-import { $t } from '@/locales';
+import { computed, reactive, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { defineStore } from 'pinia';
+import { useLoading } from '@suga/hooks';
 import {
+  fetchEmailCodeLogin,
   fetchGetUserInfo,
   fetchLoginStep1,
   fetchLoginStep2,
   fetchLogout,
   fetchRegister,
   fetchResetPassword,
-  fetchSendRegistrationCode,
-  fetchSendResetPasswordCode,
   fetchSendLoginCode,
-  fetchEmailCodeLogin
+  fetchSendRegistrationCode,
+  fetchSendResetPasswordCode
 } from '@/service/api';
+import { useRouterPush } from '@/hooks/common/router';
 import { localStg } from '@/utils/storage';
-import { useLoading } from '@suga/hooks';
-import { defineStore } from 'pinia';
-import { computed, reactive, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { SetupStoreId } from '@/enum';
+import { $t } from '@/locales';
 import { useRouteStore } from '../route';
 import { useTabStore } from '../tab';
 import { clearAuthStorage, getToken } from './shared';
@@ -96,7 +96,10 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     routeStore.resetStore();
   }
 
-  /** Record the user ID of the previous login session Used to compare with the current user ID on next login */
+  /**
+   * Record the user ID of the previous login session Used to compare with the current user ID on
+   * next login
+   */
   function recordUserId() {
     if (!userInfo.id) {
       return;

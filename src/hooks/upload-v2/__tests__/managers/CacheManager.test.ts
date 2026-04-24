@@ -1,7 +1,5 @@
-/**
- * CacheManager 测试
- */
-import { describe, expect, it, beforeEach, vi } from 'vitest';
+/** CacheManager 测试 */
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CacheManager } from '../../managers/CacheManager';
 
 describe('CacheManager', () => {

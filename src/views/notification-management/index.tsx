@@ -1,19 +1,4 @@
-import type { NotificationFormData } from '@/components/notification-management/dialog';
-import { useNotificationDialog } from '@/components/notification-management/useNotificationDialog';
-import { useNaiveForm } from '@/hooks/common/form';
-import { useTable } from '@/hooks/common/table';
-import { $t } from '@/locales';
-import {
-  fetchBatchDeleteNotifications,
-  fetchCreateNotification,
-  fetchDeleteNotification,
-  fetchNotificationDetail,
-  fetchNotificationList,
-  fetchToggleNotificationStatus,
-  fetchUpdateNotification
-} from '@/service/api/notification';
-import { fetchUserList } from '@/service/api/user';
-import { fetchRoleList } from '@/service/api/role';
+import { computed, defineComponent, getCurrentInstance, onMounted, reactive, ref } from 'vue';
 import {
   NButton,
   NCard,
@@ -27,7 +12,22 @@ import {
   NTag,
   useMessage
 } from 'naive-ui';
-import { defineComponent, getCurrentInstance, reactive, ref, computed, onMounted } from 'vue';
+import {
+  fetchBatchDeleteNotifications,
+  fetchCreateNotification,
+  fetchDeleteNotification,
+  fetchNotificationDetail,
+  fetchNotificationList,
+  fetchToggleNotificationStatus,
+  fetchUpdateNotification
+} from '@/service/api/notification';
+import { fetchUserList } from '@/service/api/user';
+import { fetchRoleList } from '@/service/api/role';
+import { useNaiveForm } from '@/hooks/common/form';
+import { useTable } from '@/hooks/common/table';
+import type { NotificationFormData } from '@/components/notification-management/dialog';
+import { useNotificationDialog } from '@/components/notification-management/useNotificationDialog';
+import { $t } from '@/locales';
 import { useDialog } from '@/components/base-dialog/useDialog';
 
 type Notification = Api.NotificationManagement.Notification;
@@ -249,7 +249,7 @@ export default defineComponent({
           width: 300,
           render: (row: Notification) => {
             const content = row.content || '-';
-            return content.length > 50 ? content.substring(0, 50) + '...' : content;
+            return content.length > 50 ? `${content.substring(0, 50)}...` : content;
           }
         },
         {

@@ -4,12 +4,10 @@
  * 提供画布操作工具栏，包括缩放、适应视图等操作
  */
 
-import { defineComponent, computed, type PropType } from 'vue';
+import { type PropType, computed, defineComponent } from 'vue';
 import type { FlowViewport } from '../types';
 
-/**
- * FlowToolbar 组件属性
- */
+/** FlowToolbar 组件属性 */
 export interface FlowToolbarProps {
   /** 视口状态 */
   viewport: FlowViewport;
@@ -35,9 +33,7 @@ export interface FlowToolbarProps {
   onResetView?: () => void;
 }
 
-/**
- * Flow 工具栏组件
- */
+/** Flow 工具栏组件 */
 export default defineComponent({
   name: 'FlowToolbar',
   props: {

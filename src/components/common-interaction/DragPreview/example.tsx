@@ -1,6 +1,4 @@
-/**
- * DragPreview 使用示例
- */
+/** DragPreview 使用示例 */
 
 import { defineComponent, ref } from 'vue';
 import { DragPreview } from '../index';

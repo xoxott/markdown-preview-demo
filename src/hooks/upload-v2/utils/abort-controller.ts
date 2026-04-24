@@ -1,26 +1,18 @@
-/**
- * AbortController 工具函数
- */
+/** AbortController 工具函数 */
 
-/**
- * 安全中止控制器（避免重复中止）
- */
+/** 安全中止控制器（避免重复中止） */
 export function safeAbort(controller: AbortController | undefined): void {
   if (controller && !controller.signal.aborted) {
     controller.abort();
   }
 }
 
-/**
- * 批量中止控制器
- */
+/** 批量中止控制器 */
 export function abortAll(controllers: AbortController[]): void {
   controllers.forEach(controller => safeAbort(controller));
 }
 
-/**
- * 创建组合的 AbortSignal（合并多个信号）
- */
+/** 创建组合的 AbortSignal（合并多个信号） */
 export function combineAbortSignals(
   ...signals: (AbortSignal | undefined)[]
 ): AbortSignal | undefined {

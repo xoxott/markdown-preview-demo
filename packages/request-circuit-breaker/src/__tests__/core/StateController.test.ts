@@ -1,6 +1,4 @@
-/**
- * StateController 测试
- */
+/** StateController 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
 import { StateController } from '../../core/StateController';

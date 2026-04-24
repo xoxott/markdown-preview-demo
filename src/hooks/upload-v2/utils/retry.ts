@@ -1,6 +1,4 @@
-/**
- * 重试工具函数
- */
+/** 重试工具函数 */
 
 /** 错误类型枚举 */
 export enum ErrorType {
@@ -20,9 +18,7 @@ export interface ErrorInfo {
   retryable: boolean;
 }
 
-/**
- * 判断错误类型
- */
+/** 判断错误类型 */
 export function classifyError(error: unknown): ErrorInfo {
   // 类型守卫：检查是否为 Error 对象
   const isError = (err: unknown): err is Error => {
@@ -99,39 +95,31 @@ export function classifyError(error: unknown): ErrorInfo {
   };
 }
 
-/**
- * 判断错误是否可重试
- */
+/** 判断错误是否可重试 */
 export function isRetryableError(error: unknown): boolean {
   const errorInfo = classifyError(error);
   return errorInfo.retryable;
 }
 
-/**
- * 计算重试延迟（指数退避）
- */
+/** 计算重试延迟（指数退避） */
 export function calculateRetryDelay(
   retryCount: number,
   baseDelay: number = 1000,
   maxDelay: number = 30000,
   backoffMultiplier: number = 1.5
 ): number {
-  const delay = Math.min(baseDelay * Math.pow(backoffMultiplier, retryCount), maxDelay);
+  const delay = Math.min(baseDelay * backoffMultiplier ** retryCount, maxDelay);
   // 添加随机抖动，避免雷群效应
   const jitter = delay * 0.1 * Math.random();
   return Math.floor(delay + jitter);
 }
 
-/**
- * 延迟函数
- */
+/** 延迟函数 */
 export function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-/**
- * 带重试的函数执行器
- */
+/** 带重试的函数执行器 */
 export async function withRetry<T>(
   fn: () => Promise<T>,
   options: {

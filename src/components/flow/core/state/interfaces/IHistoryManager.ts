@@ -12,9 +12,7 @@ import type { FlowStateSnapshot } from '../types';
  * 所有历史记录管理器实现必须实现此接口
  */
 export interface IHistoryManager {
-  /**
-   * 保存当前状态到历史记录
-   */
+  /** 保存当前状态到历史记录 */
   pushHistory(): void;
 
   /**
@@ -45,9 +43,7 @@ export interface IHistoryManager {
    */
   canRedo(): boolean;
 
-  /**
-   * 清空历史记录
-   */
+  /** 清空历史记录 */
   clearHistory(): void;
 
   /**
@@ -71,8 +67,6 @@ export interface IHistoryManager {
    */
   restoreSnapshot(snapshot: FlowStateSnapshot): void;
 
-  /**
-   * 重置到初始状态
-   */
+  /** 重置到初始状态 */
   reset(): void;
 }

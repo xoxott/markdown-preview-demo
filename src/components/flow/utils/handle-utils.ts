@@ -5,15 +5,14 @@
  */
 
 import type { FlowHandle } from '../types/flow-node';
-import { getCssVariable } from './theme-utils';
 import { CSS_VARIABLES } from '../constants/theme-constants';
+import { getCssVariable } from './theme-utils';
 
 /**
  * 端口颜色常量
  *
- * 注意：这些值仅作为默认值，实际颜色应该从 CSS 变量中获取
- * 使用 getCssVariable() 函数可以获取当前主题的颜色值
- * CSS 变量名：--flow-handle-border-source, --flow-handle-border-target, --flow-handle-border-default
+ * 注意：这些值仅作为默认值，实际颜色应该从 CSS 变量中获取 使用 getCssVariable() 函数可以获取当前主题的颜色值 CSS
+ * 变量名：--flow-handle-border-source, --flow-handle-border-target, --flow-handle-border-default
  */
 export const HANDLE_COLORS = {
   SOURCE: '#18a058', // 绿色表示输出端口
@@ -46,9 +45,7 @@ export function getHandleColor(
   );
 }
 
-/**
- * 端口尺寸常量
- */
+/** 端口尺寸常量 */
 export const HANDLE_SIZES = {
   WIDTH: 12,
   HEIGHT: 12,

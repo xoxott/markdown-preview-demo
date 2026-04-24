@@ -7,16 +7,16 @@
 // 导入 Flow 主题样式（在使用 FlowCanvas 时自动加载）
 import '../styles/index.scss';
 
-import {
-  defineComponent,
-  ref,
+import type {
+  CSSProperties,
+  type PropType,
   computed,
-  watch,
+  defineComponent,
+  h,
   onMounted,
   onUnmounted,
-  type PropType,
-  CSSProperties,
-  h
+  ref,
+  watch
 } from 'vue';
 import { useFlowConfig } from '../hooks/useFlowConfig';
 import { useFlowState } from '../hooks/useFlowState';
@@ -30,17 +30,15 @@ import { useFlowCanvasPropsSync } from '../hooks/useFlowCanvasPropsSync';
 import { useFlowCanvasConfigSync } from '../hooks/useFlowCanvasConfigSync';
 import { useFlowCanvasEvents } from '../hooks/useFlowCanvasEvents';
 import { FlowEventEmitter } from '../core/events/FlowEventEmitter';
+import type { FlowConfig, FlowEdge, FlowNode, FlowViewport } from '../types';
 import { registerFlowCanvasShortcuts } from './useFlowCanvasKeyboard';
 import FlowNodes from './FlowNodes';
 import FlowEdges from './FlowEdges';
 import FlowBackground from './FlowBackground';
 import FlowViewportContainer from './FlowViewportContainer';
 import ConnectionPreview from './ConnectionPreview';
-import type { FlowConfig, FlowViewport, FlowNode, FlowEdge } from '../types';
 
-/**
- * FlowCanvas 组件属性
- */
+/** FlowCanvas 组件属性 */
 export interface FlowCanvasProps {
   /** 配置 ID（用于多实例） */
   id?: string;
@@ -62,9 +60,7 @@ export interface FlowCanvasProps {
   class?: string;
 }
 
-/**
- * Flow 主画布组件
- */
+/** Flow 主画布组件 */
 export default defineComponent({
   name: 'FlowCanvas',
   props: {

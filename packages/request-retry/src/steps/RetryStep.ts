@@ -1,22 +1,16 @@
-/**
- * 重试步骤
- */
+/** 重试步骤 */
 
-import type { RequestStep, RequestContext } from '@suga/request-core';
+import type { RequestContext, RequestStep } from '@suga/request-core';
 import { retryRequest } from '../utils/retry-request';
-import type { RetryStrategy, RetryConfig, RetryMeta } from '../types';
+import type { RetryConfig, RetryMeta, RetryStrategy } from '../types';
 
-/**
- * 重试步骤配置
- */
+/** 重试步骤配置 */
 export interface RetryStepOptions {
   /** 默认重试策略 */
   defaultStrategy?: RetryStrategy;
 }
 
-/**
- * 类型守卫：判断是否为重试策略对象
- */
+/** 类型守卫：判断是否为重试策略对象 */
 function isRetryStrategy(value: RetryStrategy | RetryConfig): value is RetryStrategy {
   return (
     'shouldRetry' in value &&
@@ -26,9 +20,7 @@ function isRetryStrategy(value: RetryStrategy | RetryConfig): value is RetryStra
   );
 }
 
-/**
- * 解析重试配置
- */
+/** 解析重试配置 */
 function parseRetryConfig(retryConfig: boolean | RetryStrategy | RetryConfig | undefined): {
   strategy?: RetryStrategy;
   config?: RetryConfig;
@@ -48,9 +40,7 @@ function parseRetryConfig(retryConfig: boolean | RetryStrategy | RetryConfig | u
   return { config: retryConfig };
 }
 
-/**
- * 重试步骤
- */
+/** 重试步骤 */
 export class RetryStep implements RequestStep {
   private defaultStrategy?: RetryStrategy;
 

@@ -1,10 +1,10 @@
+import { computed, defineComponent, reactive, ref } from 'vue';
+import { NButton, NForm, NFormItem, NInput, NSpace, NText } from 'naive-ui';
+import { loginModuleRecord } from '@/constants/app';
+import { useAuthStore } from '@/store/modules/auth';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { useRouterPush } from '@/hooks/common/router';
 import { $t } from '@/locales';
-import { useAuthStore } from '@/store/modules/auth';
-import { NButton, NForm, NFormItem, NInput, NSpace, NText } from 'naive-ui';
-import { computed, defineComponent, reactive, ref } from 'vue';
-import { loginModuleRecord } from '@/constants/app';
 
 interface FormModel {
   email: string;
@@ -118,13 +118,13 @@ export default defineComponent({
           </NFormItem>
 
           <NFormItem path="verificationCode" class="mb-10px">
-            <div class="flex-y-center w-full gap-8px">
+            <div class="w-full flex-y-center gap-8px">
               <NInput
                 value={model.verificationCode}
                 onUpdateValue={value => (model.verificationCode = value)}
                 placeholder={$t('page.login.common.codePlaceholder')}
                 maxlength={6}
-                class="flex-1 h-40px"
+                class="h-40px flex-1"
               >
                 {{
                   prefix: () => <div class="i-carbon-password text-16px text-gray-400" />
@@ -135,7 +135,7 @@ export default defineComponent({
                 secondary
                 disabled={isCounting.value}
                 onClick={handleSendCode}
-                class="w-110px h-40px whitespace-nowrap text-12px"
+                class="h-40px w-110px whitespace-nowrap text-12px"
               >
                 {isCounting.value
                   ? $t('page.login.codeLogin.reGetCode', { time: countdown.value })
@@ -152,7 +152,7 @@ export default defineComponent({
               block
               loading={authStore.loginLoading}
               onClick={handleSubmit}
-              class="h-40px text-14px font-500 shadow-lg hover:shadow-xl transition-all"
+              class="h-40px text-14px font-500 shadow-lg transition-all hover:shadow-xl"
             >
               {$t('common.confirm')}
             </NButton>
@@ -167,13 +167,13 @@ export default defineComponent({
             </div>
 
             <div class="flex gap-8px">
-              <NButton class="flex-1 h-36px" round secondary onClick={handleSwitchToPwdLogin}>
+              <NButton class="h-36px flex-1" round secondary onClick={handleSwitchToPwdLogin}>
                 <div class="flex items-center justify-center gap-4px text-13px">
                   <div class="i-carbon-password text-15px" />
                   <span>{$t(loginModuleRecord['pwd-login'])}</span>
                 </div>
               </NButton>
-              <NButton class="flex-1 h-36px" round secondary onClick={handleSwitchToRegister}>
+              <NButton class="h-36px flex-1" round secondary onClick={handleSwitchToRegister}>
                 <div class="flex items-center justify-center gap-4px text-13px">
                   <div class="i-carbon-user-follow text-15px" />
                   <span>{$t(loginModuleRecord.register)}</span>

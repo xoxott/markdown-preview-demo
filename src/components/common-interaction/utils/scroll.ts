@@ -1,12 +1,8 @@
-/**
- * 滚动相关工具函数
- */
+/** 滚动相关工具函数 */
 
 import type { Point, ScrollDirection } from '../types';
 
-/**
- * 获取元素的滚动容器
- */
+/** 获取元素的滚动容器 */
 export function getScrollContainer(element: HTMLElement): HTMLElement | null {
   let parent = element.parentElement;
 
@@ -94,9 +90,7 @@ export function performAutoScroll(
   }
 }
 
-/**
- * 平滑滚动到指定位置
- */
+/** 平滑滚动到指定位置 */
 export function smoothScrollTo(
   container: HTMLElement,
   target: { x?: number; y?: number },
@@ -130,16 +124,12 @@ export function smoothScrollTo(
   });
 }
 
-/**
- * 缓动函数：三次方缓入缓出
- */
+/** 缓动函数：三次方缓入缓出 */
 function easeInOutCubic(t: number): number {
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 }
 
-/**
- * 获取元素相对于滚动容器的位置
- */
+/** 获取元素相对于滚动容器的位置 */
 export function getElementOffsetInContainer(element: HTMLElement, container: HTMLElement): Point {
   const elementRect = element.getBoundingClientRect();
   const containerRect = container.getBoundingClientRect();
@@ -150,9 +140,7 @@ export function getElementOffsetInContainer(element: HTMLElement, container: HTM
   };
 }
 
-/**
- * 判断元素是否在可视区域内
- */
+/** 判断元素是否在可视区域内 */
 export function isElementInViewport(element: HTMLElement, container?: HTMLElement): boolean {
   const rect = element.getBoundingClientRect();
 
@@ -174,9 +162,7 @@ export function isElementInViewport(element: HTMLElement, container?: HTMLElemen
   );
 }
 
-/**
- * 滚动元素到可视区域
- */
+/** 滚动元素到可视区域 */
 export function scrollIntoViewIfNeeded(
   element: HTMLElement,
   container?: HTMLElement,

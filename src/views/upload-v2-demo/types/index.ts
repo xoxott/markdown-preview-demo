@@ -1,10 +1,13 @@
-import type { FileTask, UploadConfig, UploadStats } from '@/hooks/upload-v2';
-import type { ChunkInfo } from '@/hooks/upload-v2';
-import { ChunkStatus, UploadStatus } from '@/hooks/upload-v2';
+import type {
+  ChunkInfo,
+  ChunkStatus,
+  FileTask,
+  UploadConfig,
+  UploadStats,
+  UploadStatus
+} from '@/hooks/upload-v2';
 
-/**
- * 事件日志类型
- */
+/** 事件日志类型 */
 export interface EventLog {
   time: string;
   type:
@@ -35,9 +38,7 @@ export interface EventLog {
   data?: unknown;
 }
 
-/**
- * 抽屉状态类型
- */
+/** 抽屉状态类型 */
 export interface DrawerState {
   settings: boolean;
   stats: boolean;
@@ -47,25 +48,19 @@ export interface DrawerState {
   advanced: boolean;
 }
 
-/**
- * 文件列表行类型（包含 section 和 index）
- */
+/** 文件列表行类型（包含 section 和 index） */
 export interface FileListRow extends FileTask {
   section: 'queue' | 'active' | 'completed';
   index: number;
 }
 
-/**
- * 分片大小选项类型
- */
+/** 分片大小选项类型 */
 export interface ChunkSizeOption {
   label: string;
   value: number;
 }
 
-/**
- * 上传 Hook 返回值类型（完整类型定义）
- */
+/** 上传 Hook 返回值类型（完整类型定义） */
 export interface UploadHookReturn {
   // 方法
   addFiles: (files: File[]) => Promise<void>;
@@ -179,9 +174,7 @@ export interface UploadHookReturn {
   };
 }
 
-/**
- * 任务详情抽屉数据
- */
+/** 任务详情抽屉数据 */
 export interface TaskDetailData {
   task: FileTask;
   formatFileSize: (bytes: number) => string;
@@ -192,9 +185,7 @@ export interface TaskDetailData {
   UploadStatus: typeof UploadStatus;
 }
 
-/**
- * 统计信息数据
- */
+/** 统计信息数据 */
 export interface TodayStatsData {
   date: string;
   totalFiles: number;
@@ -206,9 +197,7 @@ export interface TodayStatsData {
   uploadedSize: number;
 }
 
-/**
- * 历史统计数据
- */
+/** 历史统计数据 */
 export interface HistoryStatsData {
   date: string;
   totalFiles: number;
@@ -219,9 +208,7 @@ export interface HistoryStatsData {
   totalTime: number;
 }
 
-/**
- * 趋势分析数据
- */
+/** 趋势分析数据 */
 export interface TrendAnalysisData {
   speedTrend: 'increasing' | 'stable' | 'decreasing';
   successRate: number;
@@ -230,9 +217,7 @@ export interface TrendAnalysisData {
   recentStats: HistoryStatsData[];
 }
 
-/**
- * 性能指标数据
- */
+/** 性能指标数据 */
 export interface PerformanceMetricsData {
   networkRequestCount: number;
   totalUploadTime: number;

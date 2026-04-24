@@ -1,10 +1,6 @@
-/**
- * 批量处理工具函数
- */
+/** 批量处理工具函数 */
 
-/**
- * 批量处理配置
- */
+/** 批量处理配置 */
 export interface BatchProcessConfig<T, R> {
   items: T[];
   batchSize?: number;
@@ -14,18 +10,14 @@ export interface BatchProcessConfig<T, R> {
   delayBetweenBatches?: number;
 }
 
-/**
- * 批量处理结果
- */
+/** 批量处理结果 */
 export interface BatchProcessResult<R> {
   results: R[];
   failed: number;
   total: number;
 }
 
-/**
- * 批量处理函数
- */
+/** 批量处理函数 */
 export async function batchProcess<T, R>(
   config: BatchProcessConfig<T, R>
 ): Promise<BatchProcessResult<R>> {

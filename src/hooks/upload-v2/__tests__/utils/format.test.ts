@@ -1,15 +1,13 @@
-/**
- * 格式化工具函数测试
- */
+/** 格式化工具函数测试 */
 import { describe, expect, it } from 'vitest';
 import {
-  parseSize,
+  calculateAverageSpeed,
   formatFileSize,
   formatFileSizes,
+  formatRemainingTime,
   formatSpeed,
-  calculateAverageSpeed,
   formatTime,
-  formatRemainingTime
+  parseSize
 } from '../../utils/format';
 
 describe('格式化工具函数', () => {

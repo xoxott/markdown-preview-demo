@@ -1,21 +1,15 @@
-/**
- * 几何计算工具函数
- */
+/** 几何计算工具函数 */
 
 import type { Point, Rect } from '../types';
 
-/**
- * 计算两点之间的距离
- */
+/** 计算两点之间的距离 */
 export function distance(p1: Point, p2: Point): number {
   const dx = p2.x - p1.x;
   const dy = p2.y - p1.y;
   return Math.sqrt(dx * dx + dy * dy);
 }
 
-/**
- * 根据起点和终点创建矩形
- */
+/** 根据起点和终点创建矩形 */
 export function createRectFromPoints(start: Point, end: Point): Rect {
   const left = Math.min(start.x, end.x);
   const top = Math.min(start.y, end.y);
@@ -25,9 +19,7 @@ export function createRectFromPoints(start: Point, end: Point): Rect {
   return { left, top, width, height };
 }
 
-/**
- * 判断两个矩形是否相交
- */
+/** 判断两个矩形是否相交 */
 export function isRectIntersect(rect1: Rect, rect2: Rect | DOMRect): boolean {
   const r1Right = rect1.left + rect1.width;
   const r1Bottom = rect1.top + rect1.height;
@@ -42,9 +34,7 @@ export function isRectIntersect(rect1: Rect, rect2: Rect | DOMRect): boolean {
   );
 }
 
-/**
- * 判断点是否在矩形内
- */
+/** 判断点是否在矩形内 */
 export function isPointInRect(point: Point, rect: Rect | DOMRect): boolean {
   return (
     point.x >= rect.left &&
@@ -54,9 +44,7 @@ export function isPointInRect(point: Point, rect: Rect | DOMRect): boolean {
   );
 }
 
-/**
- * 计算矩形的中心点
- */
+/** 计算矩形的中心点 */
 export function getRectCenter(rect: Rect | DOMRect): Point {
   return {
     x: rect.left + rect.width / 2,
@@ -64,9 +52,7 @@ export function getRectCenter(rect: Rect | DOMRect): Point {
   };
 }
 
-/**
- * 扩展矩形（增加边距）
- */
+/** 扩展矩形（增加边距） */
 export function expandRect(rect: Rect, margin: number): Rect {
   return {
     left: rect.left - margin,
@@ -76,9 +62,7 @@ export function expandRect(rect: Rect, margin: number): Rect {
   };
 }
 
-/**
- * 限制点在矩形范围内
- */
+/** 限制点在矩形范围内 */
 export function clampPointToRect(point: Point, rect: Rect | DOMRect): Point {
   return {
     x: Math.max(rect.left, Math.min(point.x, rect.left + rect.width)),
@@ -86,9 +70,7 @@ export function clampPointToRect(point: Point, rect: Rect | DOMRect): Point {
   };
 }
 
-/**
- * 计算两个矩形的交集
- */
+/** 计算两个矩形的交集 */
 export function getIntersectionRect(rect1: Rect, rect2: Rect): Rect | null {
   const left = Math.max(rect1.left, rect2.left);
   const top = Math.max(rect1.top, rect2.top);
@@ -107,9 +89,7 @@ export function getIntersectionRect(rect1: Rect, rect2: Rect): Rect | null {
   };
 }
 
-/**
- * 判断矩形是否完全包含另一个矩形
- */
+/** 判断矩形是否完全包含另一个矩形 */
 export function isRectContains(outer: Rect, inner: Rect): boolean {
   return (
     inner.left >= outer.left &&

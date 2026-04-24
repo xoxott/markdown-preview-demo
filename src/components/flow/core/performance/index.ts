@@ -1,6 +1,4 @@
-/**
- * Flow 性能优化导出
- */
+/** Flow 性能优化导出 */
 
 export * from './ViewportCuller';
 export * from './VirtualScroller';

@@ -1,12 +1,9 @@
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useAuthStore } from '@/store/modules/auth';
 
 const COUNTDOWN_SECONDS = 60;
 
-/**
- * Verification code hook
- * Manages verification code sending and countdown
- */
+/** Verification code hook Manages verification code sending and countdown */
 export function useVerificationCode() {
   const authStore = useAuthStore();
   const isCounting = ref(false);
@@ -24,9 +21,7 @@ export function useVerificationCode() {
     return '发送验证码';
   });
 
-  /**
-   * Start countdown
-   */
+  /** Start countdown */
   function startCountdown() {
     if (countdownTimer) {
       clearInterval(countdownTimer);
@@ -89,9 +84,7 @@ export function useVerificationCode() {
     }
   }
 
-  /**
-   * Reset countdown
-   */
+  /** Reset countdown */
   function reset() {
     if (countdownTimer) {
       clearInterval(countdownTimer);

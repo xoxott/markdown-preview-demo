@@ -61,9 +61,7 @@ export interface FlowPlugin {
   uninstall?: (context: FlowPluginContext) => void | Promise<void>;
 }
 
-/**
- * 插件配置
- */
+/** 插件配置 */
 export interface FlowPluginConfig {
   /** 插件实例 */
   plugin: FlowPlugin;

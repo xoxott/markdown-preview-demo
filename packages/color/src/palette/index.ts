@@ -8,7 +8,8 @@ import { getAntDColorPalette } from './antd';
  * get color palette by provided color
  *
  * @param color
- * @param recommended whether to get recommended color palette (the provided color may not be the main color)
+ * @param recommended whether to get recommended color palette (the provided color may not be the
+ *   main color)
  */
 export function getColorPalette(color: AnyColor, recommended = false) {
   const colorMap = new Map<ColorPaletteNumber, string>();
@@ -38,7 +39,8 @@ export function getColorPalette(color: AnyColor, recommended = false) {
  *
  * @param color the provided color
  * @param number the color palette number
- * @param recommended whether to get recommended color palette (the provided color may not be the main color)
+ * @param recommended whether to get recommended color palette (the provided color may not be the
+ *   main color)
  */
 export function getPaletteColorByNumber(
   color: AnyColor,

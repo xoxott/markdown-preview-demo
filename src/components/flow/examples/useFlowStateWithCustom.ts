@@ -1,15 +1,14 @@
 /**
  * Flow 状态管理与自定义状态管理集成示例
  *
- * 展示如何实现 IStateStore 接口，集成自定义状态管理库
- * （如 Vuex、Zustand、Jotai 等）
+ * 展示如何实现 IStateStore 接口，集成自定义状态管理库 （如 Vuex、Zustand、Jotai 等）
  */
 
-import { ref, computed, type Ref } from 'vue';
+import { type Ref, computed, ref } from 'vue';
 import type {
   IStateStore,
-  Unsubscribe,
-  StateChangeType
+  StateChangeType,
+  Unsubscribe
 } from '../core/state/interfaces/IStateStore';
 import type { FlowNode } from '../types/flow-node';
 import type { FlowEdge } from '../types/flow-edge';
@@ -19,10 +18,7 @@ import { FlowSelectionHandler } from '../core/interaction/FlowSelectionHandler';
 import type { SelectionOptions } from '../core/interaction/FlowSelectionHandler';
 import type { FlowStateSnapshot } from '../core/state/types';
 
-/**
- * 自定义状态管理接口
- * （示例：类似 Vuex 的 store）
- */
+/** 自定义状态管理接口 （示例：类似 Vuex 的 store） */
 interface CustomStore {
   state: {
     nodes: FlowNode[];
@@ -93,7 +89,7 @@ class CustomStateStore implements IStateStore {
   }
 
   hasNode(nodeId: string): boolean {
-    return !!this.store.state.nodes.find(n => n.id === nodeId);
+    return Boolean(this.store.state.nodes.find(n => n.id === nodeId));
   }
 
   // 连接线操作
@@ -185,21 +181,21 @@ class CustomStateStore implements IStateStore {
  * 使用自定义状态管理的 Flow 状态管理 Hook
  *
  * @example
- * ```typescript
- * // 创建自定义 store
- * const customStore = createCustomStore({
- *   nodes: [],
- *   edges: [],
- *   viewport: { x: 0, y: 0, zoom: 1 }
- * });
+ *   ```typescript
+ *   // 创建自定义 store
+ *   const customStore = createCustomStore({
+ *     nodes: [],
+ *     edges: [],
+ *     viewport: { x: 0, y: 0, zoom: 1 }
+ *   });
  *
- * // 使用自定义 store
- * const {
- *   nodes,
- *   edges,
- *   addNode
- * } = useFlowStateWithCustom(customStore);
- * ```
+ *   // 使用自定义 store
+ *   const {
+ *     nodes,
+ *     edges,
+ *     addNode
+ *   } = useFlowStateWithCustom(customStore);
+ *   ```;
  */
 export function useFlowStateWithCustom(
   customStore: CustomStore,

@@ -1,9 +1,9 @@
 import type { PropType } from 'vue';
 import { computed, defineComponent } from 'vue';
+import Markdown from '@/components/markdown';
 import type { FileItem } from '../types/file-explorer';
 import TextPreview from './TextPreview';
 import ImagePreview from './ImagePreview';
-import Markdown from '@/components/markdown';
 
 export default defineComponent({
   name: 'FilePreview',
@@ -63,7 +63,7 @@ export default defineComponent({
     return () => {
       if (props.loading) {
         return (
-          <div class="flex h-full items-center justify-center">
+          <div class="h-full flex items-center justify-center">
             <div class="text-center">
               <div class="mb-2 text-sm text-gray-500">加载中...</div>
             </div>
@@ -73,7 +73,7 @@ export default defineComponent({
 
       if (!props.content) {
         return (
-          <div class="flex h-full items-center justify-center">
+          <div class="h-full flex items-center justify-center">
             <div class="text-center text-gray-500">
               <div class="mb-2 text-sm">无法预览此文件</div>
               <div class="text-xs">文件类型: {props.file.extension || '未知'}</div>
@@ -103,7 +103,7 @@ export default defineComponent({
 
       // 其他文件类型
       return (
-        <div class="flex h-full items-center justify-center">
+        <div class="h-full flex items-center justify-center">
           <div class="text-center text-gray-500">
             <div class="mb-2 text-sm">不支持预览此文件类型</div>
             <div class="text-xs">文件: {props.file.name}</div>

@@ -1,22 +1,15 @@
-/**
- * 事件步骤
- * 职责：触发请求生命周期事件
- */
+/** 事件步骤 职责：触发请求生命周期事件 */
 
-import type { RequestStep, RequestContext } from '@suga/request-core';
+import type { RequestContext, RequestStep } from '@suga/request-core';
 import { EventManager } from '../managers/EventManager';
 
-/**
- * 事件步骤配置
- */
+/** 事件步骤配置 */
 export interface EventStepOptions {
   /** 事件管理器实例 */
   eventManager?: EventManager;
 }
 
-/**
- * 事件步骤
- */
+/** 事件步骤 */
 export class EventStep implements RequestStep {
   private eventManager: EventManager;
   private startTimes = new Map<string, number>();

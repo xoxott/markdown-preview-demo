@@ -1,48 +1,46 @@
 /**
  * RAF 循环 Hook
  *
- * 使用 requestAnimationFrame 创建持续循环执行的函数。
- * 适用于需要每帧都执行的场景，如：
+ * 使用 requestAnimationFrame 创建持续循环执行的函数。 适用于需要每帧都执行的场景，如：
+ *
  * - FPS 监控
  * - 动画循环
  * - 持续更新状态
  *
  * @example
- * ```typescript
- * // 基础用法：循环执行
- * const { start, stop } = useRafLoop(() => {
- *   updateFPS();
- * });
+ *   ```typescript
+ *   // 基础用法：循环执行
+ *   const { start, stop } = useRafLoop(() => {
+ *     updateFPS();
+ *   });
  *
- * // 自动开始（默认）
- * onMounted(() => {
- *   start();
- * });
+ *   // 自动开始（默认）
+ *   onMounted(() => {
+ *     start();
+ *   });
  *
- * // 手动停止
- * stop();
- * ```
+ *   // 手动停止
+ *   stop();
+ *   ```;
  *
  * @example
- * ```typescript
- * // 响应式控制
- * const enabled = ref(true);
- * const { start, stop } = useRafLoop(() => {
- *   updateMetrics();
- * }, enabled);
+ *   ```typescript
+ *   // 响应式控制
+ *   const enabled = ref(true);
+ *   const { start, stop } = useRafLoop(() => {
+ *     updateMetrics();
+ *   }, enabled);
  *
- * // 动态控制
- * enabled.value = false; // 自动停止
- * enabled.value = true;  // 自动开始
- * ```
+ *   // 动态控制
+ *   enabled.value = false; // 自动停止
+ *   enabled.value = true;  // 自动开始
+ *   ```;
  */
 
-import { ref, watch, onUnmounted, type Ref } from 'vue';
-import { isFunction, isBoolean, isRef } from '../utils/type-utils';
+import { type Ref, onUnmounted, ref, watch } from 'vue';
+import { isBoolean, isFunction, isRef } from '../utils/type-utils';
 
-/**
- * RAF 循环 Hook 返回值
- */
+/** RAF 循环 Hook 返回值 */
 export interface UseRafLoopReturn {
   /**
    * 开始循环
@@ -69,28 +67,27 @@ export interface UseRafLoopReturn {
 /**
  * RAF 循环 Hook
  *
- * 使用 requestAnimationFrame 创建持续循环执行的函数。
- * 循环会在每帧执行一次，直到手动停止或组件卸载。
+ * 使用 requestAnimationFrame 创建持续循环执行的函数。 循环会在每帧执行一次，直到手动停止或组件卸载。
+ *
+ * @example
+ *   ```typescript
+ *   // FPS 监控
+ *   const { start, stop } = useRafLoop(() => {
+ *     const now = performance.now();
+ *     frameCount++;
+ *     if (now - lastTime >= 1000) {
+ *       fps.value = Math.round((frameCount * 1000) / (now - lastTime));
+ *       frameCount = 0;
+ *       lastTime = now;
+ *     }
+ *   });
+ *
+ *   onMounted(() => start());
+ *   ```;
  *
  * @param callback 循环执行的函数
  * @param enabled 是否启用循环（可以是响应式引用）
  * @returns 循环控制方法
- *
- * @example
- * ```typescript
- * // FPS 监控
- * const { start, stop } = useRafLoop(() => {
- *   const now = performance.now();
- *   frameCount++;
- *   if (now - lastTime >= 1000) {
- *     fps.value = Math.round((frameCount * 1000) / (now - lastTime));
- *     frameCount = 0;
- *     lastTime = now;
- *   }
- * });
- *
- * onMounted(() => start());
- * ```
  */
 export function useRafLoop(
   callback: () => void,
@@ -167,6 +164,7 @@ export function useRafLoop(
    * 初始化循环
    *
    * 根据 enabled 的类型决定如何初始化：
+   *
    * - 响应式引用：监听变化，自动开始/停止
    * - 函数/布尔值：根据初始值决定是否开始
    */

@@ -1,22 +1,19 @@
 /**
  * Flow 连接线列表组件
  *
- * 负责渲染所有连接线，支持 Canvas/SVG 混合渲染、视口裁剪等性能优化
- * 重构后：逻辑解耦，性能优化
+ * 负责渲染所有连接线，支持 Canvas/SVG 混合渲染、视口裁剪等性能优化 重构后：逻辑解耦，性能优化
  */
 
-import { computed, toRef, defineComponent, type PropType } from 'vue';
+import { type PropType, computed, defineComponent, toRef } from 'vue';
 import { useEdgeViewportCulling } from '../hooks/useEdgeViewportCulling';
 import { useEdgePositions } from '../hooks/useEdgePositions';
 import { useCachedSet } from '../utils/set-utils';
+import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
+import type { FlowConfig, FlowEdge, FlowNode, FlowViewport } from '../types';
 import EdgeCanvasRenderer from './edges/EdgeCanvasRenderer';
 import EdgeSvgRenderer from './edges/EdgeSvgRenderer';
-import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
-import type { FlowEdge, FlowNode, FlowViewport, FlowConfig } from '../types';
 
-/**
- * FlowEdges 组件属性
- */
+/** FlowEdges 组件属性 */
 export interface FlowEdgesProps {
   /** 连接线列表 */
   edges: FlowEdge[];
@@ -46,9 +43,7 @@ export interface FlowEdgesProps {
   config?: Readonly<FlowConfig>;
 }
 
-/**
- * Flow 连接线列表组件
- */
+/** Flow 连接线列表组件 */
 export default defineComponent({
   name: 'FlowEdges',
   props: {

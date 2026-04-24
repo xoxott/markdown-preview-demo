@@ -1,13 +1,9 @@
-/**
- * 基于 Web Worker 的 MD5 计算工具
- */
+/** 基于 Web Worker 的 MD5 计算工具 */
 import { CONSTANTS } from '../constants';
 
 const CHUNK_SIZE = CONSTANTS.UPLOAD.CHUNK_SIZE; // 2MB per chunk for MD5 calculation
 
-/**
- * 在 Worker 中计算文件 MD5
- */
+/** 在 Worker 中计算文件 MD5 */
 export async function calculateFileMD5WithWorker(
   file: File,
   onProgress?: (progress: number) => void
@@ -114,9 +110,7 @@ export async function calculateFileMD5WithWorker(
   });
 }
 
-/**
- * 智能选择计算方式（Worker 或主线程）
- */
+/** 智能选择计算方式（Worker 或主线程） */
 export async function calculateFileMD5Smart(
   file: File,
   useWorker: boolean = true,

@@ -1,6 +1,4 @@
-/**
- * CircuitBreaker 测试
- */
+/** CircuitBreaker 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CircuitBreaker } from '../../core/CircuitBreaker';

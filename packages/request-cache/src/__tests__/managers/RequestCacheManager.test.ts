@@ -1,6 +1,4 @@
-/**
- * RequestCacheManager 测试
- */
+/** RequestCacheManager 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
 import { RequestCacheManager } from '../../managers/RequestCacheManager';

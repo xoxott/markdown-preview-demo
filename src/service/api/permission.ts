@@ -13,10 +13,7 @@ export function fetchPermissionList(params: Api.PermissionManagement.PermissionL
   });
 }
 
-/**
- * Get permission tree (for tree selector)
- *
- */
+/** Get permission tree (for tree selector) */
 export function fetchPermissionTree() {
   return request<Api.PermissionManagement.PermissionTreeResponse>({
     url: '/api/admin/permissions/tree',

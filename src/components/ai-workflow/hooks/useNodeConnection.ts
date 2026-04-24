@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface ConnectionDraft {
@@ -68,8 +68,8 @@ export function useNodeConnection() {
       id: uuidv4(),
       sourceNodeId: connectionDraft.value.sourceNodeId,
       sourcePortId: connectionDraft.value.sourcePortId,
-      targetNodeId: targetNodeId,
-      targetPortId: targetPortId
+      targetNodeId,
+      targetPortId
     };
 
     connections.value.push(newConnection);

@@ -1,13 +1,8 @@
-/**
- * SessionStorage 适配器实现
- * 适用于浏览器环境
- */
+/** SessionStorage 适配器实现 适用于浏览器环境 */
 
 import type { StorageAdapter } from '../types';
 
-/**
- * 开发环境警告函数
- */
+/** 开发环境警告函数 */
 function warn(message: string, error?: unknown): void {
   if (typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production') {
     console.warn(`[SessionStorageAdapter] ${message}`, error);

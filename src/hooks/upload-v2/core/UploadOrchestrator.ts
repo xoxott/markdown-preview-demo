@@ -1,7 +1,4 @@
-/**
- * 上传编排器
- * 负责协调各个服务和管理器，提供统一的上传管理接口
- */
+/** 上传编排器 负责协调各个服务和管理器，提供统一的上传管理接口 */
 import { computed, ref, watch } from 'vue';
 import { CONSTANTS } from '../constants';
 import { UploadController } from '../controllers/UploadController';
@@ -31,10 +28,7 @@ import { logger } from '../utils/logger';
 import { performanceMonitor } from '../utils/performance-monitor';
 import { UploadEngine } from './UploadEngine';
 
-/**
- * 上传编排器
- * 协调各个服务和管理器
- */
+/** 上传编排器 协调各个服务和管理器 */
 export class UploadOrchestrator {
   private config: ExtendedUploadConfig;
 
@@ -165,9 +159,7 @@ export class UploadOrchestrator {
     this.networkAdaptationManager.setupNetworkMonitoring();
   }
 
-  /**
-   * 合并配置
-   */
+  /** 合并配置 */
   private mergeConfig(config: Partial<ExtendedUploadConfig>): ExtendedUploadConfig {
     return {
       // 并发控制
@@ -224,9 +216,7 @@ export class UploadOrchestrator {
     };
   }
 
-  /**
-   * 设置监听器
-   */
+  /** 设置监听器 */
   private setupWatchers(): void {
     watch(
       [this.uploadQueue, this.activeUploads, this.completedUploads],
@@ -253,9 +243,7 @@ export class UploadOrchestrator {
     });
   }
 
-  /**
-   * 添加文件到上传队列
-   */
+  /** 添加文件到上传队列 */
   public async addFiles(
     files: File[] | FileList | File,
     options: FileUploadOptions = {}
@@ -291,9 +279,7 @@ export class UploadOrchestrator {
     return this;
   }
 
-  /**
-   * 开始上传
-   */
+  /** 开始上传 */
   public async start(): Promise<this> {
     if (this.uploadQueue.value.length === 0 && this.activeUploads.value.size === 0) {
       await this.callbackManager.emit('onAllComplete', []);
@@ -322,17 +308,13 @@ export class UploadOrchestrator {
     return this;
   }
 
-  /**
-   * 暂停单个任务
-   */
+  /** 暂停单个任务 */
   public pause(taskId: string): this {
     this.taskOperations.pause(taskId, () => this.isUploading.value);
     return this;
   }
 
-  /**
-   * 恢复单个任务
-   */
+  /** 恢复单个任务 */
   public resume(taskId: string): this {
     this.taskOperations.resume(
       taskId,
@@ -342,9 +324,7 @@ export class UploadOrchestrator {
     return this;
   }
 
-  /**
-   * 暂停所有上传
-   */
+  /** 暂停所有上传 */
   public async pauseAll(): Promise<this> {
     if (this.isAddingFiles.value && this.addFilesAbortController) {
       this.addFilesAbortController.abort();
@@ -354,9 +334,7 @@ export class UploadOrchestrator {
     return this;
   }
 
-  /**
-   * 恢复所有上传
-   */
+  /** 恢复所有上传 */
   public resumeAll(): this {
     this.taskOperations.resumeAll(
       () => this.isUploading.value,
@@ -365,18 +343,14 @@ export class UploadOrchestrator {
     return this;
   }
 
-  /**
-   * 取消单个任务
-   */
+  /** 取消单个任务 */
   public cancel(taskId: string): this {
     this.taskOperations.cancel(taskId);
     this.uploadController.cleanupTask(taskId);
     return this;
   }
 
-  /**
-   * 取消所有任务
-   */
+  /** 取消所有任务 */
   public async cancelAll(): Promise<this> {
     if (this.isAddingFiles.value && this.addFilesAbortController) {
       this.addFilesAbortController.abort();
@@ -387,9 +361,7 @@ export class UploadOrchestrator {
     return this;
   }
 
-  /**
-   * 清空所有文件
-   */
+  /** 清空所有文件 */
   public clear(): this {
     this.cancelAll();
     this.completedUploads.value = [];
@@ -402,18 +374,14 @@ export class UploadOrchestrator {
     return this;
   }
 
-  /**
-   * 移除文件
-   */
+  /** 移除文件 */
   public removeFile(taskId: string): this {
     this.taskStateManager.removeFile(taskId);
     this.uploadController.cleanupTask(taskId);
     return this;
   }
 
-  /**
-   * 重试单个失败的文件
-   */
+  /** 重试单个失败的文件 */
   public retrySingleFile(taskId: string): this {
     this.taskOperations.retrySingleFile(
       taskId,
@@ -423,9 +391,7 @@ export class UploadOrchestrator {
     return this;
   }
 
-  /**
-   * 重试所有失败的文件
-   */
+  /** 重试所有失败的文件 */
   public retryFailed(): this {
     this.taskOperations.retryFailed(
       () => this.isUploading.value,
@@ -434,16 +400,12 @@ export class UploadOrchestrator {
     return this;
   }
 
-  /**
-   * 获取任务
-   */
+  /** 获取任务 */
   public getTask(taskId: string): FileTask | undefined {
     return this.taskStateManager.getTask(taskId);
   }
 
-  /**
-   * 更新配置
-   */
+  /** 更新配置 */
   public updateConfig(newConfig: Partial<UploadConfig>): this {
     this.config = { ...this.config, ...newConfig };
 
@@ -454,9 +416,7 @@ export class UploadOrchestrator {
     return this;
   }
 
-  /**
-   * 销毁管理器（完善资源清理）
-   */
+  /** 销毁管理器（完善资源清理） */
   public destroy(): void {
     // 取消所有任务
     this.cancelAll();
@@ -470,9 +430,7 @@ export class UploadOrchestrator {
     logger.info('上传器已销毁', {});
   }
 
-  /**
-   * 获取统计信息管理器
-   */
+  /** 获取统计信息管理器 */
   public getStatsManager(): StatsManager {
     return this.statsManager;
   }

@@ -1,21 +1,12 @@
-/**
- * 序列化工具函数
- * 提供统一的序列化/反序列化逻辑
- */
+/** 序列化工具函数 提供统一的序列化/反序列化逻辑 */
 
-/**
- * 序列化缓存配置
- */
+/** 序列化缓存配置 */
 const MAX_SERIALIZE_CACHE_SIZE = 1000;
 
-/**
- * 序列化结果缓存（使用 Map 缓存序列化结果，避免重复序列化）
- */
+/** 序列化结果缓存（使用 Map 缓存序列化结果，避免重复序列化） */
 const serializeCache = new Map<string, string>();
 
-/**
- * 简单的对象哈希函数（用于生成缓存键）
- */
+/** 简单的对象哈希函数（用于生成缓存键） */
 function getObjectHash(obj: unknown): string {
   if (obj === null || obj === undefined) {
     return '';
@@ -27,16 +18,12 @@ function getObjectHash(obj: unknown): string {
   }
 }
 
-/**
- * 清理序列化缓存（定期调用或手动调用）
- */
+/** 清理序列化缓存（定期调用或手动调用） */
 export function clearSerializeCache(): void {
   serializeCache.clear();
 }
 
-/**
- * 安全地序列化值
- */
+/** 安全地序列化值 */
 export function safeStringify(value: unknown, useCache = true): string {
   if (value === null || value === undefined) {
     return '';
@@ -66,9 +53,7 @@ export function safeStringify(value: unknown, useCache = true): string {
   return result;
 }
 
-/**
- * 安全地解析 JSON
- */
+/** 安全地解析 JSON */
 export function safeParseJSON<T>(json: string | null, defaultValue: T): T {
   if (!json) {
     return defaultValue;
@@ -81,9 +66,7 @@ export function safeParseJSON<T>(json: string | null, defaultValue: T): T {
   }
 }
 
-/**
- * 生成请求键的通用函数
- */
+/** 生成请求键的通用函数 */
 export function generateKey(method: string, url: string, params?: unknown, data?: unknown): string {
   const methodUpper = method.toUpperCase();
 

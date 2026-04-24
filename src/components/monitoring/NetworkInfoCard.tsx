@@ -1,5 +1,6 @@
-import { defineComponent, PropType } from 'vue';
-import { NCard, NDescriptions, NDescriptionsItem, NCollapse, NCollapseItem } from 'naive-ui';
+import type { PropType } from 'vue';
+import { defineComponent } from 'vue';
+import { NCard, NCollapse, NCollapseItem, NDescriptions, NDescriptionsItem } from 'naive-ui';
 
 interface NetworkInterface {
   address: string;

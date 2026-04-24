@@ -4,15 +4,13 @@
  * 提供网格背景渲染，支持多种网格类型
  */
 
-import { defineComponent, computed, type PropType, CSSProperties } from 'vue';
+import type { CSSProperties, type PropType, computed, defineComponent } from 'vue';
 import { getConditionalGpuAccelerationStyle } from '../utils/style-utils';
 import { GRID_CONSTANTS } from '../constants/grid-constants';
-import { generateGridPattern } from './background/GridPatternGenerator';
 import type { FlowGridType, FlowViewport } from '../types';
+import { generateGridPattern } from './background/GridPatternGenerator';
 
-/**
- * FlowBackground 组件属性
- */
+/** FlowBackground 组件属性 */
 export interface FlowBackgroundProps {
   /** 是否显示网格 */
   showGrid?: boolean;
@@ -38,9 +36,7 @@ export interface FlowBackgroundProps {
   fillContainer?: boolean;
 }
 
-/**
- * Flow 网格背景组件
- */
+/** Flow 网格背景组件 */
 export default defineComponent({
   name: 'FlowBackground',
   props: {
@@ -143,9 +139,7 @@ export default defineComponent({
     // 计算网格图案大小（根据缩放动态调整）
     const patternSize = computed(() => props.gridSize * props.viewport.zoom);
 
-    /**
-     * 计算网格图案的偏移（使用取模运算实现连续滚动）
-     */
+    /** 计算网格图案的偏移（使用取模运算实现连续滚动） */
     const patternX = computed(() => {
       const size = patternSize.value;
       if (size <= 0) return 0;
@@ -160,9 +154,7 @@ export default defineComponent({
       return mod < 0 ? mod + size : mod;
     });
 
-    /**
-     * 判断是否需要 GPU 加速优化
-     */
+    /** 判断是否需要 GPU 加速优化 */
     const shouldOptimize = computed(() => {
       return (
         props.viewport.zoom > GRID_CONSTANTS.GPU_ACCELERATION_ZOOM_THRESHOLD ||
@@ -171,9 +163,7 @@ export default defineComponent({
       );
     });
 
-    /**
-     * 计算 SVG 容器样式（条件性应用 GPU 加速）
-     */
+    /** 计算 SVG 容器样式（条件性应用 GPU 加速） */
     const svgContainerStyle = computed(() => {
       return {
         ...(gridStyle.value as CSSProperties),
@@ -183,23 +173,17 @@ export default defineComponent({
       };
     });
 
-    /**
-     * 检查是否应该显示网格
-     */
+    /** 检查是否应该显示网格 */
     const shouldShowGrid = computed(() => {
       return props.showGrid && props.gridType !== 'none';
     });
 
-    /**
-     * 计算网格图案中心位置
-     */
+    /** 计算网格图案中心位置 */
     const patternCenter = computed(() => {
       return patternSize.value * GRID_CONSTANTS.PATTERN_CENTER_RATIO;
     });
 
-    /**
-     * 计算网格图案（使用策略模式，支持扩展）
-     */
+    /** 计算网格图案（使用策略模式，支持扩展） */
     const gridPatternResult = computed(() => {
       if (!shouldShowGrid.value) {
         return null;

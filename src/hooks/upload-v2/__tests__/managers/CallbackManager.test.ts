@@ -1,7 +1,5 @@
-/**
- * CallbackManager 测试
- */
-import { describe, expect, it, beforeEach, vi } from 'vitest';
+/** CallbackManager 测试 */
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CallbackManager } from '../../managers/CallbackManager';
 import type { FileTask } from '../../types';
 import { UploadStatus } from '../../types';

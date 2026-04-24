@@ -1,13 +1,11 @@
-import type { SSE } from '@/typings/sse';
 import { getServiceBaseURL } from '@/utils/service';
 import { localStg } from '@/utils/storage';
+import type { SSE } from '@/typings/sse';
 
 const isHttpProxy = import.meta.env.DEV && import.meta.env.VITE_HTTP_PROXY === 'Y';
 const { baseURL } = getServiceBaseURL(import.meta.env, isHttpProxy);
 
-/**
- * Monitoring SSE connection IDs
- */
+/** Monitoring SSE connection IDs */
 export const MONITORING_SSE_CONNECTION_IDS: Record<
   Exclude<SSE.MonitoringEventType, 'environment'>,
   string
@@ -74,16 +72,12 @@ export function createMonitoringSSEConfig(
   };
 }
 
-/**
- * Monitoring event data types
- */
+/** Monitoring event data types */
 export type MonitoringEventData = {
   [K in SSE.MonitoringEventType]: SSE.MonitoringEventData[K];
 };
 
-/**
- * Monitoring event listener type
- */
+/** Monitoring event listener type */
 export type MonitoringEventListener<T extends SSE.MonitoringEventType = SSE.MonitoringEventType> = (
   data: MonitoringEventData[T],
   event: MessageEvent

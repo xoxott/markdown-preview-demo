@@ -1,11 +1,9 @@
-/**
- * RetryStep 测试
- */
+/** RetryStep 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
-import { RetryStep } from '../../steps/RetryStep';
 import { createRequestContext } from '@suga/request-core';
 import type { NormalizedRequestConfig } from '@suga/request-core';
+import { RetryStep } from '../../steps/RetryStep';
 import type { RetryStrategy } from '../../types';
 
 describe('RetryStep', () => {

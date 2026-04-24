@@ -4,20 +4,16 @@
  * 提供节点列表到 Map 的转换，支持 O(1) 查找
  */
 
-import { computed, type Ref } from 'vue';
+import { type Ref, computed } from 'vue';
 import type { FlowNode } from '../types';
 
-/**
- * 节点 Map Hook 选项
- */
+/** 节点 Map Hook 选项 */
 export interface UseNodesMapOptions {
   /** 节点列表 */
   nodes: Ref<FlowNode[]>;
 }
 
-/**
- * 节点 Map Hook 返回值
- */
+/** 节点 Map Hook 返回值 */
 export interface UseNodesMapReturn {
   /** 节点 Map（id -> node） */
   nodesMap: Ref<Map<string, FlowNode>>;
@@ -30,17 +26,17 @@ export interface UseNodesMapReturn {
  *
  * 将节点列表转换为 Map，提供 O(1) 查找性能
  *
+ * @example
+ *   ```typescript
+ *   const { nodesMap, getNodeById } = useNodesMap({
+ *     nodes: nodesRef
+ *   });
+ *
+ *   const node = getNodeById('node-1');
+ *   ```;
+ *
  * @param options Hook 选项
  * @returns 节点 Map 相关功能
- *
- * @example
- * ```typescript
- * const { nodesMap, getNodeById } = useNodesMap({
- *   nodes: nodesRef
- * });
- *
- * const node = getNodeById('node-1');
- * ```
  */
 export function useNodesMap(options: UseNodesMapOptions): UseNodesMapReturn {
   const { nodes } = options;

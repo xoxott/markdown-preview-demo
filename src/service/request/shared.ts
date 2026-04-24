@@ -1,8 +1,8 @@
 import { useAuthStore } from '@/store/modules/auth';
 import { localStg } from '@/utils/storage';
+import { sseManager } from '@/utils/sse/SSEManager';
 import { fetchRefreshToken } from '../api';
 import type { RequestInstanceState } from './type';
-import { sseManager } from '@/utils/sse/SSEManager';
 
 export function getAuthorization() {
   const token = localStg.get('token') || localStg.get('accessToken');

@@ -1,6 +1,4 @@
-/**
- * 分片相关类型定义
- */
+/** 分片相关类型定义 */
 import type { ChunkStatus } from './core';
 import type { FileTask } from './task';
 

@@ -1,17 +1,11 @@
-/**
- * 请求去重类型定义
- */
+/** 请求去重类型定义 */
 
 import type { NormalizedRequestConfig } from '@suga/request-core';
 
-/**
- * 去重策略类型
- */
+/** 去重策略类型 */
 export type DedupeStrategy = 'exact' | 'ignore-params' | 'custom';
 
-/**
- * 请求去重配置选项
- */
+/** 请求去重配置选项 */
 export interface DedupeOptions {
   /** 去重时间窗口（毫秒），默认 1000ms */
   dedupeWindow?: number;
@@ -23,13 +17,11 @@ export interface DedupeOptions {
   customKeyGenerator?: (config: NormalizedRequestConfig) => string;
 }
 
-/**
- * 去重元数据接口
- * 定义去重相关的元数据字段
- */
+/** 去重元数据接口 定义去重相关的元数据字段 */
 export interface DedupeMeta {
   /**
    * 去重配置
+   *
    * - `true`: 启用去重（使用默认配置）
    * - `false`: 禁用去重
    * - `DedupeOptions`: 使用自定义配置
@@ -37,15 +29,11 @@ export interface DedupeMeta {
    */
   dedupe?: boolean | DedupeOptions;
 
-  /**
-   * 其他扩展字段
-   */
+  /** 其他扩展字段 */
   [key: string]: unknown;
 }
 
-/**
- * 待处理的请求
- */
+/** 待处理的请求 */
 export interface PendingRequest {
   promise: Promise<unknown>;
   timestamp: number;

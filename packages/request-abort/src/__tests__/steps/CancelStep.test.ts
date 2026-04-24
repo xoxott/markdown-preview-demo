@@ -1,12 +1,10 @@
-/**
- * AbortStep 测试
- */
+/** AbortStep 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
-import { AbortStep } from '../../steps/AbortStep';
-import { AbortControllerManager } from '../../managers/AbortControllerManager';
 import { createRequestContext } from '@suga/request-core';
 import type { NormalizedRequestConfig } from '@suga/request-core';
+import { AbortStep } from '../../steps/AbortStep';
+import { AbortControllerManager } from '../../managers/AbortControllerManager';
 
 describe('AbortStep', () => {
   let step: AbortStep;

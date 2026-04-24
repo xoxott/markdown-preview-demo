@@ -1,12 +1,10 @@
-/**
- * QueueStep 测试
- */
+/** QueueStep 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
-import { QueueStep } from '../../steps/QueueStep';
-import { QueueManager } from '../../managers/QueueManager';
 import { createRequestContext } from '@suga/request-core';
 import type { NormalizedRequestConfig } from '@suga/request-core';
+import { QueueStep } from '../../steps/QueueStep';
+import { QueueManager } from '../../managers/QueueManager';
 
 describe('QueueStep', () => {
   let step: QueueStep;

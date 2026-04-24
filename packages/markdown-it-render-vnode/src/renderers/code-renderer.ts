@@ -16,13 +16,13 @@ import type { FrameworkComponent, FrameworkNode } from '../adapters/types';
 import { DOM_ATTR_NAME } from '../constants';
 import { getAdapter } from '../adapters/manager';
 import {
+  createTextNode,
   escapeHtml,
   isComponentOptions,
   mergeClasses,
   omitAttrs,
   parseInfoString,
-  unescapeAll,
-  createTextNode
+  unescapeAll
 } from '../utils';
 import { handleError } from '../utils/error-handler';
 
@@ -37,18 +37,12 @@ export function setCodeRendererOptions(options: FrameworkPluginOptions): void {
   pluginOptions = options;
 }
 
-/**
- * 递增渲染批次 ID
- * 每次渲染 pass 开始时调用，用于生成稳定的组件 key
- */
+/** 递增渲染批次 ID 每次渲染 pass 开始时调用，用于生成稳定的组件 key */
 export function incrementRenderPassId(): void {
   renderPassId++;
 }
 
-/**
- * 生成自定义组件 key（替代 uuid v4）
- * 使用渲染批次 ID + token 索引组合，避免 crypto.getRandomValues 开销
- */
+/** 生成自定义组件 key（替代 uuid v4） 使用渲染批次 ID + token 索引组合，避免 crypto.getRandomValues 开销 */
 function generateComponentKey(langName: string, tokenIndex: number): string {
   return `${langName}-p${renderPassId}-${tokenIndex}`;
 }

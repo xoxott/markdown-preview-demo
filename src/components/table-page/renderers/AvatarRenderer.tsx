@@ -1,4 +1,4 @@
-import { defineComponent, type PropType } from 'vue';
+import { type PropType, defineComponent } from 'vue';
 import { NSpace, NText } from 'naive-ui';
 import type { AvatarRendererConfig } from '../types';
 
@@ -36,7 +36,7 @@ export default defineComponent({
                 />
               ) : (
                 <div
-                  class="rounded-full bg-primary text-white flex items-center justify-center font-500"
+                  class="flex items-center justify-center rounded-full bg-primary text-white font-500"
                   style={{ width: `${size}px`, height: `${size}px`, fontSize: `${size * 0.4}px` }}
                 >
                   {name.charAt(0).toUpperCase()}

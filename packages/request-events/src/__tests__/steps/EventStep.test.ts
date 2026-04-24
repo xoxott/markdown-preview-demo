@@ -1,12 +1,10 @@
-/**
- * EventStep 测试
- */
+/** EventStep 测试 */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { EventStep } from '../../steps/EventStep';
-import { EventManager } from '../../managers/EventManager';
 import { createRequestContext } from '@suga/request-core';
 import type { NormalizedRequestConfig } from '@suga/request-core';
+import { EventStep } from '../../steps/EventStep';
+import { EventManager } from '../../managers/EventManager';
 
 describe('EventStep', () => {
   let step: EventStep;

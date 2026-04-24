@@ -1,17 +1,17 @@
-import { defineComponent, computed, watch, ref, type PropType } from 'vue';
+import { type PropType, computed, defineComponent, ref, watch } from 'vue';
 import {
+  NButton,
+  NDivider,
   NDrawer,
   NDrawerContent,
   NForm,
   NFormItem,
+  NIcon,
   NInput,
   NInputNumber,
   NSelect,
-  NSwitch,
-  NButton,
   NSpace,
-  NDivider,
-  NIcon,
+  NSwitch,
   NTag
 } from 'naive-ui';
 import { Icon } from '@iconify/vue';
@@ -315,7 +315,7 @@ export default defineComponent({
           );
 
         default:
-          return <div class="text-gray-500 text-center py-8">此节点类型暂无特殊配置</div>;
+          return <div class="py-8 text-center text-gray-500">此节点类型暂无特殊配置</div>;
       }
     };
 
@@ -333,7 +333,7 @@ export default defineComponent({
             default: () => {
               if (!props.node) {
                 return (
-                  <div class="flex items-center justify-center h-full text-gray-400">
+                  <div class="h-full flex items-center justify-center text-gray-400">
                     <div class="text-center">
                       <NIcon size={48} class="mb-4">
                         <Icon icon="mdi:cog-outline" />
@@ -347,8 +347,8 @@ export default defineComponent({
               return (
                 <div class="space-y-4">
                   {/* 节点信息 */}
-                  <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                    <div class="flex items-center gap-3 mb-3">
+                  <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
+                    <div class="mb-3 flex items-center gap-3">
                       {nodeTypeConfig.value && (
                         <div
                           class="flex items-center justify-center"
@@ -366,7 +366,7 @@ export default defineComponent({
                         </div>
                       )}
                       <div class="flex-1">
-                        <div class="font-semibold text-gray-800 dark:text-gray-100">
+                        <div class="text-gray-800 font-semibold dark:text-gray-100">
                           {nodeTypeConfig.value?.label}
                         </div>
                         <div class="text-xs text-gray-500">ID: {props.node.id}</div>
@@ -411,7 +411,7 @@ export default defineComponent({
                     <NDivider />
 
                     {/* 类型特定配置 */}
-                    <div class="font-semibold text-gray-700 dark:text-gray-300 mb-4">节点配置</div>
+                    <div class="mb-4 text-gray-700 font-semibold dark:text-gray-300">节点配置</div>
                     {renderConfigForm()}
                   </NForm>
                 </div>

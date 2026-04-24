@@ -68,9 +68,7 @@ export function registerFlowCanvasShortcuts(
 
   const unregisters: (() => void)[] = [];
 
-  /**
-   * 删除选中的节点和连接线
-   */
+  /** 删除选中的节点和连接线 */
   const handleDelete = () => {
     const selectedNodes = selection.getSelectedNodes(nodes.value);
     const selectedEdges = selection.getSelectedEdges(edges.value);
@@ -83,9 +81,7 @@ export function registerFlowCanvasShortcuts(
     }
   };
 
-  /**
-   * 同步选择状态到 selection
-   */
+  /** 同步选择状态到 selection */
   const syncSelectionAfterUndoRedo = () => {
     selection.selectNodes(selectedNodeIds.value);
     selectedEdgeIds.value.forEach((id: string) => {
@@ -95,27 +91,21 @@ export function registerFlowCanvasShortcuts(
     });
   };
 
-  /**
-   * 撤销操作
-   */
+  /** 撤销操作 */
   const handleUndo = () => {
     if (historyOperations.undo()) {
       syncSelectionAfterUndoRedo();
     }
   };
 
-  /**
-   * 重做操作
-   */
+  /** 重做操作 */
   const handleRedo = () => {
     if (historyOperations.redo()) {
       syncSelectionAfterUndoRedo();
     }
   };
 
-  /**
-   * 全选节点
-   */
+  /** 全选节点 */
   const handleSelectAll = () => {
     selection.selectNodes(nodes.value.map(node => node.id));
   };

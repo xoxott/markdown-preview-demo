@@ -1,8 +1,6 @@
 import { request } from '../request';
 
-/**
- * Get system information
- */
+/** Get system information */
 export function fetchSystemInfo() {
   return request<Api.System.SystemInfo>({
     url: '/api/admin/system/info',
@@ -10,9 +8,7 @@ export function fetchSystemInfo() {
   });
 }
 
-/**
- * Get performance metrics
- */
+/** Get performance metrics */
 export function fetchPerformanceMetrics() {
   return request<Api.System.PerformanceMetrics>({
     url: '/api/admin/system/performance',
@@ -21,8 +17,8 @@ export function fetchPerformanceMetrics() {
 }
 
 /**
- * Get environment information
- * Note: This endpoint may take longer to respond, so we set a longer timeout (30 seconds)
+ * Get environment information Note: This endpoint may take longer to respond, so we set a longer
+ * timeout (30 seconds)
  */
 export function fetchEnvironmentInfo() {
   return request<Api.System.EnvironmentInfo>({

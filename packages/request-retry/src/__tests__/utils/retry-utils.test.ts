@@ -1,16 +1,14 @@
-/**
- * retry-utils 测试
- */
+/** retry-utils 测试 */
 
 import { describe, expect, it } from 'vitest';
 import {
-  shouldRetry,
   calculateRetryDelay,
   delay,
+  hasExceededErrorTypeMaxRetries,
   isLastAttempt,
-  hasExceededErrorTypeMaxRetries
+  shouldRetry
 } from '../../utils/retry-utils';
-import type { RetryableError, RetryStrategy } from '../../types';
+import type { RetryStrategy, RetryableError } from '../../types';
 import { DEFAULT_RETRY_CONFIG } from '../../constants';
 
 describe('retry-utils', () => {

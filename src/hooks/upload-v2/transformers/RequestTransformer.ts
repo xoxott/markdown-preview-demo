@@ -1,7 +1,4 @@
-/**
- * 请求转换器
- * 提供默认的请求参数转换器
- */
+/** 请求转换器 提供默认的请求参数转换器 */
 import type {
   CheckFileTransformer,
   ChunkUploadTransformer,

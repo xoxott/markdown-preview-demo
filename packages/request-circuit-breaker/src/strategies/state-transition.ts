@@ -1,13 +1,8 @@
-/**
- * 状态转换策略实现
- */
+/** 状态转换策略实现 */
 
 import type { StateTransitionStrategy } from '../types';
 
-/**
- * 默认状态转换策略
- * 实现标准的熔断器状态转换逻辑
- */
+/** 默认状态转换策略 实现标准的熔断器状态转换逻辑 */
 export class DefaultStateTransitionStrategy implements StateTransitionStrategy {
   shouldOpen(failures: number, failureThreshold: number): boolean {
     return failures >= failureThreshold;

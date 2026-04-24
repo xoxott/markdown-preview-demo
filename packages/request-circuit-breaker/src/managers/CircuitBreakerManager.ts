@@ -1,15 +1,11 @@
-/**
- * 熔断器管理器
- */
+/** 熔断器管理器 */
 
 import type { CircuitBreakerOptions, CircuitBreakerState } from '../types';
 import { CircuitBreaker } from '../core/CircuitBreaker';
 import { CircuitBreakerState as CBState } from '../types';
 import { DEFAULT_CIRCUIT_BREAKER_MANAGER_CONFIG } from '../constants';
 
-/**
- * 熔断器管理器选项
- */
+/** 熔断器管理器选项 */
 export interface CircuitBreakerManagerOptions {
   /** 清理不活跃熔断器的间隔时间（毫秒），默认 5 分钟 */
   cleanupInterval?: number;
@@ -19,18 +15,14 @@ export interface CircuitBreakerManagerOptions {
   idleTimeout?: number;
 }
 
-/**
- * 熔断器条目（包含熔断器和元数据）
- */
+/** 熔断器条目（包含熔断器和元数据） */
 interface BreakerEntry {
   breaker: CircuitBreaker<unknown>;
   lastAccessTime: number;
   createdAt: number;
 }
 
-/**
- * 熔断器管理器
- */
+/** 熔断器管理器 */
 export class CircuitBreakerManager {
   private breakers = new Map<string, BreakerEntry>();
   private cleanupTimer?: ReturnType<typeof setInterval>;
@@ -53,9 +45,7 @@ export class CircuitBreakerManager {
     }
   }
 
-  /**
-   * 获取或创建熔断器
-   */
+  /** 获取或创建熔断器 */
   getOrCreateBreaker<T = unknown>(
     key: string,
     options: CircuitBreakerOptions<T> = {}
@@ -85,23 +75,17 @@ export class CircuitBreakerManager {
     return newBreaker as CircuitBreaker<T>;
   }
 
-  /**
-   * 移除指定的熔断器
-   */
+  /** 移除指定的熔断器 */
   removeBreaker(key: string): void {
     this.breakers.delete(key);
   }
 
-  /**
-   * 清除所有熔断器
-   */
+  /** 清除所有熔断器 */
   clear(): void {
     this.breakers.clear();
   }
 
-  /**
-   * 获取所有熔断器
-   */
+  /** 获取所有熔断器 */
   getAllBreakers(): ReadonlyMap<string, CircuitBreaker<unknown>> {
     const result = new Map<string, CircuitBreaker<unknown>>();
     for (const [key, entry] of this.breakers.entries()) {
@@ -111,8 +95,8 @@ export class CircuitBreakerManager {
   }
 
   /**
-   * 清理不活跃的熔断器
-   * 清理条件：处于 CLOSED 状态且超过空闲超时时间
+   * 清理不活跃的熔断器 清理条件：处于 CLOSED 状态且超过空闲超时时间
+   *
    * @returns 清理的熔断器数量
    */
   cleanup(): number {
@@ -136,9 +120,7 @@ export class CircuitBreakerManager {
     return keysToDelete.length;
   }
 
-  /**
-   * 清理最旧的熔断器（用于达到最大数量限制时）
-   */
+  /** 清理最旧的熔断器（用于达到最大数量限制时） */
   private cleanupOldest(): void {
     if (this.breakers.size === 0) {
       return;
@@ -172,9 +154,7 @@ export class CircuitBreakerManager {
     }
   }
 
-  /**
-   * 获取统计信息
-   */
+  /** 获取统计信息 */
   getStats(): {
     total: number;
     byState: Record<CircuitBreakerState, number>;
@@ -196,9 +176,7 @@ export class CircuitBreakerManager {
     };
   }
 
-  /**
-   * 停止定期清理（通常在应用关闭时调用）
-   */
+  /** 停止定期清理（通常在应用关闭时调用） */
   destroy(): void {
     if (this.cleanupTimer) {
       clearInterval(this.cleanupTimer);

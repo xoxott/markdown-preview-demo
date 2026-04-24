@@ -52,8 +52,7 @@ declare namespace StorageType {
   /**
    * Workflow UI cache storage
    *
-   * Dynamic keys for workflow UI data
-   * Key format: `workflow_ui_{workflowId}`
+   * Dynamic keys for workflow UI data Key format: `workflow_ui_{workflowId}`
    */
   interface WorkflowUICache {
     [key: `workflow_ui_${string}`]: {

@@ -5,13 +5,13 @@
  */
 
 import {
+  type CSSProperties,
+  type PropType,
   computed,
   defineComponent,
   onBeforeUnmount,
   onMounted,
-  ref,
-  type CSSProperties,
-  type PropType
+  ref
 } from 'vue';
 import { useEventListener, useThrottleFn } from '@vueuse/core';
 import type { Point, Rect, SelectableItem, SelectionCallbackParams } from '../types';
@@ -132,9 +132,7 @@ export default defineComponent({
 
     // ==================== 核心逻辑 ====================
 
-    /**
-     * 获取所有可选元素
-     */
+    /** 获取所有可选元素 */
     function getSelectableElements(): SelectableItem[] {
       if (!containerElement.value) return [];
 
@@ -176,9 +174,7 @@ export default defineComponent({
       return items;
     }
 
-    /**
-     * 获取选中的元素
-     */
+    /** 获取选中的元素 */
     function getSelectedItems(): SelectableItem[] {
       if (!selectionRect.value) return [];
 
@@ -186,9 +182,7 @@ export default defineComponent({
       return selectableItems.filter(item => isRectIntersect(selectionRect.value!, item.rect));
     }
 
-    /**
-     * 触发选择变化事件
-     */
+    /** 触发选择变化事件 */
     function emitSelectionChange() {
       if (!selectionRect.value) return;
 
@@ -202,9 +196,7 @@ export default defineComponent({
       emit('selection-change', params);
     }
 
-    /**
-     * 开始自动滚动
-     */
+    /** 开始自动滚动 */
     function startAutoScroll(mousePos: Point) {
       if (!props.autoScroll || !scrollContainer.value) return;
 
@@ -223,9 +215,7 @@ export default defineComponent({
       }
     }
 
-    /**
-     * 停止自动滚动
-     */
+    /** 停止自动滚动 */
     function stopAutoScroll() {
       if (autoScrollTimer.value) {
         window.cancelAnimationFrame(autoScrollTimer.value);
@@ -235,9 +225,7 @@ export default defineComponent({
 
     // ==================== 事件处理 ====================
 
-    /**
-     * 鼠标按下
-     */
+    /** 鼠标按下 */
     function handleMouseDown(e: MouseEvent) {
       if (props.disabled) return;
       if (e.button !== 0) return; // 只响应左键
@@ -267,9 +255,7 @@ export default defineComponent({
       e.preventDefault();
     }
 
-    /**
-     * 鼠标移动（节流）
-     */
+    /** 鼠标移动（节流） */
     const handleMouseMove = useThrottleFn((e: MouseEvent) => {
       if (!startPoint.value || props.disabled) return;
 
@@ -302,9 +288,7 @@ export default defineComponent({
       }
     }, 16); // ~60fps
 
-    /**
-     * 鼠标释放
-     */
+    /** 鼠标释放 */
     function handleMouseUp() {
       if (!isSelecting.value) {
         startPoint.value = null;

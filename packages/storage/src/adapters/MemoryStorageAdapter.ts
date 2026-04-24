@@ -1,7 +1,4 @@
-/**
- * 内存存储适配器实现
- * 适用于 SSR 环境或测试环境
- */
+/** 内存存储适配器实现 适用于 SSR 环境或测试环境 */
 
 import type { StorageAdapter } from '../types';
 

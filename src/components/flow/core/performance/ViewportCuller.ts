@@ -8,9 +8,7 @@ import type { FlowNode } from '../../types/flow-node';
 import type { FlowEdge } from '../../types/flow-edge';
 import type { FlowViewport } from '../../types/flow-config';
 
-/**
- * 视口区域
- */
+/** 视口区域 */
 export interface ViewportBounds {
   /** 最小 X 坐标（画布坐标） */
   minX: number;
@@ -26,9 +24,7 @@ export interface ViewportBounds {
   height: number;
 }
 
-/**
- * 裁剪选项
- */
+/** 裁剪选项 */
 export interface CullingOptions {
   /** 缓冲区大小（像素，扩展视口区域） */
   buffer?: number;
@@ -38,9 +34,7 @@ export interface CullingOptions {
   cullEdges?: boolean;
 }
 
-/**
- * Flow 视口裁剪器
- */
+/** Flow 视口裁剪器 */
 export class ViewportCuller {
   /** 裁剪选项 */
   private options: Required<CullingOptions> = {
@@ -49,9 +43,7 @@ export class ViewportCuller {
     cullEdges: true
   };
 
-  /**
-   * 设置裁剪选项
-   */
+  /** 设置裁剪选项 */
   setOptions(options: Partial<CullingOptions>): void {
     this.options = { ...this.options, ...options };
   }

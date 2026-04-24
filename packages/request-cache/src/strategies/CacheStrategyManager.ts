@@ -1,14 +1,9 @@
-/**
- * 缓存策略管理器
- * 单一职责：管理缓存淘汰策略（LRU、FIFO、自定义等）
- */
+/** 缓存策略管理器 单一职责：管理缓存淘汰策略（LRU、FIFO、自定义等） */
 
 import type { CacheItem } from '../types/cache-item';
 import type { CacheStrategy, CustomCacheStrategy } from '../types/strategy';
 
-/**
- * 缓存策略管理器
- */
+/** 缓存策略管理器 */
 export class CacheStrategyManager {
   private strategy: CacheStrategy;
   private maxSize: number;
@@ -21,16 +16,12 @@ export class CacheStrategyManager {
     this.customStrategy = customStrategy;
   }
 
-  /**
-   * 查找键在访问顺序中的索引
-   */
+  /** 查找键在访问顺序中的索引 */
   private findKeyIndex(key: string): number {
     return this.accessOrder.indexOf(key);
   }
 
-  /**
-   * 从访问顺序中移除键
-   */
+  /** 从访问顺序中移除键 */
   private removeKeyFromOrder(key: string): void {
     const index = this.findKeyIndex(key);
     if (index > -1) {
@@ -38,9 +29,7 @@ export class CacheStrategyManager {
     }
   }
 
-  /**
-   * 更新 LRU 访问顺序
-   */
+  /** 更新 LRU 访问顺序 */
   updateAccessOrder(key: string): void {
     if (this.strategy !== 'lru') {
       return;
@@ -50,26 +39,19 @@ export class CacheStrategyManager {
     this.accessOrder.push(key);
   }
 
-  /**
-   * 添加键到访问顺序（用于 FIFO）
-   */
+  /** 添加键到访问顺序（用于 FIFO） */
   addToAccessOrder(key: string): void {
     if (this.strategy === 'fifo' && !this.accessOrder.includes(key)) {
       this.accessOrder.push(key);
     }
   }
 
-  /**
-   * 从访问顺序中移除键
-   */
+  /** 从访问顺序中移除键 */
   removeFromAccessOrder(key: string): void {
     this.removeKeyFromOrder(key);
   }
 
-  /**
-   * 应用基于访问顺序的策略（LRU/FIFO）：返回需要删除的键列表
-   * 删除访问顺序中最旧的项，直到有足够空间
-   */
+  /** 应用基于访问顺序的策略（LRU/FIFO）：返回需要删除的键列表 删除访问顺序中最旧的项，直到有足够空间 */
   private applyOrderBasedStrategy(
     strategyType: 'lru' | 'fifo',
     currentSize: number,
@@ -103,10 +85,7 @@ export class CacheStrategyManager {
     return keysToDelete;
   }
 
-  /**
-   * 应用自定义策略：返回需要删除的键列表
-   * 根据自定义策略函数决定哪些项应该被删除
-   */
+  /** 应用自定义策略：返回需要删除的键列表 根据自定义策略函数决定哪些项应该被删除 */
   private applyCustomStrategy(cacheEntries: Array<[string, CacheItem]>, newKey: string): string[] {
     if (this.strategy !== 'custom' || !this.customStrategy) {
       return [];
@@ -127,9 +106,7 @@ export class CacheStrategyManager {
     return keysToDelete;
   }
 
-  /**
-   * 应用缓存策略，返回需要删除的键列表
-   */
+  /** 应用缓存策略，返回需要删除的键列表 */
   applyStrategy(
     currentSize: number,
     newKey: string,
@@ -154,9 +131,7 @@ export class CacheStrategyManager {
     }
   }
 
-  /**
-   * 设置策略
-   */
+  /** 设置策略 */
   setStrategy(strategy: CacheStrategy): void {
     this.strategy = strategy;
     // 只有 LRU 和 FIFO 需要维护访问顺序
@@ -165,31 +140,23 @@ export class CacheStrategyManager {
     }
   }
 
-  /**
-   * 设置最大缓存数量
-   */
+  /** 设置最大缓存数量 */
   setMaxSize(maxSize: number): void {
     this.maxSize = maxSize;
   }
 
-  /**
-   * 设置自定义策略
-   */
+  /** 设置自定义策略 */
   setCustomStrategy(strategy: CustomCacheStrategy): void {
     this.customStrategy = strategy;
     this.strategy = 'custom';
   }
 
-  /**
-   * 获取策略
-   */
+  /** 获取策略 */
   getStrategy(): CacheStrategy {
     return this.strategy;
   }
 
-  /**
-   * 获取最大缓存数量
-   */
+  /** 获取最大缓存数量 */
   getMaxSize(): number {
     return this.maxSize;
   }

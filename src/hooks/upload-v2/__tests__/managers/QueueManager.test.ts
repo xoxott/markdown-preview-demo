@@ -1,7 +1,5 @@
-/**
- * QueueManager 测试
- */
-import { describe, expect, it, beforeEach } from 'vitest';
+/** QueueManager 测试 */
+import { beforeEach, describe, expect, it } from 'vitest';
 import { QueueManager } from '../../managers/QueueManager';
 import type { FileTask } from '../../types';
 import { UploadStatus } from '../../types';

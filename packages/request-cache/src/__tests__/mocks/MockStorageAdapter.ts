@@ -1,6 +1,4 @@
-/**
- * Mock StorageAdapter 用于测试
- */
+/** Mock StorageAdapter 用于测试 */
 
 import type { StorageAdapter } from '@suga/storage';
 
@@ -27,16 +25,12 @@ export class MockStorageAdapter implements StorageAdapter {
     return Array.from(this.storage.keys());
   }
 
-  /**
-   * 清空存储（用于测试）
-   */
+  /** 清空存储（用于测试） */
   reset(): void {
     this.clear();
   }
 
-  /**
-   * 获取存储大小（用于测试）
-   */
+  /** 获取存储大小（用于测试） */
   getSize(): number {
     return this.storage.size;
   }

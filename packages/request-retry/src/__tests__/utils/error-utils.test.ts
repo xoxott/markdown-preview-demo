@@ -1,16 +1,14 @@
-/**
- * error-utils 测试
- */
+/** error-utils 测试 */
 
 import { describe, expect, it } from 'vitest';
 import {
-  isServerError,
-  isClientError,
-  isRetryableStatusCode,
-  isRetryableClientError,
-  isCanceledError,
   getErrorType,
-  isApplicableErrorType
+  isApplicableErrorType,
+  isCanceledError,
+  isClientError,
+  isRetryableClientError,
+  isRetryableStatusCode,
+  isServerError
 } from '../../utils/error-utils';
 import type { RetryableError } from '../../types';
 

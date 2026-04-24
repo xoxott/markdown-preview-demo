@@ -4,7 +4,7 @@
  * 用于管理节点的 z-index 分配，支持递增分配和自动清理
  */
 
-import { ref, type Ref } from 'vue';
+import { type Ref, ref } from 'vue';
 import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
 
 export interface UseZIndexAllocatorOptions {
@@ -30,22 +30,22 @@ export interface UseZIndexAllocatorReturn {
  *
  * 提供递增的 z-index 分配功能，自动管理节点层级，支持自动清理最旧的节点
  *
+ * @example
+ *   ```typescript
+ *   const { allocatedZIndexes, allocate, remove } = useZIndexAllocator({
+ *     startValue: 1000,
+ *     maxNodes: 50
+ *   });
+ *
+ *   // 分配 z-index
+ *   const zIndex = allocate('node-1');
+ *
+ *   // 移除 z-index
+ *   remove('node-1');
+ *   ```;
+ *
  * @param options 配置选项
  * @returns Z-index 分配相关的状态和方法
- *
- * @example
- * ```typescript
- * const { allocatedZIndexes, allocate, remove } = useZIndexAllocator({
- *   startValue: 1000,
- *   maxNodes: 50
- * });
- *
- * // 分配 z-index
- * const zIndex = allocate('node-1');
- *
- * // 移除 z-index
- * remove('node-1');
- * ```
  */
 export function useZIndexAllocator(
   options: UseZIndexAllocatorOptions = {}
@@ -95,9 +95,7 @@ export function useZIndexAllocator(
     allocatedZIndexes.value.delete(nodeId);
   };
 
-  /**
-   * 清除所有分配的 z-index
-   */
+  /** 清除所有分配的 z-index */
   const clear = (): void => {
     allocatedZIndexes.value.clear();
   };

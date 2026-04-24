@@ -1,6 +1,4 @@
-/**
- * SelectionRect 使用示例
- */
+/** SelectionRect 使用示例 */
 
 import { defineComponent, ref } from 'vue';
 import { SelectionRect } from '../index';

@@ -4,9 +4,7 @@
  * 提供计算结果缓存、渲染结果缓存等功能，提升性能
  */
 
-/**
- * 缓存项
- */
+/** 缓存项 */
 interface CacheItem<T> {
   /** 缓存值 */
   value: T;
@@ -18,9 +16,7 @@ interface CacheItem<T> {
   accessCount: number;
 }
 
-/**
- * 缓存选项
- */
+/** 缓存选项 */
 export interface CacheOptions {
   /** 最大缓存数量 */
   maxSize?: number;
@@ -30,9 +26,7 @@ export interface CacheOptions {
   enableLRU?: boolean;
 }
 
-/**
- * Flow 缓存管理器
- */
+/** Flow 缓存管理器 */
 export class FlowCache {
   /** 缓存存储 */
   private cache: Map<string, CacheItem<any>> = new Map();
@@ -127,16 +121,12 @@ export class FlowCache {
     this.cache.delete(key);
   }
 
-  /**
-   * 清空所有缓存
-   */
+  /** 清空所有缓存 */
   clear(): void {
     this.cache.clear();
   }
 
-  /**
-   * 淘汰缓存（LRU 或随机）
-   */
+  /** 淘汰缓存（LRU 或随机） */
   private evict(): void {
     if (this.cache.size === 0) {
       return;
@@ -192,9 +182,7 @@ export class FlowCache {
     };
   }
 
-  /**
-   * 清理过期缓存
-   */
+  /** 清理过期缓存 */
   cleanup(): void {
     const now = Date.now();
     const keysToDelete: string[] = [];
@@ -210,9 +198,7 @@ export class FlowCache {
     });
   }
 
-  /**
-   * 设置缓存选项
-   */
+  /** 设置缓存选项 */
   setOptions(options: Partial<CacheOptions>): void {
     this.options = { ...this.options, ...options };
   }

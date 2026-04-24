@@ -1,15 +1,15 @@
-import { defineComponent, ref, watch, type PropType } from 'vue';
+import { type PropType, defineComponent, ref, watch } from 'vue';
 import {
-  NModal,
+  NButton,
   NCard,
+  NColorPicker,
   NForm,
   NFormItem,
+  NModal,
   NSelect,
-  NColorPicker,
   NSlider,
-  NSwitch,
-  NButton,
-  NSpace
+  NSpace,
+  NSwitch
 } from 'naive-ui';
 import type { CanvasBackground, GridType } from '../types/canvas-settings';
 

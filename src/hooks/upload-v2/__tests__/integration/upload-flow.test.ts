@@ -1,12 +1,9 @@
-import { describe, expect, it, beforeEach, vi, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useChunkUpload } from '../../useChunkUpload';
 import type { UploadConfig } from '../../types';
 import { UploadStatus } from '../../types';
 
-/**
- * 集成测试：端到端上传流程
- * 测试完整的上传流程，包括文件添加、上传、进度更新、完成等
- */
+/** 集成测试：端到端上传流程 测试完整的上传流程，包括文件添加、上传、进度更新、完成等 */
 describe('上传流程集成测试', () => {
   let uploader: ReturnType<typeof useChunkUpload>;
   let mockFetch: ReturnType<typeof vi.fn>;
@@ -106,7 +103,9 @@ describe('上传流程集成测试', () => {
       uploader = useChunkUpload(config);
 
       // 创建较大的文件（2MB，会分成多个分片）
-      const content = new Array(2 * 1024 * 1024).fill('a').join('');
+      const content = Array.from({ length: 2 * 1024 * 1024 })
+        .fill('a')
+        .join('');
       const file = new File([content], 'large.txt');
 
       await (uploader as any).addFiles(file);
@@ -396,7 +395,7 @@ describe('上传流程集成测试', () => {
       uploader = useChunkUpload(config);
 
       // 创建超过限制的文件
-      const largeContent = new Array(2048).fill('a').join('');
+      const largeContent = Array.from({ length: 2048 }).fill('a').join('');
       const file = new File([largeContent], 'large.txt');
 
       await (uploader as any).addFiles(file);

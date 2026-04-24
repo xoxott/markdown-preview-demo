@@ -1,5 +1,5 @@
-import { defineComponent, type PropType } from 'vue';
-import { NText, NEllipsis } from 'naive-ui';
+import { type PropType, defineComponent } from 'vue';
+import { NEllipsis, NText } from 'naive-ui';
 import type { TextRendererConfig } from '../types';
 
 export default defineComponent({

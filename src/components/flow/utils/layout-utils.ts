@@ -6,9 +6,7 @@
 
 import type { FlowNode, FlowPosition, FlowSize } from '../types/flow-node';
 
-/**
- * 对齐方向
- */
+/** 对齐方向 */
 export type AlignDirection =
   | 'left'
   | 'right'
@@ -17,9 +15,7 @@ export type AlignDirection =
   | 'center-horizontal'
   | 'center-vertical';
 
-/**
- * 分布方向
- */
+/** 分布方向 */
 export type DistributeDirection = 'horizontal' | 'vertical';
 
 /**

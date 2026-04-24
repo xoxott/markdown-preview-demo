@@ -1,29 +1,30 @@
-import { defineComponent, PropType, ref, watch, computed, nextTick, onBeforeUnmount } from 'vue';
+import type { PropType } from 'vue';
+import { computed, defineComponent, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import {
-  NDrawer,
-  NDrawerContent,
-  NCard,
-  NGrid,
-  NGi,
   NAlert,
-  NSpin,
-  NSpace,
+  NCard,
   NDescriptions,
   NDescriptionsItem,
+  NDrawer,
+  NDrawerContent,
+  NGi,
+  NGrid,
+  NSpace,
+  NSpin,
   NStatistic
 } from 'naive-ui';
+import { fetchEnvironmentInfo } from '@/service/api/system';
 import { useMonitoringSSE } from '@/hooks/monitoring/useMonitoringSSE';
 import { useEcharts } from '@/hooks/common/echarts';
-import {
-  MemoryUsageCard,
-  CPUUsageCard,
-  SystemInfoCard,
-  ProcessInfoCard,
-  NetworkInfoCard,
-  EnvironmentInfoCard
-} from './index';
 import { formatUptime } from '@/utils/monitoring';
-import { fetchEnvironmentInfo } from '@/service/api/system';
+import {
+  CPUUsageCard,
+  EnvironmentInfoCard,
+  MemoryUsageCard,
+  NetworkInfoCard,
+  ProcessInfoCard,
+  SystemInfoCard
+} from './index';
 
 export default defineComponent({
   name: 'SystemMonitoringDrawer',
@@ -196,7 +197,7 @@ export default defineComponent({
           (performanceMetrics.value.memory.heapUsed / performanceMetrics.value.memory.heapTotal) *
           100;
         const cpuPercent = systemInfo.value?.cpu?.usage?.usage
-          ? parseFloat(systemInfo.value.cpu.usage.usage)
+          ? Number.parseFloat(systemInfo.value.cpu.usage.usage)
           : 0;
         updateChart(memoryPercent, cpuPercent);
       }

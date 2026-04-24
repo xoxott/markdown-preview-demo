@@ -1,10 +1,6 @@
-/**
- * 熔断器常量定义
- */
+/** 熔断器常量定义 */
 
-/**
- * 默认熔断器配置
- */
+/** 默认熔断器配置 */
 export const DEFAULT_CIRCUIT_BREAKER_CONFIG = {
   /** 默认失败阈值 */
   DEFAULT_FAILURE_THRESHOLD: 5,
@@ -16,9 +12,7 @@ export const DEFAULT_CIRCUIT_BREAKER_CONFIG = {
   DEFAULT_ENABLED: true
 } as const;
 
-/**
- * 网络错误代码
- */
+/** 网络错误代码 */
 export const NETWORK_ERROR_CODES: readonly string[] = [
   'ECONNABORTED',
   'ENOTFOUND',
@@ -27,9 +21,7 @@ export const NETWORK_ERROR_CODES: readonly string[] = [
   'ENETUNREACH'
 ] as const;
 
-/**
- * 网络错误关键词
- */
+/** 网络错误关键词 */
 export const NETWORK_ERROR_KEYWORDS: readonly string[] = [
   'timeout',
   'network',
@@ -38,15 +30,11 @@ export const NETWORK_ERROR_KEYWORDS: readonly string[] = [
   'enotfound'
 ] as const;
 
-/**
- * 服务器错误状态码范围
- */
+/** 服务器错误状态码范围 */
 export const SERVER_ERROR_STATUS_MIN = 500;
 export const SERVER_ERROR_STATUS_MAX = 599;
 
-/**
- * 熔断器管理器默认配置
- */
+/** 熔断器管理器默认配置 */
 export const DEFAULT_CIRCUIT_BREAKER_MANAGER_CONFIG = {
   /** 默认清理间隔（5 分钟，毫秒） */
   DEFAULT_CLEANUP_INTERVAL: 5 * 60 * 1000,

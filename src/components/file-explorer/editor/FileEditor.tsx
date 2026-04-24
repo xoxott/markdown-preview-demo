@@ -1,8 +1,9 @@
-import { MonacoEditor, MonacoLanguage } from '@/components/monaco';
-import { Close, Save } from '@vicons/ionicons5';
-import { NButton, NIcon, useMessage, useThemeVars } from 'naive-ui';
 import type { PropType } from 'vue';
 import { computed, defineComponent, ref, watch } from 'vue';
+import { NButton, NIcon, useMessage, useThemeVars } from 'naive-ui';
+import { Close, Save } from '@vicons/ionicons5';
+import { MonacoEditor } from '@/components/monaco';
+import type { MonacoLanguage } from '@/components/monaco';
 import type { IFileDataSource } from '../datasources/types';
 import type { FileItem } from '../types/file-explorer';
 
@@ -118,7 +119,7 @@ export default defineComponent({
     };
 
     return () => (
-      <div class="flex h-full flex-col" style={{ backgroundColor: themeVars.value.bodyColor }}>
+      <div class="h-full flex flex-col" style={{ backgroundColor: themeVars.value.bodyColor }}>
         {/* 工具栏 */}
         <div
           class="flex items-center justify-between border-b px-4 py-2"

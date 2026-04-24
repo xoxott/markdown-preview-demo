@@ -1,5 +1,5 @@
-import { defineComponent, type PropType } from 'vue';
-import { NButton, NButtonGroup, NIcon, NTooltip, NDivider, NSpace } from 'naive-ui';
+import { type PropType, defineComponent } from 'vue';
+import { NButton, NButtonGroup, NDivider, NIcon, NSpace, NTooltip } from 'naive-ui';
 import { Icon } from '@iconify/vue';
 
 export default defineComponent({
@@ -118,7 +118,7 @@ export default defineComponent({
     const zoomPercentage = () => `${Math.round(props.zoom * 100)}%`;
 
     return () => (
-      <div class="flex items-center justify-between px-6 py-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 shadow-sm">
+      <div class="flex items-center justify-between border-b border-gray-200 bg-white/90 px-6 py-3 shadow-sm backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/90">
         {/* 左侧：缩放控制 */}
         <NSpace size="small">
           <NButtonGroup>

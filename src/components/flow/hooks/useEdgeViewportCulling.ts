@@ -4,14 +4,12 @@
  * 提供连接线的视口裁剪功能，优化大量连接线时的渲染性能
  */
 
-import { computed, type Ref } from 'vue';
-import { useNodesMap } from './useNodesMap';
+import { type Ref, computed } from 'vue';
 import { getNodeCenterScreen } from '../utils/node-utils';
 import type { FlowEdge, FlowNode, FlowViewport } from '../types';
+import { useNodesMap } from './useNodesMap';
 
-/**
- * 连接线视口裁剪 Hook 选项
- */
+/** 连接线视口裁剪 Hook 选项 */
 export interface UseEdgeViewportCullingOptions {
   /** 连接线列表 */
   edges: Ref<FlowEdge[]>;
@@ -23,17 +21,13 @@ export interface UseEdgeViewportCullingOptions {
   enabled?: boolean | Ref<boolean> | (() => boolean);
 }
 
-/**
- * 连接线视口裁剪 Hook 返回值
- */
+/** 连接线视口裁剪 Hook 返回值 */
 export interface UseEdgeViewportCullingReturn {
   /** 可见连接线列表 */
   visibleEdges: Ref<FlowEdge[]>;
 }
 
-/**
- * 检查是否启用
- */
+/** 检查是否启用 */
 function isEnabled(enabled?: boolean | Ref<boolean> | (() => boolean)): boolean {
   if (enabled === undefined) return true;
   if (typeof enabled === 'boolean') return enabled;
@@ -46,18 +40,18 @@ function isEnabled(enabled?: boolean | Ref<boolean> | (() => boolean)): boolean 
  *
  * 自动计算可见连接线，优化渲染性能
  *
+ * @example
+ *   ```typescript
+ *   const { visibleEdges } = useEdgeViewportCulling({
+ *     edges: edgesRef,
+ *     nodes: nodesRef,
+ *     viewport: viewportRef,
+ *     enabled: true
+ *   });
+ *   ```;
+ *
  * @param options Hook 选项
  * @returns 可见连接线列表
- *
- * @example
- * ```typescript
- * const { visibleEdges } = useEdgeViewportCulling({
- *   edges: edgesRef,
- *   nodes: nodesRef,
- *   viewport: viewportRef,
- *   enabled: true
- * });
- * ```
  */
 export function useEdgeViewportCulling(
   options: UseEdgeViewportCullingOptions

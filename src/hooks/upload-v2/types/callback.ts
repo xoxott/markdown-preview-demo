@@ -1,6 +1,4 @@
-/**
- * 回调函数类型定义
- */
+/** 回调函数类型定义 */
 import type { FileTask } from './task';
 import type { ChunkInfo } from './chunk';
 import type { UploadStats } from './core';

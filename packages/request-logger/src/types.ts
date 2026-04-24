@@ -1,6 +1,4 @@
-/**
- * 日志配置
- */
+/** 日志配置 */
 export interface LoggerOptions {
   /** 是否启用日志（默认：false，需要明确设置） */
   enabled?: boolean;
@@ -12,14 +10,10 @@ export interface LoggerOptions {
   logError?: boolean;
 }
 
-/**
- * 日志输出函数类型
- */
+/** 日志输出函数类型 */
 export type LogOutput = (message: string, ...args: unknown[]) => void;
 
-/**
- * 日志配置（内部）
- */
+/** 日志配置（内部） */
 export interface InternalLoggerOptions extends LoggerOptions {
   /** 日志输出函数 */
   output?: LogOutput;

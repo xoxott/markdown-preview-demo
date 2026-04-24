@@ -4,15 +4,14 @@
  * 展示如何使用 Flow 的主题系统，包括 light、dark、auto 三种主题模式
  */
 
-import { defineComponent, ref, computed, h } from 'vue';
-import { NCard, NH3, NText, NSpace, NButton, NRadioGroup, NRadio } from 'naive-ui';
-import { useMessage } from 'naive-ui';
+import { computed, defineComponent, h, ref } from 'vue';
+import { NButton, NCard, NH3, NRadio, NRadioGroup, NSpace, NText, useMessage } from 'naive-ui';
 // 导入 Flow 主题样式
 import '@/components/flow/styles/index.scss';
 import FlowCanvas from '@/components/flow/components/FlowCanvas';
 import FlowBackground from '@/components/flow/components/FlowBackground';
 import { useFlowTheme } from '@/components/flow/hooks/useFlowTheme';
-import type { FlowNode, FlowEdge, FlowViewport } from '@/components/flow/types';
+import type { FlowEdge, FlowNode, FlowViewport } from '@/components/flow/types';
 
 export default defineComponent({
   name: 'FlowThemeExample',
@@ -116,7 +115,7 @@ export default defineComponent({
     return () => (
       <NCard bordered>
         <NH3 class="border-b pb-2 text-lg font-semibold">Flow 示例 7: 主题模式</NH3>
-        <NText class="text-gray-500 mb-4 block">
+        <NText class="mb-4 block text-gray-500">
           展示 Flow 组件的主题系统，支持
           light（浅色）、dark（深色）、auto（自动跟随系统）三种主题模式。 主题设置会持久化到
           localStorage，刷新页面后仍然保持。
@@ -147,7 +146,7 @@ export default defineComponent({
 
           <NSpace>
             <NButton onClick={toggleTheme}>快速切换（Light ↔ Dark）</NButton>
-            <NText class="text-gray-400 text-sm">
+            <NText class="text-sm text-gray-400">
               提示：在 auto 模式下，快速切换会切换到系统主题的相反主题
             </NText>
           </NSpace>
@@ -184,7 +183,7 @@ export default defineComponent({
           </FlowCanvas>
         </div>
 
-        <div class={'w-500px h-200px border-1px border-gray-300 rounded-md relative'}>
+        <div class={'relative h-200px w-500px border-1px border-gray-300 rounded-md'}>
           <FlowBackground
             gridType="dots"
             gridSize={12}
@@ -196,7 +195,7 @@ export default defineComponent({
         {/* 使用说明 */}
         <NSpace vertical class="mt-4">
           <NH3 class="text-base font-semibold">使用说明：</NH3>
-          <ul class="list-disc list-inside space-y-2 text-sm text-gray-600">
+          <ul class="list-disc list-inside text-sm text-gray-600 space-y-2">
             <li>
               <strong>浅色主题（Light）</strong>：适合在明亮环境下使用，使用浅色背景和深色文字
             </li>
@@ -221,7 +220,7 @@ export default defineComponent({
         <NSpace vertical class="mt-4">
           {themeViewport.value}
           <NH3 class="text-base font-semibold">代码示例：</NH3>
-          <pre class="bg-gray-100 p-4 rounded text-sm overflow-x-auto">
+          <pre class="overflow-x-auto rounded bg-gray-100 p-4 text-sm">
             <code>
               {`import { useFlowTheme } from '@/components/flow/hooks/useFlowTheme';
 

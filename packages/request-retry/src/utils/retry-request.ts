@@ -1,20 +1,16 @@
-/**
- * 重试请求函数
- */
+/** 重试请求函数 */
 
-import type { RetryableError, RetryStrategy, RetryConfig } from '../types';
+import type { RetryConfig, RetryStrategy, RetryableError } from '../types';
 import { DEFAULT_RETRY_CONFIG } from '../constants';
 import {
-  shouldRetry,
   calculateRetryDelay,
   delay,
+  hasExceededErrorTypeMaxRetries,
   isLastAttempt,
-  hasExceededErrorTypeMaxRetries
+  shouldRetry
 } from './retry-utils';
 
-/**
- * 类型守卫：检查错误是否为 RetryableError
- */
+/** 类型守卫：检查错误是否为 RetryableError */
 function isRetryableError(error: unknown): error is RetryableError {
   if (typeof error !== 'object' || error === null) {
     return false;
@@ -24,9 +20,7 @@ function isRetryableError(error: unknown): error is RetryableError {
   return typeof err.message === 'string';
 }
 
-/**
- * 将错误转换为 RetryableError
- */
+/** 将错误转换为 RetryableError */
 function normalizeError(error: unknown): RetryableError {
   if (isRetryableError(error)) {
     return error;
@@ -46,9 +40,7 @@ function normalizeError(error: unknown): RetryableError {
   };
 }
 
-/**
- * 重试请求
- */
+/** 重试请求 */
 export async function retryRequest<T>(
   requestFn: () => Promise<T>,
   config?: RetryConfig,

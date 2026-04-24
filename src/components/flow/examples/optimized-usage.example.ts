@@ -3,8 +3,7 @@
  *
  * 本文件展示如何使用新增的性能优化功能
  *
- * 注意：这是一个概念性示例，展示了如何使用优化功能。
- * 实际集成时需要根据您的具体实现进行调整。
+ * 注意：这是一个概念性示例，展示了如何使用优化功能。 实际集成时需要根据您的具体实现进行调整。
  */
 
 import { ref } from 'vue';
@@ -260,7 +259,7 @@ export function useSafeDataImport() {
   // 严格验证（抛出异常）
   function importNodesStrict(data: unknown): FlowNode[] {
     if (!Array.isArray(data)) {
-      throw new Error('Invalid data: expected array');
+      throw new TypeError('Invalid data: expected array');
     }
 
     return data.map((item, index) => {

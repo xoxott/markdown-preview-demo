@@ -1,17 +1,17 @@
+import { computed, defineComponent, reactive, ref } from 'vue';
+import { NAlert, NButton, NCheckbox, NForm, NFormItem, NInput, NSpace, NTag } from 'naive-ui';
 import { loginModuleRecord } from '@/constants/app';
-import { useLoginFlow } from '@/hooks/business/login-flow';
-import { useFormRules, useNaiveForm } from '@/hooks/common/form';
-import { useRouterPush } from '@/hooks/common/router';
-import { calculateStringMD5 } from '@/hooks/upload-v2/utils/hash';
-import { $t } from '@/locales';
 import { useAuthStore } from '@/store/modules/auth';
 import {
   clearRememberedUsername,
   getRememberedUsername,
   saveRememberedUsername
 } from '@/store/modules/auth/shared';
-import { NAlert, NButton, NCheckbox, NForm, NFormItem, NInput, NSpace, NTag } from 'naive-ui';
-import { computed, defineComponent, reactive, ref } from 'vue';
+import { useLoginFlow } from '@/hooks/business/login-flow';
+import { useFormRules, useNaiveForm } from '@/hooks/common/form';
+import { useRouterPush } from '@/hooks/common/router';
+import { calculateStringMD5 } from '@/hooks/upload-v2/utils/hash';
+import { $t } from '@/locales';
 
 interface FormModel {
   username: string;
@@ -159,18 +159,18 @@ export default defineComponent({
             <>
               <NAlert type="info" class="mb-12px rd-8px">
                 <div class="space-y-1.5">
-                  <div class="font-semibold text-13px flex items-center gap-4px">
+                  <div class="flex items-center gap-4px text-13px font-semibold">
                     <div class="i-carbon-security text-15px" />
                     需要验证码验证
                   </div>
-                  <div class="text-11px text-gray-600 dark:text-gray-400 leading-relaxed">
+                  <div class="text-11px text-gray-600 leading-relaxed dark:text-gray-400">
                     系统检测到异常登录行为，已向您的邮箱发送验证码，请查收并输入验证码完成登录。
                   </div>
                   {loginFlow.riskInfo.value && (
-                    <div class="mt-8px space-y-4px pt-8px border-t border-gray-200 dark:border-gray-700">
-                      <div class="text-11px flex items-center gap-4px">
+                    <div class="mt-8px border-t border-gray-200 pt-8px space-y-4px dark:border-gray-700">
+                      <div class="flex items-center gap-4px text-11px">
                         <span class="text-gray-500">风险评分:</span>
-                        <span class="font-semibold text-primary">
+                        <span class="text-primary font-semibold">
                           {loginFlow.riskInfo.value.riskScore}
                         </span>
                       </div>
@@ -209,7 +209,7 @@ export default defineComponent({
                 text
                 size="small"
                 onClick={handleBackToStep1}
-                class="mb-8px text-primary hover:text-primary-hover"
+                class="hover:text-primary-hover mb-8px text-primary"
               >
                 <div class="flex items-center gap-3px text-12px">
                   <div class="i-carbon-arrow-left text-13px" />
@@ -237,7 +237,7 @@ export default defineComponent({
                 <NButton
                   text
                   size="small"
-                  class="text-primary hover:text-primary-hover text-12px"
+                  class="hover:text-primary-hover text-12px text-primary"
                   onClick={() => toggleLoginModule('reset-pwd')}
                 >
                   {$t('page.login.pwdLogin.forgetPassword')}
@@ -252,7 +252,7 @@ export default defineComponent({
               block
               loading={authStore.loginLoading}
               onClick={handleSubmit}
-              class="h-40px text-14px font-500 shadow-lg hover:shadow-xl transition-all"
+              class="h-40px text-14px font-500 shadow-lg transition-all hover:shadow-xl"
             >
               {$t('common.confirm')}
             </NButton>
@@ -269,13 +269,13 @@ export default defineComponent({
                 </div>
 
                 <div class="flex gap-8px">
-                  <NButton class="flex-1 h-36px" round secondary onClick={handleSwitchToCodeLogin}>
+                  <NButton class="h-36px flex-1" round secondary onClick={handleSwitchToCodeLogin}>
                     <div class="flex items-center justify-center gap-4px text-13px">
                       <div class="i-carbon-email text-15px" />
                       <span>{$t(loginModuleRecord['code-login'])}</span>
                     </div>
                   </NButton>
-                  <NButton class="flex-1 h-36px" round secondary onClick={handleSwitchToRegister}>
+                  <NButton class="h-36px flex-1" round secondary onClick={handleSwitchToRegister}>
                     <div class="flex items-center justify-center gap-4px text-13px">
                       <div class="i-carbon-user-follow text-15px" />
                       <span>{$t(loginModuleRecord.register)}</span>

@@ -1,7 +1,4 @@
-/**
- * 请求上下文（Request Context）
- * 请求的唯一事实来源，所有 Step 通过 Context 通信
- */
+/** 请求上下文（Request Context） 请求的唯一事实来源，所有 Step 通过 Context 通信 */
 
 import { generateKey } from '@suga/utils';
 export interface NormalizedRequestConfig {
@@ -19,9 +16,7 @@ export interface NormalizedRequestConfig {
   [key: string]: unknown;
 }
 
-/**
- * 请求状态
- */
+/** 请求状态 */
 export interface RequestState {
   /** 是否已取消 */
   aborted: boolean;
@@ -33,10 +28,7 @@ export interface RequestState {
   retryCount: number;
 }
 
-/**
- * 请求上下文
- * 请求生命周期内的唯一共享对象
- */
+/** 请求上下文 请求生命周期内的唯一共享对象 */
 export interface RequestContext<T = unknown> {
   /** 请求唯一标识 */
   readonly id: string;
@@ -54,6 +46,7 @@ export interface RequestContext<T = unknown> {
 
 /**
  * 创建请求上下文
+ *
  * @param config 标准化请求配置（只包含传输层需要的字段）
  * @param id 请求唯一标识（可选，不提供则自动生成）
  * @param meta 元数据（可选，用于业务层传递额外信息）

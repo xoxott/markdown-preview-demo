@@ -1,6 +1,4 @@
-/**
- * Metrics 测试
- */
+/** Metrics 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
 import { Metrics } from '../../core/Metrics';

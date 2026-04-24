@@ -6,13 +6,12 @@
 
 import type { RenderEnv, Token } from './types';
 import { DOM_ATTR_NAME } from './constants';
-import { getSourceLineRange, validateAttrValue, simpleHash } from './utils';
+import { getSourceLineRange, simpleHash, validateAttrValue } from './utils';
 
 /**
  * 生成 Token 的稳定 key
  *
- * 使用源码行号 + 内容 hash 组合，确保在文档尾部追加内容时
- * 已有 block 的 key 保持不变（Vue diff 可正确跳过未变更节点）。
+ * 使用源码行号 + 内容 hash 组合，确保在文档尾部追加内容时 已有 block 的 key 保持不变（Vue diff 可正确跳过未变更节点）。
  *
  * @param token - Token 对象
  * @param index - Token 索引

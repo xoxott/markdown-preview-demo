@@ -1,9 +1,7 @@
-/**
- * cache-utils 测试
- */
+/** cache-utils 测试 */
 
 import { describe, expect, it } from 'vitest';
-import { isValidCacheItem, isCacheItemExpired, getCacheStats } from '../../utils/cache-utils';
+import { getCacheStats, isCacheItemExpired, isValidCacheItem } from '../../utils/cache-utils';
 import type { CacheItem } from '../../types/cache-item';
 
 describe('cache-utils', () => {

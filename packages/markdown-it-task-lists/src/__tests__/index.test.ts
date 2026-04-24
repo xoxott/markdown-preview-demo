@@ -1,6 +1,4 @@
-/**
- * Markdown-it Task Lists 插件单元测试
- */
+/** Markdown-it Task Lists 插件单元测试 */
 
 import MarkdownIt from 'markdown-it';
 import { beforeEach, describe, expect, it } from 'vitest';

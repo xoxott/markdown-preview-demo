@@ -6,11 +6,11 @@
 
 import type { FlowConfig } from '../types/flow-config';
 import {
+  type ConfigValidationResult,
   validateConfig,
   validateConnection,
-  validateNode,
   validateEdge,
-  type ConfigValidationResult
+  validateNode
 } from '../utils/validation-utils';
 
 /**
@@ -89,9 +89,7 @@ export class FlowConfigValidator {
   }
 }
 
-/**
- * 创建验证器实例
- */
+/** 创建验证器实例 */
 export function createFlowConfigValidator(): FlowConfigValidator {
   return new FlowConfigValidator();
 }

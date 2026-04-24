@@ -1,6 +1,4 @@
-/**
- * 缓存类型定义统一导出
- */
+/** 缓存类型定义统一导出 */
 
 // 基础类型
 export type { CacheItem } from './cache-item';

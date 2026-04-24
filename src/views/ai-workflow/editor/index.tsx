@@ -1,12 +1,12 @@
-import { defineComponent, ref, onMounted, computed } from 'vue';
+import { computed, defineComponent, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { NButton, NIcon, NSpace, NSpin, useMessage } from 'naive-ui';
 import { Icon } from '@iconify/vue';
+import { mockWorkflowApi } from '@/service/api/workflow-mock';
 import WorkflowCanvas from '@/components/ai-workflow/canvas/WorkflowCanvas';
 import NodeLibraryPanel from '@/components/ai-workflow/panels/NodeLibraryPanel';
 import NodeConfigPanel from '@/components/ai-workflow/panels/NodeConfigPanel';
 // 暂时使用 Mock 数据，后续替换为真实 API
-import { mockWorkflowApi } from '@/service/api/workflow-mock';
 const { fetchWorkflowDetail, fetchUpdateWorkflow } = mockWorkflowApi;
 
 export default defineComponent({
@@ -65,7 +65,7 @@ export default defineComponent({
       if (nodeId && workflow.value) {
         const node = workflow.value.definition.nodes.find(n => n.id === nodeId);
         selectedNode.value = node || null;
-        showRightPanel.value = !!node;
+        showRightPanel.value = Boolean(node);
       } else {
         selectedNode.value = null;
         showRightPanel.value = false;
@@ -94,26 +94,26 @@ export default defineComponent({
     });
 
     return () => (
-      <div class="workflow-editor h-full flex flex-col bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
+      <div class="workflow-editor h-full flex flex-col from-gray-50 to-gray-100 bg-gradient-to-br dark:from-gray-900 dark:to-gray-950">
         {/* 顶部工具栏 */}
-        <div class="flex items-center justify-between px-6 py-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 shadow-sm">
+        <div class="flex items-center justify-between border-b border-gray-200 bg-white/80 px-6 py-4 shadow-sm backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/80">
           <div class="flex items-center gap-4">
             <NButton
               text
               onClick={handleBack}
-              class="hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              class="rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               <NIcon size={22}>
                 <Icon icon="mdi:arrow-left" />
               </NIcon>
             </NButton>
-            <div class="border-l border-gray-300 dark:border-gray-600 h-8"></div>
+            <div class="h-8 border-l border-gray-300 dark:border-gray-600"></div>
             <div>
-              <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">
+              <h2 class="text-xl text-gray-800 font-semibold dark:text-gray-100">
                 {workflow.value?.name || '工作流编辑器'}
               </h2>
               {workflow.value?.description && (
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                <p class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
                   {workflow.value.description}
                 </p>
               )}
@@ -155,12 +155,12 @@ export default defineComponent({
         </div>
 
         {/* 主内容区 */}
-        <div class="flex-1 flex overflow-hidden min-h-0">
-          <div class="w-full h-full flex">
+        <div class="min-h-0 flex flex-1 overflow-hidden">
+          <div class="h-full w-full flex">
             {/* 左侧节点库面板 */}
             {showLeftPanel.value && (
               <div
-                class=" bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-r border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden flex flex-col"
+                class="flex flex-col overflow-hidden border-r border-gray-200 bg-white/95 shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/95"
                 style={{ flexShrink: 0 }}
               >
                 <NodeLibraryPanel />
@@ -168,7 +168,7 @@ export default defineComponent({
             )}
 
             {/* 中间画布区域 */}
-            <div class="flex-1 overflow-hidden min-w-0 h-full">
+            <div class="h-full min-w-0 flex-1 overflow-hidden">
               {workflow.value && (
                 <WorkflowCanvas
                   initialDefinition={workflow.value.definition}
@@ -181,7 +181,7 @@ export default defineComponent({
             {/* 右侧配置面板 */}
             {showRightPanel.value && (
               <div
-                class="w-96 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-l border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden flex flex-col"
+                class="w-96 flex flex-col overflow-hidden border-l border-gray-200 bg-white/95 shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/95"
                 style={{ flexShrink: 0 }}
               >
                 <NodeConfigPanel

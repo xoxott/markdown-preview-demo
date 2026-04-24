@@ -1,12 +1,10 @@
-/**
- * 哈希计算工具函数测试
- */
+/** 哈希计算工具函数测试 */
 import { describe, expect, it } from 'vitest';
 import {
   calculateFileMD5,
+  calculateFileSHA256,
   calculateFilesMD5,
-  calculateStringMD5,
-  calculateFileSHA256
+  calculateStringMD5
 } from '../../utils/hash';
 
 describe('哈希计算工具函数', () => {

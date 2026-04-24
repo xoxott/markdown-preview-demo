@@ -1,9 +1,9 @@
 /** DialogTestPanel - 弹窗测试面板 用于测试所有弹窗功能 */
+import { defineComponent, ref } from 'vue';
+import { NButton, NDivider, NSpace, useThemeVars } from 'naive-ui';
 import BaseDialog from '@/components/base-dialog';
 import { useDialog } from '@/components/base-dialog/useDialog';
 import useDrawer from '@/components/base-drawer/useDrawer';
-import { NButton, NDivider, NSpace, useThemeVars } from 'naive-ui';
-import { defineComponent, ref } from 'vue';
 import { useFileDialog } from '../hooks/useFileDialog';
 
 export default defineComponent({

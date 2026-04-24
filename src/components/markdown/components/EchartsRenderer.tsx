@@ -10,7 +10,6 @@ import {
 } from 'vue';
 import { NCard } from 'naive-ui';
 import * as echarts from 'echarts/core';
-import { debounce } from '../utils';
 import {
   BarChart,
   BoxplotChart,
@@ -39,8 +38,9 @@ import {
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import type { EChartsOption } from 'echarts';
-import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
 import type { CodeBlockMeta } from '@suga/markdown-it-render-vnode';
+import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
+import { debounce } from '../utils';
 import { ErrorMessage } from './ErrorMessage';
 
 // 注册 ECharts 组件
@@ -112,7 +112,7 @@ export const EchartsRenderer = defineComponent({
     }
   },
   setup(props) {
-    const { darkMode, themeVars, containerBgStyle } = useMarkdownTheme();
+    const { darkMode, containerBgStyle } = useMarkdownTheme();
     const chartRef = ref<HTMLDivElement | null>(null);
     let chartInstance: echarts.ECharts | null = null;
     const errorMessage = ref<string | null>(null);
@@ -131,6 +131,13 @@ export const EchartsRenderer = defineComponent({
       }
       return props.height;
     });
+
+    // 响应容器尺寸变化
+    const resizeChart = () => {
+      if (chartInstance) {
+        chartInstance.resize();
+      }
+    };
 
     // 初始化/更新图表
     const renderChart = async () => {
@@ -170,13 +177,6 @@ export const EchartsRenderer = defineComponent({
 
     // 防抖渲染（200ms），避免流式输入时频繁 dispose+reinit
     const debouncedRenderChart = debounce(renderChart, 200);
-
-    // 响应容器尺寸变化
-    const resizeChart = () => {
-      if (chartInstance) {
-        chartInstance.resize();
-      }
-    };
 
     // 监听配置变化（使用防抖）
     watch(chartOption, debouncedRenderChart, { immediate: true });

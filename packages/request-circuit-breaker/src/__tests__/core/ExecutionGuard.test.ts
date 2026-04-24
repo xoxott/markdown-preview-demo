@@ -1,6 +1,4 @@
-/**
- * ExecutionGuard 测试
- */
+/** ExecutionGuard 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ExecutionGuard } from '../../core/ExecutionGuard';

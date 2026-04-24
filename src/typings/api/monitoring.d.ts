@@ -1,6 +1,4 @@
-/**
- * Monitoring API types
- */
+/** Monitoring API types */
 
 declare namespace Api {
   /**

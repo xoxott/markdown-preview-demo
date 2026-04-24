@@ -1,7 +1,4 @@
-/**
- * 统计信息管理器
- * 负责收集和分析上传历史统计信息
- */
+/** 统计信息管理器 负责收集和分析上传历史统计信息 */
 import type { FileTask } from '../types';
 import { UploadStatus } from '../types';
 
@@ -25,16 +22,12 @@ export interface TrendAnalysis {
   recentStats: HistoryStats[];
 }
 
-/**
- * 统计信息管理器
- */
+/** 统计信息管理器 */
 export class StatsManager {
   private history: HistoryStats[] = [];
   private readonly maxHistoryDays = 30; // 保留 30 天历史
 
-  /**
-   * 记录任务完成
-   */
+  /** 记录任务完成 */
   recordTaskCompletion(task: FileTask, uploadTime: number): void {
     const today = new Date().toISOString().split('T')[0];
     let todayStats = this.history.find(s => s.date === today);
@@ -78,17 +71,13 @@ export class StatsManager {
     this.cleanupHistory();
   }
 
-  /**
-   * 获取今日统计
-   */
+  /** 获取今日统计 */
   getTodayStats(): HistoryStats | null {
     const today = new Date().toISOString().split('T')[0];
     return this.history.find(s => s.date === today) || null;
   }
 
-  /**
-   * 获取历史统计
-   */
+  /** 获取历史统计 */
   getHistoryStats(days: number = 7): HistoryStats[] {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);
@@ -97,9 +86,7 @@ export class StatsManager {
     return this.history.filter(s => s.date >= cutoffDateStr).slice(-days);
   }
 
-  /**
-   * 获取趋势分析
-   */
+  /** 获取趋势分析 */
   getTrendAnalysis(days: number = 7): TrendAnalysis {
     const recentStats = this.getHistoryStats(days);
 
@@ -152,9 +139,7 @@ export class StatsManager {
     };
   }
 
-  /**
-   * 清理旧历史
-   */
+  /** 清理旧历史 */
   private cleanupHistory(): void {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - this.maxHistoryDays);
@@ -163,9 +148,7 @@ export class StatsManager {
     this.history = this.history.filter(s => s.date >= cutoffDateStr);
   }
 
-  /**
-   * 清空所有统计
-   */
+  /** 清空所有统计 */
   clear(): void {
     this.history = [];
   }

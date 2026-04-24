@@ -1,20 +1,16 @@
-/**
- * 重试工具函数
- */
+/** 重试工具函数 */
 
-import type { RetryableError, RetryStrategy } from '../types';
+import type { RetryStrategy, RetryableError } from '../types';
 import { DEFAULT_RETRY_CONFIG } from '../constants';
 import {
-  isRetryableStatusCode,
-  isRetryableClientError,
-  isCanceledError,
   getErrorType,
-  isApplicableErrorType
+  isApplicableErrorType,
+  isCanceledError,
+  isRetryableClientError,
+  isRetryableStatusCode
 } from './error-utils';
 
-/**
- * 判断是否应该重试（默认策略）
- */
+/** 判断是否应该重试（默认策略） */
 function shouldRetryByDefault(error: RetryableError): boolean {
   // 网络错误（无响应），重试
   if (!error.response && !error.status) return true;
@@ -33,9 +29,7 @@ function shouldRetryByDefault(error: RetryableError): boolean {
   return isRetryableStatusCode(status);
 }
 
-/**
- * 判断是否应该重试
- */
+/** 判断是否应该重试 */
 export function shouldRetry(
   error: RetryableError,
   strategy?: RetryStrategy,
@@ -57,9 +51,7 @@ export function shouldRetry(
   return shouldRetryByDefault(error);
 }
 
-/**
- * 从错误类型策略获取延迟时间
- */
+/** 从错误类型策略获取延迟时间 */
 function getDelayFromErrorTypeStrategy(
   error: RetryableError,
   strategy: RetryStrategy
@@ -73,17 +65,13 @@ function getDelayFromErrorTypeStrategy(
   return typeStrategy?.delay ?? null;
 }
 
-/**
- * 计算指数退避延迟时间
- */
+/** 计算指数退避延迟时间 */
 function calculateExponentialDelay(retryCount: number, baseDelay: number): number {
-  const delay = baseDelay * Math.pow(DEFAULT_RETRY_CONFIG.EXPONENTIAL_BASE, retryCount);
+  const delay = baseDelay * DEFAULT_RETRY_CONFIG.EXPONENTIAL_BASE ** retryCount;
   return Math.min(delay, DEFAULT_RETRY_CONFIG.MAX_DELAY);
 }
 
-/**
- * 计算重试延迟时间（指数退避）
- */
+/** 计算重试延迟时间（指数退避） */
 export function calculateRetryDelay(
   retryCount: number,
   baseDelay: number = DEFAULT_RETRY_CONFIG.DEFAULT_RETRY_DELAY,
@@ -99,23 +87,17 @@ export function calculateRetryDelay(
   return calculateExponentialDelay(retryCount, baseDelay);
 }
 
-/**
- * 延迟函数
- */
+/** 延迟函数 */
 export function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-/**
- * 检查是否为最后一次重试
- */
+/** 检查是否为最后一次重试 */
 export function isLastAttempt(currentAttempt: number, maxRetries: number): boolean {
   return currentAttempt >= maxRetries;
 }
 
-/**
- * 检查错误类型策略是否达到最大重试次数
- */
+/** 检查错误类型策略是否达到最大重试次数 */
 export function hasExceededErrorTypeMaxRetries(
   error: RetryableError,
   attempt: number,

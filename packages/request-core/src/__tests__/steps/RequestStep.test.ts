@@ -1,11 +1,12 @@
-/**
- * RequestStep 和 composeSteps 测试
- */
+/** RequestStep 和 composeSteps 测试 */
 
 import { describe, expect, it } from 'vitest';
-import type { NormalizedRequestConfig } from '../../context/RequestContext';
-import { createRequestContext, type RequestContext } from '../../context/RequestContext';
-import { composeSteps, type RequestStep } from '../../steps/RequestStep';
+import type {
+  NormalizedRequestConfig,
+  type RequestContext,
+  createRequestContext
+} from '../../context/RequestContext';
+import { type RequestStep, composeSteps } from '../../steps/RequestStep';
 
 describe('composeSteps', () => {
   it('应该处理空步骤数组', async () => {

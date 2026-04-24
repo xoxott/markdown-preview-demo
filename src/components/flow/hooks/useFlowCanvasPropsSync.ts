@@ -4,14 +4,12 @@
  * 负责将外部传入的 props 同步到内部状态管理系统
  */
 
-import { watch, type Ref, type ComputedRef, type WatchStopHandle } from 'vue';
+import { type ComputedRef, type Ref, type WatchStopHandle, watch } from 'vue';
 import { compareIds } from '../utils/array-utils';
-import type { FlowNode, FlowEdge } from '../types';
+import type { FlowEdge, FlowNode } from '../types';
 import type { IStateStore } from '../core/state/interfaces/IStateStore';
 
-/**
- * FlowCanvas Props 同步 Hook 选项
- */
+/** FlowCanvas Props 同步 Hook 选项 */
 export interface UseFlowCanvasPropsSyncOptions {
   /** 外部传入的初始节点列表（可以是 Ref、ComputedRef 或函数，用于响应式） */
   initialNodes?:
@@ -31,9 +29,7 @@ export interface UseFlowCanvasPropsSyncOptions {
   edges: Ref<FlowEdge[]>;
 }
 
-/**
- * FlowCanvas Props 同步 Hook 返回值
- */
+/** FlowCanvas Props 同步 Hook 返回值 */
 export interface UseFlowCanvasPropsSyncReturn {
   /** 开始同步（通常在组件挂载后调用） */
   start: () => void;
@@ -41,9 +37,7 @@ export interface UseFlowCanvasPropsSyncReturn {
   stop: () => void;
 }
 
-/**
- * 创建同步监听器
- */
+/** 创建同步监听器 */
 function createSyncWatcher<T extends { id: string }>(
   source: Ref<T[] | undefined> | ComputedRef<T[] | undefined> | (() => T[] | undefined),
   current: Ref<T[]>,
@@ -61,22 +55,22 @@ function createSyncWatcher<T extends { id: string }>(
  *
  * 监听外部 props 变化，同步到内部状态管理系统
  *
+ * @example
+ *   ```typescript
+ *   const { start, stop } = useFlowCanvasPropsSync({
+ *     initialNodes: computed(() => props.initialNodes),
+ *     initialEdges: computed(() => props.initialEdges),
+ *     stateStore,
+ *     nodes,
+ *     edges
+ *   });
+ *
+ *   onMounted(() => start());
+ *   onUnmounted(() => stop());
+ *   ```;
+ *
  * @param options Hook 选项
  * @returns 同步控制方法
- *
- * @example
- * ```typescript
- * const { start, stop } = useFlowCanvasPropsSync({
- *   initialNodes: computed(() => props.initialNodes),
- *   initialEdges: computed(() => props.initialEdges),
- *   stateStore,
- *   nodes,
- *   edges
- * });
- *
- * onMounted(() => start());
- * onUnmounted(() => stop());
- * ```
  */
 export function useFlowCanvasPropsSync(
   options: UseFlowCanvasPropsSyncOptions

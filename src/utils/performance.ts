@@ -1,9 +1,8 @@
-/**
- * 性能优化工具函数
- */
+/** 性能优化工具函数 */
 
 /**
  * 防抖函数
+ *
  * @param fn 要防抖的函数
  * @param delay 延迟时间（毫秒）
  */
@@ -19,6 +18,7 @@ export function debounce<T extends (...args: any[]) => any>(fn: T, delay: number
 
 /**
  * 节流函数
+ *
  * @param fn 要节流的函数
  * @param delay 延迟时间（毫秒）
  */
@@ -35,6 +35,7 @@ export function throttle<T extends (...args: any[]) => any>(fn: T, delay: number
 
 /**
  * 在浏览器空闲时执行任务
+ *
  * @param callback 回调函数
  * @param options 选项
  */
@@ -48,6 +49,7 @@ export function runWhenIdle(callback: () => void, options?: { timeout?: number }
 
 /**
  * 预加载图片
+ *
  * @param urls 图片URL数组
  */
 export function preloadImages(urls: string[]): Promise<void[]> {
@@ -66,6 +68,7 @@ export function preloadImages(urls: string[]): Promise<void[]> {
 
 /**
  * 动态导入组件（带错误处理）
+ *
  * @param importFn 导入函数
  */
 export function lazyLoadComponent(importFn: () => Promise<any>) {

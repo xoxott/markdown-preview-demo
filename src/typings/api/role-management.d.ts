@@ -1,6 +1,4 @@
-/**
- * Role Management API types
- */
+/** Role Management API types */
 
 /// <reference path="./common.d.ts" />
 

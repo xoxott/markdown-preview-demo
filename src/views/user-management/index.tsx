@@ -1,8 +1,20 @@
-import type { UserFormData } from '@/components/user-management/dialog';
-import { useUserDialog } from '@/components/user-management/useUserDialog';
-import { useNaiveForm } from '@/hooks/common/form';
-import { useTable } from '@/hooks/common/table';
-import { $t } from '@/locales';
+import { computed, defineComponent, getCurrentInstance, onMounted, reactive, ref } from 'vue';
+import {
+  NBadge,
+  NButton,
+  NCard,
+  NDataTable,
+  NForm,
+  NFormItem,
+  NInput,
+  NPopover,
+  NSelect,
+  NSpace,
+  NSwitch,
+  NTag,
+  NText,
+  useMessage
+} from 'naive-ui';
 import {
   fetchBatchDeleteUsers,
   fetchCreateUser,
@@ -13,23 +25,11 @@ import {
   fetchUserDetail,
   fetchUserList
 } from '@/service/api/user';
-import {
-  NButton,
-  NCard,
-  NDataTable,
-  NForm,
-  NFormItem,
-  NInput,
-  NSelect,
-  NSpace,
-  NSwitch,
-  NTag,
-  NPopover,
-  NText,
-  NBadge,
-  useMessage
-} from 'naive-ui';
-import { computed, defineComponent, getCurrentInstance, onMounted, reactive, ref } from 'vue';
+import { useNaiveForm } from '@/hooks/common/form';
+import { useTable } from '@/hooks/common/table';
+import type { UserFormData } from '@/components/user-management/dialog';
+import { useUserDialog } from '@/components/user-management/useUserDialog';
+import { $t } from '@/locales';
 import { useDialog } from '@/components/base-dialog/useDialog';
 
 type User = Api.UserManagement.User;
@@ -212,10 +212,10 @@ export default defineComponent({
                   <img
                     src={row.avatar}
                     alt={row.username}
-                    class="w-28px h-28px rounded-full object-cover"
+                    class="h-28px w-28px rounded-full object-cover"
                   />
                 ) : (
-                  <div class="w-28px h-28px rounded-full bg-primary text-white flex items-center justify-center text-12px font-500">
+                  <div class="h-28px w-28px flex items-center justify-center rounded-full bg-primary text-12px text-white font-500">
                     {row.username.charAt(0).toUpperCase()}
                   </div>
                 )}

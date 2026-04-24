@@ -7,29 +7,26 @@
     "email": "212920320@qq.com"
   },
   "license": "MIT",
+  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/axios",
   "repository": {
     "type": "git",
     "url": "https://github.com/xoxott/suga-tools.git",
     "directory": "packages/axios"
   },
-  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/axios",
   "bugs": {
     "url": "https://github.com/xoxott/suga-tools/issues"
   },
-  "keywords": [
-    "axios",
-    "http",
-    "request",
-    "fetch"
-  ],
+  "keywords": ["axios", "http", "request", "fetch"],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "exports": {
     ".": "./src/index.ts"
   },
   "typesVersions": {
     "*": {
-      "*": [
-        "./src/*"
-      ]
+      "*": ["./src/*"]
     }
   },
   "dependencies": {
@@ -40,9 +37,5 @@
   },
   "devDependencies": {
     "@types/qs": "6.9.18"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
   }
 }

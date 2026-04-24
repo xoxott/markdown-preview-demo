@@ -1,12 +1,9 @@
-/**
- * Flow 示例 8: 贝塞尔曲线弧度配置
- * 展示 bezierControlOffset 配置对连接线弧度的影响
- */
+/** Flow 示例 8: 贝塞尔曲线弧度配置 展示 bezierControlOffset 配置对连接线弧度的影响 */
 
 import { defineComponent, ref } from 'vue';
-import { NCard, NH3, NText, NSpace, NTag } from 'naive-ui';
+import { NCard, NH3, NSpace, NTag, NText } from 'naive-ui';
 import FlowCanvas from '@/components/flow/components/FlowCanvas';
-import type { FlowNode, FlowEdge, FlowConfig } from '@/components/flow';
+import type { FlowConfig, FlowEdge, FlowNode } from '@/components/flow';
 
 export default defineComponent({
   name: 'FlowBezierExample',
@@ -158,14 +155,14 @@ export default defineComponent({
     return () => (
       <NCard bordered>
         <NH3 class="border-b pb-2 text-lg font-semibold">Flow 示例 8: 贝塞尔曲线弧度配置</NH3>
-        <NText class="text-gray-500 mb-4 block">
+        <NText class="mb-4 block text-gray-500">
           通过 <code>bezierControlOffset</code> 配置控制贝塞尔曲线的弧度（0-1 之间，值越大弧度越大）
         </NText>
 
         <NSpace vertical size="large">
           {/* 示例 1: 默认弧度 */}
           <div>
-            <div class="flex items-center gap-2 mb-2">
+            <div class="mb-2 flex items-center gap-2">
               <NTag type="info">bezierControlOffset: 0.5 (默认)</NTag>
               <NText depth={3}>中等弧度</NText>
             </div>
@@ -183,7 +180,7 @@ export default defineComponent({
 
           {/* 示例 2: 小弧度 */}
           <div>
-            <div class="flex items-center gap-2 mb-2">
+            <div class="mb-2 flex items-center gap-2">
               <NTag type="success">bezierControlOffset: 0.1</NTag>
               <NText depth={3}>小弧度，接近直线</NText>
             </div>
@@ -201,7 +198,7 @@ export default defineComponent({
 
           {/* 示例 3: 大弧度 */}
           <div>
-            <div class="flex items-center gap-2 mb-2">
+            <div class="mb-2 flex items-center gap-2">
               <NTag type="warning">bezierControlOffset: 0.9</NTag>
               <NText depth={3}>大弧度，明显曲线</NText>
             </div>
@@ -220,11 +217,11 @@ export default defineComponent({
           {/* 示例 4: 混合配置 */}
           <div>
             <div class="mb-2">
-              <div class="flex items-center gap-2 mb-1">
+              <div class="mb-1 flex items-center gap-2">
                 <NTag type="info">全局: 0.3</NTag>
                 <NText depth={3}>不同连接线使用不同弧度</NText>
               </div>
-              <div class="flex items-center gap-3 ml-2">
+              <div class="ml-2 flex items-center gap-3">
                 <NText depth={3} class="text-sm">
                   A→D: 0.1（小）
                 </NText>

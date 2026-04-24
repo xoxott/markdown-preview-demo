@@ -1,75 +1,73 @@
 /**
  * 通用拖拽基础 Hook
  *
- * 提供通用的拖拽功能，通过配置和回调适配不同场景。
- * 基于 FlowDragHandler 核心逻辑，提供 Vue 响应式封装。
- * 内置 RAF（requestAnimationFrame）节流优化，确保高性能的拖拽体验。
+ * 提供通用的拖拽功能，通过配置和回调适配不同场景。 基于 FlowDragHandler 核心逻辑，提供 Vue 响应式封装。 内置
+ * RAF（requestAnimationFrame）节流优化，确保高性能的拖拽体验。
  *
  * 适用场景：
+ *
  * - 画布平移拖拽
  * - 节点拖拽
  * - 节点库拖拽到画布
  * - 其他需要拖拽交互的场景
  *
  * @example
- * ```typescript
- * // 基础用法：直接使用屏幕坐标偏移
- * const drag = useDrag({
- *   onDrag: (result) => {
- *     console.log('拖拽偏移:', result.deltaX, result.deltaY);
- *   }
- * });
+ *   ```typescript
+ *   // 基础用法：直接使用屏幕坐标偏移
+ *   const drag = useDrag({
+ *     onDrag: (result) => {
+ *       console.log('拖拽偏移:', result.deltaX, result.deltaY);
+ *     }
+ *   });
  *
- * // 节点拖拽：屏幕坐标偏移 -> 画布坐标偏移
- * import { useDrag } from './useDrag';
- * const drag = useDrag({
- *   transformCoordinates: (screenX, screenY, startX, startY, startNodeX, startNodeY) => {
- *     const screenDeltaX = screenX - startX;
- *     const screenDeltaY = screenY - startY;
- *     // 节点位置已经是画布坐标，只需转换偏移量
- *     const deltaX = screenDeltaX / viewport.zoom;
- *     const deltaY = screenDeltaY / viewport.zoom;
- *     return {
- *       x: startNodeX + deltaX,
- *       y: startNodeY + deltaY,
- *       deltaX: screenDeltaX,
- *       deltaY: screenDeltaY
- *     };
- *   },
- *   onDrag: (result) => {
- *     updateNodePosition(result.x, result.y);
- *   }
- * });
+ *   // 节点拖拽：屏幕坐标偏移 -> 画布坐标偏移
+ *   import { useDrag } from './useDrag';
+ *   const drag = useDrag({
+ *     transformCoordinates: (screenX, screenY, startX, startY, startNodeX, startNodeY) => {
+ *       const screenDeltaX = screenX - startX;
+ *       const screenDeltaY = screenY - startY;
+ *       // 节点位置已经是画布坐标，只需转换偏移量
+ *       const deltaX = screenDeltaX / viewport.zoom;
+ *       const deltaY = screenDeltaY / viewport.zoom;
+ *       return {
+ *         x: startNodeX + deltaX,
+ *         y: startNodeY + deltaY,
+ *         deltaX: screenDeltaX,
+ *         deltaY: screenDeltaY
+ *       };
+ *     },
+ *     onDrag: (result) => {
+ *       updateNodePosition(result.x, result.y);
+ *     }
+ *   });
  *
- * // 节点库拖拽到画布：屏幕坐标 -> 画布坐标（使用工具函数）
- * import { screenToCanvas } from '../utils/math-utils';
- * const drag = useDrag({
- *   transformCoordinates: (screenX, screenY, startX, startY) => {
- *     // 使用工具函数将屏幕坐标转换为画布坐标
- *     const canvasPos = screenToCanvas(screenX, screenY, viewport);
- *     return {
- *       x: canvasPos.x,
- *       y: canvasPos.y,
- *       deltaX: screenX - startX,
- *       deltaY: screenY - startY
- *     };
- *   },
- *   onDrag: (result) => {
- *     updatePreviewPosition(result.x, result.y);
- *   }
- * });
- * ```
+ *   // 节点库拖拽到画布：屏幕坐标 -> 画布坐标（使用工具函数）
+ *   import { screenToCanvas } from '../utils/math-utils';
+ *   const drag = useDrag({
+ *     transformCoordinates: (screenX, screenY, startX, startY) => {
+ *       // 使用工具函数将屏幕坐标转换为画布坐标
+ *       const canvasPos = screenToCanvas(screenX, screenY, viewport);
+ *       return {
+ *         x: canvasPos.x,
+ *         y: canvasPos.y,
+ *         deltaX: screenX - startX,
+ *         deltaY: screenY - startY
+ *       };
+ *     },
+ *     onDrag: (result) => {
+ *       updatePreviewPosition(result.x, result.y);
+ *     }
+ *   });
+ *   ```;
  */
 
-import { ref, onUnmounted, type Ref } from 'vue';
+import { type Ref, onUnmounted, ref } from 'vue';
 import { isFunction as isFunctionType } from '../utils/type-utils';
 import { FlowDragHandler } from '../core/interaction/FlowDragHandler';
 import { logger } from '../utils/logger';
-import type { DragTransformResult, CoordinateTransform } from '../types/flow-interaction';
+import type { CoordinateTransform, DragTransformResult } from '../types/flow-interaction';
 
-/**
- * 拖拽配置选项
- */
+/** 拖拽配置选项 */
 export interface UseDragOptions {
   /**
    * 是否启用拖拽
@@ -95,6 +93,23 @@ export interface UseDragOptions {
    *
    * 将屏幕坐标转换为目标坐标系统（如画布坐标、节点坐标等）
    *
+   * @example
+   *   ```typescript
+   *   // 转换为画布坐标（考虑视口和缩放）
+   *   transformCoordinates: (screenX, screenY, startX, startY, startNodeX, startNodeY) => {
+   *     const screenDeltaX = screenX - startX;
+   *     const screenDeltaY = screenY - startY;
+   *     const deltaX = screenDeltaX / viewport.value.zoom;
+   *     const deltaY = screenDeltaY / viewport.value.zoom;
+   *     return {
+   *       x: startNodeX + deltaX,
+   *       y: startNodeY + deltaY,
+   *       deltaX: screenDeltaX,
+   *       deltaY: screenDeltaY
+   *     };
+   *   }
+   *   ```;
+   *
    * @param screenX 当前鼠标屏幕坐标 X
    * @param screenY 当前鼠标屏幕坐标 Y
    * @param startScreenX 拖拽开始时的屏幕坐标 X
@@ -102,23 +117,6 @@ export interface UseDragOptions {
    * @param startTargetX 拖拽开始时的目标坐标 X（可选，由 handleMouseDown 传入）
    * @param startTargetY 拖拽开始时的目标坐标 Y（可选，由 handleMouseDown 传入）
    * @returns 转换后的坐标结果
-   *
-   * @example
-   * ```typescript
-   * // 转换为画布坐标（考虑视口和缩放）
-   * transformCoordinates: (screenX, screenY, startX, startY, startNodeX, startNodeY) => {
-   *   const screenDeltaX = screenX - startX;
-   *   const screenDeltaY = screenY - startY;
-   *   const deltaX = screenDeltaX / viewport.value.zoom;
-   *   const deltaY = screenDeltaY / viewport.value.zoom;
-   *   return {
-   *     x: startNodeX + deltaX,
-   *     y: startNodeY + deltaY,
-   *     deltaX: screenDeltaX,
-   *     deltaY: screenDeltaY
-   *   };
-   * }
-   * ```
    */
   transformCoordinates?: (
     screenX: number,
@@ -180,17 +178,14 @@ export interface UseDragOptions {
   /**
    * 是否使用增量模式
    *
-   * 启用后，每次更新后重置起始位置，使得 deltaX/deltaY 始终是相对于上一次位置的增量
-   * 适用于画布平移等需要增量偏移的场景
+   * 启用后，每次更新后重置起始位置，使得 deltaX/deltaY 始终是相对于上一次位置的增量 适用于画布平移等需要增量偏移的场景
    *
    * @default false
    */
   incremental?: boolean;
 }
 
-/**
- * 拖拽 Hook 返回值
- */
+/** 拖拽 Hook 返回值 */
 export interface UseDragReturn {
   /** 是否正在拖拽（响应式） */
   isDragging: Ref<boolean>;

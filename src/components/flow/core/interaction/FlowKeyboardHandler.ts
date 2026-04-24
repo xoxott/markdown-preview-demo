@@ -4,9 +4,7 @@
  * 处理键盘快捷键的注册、处理、冲突检测等
  */
 
-/**
- * 快捷键组合
- */
+/** 快捷键组合 */
 export interface KeyBinding {
   /** 主键 */
   key: string;
@@ -20,14 +18,10 @@ export interface KeyBinding {
   meta?: boolean;
 }
 
-/**
- * 快捷键处理器函数
- */
+/** 快捷键处理器函数 */
 export type KeyHandler = (event: KeyboardEvent) => void | boolean;
 
-/**
- * 快捷键注册项
- */
+/** 快捷键注册项 */
 export interface KeyBindingRegistration {
   /** 快捷键组合 */
   binding: KeyBinding;
@@ -43,9 +37,7 @@ export interface KeyBindingRegistration {
   stopPropagation?: boolean;
 }
 
-/**
- * Flow 键盘快捷键处理器
- */
+/** Flow 键盘快捷键处理器 */
 export class FlowKeyboardHandler {
   /** 快捷键注册表 */
   private bindings: Map<string, KeyBindingRegistration[]> = new Map();
@@ -180,16 +172,12 @@ export class FlowKeyboardHandler {
     return handled;
   }
 
-  /**
-   * 启用快捷键处理
-   */
+  /** 启用快捷键处理 */
   enable(): void {
     this.enabled = true;
   }
 
-  /**
-   * 禁用快捷键处理
-   */
+  /** 禁用快捷键处理 */
   disable(): void {
     this.enabled = false;
   }
@@ -247,9 +235,7 @@ export class FlowKeyboardHandler {
     return all;
   }
 
-  /**
-   * 清空所有快捷键
-   */
+  /** 清空所有快捷键 */
   clear(): void {
     this.bindings.clear();
   }

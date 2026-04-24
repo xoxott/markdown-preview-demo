@@ -24,7 +24,7 @@ export function mergeConfig(target: FlowConfig, source?: PartialFlowConfig): Flo
   const result: FlowConfig = { ...target };
 
   for (const key in source) {
-    if (Object.prototype.hasOwnProperty.call(source, key)) {
+    if (Object.hasOwn(source, key)) {
       const sourceValue = source[key as keyof FlowConfig];
       const targetValue = target[key as keyof FlowConfig];
 

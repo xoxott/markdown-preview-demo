@@ -4,25 +4,19 @@
  * 定义图形编辑器中节点的核心数据结构
  */
 
-/**
- * 节点位置坐标
- */
+/** 节点位置坐标 */
 export interface FlowPosition {
   x: number;
   y: number;
 }
 
-/**
- * 节点尺寸
- */
+/** 节点尺寸 */
 export interface FlowSize {
   width: number;
   height: number;
 }
 
-/**
- * 节点端口/句柄定义
- */
+/** 节点端口/句柄定义 */
 export interface FlowHandle {
   /** 端口 ID */
   id: string;
@@ -41,8 +35,7 @@ export interface FlowHandle {
 /**
  * Flow 节点数据
  *
- * 通用节点数据结构，不包含业务逻辑
- * 业务数据存储在 data 字段中
+ * 通用节点数据结构，不包含业务逻辑 业务数据存储在 data 字段中
  */
 export interface FlowNode<T = any> {
   /** 节点唯一标识 */
@@ -77,9 +70,7 @@ export interface FlowNode<T = any> {
   [key: string]: any;
 }
 
-/**
- * 节点类型注册表项
- */
+/** 节点类型注册表项 */
 export interface FlowNodeType {
   /** 节点类型名称 */
   name: string;

@@ -4,7 +4,7 @@
  * 验证关键性能优化是否生效
  */
 
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 import type { FlowNode } from '../types';
 
 describe('Performance Fixes', () => {

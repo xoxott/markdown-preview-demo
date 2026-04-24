@@ -5,15 +5,15 @@
  */
 
 import {
-  computed,
-  defineComponent,
-  Teleport,
-  Transition,
   type CSSProperties,
   type PropType,
-  type VNode
+  Teleport,
+  Transition,
+  type VNode,
+  computed,
+  defineComponent
 } from 'vue';
-import { NIcon, NBadge } from 'naive-ui';
+import { NBadge, NIcon } from 'naive-ui';
 import type { DragItem, DragOperation, Point } from '../types';
 import '@/styles/common-interaction.scss';
 
@@ -151,9 +151,7 @@ export default defineComponent({
 
     // ==================== 工具函数 ====================
 
-    /**
-     * 获取项目图标
-     */
+    /** 获取项目图标 */
     function getItemIcon(item: DragItem): string {
       if (props.iconResolver) {
         return props.iconResolver(item);
@@ -176,18 +174,14 @@ export default defineComponent({
       return iconMap[item.type] || iconMap.default;
     }
 
-    /**
-     * 获取项目显示名称
-     */
+    /** 获取项目显示名称 */
     function getItemName(item: DragItem): string {
       return item.name || item.id;
     }
 
     // ==================== 渲染函数 ====================
 
-    /**
-     * 渲染默认项
-     */
+    /** 渲染默认项 */
     function renderDefaultItem(item: DragItem, index: number) {
       return (
         <div
@@ -227,9 +221,7 @@ export default defineComponent({
       );
     }
 
-    /**
-     * 渲染预览内容
-     */
+    /** 渲染预览内容 */
     function renderPreviewContent() {
       return (
         <div

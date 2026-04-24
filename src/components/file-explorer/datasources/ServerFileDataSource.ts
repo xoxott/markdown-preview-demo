@@ -1,9 +1,9 @@
 import type { FileItem } from '../types/file-explorer';
 import type {
   IFileDataSource,
-  ServerFileDataSourceConfig,
   PaginationParams,
-  PaginationResult
+  PaginationResult,
+  ServerFileDataSourceConfig
 } from './types';
 
 /** 服务器文件数据源实现 */
@@ -21,7 +21,7 @@ export class ServerFileDataSource implements IFileDataSource {
     };
 
     if (config.token) {
-      this.headers['Authorization'] = `Bearer ${config.token}`;
+      this.headers.Authorization = `Bearer ${config.token}`;
     }
   }
 

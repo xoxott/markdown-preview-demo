@@ -1,10 +1,8 @@
-/**
- * PerformanceMonitorManager 测试
- */
+/** PerformanceMonitorManager 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
-import { PerformanceMonitorManager } from '../PerformanceMonitor';
 import type { NormalizedRequestConfig } from '@suga/request-core';
+import { PerformanceMonitorManager } from '../PerformanceMonitor';
 
 describe('PerformanceMonitorManager', () => {
   let monitor: PerformanceMonitorManager;

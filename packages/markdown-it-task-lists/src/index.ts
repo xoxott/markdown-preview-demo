@@ -1,8 +1,7 @@
 /**
  * Markdown-it Task Lists Plugin
  *
- * 基于开源 markdown-it-task-lists 的 TypeScript 实现
- * 支持任务列表语法：- [ ] 和 - [x]
+ * 基于开源 markdown-it-task-lists 的 TypeScript 实现 支持任务列表语法：- [ ] 和 - [x]
  *
  * @module markdown-it-task-lists
  */
@@ -12,9 +11,7 @@ import type StateCore from 'markdown-it/lib/rules_core/state_core.mjs';
 import type Token from 'markdown-it/lib/token.mjs';
 import { DEFAULT_OPTIONS, type TaskListOptions } from './types';
 
-/**
- * Token 类型常量
- */
+/** Token 类型常量 */
 const TOKEN_TYPES = {
   LIST_ITEM_OPEN: 'list_item_open',
   LIST_ITEM_CLOSE: 'list_item_close',
@@ -26,25 +23,16 @@ const TOKEN_TYPES = {
   TEXT: 'text'
 } as const;
 
-/**
- * 任务列表信息标记常量
- */
+/** 任务列表信息标记常量 */
 const TASK_INFO = {
   CHECKED: 'task-checked',
   UNCHECKED: 'task-unchecked'
 } as const;
 
-/**
- * 任务列表标记的正则表达式
- * 匹配 [ ] 或 [x] 或 [X] 在段落开头
- * 注意：\s* 允许标记后没有空格（支持空任务列表项）
- */
+/** 任务列表标记的正则表达式 匹配 [ ] 或 [x] 或 [X] 在段落开头 注意：\s* 允许标记后没有空格（支持空任务列表项） */
 const TASK_LIST_ITEM_REGEX = /^\[([ xX])\]\s*/;
 
-/**
- * 安全的 CSS 类名验证正则
- * 只允许字母、数字、连字符和下划线，防止 XSS 注入
- */
+/** 安全的 CSS 类名验证正则 只允许字母、数字、连字符和下划线，防止 XSS 注入 */
 const SAFE_CLASS_NAME_REGEX = /^[a-zA-Z][a-zA-Z0-9_-]*$/;
 
 /**
@@ -57,17 +45,13 @@ function isSafeClassName(className: string): boolean {
   return SAFE_CLASS_NAME_REGEX.test(className);
 }
 
-/**
- * Token 查找结果接口
- */
+/** Token 查找结果接口 */
 interface TokenSearchResult {
   paragraphOpenIdx: number;
   inlineIdx: number;
 }
 
-/**
- * 任务列表项检测结果接口
- */
+/** 任务列表项检测结果接口 */
 interface TaskListItemResult {
   isTask: boolean;
   checked: boolean;
@@ -306,10 +290,7 @@ function processTaskListItem(
   return index + 1;
 }
 
-/**
- * 核心规则：处理任务列表
- * 在 token 流中插入 html_inline token（checkbox）
- */
+/** 核心规则：处理任务列表 在 token 流中插入 html_inline token（checkbox） */
 function taskListsRule(state: StateCore, options: Required<TaskListOptions>): boolean {
   const tokens = state.tokens;
   let i = 0;
@@ -375,7 +356,5 @@ export default function markdownItTaskLists(md: MarkdownIt, userOptions?: TaskLi
   });
 }
 
-/**
- * 导出类型
- */
+/** 导出类型 */
 export type { TaskListOptions } from './types';

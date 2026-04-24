@@ -1,6 +1,4 @@
-/**
- * Dialog type definitions for AI Workflow
- */
+/** Dialog type definitions for AI Workflow */
 
 /** 工作流表单数据 */
 export interface WorkflowFormData {

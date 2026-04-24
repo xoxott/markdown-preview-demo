@@ -4,15 +4,13 @@
  * 提供节点状态计算和缓存功能，避免不必要的重新渲染
  */
 
-import { computed, type Ref } from 'vue';
+import { type Ref, computed } from 'vue';
 import { createCache } from '../utils/cache-utils';
 import { useCachedSet } from '../utils/set-utils';
 import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
 import type { FlowNode } from '../types';
 
-/**
- * 节点状态
- */
+/** 节点状态 */
 export interface NodeState {
   /** 是否选中 */
   selected: boolean;
@@ -24,9 +22,7 @@ export interface NodeState {
   dragging: boolean;
 }
 
-/**
- * 节点状态 Hook 选项
- */
+/** 节点状态 Hook 选项 */
 export interface UseNodeStateOptions {
   /** 节点列表 */
   nodes: Ref<FlowNode[]>;
@@ -38,9 +34,7 @@ export interface UseNodeStateOptions {
   draggingNodeId?: Ref<string | null>;
 }
 
-/**
- * 节点状态 Hook 返回值
- */
+/** 节点状态 Hook 返回值 */
 export interface UseNodeStateReturn {
   /** 获取节点状态（带缓存） */
   getNodeState: (node: FlowNode) => NodeState;
@@ -53,20 +47,20 @@ export interface UseNodeStateReturn {
  *
  * 自动计算节点状态并缓存，避免不必要的重新渲染
  *
+ * @example
+ *   ```typescript
+ *   const { getNodeState } = useNodeState({
+ *     nodes: nodesRef,
+ *     selectedNodeIds: selectedNodeIdsRef,
+ *     lockedNodeIds: lockedNodeIdsRef,
+ *     draggingNodeId: draggingNodeIdRef
+ *   });
+ *
+ *   const state = getNodeState(node);
+ *   ```;
+ *
  * @param options Hook 选项
  * @returns 节点状态相关功能
- *
- * @example
- * ```typescript
- * const { getNodeState } = useNodeState({
- *   nodes: nodesRef,
- *   selectedNodeIds: selectedNodeIdsRef,
- *   lockedNodeIds: lockedNodeIdsRef,
- *   draggingNodeId: draggingNodeIdRef
- * });
- *
- * const state = getNodeState(node);
- * ```
  */
 export function useNodeState(options: UseNodeStateOptions): UseNodeStateReturn {
   const { nodes, selectedNodeIds, lockedNodeIds, draggingNodeId } = options;
@@ -139,9 +133,7 @@ export function useNodeState(options: UseNodeStateOptions): UseNodeStateReturn {
     return state;
   };
 
-  /**
-   * 清除缓存
-   */
+  /** 清除缓存 */
   const clearCache = () => {
     stateCache.clear();
   };

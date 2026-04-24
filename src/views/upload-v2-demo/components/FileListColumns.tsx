@@ -20,9 +20,7 @@ export interface FileListColumnUtils {
   getStatusText: (status: UploadStatus) => string;
 }
 
-/**
- * 创建文件列表表格列定义
- */
+/** 创建文件列表表格列定义 */
 export function createFileListColumns(
   handlers: FileListColumnHandlers,
   utils: FileListColumnUtils

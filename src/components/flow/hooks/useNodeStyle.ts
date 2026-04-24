@@ -4,16 +4,13 @@
  * 提供节点样式计算和缓存功能，避免不必要的 DOM 更新
  */
 
-import type { CSSProperties } from 'vue';
-import { type Ref, computed, watch } from 'vue';
+import type { CSSProperties, type Ref, computed, watch } from 'vue';
 import { PERFORMANCE_CONSTANTS } from '../constants/performance-constants';
-import type { FlowNode, FlowConfig } from '../types';
+import type { FlowConfig, FlowNode } from '../types';
 import { createCache } from '../utils/cache-utils';
 import { useCachedSet } from '../utils/set-utils';
 
-/**
- * 节点样式 Hook 选项
- */
+/** 节点样式 Hook 选项 */
 export interface UseNodeStyleOptions {
   /** 节点列表 */
   nodes: Ref<FlowNode[]>;
@@ -31,9 +28,7 @@ export interface UseNodeStyleOptions {
   config?: Ref<Readonly<FlowConfig> | undefined>;
 }
 
-/**
- * 节点样式 Hook 返回值
- */
+/** 节点样式 Hook 返回值 */
 export interface UseNodeStyleReturn {
   /** 获取节点样式（带缓存） */
   getNodeStyle: (node: FlowNode) => CSSProperties;
@@ -46,19 +41,19 @@ export interface UseNodeStyleReturn {
  *
  * 自动计算节点样式并缓存，避免不必要的 DOM 更新
  *
+ * @example
+ *   ```typescript
+ *   const { getNodeStyle } = useNodeStyle({
+ *     nodes: nodesRef,
+ *     selectedNodeIds: selectedNodeIdsRef,
+ *     draggingNodeId: draggingNodeIdRef
+ *   });
+ *
+ *   const style = getNodeStyle(node);
+ *   ```;
+ *
  * @param options Hook 选项
  * @returns 节点样式相关功能
- *
- * @example
- * ```typescript
- * const { getNodeStyle } = useNodeStyle({
- *   nodes: nodesRef,
- *   selectedNodeIds: selectedNodeIdsRef,
- *   draggingNodeId: draggingNodeIdRef
- * });
- *
- * const style = getNodeStyle(node);
- * ```
  */
 export function useNodeStyle(options: UseNodeStyleOptions): UseNodeStyleReturn {
   const {
@@ -198,9 +193,7 @@ export function useNodeStyle(options: UseNodeStyleOptions): UseNodeStyleReturn {
     return style;
   };
 
-  /**
-   * 清除缓存
-   */
+  /** 清除缓存 */
   const clearCache = () => {
     styleCache.clear();
   };

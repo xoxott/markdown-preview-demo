@@ -1,7 +1,5 @@
-/**
- * TimeEstimator 测试
- */
-import { describe, expect, it, beforeEach } from 'vitest';
+/** TimeEstimator 测试 */
+import { beforeEach, describe, expect, it } from 'vitest';
 import { TimeEstimator } from '../../calculators/TimeEstimator';
 
 describe('TimeEstimator', () => {

@@ -1,6 +1,4 @@
-/**
- * Common API types
- */
+/** Common API types */
 
 declare namespace Api {
   /**
@@ -20,8 +18,8 @@ declare namespace Api {
   }
 
   /**
-   * List data format (after transformBackendResponse)
-   * This is what you get from request<ListResponse<T>>().data
+   * List data format (after transformBackendResponse) This is what you get from
+   * request<ListResponse<T>>().data
    *
    * @template T Item type in lists array
    */
@@ -46,8 +44,8 @@ declare namespace Api {
   }
 
   /**
-   * Unified list response format (raw API response)
-   * After transformBackendResponse, you get ListData<T>
+   * Unified list response format (raw API response) After transformBackendResponse, you get
+   * ListData<T>
    *
    * @template T Item type in lists array
    */
@@ -87,9 +85,7 @@ declare namespace Api {
     };
   }
 
-  /**
-   * Error response format
-   */
+  /** Error response format */
   interface ErrorResponse {
     /** Business error code (1xxx-5xxx range) */
     code: number;

@@ -8,9 +8,7 @@ import type { FlowEdge } from '../../types/flow-edge';
 import type { FlowNode } from '../../types/flow-node';
 import type { FlowViewport } from '../../types/flow-config';
 
-/**
- * Canvas 渲染选项
- */
+/** Canvas 渲染选项 */
 export interface CanvasRenderOptions {
   /** 是否启用 Canvas 渲染 */
   enabled?: boolean;
@@ -22,9 +20,7 @@ export interface CanvasRenderOptions {
   clickAreaWidth?: number;
 }
 
-/**
- * Canvas 渲染器
- */
+/** Canvas 渲染器 */
 export class CanvasRenderer {
   /** Canvas 元素 */
   private canvas: HTMLCanvasElement | null = null;
@@ -53,9 +49,7 @@ export class CanvasRenderer {
     });
   }
 
-  /**
-   * 设置渲染选项
-   */
+  /** 设置渲染选项 */
   setOptions(options: Partial<CanvasRenderOptions>): void {
     this.options = { ...this.options, ...options };
   }
@@ -207,17 +201,15 @@ export class CanvasRenderer {
   private colorToNumber(color: string): number {
     const match = color.match(/rgb\((\d+),(\d+),(\d+)\)/);
     if (match) {
-      const r = parseInt(match[1]);
-      const g = parseInt(match[2]);
-      const b = parseInt(match[3]);
+      const r = Number.parseInt(match[1]);
+      const g = Number.parseInt(match[2]);
+      const b = Number.parseInt(match[3]);
       return (r << 16) | (g << 8) | b;
     }
     return 0;
   }
 
-  /**
-   * 清理资源
-   */
+  /** 清理资源 */
   cleanup(): void {
     this.clickMap.clear();
     if (this.ctx) {

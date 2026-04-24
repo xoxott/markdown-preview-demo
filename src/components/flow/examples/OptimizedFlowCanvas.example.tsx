@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, onMounted, onUnmounted } from 'vue';
+import { computed, defineComponent, onMounted, onUnmounted, ref } from 'vue';
 import type { FlowNode, FlowViewport } from '../types';
 import { SpatialIndex } from '../core/performance/SpatialIndex';
 import { createPositionPool } from '../core/performance/ObjectPool';
@@ -11,6 +11,7 @@ import './OptimizedFlowCanvas.example.css';
  * 优化后的 Flow Canvas 示例（TSX 版本）
  *
  * 展示的优化特性：
+ *
  * - 空间索引 (SpatialIndex) - 视口裁剪优化
  * - 对象池 (ObjectPool) - 减少 GC 压力
  * - 命令模式 (CommandManager) - 高效的撤销/重做
@@ -48,9 +49,7 @@ export default defineComponent({
     // 计算属性
     // ============================================
 
-    /**
-     * 可见节点（使用空间索引优化）
-     */
+    /** 可见节点（使用空间索引优化） */
     const visibleNodes = computed(() => {
       if (nodes.value.length === 0) return [];
 
@@ -70,15 +69,11 @@ export default defineComponent({
       return spatialIndex.query(bounds);
     });
 
-    /**
-     * 撤销/重做状态
-     */
+    /** 撤销/重做状态 */
     const canUndo = computed(() => commandManager.canUndo());
     const canRedo = computed(() => commandManager.canRedo());
 
-    /**
-     * 性能统计
-     */
+    /** 性能统计 */
     const performanceStats = computed(() => {
       return {
         totalNodes: nodes.value.length,
@@ -95,9 +90,7 @@ export default defineComponent({
     // 方法
     // ============================================
 
-    /**
-     * 移动节点（使用对象池和命令模式）
-     */
+    /** 移动节点（使用对象池和命令模式） */
     const moveNode = (nodeId: string, newX: number, newY: number) => {
       const node = stateStore.getNode(nodeId);
       if (!node) return;
@@ -127,9 +120,7 @@ export default defineComponent({
       }
     };
 
-    /**
-     * 撤销
-     */
+    /** 撤销 */
     const undo = () => {
       if (commandManager.canUndo()) {
         commandManager.undo();
@@ -138,9 +129,7 @@ export default defineComponent({
       }
     };
 
-    /**
-     * 重做
-     */
+    /** 重做 */
     const redo = () => {
       if (commandManager.canRedo()) {
         commandManager.redo();
@@ -149,9 +138,7 @@ export default defineComponent({
       }
     };
 
-    /**
-     * 添加随机节点
-     */
+    /** 添加随机节点 */
     const addRandomNode = () => {
       const newNode: FlowNode = {
         id: `node-${Date.now()}`,
@@ -168,9 +155,7 @@ export default defineComponent({
       spatialIndex.updateNodes(nodes.value);
     };
 
-    /**
-     * 清空所有节点
-     */
+    /** 清空所有节点 */
     const clearAllNodes = () => {
       nodes.value = [];
       stateStore.setNodes([]);
@@ -178,9 +163,7 @@ export default defineComponent({
       commandManager.clear();
     };
 
-    /**
-     * 运行性能测试
-     */
+    /** 运行性能测试 */
     const runPerformanceTest = () => {
       console.log('=== 性能测试开始 ===');
 
@@ -232,9 +215,7 @@ export default defineComponent({
     // 事件处理
     // ============================================
 
-    /**
-     * 节点鼠标按下
-     */
+    /** 节点鼠标按下 */
     const handleNodeMouseDown = (node: FlowNode, event: MouseEvent) => {
       isDragging.value = true;
       dragNodeId.value = node.id;
@@ -250,9 +231,7 @@ export default defineComponent({
       }
     };
 
-    /**
-     * 画布鼠标移动
-     */
+    /** 画布鼠标移动 */
     const handleCanvasMouseMove = (event: MouseEvent) => {
       if (!isDragging.value || !dragNodeId.value) return;
 
@@ -275,26 +254,20 @@ export default defineComponent({
       }
     };
 
-    /**
-     * 画布鼠标松开
-     */
+    /** 画布鼠标松开 */
     const handleCanvasMouseUp = () => {
       isDragging.value = false;
       dragNodeId.value = null;
     };
 
-    /**
-     * 画布鼠标按下
-     */
+    /** 画布鼠标按下 */
     const handleCanvasMouseDown = (event: MouseEvent) => {
       if (event.target === canvasRef.value) {
         selectedNodeId.value = null;
       }
     };
 
-    /**
-     * 键盘事件
-     */
+    /** 键盘事件 */
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.ctrlKey || event.metaKey) {
         if (event.key === 'z') {

@@ -91,9 +91,7 @@ export function fetchToggleUserStatus(id: number, isActive: boolean) {
   });
 }
 
-/**
- * Get role list
- */
+/** Get role list */
 export function fetchRoleList() {
   return request<Api.UserManagement.RoleListResponse>({
     url: '/api/admin/roles',

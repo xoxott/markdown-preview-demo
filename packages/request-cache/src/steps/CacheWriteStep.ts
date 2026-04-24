@@ -1,16 +1,12 @@
-/**
- * 缓存写入步骤
- */
+/** 缓存写入步骤 */
 
-import type { RequestStep, RequestContext } from '@suga/request-core';
-import type { CachePolicy, CacheConfig } from '../policies';
+import type { RequestContext, RequestStep } from '@suga/request-core';
+import type { CacheConfig, CachePolicy } from '../policies';
 import { createCachePolicy } from '../policies';
 import { RequestCacheManager } from '../managers/RequestCacheManager';
 import type { CacheWriteStepOptions } from '../types/steps';
 
-/**
- * 缓存写入步骤
- */
+/** 缓存写入步骤 */
 export class CacheWriteStep implements RequestStep {
   private requestCacheManager: RequestCacheManager;
   private policyFactory: (cache?: CacheConfig) => CachePolicy;

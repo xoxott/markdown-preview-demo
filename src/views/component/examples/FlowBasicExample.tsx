@@ -1,12 +1,9 @@
-/**
- * Flow 示例 1: 基础使用
- */
+/** Flow 示例 1: 基础使用 */
 
 import { defineComponent, ref } from 'vue';
-import { NCard, NH3, NText } from 'naive-ui';
-import { useMessage } from 'naive-ui';
+import { NCard, NH3, NText, useMessage } from 'naive-ui';
 import FlowCanvas from '@/components/flow/components/FlowCanvas';
-import type { FlowNode, FlowEdge } from '@/components/flow';
+import type { FlowEdge, FlowNode } from '@/components/flow';
 
 export default defineComponent({
   name: 'FlowBasicExample',
@@ -73,7 +70,7 @@ export default defineComponent({
     return () => (
       <NCard bordered>
         <NH3 class="border-b pb-2 text-lg font-semibold">Flow 示例 1: 基础使用</NH3>
-        <NText class="text-gray-500 mb-4 block">
+        <NText class="mb-4 block text-gray-500">
           最基本的 Flow 画布，包含节点和连接线，支持点击和连接事件
         </NText>
         <div style={{ height: '300px', border: '1px solid #e0e0e0', borderRadius: '4px' }}>

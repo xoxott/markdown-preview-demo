@@ -1,18 +1,18 @@
-import { defineComponent, ref, onMounted, onBeforeUnmount, computed, watch } from 'vue';
-import { NCard, NGrid, NGi, NAlert, NSpin, NSpace, NButton, NProgress } from 'naive-ui';
+import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { NAlert, NButton, NCard, NGi, NGrid, NProgress, NSpace, NSpin } from 'naive-ui';
 import { useMonitoringSSE } from '@/hooks/monitoring/useMonitoringSSE';
 import {
-  MemoryUsageCard,
+  formatTimestamp,
+  formatUptime,
+  getCpuUsageColor,
+  getMemoryUsageColor
+} from '@/utils/monitoring';
+import {
   CPUUsageCard,
   HealthCheckDrawer,
+  MemoryUsageCard,
   SystemMonitoringDrawer
 } from '@/components/monitoring';
-import {
-  formatUptime,
-  formatTimestamp,
-  getMemoryUsageColor,
-  getCpuUsageColor
-} from '@/utils/monitoring';
 
 export default defineComponent({
   name: 'MonitoringDashboard',
@@ -154,7 +154,7 @@ export default defineComponent({
     // Calculate CPU usage percent
     const cpuUsagePercent = computed(() => {
       if (systemInfo.value?.cpu?.usage?.usage) {
-        return parseFloat(systemInfo.value.cpu.usage.usage);
+        return Number.parseFloat(systemInfo.value.cpu.usage.usage);
       }
       return 0;
     });
@@ -162,7 +162,7 @@ export default defineComponent({
     // Calculate memory usage percent
     const memoryUsagePercent = computed(() => {
       if (systemInfo.value?.memory) {
-        return parseFloat(systemInfo.value.memory.usagePercent || '0');
+        return Number.parseFloat(systemInfo.value.memory.usagePercent || '0');
       }
       if (
         metricsSummary.value?.memory?.heapTotal &&

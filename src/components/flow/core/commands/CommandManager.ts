@@ -6,9 +6,7 @@
 
 import type { Command } from './Command';
 
-/**
- * 命令管理器选项
- */
+/** 命令管理器选项 */
 export interface CommandManagerOptions {
   /** 最大历史记录数量 */
   maxSize?: number;
@@ -16,9 +14,7 @@ export interface CommandManagerOptions {
   enableMerge?: boolean;
 }
 
-/**
- * 命令管理器
- */
+/** 命令管理器 */
 export class CommandManager {
   /** 命令历史 */
   private history: Command[] = [];
@@ -120,9 +116,7 @@ export class CommandManager {
     return this.currentIndex < this.history.length - 1;
   }
 
-  /**
-   * 清空历史记录
-   */
+  /** 清空历史记录 */
   clear(): void {
     this.history = [];
     this.currentIndex = -1;

@@ -1,14 +1,13 @@
 /**
  * 选择管理 Hook
  *
- * 处理节点和连接线的选择功能，基于 FlowSelectionHandler 核心逻辑
- * 提供 Vue 响应式封装
+ * 处理节点和连接线的选择功能，基于 FlowSelectionHandler 核心逻辑 提供 Vue 响应式封装
  */
 
-import { ref, watch, onUnmounted, type Ref } from 'vue';
+import { type Ref, onUnmounted, ref, watch } from 'vue';
 import { FlowSelectionHandler } from '../core/interaction/FlowSelectionHandler';
-import type { FlowNode, FlowEdge, FlowViewport } from '../types';
-import type { SelectionOptions, SelectionBox } from '../core/interaction/FlowSelectionHandler';
+import type { FlowEdge, FlowNode, FlowViewport } from '../types';
+import type { SelectionBox, SelectionOptions } from '../core/interaction/FlowSelectionHandler';
 
 export interface UseSelectionOptions {
   /** 初始选中的节点 ID 列表 */
@@ -70,9 +69,7 @@ export interface UseSelectionReturn {
   shouldBoxSelect: (event: MouseEvent | KeyboardEvent) => boolean;
 }
 
-/**
- * 选择管理 Hook
- */
+/** 选择管理 Hook */
 export function useSelection(options: UseSelectionOptions = {}): UseSelectionReturn {
   const {
     initialSelectedNodeIds = [],

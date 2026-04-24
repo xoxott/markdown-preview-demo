@@ -1,21 +1,4 @@
-import type { AlertFormData } from '@/components/alert-management/dialog';
-import { useAlertDialog } from '@/components/alert-management/useAlertDialog';
-import { useNaiveForm } from '@/hooks/common/form';
-import { useTable } from '@/hooks/common/table';
-import { $t } from '@/locales';
-import {
-  fetchBatchDeleteAlerts,
-  fetchCreateAlert,
-  fetchDeleteAlert,
-  fetchAlertDetail,
-  fetchAlertList,
-  fetchToggleAlertStatus,
-  fetchUpdateAlert,
-  fetchAcknowledgeAlert,
-  fetchResolveAlert
-} from '@/service/api/alert';
-import { fetchUserList } from '@/service/api/user';
-import { fetchRoleList } from '@/service/api/role';
+import { computed, defineComponent, getCurrentInstance, onMounted, reactive, ref } from 'vue';
 import {
   NButton,
   NCard,
@@ -29,7 +12,24 @@ import {
   NTag,
   useMessage
 } from 'naive-ui';
-import { defineComponent, getCurrentInstance, reactive, ref, computed, onMounted } from 'vue';
+import {
+  fetchAcknowledgeAlert,
+  fetchAlertDetail,
+  fetchAlertList,
+  fetchBatchDeleteAlerts,
+  fetchCreateAlert,
+  fetchDeleteAlert,
+  fetchResolveAlert,
+  fetchToggleAlertStatus,
+  fetchUpdateAlert
+} from '@/service/api/alert';
+import { fetchUserList } from '@/service/api/user';
+import { fetchRoleList } from '@/service/api/role';
+import { useNaiveForm } from '@/hooks/common/form';
+import { useTable } from '@/hooks/common/table';
+import type { AlertFormData } from '@/components/alert-management/dialog';
+import { useAlertDialog } from '@/components/alert-management/useAlertDialog';
+import { $t } from '@/locales';
 import { useDialog } from '@/components/base-dialog/useDialog';
 
 type Alert = Api.AlertManagement.Alert;

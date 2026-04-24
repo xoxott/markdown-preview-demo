@@ -4,7 +4,7 @@
  * 负责使用 Canvas 渲染大量连接线，提供更好的性能
  */
 
-import { defineComponent, ref, onMounted, watch, computed, type PropType } from 'vue';
+import { type PropType, computed, defineComponent, onMounted, ref, watch } from 'vue';
 import { useRafThrottle } from '../../hooks/useRafThrottle';
 import type { FlowEdge, FlowViewport } from '../../types';
 import type { EdgePositions } from '../../hooks/useEdgePositions';
@@ -16,9 +16,7 @@ import {
 } from '../../constants/edge-constants';
 import { calculateArrowSize, calculateStrokeWidth } from '../../utils/edge-style-utils';
 
-/**
- * EdgeCanvasRenderer 组件属性
- */
+/** EdgeCanvasRenderer 组件属性 */
 export interface EdgeCanvasRendererProps {
   /** 可见连接线列表 */
   visibleEdges: FlowEdge[];
@@ -32,9 +30,7 @@ export interface EdgeCanvasRendererProps {
   zIndex?: number;
 }
 
-/**
- * 连接线 Canvas 渲染器组件
- */
+/** 连接线 Canvas 渲染器组件 */
 export default defineComponent({
   name: 'EdgeCanvasRenderer',
   props: {
@@ -62,9 +58,7 @@ export default defineComponent({
   setup(props) {
     const canvasRef = ref<HTMLCanvasElement | null>(null);
 
-    /**
-     * 渲染 Canvas
-     */
+    /** 渲染 Canvas */
     const renderCanvas = () => {
       if (!canvasRef.value) {
         return;
@@ -121,8 +115,8 @@ export default defineComponent({
           const dy = endY - startY;
           const length = Math.sqrt(dx * dx + dy * dy);
           if (length > 0) {
-            endX = endX - (dx / length) * ARROW_LENGTH;
-            endY = endY - (dy / length) * ARROW_LENGTH;
+            endX -= (dx / length) * ARROW_LENGTH;
+            endY -= (dy / length) * ARROW_LENGTH;
           }
         }
 
@@ -134,9 +128,7 @@ export default defineComponent({
       });
     };
 
-    /**
-     * 节流渲染函数
-     */
+    /** 节流渲染函数 */
     const renderCanvasThrottled = () => {
       if (canvasRef.value) {
         renderCanvas();

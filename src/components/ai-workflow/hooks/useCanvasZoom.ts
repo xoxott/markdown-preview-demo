@@ -1,4 +1,4 @@
-import { ref, computed, type Ref } from 'vue';
+import { type Ref, computed, ref } from 'vue';
 
 export interface CanvasViewport {
   x: number;

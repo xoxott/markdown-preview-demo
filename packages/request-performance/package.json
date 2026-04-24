@@ -7,44 +7,35 @@
     "email": "212920320@qq.com"
   },
   "license": "MIT",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
-  "exports": {
-    ".": "./src/index.ts"
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "./src/*"
-      ]
-    }
-  },
-  "keywords": [
-    "request",
-    "performance",
-    "monitoring",
-    "metrics",
-    "http",
-    "suga"
-  ],
+  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/request-performance",
   "repository": {
     "type": "git",
     "url": "https://github.com/xoxott/suga-tools.git",
     "directory": "packages/request-performance"
   },
-  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/request-performance",
   "bugs": {
     "url": "https://github.com/xoxott/suga-tools/issues"
   },
+  "keywords": ["request", "performance", "monitoring", "metrics", "http", "suga"],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "typesVersions": {
+    "*": {
+      "*": ["./src/*"]
+    }
+  },
+  "peerDependencies": {},
   "dependencies": {
     "@suga/request-core": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.6.3"
-  },
-  "peerDependencies": {}
+  }
 }

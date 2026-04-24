@@ -1,19 +1,14 @@
-/**
- * 熔断步骤
- * 职责：熔断保护，默认关闭，仅适用于高频/高价值请求
- */
+/** 熔断步骤 职责：熔断保护，默认关闭，仅适用于高频/高价值请求 */
 
-import type { RequestStep, RequestContext } from '@suga/request-core';
-import type { CircuitBreakerOptions, CircuitBreakerBaseOptions } from '../types';
-import { isCircuitBreakerMeta, CircuitBreakerState } from '../types';
+import type { RequestContext, RequestStep } from '@suga/request-core';
+import type { CircuitBreakerBaseOptions, CircuitBreakerOptions } from '../types';
+import { CircuitBreakerState, isCircuitBreakerMeta } from '../types';
 import {
   CircuitBreakerManager,
   type CircuitBreakerManagerOptions
 } from '../managers/CircuitBreakerManager';
 
-/**
- * 熔断步骤配置
- */
+/** 熔断步骤配置 */
 export interface CircuitBreakerStepOptions {
   /** 熔断器管理器实例 */
   circuitBreakerManager?: CircuitBreakerManager;
@@ -21,9 +16,7 @@ export interface CircuitBreakerStepOptions {
   managerOptions?: CircuitBreakerManagerOptions;
 }
 
-/**
- * 解析熔断器配置
- */
+/** 解析熔断器配置 */
 function parseCircuitBreakerConfig<T = unknown>(
   config:
     | boolean
@@ -47,9 +40,7 @@ function parseCircuitBreakerConfig<T = unknown>(
   return undefined;
 }
 
-/**
- * 熔断步骤
- */
+/** 熔断步骤 */
 export class CircuitBreakerStep implements RequestStep {
   private circuitBreakerManager: CircuitBreakerManager;
 

@@ -1,5 +1,5 @@
-import { createDialogInstance } from '@/components/base-dialog/useDialog';
 import type { App } from 'vue';
+import { createDialogInstance } from '@/components/base-dialog/useDialog';
 import type { DialogInstance } from '@/components/base-dialog/dialog';
 import type { RoleFormDialogConfig } from './dialog';
 import RoleFormDialog from './RoleFormDialog';

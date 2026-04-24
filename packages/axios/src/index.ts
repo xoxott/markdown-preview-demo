@@ -48,18 +48,14 @@ function createCommonRequest<ResponseData = any>(
     return handledConfig;
   });
 
-  /**
-   * 检查错误响应是否是业务错误格式（包含 statusCode 和 errorCode）
-   */
+  /** 检查错误响应是否是业务错误格式（包含 statusCode 和 errorCode） */
   function isBusinessErrorResponse(
     data: any
   ): data is { statusCode: number; errorCode?: number | string } {
     return data && typeof data === 'object' && 'statusCode' in data;
   }
 
-  /**
-   * 将 HTTP 401 错误转换为业务错误响应格式，以便复用 onBackendFail 逻辑
-   */
+  /** 将 HTTP 401 错误转换为业务错误响应格式，以便复用 onBackendFail 逻辑 */
   function createBusinessErrorResponse(
     error: AxiosError<ResponseData>
   ): AxiosResponse<ResponseData> | null {

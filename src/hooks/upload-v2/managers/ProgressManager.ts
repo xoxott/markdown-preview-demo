@@ -1,7 +1,4 @@
-/**
- * 进度管理器
- * 负责管理上传进度和速度
- */
+/** 进度管理器 负责管理上传进度和速度 */
 import { ref } from 'vue';
 import { SpeedCalculator } from '../calculators/SpeedCalculator';
 import { TimeEstimator } from '../calculators/TimeEstimator';

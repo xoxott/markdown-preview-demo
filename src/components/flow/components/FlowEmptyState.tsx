@@ -4,11 +4,9 @@
  * 当画布为空时显示的空状态提示
  */
 
-import { defineComponent, type PropType } from 'vue';
+import { type PropType, defineComponent } from 'vue';
 
-/**
- * FlowEmptyState 组件属性
- */
+/** FlowEmptyState 组件属性 */
 export interface FlowEmptyStateProps {
   /** 标题 */
   title?: string;
@@ -25,9 +23,7 @@ export interface FlowEmptyStateProps {
   /** 自定义内容插槽 */
 }
 
-/**
- * Flow 空状态组件
- */
+/** Flow 空状态组件 */
 export default defineComponent({
   name: 'FlowEmptyState',
   props: {

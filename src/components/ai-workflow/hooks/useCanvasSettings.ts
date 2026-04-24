@@ -1,11 +1,9 @@
-/**
- * 画布设置管理 Hook
- */
-import { ref, computed } from 'vue';
+/** 画布设置管理 Hook */
+import { computed, ref } from 'vue';
 import type {
+  CanvasBackground,
   CanvasSettings,
-  ConnectionLineStyle,
-  CanvasBackground
+  ConnectionLineStyle
 } from '../types/canvas-settings';
 import { DEFAULT_CANVAS_SETTINGS } from '../types/canvas-settings';
 

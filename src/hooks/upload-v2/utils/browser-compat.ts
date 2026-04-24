@@ -1,6 +1,4 @@
-/**
- * 浏览器兼容性检测和降级方案
- */
+/** 浏览器兼容性检测和降级方案 */
 
 /** 浏览器特性支持检测 */
 export interface BrowserFeatures {
@@ -22,9 +20,7 @@ export interface CompatibilityResult {
   fallbacks: string[];
 }
 
-/**
- * 检测浏览器特性支持
- */
+/** 检测浏览器特性支持 */
 export function detectBrowserFeatures(): BrowserFeatures {
   return {
     fetch: typeof fetch !== 'undefined',
@@ -38,9 +34,7 @@ export function detectBrowserFeatures(): BrowserFeatures {
   };
 }
 
-/**
- * 检查兼容性
- */
+/** 检查兼容性 */
 export function checkCompatibility(): CompatibilityResult {
   const features = detectBrowserFeatures();
   const warnings: string[] = [];
@@ -98,9 +92,7 @@ export function checkCompatibility(): CompatibilityResult {
   };
 }
 
-/**
- * 获取浏览器信息
- */
+/** 获取浏览器信息 */
 export function getBrowserInfo(): {
   name: string;
   version: string;
@@ -138,12 +130,8 @@ export function getBrowserInfo(): {
   };
 }
 
-/**
- * 输出兼容性警告
- */
-/**
- * 输出兼容性警告（使用 logger）
- */
+/** 输出兼容性警告 */
+/** 输出兼容性警告（使用 logger） */
 export function warnCompatibility(): void {
   const result = checkCompatibility();
   const browserInfo = getBrowserInfo();

@@ -2,7 +2,7 @@ import type { ComputedRef, Ref } from 'vue';
 import { computed, ref } from 'vue';
 import type { FileItem } from '../types/file-explorer';
 import { useDialog } from '../../base-dialog/useDialog';
-import { UseFileDialogReturn } from './useFileDialog';
+import type { UseFileDialogReturn } from './useFileDialog';
 
 export type ClipboardOperation = 'copy' | 'cut' | null;
 

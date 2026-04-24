@@ -1,6 +1,4 @@
-/**
- * Alert Management API types
- */
+/** Alert Management API types */
 
 /// <reference path="./common.d.ts" />
 

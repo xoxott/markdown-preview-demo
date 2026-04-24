@@ -1,6 +1,4 @@
-/**
- * retry-request 测试
- */
+/** retry-request 测试 */
 
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_RETRY_CONFIG } from '../../constants';

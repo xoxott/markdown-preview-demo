@@ -1,8 +1,7 @@
 /**
  * Flow 默认配置
  *
- * 定义所有配置项的默认值
- * 参考 VueFlow/ReactFlow 的最佳实践
+ * 定义所有配置项的默认值 参考 VueFlow/ReactFlow 的最佳实践
  */
 
 import type {
@@ -15,9 +14,7 @@ import type {
   FlowThemeConfig
 } from '../types/flow-config';
 
-/**
- * 默认画布配置
- */
+/** 默认画布配置 */
 export const DEFAULT_CANVAS_CONFIG: FlowCanvasConfig = {
   minZoom: 0.1,
   maxZoom: 4,
@@ -38,9 +35,7 @@ export const DEFAULT_CANVAS_CONFIG: FlowCanvasConfig = {
   zoomOnDoubleClick: false
 };
 
-/**
- * 默认节点配置
- */
+/** 默认节点配置 */
 export const DEFAULT_NODE_CONFIG: FlowNodeConfig = {
   defaultWidth: 220,
   defaultHeight: 72,
@@ -58,9 +53,7 @@ export const DEFAULT_NODE_CONFIG: FlowNodeConfig = {
   elevateOnDragEnd: true // 默认启用，节点过多时可禁用以提升性能
 };
 
-/**
- * 默认连接线配置
- */
+/** 默认连接线配置 */
 export const DEFAULT_EDGE_CONFIG: FlowEdgeConfig = {
   defaultType: 'bezier',
   defaultStrokeWidth: 2.5,
@@ -83,9 +76,7 @@ export const DEFAULT_EDGE_CONFIG: FlowEdgeConfig = {
   renderBehindNodes: true // 默认连接线在节点后面
 };
 
-/**
- * 默认交互配置
- */
+/** 默认交互配置 */
 export const DEFAULT_INTERACTION_CONFIG: FlowInteractionConfig = {
   enableMultiSelection: true,
   multiSelectKey: 'ctrl',
@@ -105,9 +96,7 @@ export const DEFAULT_INTERACTION_CONFIG: FlowInteractionConfig = {
   edgesDeletable: true
 };
 
-/**
- * 默认性能配置
- */
+/** 默认性能配置 */
 export const DEFAULT_PERFORMANCE_CONFIG: FlowPerformanceConfig = {
   enableRAFThrottle: true,
   enableVirtualScroll: false,
@@ -121,9 +110,7 @@ export const DEFAULT_PERFORMANCE_CONFIG: FlowPerformanceConfig = {
   cacheSizeLimit: 100
 };
 
-/**
- * 默认主题配置
- */
+/** 默认主题配置 */
 export const DEFAULT_THEME_CONFIG: FlowThemeConfig = {
   mode: 'light',
   primaryColor: '#2080f0',
@@ -138,9 +125,7 @@ export const DEFAULT_THEME_CONFIG: FlowThemeConfig = {
   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
 };
 
-/**
- * 默认完整配置
- */
+/** 默认完整配置 */
 export const DEFAULT_FLOW_CONFIG: FlowConfig = {
   canvas: DEFAULT_CANVAS_CONFIG,
   nodes: DEFAULT_NODE_CONFIG,

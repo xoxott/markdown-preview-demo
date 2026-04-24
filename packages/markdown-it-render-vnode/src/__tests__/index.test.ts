@@ -3,8 +3,8 @@
 import type { VNode } from 'vue';
 import MarkdownIt from 'markdown-it';
 import { beforeEach, describe, expect, it } from 'vitest';
-import markdownItRenderVnode from '../index';
 import { vueAdapter } from '@suga/markdown-it-render-vnode-vue';
+import markdownItRenderVnode from '../index';
 
 describe('markdownItRenderVnode', () => {
   let md: MarkdownIt;

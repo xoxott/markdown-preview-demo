@@ -1,9 +1,6 @@
-/**
- * StreamingPenEffect Markdown 渲染示例
- * 演示在 Markdown 渲染时笔跟随文字末尾移动的效果
- */
+/** StreamingPenEffect Markdown 渲染示例 演示在 Markdown 渲染时笔跟随文字末尾移动的效果 */
 import { defineComponent, onMounted, ref } from 'vue';
-import { NCard, NH3, NText, NButton } from 'naive-ui';
+import { NButton, NCard, NH3, NText } from 'naive-ui';
 import Markdown from '@/components/markdown';
 
 export default defineComponent({
@@ -181,9 +178,9 @@ $$
 
     return () => (
       <NCard bordered class="shadow-sm">
-        <NH3 class="border-b pb-2 text-lg font-semibold mb-4">✍️ Markdown 流式渲染笔写效果</NH3>
+        <NH3 class="mb-4 border-b pb-2 text-lg font-semibold">✍️ Markdown 流式渲染笔写效果</NH3>
 
-        <NText class="text-gray-500 mb-6 block">
+        <NText class="mb-6 block text-gray-500">
           演示在 Markdown 渲染时，笔跟随文字末尾移动的效果。点击按钮可以重新开始流式渲染。
         </NText>
 
@@ -225,9 +222,9 @@ $$
         </div>
 
         {/* 说明 */}
-        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-          <h4 class="text-sm font-semibold mb-2 text-blue-700">💡 使用说明</h4>
-          <ul class="text-sm text-blue-600 space-y-1 list-disc list-inside">
+        <div class="mt-6 rounded-lg bg-blue-50 p-4">
+          <h4 class="mb-2 text-sm text-blue-700 font-semibold">💡 使用说明</h4>
+          <ul class="list-disc list-inside text-sm text-blue-600 space-y-1">
             <li>笔会自动跟随 Markdown 渲染的文字末尾移动</li>
             <li>支持多行文本，笔会智能定位到当前行的末尾</li>
             <li>流式渲染过程中，笔的位置会实时更新</li>

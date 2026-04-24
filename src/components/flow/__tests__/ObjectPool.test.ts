@@ -1,6 +1,4 @@
-/**
- * ObjectPool 测试
- */
+/** ObjectPool 测试 */
 
 import { ObjectPool, createPositionPool } from '../core/performance/ObjectPool';
 

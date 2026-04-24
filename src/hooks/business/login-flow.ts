@@ -1,9 +1,7 @@
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useAuthStore } from '@/store/modules/auth';
 
-/**
- * Login flow state
- */
+/** Login flow state */
 interface LoginFlowState {
   step: 'step1' | 'step2';
   temporaryToken: string | null;
@@ -12,10 +10,7 @@ interface LoginFlowState {
   expiresIn: number | null;
 }
 
-/**
- * Login flow hook
- * Manages two-step login process
- */
+/** Login flow hook Manages two-step login process */
 export function useLoginFlow() {
   const authStore = useAuthStore();
 
@@ -91,9 +86,7 @@ export function useLoginFlow() {
     return false;
   }
 
-  /**
-   * Reset login flow state
-   */
+  /** Reset login flow state */
   function reset() {
     state.value = {
       step: 'step1',
@@ -104,9 +97,7 @@ export function useLoginFlow() {
     };
   }
 
-  /**
-   * Get risk information
-   */
+  /** Get risk information */
   const riskInfo = computed(() => {
     if (!state.value.riskScore && !state.value.riskFactors) {
       return null;

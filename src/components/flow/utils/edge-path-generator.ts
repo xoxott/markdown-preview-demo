@@ -5,13 +5,11 @@
  */
 
 import { ARROW_SIZES, BEZIER_CONSTANTS, EDGE_TYPES } from '../constants/edge-constants';
-import { calculateArrowSize } from './edge-style-utils';
 import type { EdgePositions } from '../hooks/useEdgePositions';
 import type { FlowEdge, FlowViewport } from '../types';
+import { calculateArrowSize } from './edge-style-utils';
 
-/**
- * 路径生成选项
- */
+/** 路径生成选项 */
 export interface EdgePathGeneratorOptions {
   /** 是否显示箭头 */
   showArrow?: boolean;
@@ -21,9 +19,7 @@ export interface EdgePathGeneratorOptions {
   bezierControlOffset?: number;
 }
 
-/**
- * 路径生成器接口
- */
+/** 路径生成器接口 */
 export interface EdgePathGenerator {
   /**
    * 生成路径
@@ -101,9 +97,7 @@ function calculateBezierTangent(
   return { dx, dy, length };
 }
 
-/**
- * 直线路径生成器
- */
+/** 直线路径生成器 */
 class StraightPathGenerator implements EdgePathGenerator {
   generate(edge: FlowEdge, positions: EdgePositions, options: EdgePathGeneratorOptions): string {
     const startX = positions.sourceHandleX ?? positions.sourceX;
@@ -123,9 +117,7 @@ class StraightPathGenerator implements EdgePathGenerator {
   }
 }
 
-/**
- * 贝塞尔曲线路径生成器
- */
+/** 贝塞尔曲线路径生成器 */
 class BezierPathGenerator implements EdgePathGenerator {
   generate(edge: FlowEdge, positions: EdgePositions, options: EdgePathGeneratorOptions): string {
     const startX = positions.sourceHandleX ?? positions.sourceX;
@@ -170,9 +162,7 @@ class BezierPathGenerator implements EdgePathGenerator {
   }
 }
 
-/**
- * 路径生成器注册表
- */
+/** 路径生成器注册表 */
 const pathGenerators = new Map<string, EdgePathGenerator>([
   [EDGE_TYPES.STRAIGHT, new StraightPathGenerator()],
   [EDGE_TYPES.BEZIER, new BezierPathGenerator()]
@@ -204,18 +194,18 @@ export function getPathGenerator(type?: string): EdgePathGenerator {
 /**
  * 生成连接线路径
  *
+ * @example
+ *   ```typescript
+ *   const path = generateEdgePath(edge, positions, {
+ *     showArrow: true,
+ *     viewport: { zoom: 1.5 }
+ *   });
+ *   ```;
+ *
  * @param edge 连接线数据
  * @param positions 连接线位置信息
  * @param options 生成选项
  * @returns SVG path 字符串
- *
- * @example
- * ```typescript
- * const path = generateEdgePath(edge, positions, {
- *   showArrow: true,
- *   viewport: { zoom: 1.5 }
- * });
- * ```
  */
 export function generateEdgePath(
   edge: FlowEdge,

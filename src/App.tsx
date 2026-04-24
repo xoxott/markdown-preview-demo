@@ -1,7 +1,7 @@
-import { defineComponent, computed } from 'vue';
+import { computed, defineComponent } from 'vue';
+import { RouterView } from 'vue-router';
 import { NConfigProvider, NWatermark, darkTheme } from 'naive-ui';
 import type { WatermarkProps } from 'naive-ui';
-import { RouterView } from 'vue-router';
 import { useAppStore } from './store/modules/app';
 import { useThemeStore } from './store/modules/theme';
 import { naiveDateLocales, naiveLocales } from './locales/naive';

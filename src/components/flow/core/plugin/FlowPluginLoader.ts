@@ -4,15 +4,13 @@
  * 负责插件的注册、加载、卸载、依赖管理等功能
  */
 
-import { FlowConfigManager } from '../../config/FlowConfigManager';
+import type { FlowConfigManager } from '../../config/FlowConfigManager';
 import { logger } from '../../utils/logger';
 import type { FlowPluginConfig, FlowPluginContext } from '../../types/flow-plugin';
-import { FlowEventEmitter } from '../events/FlowEventEmitter';
+import type { FlowEventEmitter } from '../events/FlowEventEmitter';
 import { FlowPluginContextImpl } from './FlowPluginContext';
 
-/**
- * 插件实例
- */
+/** 插件实例 */
 interface PluginInstance {
   /** 插件配置 */
   config: FlowPluginConfig;
@@ -24,9 +22,7 @@ interface PluginInstance {
   installedAt?: number;
 }
 
-/**
- * Flow 插件加载器
- */
+/** Flow 插件加载器 */
 export class FlowPluginLoader {
   /** 插件注册表 */
   private plugins: Map<string, PluginInstance> = new Map();
@@ -267,17 +263,13 @@ export class FlowPluginLoader {
       .map(instance => instance.config.plugin.name);
   }
 
-  /**
-   * 卸载所有插件
-   */
+  /** 卸载所有插件 */
   async uninstallAll(): Promise<void> {
     const pluginNames = Array.from(this.plugins.keys());
     await Promise.all(pluginNames.map(name => this.uninstall(name)));
   }
 
-  /**
-   * 清理所有插件
-   */
+  /** 清理所有插件 */
   async cleanup(): Promise<void> {
     await this.uninstallAll();
     this.plugins.clear();

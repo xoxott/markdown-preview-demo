@@ -4,14 +4,14 @@
  * 高性能计算连接线的屏幕坐标位置
  */
 
-import { computed, type Ref } from 'vue';
+import { type Ref, computed } from 'vue';
 import {
-  NODE_WIDTH,
   NODE_HEIGHT,
-  PORT_SIZE,
+  NODE_WIDTH,
   PORT_GAP,
+  PORT_OFFSET_SCALED,
   PORT_RADIUS,
-  PORT_OFFSET_SCALED
+  PORT_SIZE
 } from '../constants/node-dimensions';
 import type { Viewport } from '../types';
 
@@ -26,9 +26,7 @@ export interface UseConnectionPositionsOptions {
   viewport: Ref<Viewport>;
 }
 
-/**
- * 计算端口的屏幕位置（返回端口圆圈的精确中心点）
- */
+/** 计算端口的屏幕位置（返回端口圆圈的精确中心点） */
 function calculatePortPosition(
   node: Api.Workflow.WorkflowNode,
   portId: string,
@@ -96,6 +94,7 @@ function calculatePortPosition(
  * 连接线位置计算 Hook
  *
  * 优化策略：
+ *
  * 1. 使用预计算的常量
  * 2. 减少对象创建和内存分配
  * 3. 内联计算避免函数调用开销
@@ -105,18 +104,14 @@ function calculatePortPosition(
 export function useConnectionPositions(options: UseConnectionPositionsOptions) {
   const { nodes, connections, viewport } = options;
 
-  /**
-   * 节点映射表缓存
-   */
+  /** 节点映射表缓存 */
   const nodeMapCache = computed(() => {
     const map = new Map<string, Api.Workflow.WorkflowNode>();
     nodes.value.forEach(node => map.set(node.id, node));
     return map;
   });
 
-  /**
-   * 连接线位置计算
-   */
+  /** 连接线位置计算 */
   const connectionPositions = computed(() => {
     const { x: viewX, y: viewY, zoom } = viewport.value;
     const nodeMap = nodeMapCache.value;

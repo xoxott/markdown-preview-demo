@@ -1,6 +1,4 @@
-/**
- * SSE (Server-Sent Events) related types
- */
+/** SSE (Server-Sent Events) related types */
 export namespace SSE {
   /** SSE connection status */
   type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'reconnecting' | 'error';

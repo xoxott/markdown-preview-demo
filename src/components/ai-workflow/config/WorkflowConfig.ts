@@ -263,10 +263,7 @@ export const DEFAULT_WORKFLOW_CONFIG: WorkflowConfig = {
 
 // ==================== 配置管理器 ====================
 
-/**
- * 工作流配置管理器
- * 单例模式，全局共享配置
- */
+/** 工作流配置管理器 单例模式，全局共享配置 */
 export class WorkflowConfigManager {
   private static instance: WorkflowConfigManager;
   private config: WorkflowConfig;
@@ -276,9 +273,7 @@ export class WorkflowConfigManager {
     this.config = this.mergeConfig(DEFAULT_WORKFLOW_CONFIG, initialConfig);
   }
 
-  /**
-   * 获取单例实例
-   */
+  /** 获取单例实例 */
   static getInstance(initialConfig?: DeepPartial<WorkflowConfig>): WorkflowConfigManager {
     if (!WorkflowConfigManager.instance) {
       WorkflowConfigManager.instance = new WorkflowConfigManager(initialConfig);
@@ -286,90 +281,66 @@ export class WorkflowConfigManager {
     return WorkflowConfigManager.instance;
   }
 
-  /**
-   * 获取完整配置
-   */
+  /** 获取完整配置 */
   getConfig(): Readonly<WorkflowConfig> {
     return Object.freeze({ ...this.config });
   }
 
-  /**
-   * 获取节点样式配置
-   */
+  /** 获取节点样式配置 */
   getNodeStyleConfig(): Readonly<NodeStyleConfig> {
     return Object.freeze({ ...this.config.nodeStyle });
   }
 
-  /**
-   * 获取连接线样式配置
-   */
+  /** 获取连接线样式配置 */
   getConnectionStyleConfig(): Readonly<ConnectionStyleConfig> {
     return Object.freeze({ ...this.config.connectionStyle });
   }
 
-  /**
-   * 获取画布配置
-   */
+  /** 获取画布配置 */
   getCanvasStyleConfig(): Readonly<CanvasStyleConfig> {
     return Object.freeze({ ...this.config.canvasStyle });
   }
 
-  /**
-   * 获取交互配置
-   */
+  /** 获取交互配置 */
   getInteractionConfig(): Readonly<InteractionConfig> {
     return Object.freeze({ ...this.config.interaction });
   }
 
-  /**
-   * 获取性能配置
-   */
+  /** 获取性能配置 */
   getPerformanceConfig(): Readonly<PerformanceConfig> {
     return Object.freeze({ ...this.config.performance });
   }
 
-  /**
-   * 获取主题配置
-   */
+  /** 获取主题配置 */
   getThemeConfig(): Readonly<ThemeConfig> {
     return Object.freeze({ ...this.config.theme });
   }
 
-  /**
-   * 更新配置
-   */
+  /** 更新配置 */
   updateConfig(partialConfig: DeepPartial<WorkflowConfig>): void {
     this.config = this.mergeConfig(this.config, partialConfig);
     this.notifyListeners();
   }
 
-  /**
-   * 重置配置为默认值
-   */
+  /** 重置配置为默认值 */
   resetConfig(): void {
     this.config = { ...DEFAULT_WORKFLOW_CONFIG };
     this.notifyListeners();
   }
 
-  /**
-   * 订阅配置变化
-   */
+  /** 订阅配置变化 */
   subscribe(listener: (config: WorkflowConfig) => void): () => void {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
   }
 
-  /**
-   * 通知所有监听器
-   */
+  /** 通知所有监听器 */
   private notifyListeners(): void {
     const config = this.getConfig();
     this.listeners.forEach(listener => listener(config));
   }
 
-  /**
-   * 深度合并配置
-   */
+  /** 深度合并配置 */
   private mergeConfig(
     target: WorkflowConfig,
     source?: DeepPartial<WorkflowConfig>
@@ -379,7 +350,7 @@ export class WorkflowConfigManager {
     const result = { ...target };
 
     for (const key in source) {
-      if (Object.prototype.hasOwnProperty.call(source, key)) {
+      if (Object.hasOwn(source, key)) {
         const sourceValue = source[key as keyof WorkflowConfig];
         const targetValue = target[key as keyof WorkflowConfig];
 

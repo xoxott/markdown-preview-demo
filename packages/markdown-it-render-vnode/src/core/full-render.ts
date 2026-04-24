@@ -8,9 +8,9 @@ import type { FrameworkNode } from '../adapters/types';
 import type { MarkdownRenderer, RenderEnv, RenderOptions, Token } from '../types';
 import { setCurrentRenderer } from '../adapters/manager';
 import { preprocessTokens } from '../token-processor';
+import { incrementRenderPassId } from '../renderers/code-renderer';
 import { addChildToParent, renderInlineContent } from './node-helpers';
 import { parseRuleResult } from './rule-parser';
-import { incrementRenderPassId } from '../renderers/code-renderer';
 
 /**
  * 渲染 Token 数组（核心渲染逻辑，性能优化）

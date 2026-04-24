@@ -1,19 +1,14 @@
-/**
- * 文件处理管道
- * 负责文件添加、验证、处理流程
- */
+/** 文件处理管道 负责文件添加、验证、处理流程 */
 import type { FileUploadOptions } from '../types';
-import { FileService } from '../services/FileService';
-import { TaskService } from '../services/TaskService';
-import { ProgressManager } from './ProgressManager';
-import { TaskStateManager } from './TaskStateManager';
-import { QueueManager } from './QueueManager';
+import type { FileService } from '../services/FileService';
+import type { TaskService } from '../services/TaskService';
 import { logger } from '../utils/logger';
 import { batchProcess } from '../utils/batch-processor';
+import type { ProgressManager } from './ProgressManager';
+import type { TaskStateManager } from './TaskStateManager';
+import type { QueueManager } from './QueueManager';
 
-/**
- * 文件处理管道
- */
+/** 文件处理管道 */
 export class FileProcessingPipeline {
   constructor(
     private fileService: FileService,
@@ -23,9 +18,7 @@ export class FileProcessingPipeline {
     private queueManager: QueueManager
   ) {}
 
-  /**
-   * 标准化文件输入
-   */
+  /** 标准化文件输入 */
   normalizeFiles(files: File[] | FileList | File): File[] {
     if (files instanceof File) return [files];
     if (files instanceof FileList) return Array.from(files);
@@ -33,9 +26,7 @@ export class FileProcessingPipeline {
     throw new Error('不支持的文件类型');
   }
 
-  /**
-   * 处理文件添加流程
-   */
+  /** 处理文件添加流程 */
   async processFiles(
     files: File[] | FileList | File,
     options: FileUploadOptions,

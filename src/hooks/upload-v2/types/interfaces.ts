@@ -1,6 +1,4 @@
-/**
- * 接口定义
- */
+/** 接口定义 */
 import type { FileTask, MergeResponse } from './task';
 import type { ChunkInfo, ChunkUploadResponse } from './chunk';
 import type { FileUploadOptions } from './config';

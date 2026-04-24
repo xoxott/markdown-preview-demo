@@ -1,12 +1,10 @@
-/**
- * Flow 示例 6: 空状态
- */
+/** Flow 示例 6: 空状态 */
 
 import { defineComponent, ref } from 'vue';
 import { NCard, NH3, NText } from 'naive-ui';
 import FlowCanvas from '@/components/flow/components/FlowCanvas';
 import FlowEmptyState from '@/components/flow/components/FlowEmptyState';
-import type { FlowNode, FlowEdge } from '@/components/flow';
+import type { FlowEdge, FlowNode } from '@/components/flow';
 
 export default defineComponent({
   name: 'FlowEmptyExample',
@@ -17,7 +15,7 @@ export default defineComponent({
     return () => (
       <NCard bordered>
         <NH3 class="border-b pb-2 text-lg font-semibold">Flow 示例 6: 空状态</NH3>
-        <NText class="text-gray-500 mb-4 block">当画布为空时显示的空状态组件</NText>
+        <NText class="mb-4 block text-gray-500">当画布为空时显示的空状态组件</NText>
         <div
           style={{
             height: '300px',

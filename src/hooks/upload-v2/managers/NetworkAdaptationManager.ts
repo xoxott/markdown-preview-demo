@@ -1,25 +1,20 @@
-/**
- * 网络自适应管理器
- * 负责网络监控和性能调整
- */
+/** 网络自适应管理器 负责网络监控和性能调整 */
 import type { ExtendedUploadConfig } from '../types';
 import type { NavigatorWithConnection } from '../types/browser';
-import { NetworkService } from '../services/NetworkService';
-import { ProgressManager } from './ProgressManager';
+import type { NetworkService } from '../services/NetworkService';
 import { logger } from '../utils/logger';
 import { CONSTANTS } from '../constants';
 import {
-  createNetworkAdaptationConfig,
-  updateSpeedHistory,
+  type NetworkAdaptationConfig,
   calculateAverageSpeed,
   canAdjust,
+  createNetworkAdaptationConfig,
   updateAdjustTime,
-  type NetworkAdaptationConfig
+  updateSpeedHistory
 } from '../utils/network-adaptation';
+import type { ProgressManager } from './ProgressManager';
 
-/**
- * 网络自适应管理器
- */
+/** 网络自适应管理器 */
 export class NetworkAdaptationManager {
   private networkAdaptation: NetworkAdaptationConfig;
 
@@ -34,9 +29,7 @@ export class NetworkAdaptationManager {
     );
   }
 
-  /**
-   * 设置网络监控
-   */
+  /** 设置网络监控 */
   setupNetworkMonitoring(): void {
     if (!this.config.enableNetworkAdaptation || !('connection' in navigator)) return;
 
@@ -48,9 +41,7 @@ export class NetworkAdaptationManager {
     }
   }
 
-  /**
-   * 调整性能（基于网络状态）
-   */
+  /** 调整性能（基于网络状态） */
   adjustPerformance(uploadSpeed: number, activeCount: number): void {
     if (!this.config.enableNetworkAdaptation) return;
 

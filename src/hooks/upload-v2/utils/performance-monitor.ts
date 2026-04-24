@@ -1,6 +1,4 @@
-/**
- * 性能监控工具
- */
+/** 性能监控工具 */
 
 /** 性能指标 */
 export interface PerformanceMetrics {
@@ -22,27 +20,21 @@ export interface PerformanceReport {
   timestamp: number;
 }
 
-/**
- * 性能监控器
- */
+/** 性能监控器 */
 class PerformanceMonitor {
   private chunkUploadTimes: number[] = [];
   private networkRequestCount = 0;
   private startTime: number | null = null;
   private maxHistorySize = 1000;
 
-  /**
-   * 开始监控
-   */
+  /** 开始监控 */
   start(): void {
     this.startTime = performance.now();
     this.chunkUploadTimes = [];
     this.networkRequestCount = 0;
   }
 
-  /**
-   * 记录分片上传时间
-   */
+  /** 记录分片上传时间 */
   recordChunkUploadTime(time: number): void {
     this.chunkUploadTimes.push(time);
 
@@ -52,16 +44,12 @@ class PerformanceMonitor {
     }
   }
 
-  /**
-   * 记录网络请求
-   */
+  /** 记录网络请求 */
   recordNetworkRequest(): void {
     this.networkRequestCount++;
   }
 
-  /**
-   * 获取性能指标
-   */
+  /** 获取性能指标 */
   getMetrics(): PerformanceMetrics {
     const totalUploadTime = this.startTime ? performance.now() - this.startTime : 0;
 
@@ -89,9 +77,7 @@ class PerformanceMonitor {
     };
   }
 
-  /**
-   * 生成性能分析报告
-   */
+  /** 生成性能分析报告 */
   generateReport(): PerformanceReport {
     const metrics = this.getMetrics();
     const bottlenecks: string[] = [];
@@ -135,9 +121,7 @@ class PerformanceMonitor {
     };
   }
 
-  /**
-   * 重置监控
-   */
+  /** 重置监控 */
   reset(): void {
     this.startTime = null;
     this.chunkUploadTimes = [];

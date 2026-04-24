@@ -1,27 +1,26 @@
 /**
  * 性能监控工具
  *
- * 用于监控和分析 Flow 组件的性能瓶颈。
- * 可以记录函数执行时间、生成统计报告、识别慢操作等。
+ * 用于监控和分析 Flow 组件的性能瓶颈。 可以记录函数执行时间、生成统计报告、识别慢操作等。
  *
  * @example
- * ```typescript
- * // 在浏览器控制台中使用
- * window.__flowPerformanceMonitor__.enable();
- * // ... 执行一些操作
- * window.__flowPerformanceMonitor__.printReport();
- * ```
+ *   ```typescript
+ *   // 在浏览器控制台中使用
+ *   window.__flowPerformanceMonitor__.enable();
+ *   // ... 执行一些操作
+ *   window.__flowPerformanceMonitor__.printReport();
+ *   ```;
  *
  * @example
- * ```typescript
- * // 使用装饰器自动监控方法
- * class MyClass {
- *   @measurePerformance('myMethod')
- *   myMethod() {
- *     // 方法执行时间会被自动记录
+ *   ```typescript
+ *   // 使用装饰器自动监控方法
+ *   class MyClass {
+ *     @measurePerformance('myMethod')
+ *     myMethod() {
+ *       // 方法执行时间会被自动记录
+ *     }
  *   }
- * }
- * ```
+ *   ```;
  */
 
 /**
@@ -31,9 +30,7 @@
  */
 type PerformanceDetails = Record<string, unknown>;
 
-/**
- * 性能记录条目
- */
+/** 性能记录条目 */
 interface PerformanceEntry {
   /** 操作名称（用于分组统计） */
   name: string;
@@ -45,9 +42,7 @@ interface PerformanceEntry {
   details?: PerformanceDetails;
 }
 
-/**
- * 性能统计信息
- */
+/** 性能统计信息 */
 interface PerformanceStats {
   /** 执行次数 */
   count: number;
@@ -64,8 +59,7 @@ interface PerformanceStats {
 /**
  * 性能监控器类
  *
- * 提供性能数据的收集、统计和分析功能。
- * 使用单例模式，全局共享一个监控实例。
+ * 提供性能数据的收集、统计和分析功能。 使用单例模式，全局共享一个监控实例。
  */
 class PerformanceMonitor {
   /** 性能记录列表（FIFO 队列，限制最大数量） */
@@ -80,13 +74,12 @@ class PerformanceMonitor {
   /**
    * 启用性能监控
    *
-   * 启用后，所有 `record()` 调用才会生效。
-   * 建议在需要性能分析时再启用，避免生产环境产生额外开销。
+   * 启用后，所有 `record()` 调用才会生效。 建议在需要性能分析时再启用，避免生产环境产生额外开销。
    *
    * @example
-   * ```typescript
-   * performanceMonitor.enable();
-   * ```
+   *   ```typescript
+   *   performanceMonitor.enable();
+   *   ```;
    */
   enable(): void {
     this.enabled = true;
@@ -99,9 +92,9 @@ class PerformanceMonitor {
    * 禁用后，`record()` 调用会被忽略，不会产生任何开销。
    *
    * @example
-   * ```typescript
-   * performanceMonitor.disable();
-   * ```
+   *   ```typescript
+   *   performanceMonitor.disable();
+   *   ```;
    */
   disable(): void {
     this.enabled = false;
@@ -113,17 +106,17 @@ class PerformanceMonitor {
    *
    * 记录一个操作的执行时间。如果监控未启用，此调用会被忽略。
    *
+   * @example
+   *   ```typescript
+   *   const start = performance.now();
+   *   // ... 执行操作
+   *   const duration = performance.now() - start;
+   *   performanceMonitor.record('render', duration, { nodeCount: 200 });
+   *   ```;
+   *
    * @param name 操作名称（用于分组统计，如 'render', 'updateViewport'）
    * @param duration 执行耗时（毫秒）
    * @param details 额外详情（可选，用于记录上下文信息，如节点数量、视口状态等）
-   *
-   * @example
-   * ```typescript
-   * const start = performance.now();
-   * // ... 执行操作
-   * const duration = performance.now() - start;
-   * performanceMonitor.record('render', duration, { nodeCount: 200 });
-   * ```
    */
   record(name: string, duration: number, details?: PerformanceDetails): void {
     if (!this.enabled) return;
@@ -145,19 +138,20 @@ class PerformanceMonitor {
    * 获取性能统计
    *
    * 对所有记录进行分组统计，计算每个操作的：
+   *
    * - 执行次数
    * - 总耗时
    * - 平均耗时
    * - 最大耗时
    * - 最小耗时
    *
-   * @returns 统计信息对象，键为操作名称，值为统计信息
-   *
    * @example
-   * ```typescript
-   * const stats = performanceMonitor.getStats();
-   * console.log(stats.render.avg); // 平均耗时
-   * ```
+   *   ```typescript
+   *   const stats = performanceMonitor.getStats();
+   *   console.log(stats.render.avg); // 平均耗时
+   *   ```;
+   *
+   * @returns 统计信息对象，键为操作名称，值为统计信息
    */
   getStats(): Record<string, PerformanceStats> | { message: string } {
     if (this.entries.length === 0) {
@@ -199,15 +193,15 @@ class PerformanceMonitor {
    * 在控制台以表格形式打印性能统计报告，方便查看和分析。
    *
    * @example
-   * ```typescript
-   * performanceMonitor.printReport();
-   * // 输出表格：
-   * // ┌─────────┬───────┬─────────┬───────┬───────┐
-   * // │ name    │ count │ avg     │ max   │ min   │
-   * // ├─────────┼───────┼─────────┼───────┼───────┤
-   * // │ render  │ 100   │ 12.5    │ 25.0  │ 8.0   │
-   * // └─────────┴───────┴─────────┴───────┴───────┘
-   * ```
+   *   ```typescript
+   *   performanceMonitor.printReport();
+   *   // 输出表格：
+   *   // ┌─────────┬───────┬─────────┬───────┬───────┐
+   *   // │ name    │ count │ avg     │ max   │ min   │
+   *   // ├─────────┼───────┼─────────┼───────┼───────┤
+   *   // │ render  │ 100   │ 12.5    │ 25.0  │ 8.0   │
+   *   // └─────────┴───────┴─────────┴───────┴───────┘
+   *   ```;
    */
   printReport(): void {
     const stats = this.getStats();
@@ -222,9 +216,9 @@ class PerformanceMonitor {
    * 清空所有已记录的性能数据，用于重新开始监控。
    *
    * @example
-   * ```typescript
-   * performanceMonitor.clear();
-   * ```
+   *   ```typescript
+   *   performanceMonitor.clear();
+   *   ```;
    */
   clear(): void {
     this.entries = [];
@@ -234,18 +228,17 @@ class PerformanceMonitor {
   /**
    * 获取最近的慢操作
    *
-   * 筛选出耗时超过阈值的操作，按耗时降序排列，返回最慢的 N 个操作。
-   * 用于快速定位性能瓶颈。
+   * 筛选出耗时超过阈值的操作，按耗时降序排列，返回最慢的 N 个操作。 用于快速定位性能瓶颈。
+   *
+   * @example
+   *   ```typescript
+   *   const slowOps = performanceMonitor.getSlowOperations(10, 5);
+   *   // 返回耗时超过 10ms 的最慢 5 个操作
+   *   ```;
    *
    * @param threshold 耗时阈值（毫秒），默认 5ms
    * @param limit 返回数量限制，默认 10
    * @returns 慢操作列表，按耗时降序排列
-   *
-   * @example
-   * ```typescript
-   * const slowOps = performanceMonitor.getSlowOperations(10, 5);
-   * // 返回耗时超过 10ms 的最慢 5 个操作
-   * ```
    */
   getSlowOperations(threshold = 5, limit = 10): PerformanceEntry[] {
     return this.entries
@@ -281,11 +274,11 @@ class PerformanceMonitor {
  * 在开发环境下，可以通过 `window.__flowPerformanceMonitor__` 访问。
  *
  * @example
- * ```typescript
- * // 在浏览器控制台中使用
- * window.__flowPerformanceMonitor__.enable();
- * window.__flowPerformanceMonitor__.printReport();
- * ```
+ *   ```typescript
+ *   // 在浏览器控制台中使用
+ *   window.__flowPerformanceMonitor__.enable();
+ *   window.__flowPerformanceMonitor__.printReport();
+ *   ```;
  */
 export const performanceMonitor = new PerformanceMonitor();
 
@@ -311,23 +304,21 @@ if (import.meta.env.DEV) {
 /**
  * 性能测量装饰器
  *
- * 自动为类方法添加性能监控功能。
- * 方法执行时，会自动记录执行时间到性能监控器。
+ * 自动为类方法添加性能监控功能。 方法执行时，会自动记录执行时间到性能监控器。
+ *
+ * @example
+ *   ```typescript
+ *   class MyClass {
+ *     @measurePerformance('myMethod')
+ *     myMethod() {
+ *       // 方法执行时间会被自动记录
+ *       // 如果耗时超过 5ms，会在控制台输出警告
+ *     }
+ *   }
+ *   ```;
  *
  * @param name 操作名称（用于统计分组）
  * @returns 装饰器函数
- *
- * @example
- * ```typescript
- * class MyClass {
- *   @measurePerformance('myMethod')
- *   myMethod() {
- *     // 方法执行时间会被自动记录
- *     // 如果耗时超过 5ms，会在控制台输出警告
- *   }
- * }
- * ```
- *
  * @note
  * 此装饰器仅适用于类方法，不适用于函数。
  * 如果方法执行时间超过 5ms，会自动在控制台输出警告。

@@ -1,7 +1,4 @@
-/**
- * 时间估算器
- * 用于平滑计算上传剩余时间，避免时间跳跃
- */
+/** 时间估算器 用于平滑计算上传剩余时间，避免时间跳跃 */
 export class TimeEstimator {
   private history: Array<{
     time: number;
@@ -14,9 +11,7 @@ export class TimeEstimator {
 
   private lastEstimatedTime = 0;
 
-  /**
-   * 更新预计时间
-   */
+  /** 更新预计时间 */
   update(remainingSize: number, averageSpeed: number): number {
     if (!Number.isFinite(remainingSize) || remainingSize <= 0) {
       return 0;

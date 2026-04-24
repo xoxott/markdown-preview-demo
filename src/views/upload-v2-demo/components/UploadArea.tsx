@@ -1,16 +1,16 @@
-import { defineComponent, type PropType, ref } from 'vue';
+import { type PropType, defineComponent, ref } from 'vue';
 import { NButton, NCard, NIcon, NTag } from 'naive-ui';
 import {
-  CloudUploadOutline,
-  PlayOutline,
-  PauseOutline,
   CloseCircleOutline,
+  CloudUploadOutline,
+  PauseOutline,
+  PlayOutline,
   RefreshOutline
 } from '@vicons/ionicons5';
-import CustomUpload from '@/components/custom-upload';
-import type { CustomUploadFileInfo } from '@/components/custom-upload';
 import type { UploadConfig } from '@/hooks/upload-v2';
 import { CONSTANTS } from '@/hooks/upload-v2';
+import CustomUpload from '@/components/custom-upload';
+import type { CustomUploadFileInfo } from '@/components/custom-upload';
 
 interface Props {
   settings: Partial<UploadConfig>;

@@ -1,12 +1,10 @@
-/**
- * DedupeStep 测试
- */
+/** DedupeStep 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
-import { DedupeStep } from '../../steps/DedupeStep';
-import { DedupeManager } from '../../managers/DedupeManager';
 import { createRequestContext } from '@suga/request-core';
 import type { NormalizedRequestConfig } from '@suga/request-core';
+import { DedupeStep } from '../../steps/DedupeStep';
+import { DedupeManager } from '../../managers/DedupeManager';
 
 describe('DedupeStep', () => {
   let step: DedupeStep;

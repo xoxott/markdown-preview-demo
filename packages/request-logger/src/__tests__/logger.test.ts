@@ -1,11 +1,9 @@
-/**
- * logger 函数测试
- */
+/** logger 函数测试 */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { logRequest, logResponse, logError } from '../logger';
-import { LoggerManager } from '../managers/LoggerManager';
 import type { NormalizedRequestConfig } from '@suga/request-core';
+import { logError, logRequest, logResponse } from '../logger';
+import { LoggerManager } from '../managers/LoggerManager';
 import type { LogOutput } from '../types';
 
 describe('logger', () => {
@@ -239,7 +237,7 @@ describe('logger', () => {
     it('应该使用 manager 的配置来决定是否记录', () => {
       const disabledManager = new LoggerManager({
         enabled: false,
-        output: output
+        output
       });
       const config: NormalizedRequestConfig = {
         url: '/api/users',
@@ -256,7 +254,7 @@ describe('logger', () => {
     it('应该使用 override 参数覆盖 manager 配置', () => {
       const disabledManager = new LoggerManager({
         enabled: false,
-        output: output
+        output
       });
       const config: NormalizedRequestConfig = {
         url: '/api/users',

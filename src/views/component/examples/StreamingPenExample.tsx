@@ -1,9 +1,6 @@
-/**
- * StreamingPenEffect 组件示例
- * 演示流式文字输出时的笔写效果
- */
-import { defineComponent, ref, onMounted, onBeforeUnmount } from 'vue';
-import { NCard, NH3, NText, NButton, NSpace } from 'naive-ui';
+/** StreamingPenEffect 组件示例 演示流式文字输出时的笔写效果 */
+import { defineComponent, onBeforeUnmount, onMounted, ref } from 'vue';
+import { NButton, NCard, NH3, NSpace, NText } from 'naive-ui';
 import StreamingPenEffect from '@/components/streaming-pen-effect/index';
 
 export default defineComponent({
@@ -28,9 +25,7 @@ export default defineComponent({
 
     let currentTextIndex = 0;
 
-    /**
-     * 模拟流式打字效果
-     */
+    /** 模拟流式打字效果 */
     const startTyping = (text: string) => {
       if (isTyping.value) return;
 
@@ -55,18 +50,14 @@ export default defineComponent({
       type();
     };
 
-    /**
-     * 开始演示
-     */
+    /** 开始演示 */
     const handleStart = () => {
       const text = sampleTexts[currentTextIndex];
       currentTextIndex = (currentTextIndex + 1) % sampleTexts.length;
       startTyping(text);
     };
 
-    /**
-     * 停止演示
-     */
+    /** 停止演示 */
     const handleStop = () => {
       if (typingTimer) {
         clearTimeout(typingTimer);
@@ -75,9 +66,7 @@ export default defineComponent({
       isTyping.value = false;
     };
 
-    /**
-     * 重置
-     */
+    /** 重置 */
     const handleReset = () => {
       handleStop();
       displayText.value = '';
@@ -97,11 +86,11 @@ export default defineComponent({
 
     return () => (
       <NCard bordered class="shadow-sm">
-        <NH3 class="border-b pb-2 text-lg font-semibold mb-4">
+        <NH3 class="mb-4 border-b pb-2 text-lg font-semibold">
           ✍️ 流式文字笔写效果 (Streaming Pen Effect)
         </NH3>
 
-        <NText class="text-gray-500 mb-4 block">
+        <NText class="mb-4 block text-gray-500">
           这是一个模拟 AI
           对话流式响应时的笔写动画效果组件。笔图标会在文字输出时出现，并带有书写动画，让交互更加生动。
         </NText>
@@ -121,7 +110,7 @@ export default defineComponent({
         <div class="demo-container">
           {/* 示例 1: 默认样式 */}
           <div class="demo-section">
-            <h4 class="text-md font-semibold mb-3 text-gray-700">默认样式 - 笔跟随文字</h4>
+            <h4 class="text-md mb-3 text-gray-700 font-semibold">默认样式 - 笔跟随文字</h4>
             <div class="text-box default" style="position: relative;">
               <span class="text-content" ref={textRef1}>
                 {displayText.value}
@@ -137,7 +126,7 @@ export default defineComponent({
 
           {/* 示例 2: 不同颜色 */}
           <div class="demo-section">
-            <h4 class="text-md font-semibold mb-3 text-gray-700">蓝色笔</h4>
+            <h4 class="text-md mb-3 text-gray-700 font-semibold">蓝色笔</h4>
             <div class="text-box blue" style="position: relative;">
               <span class="text-content" ref={textRef2}>
                 {displayText.value}
@@ -153,7 +142,7 @@ export default defineComponent({
 
           {/* 示例 3: 更大的笔 */}
           <div class="demo-section">
-            <h4 class="text-md font-semibold mb-3 text-gray-700">大号笔 (28px)</h4>
+            <h4 class="text-md mb-3 text-gray-700 font-semibold">大号笔 (28px)</h4>
             <div class="text-box green" style="position: relative;">
               <span class="text-content" ref={textRef3}>
                 {displayText.value}
@@ -169,7 +158,7 @@ export default defineComponent({
 
           {/* 示例 4: 紫色笔 */}
           <div class="demo-section">
-            <h4 class="text-md font-semibold mb-3 text-gray-700">紫色笔</h4>
+            <h4 class="text-md mb-3 text-gray-700 font-semibold">紫色笔</h4>
             <div class="text-box purple" style="position: relative;">
               <span class="text-content" ref={textRef4}>
                 {displayText.value}
@@ -185,21 +174,21 @@ export default defineComponent({
         </div>
 
         {/* 使用说明 */}
-        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-          <h4 class="text-sm font-semibold mb-2 text-gray-700">组件 Props:</h4>
+        <div class="mt-6 rounded-lg bg-gray-50 p-4">
+          <h4 class="mb-2 text-sm text-gray-700 font-semibold">组件 Props:</h4>
           <ul class="text-sm text-gray-600 space-y-1">
             <li>
-              <code class="px-1 py-0.5 bg-gray-200 rounded">isWriting</code>:
+              <code class="rounded bg-gray-200 px-1 py-0.5">isWriting</code>:
               是否正在书写（控制显示/隐藏）
             </li>
             <li>
-              <code class="px-1 py-0.5 bg-gray-200 rounded">penColor</code>: 笔的颜色，默认 #92400e
+              <code class="rounded bg-gray-200 px-1 py-0.5">penColor</code>: 笔的颜色，默认 #92400e
             </li>
             <li>
-              <code class="px-1 py-0.5 bg-gray-200 rounded">size</code>: 笔的大小（px），默认 24
+              <code class="rounded bg-gray-200 px-1 py-0.5">size</code>: 笔的大小（px），默认 24
             </li>
             <li>
-              <code class="px-1 py-0.5 bg-gray-200 rounded">targetRef</code>: 文字容器的
+              <code class="rounded bg-gray-200 px-1 py-0.5">targetRef</code>: 文字容器的
               ref（必需，用于追踪位置）
             </li>
           </ul>

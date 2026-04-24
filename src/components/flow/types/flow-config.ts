@@ -1,17 +1,14 @@
 /**
  * Flow 核心配置类型定义
  *
- * 定义图形编辑器的完整配置接口，类似 VueFlow/ReactFlow
- * 支持工作流、流程图等多种场景
+ * 定义图形编辑器的完整配置接口，类似 VueFlow/ReactFlow 支持工作流、流程图等多种场景
  */
 
-import type { FlowNode, FlowNodeType } from './flow-node';
-import type { FlowEdge, FlowEdgeType, FlowEdgePathGenerator } from './flow-edge';
 import type { Component } from 'vue';
+import type { FlowNode, FlowNodeType } from './flow-node';
+import type { FlowEdge, FlowEdgePathGenerator, FlowEdgeType } from './flow-edge';
 
-/**
- * 视口配置
- */
+/** 视口配置 */
 export interface FlowViewport {
   /** 水平偏移 */
   x: number;
@@ -21,14 +18,10 @@ export interface FlowViewport {
   zoom: number;
 }
 
-/**
- * 网格类型
- */
+/** 网格类型 */
 export type FlowGridType = 'dots' | 'lines' | 'cross' | 'none';
 
-/**
- * 画布配置
- */
+/** 画布配置 */
 export interface FlowCanvasConfig {
   /** 最小缩放比例 */
   minZoom?: number;
@@ -68,9 +61,7 @@ export interface FlowCanvasConfig {
   zoomOnDoubleClick?: boolean;
 }
 
-/**
- * 节点配置
- */
+/** 节点配置 */
 export interface FlowNodeConfig {
   /** 默认宽度 */
   defaultWidth?: number;
@@ -104,14 +95,10 @@ export interface FlowNodeConfig {
   elevateOnDragEnd?: boolean;
 }
 
-/**
- * 连接线类型
- */
+/** 连接线类型 */
 export type FlowEdgeTypeName = 'bezier' | 'straight' | 'step' | 'smoothstep' | 'default';
 
-/**
- * 连接线配置
- */
+/** 连接线配置 */
 export interface FlowEdgeConfig {
   /** 默认连接线类型 */
   defaultType?: FlowEdgeTypeName;
@@ -155,9 +142,7 @@ export interface FlowEdgeConfig {
   renderBehindNodes?: boolean;
 }
 
-/**
- * 交互配置
- */
+/** 交互配置 */
 export interface FlowInteractionConfig {
   /** 是否启用多选 */
   enableMultiSelection?: boolean;
@@ -193,9 +178,7 @@ export interface FlowInteractionConfig {
   edgesDeletable?: boolean;
 }
 
-/**
- * 性能配置
- */
+/** 性能配置 */
 export interface FlowPerformanceConfig {
   /** 是否启用 RAF 节流 */
   enableRAFThrottle?: boolean;
@@ -219,9 +202,7 @@ export interface FlowPerformanceConfig {
   cacheSizeLimit?: number;
 }
 
-/**
- * 主题配置
- */
+/** 主题配置 */
 export interface FlowThemeConfig {
   /** 主题模式 */
   mode?: 'light' | 'dark' | 'auto';
@@ -245,9 +226,7 @@ export interface FlowThemeConfig {
   boxShadow?: string;
 }
 
-/**
- * 验证函数类型
- */
+/** 验证函数类型 */
 export type FlowValidationFunction = (
   connection: Partial<FlowEdge>
 ) => boolean | string | Promise<boolean | string>;
@@ -284,9 +263,7 @@ export interface FlowConfig {
   background?: Component | false;
 }
 
-/**
- * 部分配置类型（用于更新配置）
- */
+/** 部分配置类型（用于更新配置） */
 export type PartialFlowConfig = {
   [K in keyof FlowConfig]?: Partial<FlowConfig[K]>;
 };

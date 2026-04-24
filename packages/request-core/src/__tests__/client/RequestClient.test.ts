@@ -1,12 +1,9 @@
-/**
- * RequestClient 测试
- */
+/** RequestClient 测试 */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { RequestClient } from '../../client/RequestClient';
 import type { RequestStep } from '../../steps/RequestStep';
-import type { RequestContext } from '../../context/RequestContext';
-import type { NormalizedRequestConfig } from '../../context/RequestContext';
+import type { NormalizedRequestConfig, RequestContext } from '../../context/RequestContext';
 import { MockTransport } from '../mocks/MockTransport';
 
 describe('RequestClient', () => {

@@ -4,9 +4,7 @@
  * @module types
  */
 
-/**
- * 任务列表插件配置选项
- */
+/** 任务列表插件配置选项 */
 export interface TaskListOptions {
   /** 是否启用交互式复选框（默认 false，禁用时 checkbox 为 disabled 状态） */
   enabled?: boolean;
@@ -21,9 +19,7 @@ export interface TaskListOptions {
   checkboxClass?: string;
 }
 
-/**
- * 默认配置选项
- */
+/** 默认配置选项 */
 export const DEFAULT_OPTIONS: Required<TaskListOptions> = {
   enabled: false,
   listClass: 'contains-task-list',

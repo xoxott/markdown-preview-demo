@@ -1,15 +1,10 @@
-/**
- * 传输步骤（Transport Step）
- * 职责：调用 Transport 执行实际请求
- */
+/** 传输步骤（Transport Step） 职责：调用 Transport 执行实际请求 */
 
-import type { RequestStep } from './RequestStep';
 import type { RequestContext } from '../context/RequestContext';
 import type { Transport } from '../transport/Transport';
+import type { RequestStep } from './RequestStep';
 
-/**
- * 传输步骤
- */
+/** 传输步骤 */
 export class TransportStep implements RequestStep {
   constructor(private readonly transport: Transport) {}
 

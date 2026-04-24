@@ -4,15 +4,13 @@
  * 提供画布的缩略图视图，支持快速导航
  */
 
-import { defineComponent, computed, ref, type PropType, CSSProperties } from 'vue';
+import type { CSSProperties, type PropType, computed, defineComponent, ref } from 'vue';
 import { useEventListener } from '@vueuse/core';
 import { getGpuAccelerationStyle } from '../utils/style-utils';
 import { calculateBounds } from '../utils/math-utils';
-import type { FlowViewport, FlowNode } from '../types';
+import type { FlowNode, FlowViewport } from '../types';
 
-/**
- * FlowMinimap 组件属性
- */
+/** FlowMinimap 组件属性 */
 export interface FlowMinimapProps {
   /** 视口状态 */
   viewport: FlowViewport;
@@ -32,9 +30,7 @@ export interface FlowMinimapProps {
   onViewportChange?: (viewport: FlowViewport) => void;
 }
 
-/**
- * Flow 小地图组件
- */
+/** Flow 小地图组件 */
 export default defineComponent({
   name: 'FlowMinimap',
   props: {

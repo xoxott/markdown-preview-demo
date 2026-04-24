@@ -1,18 +1,9 @@
-import { useNaiveForm } from '@/hooks/common/form';
-import { useTable } from '@/hooks/common/table';
-import { $t } from '@/locales';
-import {
-  fetchBatchDeleteLogs,
-  fetchDeleteLog,
-  fetchLogDetail,
-  fetchLogList,
-  fetchClearLogs
-} from '@/service/api/log';
-import { fetchUserList } from '@/service/api/user';
+import { computed, defineComponent, getCurrentInstance, onMounted, reactive, ref } from 'vue';
 import {
   NButton,
   NCard,
   NDataTable,
+  NDatePicker,
   NForm,
   NFormItem,
   NInput,
@@ -20,10 +11,19 @@ import {
   NSelect,
   NSpace,
   NTag,
-  NDatePicker,
   useMessage
 } from 'naive-ui';
-import { defineComponent, getCurrentInstance, reactive, ref, computed, onMounted } from 'vue';
+import {
+  fetchBatchDeleteLogs,
+  fetchClearLogs,
+  fetchDeleteLog,
+  fetchLogDetail,
+  fetchLogList
+} from '@/service/api/log';
+import { fetchUserList } from '@/service/api/user';
+import { useNaiveForm } from '@/hooks/common/form';
+import { useTable } from '@/hooks/common/table';
+import { $t } from '@/locales';
 import { useDialog } from '@/components/base-dialog/useDialog';
 import BaseDialog from '@/components/base-dialog';
 
@@ -212,7 +212,7 @@ export default defineComponent({
           width: 300,
           render: (row: Log) => {
             const path = row.path || '-';
-            return path.length > 50 ? path.substring(0, 50) + '...' : path;
+            return path.length > 50 ? `${path.substring(0, 50)}...` : path;
           }
         },
         {

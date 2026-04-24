@@ -1,10 +1,8 @@
-/**
- * NoCachePolicy 测试
- */
+/** NoCachePolicy 测试 */
 
 import { describe, expect, it } from 'vitest';
-import { NoCachePolicy } from '../../policies/implementations/NoCachePolicy';
 import type { NormalizedRequestConfig } from '@suga/request-core';
+import { NoCachePolicy } from '../../policies/implementations/NoCachePolicy';
 import type { CacheMeta } from '../../policies/types';
 
 describe('NoCachePolicy', () => {

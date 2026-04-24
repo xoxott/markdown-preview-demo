@@ -2,25 +2,24 @@
  * 数据转换工具
  *
  * 用于在 API 数据和 UI 数据之间转换
+ *
  * - API 数据：需要持久化到后端的业务数据
  * - UI 数据：前端缓存的界面状态，存储在 localStorage
  */
 
+import { localStg } from '@/utils/storage';
 import type {
-  WorkflowNodeWithUI,
-  WorkflowConnectionWithUI,
-  NodeUIData,
   ConnectionUIData,
   LocalWorkflowData,
-  Viewport
+  NodeUIData,
+  Viewport,
+  WorkflowConnectionWithUI,
+  WorkflowNodeWithUI
 } from '../types';
-import { localStg } from '@/utils/storage';
 
 // ==================== 本地存储 Key ====================
 
-/**
- * 获取工作流 UI 数据的存储 Key
- */
+/** 获取工作流 UI 数据的存储 Key */
 function getWorkflowUIStorageKey(workflowId: string): `workflow_ui_${string}` {
   return `workflow_ui_${workflowId}`;
 }
@@ -107,8 +106,7 @@ export function extractConnectionBusinessData(
 /**
  * 保存工作流 UI 数据到本地存储
  *
- * 注意：只保存纯 UI 数据（样式、状态等）
- * 节点位置和视口状态已在后端保存，不需要在这里存储
+ * 注意：只保存纯 UI 数据（样式、状态等） 节点位置和视口状态已在后端保存，不需要在这里存储
  *
  * @param workflowId 工作流 ID
  * @param nodes 节点数据（含 UI）

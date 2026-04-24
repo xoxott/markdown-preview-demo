@@ -1,10 +1,8 @@
-/**
- * ProgressTracker 测试
- */
+/** ProgressTracker 测试 */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProgressTracker, createProgressTracker } from '../ProgressTracker';
-import type { ProgressEvent, ProgressCallback } from '../types';
+import type { ProgressCallback, ProgressEvent } from '../types';
 
 describe('ProgressTracker', () => {
   let tracker: ProgressTracker;

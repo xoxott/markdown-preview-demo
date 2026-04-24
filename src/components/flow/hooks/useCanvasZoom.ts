@@ -20,9 +20,7 @@ export interface UseCanvasZoomOptions {
   onViewportChange?: (viewport: FlowViewport) => void;
 }
 
-/**
- * 画布缩放 Hook
- */
+/** 画布缩放 Hook */
 export function useCanvasZoom(options: UseCanvasZoomOptions) {
   const { config, canvasRef, onZoom, onViewportChange } = options;
 

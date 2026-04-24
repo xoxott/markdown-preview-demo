@@ -1,11 +1,10 @@
 /**
  * 连接创建 Hook
  *
- * 处理连接线的创建和预览
- * 基于 FlowConnectionHandler 核心逻辑，提供 Vue 响应式封装
+ * 处理连接线的创建和预览 基于 FlowConnectionHandler 核心逻辑，提供 Vue 响应式封装
  */
 
-import { ref, watch, onUnmounted, type Ref } from 'vue';
+import { type Ref, onUnmounted, ref, watch } from 'vue';
 import { FlowConnectionHandler } from '../core/interaction/FlowConnectionHandler';
 import type { FlowConfig, FlowEdge, FlowNode } from '../types';
 import type { ConnectionDraft, PreviewPosition } from '../core/interaction/FlowConnectionHandler';
@@ -39,9 +38,7 @@ export interface UseConnectionCreationReturn {
   handleMouseUp: (event: MouseEvent) => void;
 }
 
-/**
- * 连接创建 Hook
- */
+/** 连接创建 Hook */
 export function useConnectionCreation(
   options: UseConnectionCreationOptions
 ): UseConnectionCreationReturn {
@@ -79,9 +76,7 @@ export function useConnectionCreation(
     }
   );
 
-  /**
-   * 处理端口鼠标按下事件
-   */
+  /** 处理端口鼠标按下事件 */
   const handlePortMouseDown = (
     nodeId: string,
     handleId: string,
@@ -99,9 +94,7 @@ export function useConnectionCreation(
     }
   };
 
-  /**
-   * 处理鼠标移动事件（更新预览位置）
-   */
+  /** 处理鼠标移动事件（更新预览位置） */
   const handleMouseMove = (event: MouseEvent) => {
     if (connectionHandler.isConnecting()) {
       connectionHandler.updatePreviewPosition(event);
@@ -109,9 +102,7 @@ export function useConnectionCreation(
     }
   };
 
-  /**
-   * 处理鼠标抬起事件（完成连接）
-   */
+  /** 处理鼠标抬起事件（完成连接） */
   const handleMouseUp = async (event: MouseEvent) => {
     if (!connectionHandler.isConnecting()) {
       return;

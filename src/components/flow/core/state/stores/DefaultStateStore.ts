@@ -1,20 +1,17 @@
 /**
  * 默认状态存储实现（框架无关）
  *
- * 实现 IStateStore 接口，使用普通对象存储状态
- * 不依赖任何框架，可在任何环境中使用
+ * 实现 IStateStore 接口，使用普通对象存储状态 不依赖任何框架，可在任何环境中使用
  */
 
-import type { IStateStore, Unsubscribe, StateChangeType } from '../interfaces/IStateStore';
+import type { IStateStore, StateChangeType, Unsubscribe } from '../interfaces/IStateStore';
 import { incrementalUpdateNodes } from '../utils/incremental-update-utils';
 import { logger } from '../../../utils/logger';
 import type { FlowNode } from '../../../types/flow-node';
 import type { FlowEdge } from '../../../types/flow-edge';
 import type { FlowViewport } from '../../../types/flow-config';
 
-/**
- * 默认状态存储选项
- */
+/** 默认状态存储选项 */
 export interface DefaultStateStoreOptions {
   /** 初始节点列表 */
   nodes?: FlowNode[];
@@ -90,9 +87,7 @@ export class DefaultStateStore implements IStateStore {
     }
   }
 
-  /**
-   * 重建节点索引
-   */
+  /** 重建节点索引 */
   private rebuildNodeIndexes(): void {
     this.nodeIdsSet.clear();
     this.nodesMap.clear();
@@ -104,9 +99,7 @@ export class DefaultStateStore implements IStateStore {
     }
   }
 
-  /**
-   * 重建连接线索引
-   */
+  /** 重建连接线索引 */
   private rebuildEdgeIndexes(): void {
     this.edgeIdsSet.clear();
     this.edgesMap.clear();

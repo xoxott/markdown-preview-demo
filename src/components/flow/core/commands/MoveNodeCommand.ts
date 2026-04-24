@@ -1,14 +1,10 @@
-/**
- * 移动节点命令
- */
+/** 移动节点命令 */
 
-import { BaseCommand, type Command } from './Command';
 import type { FlowPosition } from '../../types/flow-node';
 import type { IStateStore } from '../state/interfaces/IStateStore';
+import { BaseCommand, type Command } from './Command';
 
-/**
- * 移动节点命令
- */
+/** 移动节点命令 */
 export class MoveNodeCommand extends BaseCommand {
   private nodeId: string;
   private oldPosition: FlowPosition;

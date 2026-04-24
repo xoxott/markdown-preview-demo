@@ -1,11 +1,10 @@
 /**
  * 连接线渲染策略
  *
- * 使用策略模式实现不同的连接线渲染方式
- * 支持扩展自定义渲染策略
+ * 使用策略模式实现不同的连接线渲染方式 支持扩展自定义渲染策略
  */
 
-import type { Position, ConnectionRenderStrategy } from '../../types';
+import type { ConnectionRenderStrategy, Position } from '../../types';
 
 export interface ConnectionRenderConfig {
   /** 渲染策略类型 */
@@ -20,15 +19,14 @@ export interface ConnectionRenderConfig {
   [key: string]: any;
 }
 
-/**
- * 连接线渲染策略接口
- */
+/** 连接线渲染策略接口 */
 export interface IConnectionRenderStrategy {
   /** 策略名称 */
   readonly name: ConnectionRenderStrategy;
 
   /**
    * 计算 SVG 路径数据
+   *
    * @param sourcePos 起点位置
    * @param targetPos 终点位置
    * @param config 渲染配置
@@ -42,6 +40,7 @@ export interface IConnectionRenderStrategy {
 
   /**
    * 计算箭头位置和角度（可选）
+   *
    * @param sourcePos 起点位置
    * @param targetPos 终点位置
    * @param config 渲染配置
@@ -54,9 +53,7 @@ export interface IConnectionRenderStrategy {
   ): { x: number; y: number; angle: number };
 }
 
-/**
- * 贝塞尔曲线渲染策略（默认）
- */
+/** 贝塞尔曲线渲染策略（默认） */
 export class BezierConnectionStrategy implements IConnectionRenderStrategy {
   readonly name: ConnectionRenderStrategy = 'bezier';
 
@@ -105,9 +102,7 @@ export class BezierConnectionStrategy implements IConnectionRenderStrategy {
   }
 }
 
-/**
- * 直线渲染策略
- */
+/** 直线渲染策略 */
 export class StraightConnectionStrategy implements IConnectionRenderStrategy {
   readonly name: ConnectionRenderStrategy = 'straight';
 
@@ -131,9 +126,7 @@ export class StraightConnectionStrategy implements IConnectionRenderStrategy {
   }
 }
 
-/**
- * 步进线渲染策略（直角转折）
- */
+/** 步进线渲染策略（直角转折） */
 export class StepConnectionStrategy implements IConnectionRenderStrategy {
   readonly name: ConnectionRenderStrategy = 'step';
 
@@ -159,9 +152,7 @@ export class StepConnectionStrategy implements IConnectionRenderStrategy {
   }
 }
 
-/**
- * 平滑步进线渲染策略（带圆角）
- */
+/** 平滑步进线渲染策略（带圆角） */
 export class SmoothStepConnectionStrategy implements IConnectionRenderStrategy {
   readonly name: ConnectionRenderStrategy = 'smooth-step';
 
@@ -204,10 +195,7 @@ export class SmoothStepConnectionStrategy implements IConnectionRenderStrategy {
   }
 }
 
-/**
- * 自定义连接线渲染策略
- * 允许用户提供自定义的控制点
- */
+/** 自定义连接线渲染策略 允许用户提供自定义的控制点 */
 export class CustomConnectionStrategy implements IConnectionRenderStrategy {
   readonly name: ConnectionRenderStrategy = 'custom';
 
@@ -260,9 +248,7 @@ export class CustomConnectionStrategy implements IConnectionRenderStrategy {
   }
 }
 
-/**
- * 连接线渲染策略管理器
- */
+/** 连接线渲染策略管理器 */
 export class ConnectionRenderStrategyManager {
   private strategies: Map<ConnectionRenderStrategy, IConnectionRenderStrategy> = new Map();
 
@@ -275,30 +261,22 @@ export class ConnectionRenderStrategyManager {
     this.registerStrategy(new CustomConnectionStrategy());
   }
 
-  /**
-   * 注册渲染策略
-   */
+  /** 注册渲染策略 */
   registerStrategy(strategy: IConnectionRenderStrategy): void {
     this.strategies.set(strategy.name, strategy);
   }
 
-  /**
-   * 获取渲染策略
-   */
+  /** 获取渲染策略 */
   getStrategy(name: ConnectionRenderStrategy): IConnectionRenderStrategy | undefined {
     return this.strategies.get(name);
   }
 
-  /**
-   * 获取所有策略名称
-   */
+  /** 获取所有策略名称 */
   getStrategyNames(): ConnectionRenderStrategy[] {
     return Array.from(this.strategies.keys());
   }
 
-  /**
-   * 渲染连接线路径
-   */
+  /** 渲染连接线路径 */
   renderPath(
     strategyName: ConnectionRenderStrategy,
     sourcePos: Position,

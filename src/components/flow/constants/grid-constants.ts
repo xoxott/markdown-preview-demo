@@ -4,9 +4,7 @@
  * 统一管理网格背景渲染相关的所有常量
  */
 
-/**
- * 网格背景常量
- */
+/** 网格背景常量 */
 export const GRID_CONSTANTS = {
   /** 默认网格大小（像素） */
   DEFAULT_GRID_SIZE: 20,
@@ -32,9 +30,7 @@ export const GRID_CONSTANTS = {
   CROSS_LENGTH_RATIO: 0.35
 } as const;
 
-/**
- * 网格类型常量
- */
+/** 网格类型常量 */
 export const GRID_TYPES = {
   /** 点状网格 */
   DOTS: 'dots',
@@ -46,9 +42,7 @@ export const GRID_TYPES = {
   NONE: 'none'
 } as const;
 
-/**
- * SVG 元素 ID 后缀常量
- */
+/** SVG 元素 ID 后缀常量 */
 export const GRID_ELEMENT_ID_SUFFIXES = {
   /** 点状网格圆形元素 ID 后缀 */
   DOT_SHAPE: 'dot-shape',
@@ -62,9 +56,7 @@ export const GRID_ELEMENT_ID_SUFFIXES = {
   CROSS_H: 'cross-h'
 } as const;
 
-/**
- * SVG Pattern 单位常量
- */
+/** SVG Pattern 单位常量 */
 export const SVG_PATTERN_UNITS = {
   /** 使用用户空间单位 */
   USER_SPACE_ON_USE: 'userSpaceOnUse'

@@ -6,25 +6,19 @@
 
 import { z } from 'zod';
 
-/**
- * 位置 Schema
- */
+/** 位置 Schema */
 export const FlowPositionSchema = z.object({
   x: z.number(),
   y: z.number()
 });
 
-/**
- * 尺寸 Schema
- */
+/** 尺寸 Schema */
 export const FlowSizeSchema = z.object({
   width: z.number().positive(),
   height: z.number().positive()
 });
 
-/**
- * 端口/句柄 Schema
- */
+/** 端口/句柄 Schema */
 export const FlowHandleSchema = z.object({
   id: z.string().min(1),
   type: z.enum(['source', 'target']),
@@ -34,9 +28,7 @@ export const FlowHandleSchema = z.object({
   connectable: z.boolean().optional()
 });
 
-/**
- * 节点 Schema
- */
+/** 节点 Schema */
 export const FlowNodeSchema = z.object({
   id: z.string().min(1),
   type: z.string(),
@@ -54,9 +46,7 @@ export const FlowNodeSchema = z.object({
   handles: z.array(FlowHandleSchema).optional()
 });
 
-/**
- * 连接线 Schema
- */
+/** 连接线 Schema */
 export const FlowEdgeSchema = z.object({
   id: z.string().min(1),
   source: z.string().min(1),
@@ -73,18 +63,14 @@ export const FlowEdgeSchema = z.object({
   data: z.any().optional()
 });
 
-/**
- * 视口 Schema
- */
+/** 视口 Schema */
 export const FlowViewportSchema = z.object({
   x: z.number(),
   y: z.number(),
   zoom: z.number().positive()
 });
 
-/**
- * 画布配置 Schema
- */
+/** 画布配置 Schema */
 export const FlowCanvasConfigSchema = z.object({
   minZoom: z.number().min(0.01).max(1).optional(),
   maxZoom: z.number().min(1).max(10).optional(),
@@ -105,9 +91,7 @@ export const FlowCanvasConfigSchema = z.object({
   zoomOnDoubleClick: z.boolean().optional()
 });
 
-/**
- * 节点配置 Schema
- */
+/** 节点配置 Schema */
 export const FlowNodeConfigSchema = z.object({
   defaultWidth: z.number().positive().optional(),
   defaultHeight: z.number().positive().optional(),
@@ -124,9 +108,7 @@ export const FlowNodeConfigSchema = z.object({
   nodeTypes: z.record(z.string(), z.any()).optional()
 });
 
-/**
- * 连接线配置 Schema
- */
+/** 连接线配置 Schema */
 export const FlowEdgeConfigSchema = z.object({
   defaultType: z.enum(['bezier', 'straight', 'step', 'smoothstep', 'smart']).optional(),
   defaultStrokeWidth: z.number().positive().optional(),
@@ -148,9 +130,7 @@ export const FlowEdgeConfigSchema = z.object({
   edgePathGenerators: z.record(z.string(), z.any()).optional()
 });
 
-/**
- * 交互配置 Schema
- */
+/** 交互配置 Schema */
 export const FlowInteractionConfigSchema = z.object({
   enableMultiSelection: z.boolean().optional(),
   multiSelectKey: z.enum(['ctrl', 'shift', 'alt', 'meta']).optional(),
@@ -170,9 +150,7 @@ export const FlowInteractionConfigSchema = z.object({
   edgesDeletable: z.boolean().optional()
 });
 
-/**
- * 性能配置 Schema
- */
+/** 性能配置 Schema */
 export const FlowPerformanceConfigSchema = z.object({
   enableRAFThrottle: z.boolean().optional(),
   enableVirtualScroll: z.boolean().optional(),
@@ -186,9 +164,7 @@ export const FlowPerformanceConfigSchema = z.object({
   cacheSizeLimit: z.number().positive().optional()
 });
 
-/**
- * 主题配置 Schema
- */
+/** 主题配置 Schema */
 export const FlowThemeConfigSchema = z.object({
   mode: z.enum(['light', 'dark', 'auto']).optional(),
   primaryColor: z.string().optional(),
@@ -202,9 +178,7 @@ export const FlowThemeConfigSchema = z.object({
   boxShadow: z.string().optional()
 });
 
-/**
- * 完整配置 Schema
- */
+/** 完整配置 Schema */
 export const FlowConfigSchema = z.object({
   canvas: FlowCanvasConfigSchema.optional(),
   nodes: FlowNodeConfigSchema.optional(),
@@ -214,10 +188,7 @@ export const FlowConfigSchema = z.object({
   theme: FlowThemeConfigSchema.optional()
 });
 
-/**
- * Zod 运行时验证函数（会抛出异常）
- * 用于需要严格验证的场景
- */
+/** Zod 运行时验证函数（会抛出异常） 用于需要严格验证的场景 */
 export function zodValidateNode(node: unknown) {
   return FlowNodeSchema.parse(node);
 }
@@ -230,10 +201,7 @@ export function zodValidateConfig(config: unknown) {
   return FlowConfigSchema.parse(config);
 }
 
-/**
- * Zod 安全验证（不抛出异常）
- * 返回 { success: true, data: T } 或 { success: false, error: ZodError }
- */
+/** Zod 安全验证（不抛出异常） 返回 { success: true, data: T } 或 { success: false, error: ZodError } */
 export function zodSafeValidateNode(node: unknown) {
   return FlowNodeSchema.safeParse(node);
 }

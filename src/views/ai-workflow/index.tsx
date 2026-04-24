@@ -1,4 +1,5 @@
-import { defineComponent, reactive, ref, getCurrentInstance } from 'vue';
+import { defineComponent, getCurrentInstance, reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import {
   NButton,
   NCard,
@@ -11,14 +12,14 @@ import {
   NTag,
   useMessage
 } from 'naive-ui';
-import { useRouter } from 'vue-router';
+import { mockWorkflowApi } from '@/service/api/workflow-mock';
 import { useTable } from '@/hooks/common/table';
 import { useNaiveForm } from '@/hooks/common/form';
 import { useDialog } from '@/components/base-dialog/useDialog';
 import { useWorkflowDialog } from '@/components/ai-workflow/dialogs/useWorkflowDialog';
 import { $t } from '@/locales';
 // 暂时使用 Mock 数据，后续替换为真实 API
-import { mockWorkflowApi } from '@/service/api/workflow-mock';
+import type { WorkflowFormData } from '@/components/ai-workflow/dialogs/dialog';
 
 const {
   fetchWorkflowList,
@@ -32,7 +33,6 @@ const {
   fetchExecuteWorkflow,
   fetchRestoreWorkflowVersion
 } = mockWorkflowApi;
-import type { WorkflowFormData } from '@/components/ai-workflow/dialogs/dialog';
 
 type Workflow = Api.Workflow.Workflow;
 

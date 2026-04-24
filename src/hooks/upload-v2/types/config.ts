@@ -1,6 +1,4 @@
-/**
- * 配置相关类型定义
- */
+/** 配置相关类型定义 */
 import type { FileTask } from './task';
 import type { ChunkUploadTransformer } from './chunk';
 

@@ -19,7 +19,8 @@ declare module 'vue-router' {
      *
      * Route can be accessed if the current user has at least one of the roles
      *
-     * It only works when the route mode is "static", if the route mode is "dynamic", it will be ignored
+     * It only works when the route mode is "static", if the route mode is "dynamic", it will be
+     * ignored
      */
     roles?: string[];
     /** Whether to cache the route */
@@ -27,7 +28,8 @@ declare module 'vue-router' {
     /**
      * Is constant route
      *
-     * when it is set to true, there will be no login verification and no permission verification to access the route
+     * when it is set to true, there will be no login verification and no permission verification to
+     * access the route
      */
     constant?: boolean | null;
     /**
@@ -60,8 +62,8 @@ declare module 'vue-router' {
      */
     activeMenu?: import('@elegant-router/types').RouteKey | null;
     /**
-     * By default, the same route path will use one tab, even with different query, if set true, the route with
-     * different query will use different tabs
+     * By default, the same route path will use one tab, even with different query, if set true, the
+     * route with different query will use different tabs
      */
     multiTab?: boolean | null;
     /** If set, the route will be fixed in tabs, and the value is the order of fixed tabs */

@@ -1,25 +1,18 @@
-/**
- * API 包装工具
- * 简化方法调用，减少重复代码
- */
+/** API 包装工具 简化方法调用，减少重复代码 */
 
-/**
- * 创建方法包装器
- */
+/** 创建方法包装器 */
 export function createMethodWrapper<T extends object>(
   target: T,
   methodName: keyof T
 ): (...args: any[]) => any {
   const method = target[methodName];
   if (typeof method !== 'function') {
-    throw new Error(`Method ${String(methodName)} is not a function`);
+    throw new TypeError(`Method ${String(methodName)} is not a function`);
   }
   return (...args: any[]) => (method as Function).apply(target, args);
 }
 
-/**
- * 批量创建方法包装器
- */
+/** 批量创建方法包装器 */
 export function createMethodWrappers<T extends object>(
   target: T,
   methodNames: ReadonlyArray<keyof T>
@@ -33,9 +26,7 @@ export function createMethodWrappers<T extends object>(
   return wrappers;
 }
 
-/**
- * 创建属性访问器
- */
+/** 创建属性访问器 */
 export function createPropertyAccessor<T extends object>(
   target: T,
   propertyName: keyof T
@@ -43,9 +34,7 @@ export function createPropertyAccessor<T extends object>(
   return target[propertyName];
 }
 
-/**
- * 批量创建属性访问器
- */
+/** 批量创建属性访问器 */
 export function createPropertyAccessors<T extends object>(
   target: T,
   propertyNames: ReadonlyArray<keyof T>

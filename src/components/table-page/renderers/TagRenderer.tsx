@@ -1,5 +1,5 @@
-import { defineComponent, type PropType } from 'vue';
-import { NTag, NSpace, NPopover, NBadge, NText } from 'naive-ui';
+import { type PropType, defineComponent } from 'vue';
+import { NBadge, NPopover, NSpace, NTag, NText } from 'naive-ui';
 import type { TagRendererConfig } from '../types';
 
 export default defineComponent({

@@ -1,13 +1,9 @@
-/**
- * 日志函数
- */
+/** 日志函数 */
 
 import type { NormalizedRequestConfig } from '@suga/request-core';
 import type { LoggerManager } from './managers/LoggerManager';
 
-/**
- * 记录请求日志
- */
+/** 记录请求日志 */
 export function logRequest(
   config: NormalizedRequestConfig,
   loggerManager: LoggerManager,
@@ -36,9 +32,7 @@ export function logRequest(
   }
 }
 
-/**
- * 记录响应日志
- */
+/** 记录响应日志 */
 export function logResponse<T>(
   config: NormalizedRequestConfig,
   result: T,
@@ -59,9 +53,7 @@ export function logResponse<T>(
   output('⏱️  Duration:', `${duration}ms`);
 }
 
-/**
- * 记录错误日志
- */
+/** 记录错误日志 */
 export function logError(
   config: NormalizedRequestConfig,
   error: unknown,

@@ -1,4 +1,5 @@
-import { defineComponent, PropType } from 'vue';
+import type { PropType } from 'vue';
+import { defineComponent } from 'vue';
 import type { ClockLoadingProps } from './types';
 import './index.scss';
 
@@ -10,21 +11,24 @@ export { THEME_COLORS, SPEED_PRESETS, SIZE_PRESETS } from './types';
  * ClockLoading 时钟加载组件
  *
  * @example
- * ```vue
- * <ClockLoading />
- * <ClockLoading :size="80" color="#52c41a" text="加载中" />
- * <ClockLoading :speed="1" :show-text="false" />
- * ```
+ *   ```vue
+ *   <ClockLoading />
+ *   <ClockLoading :size="80" color="#52c41a" text="加载中" />
+ *   <ClockLoading :speed="1" :show-text="false" />
+ *   ```;
  */
 const ClockLoading = defineComponent({
   name: 'ClockLoading',
   props: {
     /**
      * 整体尺寸(px)
-     * @description 控制时钟和文字的总体大小，建议范围 30-150
-     * @default 50
+     *
+     * 控制时钟和文字的总体大小，建议范围 30-150
+     *
      * @example
-     * <ClockLoading :size="80" />
+     *   <ClockLoading :size="80" />
+     *
+     * @default 50
      */
     size: {
       type: Number,
@@ -33,11 +37,14 @@ const ClockLoading = defineComponent({
 
     /**
      * 上方显示的文字
-     * @description 显示在时钟上方的文字，支持中英文，建议不超过6个字符
-     * @default '请稍等'
+     *
+     * 显示在时钟上方的文字，支持中英文，建议不超过6个字符
+     *
      * @example
-     * <ClockLoading text="加载中" />
-     * <ClockLoading text="Loading..." />
+     *   <ClockLoading text="加载中" />
+     *   <ClockLoading text="Loading..." />
+     *
+     * @default '请稍等'
      */
     text: {
       type: String,
@@ -46,12 +53,15 @@ const ClockLoading = defineComponent({
 
     /**
      * 主题颜色
-     * @description 控制秒针、刻度高亮、中心点和文字的颜色，支持任何CSS颜色值(hex、rgb、rgba等)
-     * @default '#4da6ff'
+     *
+     * 控制秒针、刻度高亮、中心点和文字的颜色，支持任何CSS颜色值(hex、rgb、rgba等)
+     *
      * @example
-     * <ClockLoading color="#52c41a" />
-     * <ClockLoading color="rgb(77, 166, 255)" />
-     * <ClockLoading :color="THEME_COLORS.green" />
+     *   <ClockLoading color="#52c41a" />
+     *   <ClockLoading color="rgb(77, 166, 255)" />
+     *   <ClockLoading :color="THEME_COLORS.green" />
+     *
+     * @default '#4da6ff'
      */
     color: {
       type: String,
@@ -60,10 +70,13 @@ const ClockLoading = defineComponent({
 
     /**
      * 是否显示文字
-     * @description 控制是否显示时钟上方的文字，设置为false时只显示时钟
-     * @default true
+     *
+     * 控制是否显示时钟上方的文字，设置为false时只显示时钟
+     *
      * @example
-     * <ClockLoading :show-text="false" />
+     *   <ClockLoading :show-text="false" />
+     *
+     * @default true
      */
     showText: {
       type: Boolean,
@@ -72,13 +85,15 @@ const ClockLoading = defineComponent({
 
     /**
      * 旋转速度(秒/圈)
-     * @description 控制秒针旋转一圈所需的时间，数值越小旋转越快
-     * 范围: 1-10秒，建议使用 1(极速)、2(标准)、4(慢速)
-     * @default 2
+     *
+     * 控制秒针旋转一圈所需的时间，数值越小旋转越快 范围: 1-10秒，建议使用 1(极速)、2(标准)、4(慢速)
+     *
      * @example
-     * <ClockLoading :speed="1" />  <!-- 极速 -->
-     * <ClockLoading :speed="4" />  <!-- 慢速 -->
-     * <ClockLoading :speed="SPEED_PRESETS.fast" />
+     *   <ClockLoading :speed="1" />  <!-- 极速 -->
+     *   <ClockLoading :speed="4" />  <!-- 慢速 -->
+     *   <ClockLoading :speed="SPEED_PRESETS.fast" />
+     *
+     * @default 2
      */
     speed: {
       type: Number,
@@ -88,11 +103,14 @@ const ClockLoading = defineComponent({
 
     /**
      * 背景颜色
-     * @description 当showBackground为true时显示的背景颜色，支持任何CSS颜色值
-     * @default 'transparent'
+     *
+     * 当showBackground为true时显示的背景颜色，支持任何CSS颜色值
+     *
      * @example
-     * <ClockLoading background="rgba(77, 166, 255, 0.1)" />
-     * <ClockLoading background="#f0f0f0" />
+     *   <ClockLoading background="rgba(77, 166, 255, 0.1)" />
+     *   <ClockLoading background="#f0f0f0" />
+     *
+     * @default 'transparent'
      */
     background: {
       type: String,
@@ -101,10 +119,13 @@ const ClockLoading = defineComponent({
 
     /**
      * 是否显示背景
-     * @description 控制是否显示背景色和圆角边框，适合需要突出显示的场景
-     * @default false
+     *
+     * 控制是否显示背景色和圆角边框，适合需要突出显示的场景
+     *
      * @example
-     * <ClockLoading :show-background="true" background="rgba(0,0,0,0.05)" />
+     *   <ClockLoading :show-background="true" background="rgba(0,0,0,0.05)" />
+     *
+     * @default false
      */
     showBackground: {
       type: Boolean,
@@ -113,10 +134,13 @@ const ClockLoading = defineComponent({
 
     /**
      * 自定义容器样式
-     * @description 通过CSS对象自定义最外层容器的样式，会与默认样式合并
-     * @default {}
+     *
+     * 通过CSS对象自定义最外层容器的样式，会与默认样式合并
+     *
      * @example
-     * <ClockLoading :container-style="{ padding: '20px', borderRadius: '12px' }" />
+     *   <ClockLoading :container-style="{ padding: '20px', borderRadius: '12px' }" />
+     *
+     * @default { }
      */
     containerStyle: {
       type: Object as PropType<ClockLoadingProps['containerStyle']>,
@@ -125,10 +149,13 @@ const ClockLoading = defineComponent({
 
     /**
      * 自定义类名
-     * @description 为最外层容器添加自定义CSS类名，可用于进一步样式定制
-     * @default ''
+     *
+     * 为最外层容器添加自定义CSS类名，可用于进一步样式定制
+     *
      * @example
-     * <ClockLoading class-name="my-custom-loading" />
+     *   <ClockLoading class-name="my-custom-loading" />;
+     *
+     * @default ''
      */
     className: {
       type: String,
@@ -137,11 +164,14 @@ const ClockLoading = defineComponent({
 
     /**
      * 表盘背景色
-     * @description 时钟表盘的背景颜色，默认白色，深色主题建议使用深色
-     * @default '#ffffff'
+     *
+     * 时钟表盘的背景颜色，默认白色，深色主题建议使用深色
+     *
      * @example
-     * <ClockLoading clock-bg="#1e1e1e" />  <!-- 深色主题 -->
-     * <ClockLoading clock-bg="#f5f5f5" />  <!-- 浅灰主题 -->
+     *   <ClockLoading clock-bg="#1e1e1e" />  <!-- 深色主题 -->
+     *   <ClockLoading clock-bg="#f5f5f5" />  <!-- 浅灰主题 -->
+     *
+     * @default '#ffffff'
      */
     clockBg: {
       type: String,
@@ -150,11 +180,14 @@ const ClockLoading = defineComponent({
 
     /**
      * 表盘边框色
-     * @description 时钟表盘的边框颜色，默认浅灰色
-     * @default '#d0d0d0'
+     *
+     * 时钟表盘的边框颜色，默认浅灰色
+     *
      * @example
-     * <ClockLoading clock-border="#333333" />  <!-- 深色边框 -->
-     * <ClockLoading clock-border="#4da6ff" />  <!-- 主题色边框 -->
+     *   <ClockLoading clock-border="#333333" />  <!-- 深色边框 -->
+     *   <ClockLoading clock-border="#4da6ff" />  <!-- 主题色边框 -->
+     *
+     * @default '#d0d0d0'
      */
     clockBorder: {
       type: String,
@@ -178,14 +211,17 @@ const ClockLoading = defineComponent({
 
     /**
      * 计算刻度动画延迟时间
-     * @description 根据刻度位置计算动画延迟，确保刻度闪烁与秒针位置完美同步
+     *
+     * 根据刻度位置计算动画延迟，确保刻度闪烁与秒针位置完美同步
+     *
+     * @example
+     *   getTickDelay(0); // "0s" - 12点位置，立即开始
+     *   getTickDelay(1); // "0.5s" - 3点位置，延迟0.5秒(当speed=2时)
+     *   getTickDelay(2); // "1s" - 6点位置，延迟1秒
+     *   getTickDelay(3); // "1.5s" - 9点位置，延迟1.5秒
+     *
      * @param position 刻度位置: 0=12点, 1=3点, 2=6点, 3=9点
      * @returns 动画延迟时间字符串，格式: "Xs"
-     * @example
-     * getTickDelay(0) // "0s" - 12点位置，立即开始
-     * getTickDelay(1) // "0.5s" - 3点位置，延迟0.5秒(当speed=2时)
-     * getTickDelay(2) // "1s" - 6点位置，延迟1秒
-     * getTickDelay(3) // "1.5s" - 9点位置，延迟1.5秒
      */
     const getTickDelay = (position: number) => {
       // 公式: delay = (speed × position) / 4
@@ -209,11 +245,11 @@ const ClockLoading = defineComponent({
         */}
         {showText && (
           <div
-            class="flex font-bold mb-2"
+            class="mb-2 flex font-bold"
             style={{
               // 字体大小根据组件尺寸动态计算，保持比例协调
               fontSize: `${size * 0.28}px`,
-              color: color,
+              color,
               // 字间距优化，提升可读性
               letterSpacing: '0.05em',
               // 文字阴影，使用主题色增强视觉层次
@@ -249,8 +285,8 @@ const ClockLoading = defineComponent({
           class="clock-svg-wrapper"
           style={
             {
-              'width': size + 'px',
-              'height': size + 'px',
+              'width': `${size}px`,
+              'height': `${size}px`,
               // CSS变量: 刻度高亮颜色，用于刻度闪烁动画
               '--tick-color': color,
               // CSS变量: 秒针旋转和刻度闪烁的动画速度

@@ -1,15 +1,10 @@
-/**
- * 进度持久化管理器
- * 负责保存和恢复任务进度
- */
-import type { FileTask, ChunkInfo } from '../types';
-import { ChunkStatus } from '../types';
-import { CacheManager } from './CacheManager';
+/** 进度持久化管理器 负责保存和恢复任务进度 */
+import type { ChunkInfo, FileTask } from '../types';
+import type { ChunkStatus } from '../types';
 import { logger } from '../utils/logger';
+import type { CacheManager } from './CacheManager';
 
-/**
- * 缓存的进度数据接口
- */
+/** 缓存的进度数据接口 */
 export interface CachedProgressData {
   taskId?: string;
   fileName?: string;
@@ -31,15 +26,11 @@ export interface CachedProgressData {
   }>;
 }
 
-/**
- * 进度持久化管理器
- */
+/** 进度持久化管理器 */
 export class ProgressPersistence {
   constructor(private cacheManager: CacheManager) {}
 
-  /**
-   * 保存任务进度
-   */
+  /** 保存任务进度 */
   saveTaskProgress(task: FileTask): void {
     const progressKey = `progress_${task.id}`;
     const progressData: CachedProgressData = {
@@ -67,9 +58,7 @@ export class ProgressPersistence {
     this.cacheManager.set(progressKey, progressData);
   }
 
-  /**
-   * 恢复任务进度（优化：验证分片有效性）
-   */
+  /** 恢复任务进度（优化：验证分片有效性） */
   restoreTaskProgress(task: FileTask): void {
     const progressKey = `progress_${task.id}`;
     const cachedData = this.cacheManager.get<CachedProgressData>(progressKey);
@@ -126,9 +115,7 @@ export class ProgressPersistence {
     }
   }
 
-  /**
-   * 清除任务进度
-   */
+  /** 清除任务进度 */
   clearTaskProgress(taskId: string): void {
     const progressKey = `progress_${taskId}`;
     this.cacheManager.delete(progressKey);

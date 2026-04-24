@@ -1,22 +1,16 @@
-/**
- * 性能监控器
- */
+/** 性能监控器 */
 
 import type { NormalizedRequestConfig } from '@suga/request-core';
 import type { PerformanceMetrics, PerformanceMonitor, UrlStats } from './types';
 
-/**
- * URL 统计信息（内部）
- */
+/** URL 统计信息（内部） */
 interface InternalUrlStats {
   count: number;
   successCount: number;
   totalTime: number;
 }
 
-/**
- * 性能监控管理器
- */
+/** 性能监控管理器 */
 export class PerformanceMonitorManager implements PerformanceMonitor {
   private metrics: {
     totalRequests: number;

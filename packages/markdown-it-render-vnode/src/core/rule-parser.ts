@@ -7,9 +7,7 @@
 import type { FrameworkNode } from '../adapters/types';
 import { createFragmentNode, createHtmlVNode } from '../utils';
 
-/**
- * 规则渲染结果类型
- */
+/** 规则渲染结果类型 */
 export interface RuleRenderResult {
   node?: FrameworkNode;
   parent?: FrameworkNode;

@@ -1,8 +1,4 @@
-/**
- * 缓存管理器
- * 提供基于 Map 的缓存机制，支持 TTL 和优化的 LRU 策略
- * 使用 Map 的插入顺序特性实现 LRU（更高效）
- */
+/** 缓存管理器 提供基于 Map 的缓存机制，支持 TTL 和优化的 LRU 策略 使用 Map 的插入顺序特性实现 LRU（更高效） */
 export class CacheManager {
   // Map 保持插入顺序，第一个元素是最旧的
   private cache = new Map<string, { value: unknown; timestamp: number }>();
@@ -14,9 +10,7 @@ export class CacheManager {
     this.ttl = ttl;
   }
 
-  /**
-   * 设置缓存（优化的 LRU）
-   */
+  /** 设置缓存（优化的 LRU） */
   set<T = unknown>(key: string, value: T, customTtl?: number): void {
     // 如果已存在，先删除（Map 会保持插入顺序）
     if (this.cache.has(key)) {
@@ -39,9 +33,7 @@ export class CacheManager {
     });
   }
 
-  /**
-   * 获取缓存（优化的 LRU）
-   */
+  /** 获取缓存（优化的 LRU） */
   get<T = unknown>(key: string): T | null {
     const item = this.cache.get(key);
     if (!item) return null;
@@ -60,23 +52,17 @@ export class CacheManager {
     return item.value as T;
   }
 
-  /**
-   * 删除指定缓存
-   */
+  /** 删除指定缓存 */
   remove(key: string): boolean {
     return this.cache.delete(key);
   }
 
-  /**
-   * 删除指定缓存（remove 的别名）
-   */
+  /** 删除指定缓存（remove 的别名） */
   delete(key: string): boolean {
     return this.remove(key);
   }
 
-  /**
-   * 批量删除缓存
-   */
+  /** 批量删除缓存 */
   removeMany(keys: string[]): number {
     let removed = 0;
     keys.forEach(key => {
@@ -87,9 +73,7 @@ export class CacheManager {
     return removed;
   }
 
-  /**
-   * 检查缓存是否存在且有效
-   */
+  /** 检查缓存是否存在且有效 */
   isValid(key: string): boolean {
     const item = this.cache.get(key);
     if (!item) return false;
@@ -102,16 +86,12 @@ export class CacheManager {
     return true;
   }
 
-  /**
-   * 获取缓存大小
-   */
+  /** 获取缓存大小 */
   size(): number {
     return this.cache.size;
   }
 
-  /**
-   * 清理过期缓存
-   */
+  /** 清理过期缓存 */
   cleanup(): number {
     let cleaned = 0;
     const now = Date.now();

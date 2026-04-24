@@ -1,13 +1,10 @@
 /**
  * Flow 对象池
  *
- * 实现对象池模式，减少 GC 压力，提升性能
- * 适用于频繁创建和销毁的临时对象
+ * 实现对象池模式，减少 GC 压力，提升性能 适用于频繁创建和销毁的临时对象
  */
 
-/**
- * 对象池选项
- */
+/** 对象池选项 */
 export interface ObjectPoolOptions<T> {
   /** 初始池大小 */
   initialSize?: number;
@@ -17,9 +14,7 @@ export interface ObjectPoolOptions<T> {
   enableStats?: number;
 }
 
-/**
- * 对象池统计信息
- */
+/** 对象池统计信息 */
 export interface ObjectPoolStats {
   /** 池中对象数量 */
   poolSize: number;
@@ -128,9 +123,7 @@ export class ObjectPool<T> {
     objects.forEach(obj => this.release(obj));
   }
 
-  /**
-   * 清空对象池
-   */
+  /** 清空对象池 */
   clear(): void {
     this.pool = [];
   }
@@ -166,9 +159,7 @@ export class ObjectPool<T> {
     };
   }
 
-  /**
-   * 重置统计信息
-   */
+  /** 重置统计信息 */
   resetStats(): void {
     this.stats = {
       totalCreated: 0,
@@ -203,9 +194,7 @@ export class ObjectPool<T> {
   }
 }
 
-/**
- * 创建位置对象池
- */
+/** 创建位置对象池 */
 export function createPositionPool(
   initialSize = 100,
   maxSize = 1000
@@ -220,9 +209,7 @@ export function createPositionPool(
   );
 }
 
-/**
- * 创建边界对象池
- */
+/** 创建边界对象池 */
 export function createBoundsPool(
   initialSize = 50,
   maxSize = 500
@@ -255,9 +242,7 @@ export function createBoundsPool(
   );
 }
 
-/**
- * 创建数组对象池
- */
+/** 创建数组对象池 */
 export function createArrayPool<T>(initialSize = 50, maxSize = 500): ObjectPool<T[]> {
   return new ObjectPool<T[]>(
     () => [] as T[],
@@ -268,9 +253,7 @@ export function createArrayPool<T>(initialSize = 50, maxSize = 500): ObjectPool<
   );
 }
 
-/**
- * 创建 Map 对象池
- */
+/** 创建 Map 对象池 */
 export function createMapPool<K, V>(initialSize = 20, maxSize = 200): ObjectPool<Map<K, V>> {
   return new ObjectPool(
     () => new Map<K, V>(),
@@ -281,9 +264,7 @@ export function createMapPool<K, V>(initialSize = 20, maxSize = 200): ObjectPool
   );
 }
 
-/**
- * 创建 Set 对象池
- */
+/** 创建 Set 对象池 */
 export function createSetPool<T>(initialSize = 20, maxSize = 200): ObjectPool<Set<T>> {
   return new ObjectPool(
     () => new Set<T>(),

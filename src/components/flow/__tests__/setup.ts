@@ -1,6 +1,4 @@
-/**
- * Vitest 测试环境设置
- */
+/** Vitest 测试环境设置 */
 
 import { vi } from 'vitest';
 

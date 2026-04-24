@@ -1,6 +1,4 @@
-/**
- * User Management API types
- */
+/** User Management API types */
 
 /// <reference path="./common.d.ts" />
 

@@ -1,6 +1,6 @@
-import type { ChunkInfo, FileTask } from '@/hooks/upload-v2';
-import { NMessageProvider, useMessage, useThemeVars } from 'naive-ui';
 import { computed, defineComponent, onMounted, ref } from 'vue';
+import { NMessageProvider, useMessage, useThemeVars } from 'naive-ui';
+import type { ChunkInfo, FileTask } from '@/hooks/upload-v2';
 import FileList from './components/FileList';
 import PageHeader from './components/PageHeader';
 import StatsCards from './components/StatsCards';

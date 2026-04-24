@@ -1,17 +1,12 @@
-/**
- * 请求步骤接口（Request Step）
- * 能力插件的基础接口
- */
+/** 请求步骤接口（Request Step） 能力插件的基础接口 */
 
 import type { RequestContext } from '../context/RequestContext';
 
-/**
- * 请求步骤接口
- * 单一职责、可插拔、可排序、可独立测试
- */
+/** 请求步骤接口 单一职责、可插拔、可排序、可独立测试 */
 export interface RequestStep {
   /**
    * 执行步骤
+   *
    * @param ctx 请求上下文
    * @param next 下一个步骤的执行函数
    * @returns Promise<void>
@@ -19,10 +14,7 @@ export interface RequestStep {
   execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void>;
 }
 
-/**
- * 步骤组合函数
- * 将多个步骤组合成链式执行
- */
+/** 步骤组合函数 将多个步骤组合成链式执行 */
 export function composeSteps(steps: RequestStep[]): <T>(ctx: RequestContext<T>) => Promise<void> {
   return <T>(ctx: RequestContext<T>): Promise<void> => {
     // 如果没有步骤，直接返回

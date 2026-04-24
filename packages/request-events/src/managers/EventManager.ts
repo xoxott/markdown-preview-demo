@@ -1,30 +1,22 @@
-/**
- * 事件管理器
- */
+/** 事件管理器 */
 
 import type {
-  RequestEventType,
-  RequestEventHandler,
-  RequestStartEventData,
-  RequestSuccessEventData,
+  RequestCompleteEventData,
   RequestErrorEventData,
-  RequestCompleteEventData
+  RequestEventHandler,
+  RequestEventType,
+  RequestStartEventData,
+  RequestSuccessEventData
 } from '../types';
 
-/**
- * 事件处理器类型（统一类型）
- */
+/** 事件处理器类型（统一类型） */
 type EventHandler = (data: unknown) => void;
 
-/**
- * 事件管理器
- */
+/** 事件管理器 */
 export class EventManager {
   private eventListeners = new Map<RequestEventType, Set<EventHandler>>();
 
-  /**
-   * 监听事件
-   */
+  /** 监听事件 */
   on<T extends RequestEventType>(event: T, handler: RequestEventHandler<T>): void {
     if (!this.eventListeners.has(event)) {
       this.eventListeners.set(event, new Set());
@@ -32,16 +24,12 @@ export class EventManager {
     this.eventListeners.get(event)!.add(handler as EventHandler);
   }
 
-  /**
-   * 取消监听事件
-   */
+  /** 取消监听事件 */
   off<T extends RequestEventType>(event: T, handler: RequestEventHandler<T>): void {
     this.eventListeners.get(event)?.delete(handler as EventHandler);
   }
 
-  /**
-   * 移除所有事件监听器
-   */
+  /** 移除所有事件监听器 */
   removeAllListeners(event?: RequestEventType): void {
     if (event) {
       this.eventListeners.delete(event);
@@ -50,9 +38,7 @@ export class EventManager {
     }
   }
 
-  /**
-   * 触发事件
-   */
+  /** 触发事件 */
   emit<T extends RequestEventType>(
     event: T,
     data: T extends 'request:start'
@@ -80,16 +66,12 @@ export class EventManager {
     });
   }
 
-  /**
-   * 获取事件监听器数量
-   */
+  /** 获取事件监听器数量 */
   listenerCount(event: RequestEventType): number {
     return this.eventListeners.get(event)?.size ?? 0;
   }
 
-  /**
-   * 获取所有事件类型
-   */
+  /** 获取所有事件类型 */
   eventNames(): RequestEventType[] {
     return Array.from(this.eventListeners.keys());
   }

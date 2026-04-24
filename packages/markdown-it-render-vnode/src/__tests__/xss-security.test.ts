@@ -4,11 +4,11 @@
  * 测试 markdown-it-render-vnode 对各种 XSS 攻击向量的防护能力
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
-import MarkdownIt from 'markdown-it';
-import markdownItRenderVnode from '../index';
-import { vueAdapter } from '@suga/markdown-it-render-vnode-vue';
 import type { VNode } from 'vue';
+import { beforeEach, describe, expect, it } from 'vitest';
+import MarkdownIt from 'markdown-it';
+import { vueAdapter } from '@suga/markdown-it-render-vnode-vue';
+import markdownItRenderVnode from '../index';
 
 describe('XSS 安全防护测试', () => {
   let md: MarkdownIt;

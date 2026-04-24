@@ -1,13 +1,9 @@
-/**
- * 熔断器指标管理
- */
+/** 熔断器指标管理 */
 
 import type { CircuitBreakerMetrics } from '../types';
 import { CircuitBreakerState } from '../types';
 
-/**
- * 熔断器指标类
- */
+/** 熔断器指标类 */
 export class Metrics {
   private failures: number = 0;
   private successes: number = 0;

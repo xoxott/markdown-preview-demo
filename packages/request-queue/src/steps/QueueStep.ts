@@ -1,16 +1,11 @@
-/**
- * 队列步骤
- * 职责：控制请求并发数量，支持队列和优先级
- */
+/** 队列步骤 职责：控制请求并发数量，支持队列和优先级 */
 
 import type { RequestContext, RequestStep } from '@suga/request-core';
 import { DEFAULT_QUEUE_CONFIG } from '../constants';
 import { QueueManager } from '../managers/QueueManager';
 import type { QueueConfig, QueueMeta } from '../types';
 
-/**
- * 队列步骤配置
- */
+/** 队列步骤配置 */
 export interface QueueStepOptions {
   /** 队列管理器实例 */
   queueManager?: QueueManager;
@@ -18,16 +13,12 @@ export interface QueueStepOptions {
   defaultConfig?: QueueConfig;
 }
 
-/**
- * 类型守卫：判断 meta 是否包含 QueueMeta
- */
+/** 类型守卫：判断 meta 是否包含 QueueMeta */
 function isQueueMeta(meta: Record<string, unknown>): meta is QueueMeta {
   return typeof meta === 'object' && meta !== null;
 }
 
-/**
- * 解析队列配置
- */
+/** 解析队列配置 */
 function parseQueueConfig(
   config: boolean | QueueConfig | undefined,
   defaultConfig?: QueueConfig
@@ -47,9 +38,7 @@ function parseQueueConfig(
   return undefined;
 }
 
-/**
- * 队列步骤
- */
+/** 队列步骤 */
 export class QueueStep implements RequestStep {
   private queueManager: QueueManager;
   private defaultConfig?: QueueConfig;

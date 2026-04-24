@@ -1,16 +1,17 @@
 /**
  * 核心渲染器模块（统一导出接口）
  *
+ * 此模块作为核心渲染功能的统一入口，将各功能模块组装并导出
+ *
  * @module core/renderer
- * @description 此模块作为核心渲染功能的统一入口，将各功能模块组装并导出
  */
 
 import type { FrameworkNode } from '../adapters/types';
 import type { MarkdownRenderer, RenderEnv, RenderOptions, Token } from '../types';
 import { render as fullRender } from './full-render';
 import {
-  renderAttrs as renderTokenAttrs,
-  renderToken as renderSingleTokenFunc
+  renderToken as renderSingleTokenFunc,
+  renderAttrs as renderTokenAttrs
 } from './token-renderer';
 
 /**

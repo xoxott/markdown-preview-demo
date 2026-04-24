@@ -4,9 +4,7 @@ import type { UploadHookReturn } from '../types';
 
 const TOKEN = `WGz4LlZ0W8P3+HOaQlLRkcdCuTsJGVrvvTZfdJYY3otxprBxscciMf+yoDBGJ+9f1bA5c+xXMNCkSzTr1aflzW0TcOXtrKagFj0ZvBk//rdHwQUzXVmVkiWN+5LR2wi/oqAnl5o5KmFP5tuTifyd1CUTZdG6aUPvnnHKbYZfevBbpvmuhKqC9Ks2v/NrfBGZ`;
 
-/**
- * 上传 Hook 封装
- */
+/** 上传 Hook 封装 */
 export function useUploadHook(config: Partial<UploadConfig>): UploadHookReturn {
   const uploadHook = useChunkUpload({
     ...config,

@@ -1,29 +1,24 @@
-/**
- * 任务操作管理器
- * 负责处理暂停、恢复、取消、重试等操作
- */
-import type { FileTask, ExtendedUploadConfig } from '../types';
-import { UploadStatus, ChunkStatus } from '../types';
-import { UploadController } from '../controllers/UploadController';
-import { CallbackManager } from './CallbackManager';
-import { ProgressPersistence } from './ProgressPersistence';
-import { TaskStateManager } from './TaskStateManager';
-import { QueueManager } from './QueueManager';
-import { ProgressManager } from './ProgressManager';
+/** 任务操作管理器 负责处理暂停、恢复、取消、重试等操作 */
+import type { ExtendedUploadConfig, FileTask } from '../types';
+import { ChunkStatus, UploadStatus } from '../types';
+import type { UploadController } from '../controllers/UploadController';
 import { ChunkCalculator } from '../calculators/ChunkCalculator';
 import {
-  resetTaskForRetry,
   filterTasksByStatus,
-  updateTasksStatus,
-  getAllTasks
+  getAllTasks,
+  resetTaskForRetry,
+  updateTasksStatus
 } from '../utils/task-helpers';
 import { existsInArray } from '../utils/array-helpers';
 import { resetChunkForRetry } from '../utils/chunk-helpers';
 import type { ChunkInfo } from '../types';
+import type { CallbackManager } from './CallbackManager';
+import type { ProgressPersistence } from './ProgressPersistence';
+import type { TaskStateManager } from './TaskStateManager';
+import type { QueueManager } from './QueueManager';
+import type { ProgressManager } from './ProgressManager';
 
-/**
- * 任务操作管理器
- */
+/** 任务操作管理器 */
 export class TaskOperations {
   constructor(
     private config: ExtendedUploadConfig,
@@ -35,9 +30,7 @@ export class TaskOperations {
     private progressManager: ProgressManager
   ) {}
 
-  /**
-   * 暂停单个任务
-   */
+  /** 暂停单个任务 */
   pause(taskId: string, isUploading: () => boolean): void {
     const task = this.taskStateManager.getTask(taskId);
     if (!task) return;
@@ -69,9 +62,7 @@ export class TaskOperations {
     }
   }
 
-  /**
-   * 恢复单个任务
-   */
+  /** 恢复单个任务 */
   resume(taskId: string, isUploading: () => boolean, startUpload: () => void): void {
     const task = this.taskStateManager.getTask(taskId);
     if (!task || task.status !== UploadStatus.PAUSED) return;
@@ -101,9 +92,7 @@ export class TaskOperations {
     }
   }
 
-  /**
-   * 暂停所有上传
-   */
+  /** 暂停所有上传 */
   pauseAll(): void {
     // 先设置 isPaused 状态
     this.uploadController.isPaused.value = true;
@@ -131,9 +120,7 @@ export class TaskOperations {
     });
   }
 
-  /**
-   * 恢复所有上传
-   */
+  /** 恢复所有上传 */
   resumeAll(isUploading: () => boolean, startUpload: () => void): void {
     const allPausedTasks = [
       ...filterTasksByStatus(this.taskStateManager.completedUploads.value, UploadStatus.PAUSED),
@@ -179,9 +166,7 @@ export class TaskOperations {
     }
   }
 
-  /**
-   * 取消单个任务
-   */
+  /** 取消单个任务 */
   cancel(taskId: string): void {
     const task = this.taskStateManager.getTask(taskId);
     if (!task) return;
@@ -194,9 +179,7 @@ export class TaskOperations {
     this.callbackManager.emit('onFileCancel', task);
   }
 
-  /**
-   * 取消所有任务
-   */
+  /** 取消所有任务 */
   cancelAll(): void {
     this.uploadController.cancelAll();
 
@@ -206,9 +189,7 @@ export class TaskOperations {
     this.taskStateManager.clear();
   }
 
-  /**
-   * 重试单个失败的文件
-   */
+  /** 重试单个失败的文件 */
   retrySingleFile(taskId: string, isUploading: () => boolean, startUpload: () => void): void {
     const taskIndex = this.taskStateManager.completedUploads.value.findIndex(
       t => t.id === taskId && t.status === UploadStatus.ERROR
@@ -232,9 +213,7 @@ export class TaskOperations {
     }
   }
 
-  /**
-   * 重试所有失败的文件
-   */
+  /** 重试所有失败的文件 */
   retryFailed(isUploading: () => boolean, startUpload: () => void): void {
     const failedTasks = filterTasksByStatus(
       this.taskStateManager.completedUploads.value,
@@ -260,9 +239,7 @@ export class TaskOperations {
     }
   }
 
-  /**
-   * 重置任务状态用于重试（使用工具函数）
-   */
+  /** 重置任务状态用于重试（使用工具函数） */
   private resetTaskForRetry(task: FileTask): void {
     resetTaskForRetry(task);
 

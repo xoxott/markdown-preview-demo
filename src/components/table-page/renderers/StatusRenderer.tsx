@@ -1,4 +1,4 @@
-import { defineComponent, type PropType } from 'vue';
+import { type PropType, defineComponent } from 'vue';
 import { NSwitch, NTag } from 'naive-ui';
 import type { StatusRendererConfig } from '../types';
 

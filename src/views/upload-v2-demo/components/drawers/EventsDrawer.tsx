@@ -1,4 +1,4 @@
-import { defineComponent, type PropType } from 'vue';
+import { type PropType, defineComponent } from 'vue';
 import { NButton, NCode, NScrollbar, NTimeline, NTimelineItem } from 'naive-ui';
 import type { EventLog } from '../../types';
 

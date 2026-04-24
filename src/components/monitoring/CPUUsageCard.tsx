@@ -1,5 +1,6 @@
-import { defineComponent, PropType, computed } from 'vue';
-import { NCard, NProgress, NDescriptions, NDescriptionsItem, NStatistic, NSpace } from 'naive-ui';
+import type { PropType } from 'vue';
+import { computed, defineComponent } from 'vue';
+import { NCard, NDescriptions, NDescriptionsItem, NProgress, NSpace, NStatistic } from 'naive-ui';
 import { formatCpuTime, getCpuUsageColor } from '@/utils/monitoring';
 
 interface CPUData {
@@ -36,7 +37,7 @@ export default defineComponent({
       if (!props.cpu) return 0;
 
       if (props.cpu.usage?.usage) {
-        return parseFloat(props.cpu.usage.usage);
+        return Number.parseFloat(props.cpu.usage.usage);
       }
 
       return 0;

@@ -1,14 +1,11 @@
-/**
- * RequestExecutor 测试
- */
+/** RequestExecutor 测试 */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { RequestExecutor } from '../../executor/RequestExecutor';
 import { PrepareContextStep } from '../../steps/PrepareContextStep';
 import { TransportStep } from '../../steps/TransportStep';
 import type { RequestStep } from '../../steps/RequestStep';
-import type { RequestContext } from '../../context/RequestContext';
-import type { NormalizedRequestConfig } from '../../context/RequestContext';
+import type { NormalizedRequestConfig, RequestContext } from '../../context/RequestContext';
 import { MockTransport } from '../mocks/MockTransport';
 
 describe('RequestExecutor', () => {

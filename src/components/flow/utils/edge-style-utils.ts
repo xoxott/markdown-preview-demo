@@ -4,7 +4,7 @@
  * 提供统一的箭头大小、箭头标记配置、线条宽度等计算函数
  */
 
-import { ARROW_SIZES, ARROW_PATH_RATIOS, STROKE_WIDTHS } from '../constants/edge-constants';
+import { ARROW_PATH_RATIOS, ARROW_SIZES, STROKE_WIDTHS } from '../constants/edge-constants';
 
 /**
  * 计算箭头大小
@@ -16,9 +16,7 @@ export function calculateArrowSize(zoom: number): number {
   return Math.max(ARROW_SIZES.MIN, Math.min(ARROW_SIZES.MAX, ARROW_SIZES.BASE * zoom));
 }
 
-/**
- * 箭头标记配置
- */
+/** 箭头标记配置 */
 export interface ArrowMarkerConfig {
   /** 箭头大小 */
   arrowSize: number;

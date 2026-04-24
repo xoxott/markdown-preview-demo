@@ -6,9 +6,7 @@
 
 import type { CSSProperties } from 'vue';
 
-/**
- * GPU 加速样式选项
- */
+/** GPU 加速样式选项 */
 export interface GpuAccelerationOptions {
   /** 是否启用 GPU 加速 */
   enabled?: boolean;
@@ -23,16 +21,16 @@ export interface GpuAccelerationOptions {
  *
  * 统一处理 GPU 加速相关的 CSS 属性，避免重复代码
  *
+ * @example
+ *   ```typescript
+ *   const style = {
+ *     ...baseStyle,
+ *     ...getGpuAccelerationStyle({ enabled: true })
+ *   };
+ *   ```;
+ *
  * @param options 选项
  * @returns GPU 加速样式对象
- *
- * @example
- * ```typescript
- * const style = {
- *   ...baseStyle,
- *   ...getGpuAccelerationStyle({ enabled: true })
- * };
- * ```
  */
 export function getGpuAccelerationStyle(options: GpuAccelerationOptions = {}): CSSProperties {
   const { enabled = true, includeBackfaceVisibility = false, includePerspective = false } = options;
@@ -64,20 +62,20 @@ export function getGpuAccelerationStyle(options: GpuAccelerationOptions = {}): C
  *
  * 根据条件决定是否应用 GPU 加速
  *
+ * @example
+ *   ```typescript
+ *   const style = {
+ *     ...baseStyle,
+ *     ...getConditionalGpuAccelerationStyle(
+ *       props.selected || props.hovered,
+ *       { includeBackfaceVisibility: false }
+ *     )
+ *   };
+ *   ```;
+ *
  * @param shouldOptimize 是否应该优化
  * @param options 选项
  * @returns GPU 加速样式对象
- *
- * @example
- * ```typescript
- * const style = {
- *   ...baseStyle,
- *   ...getConditionalGpuAccelerationStyle(
- *     props.selected || props.hovered,
- *     { includeBackfaceVisibility: false }
- *   )
- * };
- * ```
  */
 export function getConditionalGpuAccelerationStyle(
   shouldOptimize: boolean,

@@ -1,6 +1,4 @@
-/**
- * CacheStrategyManager 测试
- */
+/** CacheStrategyManager 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CacheStrategyManager } from '../../strategies/CacheStrategyManager';

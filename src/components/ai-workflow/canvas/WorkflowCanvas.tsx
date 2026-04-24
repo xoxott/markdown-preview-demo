@@ -1,4 +1,4 @@
-import { computed, defineComponent, onMounted, onUnmounted, ref, type PropType } from 'vue';
+import { type PropType, computed, defineComponent, onMounted, onUnmounted, ref } from 'vue';
 import { NODE_DIMENSIONS } from '../constants/node-dimensions';
 import BackgroundSettingsDialog from '../dialogs/BackgroundSettingsDialog';
 import ConnectionLineSettingsDialog from '../dialogs/ConnectionLineSettingsDialog';
@@ -82,9 +82,7 @@ export default defineComponent({
       }
     };
 
-    /**
-     * 适应视图 - 自动缩放和平移画布以显示所有节点
-     */
+    /** 适应视图 - 自动缩放和平移画布以显示所有节点 */
     const handleFitView = () => {
       if (!canvas.canvasRef.value || canvas.nodes.value.length === 0) return;
 
@@ -110,9 +108,7 @@ export default defineComponent({
       canvas.fitView(rect.width, rect.height, contentWidth, contentHeight);
     };
 
-    /**
-     * 处理节点点击 - 只在点击时打开配置抽屉
-     */
+    /** 处理节点点击 - 只在点击时打开配置抽屉 */
     const handleNodeClickWithConfig = (nodeId: string, e: MouseEvent) => {
       canvas.handleNodeClick(nodeId, e);
 
@@ -131,24 +127,18 @@ export default defineComponent({
       }
     };
 
-    /**
-     * 更新节点配置
-     */
+    /** 更新节点配置 */
     const handleUpdateNode = (nodeId: string, updates: Partial<Api.Workflow.WorkflowNode>) => {
       canvas.updateNode(nodeId, updates);
       canvas.saveHistory();
     };
 
-    /**
-     * 关闭配置抽屉
-     */
+    /** 关闭配置抽屉 */
     const handleCloseDrawer = () => {
       showConfigDrawer.value = false;
     };
 
-    /**
-     * 更新画布尺寸
-     */
+    /** 更新画布尺寸 */
     const updateCanvasSize = () => {
       if (canvas.canvasRef.value) {
         const rect = canvas.canvasRef.value.getBoundingClientRect();
@@ -159,9 +149,7 @@ export default defineComponent({
       }
     };
 
-    /**
-     * 使用 ResizeObserver 监听画布尺寸变化
-     */
+    /** 使用 ResizeObserver 监听画布尺寸变化 */
     let resizeObserver: ResizeObserver | null = null;
 
     onMounted(() => {
@@ -178,7 +166,7 @@ export default defineComponent({
     });
 
     return () => (
-      <div class="workflow-canvas-container flex flex-col h-full w-full">
+      <div class="workflow-canvas-container h-full w-full flex flex-col">
         {/* 工具栏 */}
         <CanvasToolbar
           zoom={canvas.viewport.value.zoom}
@@ -239,7 +227,7 @@ export default defineComponent({
         {/* 画布区域 */}
         <div
           ref={canvas.canvasRef}
-          class="flex-1 relative overflow-hidden bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20"
+          class="relative flex-1 overflow-hidden from-gray-50 via-blue-50/30 to-purple-50/30 bg-gradient-to-br dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/20"
           style={{ minHeight: 0 }}
           onMousedown={canvas.handleCanvasMouseDown}
           onMousemove={canvas.handleCanvasMouseMove}

@@ -1,6 +1,4 @@
-/**
- * 缓存策略实现统一导出
- */
+/** 缓存策略实现统一导出 */
 
 export { DefaultCachePolicy } from './DefaultCachePolicy';
 export { NoCachePolicy } from './NoCachePolicy';

@@ -1,6 +1,4 @@
-/**
- * Notification Management API types
- */
+/** Notification Management API types */
 
 /// <reference path="./common.d.ts" />
 

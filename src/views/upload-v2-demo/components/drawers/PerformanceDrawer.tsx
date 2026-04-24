@@ -1,4 +1,4 @@
-import { defineComponent, type PropType } from 'vue';
+import { type PropType, defineComponent } from 'vue';
 import { NCard, NCode } from 'naive-ui';
 import type { PerformanceMetricsData } from '../../types';
 

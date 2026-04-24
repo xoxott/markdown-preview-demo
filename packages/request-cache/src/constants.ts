@@ -1,10 +1,6 @@
-/**
- * 缓存常量定义
- */
+/** 缓存常量定义 */
 
-/**
- * 默认缓存配置常量
- */
+/** 默认缓存配置常量 */
 export const DEFAULT_CACHE_CONFIG = {
   /** 默认缓存过期时间：5 分钟 */
   DEFAULT_EXPIRE_TIME: 5 * 60 * 1000,

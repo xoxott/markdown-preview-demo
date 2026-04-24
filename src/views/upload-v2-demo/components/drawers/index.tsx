@@ -1,13 +1,12 @@
+import type { FileTask, UploadConfig } from '@/hooks/upload-v2';
 import useDrawer from '@/components/base-drawer/useDrawer';
-import type { FileTask } from '@/hooks/upload-v2';
-import type { UploadConfig } from '@/hooks/upload-v2';
 import type {
   ChunkSizeOption,
-  TodayStatsData,
-  HistoryStatsData,
-  TrendAnalysisData,
   EventLog,
-  PerformanceMetricsData
+  HistoryStatsData,
+  PerformanceMetricsData,
+  TodayStatsData,
+  TrendAnalysisData
 } from '../../types';
 import TaskDetailDrawer from './TaskDetailDrawer';
 import SettingsDrawer from './SettingsDrawer';
@@ -16,16 +15,11 @@ import PerformanceDrawer from './PerformanceDrawer';
 import EventsDrawer from './EventsDrawer';
 import I18nDrawer from './I18nDrawer';
 
-/**
- * 统一的抽屉管理工具
- * 封装所有抽屉的打开逻辑，简化外部使用
- */
+/** 统一的抽屉管理工具 封装所有抽屉的打开逻辑，简化外部使用 */
 export function useDrawers() {
   const drawer = useDrawer();
 
-  /**
-   * 打开任务详情抽屉
-   */
+  /** 打开任务详情抽屉 */
   const openTaskDetail = (
     task: FileTask,
     utils: {
@@ -51,9 +45,7 @@ export function useDrawers() {
     });
   };
 
-  /**
-   * 打开设置抽屉
-   */
+  /** 打开设置抽屉 */
   const openSettings = (
     settings: Partial<UploadConfig>,
     chunkSizeOptions: ChunkSizeOption[],
@@ -77,9 +69,7 @@ export function useDrawers() {
     });
   };
 
-  /**
-   * 打开统计信息抽屉
-   */
+  /** 打开统计信息抽屉 */
   const openStats = (
     todayStatsData: TodayStatsData,
     historyStatsData: HistoryStatsData[],
@@ -105,9 +95,7 @@ export function useDrawers() {
     });
   };
 
-  /**
-   * 打开性能监控抽屉
-   */
+  /** 打开性能监控抽屉 */
   const openPerformance = (
     performanceMetrics: PerformanceMetricsData,
     performanceReport: unknown,
@@ -129,9 +117,7 @@ export function useDrawers() {
     });
   };
 
-  /**
-   * 打开事件日志抽屉
-   */
+  /** 打开事件日志抽屉 */
   const openEvents = (eventLogs: EventLog[], onClear: () => void) => {
     return drawer.open({
       title: '事件日志',
@@ -141,9 +127,7 @@ export function useDrawers() {
     });
   };
 
-  /**
-   * 打开国际化抽屉
-   */
+  /** 打开国际化抽屉 */
   const openI18n = (
     language: 'zh-CN' | 'en-US',
     utils: {

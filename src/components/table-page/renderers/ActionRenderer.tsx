@@ -1,6 +1,6 @@
-import { defineComponent, type PropType } from 'vue';
-import { NButton, NSpace, NPopconfirm, NDropdown } from 'naive-ui';
-import type { ActionRendererConfig, ActionButtonItemConfig } from '../types';
+import { type PropType, defineComponent } from 'vue';
+import { NButton, NDropdown, NPopconfirm, NSpace } from 'naive-ui';
+import type { ActionButtonItemConfig, ActionRendererConfig } from '../types';
 
 export default defineComponent({
   name: 'ActionRenderer',

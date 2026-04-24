@@ -1,4 +1,4 @@
-import { defineComponent, type PropType } from 'vue';
+import { type PropType, defineComponent } from 'vue';
 import { NDivider, NForm, NFormItem, NSelect } from 'naive-ui';
 import { UploadStatus } from '@/hooks/upload-v2';
 
@@ -42,7 +42,7 @@ export default defineComponent({
         <NDivider />
         <div class="space-y-2">
           <h4 class="font-semibold">状态文本示例</h4>
-          <div class="space-y-1 text-sm">
+          <div class="text-sm space-y-1">
             <div>pending: {props.getStatusText(UploadStatus.PENDING)}</div>
             <div>uploading: {props.getStatusText(UploadStatus.UPLOADING)}</div>
             <div>success: {props.getStatusText(UploadStatus.SUCCESS)}</div>

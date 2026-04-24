@@ -1,6 +1,4 @@
-/**
- * 存储适配器实现导出
- */
+/** 存储适配器实现导出 */
 
 export { LocalStorageAdapter } from './LocalStorageAdapter';
 export { SessionStorageAdapter } from './SessionStorageAdapter';

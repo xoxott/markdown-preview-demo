@@ -1,10 +1,8 @@
-/**
- * key-generator 测试
- */
+/** key-generator 测试 */
 
 import { describe, expect, it } from 'vitest';
-import { generateRequestKey } from '../../utils/key-generator';
 import type { NormalizedRequestConfig } from '@suga/request-core';
+import { generateRequestKey } from '../../utils/key-generator';
 
 describe('generateRequestKey', () => {
   describe('exact 策略', () => {

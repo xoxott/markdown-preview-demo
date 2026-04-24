@@ -1,13 +1,9 @@
-/**
- * 缓存步骤相关类型定义
- */
+/** 缓存步骤相关类型定义 */
 
 import type { RequestCacheManager } from '../managers/RequestCacheManager';
-import type { CachePolicy, CacheConfig } from '../policies';
+import type { CacheConfig, CachePolicy } from '../policies';
 
-/**
- * 缓存读取步骤配置
- */
+/** 缓存读取步骤配置 */
 export interface CacheReadStepOptions {
   /** 请求缓存管理器实例 */
   requestCacheManager?: RequestCacheManager;
@@ -15,9 +11,7 @@ export interface CacheReadStepOptions {
   policyFactory?: (cache?: CacheConfig) => CachePolicy;
 }
 
-/**
- * 缓存写入步骤配置
- */
+/** 缓存写入步骤配置 */
 export interface CacheWriteStepOptions {
   /** 请求缓存管理器实例 */
   requestCacheManager?: RequestCacheManager;

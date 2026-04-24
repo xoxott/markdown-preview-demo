@@ -14,9 +14,7 @@ import type {
   NodeProps
 } from '@suga/markdown-it-render-vnode/adapters';
 
-/**
- * 规范化子节点
- */
+/** 规范化子节点 */
 function normalizeChildren(children: NodeChildren): ReactElement[] {
   if (!children) {
     return [];
@@ -29,9 +27,7 @@ function normalizeChildren(children: NodeChildren): ReactElement[] {
   return [children as ReactElement];
 }
 
-/**
- * React 适配器实现
- */
+/** React 适配器实现 */
 export const reactAdapter: FrameworkAdapter = {
   createElement(
     tag: string | FrameworkComponent,

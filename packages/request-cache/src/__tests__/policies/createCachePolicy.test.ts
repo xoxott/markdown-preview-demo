@@ -1,6 +1,4 @@
-/**
- * createCachePolicy 测试
- */
+/** createCachePolicy 测试 */
 
 import { describe, expect, it } from 'vitest';
 import { createCachePolicy } from '../../policies/implementations/createCachePolicy';

@@ -7,12 +7,12 @@
 import type { RenderEnv, Token } from './types';
 import type { FrameworkNode } from './adapters/types';
 import {
+  DANGEROUS_TAGS,
   HTML_ESCAPE_MAP,
   HTML_UNESCAPE_MAP,
   PERFORMANCE_CONFIG,
-  SECURITY_PATTERNS,
-  DANGEROUS_TAGS,
-  SAFE_TAGS
+  SAFE_TAGS,
+  SECURITY_PATTERNS
 } from './constants';
 import { getAdapter } from './adapters/manager';
 import { handleError } from './utils/error-handler';
@@ -21,8 +21,7 @@ import { handleError } from './utils/error-handler';
 export type AttrRecord = Record<string, string>;
 
 /**
- * 快速内容 hash（DJB2 变体）
- * 用于缓存 key 生成和 token key 生成，非加密用途
+ * 快速内容 hash（DJB2 变体） 用于缓存 key 生成和 token key 生成，非加密用途
  *
  * @param str - 要 hash 的字符串
  * @param maxLen - 最大 hash 字符数（性能优化，默认 100）
@@ -81,7 +80,7 @@ export function returnAttrsToPool(attrs: AttrRecord): void {
   }
   // 清空对象的所有属性
   for (const key in attrs) {
-    if (Object.prototype.hasOwnProperty.call(attrs, key)) {
+    if (Object.hasOwn(attrs, key)) {
       delete attrs[key];
     }
   }
@@ -222,18 +221,11 @@ export function sanitizeAttributes(attrs: AttrRecord, safeMode: boolean = true):
   return sanitized;
 }
 
-/**
- * 快速安全检测正则（预编译）
- * 用于快速判断 HTML 是否包含危险模式，若无则跳过完整清洗
- * 检测范围：危险标签、事件处理器属性、危险 URL 协议
- */
+/** 快速安全检测正则（预编译） 用于快速判断 HTML 是否包含危险模式，若无则跳过完整清洗 检测范围：危险标签、事件处理器属性、危险 URL 协议 */
 const QUICK_SAFE_CHECK =
   /<(?:script|iframe|embed|object|style|link|base|meta|form|textarea|button|select|option|applet|frame|frameset|bgsound|keygen|layer|marquee|noscript|xml)\b|on\w+\s*=|(?:href|src|action|formaction|cite|code|codebase|background|lowsrc|ping)\s*=\s*["']?\s*(?:javascript|vbscript|file|data):/i;
 
-/**
- * sanitizeHtml 结果 LRU 缓存
- * 避免重复清洗相同的 HTML 内容（流式渲染中大部分 HTML block 不变）
- */
+/** sanitizeHtml 结果 LRU 缓存 避免重复清洗相同的 HTML 内容（流式渲染中大部分 HTML block 不变） */
 const sanitizedHtmlCache = new Map<string, { result: string; source: string }>();
 const SANITIZE_CACHE_MAX = 200;
 

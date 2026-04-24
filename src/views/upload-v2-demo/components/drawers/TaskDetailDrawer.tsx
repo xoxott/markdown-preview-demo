@@ -1,4 +1,4 @@
-import { defineComponent, type PropType } from 'vue';
+import { type PropType, defineComponent } from 'vue';
 import { NCard, NCode, NProgress, NScrollbar, NSpace, NTag } from 'naive-ui';
 import type { FileTask } from '@/hooks/upload-v2';
 import { ChunkStatus, UploadStatus } from '@/hooks/upload-v2';
@@ -68,7 +68,7 @@ export default defineComponent({
             </div>
             <div class="flex items-center justify-between">
               <span class="text-gray-600 dark:text-gray-400">任务ID：</span>
-              <span class="font-mono text-xs">{props.task.id}</span>
+              <span class="text-xs font-mono">{props.task.id}</span>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-gray-600 dark:text-gray-400">状态：</span>
@@ -117,7 +117,7 @@ export default defineComponent({
             {props.task.startTime && (
               <div class="flex items-center justify-between">
                 <span class="text-gray-600 dark:text-gray-400">开始时间：</span>
-                <span class="font-semibold text-sm">
+                <span class="text-sm font-semibold">
                   {new Date(props.task.startTime).toLocaleString()}
                 </span>
               </div>
@@ -125,7 +125,7 @@ export default defineComponent({
             {props.task.endTime && (
               <div class="flex items-center justify-between">
                 <span class="text-gray-600 dark:text-gray-400">结束时间：</span>
-                <span class="font-semibold text-sm">
+                <span class="text-sm font-semibold">
                   {new Date(props.task.endTime).toLocaleString()}
                 </span>
               </div>
@@ -133,7 +133,7 @@ export default defineComponent({
             {props.task.pausedTime > 0 && (
               <div class="flex items-center justify-between">
                 <span class="text-gray-600 dark:text-gray-400">暂停时间：</span>
-                <span class="font-semibold text-sm">
+                <span class="text-sm font-semibold">
                   {new Date(props.task.pausedTime).toLocaleString()}
                 </span>
               </div>
@@ -141,7 +141,7 @@ export default defineComponent({
             {props.task.resumeTime > 0 && (
               <div class="flex items-center justify-between">
                 <span class="text-gray-600 dark:text-gray-400">恢复时间：</span>
-                <span class="font-semibold text-sm">
+                <span class="text-sm font-semibold">
                   {new Date(props.task.resumeTime).toLocaleString()}
                 </span>
               </div>
@@ -161,7 +161,7 @@ export default defineComponent({
         {props.task.chunks && props.task.chunks.length > 0 && (
           <NCard title="分片详情" class="mb-4">
             <div class="space-y-2">
-              <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              <div class="mb-2 text-sm text-gray-600 dark:text-gray-400">
                 共 {props.task.totalChunks} 个分片
               </div>
               <NScrollbar style="max-height: 300px">
@@ -169,7 +169,7 @@ export default defineComponent({
                   {props.task.chunks.slice(0, 50).map(chunk => (
                     <div
                       key={chunk.index}
-                      class="flex items-center justify-between p-2 rounded border border-gray-200 dark:border-gray-700"
+                      class="flex items-center justify-between border border-gray-200 rounded p-2 dark:border-gray-700"
                     >
                       <span class="text-sm">分片 {chunk.index + 1}</span>
                       <NSpace size="small">
@@ -185,7 +185,7 @@ export default defineComponent({
                 </div>
               </NScrollbar>
               {props.task.chunks.length > 50 && (
-                <div class="text-xs text-gray-500 text-center mt-2">
+                <div class="mt-2 text-center text-xs text-gray-500">
                   仅显示前 50 个分片，共 {props.task.chunks.length} 个
                 </div>
               )}
@@ -202,10 +202,10 @@ export default defineComponent({
               </div>
               {props.task.chunkErrors && props.task.chunkErrors.length > 0 && (
                 <div class="mt-2">
-                  <div class="text-sm font-semibold mb-2">分片错误：</div>
+                  <div class="mb-2 text-sm font-semibold">分片错误：</div>
                   <div class="space-y-1">
                     {props.task.chunkErrors.map((err, index) => (
-                      <div key={index} class="text-xs p-2 bg-red-50 dark:bg-red-900/20 rounded">
+                      <div key={index} class="rounded bg-red-50 p-2 text-xs dark:bg-red-900/20">
                         分片 {err.chunkIndex + 1}: {err.error}
                       </div>
                     ))}
@@ -226,7 +226,7 @@ export default defineComponent({
                   <a
                     href={props.task.result.fileUrl}
                     target="_blank"
-                    class="text-primary hover:underline text-sm font-mono break-all max-w-md"
+                    class="max-w-md break-all text-sm text-primary font-mono hover:underline"
                     rel="noopener noreferrer"
                   >
                     {props.task.result.fileUrl}
@@ -236,7 +236,7 @@ export default defineComponent({
               {props.task.result?.fileId && (
                 <div class="flex items-center justify-between">
                   <span class="text-gray-600 dark:text-gray-400">文件ID：</span>
-                  <span class="font-mono text-sm">{props.task.result.fileId}</span>
+                  <span class="text-sm font-mono">{props.task.result.fileId}</span>
                 </div>
               )}
             </div>

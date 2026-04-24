@@ -1,17 +1,14 @@
 /**
  * Flow 事件类型定义
  *
- * 定义图形编辑器的所有事件回调接口
- * 类似 VueFlow/ReactFlow 的事件系统
+ * 定义图形编辑器的所有事件回调接口 类似 VueFlow/ReactFlow 的事件系统
  */
 
 import type { FlowNode } from './flow-node';
 import type { FlowEdge } from './flow-edge';
 import type { FlowViewport } from './flow-config';
 
-/**
- * 节点事件
- */
+/** 节点事件 */
 export interface FlowNodeEvents {
   /** 节点点击事件 */
   onNodeClick?: (node: FlowNode, event: MouseEvent) => void;
@@ -37,9 +34,7 @@ export interface FlowNodeEvents {
   onNodeUpdate?: (node: FlowNode) => void;
 }
 
-/**
- * 连接线事件
- */
+/** 连接线事件 */
 export interface FlowEdgeEvents {
   /** 连接线点击事件 */
   onEdgeClick?: (edge: FlowEdge, event: MouseEvent) => void;
@@ -59,9 +54,7 @@ export interface FlowEdgeEvents {
   onEdgeUpdate?: (edge: FlowEdge) => void;
 }
 
-/**
- * 连接事件
- */
+/** 连接事件 */
 export interface FlowConnectionEvents {
   /** 连接创建事件（返回 false 可阻止连接） */
   onConnect?: (connection: FlowEdge) => boolean | void | Promise<boolean | void>;
@@ -73,9 +66,7 @@ export interface FlowConnectionEvents {
   onConnectReject?: (connection: Partial<FlowEdge>, reason?: string) => void;
 }
 
-/**
- * 画布事件
- */
+/** 画布事件 */
 export interface FlowCanvasEvents {
   /** 画布点击事件 */
   onCanvasClick?: (event: MouseEvent) => void;
@@ -95,9 +86,7 @@ export interface FlowCanvasEvents {
   onCanvasMouseMove?: (event: MouseEvent) => void;
 }
 
-/**
- * 选择事件
- */
+/** 选择事件 */
 export interface FlowSelectionEvents {
   /** 选择变化事件 */
   onSelectionChange?: (selectedNodes: FlowNode[], selectedEdges: FlowEdge[]) => void;
@@ -107,9 +96,7 @@ export interface FlowSelectionEvents {
   onSelectionEnd?: (event: MouseEvent) => void;
 }
 
-/**
- * 视口事件
- */
+/** 视口事件 */
 export interface FlowViewportEvents {
   /** 视口变化事件 */
   onViewportChange?: (viewport: FlowViewport) => void;
@@ -119,9 +106,7 @@ export interface FlowViewportEvents {
   onViewportChangeEnd?: (viewport: FlowViewport) => void;
 }
 
-/**
- * 数据变化事件
- */
+/** 数据变化事件 */
 export interface FlowDataEvents {
   /** 节点数据变化 */
   onNodesChange?: (nodes: FlowNode[]) => void;
@@ -131,9 +116,7 @@ export interface FlowDataEvents {
   onDataChange?: (data: { nodes: FlowNode[]; edges: FlowEdge[] }) => void;
 }
 
-/**
- * 合并所有事件类型
- */
+/** 合并所有事件类型 */
 export interface FlowEvents
   extends FlowNodeEvents,
     FlowEdgeEvents,

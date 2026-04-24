@@ -4,19 +4,17 @@
  * 提供通用的节点容器，支持端口渲染、样式、交互状态等
  */
 
-import { defineComponent, computed, type PropType } from 'vue';
+import { type PropType, computed, defineComponent } from 'vue';
 import { createCache } from '../../utils/cache-utils';
-import { calculateNodeContainerStyle, calculateNodeClass } from '../../utils/node-style-utils';
+import { calculateNodeClass, calculateNodeContainerStyle } from '../../utils/node-style-utils';
 import {
-  calculateHandleStyle,
   calculateHandlePositionStyle,
+  calculateHandleStyle,
   getHandleClass
 } from '../../utils/handle-utils';
-import type { FlowNode, FlowHandle } from '../../types/flow-node';
+import type { FlowHandle, FlowNode } from '../../types/flow-node';
 
-/**
- * BaseNode 组件属性
- */
+/** BaseNode 组件属性 */
 export interface BaseNodeProps {
   /** 节点数据 */
   node: FlowNode;

@@ -4,9 +4,7 @@
  * 用于 core/interaction 和 hooks 之间的共享类型
  */
 
-/**
- * 拖拽坐标转换结果
- */
+/** 拖拽坐标转换结果 */
 export interface DragTransformResult {
   /** 目标坐标 X（转换后的坐标） */
   x: number;

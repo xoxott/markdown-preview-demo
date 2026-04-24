@@ -1,7 +1,4 @@
-/**
- * 上传任务类
- * 负责单个文件的完整上传流程
- */
+/** 上传任务类 负责单个文件的完整上传流程 */
 import { CONSTANTS } from '../constants';
 import type { UploadController } from '../controllers/UploadController';
 import type { CacheManager } from '../managers/CacheManager';
@@ -15,9 +12,7 @@ import { buildRequestBody, fetchWithTimeout } from '../utils/fetch-with-timeout'
 import { classifyError } from '../utils/retry';
 import { Semaphore } from '../utils/semaphore';
 
-/**
- * 上传任务类
- */
+/** 上传任务类 */
 export class UploadTask {
   private uploadPromise?: Promise<void>;
   private completed = false;

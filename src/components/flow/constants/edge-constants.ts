@@ -7,9 +7,8 @@
 /**
  * 连接线颜色常量
  *
- * 注意：这些值仅作为默认值，实际颜色应该从 CSS 变量中获取
- * 使用 getCssVariable() 函数可以获取当前主题的颜色值
- * CSS 变量名：--flow-edge-default, --flow-edge-selected, --flow-edge-hovered, --flow-edge-label
+ * 注意：这些值仅作为默认值，实际颜色应该从 CSS 变量中获取 使用 getCssVariable() 函数可以获取当前主题的颜色值 CSS 变量名：--flow-edge-default,
+ * --flow-edge-selected, --flow-edge-hovered, --flow-edge-label
  */
 export const EDGE_COLORS = {
   /** 默认连接线颜色 */
@@ -22,9 +21,7 @@ export const EDGE_COLORS = {
   LABEL: '#64748b'
 } as const;
 
-/**
- * 箭头尺寸常量
- */
+/** 箭头尺寸常量 */
 export const ARROW_SIZES = {
   /** 基础箭头大小 */
   BASE: 12,
@@ -36,9 +33,7 @@ export const ARROW_SIZES = {
   LENGTH_RATIO: 8
 } as const;
 
-/**
- * 线条宽度常量
- */
+/** 线条宽度常量 */
 export const STROKE_WIDTHS = {
   /** 基础线条宽度 */
   BASE: 2.5,
@@ -52,9 +47,7 @@ export const STROKE_WIDTHS = {
   MAX: 5
 } as const;
 
-/**
- * 贝塞尔曲线常量
- */
+/** 贝塞尔曲线常量 */
 export const BEZIER_CONSTANTS = {
   /** 基础最小偏移量 */
   BASE_MIN_OFFSET: 50,
@@ -64,9 +57,7 @@ export const BEZIER_CONSTANTS = {
   TANGENT_MULTIPLIER: 3
 } as const;
 
-/**
- * 箭头路径比例常量
- */
+/** 箭头路径比例常量 */
 export const ARROW_PATH_RATIOS = {
   /** 参考点 X 比例 */
   REF_X: 2 / 12,
@@ -76,9 +67,7 @@ export const ARROW_PATH_RATIOS = {
   PATH_SIZE: 8 / 12
 } as const;
 
-/**
- * 连接线类型常量
- */
+/** 连接线类型常量 */
 export const EDGE_TYPES = {
   /** 直线类型 */
   STRAIGHT: 'straight',
@@ -86,9 +75,7 @@ export const EDGE_TYPES = {
   BEZIER: 'bezier'
 } as const;
 
-/**
- * CSS 类名常量
- */
+/** CSS 类名常量 */
 export const EDGE_CLASS_NAMES = {
   /** 连接线容器类名 */
   CONTAINER: 'flow-edges',
@@ -102,9 +89,7 @@ export const EDGE_CLASS_NAMES = {
   ANIMATED: 'flow-edge-animated'
 } as const;
 
-/**
- * ID 前缀常量
- */
+/** ID 前缀常量 */
 export const ID_PREFIXES = {
   /** 箭头标记前缀 */
   ARROW: 'flow-arrow-',
@@ -112,9 +97,7 @@ export const ID_PREFIXES = {
   DEFAULT_INSTANCE: 'default'
 } as const;
 
-/**
- * 标记类型常量
- */
+/** 标记类型常量 */
 export const MARKER_TYPES = {
   /** 默认标记 */
   DEFAULT: 'default',
@@ -124,9 +107,7 @@ export const MARKER_TYPES = {
   HOVERED: 'hovered'
 } as const;
 
-/**
- * 标记路径后缀常量
- */
+/** 标记路径后缀常量 */
 export const MARKER_PATH_SUFFIXES = {
   /** 默认路径 */
   DEFAULT: '-path-default',
@@ -136,9 +117,7 @@ export const MARKER_PATH_SUFFIXES = {
   HOVERED: '-path-hovered'
 } as const;
 
-/**
- * 标记后缀常量
- */
+/** 标记后缀常量 */
 export const MARKER_SUFFIXES = {
   /** 默认标记 */
   DEFAULT: '-marker-default',
@@ -148,9 +127,7 @@ export const MARKER_SUFFIXES = {
   HOVERED: '-marker-hovered'
 } as const;
 
-/**
- * 动画常量
- */
+/** 动画常量 */
 export const ANIMATION_CONSTANTS = {
   /** 虚线样式 */
   DASH_ARRAY: '5,5',
@@ -164,9 +141,7 @@ export const ANIMATION_CONSTANTS = {
   ITERATION_COUNT: 'infinite'
 } as const;
 
-/**
- * 标签样式常量
- */
+/** 标签样式常量 */
 export const LABEL_STYLES = {
   /** 字体大小 */
   FONT_SIZE: '12px',
@@ -176,9 +151,7 @@ export const LABEL_STYLES = {
   DOMINANT_BASELINE: 'middle'
 } as const;
 
-/**
- * Canvas 渲染常量
- */
+/** Canvas 渲染常量 */
 export const CANVAS_CONSTANTS = {
   /** 线条端点样式 */
   LINE_CAP: 'round' as CanvasLineCap,

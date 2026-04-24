@@ -1,16 +1,15 @@
 /**
  * 节点拖拽 Hook
  *
- * 处理节点的拖拽功能，基于通用的 useDrag hook 实现。
- * 支持坐标转换（屏幕坐标 -> 画布坐标）、点击/拖拽区分等。
+ * 处理节点的拖拽功能，基于通用的 useDrag hook 实现。 支持坐标转换（屏幕坐标 -> 画布坐标）、点击/拖拽区分等。
  */
 
-import { ref, type Ref } from 'vue';
+import { type Ref, ref } from 'vue';
+import { logger } from '../utils/logger';
+import type { FlowConfig, FlowNode, FlowViewport } from '../types';
 import { useDrag } from './useDrag';
 import { useClickDragDistinction } from './useClickDragDistinction';
 import { useZIndexAllocator } from './useZIndexAllocator';
-import { logger } from '../utils/logger';
-import type { FlowConfig, FlowViewport, FlowNode } from '../types';
 
 export interface UseNodeDragOptions {
   /** 画布配置 */
@@ -49,8 +48,7 @@ export interface UseNodeDragReturn {
 /**
  * 节点拖拽 Hook
  *
- * 基于通用的 useDrag hook 实现节点拖拽功能。
- * 支持坐标转换（屏幕坐标 -> 画布坐标）、点击/拖拽区分等。
+ * 基于通用的 useDrag hook 实现节点拖拽功能。 支持坐标转换（屏幕坐标 -> 画布坐标）、点击/拖拽区分等。
  *
  * @param options 节点拖拽配置选项
  * @returns 节点拖拽相关的状态和方法

@@ -1,14 +1,12 @@
-/**
- * EventManager 测试
- */
+/** EventManager 测试 */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EventManager } from '../../managers/EventManager';
 import type {
-  RequestStartEventData,
-  RequestSuccessEventData,
+  RequestCompleteEventData,
   RequestErrorEventData,
-  RequestCompleteEventData
+  RequestStartEventData,
+  RequestSuccessEventData
 } from '../../types';
 
 describe('EventManager', () => {

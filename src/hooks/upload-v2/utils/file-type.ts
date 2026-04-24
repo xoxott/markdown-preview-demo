@@ -1,6 +1,4 @@
-/**
- * 文件类型工具函数
- */
+/** 文件类型工具函数 */
 import {
   ArchiveOutline,
   DocumentOutline,
@@ -51,9 +49,7 @@ const FILE_TYPE_MAP: Record<string, FileTypeConfig> = {
   }
 };
 
-/**
- * 检测文件类型
- */
+/** 检测文件类型 */
 export function detectFileType(mimeType: string): keyof typeof FILE_TYPE_MAP {
   if (mimeType.startsWith('image/')) return 'image';
   if (mimeType.startsWith('video/')) return 'video';
@@ -64,23 +60,17 @@ export function detectFileType(mimeType: string): keyof typeof FILE_TYPE_MAP {
   return 'default';
 }
 
-/**
- * 获取文件图标
- */
+/** 获取文件图标 */
 export function getFileIcon(mimeType: string) {
   return FILE_TYPE_MAP[detectFileType(mimeType)].icon;
 }
 
-/**
- * 获取文件颜色
- */
+/** 获取文件颜色 */
 export function getFileColor(mimeType: string): string {
   return FILE_TYPE_MAP[detectFileType(mimeType)].color;
 }
 
-/**
- * 获取文件类型配置
- */
+/** 获取文件类型配置 */
 export function getFileTypeConfig(mimeType: string): FileTypeConfig {
   return FILE_TYPE_MAP[detectFileType(mimeType)];
 }

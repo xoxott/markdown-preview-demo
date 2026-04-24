@@ -1,23 +1,16 @@
-/**
- * Axios 传输层适配器
- * 将 Axios 实例适配为 request-core 的 Transport 接口
- */
+/** Axios 传输层适配器 将 Axios 实例适配为 request-core 的 Transport 接口 */
 
-import type { Transport, TransportResponse, NormalizedRequestConfig } from '@suga/request-core';
 import type { AxiosInstance, AxiosResponse } from 'axios';
 import axios from 'axios';
+import type { NormalizedRequestConfig, Transport, TransportResponse } from '@suga/request-core';
 
-/**
- * Axios 传输层选项
- */
+/** Axios 传输层选项 */
 export interface AxiosTransportOptions {
   /** HTTP 请求实例（必需，通常是通过 axios.create() 创建的实例） */
   instance: unknown;
 }
 
-/**
- * 将 Axios 响应头转换为标准格式
- */
+/** 将 Axios 响应头转换为标准格式 */
 function normalizeHeaders(headers: AxiosResponse['headers']): Record<string, string> {
   const normalized: Record<string, string> = {};
 
@@ -33,10 +26,7 @@ function normalizeHeaders(headers: AxiosResponse['headers']): Record<string, str
   return normalized;
 }
 
-/**
- * 类型守卫：检查是否为 Axios 实例
- * 注意：AxiosInstance 实际上是一个函数对象，所以 typeof 是 'function' 而不是 'object'
- */
+/** 类型守卫：检查是否为 Axios 实例 注意：AxiosInstance 实际上是一个函数对象，所以 typeof 是 'function' 而不是 'object' */
 function isAxiosInstance(instance: unknown): instance is AxiosInstance {
   if (!instance) {
     return false;
@@ -51,9 +41,7 @@ function isAxiosInstance(instance: unknown): instance is AxiosInstance {
   );
 }
 
-/**
- * Axios 传输层适配器
- */
+/** Axios 传输层适配器 */
 export class AxiosTransport implements Transport {
   private readonly instance: AxiosInstance;
 

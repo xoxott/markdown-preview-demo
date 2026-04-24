@@ -28,23 +28,23 @@ export type NodeChildren =
  * 定义统一的接口，用于在不同框架（Vue、React）中创建虚拟节点
  *
  * @example
- * ```typescript
- * // 自定义适配器示例
- * const myAdapter: FrameworkAdapter = {
- *   createElement: (tag, props, children) => {
- *     // 实现元素创建逻辑
- *   },
- *   createText: (text) => {
- *     // 实现文本节点创建逻辑
- *   },
- *   createFragment: (children) => {
- *     // 实现片段创建逻辑
- *   },
- *   createComment: () => {
- *     // 实现注释节点创建逻辑
- *   }
- * };
- * ```
+ *   ```typescript
+ *   // 自定义适配器示例
+ *   const myAdapter: FrameworkAdapter = {
+ *     createElement: (tag, props, children) => {
+ *       // 实现元素创建逻辑
+ *     },
+ *     createText: (text) => {
+ *       // 实现文本节点创建逻辑
+ *     },
+ *     createFragment: (children) => {
+ *       // 实现片段创建逻辑
+ *     },
+ *     createComment: () => {
+ *       // 实现注释节点创建逻辑
+ *     }
+ *   };
+ *   ```;
  */
 export interface FrameworkAdapter {
   /**

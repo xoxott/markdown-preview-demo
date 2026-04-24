@@ -4,13 +4,11 @@
  * 负责将配置变化同步到选择选项
  */
 
-import { watch, type Ref } from 'vue';
+import { type Ref, watch } from 'vue';
 import type { FlowConfig } from '../types';
 import type { SelectionOptions } from '../core/interaction/FlowSelectionHandler';
 
-/**
- * FlowCanvas 配置同步 Hook 选项
- */
+/** FlowCanvas 配置同步 Hook 选项 */
 export interface UseFlowCanvasConfigSyncOptions {
   /** 配置对象 */
   config: Ref<FlowConfig>;
@@ -18,9 +16,7 @@ export interface UseFlowCanvasConfigSyncOptions {
   setSelectionOptions: (options: Partial<SelectionOptions>) => void;
 }
 
-/**
- * FlowCanvas 配置同步 Hook 返回值
- */
+/** FlowCanvas 配置同步 Hook 返回值 */
 export interface UseFlowCanvasConfigSyncReturn {
   /** 开始同步（通常在组件挂载后调用） */
   start: () => void;
@@ -33,19 +29,19 @@ export interface UseFlowCanvasConfigSyncReturn {
  *
  * 监听配置变化，更新选择选项
  *
+ * @example
+ *   ```typescript
+ *   const { start, stop } = useFlowCanvasConfigSync({
+ *     config,
+ *     setSelectionOptions
+ *   });
+ *
+ *   onMounted(() => start());
+ *   onUnmounted(() => stop());
+ *   ```;
+ *
  * @param options Hook 选项
  * @returns 同步控制方法
- *
- * @example
- * ```typescript
- * const { start, stop } = useFlowCanvasConfigSync({
- *   config,
- *   setSelectionOptions
- * });
- *
- * onMounted(() => start());
- * onUnmounted(() => stop());
- * ```
  */
 export function useFlowCanvasConfigSync(
   options: UseFlowCanvasConfigSyncOptions
@@ -54,9 +50,7 @@ export function useFlowCanvasConfigSync(
 
   let stopWatch: (() => void) | null = null;
 
-  /**
-   * 开始同步
-   */
+  /** 开始同步 */
   const start = () => {
     stopWatch = watch(
       () =>
@@ -78,9 +72,7 @@ export function useFlowCanvasConfigSync(
     );
   };
 
-  /**
-   * 停止同步
-   */
+  /** 停止同步 */
   const stop = () => {
     if (stopWatch) {
       stopWatch();

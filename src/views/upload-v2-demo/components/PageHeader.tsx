@@ -1,12 +1,12 @@
-import { defineComponent, type PropType } from 'vue';
+import { type PropType, defineComponent } from 'vue';
 import { NButton, NIcon, NSpace } from 'naive-ui';
 import {
   CloudUploadOutline,
-  LanguageOutline,
-  FlashOutline,
-  StatsChartOutline,
   CodeOutline,
+  FlashOutline,
+  LanguageOutline,
   SettingsOutline,
+  StatsChartOutline,
   TrashOutline
 } from '@vicons/ionicons5';
 

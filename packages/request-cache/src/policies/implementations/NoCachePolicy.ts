@@ -1,10 +1,7 @@
-/**
- * 无缓存策略实现
- * 始终返回 false，用于明确禁用缓存
- */
+/** 无缓存策略实现 始终返回 false，用于明确禁用缓存 */
 
 import type { NormalizedRequestConfig } from '@suga/request-core';
-import type { CachePolicy, CacheMeta } from '../types';
+import type { CacheMeta, CachePolicy } from '../types';
 
 export class NoCachePolicy implements CachePolicy {
   shouldRead(_config: NormalizedRequestConfig, _meta?: CacheMeta): boolean {

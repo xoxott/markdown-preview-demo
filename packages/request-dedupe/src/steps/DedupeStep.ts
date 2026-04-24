@@ -1,16 +1,11 @@
-/**
- * 去重步骤
- * 职责：防止重复请求，相同请求在时间窗口内只发送一次
- */
+/** 去重步骤 职责：防止重复请求，相同请求在时间窗口内只发送一次 */
 
-import type { RequestStep, RequestContext } from '@suga/request-core';
-import type { DedupeOptions, DedupeMeta } from '../types';
+import type { RequestContext, RequestStep } from '@suga/request-core';
+import type { DedupeMeta, DedupeOptions } from '../types';
 import { DedupeManager } from '../managers/DedupeManager';
 import { generateRequestKey } from '../utils/key-generator';
 
-/**
- * 去重步骤配置
- */
+/** 去重步骤配置 */
 export interface DedupeStepOptions {
   /** 去重管理器实例 */
   dedupeManager?: DedupeManager;
@@ -18,16 +13,12 @@ export interface DedupeStepOptions {
   defaultOptions?: DedupeOptions;
 }
 
-/**
- * 类型守卫：判断 meta 是否包含 DedupeMeta
- */
+/** 类型守卫：判断 meta 是否包含 DedupeMeta */
 function isDedupeMeta(meta: Record<string, unknown>): meta is DedupeMeta {
   return typeof meta === 'object' && meta !== null;
 }
 
-/**
- * 解析去重配置
- */
+/** 解析去重配置 */
 function parseDedupeConfig(
   config: boolean | DedupeOptions | undefined,
   defaultOptions?: DedupeOptions
@@ -47,9 +38,7 @@ function parseDedupeConfig(
   return undefined;
 }
 
-/**
- * 去重步骤
- */
+/** 去重步骤 */
 export class DedupeStep implements RequestStep {
   private dedupeManager: DedupeManager;
   private defaultOptions?: DedupeOptions;

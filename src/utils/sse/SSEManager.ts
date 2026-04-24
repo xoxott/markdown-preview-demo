@@ -4,8 +4,8 @@ import { parseSSEMessage } from './messageParser';
 /**
  * SSE Connection Manager
  *
- * Singleton pattern to manage all SSE connections
- * Supports connection pooling, auto-reconnect, event distribution
+ * Singleton pattern to manage all SSE connections Supports connection pooling, auto-reconnect,
+ * event distribution
  */
 class SSEManager {
   private static instance: SSEManager;
@@ -23,9 +23,7 @@ class SSEManager {
     // Private constructor for singleton
   }
 
-  /**
-   * Get singleton instance
-   */
+  /** Get singleton instance */
   static getInstance(): SSEManager {
     if (!SSEManager.instance) {
       SSEManager.instance = new SSEManager();
@@ -33,9 +31,7 @@ class SSEManager {
     return SSEManager.instance;
   }
 
-  /**
-   * Create or get SSE connection
-   */
+  /** Create or get SSE connection */
   connect(connectionId: string, config: SSE.ConnectionConfig): SSE.Connection {
     // If connection already exists, increment ref count and return it
     if (this.connections.has(connectionId)) {
@@ -208,9 +204,7 @@ class SSEManager {
     }
   }
 
-  /**
-   * Handle SSE message based on type
-   */
+  /** Handle SSE message based on type */
   private handleSSEMessage(connection: SSE.Connection, message: SSE.SSEMessage): void {
     switch (message.type) {
       case 'connected':
@@ -253,9 +247,7 @@ class SSEManager {
     }
   }
 
-  /**
-   * Handle connection error
-   */
+  /** Handle connection error */
   private handleError(connection: SSE.Connection, error: Event | Error): void {
     connection.status = 'error';
     const errorObj = error instanceof Error ? error : new Error('Unknown error');
@@ -297,7 +289,7 @@ class SSEManager {
     // Calculate delay with exponential backoff
     const baseDelay = connection.config.reconnectDelay || 1000;
     const maxDelay = connection.config.maxReconnectDelay || 30000;
-    const delay = Math.min(baseDelay * Math.pow(2, connection.reconnectAttempts - 1), maxDelay);
+    const delay = Math.min(baseDelay * 2 ** (connection.reconnectAttempts - 1), maxDelay);
 
     connection.reconnectTimer = window.setTimeout(() => {
       this.createSSEConnection(connection);

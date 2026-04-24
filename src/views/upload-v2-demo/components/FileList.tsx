@@ -1,10 +1,10 @@
-import { defineComponent, type PropType } from 'vue';
+import { type PropType, defineComponent } from 'vue';
 import { NCard, NDataTable, NSpace, NTag } from 'naive-ui';
 import type { FileListRow } from '../types';
 import {
-  createFileListColumns,
   type FileListColumnHandlers,
-  type FileListColumnUtils
+  type FileListColumnUtils,
+  createFileListColumns
 } from './FileListColumns';
 
 interface Props {

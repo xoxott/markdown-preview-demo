@@ -1,11 +1,9 @@
+import { type Ref, computed } from 'vue';
 import type { FileTask } from '@/hooks/upload-v2';
 import { UploadStatus } from '@/hooks/upload-v2';
-import { computed, type Ref } from 'vue';
 import type { FileListRow, TodayStatsData } from '../types';
 
-/**
- * 计算失败文件数量
- */
+/** 计算失败文件数量 */
 export function useFailedCount(
   completedUploads: Ref<FileTask[]> | { value: FileTask[] }
 ): Ref<number> {
@@ -15,9 +13,7 @@ export function useFailedCount(
   });
 }
 
-/**
- * 计算网络质量文本
- */
+/** 计算网络质量文本 */
 export function useNetworkQualityText(
   networkQuality: Ref<string> | { value: string }
 ): Ref<string> {
@@ -32,9 +28,7 @@ export function useNetworkQualityText(
   });
 }
 
-/**
- * 计算网络质量颜色
- */
+/** 计算网络质量颜色 */
 export function useNetworkQualityColor(
   networkQuality: Ref<string> | { value: string }
 ): Ref<'success' | 'warning' | 'error' | 'default'> {
@@ -49,9 +43,7 @@ export function useNetworkQualityColor(
   });
 }
 
-/**
- * 计算今日统计数据
- */
+/** 计算今日统计数据 */
 export function useTodayStatsData(
   getTodayStats: () => {
     date: string;
@@ -99,9 +91,7 @@ export function useTodayStatsData(
   });
 }
 
-/**
- * 计算文件列表数据
- */
+/** 计算文件列表数据 */
 export function useAllFiles(
   uploadQueue: Ref<FileTask[]> | { value: FileTask[] },
   activeUploads: Ref<Map<string, FileTask>> | { value: Map<string, FileTask> },

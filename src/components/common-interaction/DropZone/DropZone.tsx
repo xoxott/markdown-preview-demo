@@ -5,16 +5,16 @@
  */
 
 import {
+  type CSSProperties,
+  type PropType,
   computed,
   defineComponent,
   onBeforeUnmount,
   onMounted,
-  ref,
-  type CSSProperties,
-  type PropType
+  ref
 } from 'vue';
 import { useEventListener } from '@vueuse/core';
-import type { DragItem, DropTargetState, DropValidator, DropCallbackParams } from '../types';
+import type { DragItem, DropCallbackParams, DropTargetState, DropValidator } from '../types';
 import '@/styles/common-interaction.scss';
 
 export default defineComponent({
@@ -126,12 +126,11 @@ export default defineComponent({
             ...baseStyle,
             ...props.highlightStyle
           };
-        } else {
-          return {
-            ...baseStyle,
-            ...props.invalidStyle
-          };
         }
+        return {
+          ...baseStyle,
+          ...props.invalidStyle
+        };
       }
 
       return baseStyle;
@@ -172,9 +171,7 @@ export default defineComponent({
 
     // ==================== 工具函数 ====================
 
-    /**
-     * 从拖拽事件中提取数据
-     */
+    /** 从拖拽事件中提取数据 */
     function extractDragData(e: DragEvent): DragItem[] {
       if (props.dataExtractor) {
         return props.dataExtractor(e);
@@ -194,9 +191,7 @@ export default defineComponent({
       return [];
     }
 
-    /**
-     * 验证拖放数据
-     */
+    /** 验证拖放数据 */
     function validateDrop(items: DragItem[]): boolean {
       if (props.disabled) return false;
       if (items.length === 0) return false;
@@ -217,9 +212,7 @@ export default defineComponent({
 
     // ==================== 事件处理 ====================
 
-    /**
-     * 拖拽进入
-     */
+    /** 拖拽进入 */
     function handleDragEnter(e: DragEvent) {
       e.preventDefault();
       e.stopPropagation();
@@ -247,9 +240,7 @@ export default defineComponent({
       }
     }
 
-    /**
-     * 拖拽悬停
-     */
+    /** 拖拽悬停 */
     function handleDragOver(e: DragEvent) {
       e.preventDefault();
       e.stopPropagation();
@@ -272,9 +263,7 @@ export default defineComponent({
       emit('drag-over', params);
     }
 
-    /**
-     * 拖拽离开
-     */
+    /** 拖拽离开 */
     function handleDragLeave(e: DragEvent) {
       e.preventDefault();
       e.stopPropagation();
@@ -300,9 +289,7 @@ export default defineComponent({
       }
     }
 
-    /**
-     * 拖放
-     */
+    /** 拖放 */
     function handleDrop(e: DragEvent) {
       e.preventDefault();
       e.stopPropagation();

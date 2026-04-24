@@ -1,6 +1,4 @@
-/**
- * 国际化支持
- */
+/** 国际化支持 */
 
 /** 语言类型 */
 export type Language = 'zh-CN' | 'en-US';
@@ -77,25 +75,19 @@ class I18nManager {
   private customTexts: Partial<I18nTexts> = {};
   private texts: I18nTexts = zhCNTexts;
 
-  /**
-   * 设置语言
-   */
+  /** 设置语言 */
   setLanguage(language: Language): void {
     this.currentLanguage = language;
     this.updateTexts();
   }
 
-  /**
-   * 设置自定义文本
-   */
+  /** 设置自定义文本 */
   setCustomTexts(texts: Partial<I18nTexts>): void {
     this.customTexts = texts;
     this.updateTexts();
   }
 
-  /**
-   * 更新文本
-   */
+  /** 更新文本 */
   private updateTexts(): void {
     const baseTexts = this.currentLanguage === 'zh-CN' ? zhCNTexts : enUSTexts;
     this.texts = {
@@ -104,30 +96,22 @@ class I18nManager {
     };
   }
 
-  /**
-   * 获取状态文本
-   */
+  /** 获取状态文本 */
   getStatusText(key: keyof StatusTextMap): string {
     return this.texts.status[key] || key;
   }
 
-  /**
-   * 获取错误消息
-   */
+  /** 获取错误消息 */
   getErrorMessage(key: keyof ErrorMessageMap): string {
     return this.texts.errors[key] || this.texts.errors.unknownError;
   }
 
-  /**
-   * 获取当前语言
-   */
+  /** 获取当前语言 */
   getLanguage(): Language {
     return this.currentLanguage;
   }
 
-  /**
-   * 获取所有文本
-   */
+  /** 获取所有文本 */
   getTexts(): I18nTexts {
     return { ...this.texts };
   }

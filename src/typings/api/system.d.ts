@@ -1,6 +1,4 @@
-/**
- * System API types
- */
+/** System API types */
 
 declare namespace Api {
   /**

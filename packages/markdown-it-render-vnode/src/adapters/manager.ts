@@ -1,12 +1,13 @@
 /**
  * 适配器管理器
  *
+ * 通过在 renderer 对象上存储实例数据来避免全局状态
+ *
  * @module adapters/manager
- * @description 通过在 renderer 对象上存储实例数据来避免全局状态
  */
 
-import type { FrameworkAdapter } from './types';
 import type { MarkdownRenderer } from '../types';
+import type { FrameworkAdapter } from './types';
 
 /** 内部符号键，用于存储适配器（避免命名冲突） */
 const ADAPTER_KEY = Symbol('__vnodeAdapter');
@@ -73,5 +74,5 @@ export function getAdapter(renderer?: MarkdownRenderer): FrameworkAdapter {
  * @returns 是否已设置
  */
 export function hasAdapter(renderer: MarkdownRenderer): boolean {
-  return !!(renderer as RendererWithAdapter)[ADAPTER_KEY];
+  return Boolean((renderer as RendererWithAdapter)[ADAPTER_KEY]);
 }
