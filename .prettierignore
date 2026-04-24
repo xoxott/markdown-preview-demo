@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System files
+*.swp
+.DS_Store
+Thumbs.db
+
+# Build outputs
+coverage/
+.nyc_output/
+.jest/
+
+# Environment
+.env*
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+
+# Lock files
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+
+# Temporary files
+.tmp/
+.temp/

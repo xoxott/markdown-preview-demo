@@ -16,14 +16,7 @@ export default defineConfig(configEnv => {
     optimizeDeps: {
       exclude: ['@vue/repl'],
       // 预构建常用依赖
-      include: [
-        'vue',
-        'vue-router',
-        'pinia',
-        '@vueuse/core',
-        'dayjs',
-        'axios'
-      ]
+      include: ['vue', 'vue-router', 'pinia', '@vueuse/core', 'dayjs', 'axios']
     },
     resolve: {
       alias: {
@@ -57,6 +50,12 @@ export default defineConfig(configEnv => {
     build: {
       reportCompressedSize: false,
       sourcemap: viteEnv.VITE_SOURCE_MAP === 'Y',
+      minify: 'esbuild', // 使用 esbuild 压缩
+      esbuild: {
+        // 生产模式下移除 console 和 debugger
+        drop: viteEnv.VITE_DROP_CONSOLE === 'Y' ? ['console', 'debugger'] : [],
+        legalComments: 'eof'
+      },
       commonjsOptions: {
         ignoreTryCatch: false
       },

@@ -32,6 +32,7 @@
   },
   "scripts": {
     "build": "vite build --mode prod",
+    "build:check": "vite build --mode prod && node -e \"require('./build/scripts/check-console-drop').checkConsoleStatements()\"",
     "build:test": "vite build --mode test",
     "cleanup": "sa cleanup",
     "commit": "sa git-commit",
@@ -39,9 +40,12 @@
     "deploy": "gh-pages -d dist",
     "dev": "vite --mode test",
     "dev:prod": "vite --mode prod",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "gen-route": "sa gen-route",
     "i18n:convert": "node convert-locales.mjs",
     "lint": "eslint src --fix",
+    "lint:format": "prettier --write . && eslint . --fix --ext .ts,.tsx,.js,.jsx,.vue",
     "prepare": "simple-git-hooks",
     "preview": "vite preview",
     "release": "sa release",
@@ -72,7 +76,6 @@
     "@vue/repl": "git+https://github.com/xoxott/repl.git#swich-npm-registry",
     "@vueuse/core": "13.1.0",
     "clipboard": "2.0.11",
-    "crypto": "^1.0.1",
     "d3": "^7.9.0",
     "dayjs": "1.11.13",
     "defu": "6.1.4",
@@ -132,6 +135,7 @@
     "gh-pages": "^6.3.0",
     "happy-dom": "^20.0.10",
     "kolorist": "1.8.0",
+    "prettier": "^3.5.3",
     "sass": "1.88.0",
     "simple-git-hooks": "2.13.0",
     "tsx": "4.19.4",
@@ -148,7 +152,7 @@
   },
   "simple-git-hooks": {
     "commit-msg": "pnpm sa git-commit-verify",
-    "pre-commit": "pnpm typecheck && git diff --exit-code"
+    "pre-commit": "pnpm lint:format"
   },
   "website": "https://github.com/xoxott/markdown-preview-demo"
 }

@@ -44,7 +44,7 @@ export default defineConfig(
       /* ===== 未使用变量和导入 ===== */
       'unused-imports/no-unused-imports': 'error',
       'unused-imports/no-unused-vars': [
-        'error',
+        'warn',
         {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_'
@@ -54,8 +54,6 @@ export default defineConfig(
       /* ===== Vue 特定规则 ===== */
       'vue/no-unused-refs': 'warn',
       'vue/no-unused-vars': 'warn',
-      'unused-imports/no-unused-imports': 'warn',
-      'unused-imports/no-unused-vars': 'warn',
 
       /* ===== TypeScript 类型规则 ===== */
       '@typescript-eslint/no-explicit-any': [
