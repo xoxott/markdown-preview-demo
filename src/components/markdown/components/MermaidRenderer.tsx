@@ -4,7 +4,16 @@
  * @module MermaidRenderer
  */
 
-import { type PropType, Transition, computed, defineComponent, nextTick, onMounted, ref, watch } from 'vue';
+import {
+  type PropType,
+  Transition,
+  computed,
+  defineComponent,
+  nextTick,
+  onMounted,
+  ref,
+  watch
+} from 'vue';
 import { NCard } from 'naive-ui';
 import { useToggle } from '@/hooks/customer/useToggle';
 import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
@@ -85,13 +94,19 @@ export const MermaidRenderer = defineComponent({
     // ==================== Hooks ====================
     const { copyCode, copyFeedback } = useCodeTools();
 
-    const { svgValue, svgAspectRatio, initMermaid, renderDiagram, containerStyle, errorMessage, isLoading, hasError } =
-      useMermaid(content, darkMode);
+    const {
+      svgValue,
+      svgAspectRatio,
+      initMermaid,
+      renderDiagram,
+      containerStyle,
+      errorMessage,
+      isLoading,
+      hasError
+    } = useMermaid(content, darkMode);
 
-    const { downloadSVG, startDrag, scale, zoom, position, isDragging, transformStyle } = useSvgTools(
-      containerRef,
-      svgValue
-    );
+    const { downloadSVG, startDrag, scale, zoom, position, isDragging, transformStyle } =
+      useSvgTools(containerRef, svgValue);
 
     // ==================== 防抖渲染 ====================
     const debouncedRender = debounce(async () => {
@@ -118,9 +133,9 @@ export const MermaidRenderer = defineComponent({
       { immediate: true }
     );
 
-    /** 监听主题变化，重新初始化 */
+    /** 监听主题变化，标记需要重新初始化（延迟到下次渲染时执行） */
     watch(darkMode, () => {
-      initMermaid();
+      // initMermaid 已由 useMermaid 的 renderDiagram 延迟调用
       if (content.value) {
         debouncedRender();
       }
@@ -243,7 +258,7 @@ export const MermaidRenderer = defineComponent({
         <NCard
           bordered={props.bordered}
           class={`mb-4 mt-4 ${darkMode.value ? 'color-mode-dark' : 'color-mode-light'}`}
-          style={cssVars.value as any}
+          style={cssVars.value}
         >
           {/* 工具栏 */}
           {props.showToolbar && (
@@ -277,7 +292,10 @@ export const MermaidRenderer = defineComponent({
             <Transition name="fade-bottom" mode="out-in">
               {showCode.value ? (
                 <div key="code">
-                  <pre class="m-0 overflow-auto rounded p-3 text-sm leading-relaxed" style={codeBlockStyle.value}>
+                  <pre
+                    class="m-0 overflow-auto rounded p-3 text-sm leading-relaxed"
+                    style={codeBlockStyle.value}
+                  >
                     {content.value}
                   </pre>
                 </div>
