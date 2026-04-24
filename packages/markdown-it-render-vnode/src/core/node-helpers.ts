@@ -56,4 +56,3 @@ export function renderInlineContent(
   const children = renderer.render(token.children || [], options, env);
   return createFragmentNode(children);
 }
-

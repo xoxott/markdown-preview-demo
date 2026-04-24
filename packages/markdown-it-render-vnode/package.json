@@ -22,7 +22,9 @@
   },
   "typesVersions": {
     "*": {
-      "*": ["./src/*"]
+      "*": [
+        "./src/*"
+      ]
     }
   },
   "keywords": [
@@ -48,9 +50,6 @@
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "dependencies": {
-    "uuid": "^11.1.0"
-  },
   "peerDependencies": {
     "markdown-it": "^14.0.0"
   },
@@ -62,10 +61,8 @@
   "devDependencies": {
     "@suga/markdown-it-render-vnode-vue": "workspace:*",
     "@types/markdown-it": "^14.1.2",
-    "@types/uuid": "^11.0.0",
     "typescript": "^5.6.3",
     "vue": "^3.5.13",
     "vitest": "^4.0.8"
   }
 }
-

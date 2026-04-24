@@ -190,7 +190,11 @@ describe('markdownItRenderVnode', () => {
 
       const content = 'Line 1\nLine 2';
       const tokens = mdWithBreaks.parse(content, {});
-      const vnodes = mdWithBreaks.renderer.render(tokens, mdWithBreaks.options, {}) as unknown as VNode[];
+      const vnodes = mdWithBreaks.renderer.render(
+        tokens,
+        mdWithBreaks.options,
+        {}
+      ) as unknown as VNode[];
 
       expect(vnodes).toBeDefined();
     });
@@ -205,7 +209,6 @@ describe('markdownItRenderVnode', () => {
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
       const duration = performance.now() - start;
 
-      console.log('渲染时间',duration)
       expect(vnodes).toBeDefined();
       expect(duration).toBeLessThan(1000); // 应在 1 秒内完成
     });
@@ -244,7 +247,9 @@ console.log(code);
     it('应该处理安全模式', () => {
       const content = '<script>alert("XSS")</script>';
       const tokens = md.parse(content, {});
-      const vnodes = md.renderer.render(tokens, md.options, { safeMode: true }) as unknown as VNode[];
+      const vnodes = md.renderer.render(tokens, md.options, {
+        safeMode: true
+      }) as unknown as VNode[];
 
       expect(vnodes).toBeDefined();
     });
@@ -252,7 +257,9 @@ console.log(code);
     it('应该过滤危险的 URL 协议', () => {
       const content = '[Link](javascript:alert("XSS"))';
       const tokens = md.parse(content, {});
-      const vnodes = md.renderer.render(tokens, md.options, { safeMode: true }) as unknown as VNode[];
+      const vnodes = md.renderer.render(tokens, md.options, {
+        safeMode: true
+      }) as unknown as VNode[];
 
       expect(vnodes).toBeDefined();
     });
@@ -388,4 +395,3 @@ console.log(code);
     });
   });
 });
-

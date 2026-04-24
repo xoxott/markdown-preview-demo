@@ -42,9 +42,24 @@ export function setPerformanceCallback(callback: PerformanceCallback | null): vo
  * @returns 包装后的渲染函数
  */
 export function createPerformanceMonitor(
-  originalRender: (this: MarkdownRenderer, tokens: Token[], options: RenderOptions, env: RenderEnv) => FrameworkNode[]
-): (this: MarkdownRenderer, tokens: Token[], options: RenderOptions, env: RenderEnv) => FrameworkNode[] {
-  return function (this: MarkdownRenderer, tokens: Token[], options: RenderOptions, env: RenderEnv): FrameworkNode[] {
+  originalRender: (
+    this: MarkdownRenderer,
+    tokens: Token[],
+    options: RenderOptions,
+    env: RenderEnv
+  ) => FrameworkNode[]
+): (
+  this: MarkdownRenderer,
+  tokens: Token[],
+  options: RenderOptions,
+  env: RenderEnv
+) => FrameworkNode[] {
+  return function (
+    this: MarkdownRenderer,
+    tokens: Token[],
+    options: RenderOptions,
+    env: RenderEnv
+  ): FrameworkNode[] {
     const start = performance.now();
     const result = originalRender.call(this, tokens, options, env);
     const duration = performance.now() - start;
@@ -75,4 +90,3 @@ export function createPerformanceMonitor(
     return result;
   };
 }
-

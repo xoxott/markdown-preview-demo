@@ -6,32 +6,77 @@
 
 import type { RenderEnv, Token } from './types';
 import type { FrameworkNode } from './adapters/types';
-import { HTML_ESCAPE_MAP, HTML_UNESCAPE_MAP, PERFORMANCE_CONFIG, SECURITY_PATTERNS, DANGEROUS_TAGS, SAFE_TAGS } from './constants';
+import {
+  HTML_ESCAPE_MAP,
+  HTML_UNESCAPE_MAP,
+  PERFORMANCE_CONFIG,
+  SECURITY_PATTERNS,
+  DANGEROUS_TAGS,
+  SAFE_TAGS
+} from './constants';
 import { getAdapter } from './adapters/manager';
 import { handleError } from './utils/error-handler';
 
 /** 属性记录类型 */
 export type AttrRecord = Record<string, string>;
 
+/**
+ * 快速内容 hash（DJB2 变体）
+ * 用于缓存 key 生成和 token key 生成，非加密用途
+ *
+ * @param str - 要 hash 的字符串
+ * @param maxLen - 最大 hash 字符数（性能优化，默认 100）
+ */
+export function simpleHash(str: string, maxLen: number = 100): string {
+  let hash = 5381;
+  const len = Math.min(str.length, maxLen);
+  for (let i = 0; i < len; i++) {
+    hash = ((hash << 5) + hash + str.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash).toString(36);
+}
+
 /** 属性对象池 */
 const attrPool: Array<AttrRecord> = [];
+
+/** 对象池峰值使用量跟踪（用于动态扩展） */
+let peakPoolUsage = 0;
 
 // 初始化对象池
 for (let i = 0; i < PERFORMANCE_CONFIG.POOL_SIZE; i++) {
   attrPool.push({});
 }
 
-/** 从对象池获取属性对象（性能优化） */
+/** 从对象池获取属性对象（性能优化 + 动态扩展） */
 export function getAttrsFromPool(): AttrRecord {
   if (!PERFORMANCE_CONFIG.ENABLE_OBJECT_POOL) {
     return {};
   }
-  return attrPool.pop() || {};
+
+  const result = attrPool.pop();
+  if (result) {
+    return result;
+  }
+
+  // 对象池耗尽，尝试动态扩展
+  if (peakPoolUsage < PERFORMANCE_CONFIG.MAX_POOL_SIZE) {
+    peakPoolUsage += PERFORMANCE_CONFIG.POOL_EXPAND_STEP;
+    for (let i = 0; i < PERFORMANCE_CONFIG.POOL_EXPAND_STEP; i++) {
+      attrPool.push({});
+    }
+    return attrPool.pop()!;
+  }
+
+  // 达到上限，直接分配
+  return {};
 }
 
 /** 归还属性对象到池中 */
 export function returnAttrsToPool(attrs: AttrRecord): void {
-  if (!PERFORMANCE_CONFIG.ENABLE_OBJECT_POOL || attrPool.length >= PERFORMANCE_CONFIG.POOL_SIZE) {
+  if (
+    !PERFORMANCE_CONFIG.ENABLE_OBJECT_POOL ||
+    attrPool.length >= PERFORMANCE_CONFIG.MAX_POOL_SIZE
+  ) {
     return;
   }
   // 清空对象的所有属性
@@ -71,7 +116,7 @@ export function unescapeAll(str: string): string {
     return str;
   }
 
-  return str.replace(/&(amp|lt|gt|quot|#39);/g, (match) => {
+  return str.replace(/&(amp|lt|gt|quot|#39);/g, match => {
     return HTML_UNESCAPE_MAP[match] || match;
   });
 }
@@ -178,6 +223,21 @@ export function sanitizeAttributes(attrs: AttrRecord, safeMode: boolean = true):
 }
 
 /**
+ * 快速安全检测正则（预编译）
+ * 用于快速判断 HTML 是否包含危险模式，若无则跳过完整清洗
+ * 检测范围：危险标签、事件处理器属性、危险 URL 协议
+ */
+const QUICK_SAFE_CHECK =
+  /<(?:script|iframe|embed|object|style|link|base|meta|form|textarea|button|select|option|applet|frame|frameset|bgsound|keygen|layer|marquee|noscript|xml)\b|on\w+\s*=|(?:href|src|action|formaction|cite|code|codebase|background|lowsrc|ping)\s*=\s*["']?\s*(?:javascript|vbscript|file|data):/i;
+
+/**
+ * sanitizeHtml 结果 LRU 缓存
+ * 避免重复清洗相同的 HTML 内容（流式渲染中大部分 HTML block 不变）
+ */
+const sanitizedHtmlCache = new Map<string, { result: string; source: string }>();
+const SANITIZE_CACHE_MAX = 200;
+
+/**
  * 安全地过滤 HTML 内容
  *
  * @param html - HTML 字符串
@@ -187,6 +247,18 @@ export function sanitizeAttributes(attrs: AttrRecord, safeMode: boolean = true):
 export function sanitizeHtml(html: string, safeMode: boolean = true): string {
   if (!safeMode) {
     return html;
+  }
+
+  // 快速路径：若无危险模式，直接返回（80-90% 的常见 markdown HTML 走此路径）
+  if (!QUICK_SAFE_CHECK.test(html)) {
+    return html;
+  }
+
+  // 缓存查询：使用 hash key（精确匹配验证防碰撞）
+  const cacheKey = `s${simpleHash(html)}`;
+  const cached = sanitizedHtmlCache.get(cacheKey);
+  if (cached && cached.source === html) {
+    return cached.result;
   }
 
   // 移除危险标签
@@ -199,7 +271,7 @@ export function sanitizeHtml(html: string, safeMode: boolean = true): string {
   sanitized = sanitized.replace(/<input\b([^>]*)>/gi, (match, attrs) => {
     const isCheckbox = /type\s*=\s*["']?checkbox["']?/i.test(attrs);
     // 只保留 type="checkbox" 的 input
-    if (isCheckbox)return match;
+    if (isCheckbox) return match;
     // 其他 input 标签都移除
     return '';
   });
@@ -230,6 +302,13 @@ export function sanitizeHtml(html: string, safeMode: boolean = true): string {
     /(href|src|action|formaction|cite|code|codebase|background|lowsrc|ping)\s*=\s*["']?\s*(?:javascript|vbscript|file|data):[^"'\s>]*/gi,
     '$1="#"'
   );
+
+  // 写入缓存（LRU 淘汰）
+  if (sanitizedHtmlCache.size >= SANITIZE_CACHE_MAX) {
+    const firstKey = sanitizedHtmlCache.keys().next().value;
+    if (firstKey !== undefined) sanitizedHtmlCache.delete(firstKey);
+  }
+  sanitizedHtmlCache.set(cacheKey, { result: sanitized, source: html });
 
   return sanitized;
 }
@@ -270,7 +349,13 @@ export function isComponentOptions(obj: unknown): boolean {
     return false;
   }
   // 通用组件检测：检查是否有常见的组件属性
-  return 'setup' in obj || 'render' in obj || 'template' in obj || 'component' in obj || typeof obj === 'function';
+  return (
+    'setup' in obj ||
+    'render' in obj ||
+    'template' in obj ||
+    'component' in obj ||
+    typeof obj === 'function'
+  );
 }
 
 /**
@@ -325,7 +410,10 @@ export function createHtmlVNode(html: string, safeMode: boolean = true): Framewo
       const sanitizedAttrs = sanitizeAttributes(attrs, safeMode);
 
       sanitizedAttrs.innerHTML = element.innerHTML;
-      const keySubstring = element.innerHTML.substring(0, PERFORMANCE_CONFIG.HTML_KEY_SUBSTRING_LENGTH);
+      const keySubstring = element.innerHTML.substring(
+        0,
+        PERFORMANCE_CONFIG.HTML_KEY_SUBSTRING_LENGTH
+      );
       sanitizedAttrs.key = `html-${i}-${keySubstring}`;
 
       children.push(adapter.createElement(tagName, sanitizedAttrs, []));
@@ -396,7 +484,8 @@ export function onLeavePictureInPicture(e: Event): void {
     target.pause();
   } else {
     // 使用类型断言访问非标准 API
-    const scrollIntoView = (target as HTMLMediaElement & { scrollIntoViewIfNeeded?: () => void }).scrollIntoViewIfNeeded;
+    const scrollIntoView = (target as HTMLMediaElement & { scrollIntoViewIfNeeded?: () => void })
+      .scrollIntoViewIfNeeded;
     if (typeof scrollIntoView === 'function') {
       scrollIntoView.call(target);
     }
@@ -437,4 +526,3 @@ export function createFragmentNode(children: FrameworkNode[]): FrameworkNode {
   const adapter = getAdapter();
   return adapter.createFragment(children);
 }
-

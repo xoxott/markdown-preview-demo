@@ -52,4 +52,3 @@ export function renderMedia(
 
   return adapter.createElement(token.tag, attrs, []);
 }
-

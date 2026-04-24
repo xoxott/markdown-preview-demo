@@ -5,7 +5,12 @@
  */
 
 import type { RenderRules } from '../types';
-import { renderCodeBlock, renderCodeInline, renderFence, setCodeRendererOptions } from './code-renderer';
+import {
+  renderCodeBlock,
+  renderCodeInline,
+  renderFence,
+  setCodeRendererOptions
+} from './code-renderer';
 import { renderHtml } from './html-renderer';
 import { renderHardBreak, renderSoftBreak, renderText } from './text-renderer';
 import { renderImage, renderMedia } from './media-renderer';
@@ -39,4 +44,3 @@ export * from './code-renderer';
 export * from './html-renderer';
 export * from './text-renderer';
 export * from './media-renderer';
-

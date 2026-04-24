@@ -14,7 +14,13 @@ export type FrameworkComponent = unknown;
 export type NodeProps = Record<string, unknown>;
 
 /** 子节点类型 */
-export type NodeChildren = FrameworkNode | string | number | null | undefined | (FrameworkNode | string | number | null | undefined)[];
+export type NodeChildren =
+  | FrameworkNode
+  | string
+  | number
+  | null
+  | undefined
+  | (FrameworkNode | string | number | null | undefined)[];
 
 /**
  * 框架适配器接口
@@ -49,7 +55,11 @@ export interface FrameworkAdapter {
    * @param children - 子节点
    * @returns 框架虚拟节点
    */
-  createElement(tag: string | FrameworkComponent, props: NodeProps | null, children: NodeChildren): FrameworkNode;
+  createElement(
+    tag: string | FrameworkComponent,
+    props: NodeProps | null,
+    children: NodeChildren
+  ): FrameworkNode;
 
   /**
    * 创建文本节点
@@ -98,4 +108,3 @@ export interface FrameworkAdapter {
    */
   setChildren?(node: FrameworkNode, children: FrameworkNode[]): void;
 }
-

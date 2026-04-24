@@ -7,7 +7,12 @@
 import type { FrameworkNode } from '../adapters/types';
 import type { MarkdownRenderer, RenderEnv, RenderOptions, Token } from '../types';
 import { getAdapter } from '../adapters/manager';
-import { createCommentNode, createFragmentNode, validateAttrName, validateAttrValue } from '../utils';
+import {
+  createCommentNode,
+  createFragmentNode,
+  validateAttrName,
+  validateAttrValue
+} from '../utils';
 import { renderInlineContent } from './node-helpers';
 import { parseRuleResult } from './rule-parser';
 
@@ -119,4 +124,3 @@ export function renderSingleToken(
 
   return { vnode: renderToken(renderer, tokens, index, options, env), parent: null };
 }
-

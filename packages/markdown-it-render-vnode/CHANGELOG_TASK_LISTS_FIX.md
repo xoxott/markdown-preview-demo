@@ -85,16 +85,16 @@ if (safeMode && tagName === 'input') {
 
 ```html
 <!-- ✅ 允许：disabled checkbox -->
-<input type="checkbox" class="task-list-item-checkbox" disabled>
-<input type="checkbox" class="task-list-item-checkbox" disabled checked>
+<input type="checkbox" class="task-list-item-checkbox" disabled />
+<input type="checkbox" class="task-list-item-checkbox" disabled checked />
 
 <!-- ❌ 禁止：可交互的 checkbox -->
-<input type="checkbox">
+<input type="checkbox" />
 
 <!-- ❌ 禁止：其他类型的 input -->
-<input type="text">
-<input type="password">
-<input type="file">
+<input type="text" />
+<input type="password" />
+<input type="file" />
 ```
 
 ## 测试结果
@@ -136,4 +136,3 @@ Tests  18 passed (18)
 - `packages/markdown-it-render-vnode/src/constants.ts` - 危险标签列表
 - `packages/markdown-it-render-vnode/src/utils.ts` - HTML 安全过滤
 - `packages/markdown-it-task-lists/src/index.ts` - 任务列表插件
-

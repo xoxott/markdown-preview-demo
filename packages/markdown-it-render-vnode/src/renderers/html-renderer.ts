@@ -34,4 +34,3 @@ export function renderHtml(
   // 创建 HTML 节点并应用安全过滤
   return createHtmlVNode(token.content, safeMode);
 }
-

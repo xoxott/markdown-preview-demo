@@ -123,11 +123,7 @@ export const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({ content }) => 
     return md.renderer.render(tokens, md.options, {}) as React.ReactNode[];
   }, [content]);
 
-  return (
-    <div className="markdown-body">
-      {vnodes}
-    </div>
-  );
+  return <div className="markdown-body">{vnodes}</div>;
 };
 ```
 
@@ -174,7 +170,7 @@ md.use(markdownItRenderVnode, {
 
   // 自定义组件
   components: {
-    codeBlock: (meta) => {
+    codeBlock: meta => {
       if (meta.langName === 'mermaid') {
         return MermaidRenderer;
       }
@@ -187,7 +183,7 @@ md.use(markdownItRenderVnode, {
 
   // 性能监控
   performance: {
-    onMetrics: (metrics) => {
+    onMetrics: metrics => {
       console.log('渲染耗时:', metrics.duration, 'ms');
       console.log('Token 数量:', metrics.tokenCount);
     }
@@ -196,7 +192,7 @@ md.use(markdownItRenderVnode, {
   // 错误处理
   errorHandler: {
     mode: 'log',
-    onError: (error) => {
+    onError: error => {
       console.error('渲染错误:', error);
     }
   }
@@ -264,9 +260,7 @@ md.use(markdownItRenderVnode, {
 ```typescript
 import { defineAsyncComponent } from 'vue';
 
-const AsyncCodeBlock = defineAsyncComponent(() =>
-  import('./components/CodeBlock.vue')
-);
+const AsyncCodeBlock = defineAsyncComponent(() => import('./components/CodeBlock.vue'));
 
 md.use(markdownItRenderVnode, {
   adapter: vueAdapter,
@@ -332,19 +326,25 @@ export const myAdapter: FrameworkAdapter = {
 import type { Token, RenderOptions, RenderEnv } from '@suga/markdown-it-render-vnode';
 
 // 自定义段落渲染
-md.renderer.rules.paragraph_open = (tokens: Token[], idx: number, options: RenderOptions, env: RenderEnv) => {
+md.renderer.rules.paragraph_open = (
+  tokens: Token[],
+  idx: number,
+  options: RenderOptions,
+  env: RenderEnv
+) => {
   const token = tokens[idx];
   const adapter = getAdapter(md.renderer);
 
-  return adapter.createElement(
-    'p',
-    { class: 'custom-paragraph' },
-    null
-  );
+  return adapter.createElement('p', { class: 'custom-paragraph' }, null);
 };
 
 // 自定义链接渲染
-md.renderer.rules.link_open = (tokens: Token[], idx: number, options: RenderOptions, env: RenderEnv) => {
+md.renderer.rules.link_open = (
+  tokens: Token[],
+  idx: number,
+  options: RenderOptions,
+  env: RenderEnv
+) => {
   const token = tokens[idx];
   const adapter = getAdapter(md.renderer);
   const href = token.attrGet('href');
@@ -374,7 +374,7 @@ md.use(markdownItRenderVnode, {
     // silent: 静默处理（不推荐）
     mode: 'log',
 
-    onError: (error) => {
+    onError: error => {
       // 自定义错误处理
       console.error('渲染失败:', error);
       // 可以上报到监控系统
@@ -392,12 +392,12 @@ md.use(markdownItRenderVnode, {
 md.use(markdownItRenderVnode, {
   adapter: vueAdapter,
   performance: {
-    onMetrics: (metrics) => {
+    onMetrics: metrics => {
       console.log({
-        duration: metrics.duration,      // 渲染耗时（ms）
-        tokenCount: metrics.tokenCount,  // Token 数量
-        vnodeCount: metrics.vnodeCount,  // VNode 数量
-        timestamp: metrics.timestamp     // 时间戳
+        duration: metrics.duration, // 渲染耗时（ms）
+        tokenCount: metrics.tokenCount, // Token 数量
+        vnodeCount: metrics.vnodeCount, // VNode 数量
+        timestamp: metrics.timestamp // 时间戳
       });
     }
   }
@@ -490,7 +490,7 @@ pnpm test -- --coverage
 ```typescript
 watch(
   () => props.content,
-  (newContent) => {
+  newContent => {
     const tokens = md.parse(newContent, {});
     vnodes.value = md.renderer.render(tokens, md.options, {});
   }

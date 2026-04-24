@@ -6,19 +6,32 @@
 
 import type { RenderEnv, Token } from './types';
 import { DOM_ATTR_NAME } from './constants';
-import { getSourceLineRange, validateAttrValue } from './utils';
+import { getSourceLineRange, validateAttrValue, simpleHash } from './utils';
 
 /**
- * 生成 Token 的唯一 key
+ * 生成 Token 的稳定 key
+ *
+ * 使用源码行号 + 内容 hash 组合，确保在文档尾部追加内容时
+ * 已有 block 的 key 保持不变（Vue diff 可正确跳过未变更节点）。
  *
  * @param token - Token 对象
  * @param index - Token 索引
  * @param parentKey - 父级 key（可选）
- * @returns 唯一 key 字符串
+ * @returns 稳定 key 字符串
  */
 function generateTokenKey(token: Token, index: number, parentKey?: string): string {
-  // 基于 token 类型、索引、nesting 和位置生成唯一 key
-  const baseKey = `${token.type}-${index}-${token.nesting}-${token.map?.[0] || 0}`;
+  const lineStart = token.map?.[0] ?? index;
+
+  if (token.block) {
+    // 块级元素：行号 + 内容 hash（行号保证唯一，hash 保证内容变更时 key 变化）
+    const hash = simpleHash(token.content || token.type, 50);
+    const baseKey = `L${lineStart}-${hash}`;
+    return parentKey ? `${parentKey}/${baseKey}` : baseKey;
+  }
+
+  // 行内元素：类型 + 内容 hash
+  const hash = simpleHash(token.content || token.type, 50);
+  const baseKey = `${token.type}-${hash}`;
   return parentKey ? `${parentKey}/${baseKey}` : baseKey;
 }
 
@@ -108,4 +121,3 @@ export function preprocessTokens(tokens: Token[], env?: RenderEnv, parentKey?: s
     }
   }
 }
-

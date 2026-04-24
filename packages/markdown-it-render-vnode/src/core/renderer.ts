@@ -8,7 +8,10 @@
 import type { FrameworkNode } from '../adapters/types';
 import type { MarkdownRenderer, RenderEnv, RenderOptions, Token } from '../types';
 import { render as fullRender } from './full-render';
-import { renderAttrs as renderTokenAttrs, renderToken as renderSingleTokenFunc } from './token-renderer';
+import {
+  renderAttrs as renderTokenAttrs,
+  renderToken as renderSingleTokenFunc
+} from './token-renderer';
 
 /**
  * 渲染 Token 数组（全量渲染）
@@ -18,7 +21,12 @@ import { renderAttrs as renderTokenAttrs, renderToken as renderSingleTokenFunc }
  * @param env - 渲染环境
  * @returns 节点数组
  */
-export function render(this: MarkdownRenderer, tokens: Token[], options: RenderOptions, env: RenderEnv): FrameworkNode[] {
+export function render(
+  this: MarkdownRenderer,
+  tokens: Token[],
+  options: RenderOptions,
+  env: RenderEnv
+): FrameworkNode[] {
   return fullRender(this, tokens, options, env);
 }
 
@@ -56,4 +64,3 @@ export type { RuleRenderResult } from './rule-parser';
 export { parseRuleResult } from './rule-parser';
 export { addChildToParent, renderInlineContent } from './node-helpers';
 export { renderSingleToken } from './token-renderer';
-

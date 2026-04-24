@@ -10,7 +10,8 @@ export const SECURITY_PATTERNS = {
   SENSITIVE_URL: /^[\s\u0000-\u001F]*(?:javascript|vbscript|file|data):/i,
 
   /** 敏感属性名检测 */
-  SENSITIVE_ATTR: /^(href|src|xlink:href|poster|srcset|action|formaction|cite|code|codebase|background|lowsrc|ping)$/i,
+  SENSITIVE_ATTR:
+    /^(href|src|xlink:href|poster|srcset|action|formaction|cite|code|codebase|background|lowsrc|ping)$/i,
 
   /** 属性名格式验证 */
   ATTR_NAME: /^[a-zA-Z_:][a-zA-Z0-9:._-]*$/,
@@ -179,8 +180,12 @@ export const HTML_UNESCAPE_MAP: Record<string, string> = {
 export const PERFORMANCE_CONFIG = {
   /** 是否启用属性对象池 */
   ENABLE_OBJECT_POOL: true,
-  /** 对象池大小 */
-  POOL_SIZE: 20,
+  /** 对象池初始大小 */
+  POOL_SIZE: 100,
+  /** 对象池最大大小（动态扩展上限） */
+  MAX_POOL_SIZE: 200,
+  /** 对象池动态扩展步长 */
+  POOL_EXPAND_STEP: 10,
   /** HTML VNode key 截取长度 */
   HTML_KEY_SUBSTRING_LENGTH: 20
 } as const;
@@ -190,4 +195,3 @@ export const PERFORMANCE_MONITOR_CONFIG = {
   /** 性能阈值（毫秒） */
   THRESHOLD: 50
 } as const;
-

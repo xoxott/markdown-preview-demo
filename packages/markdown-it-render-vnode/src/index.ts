@@ -56,7 +56,9 @@ const markdownItRenderVnode = (md: MarkdownIt, options: FrameworkPluginOptions):
   // 性能监控（开发模式）
   if (process.env.NODE_ENV === 'development') {
     const originalRender = md.renderer.render as unknown as typeof render;
-    md.renderer.render = createPerformanceMonitor(originalRender) as unknown as typeof md.renderer.render;
+    md.renderer.render = createPerformanceMonitor(
+      originalRender
+    ) as unknown as typeof md.renderer.render;
   }
 };
 
@@ -78,31 +80,9 @@ export type {
 export * from './constants';
 export { defaultRenderRules } from './renderers';
 export * from './utils';
-export {
-  handleError,
-  safeExecute,
-  setErrorHandlerConfig
-} from './utils/error-handler';
-export {
-  validateOptions,
-  mergeDefaultOptions
-} from './utils/options-validator';
-export {
-  createPerformanceMonitor,
-  setPerformanceCallback
-} from './performance';
-export type {
-  PerformanceMetrics,
-  PerformanceCallback
-} from './performance';
-export {
-  setAdapter,
-  getAdapter,
-  hasAdapter
-} from './adapters/manager';
-export type {
-  FrameworkAdapter,
-  FrameworkNode,
-  FrameworkComponent
-} from './adapters/types';
-
+export { handleError, safeExecute, setErrorHandlerConfig } from './utils/error-handler';
+export { validateOptions, mergeDefaultOptions } from './utils/options-validator';
+export { createPerformanceMonitor, setPerformanceCallback } from './performance';
+export type { PerformanceMetrics, PerformanceCallback } from './performance';
+export { setAdapter, getAdapter, hasAdapter } from './adapters/manager';
+export type { FrameworkAdapter, FrameworkNode, FrameworkComponent } from './adapters/types';

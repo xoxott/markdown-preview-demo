@@ -81,13 +81,13 @@ describe('XSS 安全防护测试', () => {
     },
     {
       name: 'Script 标签注入',
-      content: '<script>alert(\'XSS\')</script>',
+      content: "<script>alert('XSS')</script>",
       shouldBlock: true,
       dangerousPatterns: [/<script[^>]*>/i]
     },
     {
       name: 'Script 标签 - 大小写混合',
-      content: '<ScRiPt>alert(\'XSS\')</ScRiPt>',
+      content: "<ScRiPt>alert('XSS')</ScRiPt>",
       shouldBlock: true,
       dangerousPatterns: [/<script[^>]*>/i]
     },
@@ -111,7 +111,7 @@ describe('XSS 安全防护测试', () => {
     },
     {
       name: 'Style 标签',
-      content: '<style>body { background: url(\'http://evil.com/steal\'); }</style>',
+      content: "<style>body { background: url('http://evil.com/steal'); }</style>",
       shouldBlock: true,
       dangerousPatterns: [/<style[^>]*>/i]
     },
@@ -123,7 +123,7 @@ describe('XSS 安全防护测试', () => {
     },
     {
       name: 'Markdown 链接中的 XSS',
-      content: '[点击](javascript:alert(\'XSS\'))',
+      content: "[点击](javascript:alert('XSS'))",
       shouldBlock: true,
       // markdown-it 会拒绝解析危险协议的链接,将其作为普通文本
       // 我们应该检查没有生成实际的链接元素
@@ -131,7 +131,7 @@ describe('XSS 安全防护测试', () => {
     },
     {
       name: 'Markdown 图片中的 XSS',
-      content: '![图片](javascript:alert(\'XSS\'))',
+      content: "![图片](javascript:alert('XSS'))",
       shouldBlock: true,
       // markdown-it 会拒绝解析危险协议的图片,将其作为普通文本
       // 我们应该检查没有生成实际的图片元素
@@ -191,10 +191,25 @@ describe('XSS 安全防护测试', () => {
 
   describe('事件处理器检测', () => {
     const eventHandlers = [
-      'onclick', 'onerror', 'onload', 'onmouseover', 'onfocus',
-      'onblur', 'onchange', 'onsubmit', 'onreset', 'onselect',
-      'onkeydown', 'onkeyup', 'onkeypress', 'onabort', 'ondblclick',
-      'onmousedown', 'onmouseup', 'onmousemove', 'onmouseout'
+      'onclick',
+      'onerror',
+      'onload',
+      'onmouseover',
+      'onfocus',
+      'onblur',
+      'onchange',
+      'onsubmit',
+      'onreset',
+      'onselect',
+      'onkeydown',
+      'onkeyup',
+      'onkeypress',
+      'onabort',
+      'ondblclick',
+      'onmousedown',
+      'onmouseup',
+      'onmousemove',
+      'onmouseout'
     ];
 
     eventHandlers.forEach(handler => {
@@ -251,7 +266,9 @@ describe('XSS 安全防护测试', () => {
       const tokens = md.parse(content, {});
 
       // 使用 safeMode
-      const vnodes = md.renderer.render(tokens, md.options, { safeMode: true }) as unknown as VNode[];
+      const vnodes = md.renderer.render(tokens, md.options, {
+        safeMode: true
+      }) as unknown as VNode[];
 
       const vnodeString = JSON.stringify(vnodes);
       expect(vnodeString).not.toContain('javascript:');
@@ -260,7 +277,8 @@ describe('XSS 安全防护测试', () => {
 
   describe('嵌套攻击测试', () => {
     it('应该处理嵌套的危险标签', () => {
-      const content = '<div><script>alert(1)</script><iframe src="javascript:alert(2)"></iframe></div>';
+      const content =
+        '<div><script>alert(1)</script><iframe src="javascript:alert(2)"></iframe></div>';
       const tokens = md.parse(content, {});
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
 
@@ -277,11 +295,9 @@ describe('XSS 安全防护测试', () => {
       const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as VNode[];
 
       const vnodeString = JSON.stringify(vnodes);
-      console.dir(vnodeString)
       // 代码块中的 script 应该作为文本，而不是标签
       // 检查是否包含转义的 script（通过组件渲染）
       expect(vnodes.length).toBeGreaterThan(0);
     });
   });
 });
-

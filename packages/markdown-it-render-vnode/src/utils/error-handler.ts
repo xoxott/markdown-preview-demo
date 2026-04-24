@@ -34,7 +34,11 @@ export function setErrorHandlerConfig(config: ErrorHandlerConfig): void {
  * @param fallback - 降级节点
  * @returns 节点
  */
-export function handleError(error: unknown, context: string, fallback?: FrameworkNode): FrameworkNode {
+export function handleError(
+  error: unknown,
+  context: string,
+  fallback?: FrameworkNode
+): FrameworkNode {
   const adapter = getAdapter();
   const errorMessage = error instanceof Error ? error.message : String(error);
   const fullMessage = `${errorConfig.errorPrefix} ${context}: ${errorMessage}`;
@@ -64,11 +68,7 @@ export function handleError(error: unknown, context: string, fallback?: Framewor
  * @param fallback - 降级返回值
  * @returns 函数返回值或降级值
  */
-export function safeExecute<T>(
-  fn: () => T,
-  context: string,
-  fallback: T
-): T {
+export function safeExecute<T>(fn: () => T, context: string, fallback: T): T {
   try {
     return fn();
   } catch (error) {
@@ -76,4 +76,3 @@ export function safeExecute<T>(
     return fallback;
   }
 }
-

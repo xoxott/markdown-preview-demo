@@ -4,20 +4,53 @@
  * @module renderers/code-renderer
  */
 
-import { v4 as uuid } from 'uuid';
-import type { CodeBlockMeta, FrameworkPluginOptions, MarkdownRenderer, RenderEnv, RenderOptions, Token } from '../types';
+import type {
+  CodeBlockMeta,
+  FrameworkPluginOptions,
+  MarkdownRenderer,
+  RenderEnv,
+  RenderOptions,
+  Token
+} from '../types';
 import type { FrameworkComponent, FrameworkNode } from '../adapters/types';
 import { DOM_ATTR_NAME } from '../constants';
 import { getAdapter } from '../adapters/manager';
-import { escapeHtml, isComponentOptions, mergeClasses, omitAttrs, parseInfoString, unescapeAll, createTextNode } from '../utils';
+import {
+  escapeHtml,
+  isComponentOptions,
+  mergeClasses,
+  omitAttrs,
+  parseInfoString,
+  unescapeAll,
+  createTextNode
+} from '../utils';
 import { handleError } from '../utils/error-handler';
 
 /** 插件选项缓存 */
 let pluginOptions: FrameworkPluginOptions | null = null;
 
+/** 渲染批次计数器（用于生成唯一 key，替代 uuid） */
+let renderPassId = 0;
+
 /** 设置插件选项 */
 export function setCodeRendererOptions(options: FrameworkPluginOptions): void {
   pluginOptions = options;
+}
+
+/**
+ * 递增渲染批次 ID
+ * 每次渲染 pass 开始时调用，用于生成稳定的组件 key
+ */
+export function incrementRenderPassId(): void {
+  renderPassId++;
+}
+
+/**
+ * 生成自定义组件 key（替代 uuid v4）
+ * 使用渲染批次 ID + token 索引组合，避免 crypto.getRandomValues 开销
+ */
+function generateComponentKey(langName: string, tokenIndex: number): string {
+  return `${langName}-p${renderPassId}-${tokenIndex}`;
 }
 
 /** 行内代码渲染规则 */
@@ -48,7 +81,10 @@ export function renderCodeBlock(
   const originalAttrs = renderer.renderAttrs(token);
 
   // 分离源码行号属性
-  const safeAttrs = omitAttrs(originalAttrs, [DOM_ATTR_NAME.SOURCE_LINE_START, DOM_ATTR_NAME.SOURCE_LINE_END]);
+  const safeAttrs = omitAttrs(originalAttrs, [
+    DOM_ATTR_NAME.SOURCE_LINE_START,
+    DOM_ATTR_NAME.SOURCE_LINE_END
+  ]);
 
   const preAttrs = {
     [DOM_ATTR_NAME.SOURCE_LINE_START]: originalAttrs[DOM_ATTR_NAME.SOURCE_LINE_START],
@@ -56,7 +92,11 @@ export function renderCodeBlock(
   };
 
   const textNode = createTextNode(token.content);
-  const codeNode = adapter.createElement('code', safeAttrs, typeof textNode === 'string' ? [textNode] : [textNode]);
+  const codeNode = adapter.createElement(
+    'code',
+    safeAttrs,
+    typeof textNode === 'string' ? [textNode] : [textNode]
+  );
   return adapter.createElement('pre', preAttrs, [codeNode]);
 }
 
@@ -87,7 +127,12 @@ function createCodeBlockMeta(token: Token, info: string, langName: string): Code
  * @param options - 渲染选项
  * @returns 高亮后的 HTML 字符串
  */
-function highlightCode(content: string, langName: string, langAttrs: string, options: RenderOptions): string {
+function highlightCode(
+  content: string,
+  langName: string,
+  langAttrs: string,
+  options: RenderOptions
+): string {
   if (typeof options.highlight === 'function') {
     return options.highlight(content, langName, langAttrs) || escapeHtml(content);
   }
@@ -119,7 +164,10 @@ function createDefaultCodeBlockVNode(
   }
 
   const originalAttrs = renderer.renderAttrs(token);
-  const safeAttrs = omitAttrs(originalAttrs, [DOM_ATTR_NAME.SOURCE_LINE_START, DOM_ATTR_NAME.SOURCE_LINE_END]);
+  const safeAttrs = omitAttrs(originalAttrs, [
+    DOM_ATTR_NAME.SOURCE_LINE_START,
+    DOM_ATTR_NAME.SOURCE_LINE_END
+  ]);
 
   const preAttrs = {
     'data-info': info,
@@ -158,10 +206,16 @@ function createDefaultRenderFn(
   return () => {
     const highlighted = highlightCode(token.content, langName, langAttrs, options);
     const originalAttrs = renderer.renderAttrs(token);
-    const safeAttrs = omitAttrs(originalAttrs, [DOM_ATTR_NAME.SOURCE_LINE_START, DOM_ATTR_NAME.SOURCE_LINE_END]);
+    const safeAttrs = omitAttrs(originalAttrs, [
+      DOM_ATTR_NAME.SOURCE_LINE_START,
+      DOM_ATTR_NAME.SOURCE_LINE_END
+    ]);
 
     // 合并 class（使用 options.langPrefix）
-    const classList = mergeClasses(safeAttrs.class, langName ? `${options.langPrefix || ''}${langName}` : undefined);
+    const classList = mergeClasses(
+      safeAttrs.class,
+      langName ? `${options.langPrefix || ''}${langName}` : undefined
+    );
     if (classList) {
       safeAttrs.class = classList;
     }
@@ -210,10 +264,12 @@ function resolveCustomComponent(
 function createCustomComponentVNode(
   component: FrameworkComponent | Promise<FrameworkComponent>,
   langName: string,
+  tokenIndex: number,
   meta: CodeBlockMeta,
   defaultRender: () => FrameworkNode | string
 ): FrameworkNode {
   const adapter = getAdapter();
+  const componentKey = generateComponentKey(langName, tokenIndex);
 
   // Promise（动态导入）- 适配器需要处理异步组件
   if (component instanceof Promise) {
@@ -224,21 +280,29 @@ function createCustomComponentVNode(
     const fallbackNode = typeof fallback === 'string' ? adapter.createText(fallback) : fallback;
 
     // 返回一个占位节点，实际加载由适配器或上层应用处理
-    return adapter.createElement('div', {
-      'data-async-component': 'true',
-      'data-component-key': `${langName}-${uuid()}`
-    }, [fallbackNode]);
+    return adapter.createElement(
+      'div',
+      {
+        'data-async-component': 'true',
+        'data-component-key': componentKey
+      },
+      [fallbackNode]
+    );
   }
 
   // 普通组件
   // 注意：传递 undefined 而不是空数组，避免 Vue 3 的插槽警告
   // 空数组会被当作非函数值传递给默认插槽，导致警告
-  return adapter.createElement(component, {
-    key: `${langName}-${uuid()}`,
-    meta,
-    class: 'code-block-transition',
-    onRenderFallback: defaultRender
-  }, undefined);
+  return adapter.createElement(
+    component,
+    {
+      key: componentKey,
+      meta,
+      class: 'code-block-transition',
+      onRenderFallback: defaultRender
+    },
+    undefined
+  );
 }
 
 /**
@@ -282,12 +346,12 @@ export function renderFence(
       return defaultRender();
     }
 
-    return createCustomComponentVNode(resolvedComponent, langName, meta, defaultRender);
+    return createCustomComponentVNode(resolvedComponent, langName, idx, meta, defaultRender);
   } catch (error) {
     // 使用统一的错误处理
     const fallback = defaultRender();
-    const fallbackNode = typeof fallback === 'string' ? getAdapter().createText(fallback) : fallback;
+    const fallbackNode =
+      typeof fallback === 'string' ? getAdapter().createText(fallback) : fallback;
     return handleError(error, 'Custom component render failed', fallbackNode as FrameworkNode);
   }
 }
-

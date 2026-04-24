@@ -49,4 +49,3 @@ export function parseRuleResult(
 
   return { vnode: result as FrameworkNode, parent: null };
 }
-

@@ -76,7 +76,12 @@ export interface MarkdownRenderer {
   renderInline(tokens: Token[], options: RenderOptions, env: RenderEnv): FrameworkNode[];
   renderInlineAsText(tokens: Token[], options: RenderOptions, env: RenderEnv): string;
   renderAttrs(token: Token): Record<string, string>;
-  renderToken(tokens: Token[], idx: number, options: RenderOptions, env: RenderEnv): FrameworkNode | null;
+  renderToken(
+    tokens: Token[],
+    idx: number,
+    options: RenderOptions,
+    env: RenderEnv
+  ): FrameworkNode | null;
 }
 
 /** 错误处理模式 */
@@ -102,15 +107,38 @@ export interface FrameworkPluginOptions {
     /** 表格组件工厂 */
     table?: (meta: { token: Token }) => FrameworkComponent | Promise<FrameworkComponent> | null;
     /** 链接组件工厂 */
-    link?: (meta: { token: Token; href: string; title?: string }) => FrameworkComponent | Promise<FrameworkComponent> | null;
+    link?: (meta: {
+      token: Token;
+      href: string;
+      title?: string;
+    }) => FrameworkComponent | Promise<FrameworkComponent> | null;
     /** 图片组件工厂 */
-    image?: (meta: { token: Token; src: string; alt: string; title?: string }) => FrameworkComponent | Promise<FrameworkComponent> | null;
+    image?: (meta: {
+      token: Token;
+      src: string;
+      alt: string;
+      title?: string;
+    }) => FrameworkComponent | Promise<FrameworkComponent> | null;
   };
 
   /** 性能配置（预留用于未来扩展） */
   performance?: {
     /** 预留字段，暂无使用 */
     _reserved?: never;
+  };
+
+  /**
+   * 流式渲染模式配置
+   *
+   * 启用后激活包级块缓存和稳定 key 等流式渲染优化。
+   * 注意：当前块级缓存已在应用层（MarkdownPreview 组件）实现，
+   * 此选项预留用于未来将缓存逻辑下沉至包级。
+   */
+  streaming?: {
+    /** 是否启用流式渲染优化（默认 false） */
+    enabled?: boolean;
+    /** 块缓存大小（默认 200） */
+    blockCacheSize?: number;
   };
 
   /** 错误处理配置 */
@@ -137,5 +165,3 @@ export interface AsyncComponentOptions {
   /** 错误回调 */
   onError?: (error: Error) => void;
 }
-
-

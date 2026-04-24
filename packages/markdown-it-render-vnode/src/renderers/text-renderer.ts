@@ -46,4 +46,3 @@ export function renderSoftBreak(
   }
   return null;
 }
-
