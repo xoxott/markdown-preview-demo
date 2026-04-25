@@ -23,7 +23,9 @@ const content = ref('');
 const route = useRoute();
 
 async function loadDoc(path: string) {
-  const key = `../../packages/changelog/docs${path}`;
+  // 确保路径以 / 开头
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  const key = `../../packages/changelog/docs${normalizedPath}`;
   if (docs[key]) {
     return docs[key](); // 返回的是 Promise<string>
   }
