@@ -1,6 +1,5 @@
 import { defineComponent, onMounted, ref } from 'vue';
 import { NButton, NDrawer, NDrawerContent, useMessage } from 'naive-ui';
-import DrawerExample from '@/components/base-drawer/DrawerExample';
 import { DragPreview } from '@/components/common-interaction';
 import type { DragItem } from '@/components/common-interaction';
 import ViewContainer from './container/ViewContainer';
@@ -14,7 +13,6 @@ import { FilePreview } from './preview';
 import { FileEditor } from './editor';
 import { mockFileItems } from './config/mockData';
 import { useFileExplorerLogic } from './composables/useFileExplorerLogic';
-import DialogTestPanel from './test/DialogTestPanel';
 import type { FileItem } from './types/file-explorer';
 import FileIcon from './items/FileIcon';
 
@@ -47,7 +45,7 @@ export default defineComponent({
     const logic = useFileExplorerLogic({
       initialItems: mockFileItems,
       containerRef,
-      validateDrop: (items, targetPath) => {
+      validateDrop: (_items, targetPath) => {
         return logic.mockItems.value.find(it => it.path === targetPath)?.type === 'folder';
       }
     });
@@ -79,7 +77,7 @@ export default defineComponent({
         }
       } catch (error: any) {
         message.error(`打开文件失败: ${error.message}`);
-        console.error('打开文件失败:', error);
+        // 开发时可选：使用 message.error 已提供反馈，无需额外控制台日志
       } finally {
         fileLoading.value = false;
       }
@@ -122,10 +120,10 @@ export default defineComponent({
 
     // 自定义文件项渲染器（返回包装容器）
     const renderFileItem = (item: DragItem, index: number) => {
-      const fileItem = item.data as FileItem;
+      const dragFileItem = item.data as FileItem;
       const getFileColor = (): string => {
-        if (fileItem.type === 'folder') return 'text-blue-500';
-        const ext = fileItem.extension?.toLowerCase();
+        if (dragFileItem.type === 'folder') return 'text-blue-500';
+        const ext = dragFileItem.extension?.toLowerCase();
         if (!ext) return 'text-gray-500';
         if (['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp'].includes(ext))
           return 'text-green-500';
@@ -223,7 +221,9 @@ export default defineComponent({
       } else {
         // 模拟初始加载
         logic.setLoading(true, '加载文件列表...');
-        await new Promise(resolve => setTimeout(resolve, 800));
+        await new Promise<void>(resolve => {
+          setTimeout(() => resolve(), 800);
+        });
         logic.setLoading(false);
       }
 
@@ -284,7 +284,7 @@ export default defineComponent({
             config={logic.layoutConfig.value}
           >
             {{
-              left: (
+              left: () => (
                 <FileSidebar
                   treeData={[]}
                   currentPath="/"
@@ -292,7 +292,7 @@ export default defineComponent({
                   collapsed={logic.collapsed.value}
                 />
               ),
-              default: (
+              default: () => (
                 <ViewContainer
                   items={logic.sortedFiles.value}
                   viewMode={logic.viewMode.value}
@@ -315,7 +315,7 @@ export default defineComponent({
                   onPageSizeChange={logic.pagination.setPageSize}
                 />
               ),
-              right: (
+              right: () => (
                 <FileInfoPanel
                   selectedFiles={logic.selectedFiles.value}
                   show={logic.showInfoPanel.value}
