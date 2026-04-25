@@ -214,8 +214,8 @@ export default defineComponent({
     };
 
     return () => (
-      <NMessageProvider>
-        <div class="h-full w-full flex flex-col gap-4 p-4">
+      <div class="h-full w-full flex flex-col gap-4 p-4">
+        <NMessageProvider>
           {/* 头部标题 */}
           <PageHeader
             themeVars={themeVars.value}
@@ -273,8 +273,8 @@ export default defineComponent({
             handlers={fileListHandlers}
             utils={fileListUtils}
           />
-        </div>
-      </NMessageProvider>
+        </NMessageProvider>
+      </div>
     );
   }
 });
