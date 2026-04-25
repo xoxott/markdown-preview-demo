@@ -6,8 +6,9 @@
  * @module check-console-drop
  */
 
-import fs from 'fs/promises';
-import path from 'path';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import process from 'node:process';
 
 async function checkConsoleStatements() {
   try {
@@ -26,9 +27,13 @@ async function checkConsoleStatements() {
     let totalConsoleFound = 0;
     const filesWithConsole: string[] = [];
 
-    for (const file of jsFiles) {
+    // 将文件内容读取并行化，避免循环中 await
+    const fileContents = await Promise.all(jsFiles.map(async (file) => {
       const content = await fs.readFile(file, 'utf-8');
+      return { file, content };
+    }));
 
+    for (const { file, content } of fileContents) {
       // 搜索各种 console 语句
       const consoleMatches = content.match(/\bconsole\.(log|warn|error|info|debug|time|timeEnd|trace|group|groupEnd)\b/g);
 
@@ -69,22 +74,29 @@ async function findJSFiles(dir: string): Promise<string[]> {
   const entries = await fs.readdir(dir, { withFileTypes: true });
   const files: string[] = [];
 
+  // 将子目录递归操作并行化
+  const promises: Promise<string[]>[] = [];
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
 
     if (entry.isDirectory()) {
-      const nestedFiles = await findJSFiles(fullPath);
-      files.push(...nestedFiles);
+      promises.push(findJSFiles(fullPath));
     } else if (entry.isFile() && (entry.name.endsWith('.js') || entry.name.endsWith('.mjs'))) {
       files.push(fullPath);
     }
+  }
+
+  // 等待所有子目录搜索完成
+  const nestedFiles = await Promise.all(promises);
+  for (const nested of nestedFiles) {
+    files.push(...nested);
   }
 
   return files;
 }
 
 // 只在直接运行此脚本时执行
-if (require.main === module) {
+if (typeof require !== 'undefined' && require.main === module) {
   checkConsoleStatements();
 }
 
