@@ -36,7 +36,7 @@ export default defineComponent({
       const type = () => {
         if (charIndex < text.length) {
           displayText.value += text.charAt(charIndex);
-          charIndex++;
+          charIndex += 1;
           typingTimer = window.setTimeout(type, 50 + Math.random() * 50); // 随机速度，更自然
         } else {
           isTyping.value = false;
@@ -111,7 +111,7 @@ export default defineComponent({
           {/* 示例 1: 默认样式 */}
           <div class="demo-section">
             <h4 class="text-md mb-3 text-gray-700 font-semibold">默认样式 - 笔跟随文字</h4>
-            <div class="text-box default" style="position: relative;">
+            <div class="default text-box" style="position: relative;">
               <span class="text-content" ref={textRef1}>
                 {displayText.value}
               </span>
