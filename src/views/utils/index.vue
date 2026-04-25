@@ -12,7 +12,7 @@ import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useThemeVars } from 'naive-ui';
 import Markdown from '@/components/markdown';
-const docs = import.meta.glob('~/packages/changelog/docs/*.md', { as: 'raw' });
+const docs = import.meta.glob('../../packages/changelog/docs/*.md', { as: 'raw' });
 const themeVars = useThemeVars();
 const previewStyle = computed(() => ({
   backgroundColor: themeVars.value.cardColor,
@@ -23,7 +23,7 @@ const content = ref('');
 const route = useRoute();
 
 async function loadDoc(path: string) {
-  const key = `/packages/changelog/docs${path}`;
+  const key = `../../packages/changelog/docs${path}`;
   if (docs[key]) {
     return docs[key](); // 返回的是 Promise<string>
   }
@@ -34,8 +34,9 @@ async function fetchDocFromHash() {
   const hash = route.hash.replace(/^#/, ''); // '#/cli.md' → '/cli.md'
   try {
     content.value = await loadDoc(hash || '/README.md');
-  } catch (e) {
+  } catch {
     content.value = '# 文档未找到';
+    // 错误已处理，文档未找到时显示默认内容
   }
 }
 
