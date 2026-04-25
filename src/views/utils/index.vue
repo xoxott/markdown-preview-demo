@@ -51,11 +51,10 @@ watch(() => route.hash, fetchDocFromHash, { immediate: true });
 
 <template>
   <div
-    class="w-full w-full flex items-center justify-center border border-gray-200 rounded-md p-4 text-12px shadow"
+    class="markdown-body w-full flex items-center justify-center p-4 border border-gray-200 rounded-md shadow text-12px"
+    :class="darkMode ? 'markdown-body-dark' : ''"
     :style="previewStyle"
   >
-    <div class="markdown-body" :class="darkMode ? 'markdown-body-dark' : ''">
-      <Markdown :content="content" />
-    </div>
+    <Markdown :content="content" />
   </div>
 </template>
