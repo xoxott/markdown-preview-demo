@@ -191,6 +191,9 @@ export default defineComponent({
             handleLanguageChange
           );
           break;
+        default:
+          message.warning(`Unknown drawer type: ${type}`);
+          break;
       }
     };
 
