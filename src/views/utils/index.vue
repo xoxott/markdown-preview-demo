@@ -11,9 +11,11 @@
 import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useThemeVars } from 'naive-ui';
+import { useMarkdownTheme } from '@/components/markdown/hooks/useMarkdownTheme';
 import Markdown from '@/components/markdown';
 const docs = import.meta.glob('../../packages/changelog/docs/*.md', { as: 'raw' });
 const themeVars = useThemeVars();
+const { darkMode } = useMarkdownTheme();
 const previewStyle = computed(() => ({
   backgroundColor: themeVars.value.cardColor,
   color: themeVars.value.textColorBase,
@@ -52,6 +54,8 @@ watch(() => route.hash, fetchDocFromHash, { immediate: true });
     class="w-full w-full flex items-center justify-center border border-gray-200 rounded-md p-4 text-12px shadow"
     :style="previewStyle"
   >
-    <Markdown :content="content" />
+    <div class="markdown-body" :class="darkMode ? 'markdown-body-dark' : ''">
+      <Markdown :content="content" />
+    </div>
   </div>
 </template>
