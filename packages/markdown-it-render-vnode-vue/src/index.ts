@@ -22,7 +22,7 @@ function normalizeChildren(children: NodeChildren): VNode[] {
 
   if (Array.isArray(children)) {
     return children
-      .filter((child): child is VNode | string => child != null)
+      .filter((child): child is VNode | string => child !== null)
       .map(child => (typeof child === 'string' ? createVNode(Text, {}, child) : (child as VNode)));
   }
 

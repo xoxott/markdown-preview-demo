@@ -21,7 +21,7 @@ function normalizeChildren(children: NodeChildren): ReactElement[] {
   }
 
   if (Array.isArray(children)) {
-    return children.filter(child => child != null) as ReactElement[];
+    return children.filter(child => child !== null) as ReactElement[];
   }
 
   return [children as ReactElement];
