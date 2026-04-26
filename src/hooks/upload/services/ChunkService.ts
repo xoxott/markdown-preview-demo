@@ -16,6 +16,53 @@ import { logger } from '../utils/logger';
 import { NetworkError, ServerError, TimeoutError, UploadError } from '../types/error';
 import { performanceMonitor } from '../utils/performance-monitor';
 
+/** 根据 ErrorType 创建对应的 UploadError 实例 */
+function createErrorFromErrorInfo(
+  errorInfo: {
+    type: ErrorType;
+    message: string;
+    code?: string | number;
+    originalError?: Error;
+    retryable: boolean;
+  },
+  contextPrefix: string,
+  context: Record<string, any>,
+  timeout?: number
+): UploadError {
+  switch (errorInfo.type) {
+    case ErrorType.NETWORK_ERROR:
+      return new NetworkError(
+        `${contextPrefix}: ${errorInfo.message}`,
+        context,
+        errorInfo.originalError
+      );
+    case ErrorType.TIMEOUT_ERROR:
+      return new TimeoutError(
+        `${contextPrefix}超时: ${errorInfo.message}`,
+        timeout,
+        errorInfo.originalError
+      );
+    case ErrorType.SERVER_ERROR:
+      return new ServerError(
+        `${contextPrefix}服务器错误: ${errorInfo.message}`,
+        errorInfo.code as number,
+        undefined,
+        errorInfo.originalError
+      );
+    default:
+      return new UploadError(
+        `${contextPrefix}: ${errorInfo.message}${errorInfo.code ? ` (${errorInfo.code})` : ''}`,
+        errorInfo.type,
+        {
+          code: errorInfo.code,
+          context,
+          retryable: errorInfo.retryable,
+          cause: errorInfo.originalError
+        }
+      );
+  }
+}
+
 /** 分片服务 */
 export class ChunkService {
   constructor(
@@ -250,43 +297,12 @@ export class ChunkService {
 
       // 如果不可重试或已达到最大重试次数，抛出详细错误
       if (!errorInfo.retryable || chunk.retryCount >= maxRetries) {
-        let detailedError: UploadError;
-
-        switch (errorInfo.type) {
-          case ErrorType.NETWORK_ERROR:
-            detailedError = new NetworkError(
-              `分片 ${chunk.index} 上传失败: ${errorInfo.message}`,
-              { chunkIndex: chunk.index, taskId: task.id, retryCount: chunk.retryCount },
-              errorInfo.originalError
-            );
-            break;
-          case ErrorType.TIMEOUT_ERROR:
-            detailedError = new TimeoutError(
-              `分片 ${chunk.index} 上传超时: ${errorInfo.message}`,
-              this.config.timeout,
-              errorInfo.originalError
-            );
-            break;
-          case ErrorType.SERVER_ERROR:
-            detailedError = new ServerError(
-              `分片 ${chunk.index} 服务器错误: ${errorInfo.message}`,
-              errorInfo.code as number,
-              undefined,
-              errorInfo.originalError
-            );
-            break;
-          default:
-            detailedError = new UploadError(
-              `分片 ${chunk.index} 上传失败: ${errorInfo.message}${errorInfo.code ? ` (${errorInfo.code})` : ''}`,
-              errorInfo.type,
-              {
-                code: errorInfo.code,
-                context: { chunkIndex: chunk.index, taskId: task.id },
-                retryable: errorInfo.retryable,
-                cause: errorInfo.originalError
-              }
-            );
-        }
+        const detailedError = createErrorFromErrorInfo(
+          errorInfo,
+          `分片 ${chunk.index} 上传失败`,
+          { chunkIndex: chunk.index, taskId: task.id, retryCount: chunk.retryCount },
+          this.config.timeout
+        );
 
         logger.error(
           `分片 ${chunk.index} 上传最终失败`,
@@ -339,43 +355,12 @@ export class ChunkService {
       return await response.json();
     } catch (error: unknown) {
       const errorInfo = classifyError(error);
-      let detailedError: UploadError;
-
-      switch (errorInfo.type) {
-        case ErrorType.NETWORK_ERROR:
-          detailedError = new NetworkError(
-            `合并分片失败: ${errorInfo.message}`,
-            { taskId: task.id },
-            errorInfo.originalError
-          );
-          break;
-        case ErrorType.TIMEOUT_ERROR:
-          detailedError = new TimeoutError(
-            `合并分片超时: ${errorInfo.message}`,
-            this.config.timeout,
-            errorInfo.originalError
-          );
-          break;
-        case ErrorType.SERVER_ERROR:
-          detailedError = new ServerError(
-            `合并分片服务器错误: ${errorInfo.message}`,
-            errorInfo.code as number,
-            undefined,
-            errorInfo.originalError
-          );
-          break;
-        default:
-          detailedError = new UploadError(
-            `合并分片失败: ${errorInfo.message}${errorInfo.code ? ` (${errorInfo.code})` : ''}`,
-            errorInfo.type,
-            {
-              code: errorInfo.code,
-              context: { taskId: task.id },
-              retryable: errorInfo.retryable,
-              cause: errorInfo.originalError
-            }
-          );
-      }
+      const detailedError = createErrorFromErrorInfo(
+        errorInfo,
+        '合并分片失败',
+        { taskId: task.id },
+        this.config.timeout
+      );
 
       logger.error('合并分片失败', { taskId: task.id, errorType: errorInfo.type }, detailedError);
 

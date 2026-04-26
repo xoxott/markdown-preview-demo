@@ -22,6 +22,19 @@ export interface CompatibilityResult {
 
 /** 检测浏览器特性支持 */
 export function detectBrowserFeatures(): BrowserFeatures {
+  if (typeof window === 'undefined') {
+    return {
+      fetch: false,
+      abortController: false,
+      fileReader: false,
+      webWorker: false,
+      indexedDB: false,
+      blob: false,
+      fileAPI: false,
+      networkInformation: false
+    };
+  }
+
   return {
     fetch: typeof fetch !== 'undefined',
     abortController: typeof AbortController !== 'undefined',
@@ -99,6 +112,10 @@ export function getBrowserInfo(): {
   isMobile: boolean;
   userAgent: string;
 } {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+    return { name: 'Unknown', version: 'Unknown', isMobile: false, userAgent: '' };
+  }
+
   const ua = navigator.userAgent;
   let name = 'Unknown';
   let version = 'Unknown';

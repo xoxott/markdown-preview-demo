@@ -8,6 +8,11 @@
  */
 export function getMediaDuration(file: File): Promise<number> {
   return new Promise((resolve, reject) => {
+    if (typeof window === 'undefined') {
+      reject(new Error('当前环境不支持 DOM API'));
+      return;
+    }
+
     const url = URL.createObjectURL(file);
     const isAudio = file.type.startsWith('audio');
     const media = document.createElement(isAudio ? 'audio' : 'video') as HTMLMediaElement;
@@ -48,6 +53,11 @@ export function getMediaDuration(file: File): Promise<number> {
  */
 export function getVideoResolution(file: File): Promise<{ width: number; height: number }> {
   return new Promise((resolve, reject) => {
+    if (typeof window === 'undefined') {
+      reject(new Error('当前环境不支持 DOM API'));
+      return;
+    }
+
     const url = URL.createObjectURL(file);
     const video = document.createElement('video');
 

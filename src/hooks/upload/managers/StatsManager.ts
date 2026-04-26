@@ -40,7 +40,10 @@ export class StatsManager {
         successFiles: 0,
         failedFiles: 0,
         averageSpeed: 0,
-        totalTime: 0
+        totalTime: 0,
+        totalCount: 0,
+        successCount: 0,
+        errorCount: 0
       };
       this.history.push(todayStats);
     }

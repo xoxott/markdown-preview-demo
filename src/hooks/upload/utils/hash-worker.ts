@@ -65,7 +65,6 @@ export async function calculateFileMD5WithWorker(
     // 读取文件分片
     const chunks: ArrayBuffer[] = [];
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-    let _loadedChunks = 0;
 
     const loadChunks = async () => {
       for (let i = 0; i < totalChunks; i++) {
@@ -74,7 +73,6 @@ export async function calculateFileMD5WithWorker(
         const chunk = file.slice(start, end);
         const arrayBuffer = await chunk.arrayBuffer();
         chunks.push(arrayBuffer);
-        _loadedChunks += 1;
       }
 
       // 所有分片加载完成后，发送给 Worker
@@ -102,6 +100,7 @@ export async function calculateFileMD5WithWorker(
 
     worker.onerror = error => {
       worker.terminate();
+      URL.revokeObjectURL(workerUrl);
       reject(error);
     };
 
