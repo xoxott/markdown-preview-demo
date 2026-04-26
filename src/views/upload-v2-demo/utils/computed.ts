@@ -78,7 +78,10 @@ export function useTodayStatsData(
 
     const uploadedSize = allTasks.reduce((sum, task) => {
       const taskUploadedSize =
-        task.uploadedSize != null && Number.isFinite(task.uploadedSize) && task.uploadedSize >= 0
+        task.uploadedSize !== null &&
+        task.uploadedSize !== undefined &&
+        Number.isFinite(task.uploadedSize) &&
+        task.uploadedSize >= 0
           ? task.uploadedSize
           : 0;
       return sum + taskUploadedSize;

@@ -49,14 +49,14 @@ export default defineComponent({
       }, 1000);
     };
 
-    const stopCountdown = () => {
+    function stopCountdown() {
       isCounting.value = false;
       countdown.value = 60;
       if (timer) {
         clearInterval(timer);
         timer = null;
       }
-    };
+    }
 
     // 发送验证码
     const handleSendCode = async () => {

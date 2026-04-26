@@ -104,7 +104,7 @@ export default defineComponent({
         if (success) {
           startCountdown();
         }
-      } catch (error) {
+      } catch {
         window.$message?.error('发送验证码失败，请稍后重试');
       } finally {
         loading.value = false;

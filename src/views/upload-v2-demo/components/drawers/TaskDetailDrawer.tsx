@@ -2,7 +2,7 @@ import { type PropType, defineComponent } from 'vue';
 import { NCard, NCode, NProgress, NScrollbar, NSpace, NTag } from 'naive-ui';
 import type { FileTask } from '@/hooks/upload-v2';
 import { ChunkStatus, UploadStatus } from '@/hooks/upload-v2';
-import type { TaskDetailData } from '../../types';
+import type { _TaskDetailData } from '../../types';
 
 export default defineComponent({
   name: 'TaskDetailDrawer',

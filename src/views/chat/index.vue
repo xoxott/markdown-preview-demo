@@ -21,7 +21,7 @@ const userScrollingUp = ref(false);
 const scrollPosition = ref(0);
 
 // 自动滚动控制
-const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+const _scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
   if (userScrollingUp.value) return;
 
   nextTick(() => {

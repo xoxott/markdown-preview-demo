@@ -27,7 +27,9 @@ export default defineComponent({
       for (let i = 0; i < fullText.length; i++) {
         currentText += fullText[i];
         onUpdate(currentText);
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise(resolve => {
+          setTimeout(resolve, delay);
+        });
       }
     }
 

@@ -59,7 +59,7 @@ export default defineComponent({
       }
     ]);
 
-    const handleBasicNodeClick = (node: FlowNode, event: MouseEvent) => {
+    const handleBasicNodeClick = (node: FlowNode, _event: MouseEvent) => {
       message.info(`点击了节点: ${node.data?.label || node.id}`);
     };
 

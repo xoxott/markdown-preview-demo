@@ -1,5 +1,4 @@
 import { type PropType, Transition, computed, defineComponent } from 'vue';
-import { NCard } from 'naive-ui';
 import { getPaletteColorByNumber, mixColor } from '@suga/color';
 import { loginModuleRecord } from '@/constants/app';
 import { useAppStore } from '@/store/modules/app';
@@ -9,15 +8,15 @@ import SystemLogo from '@/components/common/system-logo.vue';
 import ThemeSchemaSwitch from '@/components/common/theme-schema-switch.vue';
 import LangSwitch from '@/components/common/lang-switch.vue';
 import WaveBg from '@/components/custom/wave-bg.vue';
-// @ts-ignore - TSX module resolution
+// @ts-expect-error - TSX module resolution
 import PwdLogin from './modules/pwd-login';
-// @ts-ignore - TSX module resolution
+// @ts-expect-error - TSX module resolution
 import CodeLogin from './modules/code-login';
-// @ts-ignore - TSX module resolution
+// @ts-expect-error - TSX module resolution
 import Register from './modules/register';
 import ResetPwd from './modules/reset-pwd';
 
-interface Props {
+interface _Props {
   /** The login module */
   module?: UnionKey.LoginModule;
 }
@@ -49,7 +48,7 @@ const loginModuleMap: Record<UnionKey.LoginModule, LoginModuleConfig> = {
   },
   'bind-wechat': {
     label: loginModuleRecord['bind-wechat'],
-    component: PwdLogin // TODO: 添加微信绑定组件
+    component: PwdLogin // NOTE: 添加微信绑定组件
   }
 };
 

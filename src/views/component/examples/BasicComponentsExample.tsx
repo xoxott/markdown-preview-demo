@@ -15,15 +15,15 @@ export default defineComponent({
       console.log('上传的文件:', files);
     };
 
-    const handleSelectionChange = (selected: FileItem[]) => {
+    const _handleSelectionChange = (selected: FileItem[]) => {
       console.log('圈选的文件:', selected);
     };
 
-    const handleSelectionStart = (selected: FileItem[]) => {
+    const _handleSelectionStart = (selected: FileItem[]) => {
       console.log('开始圈选', selected);
     };
 
-    const handleSelectionEnd = (selected: FileItem[]) => {
+    const _handleSelectionEnd = (selected: FileItem[]) => {
       console.log('结束圈选', selected);
     };
 

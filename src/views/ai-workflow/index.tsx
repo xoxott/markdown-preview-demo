@@ -24,7 +24,7 @@ import type { WorkflowFormData } from '@/components/ai-workflow/dialogs/dialog';
 const {
   fetchWorkflowList,
   fetchCreateWorkflow,
-  fetchUpdateWorkflow,
+  _fetchUpdateWorkflow,
   fetchDeleteWorkflow,
   fetchBatchDeleteWorkflows,
   fetchCopyWorkflow,
@@ -204,12 +204,12 @@ export default defineComponent({
       await workflowDialog.showWorkflowForm({
         isEdit: false,
         formData,
-        onConfirm: async (data: WorkflowFormData) => {
+        onConfirm: async (confirmData: WorkflowFormData) => {
           try {
             const result = await fetchCreateWorkflow({
-              name: data.name,
-              description: data.description,
-              tags: data.tags
+              name: confirmData.name,
+              description: confirmData.description,
+              tags: confirmData.tags
             });
             message.success($t('common.addSuccess'));
             // 跳转到编辑器

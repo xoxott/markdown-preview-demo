@@ -1,12 +1,11 @@
 /** RequestClient 完整功能示例 展示所有功能的使用方法，确保功能正常 */
 
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, ref } from 'vue';
 import {
   NAlert,
   NButton,
   NCard,
   NCode,
-  NConfigProvider,
   NDivider,
   NH3,
   NProgress,
@@ -16,16 +15,16 @@ import {
 } from 'naive-ui';
 import type { AxiosProgressEvent } from 'axios';
 import {
-  onRequestComplete,
-  onRequestError,
-  onRequestStart,
-  onRequestSuccess
+  _onRequestComplete,
+  _onRequestError,
+  _onRequestStart,
+  _onRequestSuccess
 } from '@suga/request-events';
 import {
-  configureLogger,
-  logErrorWithManager,
-  logRequestWithManager,
-  logResponseWithManager
+  _configureLogger,
+  _logErrorWithManager,
+  _logRequestWithManager,
+  _logResponseWithManager
 } from '@suga/request-logger';
 import { createRequestClient } from '@/utils/request/createRequestClient';
 

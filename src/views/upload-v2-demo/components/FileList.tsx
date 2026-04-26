@@ -7,7 +7,7 @@ import {
   createFileListColumns
 } from './FileListColumns';
 
-interface Props {
+interface _Props {
   allFiles: FileListRow[];
   uploadQueueLength: number;
   activeUploadsSize: number;

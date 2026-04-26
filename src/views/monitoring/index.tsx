@@ -2,7 +2,7 @@ import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } fro
 import { NAlert, NButton, NCard, NGi, NGrid, NProgress, NSpace, NSpin } from 'naive-ui';
 import { useMonitoringSSE } from '@/hooks/monitoring/useMonitoringSSE';
 import {
-  formatTimestamp,
+  _formatTimestamp,
   formatUptime,
   getCpuUsageColor,
   getMemoryUsageColor
@@ -39,12 +39,12 @@ export default defineComponent({
 
     // SSE hook
     const {
-      status: sseStatus,
-      isConnected,
+      status: _sseStatus,
+      isConnected: _isConnected,
       isConnecting,
       isReconnecting,
       error: sseError,
-      connect: connectSSE,
+      connect: _connectSSE,
       disconnect: disconnectSSE,
       onHealth,
       onLiveness,

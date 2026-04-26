@@ -289,7 +289,7 @@ const handleSettingChange = () => {
           @error="handleUploadError"
           @exceed="handleExceed"
         >
-          <template #default="{ isDragOver, isProcessing, fileCount }">
+          <template #default="{ isDragOver, isProcessing }">
             <div class="flex flex-col items-center justify-center px-4 py-4 text-center">
               <NIcon
                 :component="CloudUploadOutline"

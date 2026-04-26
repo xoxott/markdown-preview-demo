@@ -1,6 +1,6 @@
 import { computed, defineComponent, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { NButton, NIcon, NSpace, NSpin, useMessage } from 'naive-ui';
+import { NButton, NIcon, NSpace, useMessage } from 'naive-ui';
 import { Icon } from '@iconify/vue';
 import { mockWorkflowApi } from '@/service/api/workflow-mock';
 import WorkflowCanvas from '@/components/ai-workflow/canvas/WorkflowCanvas';

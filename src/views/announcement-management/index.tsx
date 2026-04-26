@@ -41,6 +41,9 @@ export default defineComponent({
 
     const selectedRowKeys = ref<number[]>([]);
 
+    // 前置声明 getData 以避免 no-use-before-define
+    let getData: () => void;
+
     // 类型选项（用于搜索筛选）
     const typeOptions = [
       { label: $t('page.announcementManagement.all' as any), value: undefined },
@@ -275,17 +278,25 @@ export default defineComponent({
     }
 
     // 表格配置
-    const { columns, data, loading, pagination, getData, updateSearchParams, resetSearchParams } =
-      useTable({
-        apiFn: fetchAnnouncementList,
-        apiParams: {
-          page: 1,
-          limit: 10,
-          ...searchForm
-        },
-        columns: () => createColumns() as any,
-        showTotal: true
-      });
+    const {
+      columns,
+      data,
+      loading,
+      pagination,
+      getData: _getData,
+      updateSearchParams,
+      resetSearchParams
+    } = useTable({
+      apiFn: fetchAnnouncementList,
+      apiParams: {
+        page: 1,
+        limit: 10,
+        ...searchForm
+      },
+      columns: () => createColumns() as any,
+      showTotal: true
+    });
+    getData = _getData;
 
     // 搜索
     function handleSearch() {

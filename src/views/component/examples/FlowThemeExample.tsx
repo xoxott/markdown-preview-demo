@@ -4,7 +4,7 @@
  * 展示如何使用 Flow 的主题系统，包括 light、dark、auto 三种主题模式
  */
 
-import { computed, defineComponent, h, ref } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
 import { NButton, NCard, NH3, NRadio, NRadioGroup, NSpace, NText, useMessage } from 'naive-ui';
 // 导入 Flow 主题样式
 import '@/components/flow/styles/index.scss';

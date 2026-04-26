@@ -8,7 +8,7 @@ import {
 } from '@vicons/ionicons5';
 import type { UploadStats } from '@/hooks/upload-v2';
 
-interface Props {
+interface _Props {
   uploadStats: UploadStats;
 }
 

@@ -1,4 +1,4 @@
-import { computed, defineComponent, getCurrentInstance, onMounted, reactive, ref } from 'vue';
+import { computed, defineComponent, getCurrentInstance, reactive, ref } from 'vue';
 import {
   NButton,
   NCard,
@@ -42,6 +42,9 @@ export default defineComponent({
     const { formRef: searchFormRef, resetFields } = useNaiveForm();
 
     const selectedRowKeys = ref<number[]>([]);
+
+    // 前置声明 getData 以避免 no-use-before-define
+    let getData: () => void;
 
     // 用户和角色选项
     const users = ref<Api.UserManagement.User[]>([]);
@@ -358,17 +361,25 @@ export default defineComponent({
     }
 
     // 表格配置
-    const { columns, data, loading, pagination, getData, updateSearchParams, resetSearchParams } =
-      useTable({
-        apiFn: fetchNotificationList,
-        apiParams: {
-          page: 1,
-          limit: 10,
-          ...searchForm
-        },
-        columns: () => createColumns() as any,
-        showTotal: true
-      });
+    const {
+      columns,
+      data,
+      loading,
+      pagination,
+      getData: _getData,
+      updateSearchParams,
+      resetSearchParams
+    } = useTable({
+      apiFn: fetchNotificationList,
+      apiParams: {
+        page: 1,
+        limit: 10,
+        ...searchForm
+      },
+      columns: () => createColumns() as any,
+      showTotal: true
+    });
+    getData = _getData;
 
     // 搜索
     function handleSearch() {

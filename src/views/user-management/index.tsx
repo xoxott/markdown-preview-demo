@@ -45,6 +45,10 @@ export default defineComponent({
 
     const selectedRowKeys = ref<number[]>([]);
 
+    // 前置声明 getData 和 pagination 以避免 no-use-before-define
+    let getData: () => void;
+    let pagination: any;
+
     // 角色列表
     const roles = ref<Api.UserManagement.Role[]>([]);
     const roleOptions = computed(() => {
@@ -406,17 +410,26 @@ export default defineComponent({
     }
 
     // 表格配置
-    const { columns, data, loading, pagination, getData, updateSearchParams, resetSearchParams } =
-      useTable({
-        apiFn: fetchUserList,
-        apiParams: {
-          page: 1,
-          limit: 10,
-          ...searchForm
-        },
-        columns: () => createColumns() as any,
-        showTotal: true
-      });
+    const {
+      columns,
+      data,
+      loading,
+      pagination: _pagination,
+      getData: _getData,
+      updateSearchParams,
+      resetSearchParams
+    } = useTable({
+      apiFn: fetchUserList,
+      apiParams: {
+        page: 1,
+        limit: 10,
+        ...searchForm
+      },
+      columns: () => createColumns() as any,
+      showTotal: true
+    });
+    getData = _getData;
+    pagination = _pagination;
 
     // 搜索
     function handleSearch() {
@@ -458,9 +471,9 @@ export default defineComponent({
     // 加载角色列表
     async function loadRoles() {
       try {
-        const { data } = await fetchRoleList();
-        if (data?.lists && Array.isArray(data.lists)) {
-          roles.value = data.lists;
+        const { data: rolesData } = await fetchRoleList();
+        if (rolesData?.lists && Array.isArray(rolesData.lists)) {
+          roles.value = rolesData.lists;
         } else {
           roles.value = [];
         }

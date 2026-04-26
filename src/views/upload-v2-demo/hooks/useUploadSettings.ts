@@ -1,4 +1,4 @@
-import { type Ref, reactive } from 'vue';
+import { reactive } from 'vue';
 import { CONSTANTS } from '@/hooks/upload-v2';
 import type { UploadConfig } from '@/hooks/upload-v2';
 import type { ChunkSizeOption } from '../types';

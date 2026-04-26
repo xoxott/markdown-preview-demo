@@ -30,7 +30,7 @@ const itemsWithIndex = computed(() => items.map((item, i) => ({ ...item, _index:
 const isCollapsed = ref(defaultCollapsed);
 const contentRef = ref<HTMLElement>();
 
-// TODO: 计算实际高度，限制最大高度
+// NOTE: 计算实际高度，限制最大高度
 // const computedHeight = computed(() => {
 //   const realHeight = items.length * itemSize; // 16px padding
 //   const max = Number.parseInt(maxHeight);
@@ -97,7 +97,7 @@ defineExpose({
           :style="{ height: maxHeight }"
           class="virtual-list-container"
         >
-          <template #default="{ item, index }">
+          <template #default="{ item }">
             <slot name="item" :item="item" :index="item._index" />
           </template>
         </NVirtualList>
