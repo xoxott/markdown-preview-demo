@@ -25,7 +25,7 @@ export interface ValidationResult {
  */
 function validatePerformanceConfig(
   performance: FrameworkPluginOptions['performance'],
-  errors: string[]
+  _errors: string[]
 ): FrameworkPluginOptions['performance'] {
   if (!performance) {
     return undefined;

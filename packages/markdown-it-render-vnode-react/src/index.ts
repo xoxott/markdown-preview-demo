@@ -65,11 +65,13 @@ export const reactAdapter: FrameworkAdapter = {
   getChildren(node: FrameworkNode): FrameworkNode[] {
     const element = node as ReactElement;
     const children = element?.props?.children;
-    return Array.isArray(children)
-      ? (children as FrameworkNode[])
-      : children
-        ? [children as FrameworkNode]
-        : [];
+    if (Array.isArray(children)) {
+      return children as FrameworkNode[];
+    }
+    if (children) {
+      return [children as FrameworkNode];
+    }
+    return [];
   }
 };
 

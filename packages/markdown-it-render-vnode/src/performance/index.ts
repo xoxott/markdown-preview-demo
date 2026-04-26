@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * 性能监控模块
  *
@@ -54,7 +55,7 @@ export function createPerformanceMonitor(
   options: RenderOptions,
   env: RenderEnv
 ) => FrameworkNode[] {
-  return function (
+  return function performanceMonitor(
     this: MarkdownRenderer,
     tokens: Token[],
     options: RenderOptions,

@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 /**
  * 核心渲染器模块（统一导出接口）
  *

@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 /**
  * Token 渲染模块
  *
@@ -62,11 +63,11 @@ export function renderAttrs(token: Token): Record<string, string> {
  * @returns 节点或 null
  */
 export function renderToken(
-  renderer: MarkdownRenderer,
+  _renderer: MarkdownRenderer,
   tokens: Token[],
   idx: number,
-  options: RenderOptions,
-  env: RenderEnv
+  _options: RenderOptions,
+  _env: RenderEnv
 ): FrameworkNode | null {
   const token = tokens[idx];
   const adapter = getAdapter();

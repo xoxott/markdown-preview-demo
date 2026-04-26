@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 /**
  * 代码块渲染器模块
  *
@@ -39,7 +40,7 @@ export function setCodeRendererOptions(options: FrameworkPluginOptions): void {
 
 /** 递增渲染批次 ID 每次渲染 pass 开始时调用，用于生成稳定的组件 key */
 export function incrementRenderPassId(): void {
-  renderPassId++;
+  renderPassId += 1;
 }
 
 /** 生成自定义组件 key（替代 uuid v4） 使用渲染批次 ID + token 索引组合，避免 crypto.getRandomValues 开销 */
@@ -51,8 +52,8 @@ function generateComponentKey(langName: string, tokenIndex: number): string {
 export function renderCodeInline(
   tokens: Token[],
   idx: number,
-  options: RenderOptions,
-  env: RenderEnv,
+  _options: RenderOptions,
+  _env: RenderEnv,
   renderer: MarkdownRenderer
 ): FrameworkNode | string {
   const token = tokens[idx];
@@ -66,8 +67,8 @@ export function renderCodeInline(
 export function renderCodeBlock(
   tokens: Token[],
   idx: number,
-  options: RenderOptions,
-  env: RenderEnv,
+  _options: RenderOptions,
+  _env: RenderEnv,
   renderer: MarkdownRenderer
 ): FrameworkNode {
   const token = tokens[idx];
@@ -227,7 +228,7 @@ function createDefaultRenderFn(
  */
 function resolveCustomComponent(
   customComponent: FrameworkComponent | Promise<FrameworkComponent> | null,
-  defaultRender: () => FrameworkNode | string
+  _defaultRender: () => FrameworkNode | string
 ): FrameworkComponent | Promise<FrameworkComponent> | null {
   if (!customComponent) {
     return null;
@@ -313,7 +314,7 @@ export function renderFence(
   tokens: Token[],
   idx: number,
   options: RenderOptions,
-  env: RenderEnv,
+  _env: RenderEnv,
   renderer: MarkdownRenderer
 ): FrameworkNode | string {
   const token = tokens[idx];

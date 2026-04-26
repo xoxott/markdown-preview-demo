@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 /**
  * 媒体渲染器模块
  *
@@ -34,8 +35,8 @@ export function renderImage(
 export function renderMedia(
   tokens: Token[],
   idx: number,
-  options: RenderOptions,
-  env: RenderEnv,
+  _options: RenderOptions,
+  _env: RenderEnv,
   renderer: MarkdownRenderer
 ): FrameworkNode {
   const token = tokens[idx];

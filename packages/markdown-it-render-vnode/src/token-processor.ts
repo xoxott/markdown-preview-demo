@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /**
  * Token 预处理模块
  *

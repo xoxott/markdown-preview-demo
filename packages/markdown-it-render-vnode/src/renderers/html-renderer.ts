@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 /**
  * HTML 渲染器模块
  *
@@ -17,9 +18,9 @@ interface ExtendedToken extends Token {
 export function renderHtml(
   tokens: Token[],
   idx: number,
-  options: RenderOptions,
+  _options: RenderOptions,
   env: RenderEnv,
-  renderer: MarkdownRenderer
+  _renderer: MarkdownRenderer
 ): FrameworkNode {
   const token = tokens[idx] as ExtendedToken;
 

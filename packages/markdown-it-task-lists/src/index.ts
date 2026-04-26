@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 /**
  * Markdown-it Task Lists Plugin
  *
@@ -97,7 +98,7 @@ function findTokensInListItem(
     inlineIdx: -1
   };
 
-  for (let i = startIndex; i < endIndex; i++) {
+  for (let i = startIndex; i < endIndex; i += 1) {
     const token = tokens[i];
     if (token.type === TOKEN_TYPES.PARAGRAPH_OPEN && result.paragraphOpenIdx === -1) {
       result.paragraphOpenIdx = i;
@@ -134,7 +135,7 @@ function detectTaskListItem(tokens: Token[], index: number): TaskListItemResult 
 
   // 查找 list_item_close 的位置
   let endIndex = tokens.length;
-  for (let i = index + 1; i < tokens.length; i++) {
+  for (let i = index + 1; i < tokens.length; i += 1) {
     if (tokens[i].type === TOKEN_TYPES.LIST_ITEM_CLOSE) {
       endIndex = i;
       break;
@@ -204,7 +205,7 @@ function addClassName(token: Token, className: string): void {
  */
 function markParentAsTaskList(tokens: Token[], index: number, listClass: string): void {
   // 向上查找最近的 bullet_list_open 或 ordered_list_open
-  for (let i = index - 1; i >= 0; i--) {
+  for (let i = index - 1; i >= 0; i -= 1) {
     const token = tokens[i];
     if (
       token.type === TOKEN_TYPES.BULLET_LIST_OPEN ||
@@ -300,7 +301,7 @@ function taskListsRule(state: StateCore, options: Required<TaskListOptions>): bo
 
     // 只处理 list_item_open token
     if (token.type !== TOKEN_TYPES.LIST_ITEM_OPEN) {
-      i++;
+      i += 1;
       continue;
     }
 
@@ -308,7 +309,7 @@ function taskListsRule(state: StateCore, options: Required<TaskListOptions>): bo
     const result = detectTaskListItem(tokens, i);
 
     if (!result.isTask) {
-      i++;
+      i += 1;
       continue;
     }
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /**
  * 适配器管理器
  *

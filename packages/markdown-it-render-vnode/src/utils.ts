@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /**
  * Markdown 渲染工具函数
  *
@@ -81,6 +82,7 @@ export function returnAttrsToPool(attrs: AttrRecord): void {
   // 清空对象的所有属性
   for (const key in attrs) {
     if (Object.hasOwn(attrs, key)) {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete attrs[key];
     }
   }

@@ -1,3 +1,6 @@
+/* eslint-disable no-console */
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-underscore-dangle */
 /**
  * Markdown 渲染 VNode 插件
  *

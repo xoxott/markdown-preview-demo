@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * 错误处理工具模块
  *
