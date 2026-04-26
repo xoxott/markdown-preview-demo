@@ -1,7 +1,4 @@
-/**
- * Markdown 渲染性能基准测试
- * 测试实时渲染场景下的性能表现
- */
+/** Markdown 渲染性能基准测试 测试实时渲染场景下的性能表现 */
 
 import MarkdownIt from 'markdown-it';
 import { vueAdapter } from '@suga/markdown-it-render-vnode-vue';
@@ -19,7 +16,8 @@ const mdPlain = new MarkdownIt({ html: true, linkify: true, typographer: true })
 const simpleText = 'Hello World';
 
 /** 中等段落（模拟一段回复） */
-const mediumParagraph = 'This is a medium-length paragraph with **bold**, *italic*, `code` and [link](https://example.com). It contains multiple inline styles to test rendering throughput.';
+const mediumParagraph =
+  'This is a medium-length paragraph with **bold**, *italic*, `code` and [link](https://example.com). It contains multiple inline styles to test rendering throughput.';
 
 /** 复杂混合内容（模拟富文本编辑器输出） */
 const complexContent = `
@@ -60,14 +58,10 @@ End of section.
 `;
 
 /** 大文档（模拟完整文档渲染） */
-const largeDocument = Array(50)
-  .fill(complexContent)
-  .join('\n\n');
+const largeDocument = Array(50).fill(complexContent).join('\n\n');
 
 /** 超大文档（压力测试） */
-const hugeDocument = Array(200)
-  .fill(complexContent)
-  .join('\n\n');
+const hugeDocument = Array(200).fill(complexContent).join('\n\n');
 
 /** 增量更新场景（模拟用户逐步输入） */
 const incrementalInputs = [
@@ -84,7 +78,7 @@ const incrementalInputs = [
   'Hello World\n\n',
   'Hello World\n\n# Title',
   'Hello World\n\n# Title\n\nParagraph',
-  'Hello World\n\n# Title\n\nParagraph with **bold**',
+  'Hello World\n\n# Title\n\nParagraph with **bold**'
 ];
 
 // ==================== 辅助函数 ====================
@@ -116,7 +110,9 @@ function measureRender(label: string, content: string, iterations: number = 1) {
   console.log(`  VNode渲染: ${avgVnode.toFixed(2)}ms (平均${iterations}次)`);
   console.log(`  HTML渲染:  ${avgHtml.toFixed(2)}ms (对比基准)`);
   console.log(`  倍率: ${(avgVnode / avgHtml).toFixed(2)}x`);
-  console.log(`  16ms帧预算: ${avgVnode < 16 ? '✅ 通过' : avgVnode < 33 ? '⚠️ 接近极限' : '❌ 超出'}`);
+  console.log(
+    `  16ms帧预算: ${avgVnode < 16 ? '✅ 通过' : avgVnode < 33 ? '⚠️ 接近极限' : '❌ 超出'}`
+  );
 }
 
 // ==================== 执行基准测试 ====================
@@ -143,14 +139,21 @@ for (const input of incrementalInputs) {
   md.renderer.render(tokens, md.options, {});
   const duration = performance.now() - start;
   totalIncrementalTime += duration;
-  console.log(`  "${input.substring(0, 30)}${input.length > 30 ? '...' : ''}" → ${duration.toFixed(2)}ms`);
+  console.log(
+    `  "${input.substring(0, 30)}${input.length > 30 ? '...' : ''}" → ${duration.toFixed(2)}ms`
+  );
 }
 console.log(`  总耗时: ${totalIncrementalTime.toFixed(2)}ms (${incrementalInputs.length}次)`);
 console.log(`  平均: ${(totalIncrementalTime / incrementalInputs.length).toFixed(2)}ms`);
 
 // 3. Parse vs Render 分解
 console.log('\n===== 3. Parse vs Render 分解 =====');
-for (const [label, content] of [['简单', simpleText], ['中等', mediumParagraph], ['复杂', complexContent], ['大文档', largeDocument]] as const) {
+for (const [label, content] of [
+  ['简单', simpleText],
+  ['中等', mediumParagraph],
+  ['复杂', complexContent],
+  ['大文档', largeDocument]
+] as const) {
   const parseStart = performance.now();
   const tokens = md.parse(content, {});
   const parseTime = performance.now() - parseStart;
@@ -159,7 +162,9 @@ for (const [label, content] of [['简单', simpleText], ['中等', mediumParagra
   md.renderer.render(tokens, md.options, {});
   const renderTime = performance.now() - renderStart;
 
-  console.log(`  ${label}: parse=${parseTime.toFixed(2)}ms, render=${renderTime.toFixed(2)}ms, total=${(parseTime + renderTime).toFixed(2)}ms`);
+  console.log(
+    `  ${label}: parse=${parseTime.toFixed(2)}ms, render=${renderTime.toFixed(2)}ms, total=${(parseTime + renderTime).toFixed(2)}ms`
+  );
 }
 
 // 4. 长文档滚动渲染模拟（分段渲染）
@@ -178,7 +183,13 @@ console.log(`  总耗时: ${sectionTotal.toFixed(2)}ms`);
 
 // 5. 内存估算
 console.log('\n===== 5. VNode 产出数量 =====');
-for (const [label, content] of [['简单', simpleText], ['中等', mediumParagraph], ['复杂', complexContent], ['大文档', largeDocument], ['超大', hugeDocument]] as const) {
+for (const [label, content] of [
+  ['简单', simpleText],
+  ['中等', mediumParagraph],
+  ['复杂', complexContent],
+  ['大文档', largeDocument],
+  ['超大', hugeDocument]
+] as const) {
   const tokens = md.parse(content, {});
   const vnodes = md.renderer.render(tokens, md.options, {}) as unknown as unknown[];
   console.log(`  ${label}: tokens=${tokens.length}, vnodes=${vnodes.length}`);
