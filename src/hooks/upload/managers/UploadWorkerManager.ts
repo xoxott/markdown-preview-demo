@@ -69,7 +69,7 @@ class WorkerScriptGenerator {
           // 降级到简单哈希
           let hash = 0;
           const view = new Uint8Array(buffer);
-          for (let i = 0; i < view.length; i += 1) {
+          for (let i = 0; i < view.length; i++) {
             hash = ((hash << 5) - hash + view[i]) & 0xffffffff;
           }
           return Math.abs(hash).toString(16).padStart(8, '0');
@@ -114,7 +114,7 @@ class WorkerScriptGenerator {
         const chunks = [];
         const totalChunks = Math.ceil(file.size / chunkSize);
         
-        for (let i = 0; i < totalChunks; i += 1) {
+        for (let i = 0; i < totalChunks; i++) {
           const start = i * chunkSize;
           const end = Math.min(start + chunkSize, file.size);
           
@@ -138,7 +138,7 @@ class WorkerScriptGenerator {
         const results = [];
         const total = files.length;
         
-        for (let i = 0; i < total; i += 1) {
+        for (let i = 0; i < total; i++) {
           try {
             const file = files[i];
             const result = { 
@@ -410,7 +410,7 @@ export default class UploadWorkerManager {
     const chunks: ChunkInfo[] = [];
     const totalChunks = Math.ceil(file.size / chunkSize);
 
-    for (let i = 0; i < totalChunks; i += 1) {
+    for (let i = 0; i < totalChunks; i++) {
       const start = i * chunkSize;
       const end = Math.min(start + chunkSize, file.size);
 
@@ -433,7 +433,7 @@ export default class UploadWorkerManager {
     const results: any[] = [];
     const total = files.length;
 
-    for (let i = 0; i < total; i += 1) {
+    for (let i = 0; i < total; i++) {
       try {
         const file = files[i];
         const result: any = { file: file.name, size: file.size };

@@ -59,7 +59,7 @@ export class LocalFileDataSource implements IFileDataSource {
     let currentHandle: FileSystemDirectoryHandle = this.rootHandle;
 
     // 遍历路径获取文件句柄
-    for (let i = 0; i < parts.length - 1; i += 1) {
+    for (let i = 0; i < parts.length - 1; i++) {
       currentHandle = await currentHandle.getDirectoryHandle(parts[i]);
     }
 

@@ -76,7 +76,7 @@ export function useNodeDragDrop() {
     // 批量更新所有选中的节点
     // 使用 for 循环代替 forEach，性能更好
     const nodesArray = nodes.value;
-    for (let i = 0; i < nodesArray.length; i += 1) {
+    for (let i = 0; i < nodesArray.length; i++) {
       const node = nodesArray[i];
       if (nodeIdSet.has(node.id)) {
         node.position.x += deltaX;

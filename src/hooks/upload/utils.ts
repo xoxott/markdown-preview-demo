@@ -382,7 +382,7 @@ export async function calculateFileMD5(
       try {
         const arrayBuffer = e.target?.result as ArrayBuffer;
         spark.append(arrayBuffer);
-        currentChunk += 1;
+        currentChunk++;
 
         // 更新进度
         if (onProgress) {
@@ -424,7 +424,7 @@ export async function calculateFilesMD5(
   const results: string[] = [];
   const total = files.length;
 
-  for (let i = 0; i < total; i += 1) {
+  for (let i = 0; i < total; i++) {
     const md5 = await calculateFileMD5(files[i], fileProgress => {
       if (onProgress) {
         const overallProgress = ((i + fileProgress / 100) / total) * 100;
@@ -451,7 +451,7 @@ export async function calculateFileSHA256(
   const chunks = Math.ceil(file.size / chunkSize);
   const hashBuffer: Uint8Array[] = [];
 
-  for (let i = 0; i < chunks; i += 1) {
+  for (let i = 0; i < chunks; i++) {
     const start = i * chunkSize;
     const end = Math.min(start + chunkSize, file.size);
     const chunk = file.slice(start, end);

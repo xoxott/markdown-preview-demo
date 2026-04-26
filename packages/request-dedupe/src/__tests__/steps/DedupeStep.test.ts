@@ -1,4 +1,3 @@
-/* eslint-disable no-plusplus */
 /** DedupeStep 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';

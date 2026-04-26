@@ -270,7 +270,7 @@ export class ChunkUploadTask {
 
     console.log(`🚀 开始上传 ${this.task.chunks.length} 个分片,并发数: ${maxConcurrent}`);
 
-    for (let i = 0; i < this.task.chunks.length; i += 1) {
+    for (let i = 0; i < this.task.chunks.length; i++) {
       const chunk = this.task.chunks[i];
 
       // 检查是否应该停止创建新的上传任务

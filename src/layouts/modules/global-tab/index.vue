@@ -39,7 +39,7 @@ async function scrollToActiveTab() {
 
   const { children } = tabRef.value;
 
-  for (let i = 0; i < children.length; i += 1) {
+  for (let i = 0; i < children.length; i++) {
     const child = children[i];
 
     const { value: tabId } = (child.attributes as TabNamedNodeMap)[TAB_DATA_ID];

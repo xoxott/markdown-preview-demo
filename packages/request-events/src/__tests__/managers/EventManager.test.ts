@@ -1,4 +1,3 @@
-/* eslint-disable no-plusplus */
 /** EventManager 测试 */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';

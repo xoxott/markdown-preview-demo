@@ -72,9 +72,9 @@ export class ObjectPool<T> {
     };
 
     // 预创建初始对象
-    for (let i = 0; i < this.options.initialSize; i += 1) {
+    for (let i = 0; i < this.options.initialSize; i++) {
       this.pool.push(this.factory());
-      this.stats.totalCreated += 1;
+      this.stats.totalCreated++;
     }
   }
 
@@ -92,7 +92,7 @@ export class ObjectPool<T> {
     }
 
     // 否则创建新对象
-    this.stats.totalCreated += 1;
+    this.stats.totalCreated++;
     return this.factory();
   }
 
@@ -176,9 +176,9 @@ export class ObjectPool<T> {
   warmup(count: number): void {
     const needed = Math.min(count - this.pool.length, this.options.maxSize - this.pool.length);
 
-    for (let i = 0; i < needed; i += 1) {
+    for (let i = 0; i < needed; i++) {
       this.pool.push(this.factory());
-      this.stats.totalCreated += 1;
+      this.stats.totalCreated++;
     }
   }
 

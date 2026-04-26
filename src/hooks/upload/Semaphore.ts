@@ -1,5 +1,3 @@
-/* eslint-disable no-plusplus */
-
 /**
  * 信号量类 - 控制并发数
  *

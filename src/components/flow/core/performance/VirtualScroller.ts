@@ -97,7 +97,7 @@ export class VirtualScroller {
     let endIndex = nodes.length - 1;
 
     // 找到第一个可见节点的索引
-    for (let i = 0; i < nodes.length; i += 1) {
+    for (let i = 0; i < nodes.length; i++) {
       if (this.culler.isNodeInViewport(nodes[i], bounds)) {
         startIndex = Math.max(0, i - 10); // 添加一些缓冲区
         break;

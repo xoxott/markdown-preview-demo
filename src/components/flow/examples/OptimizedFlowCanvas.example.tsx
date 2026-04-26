@@ -287,7 +287,7 @@ export default defineComponent({
 
     onMounted(() => {
       // 初始化一些节点
-      for (let i = 0; i < 100; i += 1) {
+      for (let i = 0; i < 100; i++) {
         addRandomNode();
       }
 

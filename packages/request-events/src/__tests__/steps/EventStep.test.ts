@@ -1,4 +1,3 @@
-/* eslint-disable no-plusplus */
 /* eslint-disable no-promise-executor-return */
 /** EventStep 测试 */
 

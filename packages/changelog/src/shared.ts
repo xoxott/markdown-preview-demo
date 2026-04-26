@@ -110,7 +110,7 @@ export function partition<T>(array: readonly T[], ...filters: PartitionFilter<T>
         result[i].push(e);
         return;
       }
-      i += 1;
+      i++;
     }
     result[i].push(e);
   });

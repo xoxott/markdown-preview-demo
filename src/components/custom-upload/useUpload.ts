@@ -1,4 +1,3 @@
-/* eslint-disable no-plusplus */
 // composables/useUpload.ts
 import { computed, reactive, ref } from 'vue';
 import type { UploadFileInfo } from 'naive-ui';

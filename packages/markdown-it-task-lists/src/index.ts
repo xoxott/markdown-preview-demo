@@ -98,7 +98,7 @@ function findTokensInListItem(
     inlineIdx: -1
   };
 
-  for (let i = startIndex; i < endIndex; i += 1) {
+  for (let i = startIndex; i < endIndex; i++) {
     const token = tokens[i];
     if (token.type === TOKEN_TYPES.PARAGRAPH_OPEN && result.paragraphOpenIdx === -1) {
       result.paragraphOpenIdx = i;
@@ -135,7 +135,7 @@ function detectTaskListItem(tokens: Token[], index: number): TaskListItemResult 
 
   // 查找 list_item_close 的位置
   let endIndex = tokens.length;
-  for (let i = index + 1; i < tokens.length; i += 1) {
+  for (let i = index + 1; i < tokens.length; i++) {
     if (tokens[i].type === TOKEN_TYPES.LIST_ITEM_CLOSE) {
       endIndex = i;
       break;
@@ -301,7 +301,7 @@ function taskListsRule(state: StateCore, options: Required<TaskListOptions>): bo
 
     // 只处理 list_item_open token
     if (token.type !== TOKEN_TYPES.LIST_ITEM_OPEN) {
-      i += 1;
+      i++;
       continue;
     }
 
@@ -309,7 +309,7 @@ function taskListsRule(state: StateCore, options: Required<TaskListOptions>): bo
     const result = detectTaskListItem(tokens, i);
 
     if (!result.isTask) {
-      i += 1;
+      i++;
       continue;
     }
 

@@ -82,7 +82,7 @@ export default defineConfig(
           enforceInMethodNames: false
         }
       ],
-      'no-plusplus': ['warn', { allowForLoopAfterthoughts: true }],
+      'no-plusplus': 'off',
       'no-unused-expressions': [
         'error',
         {
