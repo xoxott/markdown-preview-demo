@@ -83,22 +83,41 @@ git add src/components/flow/
 git commit -m "fix(flow): 修复 ESLint 错误"
 ```
 
-## Conventional Commits 类型
+## 提交类型（`pnpm commit:zh` 第一步选择）
 
-| 类型     | 说明                         |
-| -------- | ---------------------------- |
-| feat     | 新功能                       |
-| fix      | Bug 修复                     |
-| docs     | 文档变更                     |
-| style    | 格式化（不影响代码逻辑）     |
-| refactor | 重构（不是新功能也不是修复） |
-| perf     | 性能优化                     |
-| optimize | 代码质量优化                 |
-| test     | 测试相关                     |
-| build    | 构建相关                     |
-| ci       | CI/CD 相关                   |
-| chore    | 杂项（不影响代码）           |
-| revert   | 回滚提交                     |
+| 类型       | 说明                                         |
+| ---------- | -------------------------------------------- |
+| feat       | 新功能                                       |
+| feat-wip   | 开发中的功能，比如某功能的部分代码           |
+| fix        | 修复 Bug                                     |
+| docs       | 只涉及文档更新                               |
+| typo       | 代码或文档勘误，比如错误拼写                 |
+| style      | 修改代码风格，不影响代码含义的变更           |
+| refactor   | 代码重构，既不修复 bug 也不添加功能的代码变更 |
+| perf       | 可提高性能的代码更改                         |
+| optimize   | 优化代码质量的代码更改                       |
+| test       | 添加缺失的测试或更正现有测试                 |
+| build      | 影响构建系统或外部依赖项的更改               |
+| ci         | 对 CI 配置文件和脚本的更改                   |
+| chore      | 没有修改 src 或测试文件的其他变更             |
+| revert     | 还原先前的提交                               |
+
+## 提交范围（`pnpm commit:zh` 第二步选择）
+
+| 范围      | 说明         |
+| --------- | ------------ |
+| projects  | 项目         |
+| packages  | 包           |
+| components | 组件         |
+| hooks     | 钩子函数     |
+| utils     | 工具函数     |
+| types     | TS 类型声明  |
+| styles    | 代码风格     |
+| deps      | 项目依赖     |
+| release   | 发布项目新版本 |
+| other     | 其他的变更   |
+
+提交信息最终格式：`类型(范围): 描述`，例如 `fix(components): 修复 ESLint 错误`
 
 ## 错误处理
 
