@@ -1,8 +1,7 @@
 /**
  * ESLint 配置文件
  *
- * 使用 soybeanjs 的 ESLint 配置作为基础，针对项目实际情况进行微调
- * 分批恢复规则，保持代码质量标准
+ * 使用 soybeanjs 的 ESLint 配置作为基础，针对项目实际情况进行微调 分批恢复规则，保持代码质量标准
  */
 
 import { defineConfig } from '@soybeanjs/eslint-config';
