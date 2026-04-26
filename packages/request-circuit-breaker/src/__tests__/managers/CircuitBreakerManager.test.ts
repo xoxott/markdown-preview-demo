@@ -1,3 +1,5 @@
+/* eslint-disable no-promise-executor-return */
+/* eslint-disable no-underscore-dangle */
 /** CircuitBreakerManager 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -53,12 +55,12 @@ describe('CircuitBreakerManager', () => {
 
     it('应该更新最后访问时间', async () => {
       const breaker1 = manager.getOrCreateBreaker('test-key');
-      const time1 = Date.now();
+      const _time1 = Date.now();
 
       await new Promise(resolve => setTimeout(resolve, 10));
 
       const breaker2 = manager.getOrCreateBreaker('test-key');
-      const time2 = Date.now();
+      const _time2 = Date.now();
 
       expect(breaker1).toBe(breaker2);
       // 验证访问时间已更新（通过清理测试）
@@ -142,8 +144,8 @@ describe('CircuitBreakerManager', () => {
         idleTimeout: 100 // 100ms
       });
 
-      const breaker1 = customManager.getOrCreateBreaker('key1');
-      const breaker2 = customManager.getOrCreateBreaker('key2');
+      const _breaker1 = customManager.getOrCreateBreaker('key1');
+      const _breaker2 = customManager.getOrCreateBreaker('key2');
 
       // 等待超时
       await new Promise(resolve => setTimeout(resolve, 150));
@@ -231,7 +233,7 @@ describe('CircuitBreakerManager', () => {
     });
 
     it('应该按状态分类统计', async () => {
-      const breaker1 = manager.getOrCreateBreaker('key1');
+      const _breaker1 = manager.getOrCreateBreaker('key1');
       const breaker2 = manager.getOrCreateBreaker('key2', {
         failureThreshold: 2
       });

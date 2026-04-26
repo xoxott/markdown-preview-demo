@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /** 重试步骤 */
 
 import type { RequestContext, RequestStep } from '@suga/request-core';

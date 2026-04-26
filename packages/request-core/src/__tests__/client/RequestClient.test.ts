@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this, no-param-reassign */
 /** RequestClient 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -38,7 +39,7 @@ describe('RequestClient', () => {
   describe('with', () => {
     it('应该链式添加步骤', () => {
       class TestStep implements RequestStep {
-        async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+        async execute<T>(_ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
           await next();
         }
       }
@@ -52,7 +53,7 @@ describe('RequestClient', () => {
       let stepExecuted = false;
 
       class TestStep implements RequestStep {
-        async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+        async execute<T>(_ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
           stepExecuted = true;
           await next();
         }
@@ -76,14 +77,14 @@ describe('RequestClient', () => {
       const executionOrder: number[] = [];
 
       class Step1 implements RequestStep {
-        async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+        async execute<T>(_ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
           executionOrder.push(1);
           await next();
         }
       }
 
       class Step2 implements RequestStep {
-        async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+        async execute<T>(_ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
           executionOrder.push(2);
           await next();
         }
@@ -293,7 +294,7 @@ describe('RequestClient', () => {
       const executionOrder: string[] = [];
 
       class LogStep implements RequestStep {
-        async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+        async execute<T>(_ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
           executionOrder.push('log-start');
           await next();
           executionOrder.push('log-end');
@@ -301,7 +302,7 @@ describe('RequestClient', () => {
       }
 
       class CacheStep implements RequestStep {
-        async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+        async execute<T>(_ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
           executionOrder.push('cache');
           await next();
         }

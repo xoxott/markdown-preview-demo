@@ -1,6 +1,8 @@
+/* eslint-disable no-plusplus */
+/* eslint-disable no-promise-executor-return */
 /** EventStep 测试 */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { createRequestContext } from '@suga/request-core';
 import type { NormalizedRequestConfig } from '@suga/request-core';
 import { EventStep } from '../../steps/EventStep';

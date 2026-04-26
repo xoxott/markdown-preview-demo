@@ -107,13 +107,13 @@ describe('retry-utils', () => {
     });
 
     it('应该限制最大延迟', () => {
-      const delay = calculateRetryDelay(10); // 2^10 * 1000 = 1024000，应该被限制为 10000
-      expect(delay).toBeLessThanOrEqual(DEFAULT_RETRY_CONFIG.MAX_DELAY);
+      const retryDelay = calculateRetryDelay(10); // 2^10 * 1000 = 1024000，应该被限制为 10000
+      expect(retryDelay).toBeLessThanOrEqual(DEFAULT_RETRY_CONFIG.MAX_DELAY);
     });
 
     it('应该使用自定义基础延迟', () => {
-      const delay = calculateRetryDelay(1, 500);
-      expect(delay).toBe(1000); // 2^1 * 500
+      const retryDelay = calculateRetryDelay(1, 500);
+      expect(retryDelay).toBe(1000); // 2^1 * 500
     });
 
     it('应该使用策略的 retryDelay 函数', () => {
@@ -126,8 +126,8 @@ describe('retry-utils', () => {
         shouldRetry: () => true,
         retryDelay: attempt => attempt * 1000
       };
-      const delay = calculateRetryDelay(2, 1000, error, strategy);
-      expect(delay).toBe(2000); // 2 * 1000
+      const retryDelay = calculateRetryDelay(2, 1000, error, strategy);
+      expect(retryDelay).toBe(2000); // 2 * 1000
     });
 
     it('应该使用错误类型策略的延迟', () => {
@@ -147,8 +147,8 @@ describe('retry-utils', () => {
           }
         }
       };
-      const delay = calculateRetryDelay(1, 1000, error, strategy);
-      expect(delay).toBe(2000); // 使用错误类型策略的延迟
+      const retryDelay = calculateRetryDelay(1, 1000, error, strategy);
+      expect(retryDelay).toBe(2000); // 使用错误类型策略的延迟
     });
   });
 

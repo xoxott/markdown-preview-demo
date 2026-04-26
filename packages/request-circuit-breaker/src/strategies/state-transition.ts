@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 /** 状态转换策略实现 */
 
 import type { StateTransitionStrategy } from '../types';

@@ -1,3 +1,5 @@
+/* eslint-disable no-plusplus */
+/* eslint-disable no-promise-executor-return */
 /** DedupeManager 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';

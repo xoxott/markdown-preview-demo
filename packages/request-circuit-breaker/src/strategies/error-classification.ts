@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 /** 错误分类策略实现 */
 
 import type { ErrorClassificationStrategy } from '../types';

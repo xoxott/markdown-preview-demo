@@ -33,7 +33,7 @@ export function composeSteps(steps: RequestStep[]): <T>(ctx: RequestContext<T>) 
 
       // 如果还有步骤，执行下一个
       if (index < steps.length) {
-        const step = steps[index++];
+        const step = steps[(index += 1)];
         await step.execute(ctx, next);
       }
     };

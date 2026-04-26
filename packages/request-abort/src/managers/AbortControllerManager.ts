@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable no-param-reassign */
 /** AbortController 管理器 使用原生 AbortController 替代废弃的 axios.CancelToken */
 
 import type { AbortControllerManagerOptions, AbortableRequestConfig } from '../types';
@@ -130,7 +132,7 @@ export class AbortControllerManager {
     // 中止匹配的请求
     requestIdsToAbort.forEach(requestId => {
       this.abort(requestId, abortMessage);
-      abortedCount++;
+      abortedCount += 1;
     });
 
     return abortedCount;

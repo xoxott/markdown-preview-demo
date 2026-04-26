@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 /** 日志函数 */
 
 import type { NormalizedRequestConfig } from '@suga/request-core';

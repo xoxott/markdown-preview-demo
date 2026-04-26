@@ -17,8 +17,8 @@ describe('CacheStrategyManager', () => {
     });
 
     it('应该支持自定义策略', () => {
-      const customStrategy = (key: string, item: CacheItem) => {
-        return key.startsWith('keep');
+      const customStrategy = (_key: string, _item: CacheItem) => {
+        return true;
       };
 
       const manager = new CacheStrategyManager('custom', 100, customStrategy);
@@ -143,7 +143,7 @@ describe('CacheStrategyManager', () => {
     });
 
     it('应该在自定义策略下应用自定义逻辑', () => {
-      const customStrategy = (key: string, item: CacheItem) => {
+      const customStrategy = (_key: string, item: CacheItem) => {
         return (item.data as { id: number }).id % 2 === 1;
       };
 
@@ -217,7 +217,7 @@ describe('CacheStrategyManager', () => {
 
   describe('setCustomStrategy', () => {
     it('应该设置自定义策略', () => {
-      const customStrategy = (key: string, item: CacheItem) => {
+      const customStrategy = (key: string, _item: CacheItem) => {
         return key.startsWith('keep');
       };
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 export const colorNames: [hex: string, name: string][] = [
   ['#000000', 'Black'],
   ['#000080', 'Navy Blue'],

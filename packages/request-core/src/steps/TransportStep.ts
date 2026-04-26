@@ -1,4 +1,6 @@
+/* eslint-disable consistent-return */
 /** 传输步骤（Transport Step） 职责：调用 Transport 执行实际请求 */
+/* eslint-disable no-param-reassign */
 
 import type { RequestContext } from '../context/RequestContext';
 import type { Transport } from '../transport/Transport';
@@ -8,7 +10,7 @@ import type { RequestStep } from './RequestStep';
 export class TransportStep implements RequestStep {
   constructor(private readonly transport: Transport) {}
 
-  async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+  async execute<T>(ctx: RequestContext<T>, _next: () => Promise<void>): Promise<void> {
     // 检查是否已取消
     if (ctx.state.aborted) {
       return Promise.resolve();

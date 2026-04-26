@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 /** RetryStep 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';

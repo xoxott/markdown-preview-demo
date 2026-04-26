@@ -43,7 +43,7 @@ export interface RequestCompleteEventData {
 export type RequestEventHandler<T extends RequestEventType> = T extends 'request:start'
   ? (data: RequestStartEventData) => void
   : T extends 'request:success'
-    ? <T = unknown>(data: RequestSuccessEventData<T>) => void
+    ? <R = unknown>(data: RequestSuccessEventData<R>) => void
     : T extends 'request:error'
       ? (data: RequestErrorEventData) => void
       : T extends 'request:complete'

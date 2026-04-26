@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /** 去重步骤 职责：防止重复请求，相同请求在时间窗口内只发送一次 */
 
 import type { RequestContext, RequestStep } from '@suga/request-core';

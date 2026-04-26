@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 /** 默认缓存策略实现 */
 
 import type { NormalizedRequestConfig } from '@suga/request-core';

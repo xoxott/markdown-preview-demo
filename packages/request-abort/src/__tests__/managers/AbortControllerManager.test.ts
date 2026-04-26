@@ -1,3 +1,4 @@
+/* eslint-disable no-promise-executor-return */
 /** AbortControllerManager 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';

@@ -1,3 +1,5 @@
+/* eslint-disable consistent-return */
+/* eslint-disable no-param-reassign */
 /** 中止步骤 职责：管理请求中止，使用 AbortController 支持按条件中止请求 */
 
 import type { RequestContext, RequestStep } from '@suga/request-core';
@@ -47,7 +49,7 @@ export class AbortStep implements RequestStep {
     this.defaultOptions = options.defaultOptions;
   }
 
-  async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+  async execute<T>(ctx: RequestContext<T>, _next: () => Promise<void>): Promise<void> {
     if (!isAbortMeta(ctx.meta)) {
       return next();
     }

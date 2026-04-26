@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /** 缓存读取步骤 职责：读缓存、标记 ctx.state.fromCache */
 
 import type { RequestContext, RequestStep } from '@suga/request-core';

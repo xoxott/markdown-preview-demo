@@ -234,7 +234,7 @@ describe('RequestContext', () => {
       // TypeScript 会在编译时阻止修改，但我们需要测试运行时行为
       // 实际上，由于 config 是 readonly，我们不能直接修改它
       expect(() => {
-        // @ts-expect-error - 测试只读属性
+        // @ts-expect-error testing readonly property assignment at runtime
         ctx.config.url = '/api/posts';
       }).not.toThrow(); // 运行时不会抛出错误，但 TypeScript 会报错
     });

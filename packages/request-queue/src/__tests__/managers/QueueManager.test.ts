@@ -1,3 +1,4 @@
+/* eslint-disable no-promise-executor-return */
 /** QueueManager 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';

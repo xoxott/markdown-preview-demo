@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this, no-param-reassign */
 /** RequestExecutor 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -49,7 +50,7 @@ describe('RequestExecutor', () => {
 
   it('应该在结果未定义时抛出错误', async () => {
     class NoResultStep implements RequestStep {
-      async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+      async execute<T>(_ctx: RequestContext<T>, _next: () => Promise<void>): Promise<void> {
         // 不设置 result，也不调用 next
       }
     }
@@ -114,7 +115,7 @@ describe('RequestExecutor', () => {
     const executionOrder: number[] = [];
 
     class Step1 implements RequestStep {
-      async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+      async execute<T>(_ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
         executionOrder.push(1);
         await next();
         executionOrder.push(1);
@@ -122,7 +123,7 @@ describe('RequestExecutor', () => {
     }
 
     class Step2 implements RequestStep {
-      async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+      async execute<T>(_ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
         executionOrder.push(2);
         await next();
         executionOrder.push(2);
@@ -175,7 +176,7 @@ describe('RequestExecutor', () => {
 
   it('应该处理上下文中的错误', async () => {
     class SetErrorStep implements RequestStep {
-      async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+      async execute<T>(ctx: RequestContext<T>, _next: () => Promise<void>): Promise<void> {
         ctx.error = new Error('Step error');
         // 不调用 next
       }

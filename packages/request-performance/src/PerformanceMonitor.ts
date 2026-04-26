@@ -27,27 +27,27 @@ export class PerformanceMonitorManager implements PerformanceMonitor {
   };
 
   onRequestStart(_config: NormalizedRequestConfig): void {
-    this.metrics.totalRequests++;
+    this.metrics.totalRequests += 1;
   }
 
   onRequestSuccess(config: NormalizedRequestConfig, duration: number): void {
-    this.metrics.successRequests++;
+    this.metrics.successRequests += 1;
     this.metrics.responseTimes.push(duration);
     this.updateUrlStats(config.url || '', duration, true);
   }
 
   onRequestError(config: NormalizedRequestConfig, _error: unknown, duration: number): void {
-    this.metrics.failedRequests++;
+    this.metrics.failedRequests += 1;
     this.metrics.responseTimes.push(duration);
     this.updateUrlStats(config.url || '', duration, false);
   }
 
   private updateUrlStats(url: string, duration: number, success: boolean): void {
     const stats = this.metrics.urlStats.get(url) || { count: 0, successCount: 0, totalTime: 0 };
-    stats.count++;
+    stats.count += 1;
     stats.totalTime += duration;
     if (success) {
-      stats.successCount++;
+      stats.successCount += 1;
     }
     this.metrics.urlStats.set(url, stats);
   }

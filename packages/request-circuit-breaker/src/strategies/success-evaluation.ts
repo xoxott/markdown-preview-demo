@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 /** 成功判断策略实现 */
 
 import type { SuccessEvaluationStrategy } from '../types';

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /** 事件管理器 */
 
 import type {

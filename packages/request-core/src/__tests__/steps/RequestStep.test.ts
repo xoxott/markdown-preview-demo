@@ -1,3 +1,5 @@
+/* eslint-disable class-methods-use-this, no-param-reassign */
+/* eslint-disable no-promise-executor-return */
 /** RequestStep 和 composeSteps 测试 */
 
 import { describe, expect, it } from 'vitest';
@@ -24,7 +26,7 @@ describe('composeSteps', () => {
     const executionOrder: number[] = [];
 
     class Step1 implements RequestStep {
-      async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+      async execute<T>(_ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
         executionOrder.push(1);
         await next();
         executionOrder.push(1);
@@ -32,7 +34,7 @@ describe('composeSteps', () => {
     }
 
     class Step2 implements RequestStep {
-      async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+      async execute<T>(_ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
         executionOrder.push(2);
         await next();
         executionOrder.push(2);
@@ -40,7 +42,7 @@ describe('composeSteps', () => {
     }
 
     class Step3 implements RequestStep {
-      async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+      async execute<T>(_ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
         executionOrder.push(3);
         await next();
         executionOrder.push(3);
@@ -84,7 +86,7 @@ describe('composeSteps', () => {
 
   it('应该支持步骤设置结果', async () => {
     class SetResultStep implements RequestStep {
-      async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+      async execute<T>(ctx: RequestContext<T>, _next: () => Promise<void>): Promise<void> {
         ctx.result = { data: 'test' } as T;
         // 不调用 next，直接返回
       }
@@ -104,7 +106,7 @@ describe('composeSteps', () => {
 
   it('应该支持步骤设置错误', async () => {
     class SetErrorStep implements RequestStep {
-      async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+      async execute<T>(ctx: RequestContext<T>, _next: () => Promise<void>): Promise<void> {
         ctx.error = new Error('Test error');
         // 不调用 next，直接返回
       }
@@ -125,7 +127,7 @@ describe('composeSteps', () => {
 
   it('应该支持步骤抛出错误', async () => {
     class ThrowErrorStep implements RequestStep {
-      async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+      async execute<T>(_ctx: RequestContext<T>, _next: () => Promise<void>): Promise<void> {
         throw new Error('Step error');
       }
     }
@@ -153,7 +155,7 @@ describe('composeSteps', () => {
     }
 
     class ThrowErrorStep implements RequestStep {
-      async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+      async execute<T>(_ctx: RequestContext<T>, _next: () => Promise<void>): Promise<void> {
         throw new Error('Inner error');
       }
     }
@@ -184,7 +186,7 @@ describe('composeSteps', () => {
     }
 
     class Step2 implements RequestStep {
-      async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+      async execute<T>(_ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
         executionOrder.push(2);
         await next();
         executionOrder.push(2);

@@ -1,3 +1,4 @@
+/* eslint-disable no-promise-executor-return */
 /** RequestCacheManager 测试 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -257,7 +258,7 @@ describe('RequestCacheManager', () => {
     it('应该支持自定义策略', () => {
       const customManager = new RequestCacheManager({
         strategy: 'custom',
-        customStrategy: (key, item) => {
+        customStrategy: (_key, item) => {
           // 只保留 id 为奇数的项
           return (item.data as { id: number }).id % 2 === 1;
         }
@@ -324,7 +325,7 @@ describe('RequestCacheManager', () => {
     it('应该设置自定义策略', () => {
       const manager = new RequestCacheManager({
         strategy: 'custom',
-        customStrategy: (key, item) => {
+        customStrategy: (_key, item) => {
           // 只保留 id 为奇数的项
           return (item.data as { id: number }).id % 2 === 1;
         }

@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 /** retry-request 测试 */
 
 import { describe, expect, it } from 'vitest';

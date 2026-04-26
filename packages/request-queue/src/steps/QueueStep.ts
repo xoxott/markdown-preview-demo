@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /** 队列步骤 职责：控制请求并发数量，支持队列和优先级 */
 
 import type { RequestContext, RequestStep } from '@suga/request-core';

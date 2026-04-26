@@ -1,3 +1,5 @@
+/* eslint-disable consistent-return */
+/* eslint-disable no-param-reassign */
 /** 熔断步骤 职责：熔断保护，默认关闭，仅适用于高频/高价值请求 */
 
 import type { RequestContext, RequestStep } from '@suga/request-core';

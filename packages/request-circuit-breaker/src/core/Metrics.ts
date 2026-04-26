@@ -11,12 +11,12 @@ export class Metrics {
   private state: CircuitBreakerState = CircuitBreakerState.CLOSED;
 
   recordFailure(timestamp: number): void {
-    this.failures++;
+    this.failures += 1;
     this.lastFailureTime = timestamp;
   }
 
   recordSuccess(): void {
-    this.successes++;
+    this.successes += 1;
   }
 
   resetFailures(): void {

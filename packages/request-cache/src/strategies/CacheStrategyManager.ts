@@ -79,7 +79,7 @@ export class CacheStrategyManager {
 
       keysToDelete.push(oldestKey);
       this.accessOrder.shift();
-      remainingSize--;
+      remainingSize -= 1;
     }
 
     return keysToDelete;

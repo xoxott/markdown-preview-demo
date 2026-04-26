@@ -67,8 +67,8 @@ function getDelayFromErrorTypeStrategy(
 
 /** 计算指数退避延迟时间 */
 function calculateExponentialDelay(retryCount: number, baseDelay: number): number {
-  const delay = baseDelay * DEFAULT_RETRY_CONFIG.EXPONENTIAL_BASE ** retryCount;
-  return Math.min(delay, DEFAULT_RETRY_CONFIG.MAX_DELAY);
+  const calculatedDelay = baseDelay * DEFAULT_RETRY_CONFIG.EXPONENTIAL_BASE ** retryCount;
+  return Math.min(calculatedDelay, DEFAULT_RETRY_CONFIG.MAX_DELAY);
 }
 
 /** 计算重试延迟时间（指数退避） */
@@ -89,7 +89,9 @@ export function calculateRetryDelay(
 
 /** 延迟函数 */
 export function delay(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise<void>(resolve => {
+    setTimeout(resolve, ms);
+  });
 }
 
 /** 检查是否为最后一次重试 */

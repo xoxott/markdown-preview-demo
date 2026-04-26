@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import { computed, ref, shallowRef, triggerRef } from 'vue';
 import type {
   ComputedGetter,

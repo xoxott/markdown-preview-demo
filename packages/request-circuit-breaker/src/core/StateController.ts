@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 /** 状态控制器 */
 
 import type { StateTransitionStrategy } from '../types';

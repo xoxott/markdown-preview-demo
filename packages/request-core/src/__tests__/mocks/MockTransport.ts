@@ -61,7 +61,9 @@ export class MockTransport implements Transport {
 
     // 模拟延迟
     if (this.delay > 0) {
-      await new Promise(resolve => setTimeout(resolve, this.delay));
+      await new Promise<void>(resolve => {
+        setTimeout(resolve, this.delay);
+      });
     }
 
     // 如果应该失败，抛出错误
