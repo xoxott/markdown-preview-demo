@@ -6,7 +6,10 @@ export type StorageType = 'local' | 'session';
 export function createStorage<T extends object>(type: StorageType, storagePrefix: string) {
   // 检查是否在浏览器环境中
   const isBrowser = typeof window !== 'undefined' && window.localStorage && window.sessionStorage;
-  const stg = isBrowser ? (type === 'session' ? window.sessionStorage : window.localStorage) : null;
+  let stg: Storage | null = null;
+  if (isBrowser) {
+    stg = type === 'session' ? window.sessionStorage : window.localStorage;
+  }
 
   const storage = {
     /**

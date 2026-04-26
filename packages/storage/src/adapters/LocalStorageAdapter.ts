@@ -1,3 +1,4 @@
+/* eslint-disable no-console, class-methods-use-this */
 /** LocalStorage 适配器实现 适用于浏览器环境 */
 
 import type { StorageAdapter } from '../types';
