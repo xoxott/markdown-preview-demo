@@ -49,7 +49,8 @@ export class AbortStep implements RequestStep {
     this.defaultOptions = options.defaultOptions;
   }
 
-  async execute<T>(ctx: RequestContext<T>, _next: () => Promise<void>): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
     if (!isAbortMeta(ctx.meta)) {
       return next();
     }

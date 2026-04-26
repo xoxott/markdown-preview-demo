@@ -11,8 +11,9 @@ import { getAdapter } from '../adapters/manager';
 import { createTextNode } from '../utils';
 
 /** 文本渲染规则 */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function renderText(
-  _tokens: Token[],
+  tokens: Token[],
   idx: number,
   _options: RenderOptions,
   _env: RenderEnv,

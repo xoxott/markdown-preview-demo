@@ -10,7 +10,8 @@ import type { RequestStep } from './RequestStep';
 export class TransportStep implements RequestStep {
   constructor(private readonly transport: Transport) {}
 
-  async execute<T>(ctx: RequestContext<T>, _next: () => Promise<void>): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
     // 检查是否已取消
     if (ctx.state.aborted) {
       return Promise.resolve();
