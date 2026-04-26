@@ -1,4 +1,5 @@
 /** 预览生成器 */
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class PreviewGenerator {
   /**
    * 生成图片预览
@@ -180,7 +181,7 @@ export default class PreviewGenerator {
   /** 获取文件的默认图标/预览 用于不支持预览的文件类型 */
   static getFileIcon(file: File): string {
     const type = file.type.toLowerCase();
-    const extension = file.name.split('.').pop()?.toLowerCase() || '';
+    const _extension = file.name.split('.').pop()?.toLowerCase() || '';
 
     // 根据 MIME 类型或扩展名返回对应的图标 URL 或 Base64
     const iconMap: Record<string, string> = {
@@ -219,3 +220,5 @@ export default class PreviewGenerator {
     return file.type.startsWith('image/') || file.type.startsWith('video/');
   }
 }
+
+export default PreviewGenerator;

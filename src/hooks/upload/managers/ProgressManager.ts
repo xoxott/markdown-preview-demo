@@ -29,7 +29,7 @@ export class ProgressManager {
       task.speed = this.uploadSpeed.value;
 
       // 更新已上传大小
-      if (task.chunks) {
+      if (task._chunks) {
         task.uploadedSize = task.chunks
           .filter(c => c.status === ChunkStatus.SUCCESS)
           .reduce((sum, c) => sum + c.size, 0);
@@ -38,7 +38,7 @@ export class ProgressManager {
   }
 
   /** 更新分片进度 */
-  updateChunkProgress(chunk: ChunkInfo, size: number, uploadTime: number): void {
+  updateChunkProgress(_chunk: ChunkInfo, size: number, uploadTime: number): void {
     this.speedCalculator.addData(size, uploadTime);
     // 添加数据点
     const speed = this.speedCalculator.getSpeed();

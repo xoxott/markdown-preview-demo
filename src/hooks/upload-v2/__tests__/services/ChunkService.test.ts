@@ -36,7 +36,7 @@ describe('ChunkService', () => {
       compressionQuality: CONSTANTS.COMPRESSION.COMPRESSION_QUALITY,
       previewMaxWidth: CONSTANTS.PREVIEW.PREVIEW_MAX_WIDTH,
       previewMaxHeight: CONSTANTS.PREVIEW.PREVIEW_MAX_HEIGHT,
-      chunkUploadTransformer: ({ task, chunk }) => {
+      chunkUploadTransformer: ({ _task, chunk }) => {
         const formData = new FormData();
         if (chunk.blob) {
           formData.append('file', chunk.blob);

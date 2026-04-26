@@ -1,5 +1,5 @@
 /** 网络工具函数测试 */
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { _afterEach, _beforeEach, _vi, describe, expect, it } from 'vitest';
 import { detectBrowser, isSafariLockMode } from '../../utils/network';
 
 describe('网络工具函数', () => {

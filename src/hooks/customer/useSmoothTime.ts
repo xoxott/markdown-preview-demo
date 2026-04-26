@@ -53,7 +53,8 @@ export function useSmoothTime(sourceTime: Ref<number>, threshold = 5) {
       const diff = Math.abs(newTime - localTime);
 
       if (diff > threshold || timer === null) {
-        console.log(`🕐 时间同步: ${localTime.toFixed(0)}s -> ${newTime}s`);
+        // eslint-disable-next-line no-console
+        console.log(`时间同步: ${localTime.toFixed(0)}s -> ${newTime}s`);
         startCountdown();
       }
     },

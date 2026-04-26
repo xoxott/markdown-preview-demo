@@ -4,7 +4,7 @@ import type { WindowWithLogger } from '../types/browser';
 
 /** 回调项（支持优先级和一次性回调） */
 interface CallbackItem {
-  callback: Function;
+  callback: (...args: any[]) => void;
   priority: number;
   once: boolean;
 }
@@ -63,6 +63,7 @@ export class CallbackManager {
     if (items.length > 0) {
       this.callbacks[event] = items[items.length - 1].callback as NonNullable<UploadCallbacks[K]>;
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete this.callbacks[event];
     }
 
@@ -248,6 +249,7 @@ export class CallbackManager {
     if (items.length > 0) {
       this.callbacks[event] = items[items.length - 1].callback as any;
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete this.callbacks[event];
     }
   }

@@ -1,5 +1,5 @@
 /** 任务操作管理器 负责处理暂停、恢复、取消、重试等操作 */
-import type { ExtendedUploadConfig, FileTask } from '../types';
+import type { ChunkInfo, ExtendedUploadConfig, FileTask } from '../types';
 import { ChunkStatus, UploadStatus } from '../types';
 import type { UploadController } from '../controllers/UploadController';
 import { ChunkCalculator } from '../calculators/ChunkCalculator';
@@ -11,7 +11,6 @@ import {
 } from '../utils/task-helpers';
 import { existsInArray } from '../utils/array-helpers';
 import { resetChunkForRetry } from '../utils/chunk-helpers';
-import type { ChunkInfo } from '../types';
 import type { CallbackManager } from './CallbackManager';
 import type { ProgressPersistence } from './ProgressPersistence';
 import type { TaskStateManager } from './TaskStateManager';
@@ -31,7 +30,7 @@ export class TaskOperations {
   ) {}
 
   /** 暂停单个任务 */
-  pause(taskId: string, isUploading: () => boolean): void {
+  pause(taskId: string, _isUploading: () => boolean): void {
     const task = this.taskStateManager.getTask(taskId);
     if (!task) return;
 

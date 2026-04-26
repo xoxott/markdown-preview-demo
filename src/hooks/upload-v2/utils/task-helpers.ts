@@ -39,5 +39,5 @@ export function resetTaskForRetry(task: FileTask): void {
   task.uploadedChunks = 0;
   task.speed = 0;
   task.error = null;
-  task.retryCount++;
+  task.retryCount += 1;
 }

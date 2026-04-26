@@ -1,13 +1,9 @@
 /** 分片计算器 根据文件大小和网络速度计算最优分片大小 */
 import type { UploadConfig } from '../types';
 
-export class ChunkCalculator {
+export const ChunkCalculator = {
   /** 计算最优分片大小 */
-  static calculateOptimalChunkSize(
-    fileSize: number,
-    networkSpeed: number,
-    config: UploadConfig
-  ): number {
+  calculateOptimalChunkSize(fileSize: number, networkSpeed: number, config: UploadConfig): number {
     const { minChunkSize, maxChunkSize, chunkSize } = config;
 
     // 基于网络速度调整分片大小
@@ -31,4 +27,4 @@ export class ChunkCalculator {
     // 确保在允许范围内
     return Math.max(minChunkSize, Math.min(maxChunkSize, optimalSize));
   }
-}
+};

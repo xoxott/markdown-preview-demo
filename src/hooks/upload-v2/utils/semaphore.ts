@@ -11,7 +11,7 @@ export class Semaphore {
   async acquire(): Promise<void> {
     return new Promise(resolve => {
       if (this.permits > 0) {
-        this.permits--;
+        this.permits -= 1;
         resolve();
       } else {
         this.queue.push(resolve);
@@ -21,10 +21,10 @@ export class Semaphore {
 
   /** 释放一个许可 */
   release(): void {
-    this.permits++;
+    this.permits += 1;
     const next = this.queue.shift();
     if (next) {
-      this.permits--;
+      this.permits -= 1;
       next();
     }
   }

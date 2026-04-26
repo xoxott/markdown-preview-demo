@@ -253,7 +253,7 @@ export class UploadOrchestrator {
       if (this.addFilesPromise) {
         try {
           await this.addFilesPromise;
-        } catch (e) {
+        } catch {
           // 忽略取消错误
         }
       }

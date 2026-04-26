@@ -3,6 +3,7 @@
  *
  * 提供文件压缩功能，主要用于图片压缩。 支持设置压缩质量和最大尺寸。
  */
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class FileCompressor {
   /**
    * 压缩图片文件
@@ -60,3 +61,5 @@ export default class FileCompressor {
     });
   }
 }
+
+export default FileCompressor;

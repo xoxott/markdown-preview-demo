@@ -1,7 +1,7 @@
 import { calculateFileMD5 } from '../utils';
 
 // ==================== 类型定义 ====================
-interface WorkerMessage {
+interface _WorkerMessage {
   id: string;
   type: WorkerMessageType;
   payload: any;
@@ -44,6 +44,7 @@ const CONSTANTS = {
 } as const;
 
 // ==================== Worker 脚本生成器 ====================
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 class WorkerScriptGenerator {
   static generate(): string {
     return `
@@ -68,7 +69,7 @@ class WorkerScriptGenerator {
           // 降级到简单哈希
           let hash = 0;
           const view = new Uint8Array(buffer);
-          for (let i = 0; i < view.length; i++) {
+          for (let i = 0; i < view.length; i += 1) {
             hash = ((hash << 5) - hash + view[i]) & 0xffffffff;
           }
           return Math.abs(hash).toString(16).padStart(8, '0');
@@ -113,7 +114,7 @@ class WorkerScriptGenerator {
         const chunks = [];
         const totalChunks = Math.ceil(file.size / chunkSize);
         
-        for (let i = 0; i < totalChunks; i++) {
+        for (let i = 0; i < totalChunks; i += 1) {
           const start = i * chunkSize;
           const end = Math.min(start + chunkSize, file.size);
           
@@ -137,13 +138,13 @@ class WorkerScriptGenerator {
         const results = [];
         const total = files.length;
         
-        for (let i = 0; i < total; i++) {
+        for (let i = 0; i < total; i += 1) {
           try {
             const file = files[i];
             const result = { 
               file: file.name, 
               size: file.size 
-            };
+            }
 
             // 计算 MD5
             if (options.calculateMD5) {
@@ -409,7 +410,7 @@ export default class UploadWorkerManager {
     const chunks: ChunkInfo[] = [];
     const totalChunks = Math.ceil(file.size / chunkSize);
 
-    for (let i = 0; i < totalChunks; i++) {
+    for (let i = 0; i < totalChunks; i += 1) {
       const start = i * chunkSize;
       const end = Math.min(start + chunkSize, file.size);
 
@@ -432,7 +433,7 @@ export default class UploadWorkerManager {
     const results: any[] = [];
     const total = files.length;
 
-    for (let i = 0; i < total; i++) {
+    for (let i = 0; i < total; i += 1) {
       try {
         const file = files[i];
         const result: any = { file: file.name, size: file.size };

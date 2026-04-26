@@ -50,6 +50,7 @@ export async function callOllamaStream(
                 const json = JSON.parse(buffer);
                 if (json.response) onMessage(json.response);
               } catch (e) {
+                // eslint-disable-next-line no-console
                 console.warn('流结束时的缓冲区解析失败:', buffer, e);
               }
             }
@@ -71,12 +72,11 @@ export async function callOllamaStream(
                 isStreamEnded = true;
                 break;
               }
-              console.log(json);
               if (json.response) {
-                console.log(json);
                 onMessage(json.response);
               }
             } catch (e) {
+              // eslint-disable-next-line no-console
               console.warn('流响应解析失败:', line, e);
               // 尝试恢复：将错误行追加回缓冲区
               buffer = `${line}\n${buffer}`;

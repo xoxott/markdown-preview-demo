@@ -45,14 +45,14 @@ export class StatsManager {
       this.history.push(todayStats);
     }
 
-    todayStats.totalFiles++;
+    todayStats.totalCount += 1;
     todayStats.totalSize += task.file.size;
     todayStats.totalTime += uploadTime;
 
     if (task.status === UploadStatus.SUCCESS) {
-      todayStats.successFiles++;
+      todayStats.successCount += 1;
     } else if (task.status === UploadStatus.ERROR) {
-      todayStats.failedFiles++;
+      todayStats.errorCount += 1;
     }
 
     // 更新平均速度（加权平均）

@@ -138,6 +138,7 @@ export function warnCompatibility(): void {
 
   // 尝试使用 logger，否则使用 console
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { logger } = require('./logger');
     if (!result.supported) {
       logger.error('浏览器兼容性检查失败', {

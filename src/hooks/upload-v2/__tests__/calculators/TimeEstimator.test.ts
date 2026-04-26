@@ -22,7 +22,7 @@ describe('TimeEstimator', () => {
     });
 
     it('应该处理零速度', () => {
-      const time1 = estimator.update(1024 * 1024, 100);
+      const _time1 = estimator.update(1024 * 1024, 100);
       const time2 = estimator.update(1024 * 1024, 0);
       expect(time2).toBeGreaterThanOrEqual(0);
     });

@@ -14,7 +14,7 @@ export function throttle<T extends (...args: any[]) => any>(
   let lastCallTime = 0;
   let timeoutId: NodeJS.Timeout | null = null;
 
-  return function (this: any, ...args: Parameters<T>) {
+  return function throttledFn(this: any, ...args: Parameters<T>) {
     const now = Date.now();
     const timeSinceLastCall = now - lastCallTime;
 
@@ -47,7 +47,7 @@ export function debounce<T extends (...args: any[]) => any>(
 ): (...args: Parameters<T>) => void {
   let timeoutId: NodeJS.Timeout | null = null;
 
-  return function (this: any, ...args: Parameters<T>) {
+  return function debouncedFn(this: any, ...args: Parameters<T>) {
     if (timeoutId) {
       clearTimeout(timeoutId);
     }

@@ -190,8 +190,8 @@ export class ChunkService {
             throw error;
           }
 
-          const result: ChunkUploadResponse = await response.json();
-          return result;
+          const chunkResult: ChunkUploadResponse = await response.json();
+          return chunkResult;
         },
         {
           maxRetries,

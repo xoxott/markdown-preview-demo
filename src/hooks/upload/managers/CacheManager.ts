@@ -95,7 +95,7 @@ export default class CacheManager {
     let removed = 0;
     keys.forEach(key => {
       if (this.cache.delete(key)) {
-        removed++;
+        removed += 1;
       }
     });
     return removed;
@@ -119,7 +119,7 @@ export default class CacheManager {
 
     keysToRemove.forEach(key => {
       if (this.cache.delete(key)) {
-        removed++;
+        removed += 1;
       }
     });
 
@@ -190,7 +190,7 @@ export default class CacheManager {
 
     keysToDelete.forEach(key => {
       this.cache.delete(key);
-      cleaned++;
+      cleaned += 1;
     });
 
     return cleaned;

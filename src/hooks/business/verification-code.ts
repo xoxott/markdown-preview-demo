@@ -31,7 +31,7 @@ export function useVerificationCode() {
     countdown.value = COUNTDOWN_SECONDS;
 
     countdownTimer = window.setInterval(() => {
-      countdown.value--;
+      countdown.value -= 1;
 
       if (countdown.value <= 0) {
         isCounting.value = false;
@@ -76,7 +76,7 @@ export function useVerificationCode() {
       }
 
       return false;
-    } catch (error) {
+    } catch {
       window.$message?.error('发送验证码失败，请稍后重试');
       return false;
     } finally {

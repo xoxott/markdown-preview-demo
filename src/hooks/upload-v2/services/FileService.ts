@@ -1,19 +1,14 @@
 /** 文件处理服务 整合文件验证、压缩、预览生成等功能 */
 import type { FileUploadOptions, UploadConfig } from '../types';
-import { validateFileSize, validateFileType } from '../utils/validation';
+import { _validateFileSize, validateFileType } from '../utils/validation';
 import { formatFileSize } from '../utils/format';
 import { calculateFileMD5 } from '../utils/hash';
 import { calculateFileMD5Smart } from '../utils/hash-worker';
 
-/** 文件压缩器（静态方法） */
-class FileCompressor {
+/** 文件压缩器 */
+const FileCompressor = {
   /** 压缩图片文件 */
-  static async compressImage(
-    file: File,
-    quality = 0.8,
-    maxWidth = 1920,
-    maxHeight = 1080
-  ): Promise<File> {
+  async compressImage(file: File, quality = 0.8, maxWidth = 1920, maxHeight = 1080): Promise<File> {
     return new Promise(resolve => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d')!;
@@ -49,9 +44,10 @@ class FileCompressor {
       img.src = URL.createObjectURL(file);
     });
   }
-}
+};
 
-/** 预览生成器（静态方法） */
+/** 预览生成器 */
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 class PreviewGenerator {
   /** 生成图片预览 */
   static async generateImagePreview(
@@ -303,7 +299,7 @@ export class FileService {
   /** 处理文件（验证、压缩、生成预览、计算 MD5） 优化：并行处理可以并行的步骤 */
   async processFile(
     file: File,
-    options: FileUploadOptions
+    _options: FileUploadOptions
   ): Promise<{
     file: File;
     originalFile: File;

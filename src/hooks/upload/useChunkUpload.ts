@@ -25,6 +25,18 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
   const uploadStats = uploader.uploadStats;
   const networkQuality = uploader.networkQuality;
 
+  const convertToNaiveStatus = (status: UploadStatus): UploadFileInfo['status'] => {
+    const statusMap: Record<UploadStatus, UploadFileInfo['status']> = {
+      [UploadStatus.PENDING]: 'pending',
+      [UploadStatus.UPLOADING]: 'uploading',
+      [UploadStatus.SUCCESS]: 'finished',
+      [UploadStatus.ERROR]: 'error',
+      [UploadStatus.PAUSED]: 'pending',
+      [UploadStatus.CANCELLED]: 'removed'
+    };
+    return statusMap[status];
+  };
+
   const createNaiveFileList = (): UploadFileInfo[] => {
     const allTasks = [
       ...uploadQueue.value,
@@ -45,18 +57,6 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
         fullPath: task.file.webkitRelativePath || task.file.name
       })
     );
-  };
-
-  const convertToNaiveStatus = (status: UploadStatus): UploadFileInfo['status'] => {
-    const statusMap: Record<UploadStatus, UploadFileInfo['status']> = {
-      [UploadStatus.PENDING]: 'pending',
-      [UploadStatus.UPLOADING]: 'uploading',
-      [UploadStatus.SUCCESS]: 'finished',
-      [UploadStatus.ERROR]: 'error',
-      [UploadStatus.PAUSED]: 'pending',
-      [UploadStatus.CANCELLED]: 'removed'
-    };
-    return statusMap[status];
   };
 
   const addFiles = (files: File[] | FileList | File, options?: FileUploadOptions) =>

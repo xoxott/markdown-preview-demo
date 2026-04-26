@@ -55,7 +55,12 @@ export class ProgressManager {
           .filter((c: ChunkInfo) => c && c.status === ChunkStatus.SUCCESS)
           .reduce((sum: number, c: ChunkInfo) => {
             const chunkSize = c?.size;
-            if (chunkSize != null && Number.isFinite(chunkSize) && chunkSize >= 0) {
+            if (
+              chunkSize !== null &&
+              chunkSize !== undefined &&
+              Number.isFinite(chunkSize) &&
+              chunkSize >= 0
+            ) {
               return sum + chunkSize;
             }
             return sum;
@@ -72,8 +77,10 @@ export class ProgressManager {
         const fileSize = task?.file?.size;
         const progress = task?.progress;
         if (
-          fileSize != null &&
-          progress != null &&
+          fileSize !== null &&
+          fileSize !== undefined &&
+          progress !== null &&
+          progress !== undefined &&
           Number.isFinite(fileSize) &&
           Number.isFinite(progress) &&
           fileSize >= 0 &&
@@ -94,7 +101,7 @@ export class ProgressManager {
   }
 
   /** 更新分片进度（使用节流） */
-  updateChunkProgress(chunk: ChunkInfo, size: number, uploadTime: number): void {
+  updateChunkProgress(_chunk: ChunkInfo, size: number, uploadTime: number): void {
     this.speedCalculator.addData(size, uploadTime);
     const speed = this.speedCalculator.getSpeed();
     this.pendingSpeed = Number.isFinite(speed) ? speed : 0;
@@ -115,7 +122,12 @@ export class ProgressManager {
     // 计算总大小，添加边界检查
     const totalSize = tasks.reduce((sum, task) => {
       const fileSize = task?.file?.size;
-      if (fileSize != null && Number.isFinite(fileSize) && fileSize >= 0) {
+      if (
+        fileSize !== null &&
+        fileSize !== undefined &&
+        Number.isFinite(fileSize) &&
+        fileSize >= 0
+      ) {
         return sum + fileSize;
       }
       return sum;
@@ -125,7 +137,8 @@ export class ProgressManager {
     const uploadedSize = tasks.reduce((sum, task) => {
       // 优先使用 task.uploadedSize（如果已设置且有效）
       if (
-        task.uploadedSize != null &&
+        task.uploadedSize !== null &&
+        task.uploadedSize !== undefined &&
         Number.isFinite(task.uploadedSize) &&
         task.uploadedSize >= 0
       ) {
@@ -137,8 +150,10 @@ export class ProgressManager {
       const progress = task?.progress;
 
       if (
-        fileSize != null &&
-        progress != null &&
+        fileSize !== null &&
+        fileSize !== undefined &&
+        progress !== null &&
+        progress !== undefined &&
         Number.isFinite(fileSize) &&
         Number.isFinite(progress) &&
         fileSize >= 0 &&
@@ -189,7 +204,12 @@ export class ProgressManager {
     // 计算总大小，添加边界检查
     const totalSize = allTasks.reduce((sum, task) => {
       const fileSize = task?.file?.size;
-      if (fileSize != null && Number.isFinite(fileSize) && fileSize >= 0) {
+      if (
+        fileSize !== null &&
+        fileSize !== undefined &&
+        Number.isFinite(fileSize) &&
+        fileSize >= 0
+      ) {
         return sum + fileSize;
       }
       return sum;
@@ -199,7 +219,8 @@ export class ProgressManager {
     const uploadedSize = allTasks.reduce((sum, task) => {
       // 优先使用 task.uploadedSize（如果已设置且有效）
       if (
-        task.uploadedSize != null &&
+        task.uploadedSize !== null &&
+        task.uploadedSize !== undefined &&
         Number.isFinite(task.uploadedSize) &&
         task.uploadedSize >= 0
       ) {
@@ -211,8 +232,10 @@ export class ProgressManager {
       const progress = task?.progress;
 
       if (
-        fileSize != null &&
-        progress != null &&
+        fileSize !== null &&
+        fileSize !== undefined &&
+        progress !== null &&
+        progress !== undefined &&
         Number.isFinite(fileSize) &&
         Number.isFinite(progress) &&
         fileSize >= 0 &&

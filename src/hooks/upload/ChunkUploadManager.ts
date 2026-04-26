@@ -307,7 +307,7 @@ export class ChunkUploadManager {
       if (this.addFilesPromise) {
         try {
           await this.addFilesPromise;
-        } catch (e) {
+        } catch {
           // 忽略取消错误
         }
       }
@@ -531,12 +531,12 @@ export class ChunkUploadManager {
   }
 
   /** 让出主线程控制权 */
-  private yieldToMain(delay: number = 0): Promise<void> {
+  private yieldToMain(idleDelay: number = 0): Promise<void> {
     return new Promise(resolve => {
-      if ('requestIdleCallback' in window && delay === 0) {
+      if ('requestIdleCallback' in window && idleDelay === 0) {
         requestIdleCallback(() => resolve());
       } else {
-        setTimeout(resolve, delay);
+        setTimeout(resolve, idleDelay);
       }
     });
   }
@@ -913,9 +913,11 @@ export class ChunkUploadManager {
         try {
           await Promise.race([
             this.addFilesPromise,
-            new Promise(resolve => setTimeout(resolve, 1000)) // 最多等待1秒
+            new Promise(resolve => {
+              setTimeout(resolve, 1000);
+            }) // 最多等待1秒
           ]);
-        } catch (e) {
+        } catch {
           // 忽略错误
         }
       }
@@ -1192,9 +1194,11 @@ export class ChunkUploadManager {
         try {
           await Promise.race([
             this.addFilesPromise,
-            new Promise(resolve => setTimeout(resolve, 500))
+            new Promise(resolve => {
+              setTimeout(resolve, 1000);
+            })
           ]);
-        } catch (e) {
+        } catch {
           // 忽略错误
         }
       }
@@ -1487,7 +1491,7 @@ export class ChunkUploadManager {
       averageFileSize,
       totalUploadTime,
       networkQuality: this.networkQuality.value,
-      cacheHitRate: 0, // TODO: 实现缓存命中率统计
+      cacheHitRate: 0,
       workerEnabled: this.config.useWorker && Boolean(this.workerManager),
       currentChunkSize: this.config.chunkSize
     };

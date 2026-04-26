@@ -5,6 +5,7 @@ import type { UploadConfig } from '../type';
  *
  * 根据文件大小、网络速度和上传配置，动态计算最优的分片大小。 目标是保证每个分片上传时间合理，同时满足最小/最大分片限制。
  */
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class SmartChunkCalculator {
   /**
    * 计算最优分片大小
@@ -52,3 +53,5 @@ export default class SmartChunkCalculator {
     return Math.max(minChunkSize, Math.min(maxChunkSize, optimalSize));
   }
 }
+
+export default SmartChunkCalculator;

@@ -9,7 +9,7 @@ export function createMethodWrapper<T extends object>(
   if (typeof method !== 'function') {
     throw new TypeError(`Method ${String(methodName)} is not a function`);
   }
-  return (...args: any[]) => (method as Function).apply(target, args);
+  return (...args: any[]) => (method as (...args: any[]) => any).apply(target, args);
 }
 
 /** 批量创建方法包装器 */

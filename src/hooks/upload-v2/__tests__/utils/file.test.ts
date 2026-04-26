@@ -74,7 +74,7 @@ describe('文件工具函数', () => {
     it('应该限制函数调用频率', async () => {
       let callCount = 0;
       const throttled = throttle(() => {
-        callCount++;
+        callCount += 1;
       }, 100);
 
       throttled();
@@ -93,7 +93,7 @@ describe('文件工具函数', () => {
     it('应该延迟函数执行', async () => {
       let callCount = 0;
       const debounced = debounce(() => {
-        callCount++;
+        callCount += 1;
       }, 100);
 
       debounced();

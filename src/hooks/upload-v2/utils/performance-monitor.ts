@@ -46,7 +46,7 @@ class PerformanceMonitor {
 
   /** 记录网络请求 */
   recordNetworkRequest(): void {
-    this.networkRequestCount++;
+    this.networkRequestCount += 1;
   }
 
   /** 获取性能指标 */

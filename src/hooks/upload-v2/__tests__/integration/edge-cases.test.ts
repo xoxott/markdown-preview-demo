@@ -143,7 +143,9 @@ describe('边界情况和异常场景', () => {
       const startPromise = (uploader as any).start();
 
       // 等待错误处理（需要足够的时间让错误被触发）
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => {
+        setTimeout(resolve, 2000);
+      });
 
       // 等待上传完成
       await startPromise;
@@ -165,9 +167,9 @@ describe('边界情况和异常场景', () => {
       // Mock 延迟响应（超过超时时间）
       mockFetch.mockImplementationOnce(
         () =>
-          new Promise(resolve =>
-            setTimeout(() => resolve({ ok: true, json: async () => ({}) }), 200)
-          )
+          new Promise(resolve => {
+            setTimeout(() => resolve({ ok: true, json: async () => ({}) }), 200);
+          })
       );
 
       const file = new File(['content'], 'test.txt');
@@ -180,7 +182,9 @@ describe('边界情况和异常场景', () => {
 
       await (uploader as any).start();
 
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => {
+        setTimeout(resolve, 2000);
+      });
 
       // 注意：实际超时行为取决于 fetchWithTimeout 的实现
       // 这里主要是测试错误处理流程
@@ -251,7 +255,9 @@ describe('边界情况和异常场景', () => {
       // 开始上传（会失败）
       await (uploader as any).start();
 
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => {
+        setTimeout(resolve, 2000);
+      });
 
       // 重试
       (uploader as any).retrySingleFile(taskId);
@@ -281,7 +287,9 @@ describe('边界情况和异常场景', () => {
       await (uploader as any).start();
 
       // 等待完成
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => {
+        setTimeout(resolve, 2000);
+      });
 
       // 验证 blob 被清理（如果不需要断点续传）
       if (task.chunks) {

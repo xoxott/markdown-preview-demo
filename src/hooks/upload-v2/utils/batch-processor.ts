@@ -45,7 +45,9 @@ export async function batchProcess<T, R>(
 
     // 批次间延迟
     if (i + batchSize < items.length) {
-      await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
+      await new Promise(resolve => {
+        setTimeout(resolve, delayBetweenBatches);
+      });
     }
   }
 

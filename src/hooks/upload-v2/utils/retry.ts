@@ -108,15 +108,17 @@ export function calculateRetryDelay(
   maxDelay: number = 30000,
   backoffMultiplier: number = 1.5
 ): number {
-  const delay = Math.min(baseDelay * backoffMultiplier ** retryCount, maxDelay);
+  const calculatedDelay = Math.min(baseDelay * backoffMultiplier ** retryCount, maxDelay);
   // 添加随机抖动，避免雷群效应
-  const jitter = delay * 0.1 * Math.random();
-  return Math.floor(delay + jitter);
+  const jitter = calculatedDelay * 0.1 * Math.random();
+  return Math.floor(calculatedDelay + jitter);
 }
 
 /** 延迟函数 */
 export function delay(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
 }
 
 /** 带重试的函数执行器 */
@@ -162,7 +164,7 @@ export async function withRetry<T>(
       }
 
       await delay(delayMs);
-      retryCount++;
+      retryCount += 1;
     }
   }
 

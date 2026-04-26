@@ -271,7 +271,7 @@ export class UploadTask {
 
         // 即使任务已暂停，如果分片上传成功，也要更新计数和状态
         // 因为服务器已经接收了这个分片，需要保持状态一致性
-        this.task.uploadedChunks++;
+        this.task.uploadedChunks += 1;
         this.progressManager.updateFileProgress(this.task);
         this.callbackManager.emit('onChunkSuccess', this.task, chunk);
 

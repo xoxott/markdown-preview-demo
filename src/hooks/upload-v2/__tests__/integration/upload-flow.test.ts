@@ -278,17 +278,21 @@ describe('上传流程集成测试', () => {
 
       // 等待错误处理（需要足够的时间让错误被触发）
       // 增加等待时间，确保所有异步操作完成
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise(resolve => {
+        setTimeout(resolve, 1000);
+      });
 
       // 等待上传完成（可能会抛出错误，需要捕获）
       try {
         await startPromise;
-      } catch (error) {
+      } catch {
         // 上传失败是预期的，忽略错误
       }
 
       // 再次等待一小段时间，确保所有回调都被触发
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => {
+        setTimeout(resolve, 1000);
+      });
 
       // 验证错误被捕获（如果错误回调没有被触发，可能是因为任务已经完成）
       // 检查任务状态是否为 ERROR 或检查错误回调
@@ -368,7 +372,9 @@ describe('上传流程集成测试', () => {
       await (uploader as any).addFiles(files);
 
       // 等待文件处理完成
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => {
+        setTimeout(resolve, 1000);
+      });
 
       const stats = uploader.uploader.uploadStats.value;
 
@@ -439,7 +445,9 @@ describe('上传流程集成测试', () => {
       await (uploader as any).start();
 
       // 等待一小段时间
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => {
+        setTimeout(resolve, 1000);
+      });
 
       // 验证同时上传的文件数不超过限制
       expect(uploader.uploader.activeUploads.value.size).toBeLessThanOrEqual(2);

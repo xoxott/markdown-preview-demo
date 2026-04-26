@@ -270,7 +270,7 @@ export class ChunkUploadTask {
 
     console.log(`🚀 开始上传 ${this.task.chunks.length} 个分片,并发数: ${maxConcurrent}`);
 
-    for (let i = 0; i < this.task.chunks.length; i++) {
+    for (let i = 0; i < this.task.chunks.length; i += 1) {
       const chunk = this.task.chunks[i];
 
       // 检查是否应该停止创建新的上传任务
@@ -326,7 +326,7 @@ export class ChunkUploadTask {
       let lastError: Error | null = null;
 
       // 重试循环
-      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
         try {
           // 上传前再次检查(可能在等待期间状态发生变化)
           if (this.checkIfShouldStop()) {
@@ -352,7 +352,7 @@ export class ChunkUploadTask {
           await this.chunkManager.uploadChunk(this.task, chunk, signal);
 
           // 上传成功处理
-          this.task.uploadedChunks++;
+          this.task.uploadedChunks += 1;
           this.progressManager.updateFileProgress(this.task);
           await this.callbackManager.emit('onFileProgress', this.task);
           await this.callbackManager.emit('onChunkSuccess', this.task, chunk);

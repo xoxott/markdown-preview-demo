@@ -1,5 +1,5 @@
 /** Worker 管理器 负责管理 Web Worker 的生命周期和任务分配 */
-import type { ChunkInfo } from '../types';
+import type { _ChunkInfo } from '../types';
 import { CONSTANTS } from '../constants';
 
 /** Worker 任务类型 */

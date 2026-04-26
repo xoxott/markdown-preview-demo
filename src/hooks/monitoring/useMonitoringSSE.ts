@@ -74,73 +74,6 @@ export function useMonitoringSSE(options: UseMonitoringSSEOptions = {}): UseMoni
   // Unsubscribe functions
   const unsubscribeFunctions: Array<() => void> = [];
 
-  /** Connect to monitoring SSE (all event types) */
-  const connect = () => {
-    // Get token
-    const token = localStg.get('token') || localStg.get('accessToken');
-    if (!token) {
-      error.value = new Error('No authentication token available');
-      status.value = 'error';
-      return;
-    }
-
-    // Connect to all event types
-    const eventTypes = [
-      'health',
-      'liveness',
-      'readiness',
-      'metrics',
-      'system',
-      'performance'
-    ] as const satisfies readonly Exclude<SSE.MonitoringEventType, 'environment'>[];
-
-    let connectedCount = 0;
-    let connectingCount = 0;
-
-    eventTypes.forEach(eventType => {
-      const connectionId = MONITORING_SSE_CONNECTION_IDS[eventType];
-
-      // Check if already connected - connect() will handle ref counting
-      const existingConnection = sseManager.getConnection(connectionId);
-      if (existingConnection) {
-        const existingStatus = existingConnection.status;
-        if (existingStatus === 'connected') {
-          connectedCount++;
-        } else if (existingStatus === 'connecting') {
-          connectingCount++;
-        }
-        // connect() will increment ref count for existing connections
-      }
-
-      // Create config for this event type
-      const config = createMonitoringSSEConfig(eventType);
-      config.autoReconnect = autoReconnect;
-      config.maxReconnectAttempts = maxReconnectAttempts;
-
-      // Connect (will create new connection or increment ref count for existing)
-      const connection = sseManager.connect(connectionId, config);
-      if (connection.status === 'connected') {
-        connectedCount++;
-      } else if (connection.status === 'connecting') {
-        connectingCount++;
-      }
-
-      // Subscribe to status changes
-      const unsubscribeStatus = sseManager.onStatusChange(connectionId, (newStatus, err) => {
-        // Update overall status based on all connections
-        updateOverallStatus();
-        if (err) {
-          error.value = err;
-        }
-      });
-
-      unsubscribeFunctions.push(unsubscribeStatus);
-    });
-
-    // Update initial status
-    updateOverallStatus();
-  };
-
   /**
    * Update overall connection status based on all connections
    *
@@ -178,6 +111,59 @@ export function useMonitoringSSE(options: UseMonitoringSSEOptions = {}): UseMoni
     } else {
       status.value = 'disconnected';
     }
+  };
+
+  /** Connect to monitoring SSE (all event types) */
+  const connect = () => {
+    // Get token
+    const token = localStg.get('token') || localStg.get('accessToken');
+    if (!token) {
+      error.value = new Error('No authentication token available');
+      status.value = 'error';
+      return;
+    }
+
+    // Connect to all event types
+    const eventTypes = [
+      'health',
+      'liveness',
+      'readiness',
+      'metrics',
+      'system',
+      'performance'
+    ] as const satisfies readonly Exclude<SSE.MonitoringEventType, 'environment'>[];
+
+    eventTypes.forEach(eventType => {
+      const connectionId = MONITORING_SSE_CONNECTION_IDS[eventType];
+
+      // Check if already connected - connect() will handle ref counting
+      const existingConnection = sseManager.getConnection(connectionId);
+      if (existingConnection) {
+        // connect() will increment ref count for existing connections
+      }
+
+      // Create config for this event type
+      const config = createMonitoringSSEConfig(eventType);
+      config.autoReconnect = autoReconnect;
+      config.maxReconnectAttempts = maxReconnectAttempts;
+
+      // Connect (will create new connection or increment ref count for existing)
+      sseManager.connect(connectionId, config);
+
+      // Subscribe to status changes
+      const unsubscribeStatus = sseManager.onStatusChange(connectionId, (_newStatus, err) => {
+        // Update overall status based on all connections
+        updateOverallStatus();
+        if (err) {
+          error.value = err;
+        }
+      });
+
+      unsubscribeFunctions.push(unsubscribeStatus);
+    });
+
+    // Update initial status
+    updateOverallStatus();
   };
 
   /**
@@ -335,7 +321,7 @@ export function useMonitoringSSE(options: UseMonitoringSSEOptions = {}): UseMoni
       const connectionId = MONITORING_SSE_CONNECTION_IDS[eventType];
       const existingConnection = sseManager.getConnection(connectionId);
       if (existingConnection) {
-        existingConnection.refCount++;
+        existingConnection.refCount += 1;
       }
     });
   }
@@ -345,7 +331,7 @@ export function useMonitoringSSE(options: UseMonitoringSSEOptions = {}): UseMoni
   // The token refresh handler in shared.ts will update SSE headers automatically
   watch(
     () => localStg.get('token') || localStg.get('accessToken'),
-    (newToken, oldToken) => {
+    (newToken, _oldToken) => {
       if (!newToken && status.value === 'connected') {
         // Token removed, disconnect
         disconnect();

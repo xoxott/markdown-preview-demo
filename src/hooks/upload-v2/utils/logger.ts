@@ -109,6 +109,8 @@ class Logger {
       case LogLevel.ERROR:
         console.error(prefix, entry.message, entry.context || '', entry.error || '');
         break;
+      default:
+        break;
     }
   }
 

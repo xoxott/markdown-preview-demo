@@ -1,6 +1,5 @@
 /** 进度持久化管理器 负责保存和恢复任务进度 */
-import type { ChunkInfo, FileTask } from '../types';
-import type { ChunkStatus } from '../types';
+import type { ChunkInfo, ChunkStatus, FileTask } from '../types';
 import { logger } from '../utils/logger';
 import type { CacheManager } from './CacheManager';
 
@@ -94,7 +93,7 @@ export class ProgressPersistence {
             chunk.status = cachedChunk.status as ChunkStatus;
             chunk.etag = cachedChunk.etag;
             chunk.hash = cachedChunk.hash;
-            restoredCount++;
+            restoredCount += 1;
           } else {
             logger.warn('分片范围不匹配，忽略该分片缓存', {
               taskId: task.id,

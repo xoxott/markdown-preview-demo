@@ -1,5 +1,5 @@
 /** CacheManager 测试 */
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { _vi, beforeEach, describe, expect, it } from 'vitest';
 import { CacheManager } from '../../managers/CacheManager';
 
 describe('CacheManager', () => {
@@ -70,7 +70,9 @@ describe('CacheManager', () => {
     it('应该清理过期缓存', async () => {
       manager.set('key1', 'value1', 100); // 100ms TTL
       expect(manager.get('key1')).toBe('value1');
-      await new Promise(resolve => setTimeout(resolve, 150));
+      await new Promise(resolve => {
+        setTimeout(resolve, 150);
+      });
       const cleaned = manager.cleanup();
       expect(cleaned).toBeGreaterThanOrEqual(0);
       expect(manager.get('key1')).toBeNull();
