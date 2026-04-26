@@ -1,89 +1,117 @@
+/** 上传控制器 负责控制上传任务的暂停、恢复和取消 */
 import { ref } from 'vue';
-import type { FileTask, IUploadController } from '../type';
-import { UploadStatus } from '../type';
+import type { FileTask, IUploadController } from '../types';
+import { UploadStatus } from '../types';
+import { logger } from '../utils/logger';
+import { abortAll, combineAbortSignals, safeAbort } from '../utils/abort-controller';
 
-/** 任务和分片控制器 */
 export class UploadController implements IUploadController {
-  // 任务级别的 AbortController
   private taskAbortControllers = new Map<string, AbortController>();
-  // 分片级别的 AbortController
   private chunkAbortControllers = new Map<string, Map<number, AbortController>>();
 
   public readonly isPaused = ref(false);
   public readonly pausedTasks = new Set<string>();
 
+  private getTask: (taskId: string) => FileTask | undefined = () => undefined;
+
+  setTaskGetter(getter: (taskId: string) => FileTask | undefined): void {
+    this.getTask = getter;
+  }
+
   pause(taskId: string): void {
     const task = this.getTask(taskId);
-    if (!task || task.status !== UploadStatus.UPLOADING) return;
+    if (!this.canPause(task, taskId) || !task) return;
 
-    // 中止该任务的所有网络请求
+    // 如果任务还没有 AbortController，创建一个（用于后续中止）
+    if (!this.taskAbortControllers.has(taskId)) {
+      this.createAbortController(taskId);
+    }
+
     this.abortTask(taskId);
-
-    // 更新任务状态
-    task.status = UploadStatus.PAUSED;
-    task.pausedTime = Date.now();
+    this.updateTaskStatus(task, UploadStatus.PAUSED, { pausedTime: Date.now() });
     this.pausedTasks.add(taskId);
+    this.isPaused.value = this.pausedTasks.size > 0;
 
-    console.log(`任务 ${task.file.name} 已暂停`);
+    logger.info('任务已暂停', { taskId, fileName: task.file.name });
+  }
+
+  /** 检查是否可以暂停 */
+  private canPause(task: FileTask | undefined, taskId: string): boolean {
+    // 允许暂停正在上传或待上传的任务
+    if (!task || (task.status !== UploadStatus.UPLOADING && task.status !== UploadStatus.PENDING)) {
+      logger.debug('暂停任务失败：任务不存在或不在上传中', { taskId, status: task?.status });
+      return false;
+    }
+    return true;
+  }
+
+  /** 更新任务状态（统一方法） */
+  private updateTaskStatus(
+    task: FileTask,
+    status: UploadStatus,
+    updates: Partial<Pick<FileTask, 'pausedTime' | 'resumeTime' | 'endTime'>>
+  ): void {
+    task.status = status;
+    if (updates.pausedTime !== undefined) task.pausedTime = updates.pausedTime;
+    if (updates.resumeTime !== undefined) task.resumeTime = updates.resumeTime;
+    if (updates.endTime !== undefined) task.endTime = updates.endTime;
   }
 
   resume(taskId: string): void {
     const task = this.getTask(taskId);
-    if (!task || task.status !== UploadStatus.PAUSED) return;
+    if (!this.canResume(task, taskId) || !task) return;
 
-    // 创建新的 AbortController
     this.createAbortController(taskId);
-
-    // 更新任务状态
-    task.status = UploadStatus.PENDING;
-    task.resumeTime = Date.now();
+    this.updateTaskStatus(task, UploadStatus.PENDING, { resumeTime: Date.now() });
     this.pausedTasks.delete(taskId);
+    this.isPaused.value = this.pausedTasks.size > 0;
 
-    console.log(`任务 ${task.file.name} 已恢复`);
+    logger.info('任务已恢复', { taskId, fileName: task.file.name });
+  }
+
+  /** 检查是否可以恢复 */
+  private canResume(task: FileTask | undefined, taskId: string): boolean {
+    if (!task || task.status !== UploadStatus.PAUSED) {
+      logger.debug('恢复任务失败：任务不存在或未暂停', { taskId, status: task?.status });
+      return false;
+    }
+    return true;
   }
 
   cancel(taskId: string): void {
     const task = this.getTask(taskId);
-    if (!task) return;
+    if (!task) {
+      logger.debug('取消任务失败：任务不存在', { taskId });
+      return;
+    }
 
-    // 中止网络请求
     this.abortTask(taskId);
-
-    // 更新任务状态
-    task.status = UploadStatus.CANCELLED;
-    task.endTime = Date.now();
-
-    // 清理
+    this.updateTaskStatus(task, UploadStatus.CANCELLED, { endTime: Date.now() });
     this.pausedTasks.delete(taskId);
 
-    console.log(`任务 ${task.file.name} 已取消`);
+    logger.info('任务已取消', { taskId, fileName: task.file.name });
   }
 
   pauseAll(): void {
     this.isPaused.value = true;
-    // 暂停所有活跃任务
-    this.taskAbortControllers.forEach((_, taskId) => {
-      this.pause(taskId);
-    });
+    const taskIds = Array.from(this.taskAbortControllers.keys());
+    taskIds.forEach(taskId => this.pause(taskId));
   }
 
   resumeAll(): void {
     this.isPaused.value = false;
-
-    // 恢复所有暂停的任务
     const pausedTaskIds = Array.from(this.pausedTasks);
-    pausedTaskIds.forEach(taskId => {
-      this.resume(taskId);
-    });
+    pausedTaskIds.forEach(taskId => this.resume(taskId));
   }
 
   cancelAll(): void {
-    // 取消所有任务
-    this.taskAbortControllers.forEach((_, taskId) => {
-      this.cancel(taskId);
-    });
+    const taskIds = Array.from(this.taskAbortControllers.keys());
+    taskIds.forEach(taskId => this.cancel(taskId));
+    this.clearAll();
+  }
 
-    // 清理
+  /** 清空所有控制器 */
+  private clearAll(): void {
     this.taskAbortControllers.clear();
     this.chunkAbortControllers.clear();
     this.pausedTasks.clear();
@@ -113,59 +141,50 @@ export class UploadController implements IUploadController {
     return this.taskAbortControllers.get(taskId)?.signal;
   }
 
-  // 获取分片的 AbortSignal
+  // 获取分片的 AbortSignal（使用工具函数）
   getChunkAbortSignal(taskId: string, chunkIndex: number): AbortSignal | undefined {
-    // 组合任务级别和分片级别的信号
-    const taskController = this.taskAbortControllers.get(taskId);
-    const chunkController = this.chunkAbortControllers.get(taskId)?.get(chunkIndex);
+    const taskSignal = this.taskAbortControllers.get(taskId)?.signal;
+    const chunkSignal = this.chunkAbortControllers.get(taskId)?.get(chunkIndex)?.signal;
 
-    if (taskController && chunkController) {
-      // 创建组合信号
-      const combinedController = new AbortController();
-
-      const onAbort = () => combinedController.abort();
-      taskController.signal.addEventListener('abort', onAbort);
-      chunkController.signal.addEventListener('abort', onAbort);
-
-      return combinedController.signal;
-    }
-
-    return taskController?.signal || chunkController?.signal;
+    return combineAbortSignals(taskSignal, chunkSignal);
   }
 
-  // 中止任务
+  // 中止任务（完善资源清理）
   private abortTask(taskId: string): void {
-    // 中止任务级别的请求
     const taskController = this.taskAbortControllers.get(taskId);
+    safeAbort(taskController);
     if (taskController) {
-      taskController.abort();
       this.taskAbortControllers.delete(taskId);
     }
 
-    // 中止所有分片级别的请求
     const chunkControllers = this.chunkAbortControllers.get(taskId);
     if (chunkControllers) {
-      chunkControllers.forEach(controller => controller.abort());
+      abortAll(Array.from(chunkControllers.values()));
       this.chunkAbortControllers.delete(taskId);
     }
+
+    logger.debug('任务中止完成', { taskId });
   }
 
-  // 清理已完成任务的控制器
+  // 清理已完成任务的控制器（完善资源清理）
   cleanupTask(taskId: string): void {
+    // 安全中止所有相关控制器
+    const taskController = this.taskAbortControllers.get(taskId);
+    safeAbort(taskController);
     this.taskAbortControllers.delete(taskId);
-    this.chunkAbortControllers.delete(taskId);
+
+    const chunkControllers = this.chunkAbortControllers.get(taskId);
+    if (chunkControllers) {
+      abortAll(Array.from(chunkControllers.values()));
+      this.chunkAbortControllers.delete(taskId);
+    }
+
     this.pausedTasks.delete(taskId);
+    logger.debug('任务资源清理完成', { taskId });
   }
 
   // 检查是否应该暂停
   shouldPause(taskId: string): boolean {
     return this.isPaused.value || this.pausedTasks.has(taskId);
-  }
-
-  // 需要外部提供获取任务的方法
-  private getTask: (taskId: string) => FileTask | undefined = () => undefined;
-
-  setTaskGetter(getter: (taskId: string) => FileTask | undefined): void {
-    this.getTask = getter;
   }
 }

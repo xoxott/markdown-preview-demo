@@ -4,7 +4,7 @@
  * @LastEditors: yangtao 212920320@qq.com
  * @LastEditTime: 2025-10-31 15:56:01
  * @FilePath: \markdown-preview-demo\src\hooks\upload\constants.ts
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ * @Description: 上传模块全局常量
  */
 // ==================== 常量定义 ====================
 /** 上传模块全局常量 */
@@ -35,6 +35,52 @@ export const CONSTANTS = {
       GOOD: 1000,
       /** 大于此值判定为一般网络 */
       FAIR: 100
+    },
+    /** 网络自适应速度阈值（单位 KB/s） */
+    ADAPTATION: {
+      /** 慢速网络阈值，低于此值降低并发 */
+      SLOW_THRESHOLD: 50,
+      /** 快速网络阈值，高于此值提高并发 */
+      FAST_THRESHOLD: 500,
+      /** 速度历史记录窗口大小 */
+      SPEED_HISTORY_SIZE: 5
+    },
+    /** 网络指标阈值 */
+    METRICS: {
+      /** 下行速度阈值（Mbps） */
+      DOWNLINK: {
+        /** 低于此值判定为差网络 */
+        POOR: 1,
+        /** 高于此值判定为好网络 */
+        GOOD: 10
+      },
+      /** RTT 延迟阈值（毫秒） */
+      RTT: {
+        /** 低于此值判定为低延迟 */
+        LOW: 50,
+        /** 高于此值判定为高延迟 */
+        HIGH: 300
+      }
+    },
+    /** 网络自适应并发限制 */
+    CONCURRENT_LIMITS: {
+      /** 最小并发文件数 */
+      MIN_FILES: 1,
+      /** 最小并发分片数 */
+      MIN_CHUNKS: 2,
+      /** 最大并发文件数 */
+      MAX_FILES: 6,
+      /** 最大并发分片数 */
+      MAX_CHUNKS: 12
+    },
+    /** 网络自适应分片大小限制（字节） */
+    CHUNK_SIZE_LIMITS: {
+      /** 差网络最小分片大小 */
+      POOR_MIN: 256 * 1024,
+      /** 好网络最大分片大小 */
+      GOOD_MAX: 8 * 1024 * 1024,
+      /** 省流模式最大分片大小 */
+      SAVE_DATA_MAX: 512 * 1024
     }
   },
 
@@ -106,5 +152,15 @@ export const CONSTANTS = {
     PREVIEW_MAX_WIDTH: 200,
     /** 预览图高度 */
     PREVIEW_MAX_HEIGHT: 200
+  },
+
+  /** Worker 相关配置 */
+  WORKER: {
+    /** 默认 Worker 数量 */
+    DEFAULT_COUNT: 4,
+    /** 默认 Worker URL */
+    DEFAULT_URL: '/workers/md5.worker.js',
+    /** Worker URL 清理延迟（毫秒） */
+    URL_CLEANUP_DELAY: 1000
   }
 } as const;

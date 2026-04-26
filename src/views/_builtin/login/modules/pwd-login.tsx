@@ -10,7 +10,7 @@ import {
 import { useLoginFlow } from '@/hooks/business/login-flow';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { useRouterPush } from '@/hooks/common/router';
-import { calculateStringMD5 } from '@/hooks/upload-v2/utils/hash';
+import { calculateStringMD5 } from '@/hooks/upload/utils/hash';
 import { $t } from '@/locales';
 
 interface FormModel {

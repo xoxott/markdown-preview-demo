@@ -1,47 +1,61 @@
+/** 上传 Hook 提供简洁的 API 接口 */
+import { computed, onUnmounted } from 'vue';
 import type { UploadFileInfo } from 'naive-ui';
-import {
-  ArchiveOutline,
-  DocumentOutline,
-  DocumentTextOutline,
-  ImageOutline,
-  MusicalNoteOutline,
-  VideocamOutline
-} from '@vicons/ionicons5';
-import type { FileUploadOptions, UploadConfig } from './type';
-import { UploadStatus } from './type';
-import { formatFileSize, formatSpeed, formatTime } from './utils';
-import { ChunkUploadManager } from './ChunkUploadManager';
+import { UploadOrchestrator } from './core/UploadOrchestrator';
+import type { UploadConfig } from './types';
+import { createMethodWrappers, createPropertyAccessors } from './utils/api-wrapper';
+import { getFileColor, getFileIcon } from './utils/file-type';
+import { formatFileSize, formatSpeed, formatTime } from './utils/format';
+import { type StatusTextMap, i18n } from './utils/i18n';
+import { performanceMonitor } from './utils/performance-monitor';
+import { convertToNaiveStatus, getStatusText, getStatusType } from './utils/status-mapper';
 
 export function useChunkUpload(config: Partial<UploadConfig> = {}) {
-  const uploader = new ChunkUploadManager(config);
+  const uploader = new UploadOrchestrator(config);
 
-  const uploadQueue = uploader.uploadQueue;
-  const activeUploads = uploader.activeUploads;
-  const completedUploads = uploader.completedUploads;
-  const totalProgress = uploader.totalProgress;
-  const uploadSpeed = uploader.uploadSpeed;
-  const isUploading = uploader.isUploading;
-  const isPaused = uploader.isPaused;
-  const uploadStats = uploader.uploadStats;
-  const networkQuality = uploader.networkQuality;
+  // 自动清理：组件卸载时销毁上传器
+  onUnmounted(() => {
+    uploader?.destroy?.();
+  });
 
-  const convertToNaiveStatus = (status: UploadStatus): UploadFileInfo['status'] => {
-    const statusMap: Record<UploadStatus, UploadFileInfo['status']> = {
-      [UploadStatus.PENDING]: 'pending',
-      [UploadStatus.UPLOADING]: 'uploading',
-      [UploadStatus.SUCCESS]: 'finished',
-      [UploadStatus.ERROR]: 'error',
-      [UploadStatus.PAUSED]: 'pending',
-      [UploadStatus.CANCELLED]: 'removed'
-    };
-    return statusMap[status];
-  };
+  // 批量创建属性访问器
+  const state = createPropertyAccessors(uploader, [
+    'uploadQueue',
+    'activeUploads',
+    'completedUploads',
+    'totalProgress',
+    'uploadSpeed',
+    'isUploading',
+    'isPaused',
+    'uploadStats',
+    'networkQuality'
+  ] as const);
 
+  // 批量创建方法包装器
+  const methods = createMethodWrappers(uploader, [
+    'addFiles',
+    'start',
+    'pauseAll',
+    'pause',
+    'resumeAll',
+    'resume',
+    'cancel',
+    'cancelAll',
+    'retryFailed',
+    'retrySingleFile',
+    'removeFile',
+    'clear',
+    'getTask',
+    'updateConfig',
+    'destroy'
+  ] as const);
+
+  /** 创建 Naive UI 文件列表 */
   const createNaiveFileList = (): UploadFileInfo[] => {
     const allTasks = [
-      ...uploadQueue.value,
-      ...Array.from(activeUploads.value.values()),
-      ...completedUploads.value
+      ...state.uploadQueue.value,
+      ...Array.from(state.activeUploads.value.values()),
+      ...state.completedUploads.value
     ];
 
     return allTasks.map(
@@ -59,116 +73,64 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
     );
   };
 
-  const addFiles = (files: File[] | FileList | File, options?: FileUploadOptions) =>
-    uploader.addFiles(files, options);
+  /** 统计信息 API */
+  const statsManager = uploader.getStatsManager();
+  const getTodayStats = () => statsManager.getTodayStats();
+  const getHistoryStats = (days = 7) => statsManager.getHistoryStats(days);
+  const getTrendAnalysis = (days = 7) => statsManager.getTrendAnalysis(days);
 
-  const start = () => uploader.start();
-  const pauseAll = () => uploader.pauseAll();
-  const pause = (taskId: string) => uploader.pause(taskId);
-  const resumeAll = () => uploader.resumeAll();
-  const resume = (taskId: string) => uploader.resume(taskId);
-  const cancel = (taskId: string) => uploader.cancel(taskId);
-  const cancelAll = () => uploader.cancelAll();
-  const retryFailed = () => uploader.retryFailed();
-  const retrySingleFile = (taskId: string) => uploader.retrySingleFile(taskId);
-  const removeFile = (taskId: string) => uploader.removeFile(taskId);
-  const clear = () => uploader.clear();
-  const getTask = (taskId: string) => uploader.getTask(taskId);
-  const getDetailedStats = () => uploader.getDetailedStats();
-  const updateConfig = (newConfig: Partial<UploadConfig>) => uploader.updateConfig(newConfig);
-  const destroy = () => uploader.destroy();
+  // 响应式统计信息
+  const todayStats = computed(() => getTodayStats());
+  const trendAnalysis = computed(() => getTrendAnalysis(7));
 
-  // 获取进度条状态
+  /** 获取进度条状态 */
   const getProgressStatus = (): 'default' | 'success' | 'error' => {
-    if (uploadStats.value.failed > 0) return 'error';
-    if (uploadStats.value.completed === uploadStats.value.total) return 'success';
+    const stats = state.uploadStats.value;
+    if (stats.failed > 0) return 'error';
+    if (stats.completed === stats.total) return 'success';
     return 'default';
   };
 
-  // 获取状态文本
-  const getStatusText = (status: UploadStatus): string => {
-    const textMap: Record<UploadStatus, string> = {
-      [UploadStatus.PENDING]: '等待中',
-      [UploadStatus.UPLOADING]: '上传中',
-      [UploadStatus.SUCCESS]: '成功',
-      [UploadStatus.ERROR]: '失败',
-      [UploadStatus.PAUSED]: '已暂停',
-      [UploadStatus.CANCELLED]: '已取消'
-    };
-    return textMap[status];
+  /** 国际化 API */
+  const setLanguage = (language: 'zh-CN' | 'en-US') => i18n.setLanguage(language);
+  const setCustomTexts = (texts: Partial<{ status: Partial<StatusTextMap> }>) => {
+    i18n.setCustomTexts(texts as any);
   };
 
-  // 获取状态类型
-  const getStatusType = (
-    status: UploadStatus
-  ): 'default' | 'success' | 'warning' | 'error' | 'info' => {
-    const typeMap: Record<UploadStatus, 'default' | 'success' | 'warning' | 'error' | 'info'> = {
-      [UploadStatus.PENDING]: 'default',
-      [UploadStatus.UPLOADING]: 'info',
-      [UploadStatus.SUCCESS]: 'success',
-      [UploadStatus.ERROR]: 'error',
-      [UploadStatus.PAUSED]: 'warning',
-      [UploadStatus.CANCELLED]: 'default'
-    };
-    return typeMap[status];
-  };
-
-  // 获取文件图标
-  const getFileIcon = (mimeType: string) => {
-    if (mimeType.startsWith('image/')) return ImageOutline;
-    if (mimeType.startsWith('video/')) return VideocamOutline;
-    if (mimeType.startsWith('audio/')) return MusicalNoteOutline;
-    if (mimeType.includes('pdf')) return DocumentTextOutline;
-    if (mimeType.includes('zip') || mimeType.includes('rar')) return ArchiveOutline;
-    return DocumentOutline;
-  };
-
-  // 获取文件颜色
-  const getFileColor = (mimeType: string) => {
-    if (mimeType.startsWith('image/')) return '#18a058';
-    if (mimeType.startsWith('video/')) return '#2080f0';
-    if (mimeType.startsWith('audio/')) return '#f0a020';
-    if (mimeType.includes('pdf')) return '#d03050';
-    if (mimeType.includes('zip') || mimeType.includes('rar')) return '#7c3aed';
-    return '#666';
-  };
+  /** 性能监控 API */
+  const getPerformanceReport = () => performanceMonitor.generateReport();
+  const getPerformanceMetrics = () => performanceMonitor.getMetrics();
 
   return {
-    uploadQueue,
-    activeUploads,
-    completedUploads,
-    totalProgress,
-    uploadSpeed,
-    isUploading,
-    isPaused,
-    uploadStats,
-    networkQuality,
-    uploader,
-    addFiles,
-    start,
-    pauseAll,
-    pause,
-    resumeAll,
-    resume,
-    cancel,
-    cancelAll,
-    retryFailed,
-    removeFile,
-    clear,
-    getTask,
-    getDetailedStats,
-    updateConfig,
-    destroy,
+    // 状态（响应式）
+    ...state,
+    // 方法
+    ...methods,
+    // 工具函数
     createNaiveFileList,
     convertToNaiveStatus,
-    formatFileSize,
-    formatSpeed,
-    formatTime,
-    retrySingleFile,
-    getProgressStatus,
     getStatusText,
     getStatusType,
     getFileIcon,
-    getFileColor
+    getFileColor,
+    getProgressStatus,
+    // 格式化工具
+    formatFileSize,
+    formatSpeed,
+    formatTime,
+    // 统计信息
+    getTodayStats,
+    getHistoryStats,
+    getTrendAnalysis,
+    todayStats,
+    trendAnalysis,
+    // 国际化
+    setLanguage,
+    setCustomTexts,
+    // 性能监控
+    getPerformanceReport,
+    getPerformanceMetrics,
+    // 原始上传器实例（用于高级用法）
+    uploader
   };
 }

@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/modules/auth';
 import { useRouterPush } from '@/hooks/common/router';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { useVerificationCode } from '@/hooks/business/verification-code';
-import { calculateStringMD5 } from '@/hooks/upload-v2/utils/hash';
+import { calculateStringMD5 } from '@/hooks/upload/utils/hash';
 import { $t } from '@/locales';
 
 interface FormModel {

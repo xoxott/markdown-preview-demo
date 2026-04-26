@@ -176,7 +176,6 @@ const routeMap: RouteMap = {
   'markdownedit': '/markdownedit',
   'mobile': '/mobile',
   'upload': '/upload',
-  'upload-v2-demo': '/upload-v2-demo',
   'utils': '/utils',
   'monitoring': '/monitoring',
   'user-management': '/user-management',

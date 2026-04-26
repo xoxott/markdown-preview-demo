@@ -3,7 +3,7 @@ import { NButton, NForm, NFormItem, NInput, NSpace } from 'naive-ui';
 import { useAuthStore } from '@/store/modules/auth';
 import { useRouterPush } from '@/hooks/common/router';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
-import { calculateStringMD5 } from '@/hooks/upload-v2/utils/hash';
+import { calculateStringMD5 } from '@/hooks/upload/utils/hash';
 import { $t } from '@/locales';
 
 interface FormModel {
