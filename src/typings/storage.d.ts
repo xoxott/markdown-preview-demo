@@ -65,5 +65,6 @@ declare namespace StorageType {
   }
 
   // Merge WorkflowUICache into Local
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- intentional merge of WorkflowUICache into Local
   interface Local extends WorkflowUICache {}
 }

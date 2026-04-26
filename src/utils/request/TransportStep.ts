@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable consistent-return */
 /** 传输步骤（Transport Step） */
 
 import type {
@@ -15,7 +17,7 @@ export class TransportStep implements RequestStep {
     this.transport = transport;
   }
 
-  async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+  async execute<T>(ctx: RequestContext<T>, _next: () => Promise<void>): Promise<void> {
     // 检查是否已取消
     if (ctx.state.aborted) {
       return Promise.resolve();

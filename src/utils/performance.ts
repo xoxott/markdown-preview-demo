@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /** 性能优化工具函数 */
 
 /**
@@ -8,7 +9,7 @@
  */
 export function debounce<T extends (...args: any[]) => any>(fn: T, delay: number = 300): T {
   let timer: ReturnType<typeof setTimeout> | null = null;
-  return function (this: any, ...args: Parameters<T>) {
+  return function debounceFn(this: any, ...args: Parameters<T>) {
     if (timer) clearTimeout(timer);
     timer = setTimeout(() => {
       fn.apply(this, args);
@@ -24,7 +25,7 @@ export function debounce<T extends (...args: any[]) => any>(fn: T, delay: number
  */
 export function throttle<T extends (...args: any[]) => any>(fn: T, delay: number = 300): T {
   let last = 0;
-  return function (this: any, ...args: Parameters<T>) {
+  return function throttleFn(this: any, ...args: Parameters<T>) {
     const now = Date.now();
     if (now - last >= delay) {
       last = now;
@@ -52,13 +53,16 @@ export function runWhenIdle(callback: () => void, options?: { timeout?: number }
  *
  * @param urls 图片URL数组
  */
+// eslint-disable-next-line @typescript-eslint/no-invalid-void-type
 export function preloadImages(urls: string[]): Promise<void[]> {
   return Promise.all(
     urls.map(
       url =>
         new Promise<void>((resolve, reject) => {
           const img = new Image();
-          img.onload = () => resolve();
+          img.onload = () => {
+            resolve();
+          };
           img.onerror = reject;
           img.src = url;
         })

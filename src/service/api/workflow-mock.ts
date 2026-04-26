@@ -420,7 +420,10 @@ const mockVersions: Record<string, Api.Workflow.WorkflowVersion[]> = {
 };
 
 // 延迟函数，模拟网络请求
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) =>
+  new Promise<void>(resolve => {
+    setTimeout(resolve, ms);
+  });
 
 // 创建 mock 响应
 const createMockResponse = <T>(data: T) => ({
@@ -605,7 +608,7 @@ export const mockWorkflowApi = {
     };
 
     mockExecutions.unshift(execution);
-    workflow.executionCount++;
+    workflow.executionCount += 1;
     workflow.lastExecutedAt = execution.startTime;
 
     // 模拟异步执行完成
@@ -683,7 +686,7 @@ export const mockWorkflowApi = {
     }
 
     workflow.definition = targetVersion.definition;
-    workflow.version++;
+    workflow.version += 1;
     workflow.updatedAt = new Date().toISOString();
 
     return createMockResponse(workflow);

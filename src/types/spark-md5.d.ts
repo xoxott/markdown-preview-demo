@@ -103,5 +103,6 @@ declare module 'spark-md5' {
     function hashBinary(arr: globalThis.ArrayBuffer | string, raw?: boolean): string;
   }
 
+  // eslint-disable-next-line no-restricted-syntax
   export = SparkMD5;
 }

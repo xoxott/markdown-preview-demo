@@ -37,6 +37,7 @@ export function fetchUpdateWorkflow(id: string, data: Api.Workflow.UpdateWorkflo
 
 /** 删除工作流 */
 export function fetchDeleteWorkflow(id: string) {
+  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
   return request<void>({
     url: `/workflow/${id}`,
     method: 'delete'
@@ -45,6 +46,7 @@ export function fetchDeleteWorkflow(id: string) {
 
 /** 批量删除工作流 */
 export function fetchBatchDeleteWorkflows(data: { ids: string[] }) {
+  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
   return request<void>({
     url: '/workflow/batch-delete',
     method: 'post',
@@ -105,6 +107,7 @@ export function fetchExecutionDetail(executionId: string) {
 
 /** 取消执行 */
 export function fetchCancelExecution(executionId: string) {
+  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
   return request<void>({
     url: `/workflow/execution/${executionId}/cancel`,
     method: 'post'

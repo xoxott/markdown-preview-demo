@@ -4,6 +4,7 @@
  * All backend api type
  */
 
+/* eslint-disable @typescript-eslint/triple-slash-reference */
 /// <reference path="./api/common.d.ts" />
 /// <reference path="./api/user-management.d.ts" />
 /// <reference path="./api/role-management.d.ts" />

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { computed, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { defineStore } from 'pinia';
@@ -215,8 +216,8 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
 
     // Update user info from response
     // Extract role codes from roles array for compatibility
-    const roleCodes = data.user.roles?.map(role => role.code) || [];
-    const firstRoleCode = roleCodes[0] || '';
+    const extractedRoleCodes = data.user.roles?.map(role => role.code) || [];
+    const firstRoleCode = extractedRoleCodes[0] || '';
 
     Object.assign(userInfo, {
       id: data.user.id,
@@ -362,8 +363,8 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
 
     if (!error && info) {
       // Extract role codes from roles array for compatibility
-      const roleCodes = info.roles?.map(role => role.code) || [];
-      const firstRoleCode = roleCodes[0] || '';
+      const extractedRoleCodes = info.roles?.map(role => role.code) || [];
+      const firstRoleCode = extractedRoleCodes[0] || '';
 
       // Map new API structure to userInfo
       Object.assign(userInfo, {
@@ -454,8 +455,8 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
 
     // Update user info from response
     // Extract role codes from roles array for compatibility
-    const roleCodes = data.user.roles?.map(role => role.code) || [];
-    const firstRoleCode = roleCodes[0] || '';
+    const extractedRoleCodes = data.user.roles?.map(role => role.code) || [];
+    const firstRoleCode = extractedRoleCodes[0] || '';
 
     Object.assign(userInfo, {
       id: data.user.id,

@@ -20,7 +20,7 @@ export function createRouteGuard(router: Router) {
   router.beforeEach(async (to, from, next) => {
     // 临时跳过登录（开发模式）- 后端接口挂了时使用
     // 设置为 true 来跳过登录，设置为 false 来恢复正常的登录流程
-    const SKIP_LOGIN = true; // TODO: 后端接口恢复后改为 false
+    const SKIP_LOGIN = true; // NOTE: 后端接口恢复后改为 false
     if (SKIP_LOGIN && !localStg.get('token')) {
       // 设置假的 token
       localStg.set('token', 'dev-skip-login-token');

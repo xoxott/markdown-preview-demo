@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { AxiosResponse } from 'axios';
 import { BACKEND_ERROR_CODE, createFlatRequest, createRequest } from '@suga/axios';
 import { useAuthStore } from '@/store/modules/auth';

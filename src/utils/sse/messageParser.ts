@@ -12,7 +12,7 @@ import type { SSE } from '@/typings/sse';
  * @param connectionId - Connection ID for logging
  * @returns Parsed SSE message or null if parsing fails
  */
-export function parseSSEMessage(rawData: string, connectionId: string): SSE.SSEMessage | null {
+export function parseSSEMessage(rawData: string, _connectionId: string): SSE.SSEMessage | null {
   if (!rawData || !rawData.trim()) {
     return null;
   }
@@ -22,7 +22,8 @@ export function parseSSEMessage(rawData: string, connectionId: string): SSE.SSEM
 
     try {
       parsedData = JSON.parse(rawData);
-    } catch (parseErr) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_parseErr1) {
       // sseLogger.error(`Failed to parse JSON for "${connectionId}":`, parseErr, 'Raw data:', rawData);
       return null;
     }
@@ -39,7 +40,8 @@ export function parseSSEMessage(rawData: string, connectionId: string): SSE.SSEM
       // sseLogger.debug(`Detected double-encoded JSON for "${connectionId}", parsing inner data`);
       try {
         parsedData = JSON.parse(parsedData.data);
-      } catch (innerParseErr) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (_innerParseErr1) {
         // sseLogger.error(`Failed to parse inner JSON for "${connectionId}":`, innerParseErr);
         return null;
       }
@@ -52,7 +54,8 @@ export function parseSSEMessage(rawData: string, connectionId: string): SSE.SSEM
 
     // sseLogger.warn(`Invalid message format for "${connectionId}":`, parsedData, 'Expected object with type field');
     return null;
-  } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (_outerErr) {
     // sseLogger.error(`Failed to process message for "${connectionId}":`, err, 'Raw data:', rawData);
     return null;
   }

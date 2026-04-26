@@ -7,6 +7,7 @@ import { SetupStoreId } from '@/enum';
  *
  * @param context
  */
+/* eslint-disable no-param-reassign */
 export function resetSetupStore(context: PiniaPluginContext) {
   const setupSyntaxIds = Object.values(SetupStoreId) as string[];
 

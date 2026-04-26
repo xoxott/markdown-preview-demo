@@ -7,6 +7,7 @@ import { parseSSEMessage } from './messageParser';
  * Singleton pattern to manage all SSE connections Supports connection pooling, auto-reconnect,
  * event distribution
  */
+/* eslint-disable no-param-reassign */
 class SSEManager {
   private static instance: SSEManager;
   private connections: Map<string, SSE.Connection> = new Map();
@@ -36,7 +37,7 @@ class SSEManager {
     // If connection already exists, increment ref count and return it
     if (this.connections.has(connectionId)) {
       const existing = this.connections.get(connectionId)!;
-      existing.refCount++;
+      existing.refCount += 1;
       // If connection is disconnected or in error state, reconnect it
       if (existing.status === 'disconnected' || existing.status === 'error') {
         this.createSSEConnection(existing);
@@ -225,7 +226,8 @@ class SSEManager {
                 message.data,
                 new MessageEvent('data', { data: JSON.stringify(message.data) })
               );
-            } catch (err) {
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            } catch (_catchErr) {
               // Silent error handling
             }
           });
@@ -282,7 +284,7 @@ class SSEManager {
       return;
     }
 
-    connection.reconnectAttempts++;
+    connection.reconnectAttempts += 1;
     connection.status = 'reconnecting';
     this.notifyStatusChange(connection, 'reconnecting');
 
@@ -360,6 +362,7 @@ class SSEManager {
    * @param status - New connection status
    * @param error - Optional error object
    */
+  // eslint-disable-next-line class-methods-use-this
   private notifyStatusChange(
     connection: SSE.Connection,
     status: SSE.ConnectionStatus,
@@ -368,7 +371,8 @@ class SSEManager {
     connection.statusListeners.forEach(listener => {
       try {
         listener(status, error);
-      } catch (err) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (_statusErr) {
         // Silent error handling
       }
     });
@@ -387,7 +391,7 @@ class SSEManager {
     }
 
     // Decrement ref count
-    connection.refCount--;
+    connection.refCount -= 1;
 
     // Only actually disconnect if ref count reaches 0 or force is true
     if (connection.refCount > 0 && !force) {
