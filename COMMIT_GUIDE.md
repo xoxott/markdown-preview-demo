@@ -9,6 +9,7 @@ pnpm commit:zh
 ```
 
 `sa git-commit -l=zh-cn` 是一个**交互式命令**，会弹出选择框引导你：
+
 1. 选择 commit type（feat、fix、refactor、style 等）
 2. 选择影响范围（scope）
 3. 输入提交描述
@@ -27,25 +28,25 @@ git commit -m "type(scope): description"
 
 ## 可用的提交脚本
 
-| 命令 | 说明 | 交互模式 |
-|------|------|---------|
-| `pnpm commit:zh` | 中文交互式提交 | 交互式（需要终端） |
-| `pnpm commit` | 英文交互式提交 | 交互式（需要终端） |
-| `git commit -m "..."` | 手动提交（符合规范即可） | 非交互式 |
+| 命令                  | 说明                     | 交互模式           |
+| --------------------- | ------------------------ | ------------------ |
+| `pnpm commit:zh`      | 中文交互式提交           | 交互式（需要终端） |
+| `pnpm commit`         | 英文交互式提交           | 交互式（需要终端） |
+| `git commit -m "..."` | 手动提交（符合规范即可） | 非交互式           |
 
 ## sa CLI 工具功能范围
 
 `sa`（soybean-admin CLI）提供的全部命令：
 
-| 命令 | 说明 |
-|------|------|
-| `sa git-commit` | 交互式生成 git commit（Conventional Commits 规范） |
-| `sa git-commit-verify` | 校验 commit 消息格式 |
-| `sa cleanup` | 删除 node_modules、dist 等目录 |
-| `sa update-pkg` | 更新依赖版本 |
-| `sa changelog` | 生成 changelog |
-| `sa release` | 发布版本（更新版本号、生成 changelog、提交代码） |
-| `sa gen-route` | 自动生成路由文件 |
+| 命令                   | 说明                                               |
+| ---------------------- | -------------------------------------------------- |
+| `sa git-commit`        | 交互式生成 git commit（Conventional Commits 规范） |
+| `sa git-commit-verify` | 校验 commit 消息格式                               |
+| `sa cleanup`           | 删除 node_modules、dist 等目录                     |
+| `sa update-pkg`        | 更新依赖版本                                       |
+| `sa changelog`         | 生成 changelog                                     |
+| `sa release`           | 发布版本（更新版本号、生成 changelog、提交代码）   |
+| `sa gen-route`         | 自动生成路由文件                                   |
 
 使用 `-l=zh-cn` 参数可切换为中文界面，如 `sa git-commit -l=zh-cn`。
 
@@ -56,6 +57,7 @@ git commit -m "type(scope): description"
 ### pre-commit 钩子
 
 自动运行 `pnpm lint:format`：
+
 - `prettier --write .` — 格式化所有文件
 - `eslint . --fix --ext .ts,.tsx,.js,.jsx,.vue` — 修复代码规范问题
 
@@ -83,20 +85,20 @@ git commit -m "fix(flow): 修复 ESLint 错误"
 
 ## Conventional Commits 类型
 
-| 类型 | 说明 |
-|------|------|
-| feat | 新功能 |
-| fix | Bug 修复 |
-| docs | 文档变更 |
-| style | 格式化（不影响代码逻辑） |
+| 类型     | 说明                         |
+| -------- | ---------------------------- |
+| feat     | 新功能                       |
+| fix      | Bug 修复                     |
+| docs     | 文档变更                     |
+| style    | 格式化（不影响代码逻辑）     |
 | refactor | 重构（不是新功能也不是修复） |
-| perf | 性能优化 |
-| optimize | 代码质量优化 |
-| test | 测试相关 |
-| build | 构建相关 |
-| ci | CI/CD 相关 |
-| chore | 杂项（不影响代码） |
-| revert | 回滚提交 |
+| perf     | 性能优化                     |
+| optimize | 代码质量优化                 |
+| test     | 测试相关                     |
+| build    | 构建相关                     |
+| ci       | CI/CD 相关                   |
+| chore    | 杂项（不影响代码）           |
+| revert   | 回滚提交                     |
 
 ## 错误处理
 
