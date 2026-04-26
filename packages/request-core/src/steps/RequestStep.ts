@@ -33,7 +33,8 @@ export function composeSteps(steps: RequestStep[]): <T>(ctx: RequestContext<T>) 
 
       // 如果还有步骤，执行下一个
       if (index < steps.length) {
-        const step = steps[(index += 1)];
+        // eslint-disable-next-line no-plusplus
+        const step = steps[index++];
         await step.execute(ctx, next);
       }
     };
