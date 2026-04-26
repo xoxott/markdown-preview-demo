@@ -6,6 +6,35 @@
   height: 100%;
 }
 
+/* 手动模式切换：为 github-markdown-css 的 CSS 变量提供值
+   github-markdown.css 只在 @media (prefers-color-scheme) 中定义变量，
+   但我们的应用使用手动切换，需要在 .color-mode-* 中补充 */
+.markdown-container.color-mode-light .markdown-body {
+  color-scheme: light;
+  --fgColor-default: #1f2328;
+  --fgColor-muted: #59636e;
+  --fgColor-accent: #0969da;
+  --bgColor-default: #ffffff;
+  --bgColor-muted: #f6f8fa;
+  --bgColor-neutral-muted: #818b981f;
+  --borderColor-default: #d1d9e0;
+  --borderColor-muted: #d1d9e0b3;
+  --borderColor-neutral-muted: #d1d9e0b3;
+}
+
+.markdown-container.color-mode-dark .markdown-body {
+  color-scheme: dark;
+  --fgColor-default: #f0f6fc;
+  --fgColor-muted: #9198a1;
+  --fgColor-accent: #4493f8;
+  --bgColor-default: #0d1117;
+  --bgColor-muted: #151b23;
+  --bgColor-neutral-muted: #656c7633;
+  --borderColor-default: #3d444d;
+  --borderColor-muted: #3d444db3;
+  --borderColor-neutral-muted: #3d444db3;
+}
+
 .markdown-body {
   box-sizing: border-box;
   min-width: 200px;

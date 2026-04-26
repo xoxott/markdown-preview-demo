@@ -1,13 +1,12 @@
 import type { Component, PropType, VNode } from 'vue';
 import { defineComponent, shallowRef, watch } from 'vue';
 import MarkdownIt from 'markdown-it';
-import markdownItMultimdTable from 'markdown-it-multimd-table';
 import markdownItKatex from '@vscode/markdown-it-katex';
 import markdownItTaskLists from '@suga/markdown-it-task-lists';
 import type { CodeBlockMeta } from '@suga/markdown-it-render-vnode';
 import { DOM_ATTR_NAME } from '@suga/markdown-it-render-vnode';
+import markdownItMultimdTable from 'markdown-it-multimd-table';
 import { PERFORMANCE_CONSTANTS } from './constants';
-
 import 'github-markdown-css/github-markdown.css';
 import 'highlight.js/styles/github.css';
 import 'highlight.js/styles/github-dark.css';
@@ -89,8 +88,6 @@ export default defineComponent({
         enabled: true
       });
 
-    // 使用 shallowRef 替代 ref，避免对 VNode 数组的深度响应式追踪
-    // VNodes 总是整体替换，不需要深层响应式
     const vnodes = shallowRef<VNode[]>([]);
 
     // 监听内容变化

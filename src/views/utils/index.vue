@@ -11,11 +11,9 @@
 import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useThemeVars } from 'naive-ui';
-import { useMarkdownTheme } from '@/components/markdown/hooks/useMarkdownTheme';
 import Markdown from '@/components/markdown';
-const docs = import.meta.glob('../../packages/changelog/docs/*.md', { as: 'raw' });
+const docs = import.meta.glob('/packages/changelog/docs/*.md', { as: 'raw' });
 const themeVars = useThemeVars();
-const { darkMode } = useMarkdownTheme();
 const previewStyle = computed(() => ({
   backgroundColor: themeVars.value.cardColor,
   color: themeVars.value.textColorBase,
@@ -25,11 +23,11 @@ const content = ref('');
 const route = useRoute();
 
 async function loadDoc(path: string) {
-  // 确保路径不含前导 /
-  const normalizedPath = path.startsWith('/') ? path.substring(1) : path;
-  const key = `../../packages/changelog/docs/${normalizedPath}`;
+  // 确保路径以 / 开头，构造与 glob key 一致的绝对路径
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  const key = `/packages/changelog/docs${normalizedPath}`;
   if (docs[key]) {
-    return docs[key](); // 返回的是 Promise<string>
+    return docs[key]();
   }
   throw new Error(`文档不存在: ${path}`);
 }
@@ -51,8 +49,7 @@ watch(() => route.hash, fetchDocFromHash, { immediate: true });
 
 <template>
   <div
-    class="markdown-body w-full flex items-center justify-center p-4 border border-gray-200 rounded-md shadow text-12px"
-    :class="darkMode ? 'markdown-body-dark' : ''"
+    class="w-full flex items-center justify-center border border-gray-200 rounded-md p-4 text-12px shadow"
     :style="previewStyle"
   >
     <Markdown :content="content" />
