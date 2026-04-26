@@ -60,10 +60,11 @@ describe('ProgressManager', () => {
 
   describe('updateTotalProgress', () => {
     it('应该更新总进度', () => {
+      // 使用 uploadedSize 代替依赖 File.size（happy-dom 可能不支持准确的 File.size）
       const tasks: FileTask[] = [
         {
           id: '1',
-          file: new File(['content'], 'test1.txt', { type: 'text/plain' }),
+          file: new File([new ArrayBuffer(1000)], 'test1.txt', { type: 'text/plain' }),
           originalFile: undefined,
           status: UploadStatus.UPLOADING,
           progress: 50,
@@ -76,7 +77,7 @@ describe('ProgressManager', () => {
           endTime: null,
           pausedTime: 0,
           resumeTime: 0,
-          uploadedSize: 0,
+          uploadedSize: 500, // 50% of 1000
           result: null,
           error: null,
           fileMD5: '',
@@ -84,7 +85,7 @@ describe('ProgressManager', () => {
         },
         {
           id: '2',
-          file: new File(['content'], 'test2.txt', { type: 'text/plain' }),
+          file: new File([new ArrayBuffer(1000)], 'test2.txt', { type: 'text/plain' }),
           originalFile: undefined,
           status: UploadStatus.UPLOADING,
           progress: 100,
@@ -97,7 +98,7 @@ describe('ProgressManager', () => {
           endTime: null,
           pausedTime: 0,
           resumeTime: 0,
-          uploadedSize: 0,
+          uploadedSize: 1000, // 100% of 1000
           result: null,
           error: null,
           fileMD5: '',
@@ -106,6 +107,7 @@ describe('ProgressManager', () => {
       ];
 
       manager.updateTotalProgress(tasks);
+      // (500 + 1000) / (1000 + 1000) * 100 = 75%
       expect(manager.totalProgress.value).toBe(75);
     });
 

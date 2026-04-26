@@ -42,6 +42,13 @@ export default defineConfig({
           globals: true,
           setupFiles: ['./src/components/flow/__tests__/setup.ts']
         }
+      },
+      {
+        test: {
+          include: ['src/hooks/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+          environment: 'happy-dom',
+          globals: true
+        }
       }
     ]
   },
