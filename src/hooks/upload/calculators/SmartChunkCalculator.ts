@@ -53,5 +53,3 @@ export default class SmartChunkCalculator {
     return Math.max(minChunkSize, Math.min(maxChunkSize, optimalSize));
   }
 }
-
-export default SmartChunkCalculator;

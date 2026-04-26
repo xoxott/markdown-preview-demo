@@ -35,7 +35,8 @@ export default defineComponent({
     }
   },
 
-  setup(_props) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  setup(props) {
     const themeVars = useThemeVars();
 
     // 处理折叠逻辑
@@ -115,13 +116,13 @@ export default defineComponent({
                   ? themeVars.value.primaryColor
                   : themeVars.value.textColor2
               }}
-              onMouseenter={(_e: MouseEvent) => {
+              onMouseenter={(e: MouseEvent) => {
                 if (!isCurrentItem(displayItems.value.head[0])) {
                   (e.currentTarget as HTMLElement).style.backgroundColor =
                     themeVars.value.hoverColor;
                 }
               }}
-              onMouseleave={(_e: MouseEvent) => {
+              onMouseleave={(e: MouseEvent) => {
                 if (!isCurrentItem(displayItems.value.head[0])) {
                   (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
                 }
@@ -166,13 +167,13 @@ export default defineComponent({
                     style={{
                       color: isCurrent ? themeVars.value.primaryColor : themeVars.value.textColor2
                     }}
-                    onMouseenter={(_e: MouseEvent) => {
+                    onMouseenter={(e: MouseEvent) => {
                       if (!isCurrent) {
                         (e.currentTarget as HTMLElement).style.backgroundColor =
                           themeVars.value.hoverColor;
                       }
                     }}
-                    onMouseleave={(_e: MouseEvent) => {
+                    onMouseleave={(e: MouseEvent) => {
                       if (!isCurrent) {
                         (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
                       }
@@ -212,11 +213,11 @@ export default defineComponent({
                     style={{
                       color: themeVars.value.textColor3
                     }}
-                    onMouseenter={(_e: MouseEvent) => {
+                    onMouseenter={(e: MouseEvent) => {
                       (e.currentTarget as HTMLElement).style.backgroundColor =
                         themeVars.value.hoverColor;
                     }}
-                    onMouseleave={(_e: MouseEvent) => {
+                    onMouseleave={(e: MouseEvent) => {
                       (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
                     }}
                   >
@@ -252,13 +253,13 @@ export default defineComponent({
                     style={{
                       color: isCurrent ? themeVars.value.primaryColor : themeVars.value.textColor2
                     }}
-                    onMouseenter={(_e: MouseEvent) => {
+                    onMouseenter={(e: MouseEvent) => {
                       if (!isCurrent) {
                         (e.currentTarget as HTMLElement).style.backgroundColor =
                           themeVars.value.hoverColor;
                       }
                     }}
-                    onMouseleave={(_e: MouseEvent) => {
+                    onMouseleave={(e: MouseEvent) => {
                       if (!isCurrent) {
                         (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
                       }

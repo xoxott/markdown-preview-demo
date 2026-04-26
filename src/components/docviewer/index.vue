@@ -11,7 +11,8 @@ export default {
       default: 'README'
     }
   },
-  setup(_props) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  setup(props) {
     const _route = useRoute();
     const _router = useRouter();
     const rawContent = ref('');

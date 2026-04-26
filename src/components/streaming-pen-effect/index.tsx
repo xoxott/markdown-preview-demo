@@ -179,7 +179,8 @@ export default defineComponent({
       default: DEFAULT_CONFIG.TRANSITION_DURATION
     }
   },
-  setup(_props) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  setup(props) {
     // ==================== 状态管理 ====================
     const penPosition = ref<PenPosition>({ x: 0, y: 0 });
     const isVisible = ref(false);
@@ -286,7 +287,7 @@ export default defineComponent({
       if (!newPosition) {
         // 如果获取不到位置，且是首次尝试，可以重试几次
         if (initialRetryCount < MAX_INITIAL_RETRIES) {
-          initialRetryCount += 1;
+          initialRetryCount++;
           // 延迟重试，等待 DOM 完全渲染
           setTimeout(() => {
             scheduleUpdate();
@@ -394,7 +395,6 @@ export default defineComponent({
       }
       // 清除缓存
       lastTextNodeCache = null;
-      lastUpdateTime = 0;
     };
 
     // ==================== 响应式监听 ====================

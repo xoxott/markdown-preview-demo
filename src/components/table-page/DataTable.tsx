@@ -72,7 +72,8 @@ export default defineComponent({
       default: '100%'
     }
   },
-  setup(_props) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  setup(props) {
     const processedColumns = computed(() => {
       const cols: any[] = [];
 

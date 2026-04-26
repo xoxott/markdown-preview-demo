@@ -250,13 +250,13 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}): FileDrag
   const attachGlobalListeners = () => {
     if (globalListenersAttached) return;
 
-    const handleGlobalDrag = (_e: DragEvent) => {
+    const handleGlobalDrag = (e: DragEvent) => {
       if (isDragging.value) {
         updateDragPosition(e);
       }
     };
 
-    const handleGlobalDragOver = (_e: DragEvent) => {
+    const handleGlobalDragOver = (e: DragEvent) => {
       if (isDragging.value) {
         e.preventDefault(); // 必须调用才能触发 drop
         updateDragPosition(e);
@@ -264,7 +264,7 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}): FileDrag
       }
     };
 
-    const handleGlobalKeyChange = (_e: KeyboardEvent) => {
+    const handleGlobalKeyChange = (e: KeyboardEvent) => {
       if (isDragging.value) {
         updateDragOperation(e);
       }

@@ -61,5 +61,3 @@ export default class FileCompressor {
     });
   }
 }
-
-export default FileCompressor;

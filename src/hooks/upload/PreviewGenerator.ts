@@ -220,5 +220,3 @@ export default class PreviewGenerator {
     return file.type.startsWith('image/') || file.type.startsWith('video/');
   }
 }
-
-export default PreviewGenerator;
