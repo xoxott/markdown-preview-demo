@@ -47,7 +47,7 @@ export interface MermaidRendererProps {
  *   <MermaidRenderer meta={codeBlockMeta} />
  *
  *   // 独立使用
- *   <MermaidRenderer code="graph TD; A-->B;" />
+ *   <MermaidRenderer code="graph TD; A -= 1>B;" />
  *   ```;
  */
 export const MermaidRenderer = defineComponent({
@@ -96,16 +96,16 @@ export const MermaidRenderer = defineComponent({
 
     const {
       svgValue,
-      svgAspectRatio,
+      _svgAspectRatio,
       initMermaid,
       renderDiagram,
-      containerStyle,
+      _containerStyle,
       errorMessage,
       isLoading,
       hasError
     } = useMermaid(content, darkMode);
 
-    const { downloadSVG, startDrag, scale, zoom, position, isDragging, transformStyle } =
+    const { downloadSVG, startDrag, scale, zoom, position, _isDragging, transformStyle } =
       useSvgTools(containerRef, svgValue);
 
     // ==================== 防抖渲染 ====================

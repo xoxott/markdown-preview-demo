@@ -10,6 +10,28 @@ export default defineComponent({
     const drawer = useDrawer();
     const formData = ref({ name: '', email: '' });
 
+    const openThirdDrawer = () => {
+      drawer.info({
+        title: '第三层抽屉',
+        content: '这是第三层抽屉，支持无限嵌套！',
+        width: 400
+      });
+    };
+
+    const openSecondDrawer = async () => {
+      await drawer.open({
+        title: '第二层抽屉',
+        content: () => (
+          <div>
+            <p>这是第二层抽屉</p>
+            <NButton onClick={openThirdDrawer}>打开第三层抽屉</NButton>
+          </div>
+        ),
+        width: 450,
+        placement: 'right'
+      });
+    };
+
     // 示例1: 基础抽屉
     const openBasicDrawer = () => {
       drawer.open({
@@ -26,7 +48,9 @@ export default defineComponent({
         content: '确定要执行此操作吗？',
         onConfirm: async () => {
           // 模拟异步操作
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise<void>(resolve => {
+            setTimeout(resolve, 1000);
+          });
           console.log('操作已确认');
         }
       });
@@ -55,7 +79,9 @@ export default defineComponent({
           instance.setLoading(true);
           try {
             // 模拟提交
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise<void>(resolve => {
+              setTimeout(resolve, 2000);
+            });
             console.log('表单提交成功:', formData.value);
           } finally {
             instance.setLoading(false);
@@ -75,27 +101,6 @@ export default defineComponent({
           </div>
         ),
         width: 500
-      });
-    };
-    const openSecondDrawer = async () => {
-      const secondDrawer = await drawer.open({
-        title: '第二层抽屉',
-        content: () => (
-          <div>
-            <p>这是第二层抽屉</p>
-            <NButton onClick={openThirdDrawer}>打开第三层抽屉</NButton>
-          </div>
-        ),
-        width: 450,
-        placement: 'right'
-      });
-    };
-
-    const openThirdDrawer = () => {
-      drawer.info({
-        title: '第三层抽屉',
-        content: '这是第三层抽屉，支持无限嵌套！',
-        width: 400
       });
     };
 
@@ -132,7 +137,9 @@ export default defineComponent({
         title: '状态监听示例',
         content: '可以监听抽屉的响应式状态',
         onConfirm: async () => {
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          await new Promise<void>(resolve => {
+            setTimeout(resolve, 2000);
+          });
         }
       });
 

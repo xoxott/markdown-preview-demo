@@ -87,6 +87,11 @@ export default defineComponent({
     };
 
     // 确认重命名
+    // 关闭弹窗
+    const handleClose = () => {
+      emit('update:show', false);
+    };
+
     const handleConfirm = async () => {
       if (!validateInput(inputValue.value)) {
         return;
@@ -112,11 +117,6 @@ export default defineComponent({
     const handleCancel = () => {
       props.config.onCancel?.();
       handleClose();
-    };
-
-    // 关闭弹窗
-    const handleClose = () => {
-      emit('update:show', false);
     };
 
     // 键盘事件

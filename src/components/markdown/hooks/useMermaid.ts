@@ -92,7 +92,7 @@ export const useMermaid = (content: Ref<string>, darkMode: Ref<boolean> | boolea
   // ==================== 辅助函数 ====================
   /** 生成唯一的渲染ID */
   const generateRenderId = (): string => {
-    renderCounter++;
+    renderCounter += 1;
     return `mermaid-${Date.now()}-${renderCounter}`;
   };
 

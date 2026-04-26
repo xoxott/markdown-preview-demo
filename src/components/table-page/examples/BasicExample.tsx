@@ -24,7 +24,7 @@ interface ExampleData {
 }
 
 // 模拟 API 函数
-const fetchExampleList = async (params: any) => {
+const fetchExampleList = async (_params: any) => {
   // 模拟 API 调用
   return {
     data: {

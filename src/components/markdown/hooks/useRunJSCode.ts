@@ -287,7 +287,7 @@ export function useRunJSCode(code: string): RunResult {
       }
 
       // 更新运行状态
-      runState.value.runCount++;
+      runState.value.runCount += 1;
       runState.value.lastRunTime = Date.now();
     } catch (err) {
       error.value = formatError(err, '代码运行失败');

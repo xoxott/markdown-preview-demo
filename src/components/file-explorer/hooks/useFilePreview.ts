@@ -9,7 +9,7 @@
 import { computed, ref } from 'vue';
 import type { FileItem } from '../types/file-explorer';
 
-export function useFilePreview(initialItems: FileItem[] = []) {
+export function useFilePreview(_initialItems: FileItem[] = []) {
   const previewItem = ref<FileItem | null>(null);
   const isPreviewOpen = ref(false);
 

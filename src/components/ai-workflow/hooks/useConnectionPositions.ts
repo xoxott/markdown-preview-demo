@@ -5,14 +5,7 @@
  */
 
 import { type Ref, computed } from 'vue';
-import {
-  NODE_HEIGHT,
-  NODE_WIDTH,
-  PORT_GAP,
-  PORT_OFFSET_SCALED,
-  PORT_RADIUS,
-  PORT_SIZE
-} from '../constants/node-dimensions';
+import { NODE_HEIGHT, NODE_WIDTH } from '../constants/node-dimensions';
 import type { Viewport } from '../types';
 
 export interface ConnectionPosition {

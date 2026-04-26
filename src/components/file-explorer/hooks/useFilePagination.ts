@@ -45,7 +45,7 @@ export interface UseFilePaginationReturn {
 
 /** 文件分页 Hook 根据数据源类型自动选择前端分页或接口分页 */
 export function useFilePagination(options: UseFilePaginationOptions): UseFilePaginationReturn {
-  const { dataSource, currentPath, viewMode, gridSize, onRefresh } = options;
+  const { dataSource, currentPath, viewMode, gridSize, _onRefresh } = options;
 
   // 分页状态
   const currentPage = ref(1);
@@ -63,25 +63,6 @@ export function useFilePagination(options: UseFilePaginationOptions): UseFilePag
   const showPagination = computed(() => {
     return total.value > pageSize.value;
   });
-
-  // 监听视图模式和网格大小变化，更新每页数量
-  if (gridSize) {
-    const updatePageSize = () => {
-      const newPageSize = getPageSizeByViewMode(viewMode.value, gridSize.value);
-      if (newPageSize !== pageSize.value) {
-        pageSize.value = newPageSize;
-        // 如果当前页超出范围，重置到第一页
-        if (currentPage.value > totalPages.value) {
-          currentPage.value = 1;
-        }
-        loadPage();
-      }
-    };
-
-    // 使用 watch 监听变化（需要在调用处使用 watch）
-    // 这里先不实现，在 useFileExplorerLogic 中处理
-  }
-
   /** 加载分页数据 */
   const loadPage = async () => {
     if (!dataSource.value) {
@@ -120,6 +101,24 @@ export function useFilePagination(options: UseFilePaginationOptions): UseFilePag
       isLoading.value = false;
     }
   };
+
+  // 监听视图模式和网格大小变化，更新每页数量
+  if (gridSize) {
+    const _updatePageSize = () => {
+      const newPageSize = getPageSizeByViewMode(viewMode.value, gridSize.value);
+      if (newPageSize !== pageSize.value) {
+        pageSize.value = newPageSize;
+        // 如果当前页超出范围，重置到第一页
+        if (currentPage.value > totalPages.value) {
+          currentPage.value = 1;
+        }
+        loadPage();
+      }
+    };
+
+    // 使用 watch 监听变化（需要在调用处使用 watch）
+    // 这里先不实现，在 useFileExplorerLogic 中处理
+  }
 
   /** 跳转到指定页 */
   const goToPage = async (page: number) => {

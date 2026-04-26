@@ -11,9 +11,9 @@ export default {
       default: 'README'
     }
   },
-  setup(props) {
-    const route = useRoute();
-    const router = useRouter();
+  setup(_props) {
+    const _route = useRoute();
+    const _router = useRouter();
     const rawContent = ref('');
     const showSidebar = ref(true);
 
@@ -41,7 +41,7 @@ export default {
       let content = rawContent.value;
 
       // 转换相对链接为 Vue Router 链接
-      content = content.replace(/\[([^\]]+)\]\(([^)]+)\.md\)/g, (match, text, link) => {
+      content = content.replace(/\[([^\]]+)\]\(([^)]+)\.md\)/g, (_match, text, link) => {
         // 移除 .md 扩展名并转换为路由路径
         const routePath = convertToRoutePath(link);
         return `<router-link to="${routePath}">${text}</router-link>`;

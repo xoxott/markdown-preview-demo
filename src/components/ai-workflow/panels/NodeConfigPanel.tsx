@@ -1,15 +1,13 @@
-import { type PropType, computed, defineComponent, reactive, watch } from 'vue';
+import { type PropType, defineComponent, reactive, watch } from 'vue';
 import {
   NButton,
-  NCard,
   NDivider,
   NEmpty,
   NForm,
   NFormItem,
   NInput,
   NInputNumber,
-  NSelect,
-  NSwitch
+  NSelect
 } from 'naive-ui';
 import MonacoEditor from '@/components/monaco/MonacoEditor';
 
@@ -59,28 +57,6 @@ export default defineComponent({
         description: formData.description,
         config: formData.config
       });
-    };
-
-    // 根据节点类型渲染不同的配置表单
-    const renderConfigForm = () => {
-      if (!props.node) return null;
-
-      switch (props.node.type) {
-        case 'ai':
-          return renderAIConfig();
-        case 'http':
-          return renderHttpConfig();
-        case 'database':
-          return renderDatabaseConfig();
-        case 'condition':
-          return renderConditionConfig();
-        case 'transform':
-          return renderTransformConfig();
-        case 'file':
-          return renderFileConfig();
-        default:
-          return null;
-      }
     };
 
     const renderAIConfig = () => (
@@ -237,6 +213,28 @@ export default defineComponent({
         )}
       </>
     );
+
+    // 根据节点类型渲染不同的配置表单
+    const renderConfigForm = () => {
+      if (!props.node) return null;
+
+      switch (props.node.type) {
+        case 'ai':
+          return renderAIConfig();
+        case 'http':
+          return renderHttpConfig();
+        case 'database':
+          return renderDatabaseConfig();
+        case 'condition':
+          return renderConditionConfig();
+        case 'transform':
+          return renderTransformConfig();
+        case 'file':
+          return renderFileConfig();
+        default:
+          return null;
+      }
+    };
 
     return () => {
       if (!props.node) {

@@ -1,7 +1,6 @@
 import { type PropType, defineComponent, ref, watch } from 'vue';
 import {
   NButton,
-  NCard,
   NColorPicker,
   NForm,
   NFormItem,

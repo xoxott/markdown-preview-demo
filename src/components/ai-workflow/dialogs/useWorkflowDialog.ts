@@ -11,7 +11,7 @@ import type {
 
 export function useWorkflowDialog() {
   const dialog = useDialog();
-  const message = useMessage();
+  const _message = useMessage();
 
   /** 显示工作流表单对话框 */
   async function showWorkflowForm(options: WorkflowDialogOptions) {

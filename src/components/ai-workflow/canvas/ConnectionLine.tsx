@@ -151,10 +151,10 @@ export default defineComponent({
   setup(props) {
     /** 计算贝塞尔曲线在 t=1 时的切线方向（用于箭头对齐） */
     const getBezierTangent = (
-      x1: number,
-      y1: number,
-      cx1: number,
-      cy1: number,
+      _x1: number,
+      _y1: number,
+      _cx1: number,
+      _cy1: number,
       cx2: number,
       cy2: number,
       x2: number,
@@ -227,7 +227,6 @@ export default defineComponent({
           // 阶梯线（直角转折）
           const midX = (x1 + x2) / 2;
           let endX = x2;
-          const endY = y2;
 
           if (showArrow) {
             endX = x2 - CONNECTION_LINE_CONFIG.ARROW_LENGTH;
@@ -241,7 +240,6 @@ export default defineComponent({
           const midX = (x1 + x2) / 2;
           const radius = 10;
           let endX = x2;
-          const endY = y2;
 
           if (showArrow) {
             endX = x2 - CONNECTION_LINE_CONFIG.ARROW_LENGTH;

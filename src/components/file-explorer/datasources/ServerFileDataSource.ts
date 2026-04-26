@@ -177,7 +177,7 @@ export class ServerFileDataSource implements IFileDataSource {
 
   async createFolder(path: string, name: string): Promise<FileItem> {
     const normalizedPath = this.normalizePath(path);
-    const fullPath = normalizedPath ? `${normalizedPath}/${name}` : name;
+    const _fullPath = normalizedPath ? `${normalizedPath}/${name}` : name;
     const endpoint = '/api/files/create-folder';
 
     const response = await this.request<{ file: any }>(endpoint, {

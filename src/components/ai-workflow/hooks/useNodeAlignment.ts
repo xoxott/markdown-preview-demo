@@ -27,7 +27,6 @@ export function useNodeAlignment({ nodes, selectedNodeIds }: AlignmentOptions) {
     const selected = getSelectedNodes();
     if (selected.length < 2) return;
 
-    const NODE_WIDTH = 220;
     const maxX = Math.max(...selected.map(n => n.position.x));
     selected.forEach(node => {
       node.position.x = maxX;
@@ -64,7 +63,6 @@ export function useNodeAlignment({ nodes, selectedNodeIds }: AlignmentOptions) {
     const selected = getSelectedNodes();
     if (selected.length < 2) return;
 
-    const NODE_HEIGHT = 72;
     const maxY = Math.max(...selected.map(n => n.position.y));
     selected.forEach(node => {
       node.position.y = maxY;
@@ -94,7 +92,6 @@ export function useNodeAlignment({ nodes, selectedNodeIds }: AlignmentOptions) {
     const sorted = [...selected].sort((a, b) => a.position.x - b.position.x);
     const first = sorted[0];
     const last = sorted[sorted.length - 1];
-    const NODE_WIDTH = 220;
 
     const totalSpace = last.position.x - first.position.x;
     const gap = totalSpace / (sorted.length - 1);

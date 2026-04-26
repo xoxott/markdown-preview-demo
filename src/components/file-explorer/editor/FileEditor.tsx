@@ -111,7 +111,7 @@ export default defineComponent({
     // 处理关闭
     const handleClose = () => {
       if (isDirty.value) {
-        // TODO: 显示确认对话框
+        // [PENDING] 显示确认对话框
         message.warning('文件已修改，请先保存');
         return;
       }

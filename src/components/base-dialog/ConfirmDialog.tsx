@@ -45,6 +45,11 @@ export default defineComponent({
       return colorMap[type];
     };
 
+    // 关闭弹窗
+    const handleClose = () => {
+      emit('update:show', false);
+    };
+
     // 确认
     const handleConfirm = async () => {
       loading.value = true;
@@ -62,11 +67,6 @@ export default defineComponent({
     const handleCancel = () => {
       props.config.onCancel?.();
       handleClose();
-    };
-
-    // 关闭弹窗
-    const handleClose = () => {
-      emit('update:show', false);
     };
 
     return () => {

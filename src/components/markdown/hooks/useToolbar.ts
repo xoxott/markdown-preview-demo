@@ -238,7 +238,7 @@ export function useSvgTools(
         minY: overflowY > 0 ? -(overflowY / 2 + padding) : 0, // 可以向上拖（负值）
         maxY: overflowY > 0 ? overflowY / 2 + padding : 0 // 可以向下拖（正值）
       };
-    } catch (_err) {
+    } catch {
       // 如果 getBBox 失败，使用容器尺寸作为后备
       const scaledWidth = rect.width * scale.value;
       const scaledHeight = rect.height * scale.value;

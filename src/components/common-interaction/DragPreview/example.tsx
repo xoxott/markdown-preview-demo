@@ -30,9 +30,9 @@ export default defineComponent({
       operation.value = e.ctrlKey ? 'copy' : 'move';
 
       // 监听鼠标移动和释放
-      const handleMouseMove = (e: MouseEvent) => {
-        dragCurrentPos.value = { x: e.clientX, y: e.clientY };
-        operation.value = e.ctrlKey ? 'copy' : 'move';
+      const handleMouseMove = (ev: MouseEvent) => {
+        dragCurrentPos.value = { x: ev.clientX, y: ev.clientY };
+        operation.value = ev.ctrlKey ? 'copy' : 'move';
       };
 
       const handleMouseUp = () => {
@@ -56,9 +56,9 @@ export default defineComponent({
       draggedItems.value = items;
       operation.value = e.ctrlKey ? 'copy' : 'move';
 
-      const handleMouseMove = (e: MouseEvent) => {
-        dragCurrentPos.value = { x: e.clientX, y: e.clientY };
-        operation.value = e.ctrlKey ? 'copy' : 'move';
+      const handleMouseMove = (ev: MouseEvent) => {
+        dragCurrentPos.value = { x: ev.clientX, y: ev.clientY };
+        operation.value = ev.ctrlKey ? 'copy' : 'move';
       };
 
       const handleMouseUp = () => {

@@ -35,7 +35,7 @@ export default defineComponent({
     }
   },
 
-  setup(props) {
+  setup(_props) {
     const themeVars = useThemeVars();
 
     // 处理折叠逻辑
@@ -115,13 +115,13 @@ export default defineComponent({
                   ? themeVars.value.primaryColor
                   : themeVars.value.textColor2
               }}
-              onMouseenter={(e: MouseEvent) => {
+              onMouseenter={(_e: MouseEvent) => {
                 if (!isCurrentItem(displayItems.value.head[0])) {
                   (e.currentTarget as HTMLElement).style.backgroundColor =
                     themeVars.value.hoverColor;
                 }
               }}
-              onMouseleave={(e: MouseEvent) => {
+              onMouseleave={(_e: MouseEvent) => {
                 if (!isCurrentItem(displayItems.value.head[0])) {
                   (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
                 }
@@ -152,7 +152,7 @@ export default defineComponent({
             )}
 
           {/* 头部项（首项之后的项） */}
-          {displayItems.value.head.slice(1).map((item, index) => {
+          {displayItems.value.head.slice(1).map((item, _index) => {
             const isCurrent = isCurrentItem(item);
             const isLast = isLastItem(item);
             return (
@@ -166,13 +166,13 @@ export default defineComponent({
                     style={{
                       color: isCurrent ? themeVars.value.primaryColor : themeVars.value.textColor2
                     }}
-                    onMouseenter={(e: MouseEvent) => {
+                    onMouseenter={(_e: MouseEvent) => {
                       if (!isCurrent) {
                         (e.currentTarget as HTMLElement).style.backgroundColor =
                           themeVars.value.hoverColor;
                       }
                     }}
-                    onMouseleave={(e: MouseEvent) => {
+                    onMouseleave={(_e: MouseEvent) => {
                       if (!isCurrent) {
                         (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
                       }
@@ -212,11 +212,11 @@ export default defineComponent({
                     style={{
                       color: themeVars.value.textColor3
                     }}
-                    onMouseenter={(e: MouseEvent) => {
+                    onMouseenter={(_e: MouseEvent) => {
                       (e.currentTarget as HTMLElement).style.backgroundColor =
                         themeVars.value.hoverColor;
                     }}
-                    onMouseleave={(e: MouseEvent) => {
+                    onMouseleave={(_e: MouseEvent) => {
                       (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
                     }}
                   >
@@ -238,7 +238,7 @@ export default defineComponent({
           )}
 
           {/* 尾部项（最后两项） */}
-          {displayItems.value.tail.map((item, index) => {
+          {displayItems.value.tail.map((item, _index) => {
             const isCurrent = isCurrentItem(item);
             const isLast = isLastItem(item);
             return (
@@ -252,13 +252,13 @@ export default defineComponent({
                     style={{
                       color: isCurrent ? themeVars.value.primaryColor : themeVars.value.textColor2
                     }}
-                    onMouseenter={(e: MouseEvent) => {
+                    onMouseenter={(_e: MouseEvent) => {
                       if (!isCurrent) {
                         (e.currentTarget as HTMLElement).style.backgroundColor =
                           themeVars.value.hoverColor;
                       }
                     }}
-                    onMouseleave={(e: MouseEvent) => {
+                    onMouseleave={(_e: MouseEvent) => {
                       if (!isCurrent) {
                         (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
                       }

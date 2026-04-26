@@ -114,7 +114,7 @@ export function useContextMenuOptions({ selectedIds, onSelect }: UseContextMenuO
 
     // 去掉多余分隔符
     const filtered: ContextMenuItem[] = [];
-    for (let i = 0; i < options.length; i++) {
+    for (let i = 0; i < options.length; i += 1) {
       const item = options[i];
       if (item.divider) {
         const hasPrev = filtered.some(f => f.show);

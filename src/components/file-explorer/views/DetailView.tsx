@@ -34,7 +34,7 @@ export default defineComponent({
     sortOrder: { type: String as PropType<SortOrder>, required: true },
     onSort: { type: Function as PropType<(field: SortField) => void>, required: true }
   },
-  setup(props, { expose }) {
+  setup(props, { _expose }) {
     const themeVars = useThemeVars();
     const tableRef = ref<HTMLTableElement | null>(null);
     const hoveredHeader = ref<SortField | null>(null);
@@ -68,7 +68,7 @@ export default defineComponent({
     const dropTargetIndex = ref<number | null>(null);
 
     // 计算表格总宽度
-    const totalWidth = computed(() => {
+    const _totalWidth = computed(() => {
       return columns.value.reduce((sum, col) => sum + col.width, 0);
     });
 
@@ -238,13 +238,13 @@ export default defineComponent({
       }
     };
 
-    const handleDragLeave = (e: DragEvent) => {
+    const handleDragLeave = (_e: DragEvent) => {
       const relatedTarget = e.relatedTarget as HTMLElement;
       if (relatedTarget && relatedTarget.tagName === 'TH') return;
       dropTargetIndex.value = null;
     };
 
-    const handleDrop = (e: DragEvent) => {
+    const handleDrop = (_e: DragEvent) => {
       e.preventDefault();
 
       if (!draggingColumn.value || dropTargetIndex.value === null) return;
@@ -280,11 +280,11 @@ export default defineComponent({
       if (index === dragIndex) {
         let offset = 0;
         if (dragIndex < dropIndex) {
-          for (let i = dragIndex + 1; i <= dropIndex; i++) {
+          for (let i = dragIndex + 1; i <= dropIndex; i += 1) {
             offset += columns.value[i].width;
           }
         } else {
-          for (let i = dropIndex; i < dragIndex; i++) {
+          for (let i = dropIndex; i < dragIndex; i += 1) {
             offset -= columns.value[i].width;
           }
         }
@@ -324,24 +324,24 @@ export default defineComponent({
             backgroundColor: themeVars.value.tableHeaderColor,
             cursor: isDragging ? 'grabbing' : 'grab',
             opacity: isDragging ? 0.5 : 1,
-            transform: getColumnTransform(index),
+            transform: getColumnTransform(_index),
             transition: draggingColumn.value
               ? 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.15s ease'
               : 'none',
-            zIndex: getColumnZIndex(index),
+            zIndex: getColumnZIndex(_index),
             borderBottom: `1px solid ${themeVars.value.dividerColor}`,
             borderRight:
               dropTargetIndex.value === index ? `2px solid ${themeVars.value.primaryColor}` : 'none'
           }}
           draggable
-          onDragstart={(e: DragEvent) => startDragColumn(e, index)}
-          onDragover={(e: DragEvent) => handleDragOver(e, index)}
-          onDragleave={(e: DragEvent) => handleDragLeave(e)}
-          onDrop={(e: DragEvent) => handleDrop(e)}
+          onDragstart={(_e: DragEvent) => startDragColumn(e, index)}
+          onDragover={(_e: DragEvent) => handleDragOver(e, index)}
+          onDragleave={(_e: DragEvent) => handleDragLeave(e)}
+          onDrop={(_e: DragEvent) => handleDrop(e)}
           onDragend={handleDragEnd}
           onMouseenter={() => (hoveredHeader.value = column.id)}
           onMouseleave={() => (hoveredHeader.value = null)}
-          onClick={(e: MouseEvent) => {
+          onClick={(_e: MouseEvent) => {
             if (resizing.value || (e.target as HTMLElement).closest('.resize-handle')) {
               return;
             }
@@ -369,17 +369,17 @@ export default defineComponent({
               marginRight: '-6px',
               pointerEvents: 'auto'
             }}
-            onMousedown={(e: MouseEvent) => {
+            onMousedown={(_e: MouseEvent) => {
               e.stopPropagation();
               startResize(e, column.id);
             }}
             onMouseenter={() => (hoveredResizer.value = column.id)}
             onMouseleave={() => (hoveredResizer.value = null)}
-            onClick={(e: MouseEvent) => {
+            onClick={(_e: MouseEvent) => {
               e.stopPropagation();
               e.preventDefault();
             }}
-            onDragstart={(e: DragEvent) => {
+            onDragstart={(_e: DragEvent) => {
               e.preventDefault();
               e.stopPropagation();
             }}
@@ -520,19 +520,19 @@ export default defineComponent({
                       : themeVars.value.cardColor,
                     borderBottom: `1px solid ${themeVars.value.dividerColor}`
                   }}
-                  onMouseenter={(e: MouseEvent) => {
+                  onMouseenter={(_e: MouseEvent) => {
                     if (!isSelected) {
                       (e.currentTarget as HTMLElement).style.backgroundColor =
                         themeVars.value.hoverColor;
                     }
                   }}
-                  onMouseleave={(e: MouseEvent) => {
+                  onMouseleave={(_e: MouseEvent) => {
                     if (!isSelected) {
                       (e.currentTarget as HTMLElement).style.backgroundColor =
                         themeVars.value.cardColor;
                     }
                   }}
-                  onClick={(e: MouseEvent) => props.onSelect([item.id], e)}
+                  onClick={(_e: MouseEvent) => props.onSelect([item.id], e)}
                   onDblclick={() => props.onOpen(item)}
                 >
                   {columns.value.map(column => (

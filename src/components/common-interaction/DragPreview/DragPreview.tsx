@@ -13,7 +13,7 @@ import {
   computed,
   defineComponent
 } from 'vue';
-import { NBadge, NIcon } from 'naive-ui';
+import { NIcon } from 'naive-ui';
 import type { DragItem, DragOperation, Point } from '../types';
 import '@/styles/common-interaction.scss';
 

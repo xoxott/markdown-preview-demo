@@ -136,7 +136,7 @@ export default defineComponent({
             status: 'pending',
             percentage: 0
           });
-          processedFileCount.value++;
+          processedFileCount.value += 1;
         });
 
         if (processedFiles.length > 0) {

@@ -1,7 +1,7 @@
 import { type PropType, defineComponent } from 'vue';
 import { NButton, NDatePicker, NForm, NFormItem, NInput, NSelect, NSpace } from 'naive-ui';
 import { $t } from '@/locales';
-import type { SearchBarProps, SearchFieldConfig } from './types';
+import type { SearchFieldConfig } from './types';
 
 export default defineComponent({
   name: 'SearchBar',

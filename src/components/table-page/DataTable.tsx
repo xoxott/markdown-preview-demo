@@ -72,7 +72,7 @@ export default defineComponent({
       default: '100%'
     }
   },
-  setup(props) {
+  setup(_props) {
     const processedColumns = computed(() => {
       const cols: any[] = [];
 
@@ -122,7 +122,7 @@ export default defineComponent({
           cols.push({
             ...restColumn,
             key,
-            render: (row: any, index: number) => {
+            render: (row: any, _index: number) => {
               const field = key as string;
 
               switch (rendererType) {

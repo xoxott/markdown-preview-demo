@@ -22,7 +22,7 @@ export interface FileDragDropHook {
   executeDrop: (zoneId: string) => Promise<void>;
 
   // 工具方法
-  attachGlobalListeners: () => (() => void) | void;
+  attachGlobalListeners: () => (() => void) | undefined;
 }
 export function useFileDragDropEnhanced(options: DragDropOptions = {}): FileDragDropHook {
   const {
@@ -180,8 +180,26 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}): FileDrag
     return dropZones.value.get(zoneId);
   };
 
+  /** 内部验证 */
+  const validateDropInternal = (
+    items: FileItem[],
+    targetPath: string,
+    targetItem?: FileItem
+  ): boolean => {
+    if (validateDrop && !validateDrop(items, targetPath, targetItem)) {
+      return false;
+    }
+    return items.every(item => {
+      // 阻止防止区域在自己身上
+      if (item.path === targetPath) return false;
+      // 不能放置在子目录
+      if (targetPath.startsWith(`${item.path}/`)) return false;
+      return true;
+    });
+  };
+
   /** 进入放置区域 */
-  const enterDropZone = (zoneId: string, targetPath: string, targetItem?: FileItem) => {
+  const enterDropZone = (zoneId: string, targetPath: string, _targetItem?: FileItem) => {
     const items = dragState.value.draggedItems;
     if (items.length === 0) return;
     const canDrop = validateDropInternal(items, targetPath);
@@ -202,24 +220,6 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}): FileDrag
         isOver: false
       });
     }
-  };
-
-  /** 内部验证 */
-  const validateDropInternal = (
-    items: FileItem[],
-    targetPath: string,
-    targetItem?: FileItem
-  ): boolean => {
-    if (validateDrop && !validateDrop(items, targetPath, targetItem)) {
-      return false;
-    }
-    return items.every(item => {
-      // 阻止防止区域在自己身上
-      if (item.path === targetPath) return false;
-      // 不能放置在子目录
-      if (targetPath.startsWith(`${item.path}/`)) return false;
-      return true;
-    });
   };
 
   /** 执行放置 */
@@ -250,13 +250,13 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}): FileDrag
   const attachGlobalListeners = () => {
     if (globalListenersAttached) return;
 
-    const handleGlobalDrag = (e: DragEvent) => {
+    const handleGlobalDrag = (_e: DragEvent) => {
       if (isDragging.value) {
         updateDragPosition(e);
       }
     };
 
-    const handleGlobalDragOver = (e: DragEvent) => {
+    const handleGlobalDragOver = (_e: DragEvent) => {
       if (isDragging.value) {
         e.preventDefault(); // 必须调用才能触发 drop
         updateDragPosition(e);
@@ -264,14 +264,14 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}): FileDrag
       }
     };
 
-    const handleGlobalKeyChange = (e: KeyboardEvent) => {
+    const handleGlobalKeyChange = (_e: KeyboardEvent) => {
       if (isDragging.value) {
         updateDragOperation(e);
       }
     };
 
     // 🔥 全局 dragend 事件处理
-    const handleGlobalDragEnd = (e: DragEvent) => {
+    const handleGlobalDragEnd = (_e: DragEvent) => {
       if (isDragging.value) {
         console.log('🛑 全局 dragend 触发，清理拖拽状态');
         endDrag();
@@ -279,7 +279,7 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}): FileDrag
     };
 
     // 🔥 全局 drop 事件处理（备用）
-    const handleGlobalDrop = (e: DragEvent) => {
+    const handleGlobalDrop = (_e: DragEvent) => {
       if (isDragging.value) {
         console.log('📦 全局 drop 触发');
         // drop 事件会在 dragend 之前触发，这里不做处理

@@ -8,7 +8,7 @@ import { useFileDialog } from '../hooks/useFileDialog';
 
 export default defineComponent({
   name: 'DialogTestPanel',
-  setup(props) {
+  setup(_props) {
     const themeVars = useThemeVars();
     const drawer = useDrawer();
     const dialog = useDialog();
@@ -22,7 +22,9 @@ export default defineComponent({
         placeholder: '请输入新名称',
         onConfirm: async newName => {
           console.log('新名称:', newName);
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise(resolve => {
+            setTimeout(resolve, 500);
+          });
         }
       });
     };
@@ -35,7 +37,9 @@ export default defineComponent({
         type: 'warning',
         onConfirm: async () => {
           console.log('用户确认了操作');
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise(resolve => {
+            setTimeout(resolve, 500);
+          });
         },
         onCancel: () => {
           console.log('用户取消了操作');
@@ -67,7 +71,9 @@ export default defineComponent({
     const testConfirmDelete = () => {
       dialog.confirmDelete('重要文件.txt', async () => {
         console.log('文件已删除');
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => {
+          setTimeout(resolve, 500);
+        });
       });
     };
 

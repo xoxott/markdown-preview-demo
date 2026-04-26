@@ -1,5 +1,5 @@
 import type { PropType } from 'vue';
-import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, defineComponent, onBeforeUnmount, onMounted, ref } from 'vue';
 import { NIcon, NLayout, NLayoutContent, NLayoutSider, useThemeVars } from 'naive-ui';
 import { Dots } from '@vicons/tabler';
 

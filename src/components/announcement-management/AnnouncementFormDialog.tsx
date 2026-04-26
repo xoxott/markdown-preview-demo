@@ -79,39 +79,32 @@ export default defineComponent({
       ]
     };
 
+    // 关闭弹窗
+    const handleClose = () => {
+      emit('update:show', false);
+    };
+
     // 确认提交
     const handleConfirm = async () => {
       const isValid = await validate();
       if (!isValid) return;
 
-      try {
-        // 将时间戳转换为 ISO 字符串
-        const submitData = {
-          ...formModel,
-          publishedAt: publishedAtTimestamp.value
-            ? new Date(publishedAtTimestamp.value).toISOString()
-            : '',
-          expiresAt: expiresAtTimestamp.value
-            ? new Date(expiresAtTimestamp.value).toISOString()
-            : ''
-        };
-        await props.config.onConfirm(submitData);
-        handleClose();
-      } catch (error: any) {
-        // 错误由外部处理
-        throw error;
-      }
+      // 将时间戳转换为 ISO 字符串
+      const submitData = {
+        ...formModel,
+        publishedAt: publishedAtTimestamp.value
+          ? new Date(publishedAtTimestamp.value).toISOString()
+          : '',
+        expiresAt: expiresAtTimestamp.value ? new Date(expiresAtTimestamp.value).toISOString() : ''
+      };
+      await props.config.onConfirm(submitData);
+      handleClose();
     };
 
     // 取消
     const handleCancel = () => {
       props.config.onCancel?.();
       handleClose();
-    };
-
-    // 关闭弹窗
-    const handleClose = () => {
-      emit('update:show', false);
     };
 
     // 监听显示状态，重置表单验证

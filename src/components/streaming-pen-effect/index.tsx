@@ -110,7 +110,7 @@ const getLastTextNode = (element: HTMLElement): Text | null => {
  *
  * @deprecated 优先使用 getLastTextNode
  */
-const getTextNodes = (element: HTMLElement): Text[] => {
+const _getTextNodes = (element: HTMLElement): Text[] => {
   const textNodes: Text[] = [];
   const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
     acceptNode: node => {
@@ -129,7 +129,7 @@ const getTextNodes = (element: HTMLElement): Text[] => {
 
 /** 验证位置是否有效 */
 const isValidPosition = (x: number, y: number): boolean => {
-  return !isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y);
+  return !Number.isNaN(x) && !Number.isNaN(y) && Number.isFinite(x) && Number.isFinite(y);
 };
 
 /** 计算位置变化距离 */
@@ -179,7 +179,7 @@ export default defineComponent({
       default: DEFAULT_CONFIG.TRANSITION_DURATION
     }
   },
-  setup(props) {
+  setup(_props) {
     // ==================== 状态管理 ====================
     const penPosition = ref<PenPosition>({ x: 0, y: 0 });
     const isVisible = ref(false);
@@ -189,7 +189,7 @@ export default defineComponent({
     let rafId: number | null = null;
     let observer: MutationObserver | null = null;
     let lastTextNodeCache: Text | null = null; // 缓存最后一个文本节点
-    let lastUpdateTime = 0; // 上次更新时间（用于统计，不再限制更新频率）
+    const _lastUpdateTime = 0; // 上次更新时间（用于统计，不再限制更新频率）
 
     // ==================== 核心功能函数 ====================
 
@@ -249,7 +249,7 @@ export default defineComponent({
         }
 
         return { x, y };
-      } catch (error) {
+      } catch {
         // 静默失败，避免快速打字时产生大量日志
         lastTextNodeCache = null; // 出错时清除缓存
         return null;
@@ -260,8 +260,22 @@ export default defineComponent({
     let initialRetryCount = 0;
     const MAX_INITIAL_RETRIES = 3;
 
+    // ==================== 更新机制 ====================
+
+    /** 使用 RAF 优化性能的更新函数 移除更新频率限制，确保实时跟随 */
+    function scheduleUpdate(): void {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+
+      rafId = requestAnimationFrame(() => {
+        updatePenPosition();
+        rafId = null;
+      });
+    }
+
     /** 更新笔的位置 */
-    const updatePenPosition = (): void => {
+    function updatePenPosition(): void {
       if (!props.isWriting || !props.targetRef) {
         isVisible.value = false;
         initialRetryCount = 0;
@@ -272,7 +286,7 @@ export default defineComponent({
       if (!newPosition) {
         // 如果获取不到位置，且是首次尝试，可以重试几次
         if (initialRetryCount < MAX_INITIAL_RETRIES) {
-          initialRetryCount++;
+          initialRetryCount += 1;
           // 延迟重试，等待 DOM 完全渲染
           setTimeout(() => {
             scheduleUpdate();
@@ -304,22 +318,7 @@ export default defineComponent({
       }
 
       isVisible.value = true;
-    };
-
-    // ==================== 更新机制 ====================
-
-    /** 使用 RAF 优化性能的更新函数 移除更新频率限制，确保实时跟随 */
-    const scheduleUpdate = (): void => {
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-      }
-
-      rafId = requestAnimationFrame(() => {
-        updatePenPosition();
-        lastUpdateTime = performance.now();
-        rafId = null;
-      });
-    };
+    }
 
     // ==================== 监听器管理 ====================
 
@@ -433,7 +432,9 @@ export default defineComponent({
         if (!oldRef) {
           await nextTick();
           // 再延迟一点确保内容已渲染
-          await new Promise(resolve => setTimeout(resolve, 50));
+          await new Promise<void>(resolve => {
+            setTimeout(resolve, 50);
+          });
           scheduleUpdate();
         } else {
           scheduleUpdate();

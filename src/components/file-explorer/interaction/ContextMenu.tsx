@@ -155,17 +155,17 @@ export default defineComponent({
       emit('show', { position: position.value, data: contextData.value });
     };
 
-    // 处理菜单项选择
-    const handleSelect = (key: string) => {
-      emit('select', key, contextData.value);
-      hideMenu();
-    };
-
     // 隐藏菜单
     const hideMenu = () => {
       showMenu.value = false;
       contextData.value = null;
       emit('hide');
+    };
+
+    // 处理菜单项选择
+    const handleSelect = (key: string) => {
+      emit('select', key, contextData.value);
+      hideMenu();
     };
 
     // 点击外部关闭

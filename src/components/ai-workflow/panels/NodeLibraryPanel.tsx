@@ -1,5 +1,5 @@
 import { defineComponent, ref } from 'vue';
-import { NCard, NCollapse, NCollapseItem, NEmpty, NIcon, NScrollbar } from 'naive-ui';
+import { NCollapse, NCollapseItem, NEmpty, NIcon, NScrollbar } from 'naive-ui';
 import { Icon } from '@iconify/vue';
 import { getNodesByCategory } from '../nodes/NodeRegistry';
 

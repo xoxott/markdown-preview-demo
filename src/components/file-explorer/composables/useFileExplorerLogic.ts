@@ -92,19 +92,6 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
     dataSource.value = new LocalFileDataSource();
   }
 
-  // 切换数据源
-  const switchDataSource = async (type: DataSourceType) => {
-    dataSourceType.value = type;
-    if (type === 'server' && serverDataSourceConfig) {
-      dataSource.value = new ServerFileDataSource(serverDataSourceConfig);
-    } else {
-      dataSource.value = new LocalFileDataSource();
-    }
-    // 切换数据源后重置分页并刷新文件列表
-    pagination.reset();
-    await refreshFileList();
-  };
-
   // ==================== 状态管理 ====================
   const collapsed = ref(false);
   const gridSize = ref<GridSize>('small');
@@ -112,6 +99,12 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
   const mockItems = ref<FileItem[]>(initialItems);
   const loading = ref(false);
   const loadingTip = ref('加载中...');
+  const setLoading = (value: boolean, tip?: string) => {
+    loading.value = value;
+    if (tip !== undefined) {
+      loadingTip.value = tip;
+    }
+  };
   const layoutConfig = ref<LayoutConfig>({
     leftWidth: 180,
     rightWidth: 300,
@@ -133,7 +126,7 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
   const dragDrop = useFileDragDropEnhanced({
     validateDrop:
       validateDrop ||
-      ((items, targetPath) => {
+      ((_items, targetPath) => {
         return mockItems.value.find(it => it.path === targetPath)?.type === 'folder';
       })
   });
@@ -234,19 +227,24 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
     }
   };
 
+  // 切换数据源
+  const switchDataSource = async (type: DataSourceType) => {
+    dataSourceType.value = type;
+    if (type === 'server' && serverDataSourceConfig) {
+      dataSource.value = new ServerFileDataSource(serverDataSourceConfig);
+    } else {
+      dataSource.value = new LocalFileDataSource();
+    }
+    // 切换数据源后重置分页并刷新文件列表
+    pagination.reset();
+    await refreshFileList();
+  };
+
   // ==================== 排序和选择 ====================
   // 对分页后的文件进行排序
   const { setSorting, sortedFiles, sortOrder, sortField } = useFileSort(pagination.paginatedItems);
   const { selectedIds, selectFile, selectAll, clearSelection, selectedFiles } =
     useFileSelection(sortedFiles);
-
-  // ==================== Loading 控制 ====================
-  const setLoading = (value: boolean, tip?: string) => {
-    loading.value = value;
-    if (tip !== undefined) {
-      loadingTip.value = tip;
-    }
-  };
 
   // ==================== 操作进度状态 ====================
   const operationProgress = ref(0);

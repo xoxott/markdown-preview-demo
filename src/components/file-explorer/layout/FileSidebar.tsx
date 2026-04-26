@@ -84,7 +84,7 @@ export default defineComponent({
     };
 
     // 渲染菜单项的标签（带徽章）
-    const renderMenuLabel = (item: QuickAccessItem) => {
+    const _renderMenuLabel = (item: QuickAccessItem) => {
       return () =>
         h('div', { class: 'flex items-center justify-between w-full' }, [
           h('span', { class: 'truncate' }, item.label),
@@ -149,7 +149,7 @@ export default defineComponent({
     };
 
     // 渲染树节点前缀图标
-    const renderTreePrefix = ({ option }: { option: TreeNode }) => {
+    const _renderTreePrefix = ({ option }: { option: TreeNode }) => {
       return h(
         NIcon,
         {

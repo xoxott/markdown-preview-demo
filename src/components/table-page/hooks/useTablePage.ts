@@ -73,7 +73,7 @@ export function useTablePage<T = any>(options: UseTablePageOptions<T>) {
   });
 
   /** Get table data */
-  const getData = async () => {
+  async function getData() {
     loading.value = true;
     try {
       const params = {
@@ -101,7 +101,7 @@ export function useTablePage<T = any>(options: UseTablePageOptions<T>) {
     } finally {
       loading.value = false;
     }
-  };
+  }
 
   /** Refresh data (keep current page) */
   const refresh = () => {

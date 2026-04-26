@@ -1,4 +1,4 @@
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { useCanvasZoom } from './useCanvasZoom';
 import { useNodeDragDrop } from './useNodeDragDrop';
 import { useNodeConnection } from './useNodeConnection';
@@ -28,6 +28,14 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
   let pendingMouseMove: MouseEvent | null = null;
   // 记录上一次处理的鼠标位置（用于计算增量）
   let lastProcessedMousePos: { x: number; y: number } | null = null;
+
+  // 节点拖拽状态
+  const nodeDragState = ref<{
+    nodeId: string;
+    startX: number;
+    startY: number;
+    hasMoved: boolean;
+  } | null>(null);
 
   // 清理函数
   onUnmounted(() => {
@@ -324,14 +332,6 @@ export function useWorkflowCanvas(options: UseWorkflowCanvasOptions = {}) {
       e.dataTransfer.dropEffect = 'copy';
     }
   }
-
-  // 节点拖拽状态
-  const nodeDragState = ref<{
-    nodeId: string;
-    startX: number;
-    startY: number;
-    hasMoved: boolean;
-  } | null>(null);
 
   /** 节点鼠标按下 */
   function handleNodeMouseDown(nodeId: string, e: MouseEvent) {

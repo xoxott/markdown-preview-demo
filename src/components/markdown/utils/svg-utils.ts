@@ -131,7 +131,7 @@ export function optimizeSvg(
       XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
       null
     );
-    for (let i = 0; i < comments.snapshotLength; i++) {
+    for (let i = 0; i < comments.snapshotLength; i += 1) {
       const comment = comments.snapshotItem(i);
       comment?.parentNode?.removeChild(comment);
     }

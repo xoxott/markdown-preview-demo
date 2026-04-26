@@ -25,7 +25,9 @@ export function createOperationsConfig(
       setLoading?.(true, '复制中...');
       try {
         // 模拟异步操作
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise<void>(resolve => {
+          setTimeout(resolve, 500);
+        });
         message.success(`已复制 ${items.length} 个项目`);
       } finally {
         setLoading?.(false);
@@ -37,7 +39,9 @@ export function createOperationsConfig(
       setLoading?.(true, '剪切中...');
       try {
         // 模拟异步操作
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise<void>(resolve => {
+          setTimeout(resolve, 500);
+        });
         message.info(`已剪切 ${items.length} 个项目`);
       } finally {
         setLoading?.(false);
@@ -50,7 +54,9 @@ export function createOperationsConfig(
       setLoading?.(true, `${opText}中...`);
       try {
         // 模拟异步操作
-        await new Promise(resolve => setTimeout(resolve, 800));
+        await new Promise<void>(resolve => {
+          setTimeout(resolve, 800);
+        });
         message.success(
           `已${opText} ${items.length} 个项目${targetPath ? ` 到 ${targetPath}` : ''}`
         );
@@ -72,7 +78,9 @@ export function createOperationsConfig(
           await refreshFileList?.();
         } else {
           // 模拟异步操作
-          await new Promise(resolve => setTimeout(resolve, 600));
+          await new Promise<void>(resolve => {
+            setTimeout(resolve, 600);
+          });
           message.warning(`已删除 ${items.length} 个项目`);
         }
       } catch (error: any) {
@@ -94,7 +102,9 @@ export function createOperationsConfig(
           await refreshFileList?.();
         } else {
           // 模拟异步操作
-          await new Promise(resolve => setTimeout(resolve, 400));
+          await new Promise<void>(resolve => {
+            setTimeout(resolve, 400);
+          });
           message.info(`重命名: ${item.name} -> ${newName}`);
         }
       } catch (error: any) {
@@ -117,7 +127,9 @@ export function createOperationsConfig(
           await refreshFileList?.();
         } else {
           // 模拟异步操作
-          await new Promise(resolve => setTimeout(resolve, 400));
+          await new Promise<void>(resolve => {
+            setTimeout(resolve, 400);
+          });
           message.success(`已创建文件夹: ${name}`);
         }
       } catch (error: any) {
@@ -137,7 +149,9 @@ export function createOperationsConfig(
           message.success('已刷新');
         } else {
           // 模拟异步操作
-          await new Promise(resolve => setTimeout(resolve, 600));
+          await new Promise<void>(resolve => {
+            setTimeout(resolve, 600);
+          });
           message.info('已刷新');
         }
       } catch (error: any) {

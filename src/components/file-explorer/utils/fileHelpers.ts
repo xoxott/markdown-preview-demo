@@ -8,7 +8,7 @@ export function formatFileSize(bytes?: number): string {
   let unitIndex = 0;
   while (size >= 1024 && unitIndex < units.length - 1) {
     size /= 1024;
-    unitIndex++;
+    unitIndex += 1;
   }
   return `${size.toFixed(1)} ${units[unitIndex]}`;
 }

@@ -70,29 +70,24 @@ export default defineComponent({
       ]
     };
 
+    // 关闭弹窗
+    const handleClose = () => {
+      emit('update:show', false);
+    };
+
     // 确认提交
     const handleConfirm = async () => {
       const isValid = await validate();
       if (!isValid) return;
 
-      try {
-        await props.config.onConfirm({ ...formModel });
-        handleClose();
-      } catch (error: any) {
-        // 错误由外部处理
-        throw error;
-      }
+      await props.config.onConfirm({ ...formModel });
+      handleClose();
     };
 
     // 取消
     const handleCancel = () => {
       props.config.onCancel?.();
       handleClose();
-    };
-
-    // 关闭弹窗
-    const handleClose = () => {
-      emit('update:show', false);
     };
 
     // 监听显示状态，重置表单验证

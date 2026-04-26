@@ -87,6 +87,8 @@ export function performAutoScroll(
     case 'right':
       container.scrollLeft += speed;
       break;
+    default:
+      break;
   }
 }
 

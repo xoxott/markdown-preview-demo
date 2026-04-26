@@ -141,19 +141,19 @@ export default defineComponent({
       const classes = ['drop-zone'];
 
       if (props.disabled) {
-        classes.push('drop-zone--disabled');
+        classes.push('drop-zone -= 1disabled');
       }
 
       if (state.value.isOver) {
-        classes.push('drop-zone--over');
+        classes.push('drop-zone -= 1over');
 
         if (state.value.canDrop) {
-          classes.push('drop-zone--can-drop');
+          classes.push('drop-zone -= 1can-drop');
           if (props.highlightClass) {
             classes.push(props.highlightClass);
           }
         } else {
-          classes.push('drop-zone--invalid');
+          classes.push('drop-zone -= 1invalid');
           if (props.invalidClass) {
             classes.push(props.invalidClass);
           }
@@ -217,7 +217,7 @@ export default defineComponent({
       e.preventDefault();
       e.stopPropagation();
 
-      dragCounter.value++;
+      dragCounter.value += 1;
 
       if (dragCounter.value === 1) {
         const items = extractDragData(e);
@@ -268,7 +268,7 @@ export default defineComponent({
       e.preventDefault();
       e.stopPropagation();
 
-      dragCounter.value--;
+      dragCounter.value -= 1;
 
       if (dragCounter.value === 0) {
         const items = extractDragData(e);
@@ -354,7 +354,7 @@ export default defineComponent({
           <div
             class={[
               'drop-zone-overlay',
-              state.value.canDrop ? 'drop-zone-overlay--valid' : 'drop-zone-overlay--invalid'
+              state.value.canDrop ? 'drop-zone-overlay -= 1valid' : 'drop-zone-overlay -= 1invalid'
             ]}
           >
             {props.showHint && currentHintText.value && (
@@ -371,20 +371,20 @@ export default defineComponent({
             border-radius: 8px;
           }
 
-          .drop-zone--disabled {
+          .drop-zone -= 1disabled {
             pointer-events: none;
           }
 
-          .drop-zone--over {
+          .drop-zone -= 1over {
             border-style: solid;
           }
 
-          .drop-zone--can-drop {
+          .drop-zone -= 1can-drop {
             border-color: #2196f3;
             background-color: rgba(33, 150, 243, 0.05);
           }
 
-          .drop-zone--invalid {
+          .drop-zone -= 1invalid {
             border-color: #f44336;
             background-color: rgba(244, 67, 54, 0.05);
           }
@@ -403,11 +403,11 @@ export default defineComponent({
             border-radius: 6px;
           }
 
-          .drop-zone-overlay--valid {
+          .drop-zone-overlay -= 1valid {
             background-color: rgba(33, 150, 243, 0.1);
           }
 
-          .drop-zone-overlay--invalid {
+          .drop-zone-overlay -= 1invalid {
             background-color: rgba(244, 67, 54, 0.1);
           }
 
@@ -421,11 +421,11 @@ export default defineComponent({
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
           }
 
-          .drop-zone--can-drop .drop-zone-hint {
+          .drop-zone -= 1can-drop .drop-zone-hint {
             background: rgba(33, 150, 243, 0.9);
           }
 
-          .drop-zone--invalid .drop-zone-hint {
+          .drop-zone -= 1invalid .drop-zone-hint {
             background: rgba(244, 67, 54, 0.9);
           }
         `}</style>

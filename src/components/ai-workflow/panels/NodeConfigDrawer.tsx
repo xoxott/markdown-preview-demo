@@ -11,7 +11,6 @@ import {
   NInputNumber,
   NSelect,
   NSpace,
-  NSwitch,
   NTag
 } from 'naive-ui';
 import { Icon } from '@iconify/vue';

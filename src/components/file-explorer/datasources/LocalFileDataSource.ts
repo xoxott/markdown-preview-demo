@@ -59,7 +59,7 @@ export class LocalFileDataSource implements IFileDataSource {
     let currentHandle: FileSystemDirectoryHandle = this.rootHandle;
 
     // 遍历路径获取文件句柄
-    for (let i = 0; i < parts.length - 1; i++) {
+    for (let i = 0; i < parts.length - 1; i += 1) {
       currentHandle = await currentHandle.getDirectoryHandle(parts[i]);
     }
 
@@ -245,7 +245,7 @@ export class LocalFileDataSource implements IFileDataSource {
       parentHandle = await this.getDirectoryHandle(normalizedPath);
     }
 
-    const newDirHandle = await parentHandle.getDirectoryHandle(name, { create: true });
+    const _newDirHandle = await parentHandle.getDirectoryHandle(name, { create: true });
     const fullPath = normalizedPath === '' ? name : `${normalizedPath}/${name}`;
 
     return {
@@ -293,7 +293,7 @@ export class LocalFileDataSource implements IFileDataSource {
       await this.writeFile(newPath, content as string | Blob);
     } else {
       await this.createFolder(parentPath, newName);
-      // TODO: 复制文件夹内容
+      // [PENDING] 复制文件夹内容
     }
 
     // 删除原文件

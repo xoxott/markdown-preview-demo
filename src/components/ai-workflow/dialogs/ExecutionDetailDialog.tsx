@@ -1,4 +1,4 @@
-import { type PropType, computed, defineComponent, onMounted, ref } from 'vue';
+import { type PropType, defineComponent, onMounted, ref } from 'vue';
 import {
   NCard,
   NCode,
@@ -10,10 +10,9 @@ import {
   NTabs,
   NTag,
   NTimeline,
-  NTimelineItem
+  NTimelineItem,
+  useMessage
 } from 'naive-ui';
-// 暂时使用 Mock 数据，后续替换为真实 API
-import { useMessage } from 'naive-ui';
 import { mockWorkflowApi } from '@/service/api/workflow-mock';
 const { fetchExecutionDetail } = mockWorkflowApi;
 

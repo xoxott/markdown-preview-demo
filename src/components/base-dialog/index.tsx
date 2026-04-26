@@ -183,40 +183,6 @@ export default defineComponent({
       }
     };
 
-    // 开始拖拽
-    const handleDragStart = (e: MouseEvent) => {
-      if (!props.draggable || isFullscreen.value) return;
-      if (!headerRef.value?.contains(e.target as Node)) return;
-
-      // 排除按钮
-      if ((e.target as HTMLElement).closest('.dialog-action-btn')) return;
-
-      e.preventDefault();
-
-      if (!isPositioned.value && dialogRef.value) {
-        const rect = dialogRef.value.getBoundingClientRect();
-        currentPosition.value = {
-          x: rect.left,
-          y: rect.top
-        };
-        isPositioned.value = true;
-      }
-
-      isDragging.value = true;
-
-      dragStart.value = {
-        x: e.clientX,
-        y: e.clientY,
-        dialogX: currentPosition.value.x,
-        dialogY: currentPosition.value.y
-      };
-
-      document.addEventListener('mousemove', handleDragMove);
-      document.addEventListener('mouseup', handleDragEnd);
-      document.body.style.cursor = 'move';
-      document.body.style.userSelect = 'none';
-    };
-
     // 拖拽移动
     const handleDragMove = (e: MouseEvent) => {
       if (!isDragging.value) return;
@@ -249,12 +215,15 @@ export default defineComponent({
       document.body.style.userSelect = '';
     };
 
-    // 开始调整大小
-    const handleResizeStart = (e: MouseEvent, direction: ResizeDirection) => {
-      if (!props.resizable || isFullscreen.value) return;
+    // 开始拖拽
+    const handleDragStart = (e: MouseEvent) => {
+      if (!props.draggable || isFullscreen.value) return;
+      if (!headerRef.value?.contains(e.target as Node)) return;
+
+      // 排除按钮
+      if ((e.target as HTMLElement).closest('.dialog-action-btn')) return;
 
       e.preventDefault();
-      e.stopPropagation();
 
       if (!isPositioned.value && dialogRef.value) {
         const rect = dialogRef.value.getBoundingClientRect();
@@ -265,23 +234,18 @@ export default defineComponent({
         isPositioned.value = true;
       }
 
-      isResizing.value = true;
-      resizeDirection.value = direction;
+      isDragging.value = true;
 
-      const rect = dialogRef.value?.getBoundingClientRect();
-      if (!rect) return;
-
-      resizeStart.value = {
+      dragStart.value = {
         x: e.clientX,
         y: e.clientY,
-        width: rect.width,
-        height: rect.height,
         dialogX: currentPosition.value.x,
         dialogY: currentPosition.value.y
       };
 
-      document.addEventListener('mousemove', handleResizeMove);
-      document.addEventListener('mouseup', handleResizeEnd);
+      document.addEventListener('mousemove', handleDragMove);
+      document.addEventListener('mouseup', handleDragEnd);
+      document.body.style.cursor = 'move';
       document.body.style.userSelect = 'none';
     };
 
@@ -370,6 +334,42 @@ export default defineComponent({
       document.removeEventListener('mousemove', handleResizeMove);
       document.removeEventListener('mouseup', handleResizeEnd);
       document.body.style.userSelect = '';
+    };
+
+    // 开始调整大小
+    const handleResizeStart = (e: MouseEvent, direction: ResizeDirection) => {
+      if (!props.resizable || isFullscreen.value) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (!isPositioned.value && dialogRef.value) {
+        const rect = dialogRef.value.getBoundingClientRect();
+        currentPosition.value = {
+          x: rect.left,
+          y: rect.top
+        };
+        isPositioned.value = true;
+      }
+
+      isResizing.value = true;
+      resizeDirection.value = direction;
+
+      const rect = dialogRef.value?.getBoundingClientRect();
+      if (!rect) return;
+
+      resizeStart.value = {
+        x: e.clientX,
+        y: e.clientY,
+        width: rect.width,
+        height: rect.height,
+        dialogX: currentPosition.value.x,
+        dialogY: currentPosition.value.y
+      };
+
+      document.addEventListener('mousemove', handleResizeMove);
+      document.addEventListener('mouseup', handleResizeEnd);
+      document.body.style.userSelect = 'none';
     };
 
     // 获取调整大小手柄的光标样式

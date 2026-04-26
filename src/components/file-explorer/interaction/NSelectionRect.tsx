@@ -160,7 +160,7 @@ export default defineComponent({
       }
 
       // 获取 NScrollbar 实例
-      // @ts-ignore
+      // @ts-expect-error -- accessing internal Vue component instance for scroll position
       const vnode = scrollbarEl.__vueParentComponent;
       const instance = vnode?.exposed as ScrollbarInst | undefined;
 

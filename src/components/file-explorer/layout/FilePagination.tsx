@@ -1,5 +1,5 @@
 import type { PropType } from 'vue';
-import { computed, defineComponent } from 'vue';
+import { defineComponent } from 'vue';
 import { NPagination, NSelect, useThemeVars } from 'naive-ui';
 
 export default defineComponent({

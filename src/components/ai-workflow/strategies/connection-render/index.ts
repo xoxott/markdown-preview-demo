@@ -86,7 +86,7 @@ export class BezierConnectionStrategy implements IConnectionRenderStrategy {
     targetPos: Position,
     config: Partial<ConnectionRenderConfig> = {}
   ): { x: number; y: number; angle: number } {
-    const { x: x1, y: y1 } = sourcePos;
+    const { x: x1 } = sourcePos;
     const { x: x2, y: y2 } = targetPos;
 
     // 计算终点处的切线方向
@@ -142,7 +142,7 @@ export class StepConnectionStrategy implements IConnectionRenderStrategy {
   }
 
   computeArrowTransform(
-    sourcePos: Position,
+    _sourcePos: Position,
     targetPos: Position
   ): { x: number; y: number; angle: number } {
     const { x: x2, y: y2 } = targetPos;
@@ -187,7 +187,7 @@ export class SmoothStepConnectionStrategy implements IConnectionRenderStrategy {
   }
 
   computeArrowTransform(
-    sourcePos: Position,
+    _sourcePos: Position,
     targetPos: Position
   ): { x: number; y: number; angle: number } {
     const { x: x2, y: y2 } = targetPos;

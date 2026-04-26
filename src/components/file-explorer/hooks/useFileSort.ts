@@ -35,6 +35,8 @@ export function useFileSort(files: Ref<FileItem[]>) {
         case 'modifiedAt':
           comparison = (a.modifiedAt?.getTime() || 0) - (b.modifiedAt?.getTime() || 0);
           break;
+        default:
+          break;
       }
 
       return sortOrder.value === 'asc' ? comparison : -comparison;

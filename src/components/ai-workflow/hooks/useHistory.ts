@@ -15,6 +15,17 @@ export function useHistory(options: HistoryOptions = {}) {
   const history = ref<HistoryState[]>([]);
   const currentIndex = ref(-1);
 
+  /** 是否可以撤销 */
+  const canUndo = ref(false);
+  /** 是否可以重做 */
+  const canRedo = ref(false);
+
+  // 监听索引变化，更新 canUndo 和 canRedo
+  const updateFlags = () => {
+    canUndo.value = currentIndex.value > 0;
+    canRedo.value = currentIndex.value < history.value.length - 1;
+  };
+
   /** 添加历史记录 */
   function pushState(state: HistoryState) {
     // 移除当前索引之后的所有历史记录
@@ -34,21 +45,21 @@ export function useHistory(options: HistoryOptions = {}) {
     // 限制历史记录大小
     if (history.value.length > maxSize) {
       history.value.shift();
-      currentIndex.value--;
+      currentIndex.value -= 1;
     }
   }
 
   /** 撤销 */
   function undo(): HistoryState | null {
     if (!canUndo.value) return null;
-    currentIndex.value--;
+    currentIndex.value -= 1;
     return getCurrentState();
   }
 
   /** 重做 */
   function redo(): HistoryState | null {
     if (!canRedo.value) return null;
-    currentIndex.value++;
+    currentIndex.value += 1;
     return getCurrentState();
   }
 
@@ -64,17 +75,6 @@ export function useHistory(options: HistoryOptions = {}) {
       connections: JSON.parse(JSON.stringify(state.connections))
     };
   }
-
-  /** 是否可以撤销 */
-  const canUndo = ref(false);
-  /** 是否可以重做 */
-  const canRedo = ref(false);
-
-  // 监听索引变化，更新 canUndo 和 canRedo
-  const updateFlags = () => {
-    canUndo.value = currentIndex.value > 0;
-    canRedo.value = currentIndex.value < history.value.length - 1;
-  };
 
   /** 清空历史记录 */
   function clear() {

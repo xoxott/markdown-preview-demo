@@ -12,7 +12,7 @@ import type { FileItem } from '../types/file-explorer';
 import type { FileDragDropHook } from '../hooks/useFileDragDropEnhanced';
 import DropZone from './DropZone';
 
-interface Props {
+interface _Props {
   item: FileItem;
   zoneId: string;
   targetPath: string;
@@ -37,15 +37,15 @@ export const FileDropZoneWrapper = defineComponent({
     // 注册 DropZone
     dragDrop.registerDropZone(props.zoneId, props.targetPath);
 
-    const handleDragEnter = (e: DragEvent) => {
+    const handleDragEnter = (_e: DragEvent) => {
       dragDrop.enterDropZone(props.zoneId, props.targetPath, props.item);
     };
 
-    const handleDragLeave = (e: DragEvent) => {
+    const handleDragLeave = (_e: DragEvent) => {
       dragDrop.leaveDropZone(props.zoneId);
     };
 
-    const handleDrop = async (e: DragEvent) => {
+    const handleDrop = async (_e: DragEvent) => {
       await dragDrop.executeDrop(props.zoneId);
     };
 

@@ -69,7 +69,7 @@ import {
  * @property {boolean} [showUploadHint=true] 是否显示底部"支持拖拽文件和文件夹"的辅助提示. Default is `true`
  * @property {boolean} [loading=false] 是否显示加载状态（显示 NSpin）. Default is `false`
  */
-interface Props {
+interface _Props {
   zoneId: string;
   targetPath: string;
   canDrop?: boolean;
@@ -102,7 +102,7 @@ export default defineComponent({
   emits: ['dragEnter', 'dragLeave', 'drop'],
 
   setup(props, { emit, slots }) {
-    const themeVars = useThemeVars();
+    const _themeVars = useThemeVars();
     /** 当前区域是否处于激活状态（存在拖拽操作） */
     const isActive = ref(false);
     /** 当前区域是否有拖拽悬停 */
@@ -176,7 +176,7 @@ export default defineComponent({
       e.stopPropagation();
       if (props.disabled) return;
 
-      dropCounter.value++;
+      dropCounter.value += 1;
       if (dropCounter.value === 1) {
         isDragOver.value = true;
         emit('dragEnter', props.zoneId);
@@ -204,7 +204,7 @@ export default defineComponent({
       e.stopPropagation();
       if (props.disabled) return;
 
-      dropCounter.value--;
+      dropCounter.value -= 1;
       if (dropCounter.value === 0) {
         isDragOver.value = false;
         emit('dragLeave', props.zoneId);

@@ -63,7 +63,7 @@ export function useUpload(config: UploadConfig = {}) {
 
     while (size >= 1024 && unitIndex < units.length - 1) {
       size /= 1024;
-      unitIndex++;
+      unitIndex += 1;
     }
 
     return `${size.toFixed(1)} ${units[unitIndex]}`;
@@ -80,7 +80,7 @@ export function useUpload(config: UploadConfig = {}) {
     }, 0);
 
     // 计算上传速度和剩余时间（这里需要配合实际的上传进度回调）
-    const completedFiles = files.value.filter(f => f.status === 'finished').length;
+    const _completedFiles = files.value.filter(f => f.status === 'finished').length;
     const totalFiles = files.value.length;
 
     if (totalFiles > 0) {
@@ -161,6 +161,14 @@ export function useUpload(config: UploadConfig = {}) {
     }
   };
 
+  // 重置统计信息
+  const resetStats = () => {
+    uploadStats.totalSize = 0;
+    uploadStats.uploadedSize = 0;
+    uploadStats.speed = 0;
+    uploadStats.remainingTime = 0;
+  };
+
   // 清空文件列表
   const clearFiles = () => {
     files.value = [];
@@ -194,14 +202,6 @@ export function useUpload(config: UploadConfig = {}) {
     updates.forEach(update => {
       updateFileStatus(update.id, update.status, update.percentage);
     });
-  };
-
-  // 重置统计信息
-  const resetStats = () => {
-    uploadStats.totalSize = 0;
-    uploadStats.uploadedSize = 0;
-    uploadStats.speed = 0;
-    uploadStats.remainingTime = 0;
   };
 
   // 获取指定状态的文件

@@ -11,7 +11,7 @@ import {
   NGrid,
   NSpace,
   NSpin,
-  NStatistic
+  _NStatistic
 } from 'naive-ui';
 import { fetchEnvironmentInfo } from '@/service/api/system';
 import { useMonitoringSSE } from '@/hooks/monitoring/useMonitoringSSE';
@@ -267,7 +267,7 @@ export default defineComponent({
                 environmentInfo.value = data;
                 lastUpdateTime.value = new Date();
               }
-            } catch (err: any) {}
+            } catch {}
           }
         }
       }

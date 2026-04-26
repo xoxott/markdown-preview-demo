@@ -70,7 +70,7 @@ export const useMindmap = (content: Ref<string>, svgRef: Ref<SVGElement | null>)
   // ==================== 辅助函数 ====================
   /** 生成唯一的渲染ID */
   const generateRenderId = (): string => {
-    renderCounter++;
+    renderCounter += 1;
     return `markmap-${Date.now()}-${renderCounter}`;
   };
 
