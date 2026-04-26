@@ -31,7 +31,17 @@ export const vueReactiveAdapter: ReactiveAdapter = {
     callback: (newValue: T, oldValue: T) => void,
     watchOpts?: WatchOptions
   ): WatchStopHandle {
-    const vueOptions: Record<string, unknown> = {};
+    const vueOptions: Record<string, unknown> = { flush: 'sync' };
+
+    // ref 值为 Array/Map/Set/Object 时需要 deep watch 才能追踪内部变化
+    // （如 array.shift()、map.set() 等原地修改不会触发浅层 watch）
+    if (isRef(source)) {
+      const raw = (source as any).value;
+      if (raw instanceof Map || raw instanceof Set || Array.isArray(raw)) {
+        vueOptions.deep = true;
+      }
+    }
+
     if (watchOpts?.deep) {
       vueOptions.deep = true;
     }
@@ -40,7 +50,14 @@ export const vueReactiveAdapter: ReactiveAdapter = {
     }
 
     // WatchSource 可以是 ref、computed 或 getter 函数
-    const watched = isRef(source) ? source : typeof source === 'function' ? source : source;
+    let watched: any;
+    if (isRef(source)) {
+      watched = source;
+    } else if (typeof source === 'function') {
+      watched = source;
+    } else {
+      watched = source;
+    }
 
     return watch(
       watched,

@@ -1,5 +1,5 @@
 /** 上传编排器 负责协调各个服务和管理器，提供统一的上传管理接口 */
-import { computed, ref, watch } from 'vue';
+import { getAdapter } from '../adapters';
 import { CONSTANTS } from '../constants';
 import { UploadController } from '../controllers/UploadController';
 import { CacheManager } from '../managers/CacheManager';
@@ -57,21 +57,26 @@ export class UploadOrchestrator {
   private uploadEngine: UploadEngine;
 
   // 响应式状态
-  public readonly uploadQueue = ref<FileTask[]>([]);
-  public readonly activeUploads = ref<Map<string, FileTask>>(new Map());
-  public readonly completedUploads = ref<FileTask[]>([]);
-  public readonly isUploading = ref(false);
-  private isAddingFiles = ref(false);
+  private readonly adapter = getAdapter(this);
+  public readonly uploadQueue = this.adapter.ref<FileTask[]>([]);
+  public readonly activeUploads = this.adapter.ref<Map<string, FileTask>>(new Map());
+  public readonly completedUploads = this.adapter.ref<FileTask[]>([]);
+  public readonly isUploading = this.adapter.ref(false);
+  private isAddingFiles = this.adapter.ref(false);
   private addFilesAbortController?: AbortController;
   private addFilesPromise?: Promise<void>;
 
   // 计算属性
-  public readonly totalProgress = computed(() => this.progressManager.totalProgress.value);
-  public readonly uploadSpeed = computed(() => this.progressManager.uploadSpeed.value);
-  public readonly networkQuality = computed(() => this.progressManager.networkQuality.value);
-  public readonly isPaused = computed(() => this.uploadController.isPaused.value);
+  public readonly totalProgress = this.adapter.computed(
+    () => this.progressManager.totalProgress.value
+  );
+  public readonly uploadSpeed = this.adapter.computed(() => this.progressManager.uploadSpeed.value);
+  public readonly networkQuality = this.adapter.computed(
+    () => this.progressManager.networkQuality.value
+  );
+  public readonly isPaused = this.adapter.computed(() => this.uploadController.isPaused.value);
 
-  public readonly uploadStats = computed(() =>
+  public readonly uploadStats = this.adapter.computed(() =>
     this.progressManager.calculateStats(
       this.uploadQueue.value,
       this.activeUploads.value,
@@ -81,7 +86,7 @@ export class UploadOrchestrator {
 
   constructor(config: Partial<ExtendedUploadConfig> = {}) {
     // 检查浏览器兼容性（仅在开发环境或首次检查时）
-    if (import.meta.env.DEV) {
+    if (this.adapter.isDev()) {
       const compatResult = checkCompatibility();
       if (!compatResult.supported) {
         warnCompatibility();
@@ -218,27 +223,28 @@ export class UploadOrchestrator {
 
   /** 设置监听器 */
   private setupWatchers(): void {
-    watch(
-      [this.uploadQueue, this.activeUploads, this.completedUploads],
-      () => {
-        this.callbackManager.emit('onQueueChange', this.uploadStats.value);
-        this.progressManager.updateTotalProgress(this.taskStateManager.getAllTasks());
+    const updateProgress = () => {
+      this.callbackManager.emit('onQueueChange', this.uploadStats.value);
+      this.progressManager.updateTotalProgress(this.taskStateManager.getAllTasks());
 
-        if (this.config.enableNetworkAdaptation) {
-          this.networkAdaptationManager.adjustPerformance(
-            this.uploadSpeed.value,
-            this.activeUploads.value.size
-          );
-        }
-      },
-      { deep: true }
-    );
+      if (this.config.enableNetworkAdaptation) {
+        this.networkAdaptationManager.adjustPerformance(
+          this.uploadSpeed.value,
+          this.activeUploads.value.size
+        );
+      }
+    };
 
-    watch(this.uploadSpeed, speed => {
+    // 监听队列长度变化（使用 getter 避免 deep watch 的性能开销）
+    this.adapter.watch(() => this.uploadQueue.value.length, updateProgress);
+    this.adapter.watch(() => this.activeUploads.value.size, updateProgress);
+    this.adapter.watch(() => this.completedUploads.value.length, updateProgress);
+
+    this.adapter.watch(this.uploadSpeed, speed => {
       this.callbackManager.emit('onSpeedChange', speed);
     });
 
-    watch(this.totalProgress, progress => {
+    this.adapter.watch(this.totalProgress, progress => {
       this.callbackManager.emit('onTotalProgress', progress, this.uploadStats.value);
     });
   }

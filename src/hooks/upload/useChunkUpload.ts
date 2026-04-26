@@ -3,12 +3,13 @@ import { computed, onUnmounted } from 'vue';
 import type { UploadFileInfo } from 'naive-ui';
 import { UploadOrchestrator } from './core/UploadOrchestrator';
 import type { UploadConfig } from './types';
+import { convertToNaiveStatus } from './adapters/vueFileAdapter';
 import { createMethodWrappers, createPropertyAccessors } from './utils/api-wrapper';
 import { getFileColor, getFileIcon } from './utils/file-type';
 import { formatFileSize, formatSpeed, formatTime } from './utils/format';
 import { type StatusTextMap, i18n } from './utils/i18n';
 import { performanceMonitor } from './utils/performance-monitor';
-import { convertToNaiveStatus, getStatusText, getStatusType } from './utils/status-mapper';
+import { getStatusText, getStatusType } from './utils/status-mapper';
 
 export function useChunkUpload(config: Partial<UploadConfig> = {}) {
   const uploader = new UploadOrchestrator(config);

@@ -1,5 +1,5 @@
 /** 上传控制器 负责控制上传任务的暂停、恢复和取消 */
-import { ref } from 'vue';
+import { getAdapter } from '../adapters';
 import type { FileTask, IUploadController } from '../types';
 import { UploadStatus } from '../types';
 import { logger } from '../utils/logger';
@@ -9,7 +9,7 @@ export class UploadController implements IUploadController {
   private taskAbortControllers = new Map<string, AbortController>();
   private chunkAbortControllers = new Map<string, Map<number, AbortController>>();
 
-  public readonly isPaused = ref(false);
+  public readonly isPaused = getAdapter(this).ref(false);
   public readonly pausedTasks = new Set<string>();
 
   private getTask: (taskId: string) => FileTask | undefined = () => undefined;

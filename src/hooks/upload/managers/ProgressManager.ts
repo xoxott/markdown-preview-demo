@@ -1,5 +1,5 @@
 /** 进度管理器 负责管理上传进度和速度 */
-import { ref } from 'vue';
+import { getAdapter } from '../adapters';
 import { SpeedCalculator } from '../calculators/SpeedCalculator';
 import { TimeEstimator } from '../calculators/TimeEstimator';
 import { CONSTANTS } from '../constants';
@@ -16,9 +16,10 @@ export class ProgressManager {
   private throttledUpdateTotalProgress: () => void;
   private throttledUpdateSpeed: () => void;
 
-  public readonly totalProgress = ref(0);
-  public readonly uploadSpeed = ref(0);
-  public readonly networkQuality = ref<'good' | 'fair' | 'poor'>('good');
+  private readonly adapter = getAdapter(this);
+  public readonly totalProgress = this.adapter.ref(0);
+  public readonly uploadSpeed = this.adapter.ref(0);
+  public readonly networkQuality = this.adapter.ref<'good' | 'fair' | 'poor'>('good');
 
   // 内部状态（用于批量更新）
   private pendingTotalProgress = 0;

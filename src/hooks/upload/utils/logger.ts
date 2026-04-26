@@ -1,4 +1,5 @@
 /** 统一日志系统 */
+import { getAdapter } from '../adapters/manager';
 
 /** 日志级别 */
 export enum LogLevel {
@@ -34,7 +35,7 @@ class Logger {
 
   constructor() {
     // 根据环境设置默认日志级别
-    const isDev = import.meta.env.DEV || process.env.NODE_ENV === 'development';
+    const isDev = getAdapter().isDev();
 
     this.config = {
       level: isDev ? LogLevel.DEBUG : LogLevel.WARN,

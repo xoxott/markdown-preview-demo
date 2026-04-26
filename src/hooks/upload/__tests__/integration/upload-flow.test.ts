@@ -118,6 +118,11 @@ describe('上传流程集成测试', () => {
 
       await (uploader as any).start();
 
+      // 等待 watch 回调触发（Vue 响应式更新在 nextTick 中）
+      await new Promise(resolve => {
+        setTimeout(resolve, 200);
+      });
+
       // 验证进度被更新
       expect(progressValues.length).toBeGreaterThan(0);
       expect(uploader.uploader.totalProgress.value).toBeGreaterThanOrEqual(0);

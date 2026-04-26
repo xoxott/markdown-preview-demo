@@ -1,17 +1,6 @@
-/** 状态映射工具 */
-import type { UploadFileInfo } from 'naive-ui';
+/** 状态映射工具（框架无关版本） */
 import { UploadStatus } from '../types';
 import { type StatusTextMap, i18n } from './i18n';
-
-/** Naive UI 状态映射 */
-const NAIVE_STATUS_MAP: Record<UploadStatus, UploadFileInfo['status']> = {
-  [UploadStatus.PENDING]: 'pending',
-  [UploadStatus.UPLOADING]: 'uploading',
-  [UploadStatus.SUCCESS]: 'finished',
-  [UploadStatus.ERROR]: 'error',
-  [UploadStatus.PAUSED]: 'pending',
-  [UploadStatus.CANCELLED]: 'removed'
-} as const;
 
 /** 状态文本键映射 */
 const STATUS_TEXT_KEY_MAP: Record<UploadStatus, keyof StatusTextMap> = {
@@ -34,11 +23,6 @@ const STATUS_TYPE_MAP: Record<UploadStatus, 'default' | 'success' | 'warning' | 
     [UploadStatus.CANCELLED]: 'default'
   } as const;
 
-/** 转换为 Naive UI 状态 */
-export function convertToNaiveStatus(status: UploadStatus): UploadFileInfo['status'] {
-  return NAIVE_STATUS_MAP[status];
-}
-
 /** 获取状态文本（支持国际化） */
 export function getStatusText(status: UploadStatus): string {
   return i18n.getStatusText(STATUS_TEXT_KEY_MAP[status]);
@@ -50,3 +34,11 @@ export function getStatusType(
 ): 'default' | 'success' | 'warning' | 'error' | 'info' {
   return STATUS_TYPE_MAP[status];
 }
+
+/** 通用状态转字符串（框架无关） */
+export function statusToString(status: UploadStatus): string {
+  return STATUS_TEXT_KEY_MAP[status];
+}
+
+/** 导出映射表供适配层使用 */
+export { STATUS_TEXT_KEY_MAP, STATUS_TYPE_MAP };

@@ -1,6 +1,7 @@
 /** 配置验证工具 */
 import type { UploadConfig } from '../types';
 import { CONSTANTS } from '../constants';
+import { getAdapter } from '../adapters/manager';
 import { logger } from './logger';
 
 /** 配置验证结果 */
@@ -151,7 +152,7 @@ export function validateAndWarnConfig(config: Partial<UploadConfig>): void {
     logger.warn('配置警告', { warnings: result.warnings });
   }
 
-  if (result.suggestions.length > 0 && import.meta.env.DEV) {
+  if (result.suggestions.length > 0 && getAdapter().isDev()) {
     logger.info('配置建议', { suggestions: result.suggestions });
   }
 }

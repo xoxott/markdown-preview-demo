@@ -1,5 +1,5 @@
 /** 任务状态管理器 负责管理上传队列、活动上传和已完成上传的状态 */
-import { type Ref, _ref } from 'vue';
+import type { ReactiveRef } from '../adapters/types';
 import type { FileTask, UploadStatus } from '../types';
 import { filterTasksByStatus, getAllTasks, updateTasksStatus } from '../utils/task-helpers';
 import { existsInArray, findInArrays, removeFromArray } from '../utils/array-helpers';
@@ -7,14 +7,14 @@ import { existsInArray, findInArrays, removeFromArray } from '../utils/array-hel
 /** 任务状态管理器 */
 export class TaskStateManager {
   // 响应式状态
-  public readonly uploadQueue: Ref<FileTask[]>;
-  public readonly activeUploads: Ref<Map<string, FileTask>>;
-  public readonly completedUploads: Ref<FileTask[]>;
+  public readonly uploadQueue: ReactiveRef<FileTask[]>;
+  public readonly activeUploads: ReactiveRef<Map<string, FileTask>>;
+  public readonly completedUploads: ReactiveRef<FileTask[]>;
 
   constructor(
-    uploadQueue: Ref<FileTask[]>,
-    activeUploads: Ref<Map<string, FileTask>>,
-    completedUploads: Ref<FileTask[]>
+    uploadQueue: ReactiveRef<FileTask[]>,
+    activeUploads: ReactiveRef<Map<string, FileTask>>,
+    completedUploads: ReactiveRef<FileTask[]>
   ) {
     this.uploadQueue = uploadQueue;
     this.activeUploads = activeUploads;

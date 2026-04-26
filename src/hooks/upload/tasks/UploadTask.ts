@@ -312,7 +312,7 @@ export class UploadTask {
       }
     });
 
-    await Promise.all(uploadPromises);
+    await Promise.allSettled(uploadPromises);
 
     // 如果有失败的分片且未达到最大重试次数，记录但继续（由重试机制处理）
     if (failedChunks.length > 0) {

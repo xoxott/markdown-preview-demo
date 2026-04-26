@@ -1,5 +1,4 @@
 /** 任务相关类型定义 */
-import type { UploadFileInfo } from 'naive-ui';
 import type { UploadStatus } from './core';
 import type { ChunkInfo } from './chunk';
 import type { FileUploadOptions } from './config';
@@ -34,8 +33,8 @@ export interface FileTask {
   options: FileUploadOptions;
   fileMD5: string;
   chunkErrors?: ChunkErrorInfo[]; // 分片级别的错误信息
-  // Naive UI 兼容
-  naiveFile?: UploadFileInfo;
+  // 框架扩展元数据（各框架适配层可自行存储框架特定数据）
+  metadata?: Record<string, unknown>;
 }
 
 /** 合并响应接口 */

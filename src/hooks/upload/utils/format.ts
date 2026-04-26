@@ -1,4 +1,5 @@
 /** 格式化工具函数 */
+import { getAdapter } from '../adapters/manager';
 
 // ==================== 常量定义 ====================
 const CONSTANTS = {
@@ -41,7 +42,7 @@ export function parseSize(size: string | number): number {
 
   if (!match) {
     // 开发环境才输出警告
-    if (import.meta.env.DEV) {
+    if (getAdapter().isDev()) {
       console.warn(`无效的大小格式: ${size}`);
     }
     return 0;
@@ -51,7 +52,7 @@ export function parseSize(size: string | number): number {
   const num = Number.parseFloat(numStr);
 
   if (Number.isNaN(num) || num < 0) {
-    if (import.meta.env.DEV) {
+    if (getAdapter().isDev()) {
       console.warn(`无效的数字: ${numStr}`);
     }
     return 0;
@@ -60,7 +61,7 @@ export function parseSize(size: string | number): number {
   const multiplier = CONSTANTS.UNIT_MAP[unit as keyof typeof CONSTANTS.UNIT_MAP];
 
   if (!multiplier) {
-    if (import.meta.env.DEV) {
+    if (getAdapter().isDev()) {
       console.warn(`未知的单位: ${unit}`);
     }
     return num;
@@ -132,7 +133,7 @@ export function formatSpeed(bytesPerSecond: number, decimals: number = 2): strin
     }
     return `${formatted}/s`;
   } catch (error) {
-    if (import.meta.env.DEV) {
+    if (getAdapter().isDev()) {
       console.error('格式化速度失败:', error);
     }
     return '0 B/s';
