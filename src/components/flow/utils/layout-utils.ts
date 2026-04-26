@@ -4,7 +4,7 @@
  * 提供节点对齐、分布、排序等布局功能
  */
 
-import type { FlowNode, FlowPosition, FlowSize } from '../types/flow-node';
+import type { FlowNode, FlowPosition } from '../types/flow-node';
 
 /** 对齐方向 */
 export type AlignDirection =
@@ -97,6 +97,8 @@ export function alignNodes(
       });
       break;
     }
+    default:
+      break;
   }
 
   return positions;
@@ -213,6 +215,8 @@ export function sortNodes(
       break;
     case 'y-reverse':
       sorted.sort((a, b) => b.position.y - a.position.y);
+      break;
+    default:
       break;
   }
 

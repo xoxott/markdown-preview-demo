@@ -57,7 +57,7 @@ export interface FlowEdgeEvents {
 /** 连接事件 */
 export interface FlowConnectionEvents {
   /** 连接创建事件（返回 false 可阻止连接） */
-  onConnect?: (connection: FlowEdge) => boolean | void | Promise<boolean | void>;
+  onConnect?: (connection: FlowEdge) => boolean | undefined | Promise<boolean | undefined>;
   /** 开始连接（从端口拖拽开始） */
   onConnectStart?: (event: MouseEvent, nodeId: string, handleId: string) => void;
   /** 连接结束（鼠标抬起） */

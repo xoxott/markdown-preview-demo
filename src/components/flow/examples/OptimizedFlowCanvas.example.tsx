@@ -34,7 +34,7 @@ export default defineComponent({
     const spatialIndex = new SpatialIndex();
     const positionPool = createPositionPool(100, 1000);
     const stateStore = new DefaultStateStore();
-    const historyManager = new DefaultHistoryManager(stateStore, { maxHistorySize: 50 });
+    const _historyManager = new DefaultHistoryManager(stateStore, { maxHistorySize: 50 });
     const commandManager = new CommandManager({ maxSize: 50, enableMerge: true });
 
     // 拖拽状态
@@ -287,7 +287,7 @@ export default defineComponent({
 
     onMounted(() => {
       // 初始化一些节点
-      for (let i = 0; i < 100; i++) {
+      for (let i = 0; i < 100; i += 1) {
         addRandomNode();
       }
 

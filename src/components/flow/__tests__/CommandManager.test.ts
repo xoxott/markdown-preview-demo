@@ -91,7 +91,7 @@ describe('CommandManager', () => {
   });
 
   it('应该限制历史记录大小', () => {
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 10; i += 1) {
       commandManager.execute(new TestCommand());
     }
 

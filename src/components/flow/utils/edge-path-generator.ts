@@ -99,7 +99,7 @@ function calculateBezierTangent(
 
 /** 直线路径生成器 */
 class StraightPathGenerator implements EdgePathGenerator {
-  generate(edge: FlowEdge, positions: EdgePositions, options: EdgePathGeneratorOptions): string {
+  generate(_edge: FlowEdge, positions: EdgePositions, options: EdgePathGeneratorOptions): string {
     const startX = positions.sourceHandleX ?? positions.sourceX;
     const startY = positions.sourceHandleY ?? positions.sourceY;
     let endX = positions.targetHandleX ?? positions.targetX;

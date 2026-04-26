@@ -173,7 +173,7 @@ class PerformanceMonitor {
       }
 
       const stat = stats[entry.name];
-      stat.count++;
+      stat.count += 1;
       stat.total += entry.duration;
       stat.max = Math.max(stat.max, entry.duration);
       stat.min = Math.min(stat.min, entry.duration);
@@ -324,7 +324,7 @@ if (import.meta.env.DEV) {
  * 如果方法执行时间超过 5ms，会自动在控制台输出警告。
  */
 export function measurePerformance(name: string) {
-  return function (
+  return function measurePerformanceDecorator(
     _target: object,
     _propertyKey: string,
     descriptor: PropertyDescriptor
@@ -333,7 +333,7 @@ export function measurePerformance(name: string) {
     if (typeof originalMethod !== 'function') {
       throw new TypeError('measurePerformance 装饰器只能用于方法');
     }
-    descriptor.value = function (this: unknown, ...args: unknown[]) {
+    descriptor.value = function value(this: unknown, ...args: unknown[]) {
       const start = performance.now();
       const result = originalMethod.apply(this, args);
       const duration = performance.now() - start;

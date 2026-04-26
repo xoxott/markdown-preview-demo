@@ -6,7 +6,7 @@
 
 import { bench, describe } from 'vitest';
 import { SpatialIndex } from '../core/performance/SpatialIndex';
-import { ObjectPool, createPositionPool } from '../core/performance/ObjectPool';
+import { createPositionPool } from '../core/performance/ObjectPool';
 import { CommandManager } from '../core/commands/CommandManager';
 import { MoveNodeCommand } from '../core/commands/MoveNodeCommand';
 import type { FlowNode } from '../types/flow-node';
@@ -96,16 +96,16 @@ describe('Object Creation Performance', () => {
 
   // 直接创建对象（优化前）
   bench('Direct object creation - 1000 iterations', () => {
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 1000; i += 1) {
       const pos = { x: i, y: i };
-      // 使用 pos
-      void pos;
+      // 使用 pos - 防止优化器消除
+      const _sum = pos.x + pos.y;
     }
   });
 
   // 使用对象池（优化后）
   bench('Object pool - 1000 iterations', () => {
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 1000; i += 1) {
       const pos = positionPool.acquire();
       pos.x = i;
       pos.y = i;
@@ -117,14 +117,14 @@ describe('Object Creation Performance', () => {
   // 批量操作对比
   bench('Direct creation - 10000 positions', () => {
     const positions = [];
-    for (let i = 0; i < 10000; i++) {
+    for (let i = 0; i < 10000; i += 1) {
       positions.push({ x: i, y: i });
     }
   });
 
   bench('Object pool - 10000 positions', () => {
     const positions = [];
-    for (let i = 0; i < 10000; i++) {
+    for (let i = 0; i < 10000; i += 1) {
       const pos = positionPool.acquire();
       pos.x = i;
       pos.y = i;
@@ -147,12 +147,12 @@ describe('Undo/Redo Performance', () => {
     pushSnapshot(state: any) {
       this.history = this.history.slice(0, this.currentIndex + 1);
       this.history.push(JSON.parse(JSON.stringify(state))); // 深拷贝
-      this.currentIndex++;
+      this.currentIndex += 1;
     }
 
     undo() {
       if (this.currentIndex > 0) {
-        this.currentIndex--;
+        this.currentIndex -= 1;
         return this.history[this.currentIndex];
       }
     }
@@ -162,7 +162,7 @@ describe('Undo/Redo Performance', () => {
   const nodes = generateNodes(100);
 
   bench('Snapshot mechanism - 100 operations', () => {
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 100; i += 1) {
       snapshotHistory.pushSnapshot(nodes);
     }
   });
@@ -174,7 +174,7 @@ describe('Undo/Redo Performance', () => {
   } as any;
 
   bench('Command pattern - 100 operations', () => {
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 100; i += 1) {
       const command = new MoveNodeCommand(
         `node-${i}`,
         { x: 0, y: 0 },
@@ -274,7 +274,7 @@ describe('Real-world Scenario Performance', () => {
 describe('Memory Usage', () => {
   bench('Memory - Create 1000 positions directly', () => {
     const positions = [];
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 1000; i += 1) {
       positions.push({ x: i, y: i });
     }
     // 让 GC 回收
@@ -284,7 +284,7 @@ describe('Memory Usage', () => {
   bench('Memory - Create 1000 positions with pool', () => {
     const pool = createPositionPool(100, 1000);
     const positions = [];
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 1000; i += 1) {
       const pos = pool.acquire();
       pos.x = i;
       pos.y = i;

@@ -27,7 +27,7 @@ class Cache<K, V> extends Map<K, V> {
   private cleanup(): void {
     if (this.size > this.maxSize) {
       const keys = Array.from(this.keys());
-      for (let i = 0; i < this.cleanupSize; i++) {
+      for (let i = 0; i < this.cleanupSize; i += 1) {
         this.delete(keys[i]);
       }
     }

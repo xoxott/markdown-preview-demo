@@ -58,7 +58,7 @@ export interface UseNodeStyleReturn {
  */
 export function useNodeStyle(options: UseNodeStyleOptions): UseNodeStyleReturn {
   const {
-    nodes,
+    _nodes,
     selectedNodeIds,
     draggingNodeId,
     elevatedNodeIds,
@@ -71,7 +71,7 @@ export function useNodeStyle(options: UseNodeStyleOptions): UseNodeStyleReturn {
   const selectedNodeIdsSet = useCachedSet(selectedNodeIds);
 
   // 是否启用拖拽后提升层级（默认启用，节点过多时可禁用）
-  const elevateOnDragEnd = computed(() => config?.value?.nodes?.elevateOnDragEnd !== false);
+  const _elevateOnDragEnd = computed(() => config?.value?.nodes?.elevateOnDragEnd !== false);
 
   // 监听选中节点变化，自动分配递增的 z-index（使用共享的计数器）
   watch(
@@ -122,7 +122,7 @@ export function useNodeStyle(options: UseNodeStyleOptions): UseNodeStyleReturn {
     const y = node.position.y;
 
     // 计算当前应该有的 zIndex
-    const isSelected = selectedNodeIdsSet.value.has(node.id);
+    const _isSelected = selectedNodeIdsSet.value.has(node.id);
     const isDragging = draggingNodeId?.value === node.id;
 
     // 获取节点的提升层级值（如果存在，包括拖拽释放和选中的节点）

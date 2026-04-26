@@ -109,7 +109,7 @@ export function useConnectionCreation(
     }
 
     // 从事件中提取目标信息并完成连接
-    const edge = await connectionHandler.finishConnectionFromEvent(event, nodes.value);
+    const _edge = await connectionHandler.finishConnectionFromEvent(event, nodes.value);
     syncState();
 
     // 如果连接成功，edge 已经在 finishConnectionFromEvent 中通过回调处理

@@ -5,7 +5,7 @@
  */
 
 import type { Component } from 'vue';
-import type { FlowNode, FlowNodeType } from './flow-node';
+import type { FlowNodeType } from './flow-node';
 import type { FlowEdge, FlowEdgePathGenerator, FlowEdgeType } from './flow-edge';
 
 /** 视口配置 */

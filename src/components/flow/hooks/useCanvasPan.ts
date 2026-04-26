@@ -4,7 +4,7 @@
  * 处理画布的拖拽平移功能，基于通用的 useDrag hook 实现。 支持配置鼠标按键、检查拖拽条件等。
  */
 
-import { type Ref, watch } from 'vue';
+import { type Ref } from 'vue';
 import type { FlowConfig, FlowViewport } from '../types';
 import { performanceMonitor } from '../utils/performance-monitor';
 import { useDrag } from './useDrag';

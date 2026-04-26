@@ -5,7 +5,7 @@
  */
 
 /** 对象池选项 */
-export interface ObjectPoolOptions<T> {
+export interface ObjectPoolOptions<_T> {
   /** 初始池大小 */
   initialSize?: number;
   /** 最大池大小 */
@@ -72,9 +72,9 @@ export class ObjectPool<T> {
     };
 
     // 预创建初始对象
-    for (let i = 0; i < this.options.initialSize; i++) {
+    for (let i = 0; i < this.options.initialSize; i += 1) {
       this.pool.push(this.factory());
-      this.stats.totalCreated++;
+      this.stats.totalCreated += 1;
     }
   }
 
@@ -84,7 +84,7 @@ export class ObjectPool<T> {
    * @returns 对象实例
    */
   acquire(): T {
-    this.stats.totalAcquired++;
+    this.stats.totalAcquired += 1;
 
     // 如果池中有对象，直接返回
     if (this.pool.length > 0) {
@@ -92,7 +92,7 @@ export class ObjectPool<T> {
     }
 
     // 否则创建新对象
-    this.stats.totalCreated++;
+    this.stats.totalCreated += 1;
     return this.factory();
   }
 
@@ -102,7 +102,7 @@ export class ObjectPool<T> {
    * @param obj 要释放的对象
    */
   release(obj: T): void {
-    this.stats.totalReleased++;
+    this.stats.totalReleased += 1;
 
     // 重置对象状态
     this.reset(obj);
@@ -176,9 +176,9 @@ export class ObjectPool<T> {
   warmup(count: number): void {
     const needed = Math.min(count - this.pool.length, this.options.maxSize - this.pool.length);
 
-    for (let i = 0; i < needed; i++) {
+    for (let i = 0; i < needed; i += 1) {
       this.pool.push(this.factory());
-      this.stats.totalCreated++;
+      this.stats.totalCreated += 1;
     }
   }
 

@@ -111,7 +111,7 @@ export function isString(value: unknown): value is string {
  * @returns 是否为数字
  */
 export function isNumber(value: unknown): value is number {
-  return typeof value === 'number' && !isNaN(value);
+  return typeof value === 'number' && !Number.isNaN(value);
 }
 
 /**

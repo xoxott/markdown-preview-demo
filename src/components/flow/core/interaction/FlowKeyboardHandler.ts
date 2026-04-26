@@ -19,7 +19,7 @@ export interface KeyBinding {
 }
 
 /** 快捷键处理器函数 */
-export type KeyHandler = (event: KeyboardEvent) => void | boolean;
+export type KeyHandler = (event: KeyboardEvent) => boolean | undefined;
 
 /** 快捷键注册项 */
 export interface KeyBindingRegistration {

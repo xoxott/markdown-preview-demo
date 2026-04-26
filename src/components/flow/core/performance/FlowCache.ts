@@ -85,7 +85,7 @@ export class FlowCache {
 
     // 更新访问信息
     item.lastAccessed = now;
-    item.accessCount++;
+    item.accessCount += 1;
 
     return item.value as T;
   }

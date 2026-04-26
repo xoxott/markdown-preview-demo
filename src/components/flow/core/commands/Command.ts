@@ -36,7 +36,7 @@ export abstract class BaseCommand implements Command {
     this.execute();
   }
 
-  merge?(other: Command): boolean {
+  merge?(_other: Command): boolean {
     return false;
   }
 

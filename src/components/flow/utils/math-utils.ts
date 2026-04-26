@@ -281,14 +281,15 @@ export function lerp(start: number, end: number, t: number): number {
  * @param angle 角度（弧度）
  * @returns 标准化后的角度
  */
-export function normalizeAngle(angle: number): number {
-  while (angle < 0) {
-    angle += 2 * Math.PI;
+export function normalizeAngle(angleValue: number): number {
+  let result = angleValue;
+  while (result < 0) {
+    result += 2 * Math.PI;
   }
-  while (angle >= 2 * Math.PI) {
-    angle -= 2 * Math.PI;
+  while (result >= 2 * Math.PI) {
+    result -= 2 * Math.PI;
   }
-  return angle;
+  return result;
 }
 
 /**
@@ -297,12 +298,13 @@ export function normalizeAngle(angle: number): number {
  * @param angle 角度（弧度）
  * @returns 标准化后的角度
  */
-export function normalizeAngleSigned(angle: number): number {
-  while (angle > Math.PI) {
-    angle -= 2 * Math.PI;
+export function normalizeAngleSigned(angleValue: number): number {
+  let result = angleValue;
+  while (result > Math.PI) {
+    result -= 2 * Math.PI;
   }
-  while (angle < -Math.PI) {
-    angle += 2 * Math.PI;
+  while (result < -Math.PI) {
+    result += 2 * Math.PI;
   }
-  return angle;
+  return result;
 }

@@ -116,6 +116,8 @@ export function calculateHandlePositionStyle(handle: FlowHandle): Record<string,
       positionStyle.top = '50%';
       positionStyle.transform = 'translate(50%, -50%)';
       break;
+    default:
+      break;
   }
 
   return positionStyle;

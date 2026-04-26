@@ -95,7 +95,7 @@ describe('useViewportCulling', () => {
         enabled
       });
 
-      const initialCount = visibleNodes.value.length;
+      const _initialCount = visibleNodes.value.length;
 
       // 移动视口到 node-3 的位置
       viewport.value = {
@@ -145,8 +145,8 @@ describe('useViewportCulling', () => {
       });
 
       // 记录初始可见节点
-      const initialVisibleNodes = [...visibleNodes.value];
-      const updateSpy = vi.spyOn(visibleNodes, 'value', 'set');
+      const _initialVisibleNodes = [...visibleNodes.value];
+      const _updateSpy = vi.spyOn(visibleNodes, 'value', 'set');
 
       // 开始平移
       isPanning.value = true;
@@ -163,7 +163,9 @@ describe('useViewportCulling', () => {
 
       // 验证：平移时不应该更新可见节点
       // 注意：由于 watch 的异步特性，我们需要等待一下
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => {
+        setTimeout(resolve, 10);
+      });
 
       // 如果正在平移，可见节点应该保持不变
       // 但由于 watch 的复杂性，我们主要验证平移结束后会更新
@@ -196,7 +198,9 @@ describe('useViewportCulling', () => {
       await nextTick();
 
       // 等待 watch 执行
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise(resolve => {
+        setTimeout(resolve, 50);
+      });
 
       // 验证：平移结束后，node-3 应该可见（因为视口已移动到它附近）
       const hasNode3 = visibleNodes.value.some(n => n.id === 'node-3');
@@ -238,7 +242,9 @@ describe('useViewportCulling', () => {
       ];
 
       await nextTick();
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise(resolve => {
+        setTimeout(resolve, 50);
+      });
 
       // 节点变化应该触发更新（即使正在平移）
       expect(visibleNodes.value.length).toBeGreaterThan(initialCount);
@@ -312,7 +318,7 @@ describe('useViewportCulling', () => {
         enabled
       });
 
-      const initialRef = visibleNodes.value;
+      const _initialRef = visibleNodes.value;
 
       // 触发一次更新（但节点集合没变）
       const currentViewport = viewport.value;
@@ -325,7 +331,9 @@ describe('useViewportCulling', () => {
       }
 
       await nextTick();
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise(resolve => {
+        setTimeout(resolve, 50);
+      });
 
       // 如果节点集合没变，引用应该保持稳定（或至少逻辑正确）
       expect(visibleNodes.value).toBeDefined();
@@ -346,7 +354,7 @@ describe('useViewportCulling', () => {
       const stopWatcher = watch(
         visibleNodes,
         () => {
-          updateCount++;
+          updateCount += 1;
         },
         { immediate: false }
       );
@@ -356,7 +364,7 @@ describe('useViewportCulling', () => {
       await nextTick();
 
       // 快速移动视口多次（模拟平移过程）
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 10; i += 1) {
         viewport.value = {
           x: -i * 100,
           y: -i * 100,
@@ -369,7 +377,9 @@ describe('useViewportCulling', () => {
       isPanning.value = false;
       await nextTick();
 
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => {
+        setTimeout(resolve, 100);
+      });
 
       stopWatcher();
 

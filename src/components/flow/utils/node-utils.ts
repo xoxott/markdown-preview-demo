@@ -67,6 +67,8 @@ export function getHandlePositionScreen(
       handleX = nodeX + nodeWidth;
       handleY = nodeY + nodeHeight / 2;
       break;
+    default:
+      break;
   }
 
   // 转换为屏幕坐标

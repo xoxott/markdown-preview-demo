@@ -26,9 +26,9 @@ describe('Performance Fixes', () => {
       const startTime = performance.now();
 
       // 查找 100 次
-      for (let i = 0; i < 100; i++) {
-        const node = nodesMap.get(`node-${Math.floor(Math.random() * 1000)}`);
-        expect(node).toBeDefined();
+      for (let i = 0; i < 100; i += 1) {
+        const _node = nodesMap.get(`node-${Math.floor(Math.random() * 1000)}`);
+        expect(_node).toBeDefined();
       }
 
       const mapTime = performance.now() - startTime;
@@ -43,15 +43,15 @@ describe('Performance Fixes', () => {
 
       // 测试 Array.find
       const arrayStart = performance.now();
-      for (let i = 0; i < 100; i++) {
-        const node = nodes.find(n => n.id === `node-${Math.floor(Math.random() * 1000)}`);
+      for (let i = 0; i < 100; i += 1) {
+        const _node = nodes.find(n => n.id === `node-${Math.floor(Math.random() * 1000)}`);
       }
       const arrayTime = performance.now() - arrayStart;
 
       // 测试 Map.get
       const mapStart = performance.now();
-      for (let i = 0; i < 100; i++) {
-        const node = nodesMap.get(`node-${Math.floor(Math.random() * 1000)}`);
+      for (let i = 0; i < 100; i += 1) {
+        nodesMap.get(`node-${Math.floor(Math.random() * 1000)}`);
       }
       const mapTime = performance.now() - mapStart;
 
@@ -68,26 +68,26 @@ describe('Performance Fixes', () => {
       // 模拟浅监听
       const version = ref(0);
       const watcher = computed(() => {
-        updateCount++;
+        updateCount += 1;
         return [nodes.value.length, version.value];
       });
 
       // 访问一次
-      watcher.value;
+      expect(watcher.value).toBeDefined();
       const initialCount = updateCount;
 
       // 修改节点位置（不改变数组长度）
       nodes.value[0].position.x = 999;
 
       // 再次访问
-      watcher.value;
+      expect(watcher.value).toBeDefined();
 
       // 浅监听不应该触发更新
       expect(updateCount).toBe(initialCount);
 
       // 手动触发版本更新
-      version.value++;
-      watcher.value;
+      version.value += 1;
+      expect(watcher.value).toBeDefined();
 
       // 现在应该触发更新
       expect(updateCount).toBe(initialCount + 1);
@@ -107,13 +107,13 @@ describe('Performance Fixes', () => {
       // 测试精确缓存
       let preciseHits = 0;
       cache.clear();
-      for (let i = 0; i < 100; i++) {
+      for (let i = 0; i < 100; i += 1) {
         const x = 100 + Math.random() * 10; // 100-110 范围
         const y = 200 + Math.random() * 10; // 200-210 范围
         const key = preciseKey(x, y);
 
         if (cache.has(key)) {
-          preciseHits++;
+          preciseHits += 1;
         } else {
           cache.set(key, true);
         }
@@ -122,13 +122,13 @@ describe('Performance Fixes', () => {
       // 测试简化缓存
       let simplifiedHits = 0;
       cache.clear();
-      for (let i = 0; i < 100; i++) {
+      for (let i = 0; i < 100; i += 1) {
         const x = 100 + Math.random() * 10;
         const y = 200 + Math.random() * 10;
         const key = simplifiedKey(x, y);
 
         if (cache.has(key)) {
-          simplifiedHits++;
+          simplifiedHits += 1;
         } else {
           cache.set(key, true);
         }
@@ -159,7 +159,7 @@ describe('Performance Fixes', () => {
       const startTime = performance.now();
 
       // 查找 1000 次
-      for (let i = 0; i < 1000; i++) {
+      for (let i = 0; i < 1000; i += 1) {
         const node = nodesMap.get(`node-${i}`);
         expect(node?.id).toBe(`node-${i}`);
       }

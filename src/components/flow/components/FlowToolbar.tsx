@@ -128,6 +128,12 @@ export default defineComponent({
           baseStyle.transform = 'translateY(-50%)';
           baseStyle.flexDirection = 'column';
           break;
+        default:
+          baseStyle.top = '10px';
+          baseStyle.left = '50%';
+          baseStyle.transform = 'translateX(-50%)';
+          baseStyle.flexDirection = 'row';
+          break;
       }
 
       return baseStyle;
@@ -148,7 +154,7 @@ export default defineComponent({
       }
     };
 
-    const handleResetZoom = () => {
+    const _handleResetZoom = () => {
       if (props.onZoomChange) {
         props.onZoomChange(1);
       }

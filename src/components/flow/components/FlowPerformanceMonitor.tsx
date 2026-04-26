@@ -145,7 +145,7 @@ export default defineComponent({
     /** RAF 循环回调：只累加帧数和记录单帧时间 */
     const onFrame = () => {
       const now = performance.now();
-      frameCount++;
+      frameCount += 1;
 
       // 计算单帧时间（轻量级操作）
       const singleFrameTime = now - lastFrameTime;
@@ -300,10 +300,10 @@ export default defineComponent({
     };
 
     // 获取最低 FPS 的颜色
-    const getMinFpsColor = (minFps: number): string => {
-      if (minFps < PERFORMANCE_THRESHOLDS.MIN_FPS_ERROR) {
+    const getMinFpsColor = (fpsValue: number): string => {
+      if (fpsValue < PERFORMANCE_THRESHOLDS.MIN_FPS_ERROR) {
         return PERFORMANCE_COLORS.ERROR;
-      } else if (minFps < PERFORMANCE_THRESHOLDS.MIN_FPS_WARNING) {
+      } else if (fpsValue < PERFORMANCE_THRESHOLDS.MIN_FPS_WARNING) {
         return PERFORMANCE_COLORS.WARNING;
       }
       return PERFORMANCE_COLORS.EXCELLENT;

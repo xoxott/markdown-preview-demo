@@ -74,7 +74,7 @@ export interface UseRafLoopReturn {
  *   // FPS 监控
  *   const { start, stop } = useRafLoop(() => {
  *     const now = performance.now();
- *     frameCount++;
+ *     frameCount += 1;
  *     if (now - lastTime >= 1000) {
  *       fps.value = Math.round((frameCount * 1000) / (now - lastTime));
  *       frameCount = 0;

@@ -4,7 +4,7 @@
  * 处理节点和连接线的选择功能，基于 FlowSelectionHandler 核心逻辑 提供 Vue 响应式封装
  */
 
-import { type Ref, onUnmounted, ref, watch } from 'vue';
+import { type Ref, ref } from 'vue';
 import { FlowSelectionHandler } from '../core/interaction/FlowSelectionHandler';
 import type { FlowEdge, FlowNode, FlowViewport } from '../types';
 import type { SelectionBox, SelectionOptions } from '../core/interaction/FlowSelectionHandler';
@@ -186,13 +186,13 @@ export function useSelection(options: UseSelectionOptions = {}): UseSelectionRet
   };
 
   /** 获取选中的节点 */
-  const getSelectedNodes = (nodes: FlowNode[]): FlowNode[] => {
-    return selectionHandler.getSelectedNodes(nodes);
+  const getSelectedNodes = (nodeList: FlowNode[]): FlowNode[] => {
+    return selectionHandler.getSelectedNodes(nodeList);
   };
 
   /** 获取选中的连接线 */
-  const getSelectedEdges = (edges: FlowEdge[]): FlowEdge[] => {
-    return selectionHandler.getSelectedEdges(edges);
+  const getSelectedEdges = (edgeList: FlowEdge[]): FlowEdge[] => {
+    return selectionHandler.getSelectedEdges(edgeList);
   };
 
   /** 开始框选 */

@@ -12,7 +12,7 @@ import { isRef } from '../utils/type-utils';
  *
  * 注意：这些函数只接收 event 参数，因为 item 已经在闭包中捕获
  */
-export interface EventHandlerMap<T> {
+export interface EventHandlerMap<_T> {
   onClick?: (event: MouseEvent) => void;
   onDoubleClick?: (event: MouseEvent) => void;
   onMouseEnter?: (event: MouseEvent) => void;

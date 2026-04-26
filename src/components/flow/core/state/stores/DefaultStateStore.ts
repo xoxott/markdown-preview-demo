@@ -92,7 +92,7 @@ export class DefaultStateStore implements IStateStore {
     this.nodeIdsSet.clear();
     this.nodesMap.clear();
 
-    for (let i = 0; i < this.nodes.length; i++) {
+    for (let i = 0; i < this.nodes.length; i += 1) {
       const node = this.nodes[i];
       this.nodeIdsSet.add(node.id);
       this.nodesMap.set(node.id, node);
@@ -104,7 +104,7 @@ export class DefaultStateStore implements IStateStore {
     this.edgeIdsSet.clear();
     this.edgesMap.clear();
 
-    for (let i = 0; i < this.edges.length; i++) {
+    for (let i = 0; i < this.edges.length; i += 1) {
       const edge = this.edges[i];
       this.edgeIdsSet.add(edge.id);
       this.edgesMap.set(edge.id, edge);
@@ -187,7 +187,7 @@ export class DefaultStateStore implements IStateStore {
 
     this.nodes.push(...validNodes.map(node => ({ ...node })));
 
-    for (let i = 0; i < validNodes.length; i++) {
+    for (let i = 0; i < validNodes.length; i += 1) {
       const node = validNodes[i];
       this.nodeIdsSet.add(node.id);
       this.nodesMap.set(node.id, node);
@@ -343,7 +343,7 @@ export class DefaultStateStore implements IStateStore {
 
     this.edges.push(...validEdges.map(edge => ({ ...edge })));
 
-    for (let i = 0; i < validEdges.length; i++) {
+    for (let i = 0; i < validEdges.length; i += 1) {
       const edge = validEdges[i];
       this.edgeIdsSet.add(edge.id);
       this.edgesMap.set(edge.id, edge);

@@ -8,7 +8,7 @@
 import '../styles/index.scss';
 
 import type { CSSProperties, PropType } from 'vue';
-import { computed, defineComponent, h, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, defineComponent, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useFlowConfig } from '../hooks/useFlowConfig';
 import { useFlowState } from '../hooks/useFlowState';
 import { useKeyboard } from '../hooks/useKeyboard';
@@ -131,10 +131,10 @@ export default defineComponent({
       deselectAll,
       getSelectedNodes,
       getSelectedEdges,
-      isNodeSelected,
+      isNodeSelected: _isNodeSelected,
       isEdgeSelected,
       shouldMultiSelect,
-      shouldBoxSelect,
+      shouldBoxSelect: _shouldBoxSelect,
       startBoxSelection,
       updateBoxSelection,
       finishBoxSelection,

@@ -430,8 +430,8 @@ export function useFlowState(options: UseFlowStateOptions = {}): UseFlowStateRet
     getSelectionBox: () => {
       return selectionHandler.getSelectionBox();
     },
-    setSelectionOptions: (options: Partial<SelectionOptions>) => {
-      selectionHandler.setOptions(options);
+    setSelectionOptions: (selectionOpts: Partial<SelectionOptions>) => {
+      selectionHandler.setOptions(selectionOpts);
     },
 
     // 历史记录操作

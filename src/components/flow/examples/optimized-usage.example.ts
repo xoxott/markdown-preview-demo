@@ -8,29 +8,17 @@
 
 import { ref } from 'vue';
 import {
-  // 核心类型
-  type FlowNode,
-  type FlowEdge,
-  type FlowViewport,
-
-  // 空间索引
-  SpatialIndex,
-
-  // 对象池
-  ObjectPool,
-  createPositionPool,
-  createBoundsPool,
-
-  // 命令模式
   CommandManager,
+  type FlowEdge,
+  type FlowNode,
+  type FlowViewport,
   MoveNodeCommand,
-
-  // Zod 运行时验证
-  zodValidateNode,
-  zodSafeValidateNode
+  SpatialIndex,
+  createBoundsPool,
+  createPositionPool,
+  zodSafeValidateNode,
+  zodValidateNode
 } from '../index';
-
-// 状态管理接口
 import type { IStateStore } from '../core/state/interfaces/IStateStore';
 
 // ============================================

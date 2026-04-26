@@ -335,7 +335,7 @@ export class FlowConnectionHandler {
    * @param nodes 所有节点列表
    * @returns 是否可以连接
    */
-  canConnectTo(targetNodeId: string, targetHandleId: string, nodes: FlowNode[]): boolean {
+  canConnectTo(targetNodeId: string, _targetHandleId: string, nodes: FlowNode[]): boolean {
     if (!this.draft) {
       return false;
     }

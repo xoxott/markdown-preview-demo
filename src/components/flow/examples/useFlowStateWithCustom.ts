@@ -4,7 +4,7 @@
  * 展示如何实现 IStateStore 接口，集成自定义状态管理库 （如 Vuex、Zustand、Jotai 等）
  */
 
-import { type Ref, computed, ref } from 'vue';
+import { computed, ref } from 'vue';
 import type {
   IStateStore,
   StateChangeType,
@@ -333,8 +333,8 @@ export function useFlowStateWithCustom(
     getSelectionBox: () => {
       return selectionHandler.getSelectionBox();
     },
-    setSelectionOptions: (options: Partial<SelectionOptions>) => {
-      selectionHandler.setOptions(options);
+    setSelectionOptions: (selectionOpts: Partial<SelectionOptions>) => {
+      selectionHandler.setOptions(selectionOpts);
     },
 
     // 历史记录操作

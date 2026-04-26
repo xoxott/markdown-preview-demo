@@ -6,10 +6,10 @@
  * 注意：这是一个概念性示例，展示了如何使用优化功能。 实际集成时可以使用 DefaultStateStore 或实现自定义的 IStateStore
  */
 
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import type { FlowEdge, FlowNode, FlowViewport } from '../types';
 import { SpatialIndex } from '../core/performance/SpatialIndex';
-import { createBoundsPool, createPositionPool } from '../core/performance/ObjectPool';
+import { createPositionPool } from '../core/performance/ObjectPool';
 import { CommandManager, MoveNodeCommand } from '../core/commands';
 import type { IStateStore } from '../core/state/interfaces/IStateStore';
 

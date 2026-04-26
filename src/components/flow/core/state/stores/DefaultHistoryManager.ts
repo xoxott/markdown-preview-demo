@@ -65,7 +65,7 @@ export class DefaultHistoryManager implements IHistoryManager {
       this.history.shift();
       // 注意：shift 后不需要更新 historyIndex，因为指针指向的是数组中的位置
     } else {
-      this.historyIndex++;
+      this.historyIndex += 1;
     }
   }
 
@@ -79,7 +79,7 @@ export class DefaultHistoryManager implements IHistoryManager {
       return false;
     }
 
-    this.historyIndex--;
+    this.historyIndex -= 1;
     this.restoreSnapshot(this.history[this.historyIndex]);
     return true;
   }
@@ -94,7 +94,7 @@ export class DefaultHistoryManager implements IHistoryManager {
       return false;
     }
 
-    this.historyIndex++;
+    this.historyIndex += 1;
     this.restoreSnapshot(this.history[this.historyIndex]);
     return true;
   }

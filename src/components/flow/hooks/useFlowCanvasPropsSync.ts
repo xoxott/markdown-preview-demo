@@ -94,7 +94,7 @@ export function useFlowCanvasPropsSync(
   };
 
   const stop = () => {
-    watchers.forEach(stop => stop());
+    watchers.forEach(watcherStop => watcherStop());
     watchers.length = 0;
   };
 

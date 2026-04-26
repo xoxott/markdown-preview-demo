@@ -54,7 +54,7 @@ describe('ObjectPool', () => {
   it('应该限制池的最大大小', () => {
     // 获取所有对象
     const objects = [];
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 15; i += 1) {
       objects.push(pool.acquire());
     }
 

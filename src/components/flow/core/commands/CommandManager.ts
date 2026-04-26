@@ -57,12 +57,12 @@ export class CommandManager {
 
     // 添加新命令
     this.history.push(command);
-    this.currentIndex++;
+    this.currentIndex += 1;
 
     // 限制历史记录大小
     if (this.history.length > this.options.maxSize) {
       this.history.shift();
-      this.currentIndex--;
+      this.currentIndex -= 1;
     }
   }
 
@@ -78,7 +78,7 @@ export class CommandManager {
 
     const command = this.history[this.currentIndex];
     command.undo();
-    this.currentIndex--;
+    this.currentIndex -= 1;
     return true;
   }
 
@@ -92,7 +92,7 @@ export class CommandManager {
       return false;
     }
 
-    this.currentIndex++;
+    this.currentIndex += 1;
     const command = this.history[this.currentIndex];
     command.redo();
     return true;

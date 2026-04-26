@@ -91,14 +91,14 @@ export function useKeyboard(options: UseKeyboardOptions = {}): UseKeyboardReturn
   const register = (
     binding: KeyBinding,
     handler: KeyHandler,
-    options?: {
+    registerOptions?: {
       description?: string;
       priority?: number;
       preventDefault?: boolean;
       stopPropagation?: boolean;
     }
   ): (() => void) => {
-    return keyboardHandler.register(binding, handler, options);
+    return keyboardHandler.register(binding, handler, registerOptions);
   };
 
   /** 取消注册快捷键 */

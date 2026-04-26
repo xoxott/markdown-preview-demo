@@ -50,7 +50,7 @@ function getNodesPositionHash(nodes: FlowNode[]): number {
   // 只计算前 N 个节点，对于大规模场景性能更好
   // 如果节点数量变化，哈希值也会变化，足以检测到变化
   const len = Math.min(nodes.length, SPATIAL_INDEX_HASH_MAX_NODES);
-  for (let i = 0; i < len; i++) {
+  for (let i = 0; i < len; i += 1) {
     const n = nodes[i];
     // 使用整数坐标计算哈希，减少精度变化的影响
     const x = floorCoordinate(n.position.x);

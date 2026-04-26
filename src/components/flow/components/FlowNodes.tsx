@@ -282,7 +282,7 @@ export default defineComponent({
     return () => {
       const renderStart = performance.now();
       const nodeCount = visibleNodes.value.length;
-      renderCount++;
+      renderCount += 1;
 
       const nodesStart = performance.now();
 

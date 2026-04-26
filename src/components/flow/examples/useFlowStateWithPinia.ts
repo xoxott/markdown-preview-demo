@@ -4,7 +4,7 @@
  * 展示如何使用 Pinia 作为状态存储，实现自定义状态管理
  */
 
-import { type Ref, computed } from 'vue';
+import { computed } from 'vue';
 import { defineStore } from 'pinia';
 import type {
   IStateStore,
@@ -57,7 +57,7 @@ export const useFlowStore = defineStore('flow', {
         if (updates.position) {
           node.position = { ...node.position, ...updates.position };
           // 更新其他属性（排除 position，因为已经单独处理）
-          const { position, ...restUpdates } = updates;
+          const { _position, ...restUpdates } = updates;
           if (Object.keys(restUpdates).length > 0) {
             Object.assign(node, restUpdates);
           }
@@ -225,7 +225,7 @@ class PiniaStateStore implements IStateStore {
     // 使用 Pinia 的 $subscribe 监听状态变化
     // 注意：Pinia 的 $subscribe 无法直接知道具体哪个字段变化了，所以传递 'all'
     // 如果需要细粒度更新，可以在各个方法中调用 notifySubscribers
-    const unsubscribe = this.store.$subscribe((mutation, state) => {
+    const unsubscribe = this.store.$subscribe((_mutation, _state) => {
       // 根据 mutation 类型判断变化类型（简化处理，实际可能需要更复杂的逻辑）
       callback('all');
     });
@@ -377,8 +377,8 @@ export function useFlowStateWithPinia(options?: {
     getSelectionBox: () => {
       return selectionHandler.getSelectionBox();
     },
-    setSelectionOptions: (options: Partial<SelectionOptions>) => {
-      selectionHandler.setOptions(options);
+    setSelectionOptions: (selectionOptions: Partial<SelectionOptions>) => {
+      selectionHandler.setOptions(selectionOptions);
     },
 
     // 历史记录操作

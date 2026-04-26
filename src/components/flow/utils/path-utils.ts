@@ -31,7 +31,7 @@ export function generateBezierPath(
   const { sourceX, sourceY, targetX, targetY } = params;
 
   const dx = targetX - sourceX;
-  const dy = targetY - sourceY;
+  const _dy = targetY - sourceY;
 
   // 计算控制点
   const controlX1 = sourceX + dx * controlOffset;
@@ -157,7 +157,7 @@ export function calculatePathLength(pathData: string): number {
       .trim()
       .split(/[\s,]+/)
       .map(Number)
-      .filter(n => !isNaN(n));
+      .filter(n => !Number.isNaN(n));
 
     switch (type) {
       case 'M':
@@ -185,6 +185,8 @@ export function calculatePathLength(pathData: string): number {
           lastX = coords[4];
           lastY = coords[5];
         }
+        break;
+      default:
         break;
     }
   });
@@ -223,7 +225,7 @@ export function getPointOnPath(pathData: string, t: number): { x: number; y: num
  * @param tolerance 容差
  * @returns 简化后的路径
  */
-export function simplifyPath(pathData: string, tolerance: number = 1): string {
+export function simplifyPath(pathData: string, _tolerance: number = 1): string {
   // 简化实现：对于直线路径，直接返回
   // 对于复杂路径，可以使用 Douglas-Peucker 算法
   return pathData;
