@@ -26,6 +26,7 @@ import type {
   ExtendedUploadConfig,
   FileTask,
   FileUploadOptions,
+  NetworkQuality,
   UploadConfig,
   UploadStats
 } from '../types';
@@ -80,7 +81,7 @@ export class UploadOrchestrator {
   // 计算属性（在构造函数中初始化）
   public readonly totalProgress!: ReactiveComputed<number>;
   public readonly uploadSpeed!: ReactiveComputed<number>;
-  public readonly networkQuality!: ReactiveComputed<string>;
+  public readonly networkQuality!: ReactiveComputed<NetworkQuality>;
   public readonly isPaused!: ReactiveComputed<boolean>;
   public readonly uploadStats!: ReactiveComputed<UploadStats>;
 

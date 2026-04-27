@@ -9,7 +9,10 @@ export class UploadController implements IUploadController {
   private taskAbortControllers = new Map<string, AbortController>();
   private chunkAbortControllers = new Map<string, Map<number, AbortController>>();
 
-  public readonly isPaused = getAdapter(this).ref(false);
+  private readonly _isPaused = getAdapter().ref(false);
+  public get isPaused() {
+    return this._isPaused;
+  }
   public readonly pausedTasks = new Set<string>();
 
   private getTask: (taskId: string) => FileTask | undefined = () => undefined;

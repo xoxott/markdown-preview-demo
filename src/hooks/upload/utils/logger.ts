@@ -29,13 +29,17 @@ interface LogEntry {
 
 /** 日志管理器 */
 class Logger {
-  private config: LoggerConfig;
+  private config!: LoggerConfig;
   private logs: LogEntry[] = [];
   private readonly storageKey = 'upload-logs';
+  private initialized = false;
 
-  constructor() {
+  /** 延迟初始化配置（避免模块加载时调用 getAdapter） */
+  private ensureInitialized(): void {
+    if (this.initialized) return;
+
     // 根据环境设置默认日志级别
-    const isDev = getAdapter().isDev();
+    const isDev = this.isDev();
 
     this.config = {
       level: isDev ? LogLevel.DEBUG : LogLevel.WARN,
@@ -48,10 +52,22 @@ class Logger {
     if (this.config.enableStorage) {
       this.loadLogs();
     }
+
+    this.initialized = true;
+  }
+
+  /** 安全获取 isDev 状态（适配器未设置时默认为非开发环境） */
+  private isDev(): boolean {
+    try {
+      return getAdapter().isDev();
+    } catch {
+      return false;
+    }
   }
 
   /** 更新配置 */
   updateConfig(config: Partial<LoggerConfig>): void {
+    this.ensureInitialized();
     this.config = { ...this.config, ...config };
   }
 
@@ -62,6 +78,8 @@ class Logger {
     context?: Record<string, any>,
     error?: Error
   ): void {
+    this.ensureInitialized();
+
     if (level < this.config.level) {
       return;
     }
@@ -140,6 +158,7 @@ class Logger {
 
   /** 获取日志 */
   getLogs(level?: LogLevel): LogEntry[] {
+    this.ensureInitialized();
     if (level !== undefined) {
       return this.logs.filter(log => log.level >= level);
     }
@@ -148,6 +167,7 @@ class Logger {
 
   /** 清空日志 */
   clearLogs(): void {
+    this.ensureInitialized();
     this.logs = [];
     if (this.config.enableStorage) {
       localStorage.removeItem(this.storageKey);

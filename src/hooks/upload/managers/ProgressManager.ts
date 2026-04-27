@@ -16,7 +16,7 @@ export class ProgressManager {
   private throttledUpdateTotalProgress: () => void;
   private throttledUpdateSpeed: () => void;
 
-  private readonly adapter = getAdapter(this);
+  private readonly adapter = getAdapter();
   public readonly totalProgress = this.adapter.ref(0);
   public readonly uploadSpeed = this.adapter.ref(0);
   public readonly networkQuality = this.adapter.ref<'good' | 'fair' | 'poor'>('good');
