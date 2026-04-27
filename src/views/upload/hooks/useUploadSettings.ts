@@ -22,7 +22,6 @@ export function useUploadSettings() {
     useWorker: false,
     enableCache: true,
     enableNetworkAdaptation: true,
-    enableSmartRetry: true,
     compressionQuality: CONSTANTS.COMPRESSION.COMPRESSION_QUALITY,
     previewMaxWidth: CONSTANTS.PREVIEW.PREVIEW_MAX_WIDTH,
     previewMaxHeight: CONSTANTS.PREVIEW.PREVIEW_MAX_HEIGHT,
@@ -32,8 +31,7 @@ export function useUploadSettings() {
     customParams: {},
     uploadChunkUrl: 'https://testaest-v1.umi6.com/proxy-minio/upload/chunk',
     mergeChunksUrl: 'https://testaest-v1.umi6.com/proxy-minio/upload/complete',
-    checkFileUrl: undefined,
-    cancelUploadUrl: undefined
+    checkFileUrl: undefined
   });
 
   // 分片大小选项

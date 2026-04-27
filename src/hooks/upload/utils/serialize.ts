@@ -63,7 +63,7 @@ export function serializeMergeResponse(response: MergeResponse): Record<string, 
     mimeType: response.mimeType,
     error: response.error,
     thumbnail: response.thumbnail,
-    doc_id: response.doc_id,
+    docId: response.docId,
     uploadTime: response.uploadTime
   };
 }

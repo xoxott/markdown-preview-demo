@@ -47,7 +47,6 @@ export interface UploadConfig {
   uploadChunkUrl: string;
   mergeChunksUrl: string;
   checkFileUrl?: string; // 秒传检查
-  cancelUploadUrl?: string; // 取消上传
 
   // 请求配置
   headers: Record<string, string>;
@@ -72,7 +71,6 @@ export interface UploadConfig {
   enableCache: boolean; // 缓存
 
   enableNetworkAdaptation: boolean; // 网络自适应
-  enableSmartRetry: boolean; // 智能重试
 
   compressionQuality: number; // 压缩百分比
   previewMaxWidth: number; // 预览宽度

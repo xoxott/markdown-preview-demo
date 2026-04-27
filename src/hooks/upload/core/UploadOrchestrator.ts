@@ -225,7 +225,6 @@ export class UploadOrchestrator {
       useWorker: true,
       enableCache: true,
       enableNetworkAdaptation: true,
-      enableSmartRetry: true,
 
       // 图片压缩配置
       enableCompression: CONSTANTS.COMPRESSION.ENABLE_COMPRESSION,

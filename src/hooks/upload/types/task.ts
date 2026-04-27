@@ -46,6 +46,6 @@ export interface MergeResponse {
   mimeType?: string;
   error?: string;
   thumbnail?: string;
-  doc_id?: string;
+  docId?: string;
   uploadTime: number;
 }
