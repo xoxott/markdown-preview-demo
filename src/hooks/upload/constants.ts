@@ -156,10 +156,6 @@ export const CONSTANTS = {
 
   /** Worker 相关配置 */
   WORKER: {
-    /** 默认 Worker 数量 */
-    DEFAULT_COUNT: 4,
-    /** 默认 Worker URL */
-    DEFAULT_URL: '/workers/md5.worker.js',
     /** Worker URL 清理延迟（毫秒） */
     URL_CLEANUP_DELAY: 1000
   }

@@ -1,5 +1,10 @@
 /** spark-md5 类型声明文件 由于官方没有提供 @types/spark-md5，这里手动定义类型 */
 
+declare module 'spark-md5/spark-md5.min.js?raw' {
+  const content: string;
+  export default content;
+}
+
 declare module 'spark-md5' {
   /** SparkMD5 哈希类 */
   class SparkMD5 {
