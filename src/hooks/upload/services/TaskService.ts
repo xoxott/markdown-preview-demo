@@ -40,7 +40,7 @@ export class TaskService {
       uploadedSize: 0,
       result: null,
       error: null,
-      fileMD5: md5 || '',
+      fileMD5: md5 ?? '',
       options: {
         maxRetries: this.config.maxRetries,
         chunkSize,

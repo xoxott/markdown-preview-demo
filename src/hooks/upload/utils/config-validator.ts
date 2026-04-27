@@ -101,7 +101,7 @@ export function validateConfig(config: Partial<UploadConfig>): ConfigValidationR
   }
 
   // Worker 使用建议
-  if (config.useWorker === false && config.enableDeduplication) {
+  if (config.useWorker === false) {
     suggestions.push('启用 useWorker 可以提升大文件 MD5 计算性能');
   }
 

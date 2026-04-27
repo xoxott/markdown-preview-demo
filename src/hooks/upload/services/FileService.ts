@@ -305,7 +305,7 @@ export class FileService {
     file: File;
     originalFile: File;
     preview?: string;
-    md5?: string;
+    md5: string;
   }> {
     // 验证文件
     const { valid } = this.validate([file]);
@@ -320,10 +320,8 @@ export class FileService {
     const [preview, md5] = await Promise.all([
       // 生成预览
       this.generatePreview(processedFile),
-      // 计算 MD5（如果需要）
-      this.config.enableDeduplication
-        ? this.calculateMD5(processedFile)
-        : Promise.resolve(undefined)
+      // 计算 MD5（始终计算，用于完整性校验和断点续传验证）
+      this.calculateMD5(processedFile)
     ]);
 
     return {

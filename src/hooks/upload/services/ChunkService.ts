@@ -139,8 +139,8 @@ export class ChunkService {
     // 分片不存在或需要重新创建，创建全新的分片
     const chunks: ChunkInfo[] = [];
 
-    // 计算文件MD5（如果还没有，支持 Worker）
-    if (!task.fileMD5 && this.config.enableDeduplication) {
+    // 计算文件MD5（如果还没有，兜底计算）
+    if (!task.fileMD5) {
       if (this.config.useWorker) {
         task.fileMD5 = await calculateFileMD5Smart(task.file, true);
       } else {
