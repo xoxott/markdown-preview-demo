@@ -99,7 +99,6 @@ describe('FileProcessingPipeline', () => {
     const createMockTask = (id: string): FileTask => ({
       id,
       file: new File(['content'], `${id}.txt`, { type: 'text/plain' }),
-      originalFile: undefined,
       status: UploadStatus.PENDING,
       progress: 0,
       speed: 0,
@@ -152,7 +151,6 @@ describe('FileProcessingPipeline', () => {
       queueManager.isDuplicate = vi.fn().mockReturnValue(false);
       fileService.processFile = vi.fn().mockResolvedValue({
         file: file1,
-        originalFile: file1,
         preview: undefined,
         md5: 'hash1'
       });
@@ -196,7 +194,6 @@ describe('FileProcessingPipeline', () => {
         .mockRejectedValueOnce(new Error('处理失败'))
         .mockResolvedValueOnce({
           file: file2,
-          originalFile: file2,
           preview: undefined,
           md5: 'hash2'
         });
@@ -223,7 +220,6 @@ describe('FileProcessingPipeline', () => {
       queueManager.isDuplicate = vi.fn().mockReturnValue(false);
       fileService.processFile = vi.fn().mockResolvedValue({
         file,
-        originalFile: file,
         preview: undefined,
         md5: 'hash'
       });
@@ -244,7 +240,6 @@ describe('FileProcessingPipeline', () => {
       queueManager.isDuplicate = vi.fn().mockReturnValue(false);
       fileService.processFile = vi.fn().mockResolvedValue({
         file,
-        originalFile: file,
         preview: undefined,
         md5: 'hash'
       });

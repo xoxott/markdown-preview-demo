@@ -52,3 +52,4 @@ export * from './network-adaptation';
 export * from './array-helpers';
 export * from './batch-processor';
 export * from './chunk-helpers';
+export * from './serialize';

@@ -25,7 +25,6 @@ export class TaskService {
     return {
       id: generateUUID(),
       file: processedFile,
-      originalFile: file !== processedFile ? file : undefined,
       status: UploadStatus.PENDING,
       progress: 0,
       speed: 0,

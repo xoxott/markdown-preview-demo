@@ -16,7 +16,6 @@ export interface FileTask {
   uploadedSize: number; // 已上传大小（字节）
   id: string;
   file: File;
-  originalFile: File | undefined;
   status: UploadStatus;
   progress: number;
   speed: number; // KB/s
@@ -48,6 +47,5 @@ export interface MergeResponse {
   error?: string;
   thumbnail?: string;
   doc_id?: string;
-  originalFile?: File;
   uploadTime: number;
 }

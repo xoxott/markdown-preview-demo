@@ -303,7 +303,6 @@ export class FileService {
     _options: FileUploadOptions
   ): Promise<{
     file: File;
-    originalFile: File;
     preview?: string;
     md5: string;
   }> {
@@ -326,7 +325,6 @@ export class FileService {
 
     return {
       file: processedFile,
-      originalFile: file,
       preview,
       md5
     };

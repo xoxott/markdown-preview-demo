@@ -17,7 +17,6 @@ describe('QueueManager', () => {
         {
           id: '1',
           file: new File(['content'], 'low.txt', { type: 'text/plain' }),
-          originalFile: undefined,
           status: UploadStatus.PENDING,
           progress: 0,
           speed: 0,
@@ -38,7 +37,6 @@ describe('QueueManager', () => {
         {
           id: '2',
           file: new File(['content'], 'high.txt', { type: 'text/plain' }),
-          originalFile: undefined,
           status: UploadStatus.PENDING,
           progress: 0,
           speed: 0,
@@ -68,7 +66,6 @@ describe('QueueManager', () => {
         {
           id: '1',
           file: new File(['x'.repeat(2000)], 'large.txt', { type: 'text/plain' }),
-          originalFile: undefined,
           status: UploadStatus.PENDING,
           progress: 0,
           speed: 0,
@@ -89,7 +86,6 @@ describe('QueueManager', () => {
         {
           id: '2',
           file: new File(['x'.repeat(1000)], 'small.txt', { type: 'text/plain' }),
-          originalFile: undefined,
           status: UploadStatus.PENDING,
           progress: 0,
           speed: 0,
@@ -121,7 +117,6 @@ describe('QueueManager', () => {
         {
           id: '1',
           file,
-          originalFile: undefined,
           status: UploadStatus.PENDING,
           progress: 0,
           speed: 0,

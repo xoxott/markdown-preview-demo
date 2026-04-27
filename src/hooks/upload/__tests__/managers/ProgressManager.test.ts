@@ -16,7 +16,6 @@ describe('ProgressManager', () => {
       const task: FileTask = {
         id: '1',
         file: new File(['content'], 'test.txt', { type: 'text/plain' }),
-        originalFile: undefined,
         status: UploadStatus.UPLOADING,
         progress: 0,
         speed: 0,
@@ -65,7 +64,6 @@ describe('ProgressManager', () => {
         {
           id: '1',
           file: new File([new ArrayBuffer(1000)], 'test1.txt', { type: 'text/plain' }),
-          originalFile: undefined,
           status: UploadStatus.UPLOADING,
           progress: 50,
           speed: 0,
@@ -86,7 +84,6 @@ describe('ProgressManager', () => {
         {
           id: '2',
           file: new File([new ArrayBuffer(1000)], 'test2.txt', { type: 'text/plain' }),
-          originalFile: undefined,
           status: UploadStatus.UPLOADING,
           progress: 100,
           speed: 0,
@@ -125,7 +122,6 @@ describe('ProgressManager', () => {
         {
           id: '1',
           file: new File(['content'], 'test.txt', { type: 'text/plain' }),
-          originalFile: undefined,
           status: UploadStatus.SUCCESS,
           progress: 100,
           speed: 0,

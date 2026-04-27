@@ -13,7 +13,6 @@ describe('UploadController', () => {
     mockTask = {
       id: 'test-id',
       file: new File(['content'], 'test.txt', { type: 'text/plain' }),
-      originalFile: undefined,
       status: UploadStatus.UPLOADING,
       progress: 50,
       speed: 0,

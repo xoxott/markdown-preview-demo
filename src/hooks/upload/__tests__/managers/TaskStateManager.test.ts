@@ -14,7 +14,6 @@ describe('TaskStateManager', () => {
   const createMockTask = (id: string, status: UploadStatus = UploadStatus.PENDING): FileTask => ({
     id,
     file: new File(['content'], `${id}.txt`, { type: 'text/plain' }),
-    originalFile: undefined,
     status,
     progress: 0,
     speed: 0,

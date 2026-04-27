@@ -54,7 +54,6 @@ describe('TaskOperations', () => {
   ): FileTask => ({
     id,
     file: new File(['content'], `${id}.txt`, { type: 'text/plain' }),
-    originalFile: undefined,
     status,
     progress: 50,
     speed: 100,

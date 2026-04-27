@@ -59,7 +59,6 @@ describe('ChunkService', () => {
       const task: FileTask = {
         id: 'test-id',
         file,
-        originalFile: undefined,
         status: UploadStatus.PENDING,
         progress: 0,
         speed: 0,
@@ -91,7 +90,6 @@ describe('ChunkService', () => {
       const task: FileTask = {
         id: 'test-id',
         file,
-        originalFile: undefined,
         status: UploadStatus.PENDING,
         progress: 0,
         speed: 0,

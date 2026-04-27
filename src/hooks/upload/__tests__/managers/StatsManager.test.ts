@@ -10,7 +10,6 @@ describe('StatsManager', () => {
   const createMockTask = (id: string, options?: Partial<FileTask>): FileTask => ({
     id,
     file: new File(['content'], `${id}.txt`, { type: 'text/plain' }),
-    originalFile: undefined,
     status: UploadStatus.SUCCESS,
     progress: 100,
     speed: 100, // 100 KB/s

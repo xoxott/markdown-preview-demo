@@ -29,7 +29,6 @@ describe('CallbackManager', () => {
       const task: FileTask = {
         id: '1',
         file: new File(['content'], 'test.txt', { type: 'text/plain' }),
-        originalFile: undefined,
         status: UploadStatus.PENDING,
         progress: 0,
         speed: 0,

@@ -19,7 +19,6 @@ function createMockFileTask(
   return {
     id,
     file,
-    originalFile: file,
     status: UploadStatus.PENDING,
     progress: 0,
     speed: 0,

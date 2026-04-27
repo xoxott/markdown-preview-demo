@@ -14,7 +14,6 @@ describe('ProgressPersistence', () => {
   const createMockTask = (id: string, options?: Partial<FileTask>): FileTask => ({
     id,
     file: new File(['content'], 'test.txt', { type: 'text/plain' }),
-    originalFile: undefined,
     status: UploadStatus.PAUSED,
     progress: 50,
     speed: 0,
@@ -116,7 +115,6 @@ describe('ProgressPersistence', () => {
       const task: FileTask = {
         id: 'task-3',
         file: new File(['content'], 'test.txt', { type: 'text/plain' }),
-        originalFile: undefined,
         status: UploadStatus.PAUSED,
         progress: 30,
         speed: 0,
