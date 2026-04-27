@@ -192,7 +192,7 @@ export class UploadOrchestrator {
   private mergeConfig(config: Partial<ExtendedUploadConfig>): ExtendedUploadConfig {
     return {
       // 并发控制
-      maxConcurrentFiles: CONSTANTS.CONCURRENT.DEFAULT_FILES,
+      maxConcurrentFiles: CONSTANTS.NETWORK.CONCURRENT_LIMITS.MAX_FILES,
       maxConcurrentChunks: CONSTANTS.CONCURRENT.DEFAULT_CHUNKS,
 
       // 分片配置
@@ -473,6 +473,18 @@ export class UploadOrchestrator {
 
     // 清空缓存
     this.cacheManager.clear();
+
+    // 清空统计信息
+    this.statsManager.clear();
+
+    // 清空回调
+    this.callbackManager.clear();
+
+    // 重置性能监控
+    performanceMonitor.reset();
+
+    // 禁用日志（避免销毁后继续写入）
+    logger.updateConfig({ enabled: false });
 
     logger.info('上传器已销毁', {});
   }

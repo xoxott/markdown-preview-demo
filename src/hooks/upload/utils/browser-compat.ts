@@ -11,6 +11,10 @@ export interface BrowserFeatures {
   blob: boolean;
   fileAPI: boolean;
   networkInformation: boolean;
+  cryptoSubtle: boolean;
+  objectURL: boolean;
+  formData: boolean;
+  canvas2d: boolean;
 }
 
 /** 兼容性检测结果 */
@@ -32,7 +36,11 @@ export function detectBrowserFeatures(): BrowserFeatures {
       indexedDB: false,
       blob: false,
       fileAPI: false,
-      networkInformation: false
+      networkInformation: false,
+      cryptoSubtle: false,
+      objectURL: false,
+      formData: false,
+      canvas2d: false
     };
   }
 
@@ -44,7 +52,11 @@ export function detectBrowserFeatures(): BrowserFeatures {
     indexedDB: typeof indexedDB !== 'undefined',
     blob: typeof Blob !== 'undefined',
     fileAPI: typeof File !== 'undefined',
-    networkInformation: 'connection' in navigator
+    networkInformation: 'connection' in navigator,
+    cryptoSubtle: typeof crypto !== 'undefined' && typeof crypto.subtle !== 'undefined',
+    objectURL: typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function',
+    formData: typeof FormData !== 'undefined',
+    canvas2d: !!document.createElement('canvas').getContext
   };
 }
 
@@ -89,6 +101,21 @@ export function checkCompatibility(): CompatibilityResult {
   if (!features.networkInformation) {
     warnings.push('浏览器不支持 Network Information API，无法自动适配网络');
     fallbacks.push('网络自适应功能将被禁用');
+  }
+
+  if (!features.cryptoSubtle) {
+    warnings.push('浏览器不支持 crypto.subtle，文件哈希计算将使用 Worker 回退方案');
+    fallbacks.push('SHA-256/MD5 计算可能较慢或不完整');
+  }
+
+  if (!features.objectURL) {
+    warnings.push('浏览器不支持 URL.createObjectURL，无法生成文件预览链接');
+    fallbacks.push('文件预览功能将被禁用');
+  }
+
+  if (!features.formData) {
+    warnings.push('浏览器不支持 FormData，无法以表单方式上传文件');
+    fallbacks.push('将使用 ArrayBuffer 替代方案');
   }
 
   const supported =

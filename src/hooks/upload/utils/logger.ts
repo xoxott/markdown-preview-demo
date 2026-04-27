@@ -16,6 +16,7 @@ interface LoggerConfig {
   enableConsole: boolean;
   enableStorage: boolean;
   maxStorageSize: number;
+  enabled: boolean;
 }
 
 /** 日志条目 */
@@ -45,7 +46,8 @@ class Logger {
       level: isDev ? LogLevel.DEBUG : LogLevel.WARN,
       enableConsole: true,
       enableStorage: isDev,
-      maxStorageSize: 100
+      maxStorageSize: 100,
+      enabled: true
     };
 
     // 从 localStorage 恢复日志（如果启用）
@@ -80,7 +82,7 @@ class Logger {
   ): void {
     this.ensureInitialized();
 
-    if (level < this.config.level) {
+    if (!this.config.enabled || level < this.config.level) {
       return;
     }
 
