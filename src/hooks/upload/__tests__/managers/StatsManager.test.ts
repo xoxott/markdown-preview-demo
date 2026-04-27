@@ -35,30 +35,29 @@ describe('StatsManager', () => {
   });
 
   describe('recordTaskCompletion', () => {
-    it('应该记录成功任务并更新 totalCount 和 successCount', () => {
+    it('应该记录成功任务并更新 totalFiles 和 successFiles', () => {
       const task = createMockTask('task-1', { status: UploadStatus.SUCCESS, speed: 100 });
       manager.recordTaskCompletion(task, 5);
 
       const todayStats = manager.getTodayStats();
       expect(todayStats).not.toBeNull();
-      // 源代码使用 totalCount/successCount/errorCount 而非接口定义的 totalFiles/successFiles/failedFiles
-      expect((todayStats as any).totalCount).toBe(1);
-      expect((todayStats as any).successCount).toBe(1);
+      expect(todayStats!.totalFiles).toBe(1);
+      expect(todayStats!.successFiles).toBe(1);
       expect(todayStats!.totalSize).toBe(task.file.size);
       expect(todayStats!.totalTime).toBe(5);
     });
 
-    it('应该记录失败任务并更新 errorCount', () => {
+    it('应该记录失败任务并更新 failedFiles', () => {
       const task = createMockTask('task-2', { status: UploadStatus.ERROR });
       manager.recordTaskCompletion(task, 3);
 
       const todayStats = manager.getTodayStats();
       expect(todayStats).not.toBeNull();
-      expect((todayStats as any).totalCount).toBe(1);
-      expect((todayStats as any).errorCount).toBe(1);
+      expect(todayStats!.totalFiles).toBe(1);
+      expect(todayStats!.failedFiles).toBe(1);
     });
 
-    it('应该累积多个任务的 totalCount、successCount 和 errorCount', () => {
+    it('应该累积多个任务的 totalFiles、successFiles 和 failedFiles', () => {
       const task1 = createMockTask('task-1', { status: UploadStatus.SUCCESS, speed: 100 });
       const task2 = createMockTask('task-2', { status: UploadStatus.ERROR });
       const task3 = createMockTask('task-3', { status: UploadStatus.SUCCESS, speed: 200 });
@@ -68,23 +67,20 @@ describe('StatsManager', () => {
       manager.recordTaskCompletion(task3, 4);
 
       const todayStats = manager.getTodayStats();
-      expect((todayStats as any).totalCount).toBe(3);
-      expect((todayStats as any).successCount).toBe(2);
-      expect((todayStats as any).errorCount).toBe(1);
+      expect(todayStats!.totalFiles).toBe(3);
+      expect(todayStats!.successFiles).toBe(2);
+      expect(todayStats!.failedFiles).toBe(1);
       expect(todayStats!.totalSize).toBe(task1.file.size + task2.file.size + task3.file.size);
       expect(todayStats!.totalTime).toBe(12);
     });
 
-    it('应该在首次任务时使用加权平均公式计算速度', () => {
-      // 注意：源代码的 averageSpeed 计算依赖 todayStats.totalFiles（接口定义的属性，始终为0）
-      // 而不是 totalCount（实际递增的属性）。由于 totalFiles 为0，条件 totalFiles===1 不成立，
-      // 所以首次任务也使用加权公式: currentAvgSpeed(0) * 0.7 + taskSpeed * 0.3
+    it('应该在首次任务时直接设置速度', () => {
       const task = createMockTask('task-1', { speed: 150 });
       manager.recordTaskCompletion(task, 5);
 
       const todayStats = manager.getTodayStats();
-      // 首次任务: 0 * 0.7 + 150 * 0.3 = 45
-      expect(todayStats!.averageSpeed).toBe(45);
+      // 首次任务: totalFiles === 1，直接设置 speed
+      expect(todayStats!.averageSpeed).toBe(150);
     });
 
     it('应该使用加权平均公式计算后续速度', () => {
@@ -95,9 +91,9 @@ describe('StatsManager', () => {
       manager.recordTaskCompletion(task2, 3);
 
       const todayStats = manager.getTodayStats();
-      // 第一次: 0 * 0.7 + 100 * 0.3 = 30
-      // 第二次: 30 * 0.7 + 200 * 0.3 = 21 + 60 = 81
-      expect(todayStats!.averageSpeed).toBe(81);
+      // 第一次: totalFiles=1, 直接设置 averageSpeed=100
+      // 第二次: totalFiles=2, 加权: 100 * 0.7 + 200 * 0.3 = 70 + 60 = 130
+      expect(todayStats!.averageSpeed).toBe(130);
     });
 
     it('应该处理 speed 为 0 的任务', () => {
@@ -105,18 +101,18 @@ describe('StatsManager', () => {
       manager.recordTaskCompletion(task, 5);
 
       const todayStats = manager.getTodayStats();
-      // 0 * 0.7 + 0 * 0.3 = 0
+      // 首次任务: totalFiles=1, 直接设置 speed=0
       expect(todayStats!.averageSpeed).toBe(0);
     });
 
-    it('应该处理非 SUCCESS 和非 ERROR 状态的任务（只增加 totalCount）', () => {
+    it('应该处理非 SUCCESS 和非 ERROR 状态的任务（只增加 totalFiles）', () => {
       const task = createMockTask('task-1', { status: UploadStatus.CANCELLED });
       manager.recordTaskCompletion(task, 2);
 
       const todayStats = manager.getTodayStats();
-      expect((todayStats as any).totalCount).toBe(1);
-      expect((todayStats as any).successCount).toBe(0);
-      expect((todayStats as any).errorCount).toBe(0);
+      expect(todayStats!.totalFiles).toBe(1);
+      expect(todayStats!.successFiles).toBe(0);
+      expect(todayStats!.failedFiles).toBe(0);
     });
   });
 
@@ -211,10 +207,8 @@ describe('StatsManager', () => {
       manager.recordTaskCompletion(task, 5);
 
       const trend = manager.getTrendAnalysis(7);
-      // successRate 基于 reduce(s.totalFiles) 和 reduce(s.successFiles)
-      // 但数据存储在 totalCount/successCount 中，接口定义的 totalFiles/successFiles 均为0
-      // 因此 successRate 计算依赖的字段均为 0/undefined
-      expect(typeof trend.successRate).toBe('number');
+      // 1 个成功任务，0 个失败任务: successRate = 1/1 * 100 = 100
+      expect(trend.successRate).toBe(100);
     });
   });
 

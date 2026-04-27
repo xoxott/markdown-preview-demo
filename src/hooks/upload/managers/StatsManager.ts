@@ -40,22 +40,19 @@ export class StatsManager {
         successFiles: 0,
         failedFiles: 0,
         averageSpeed: 0,
-        totalTime: 0,
-        totalCount: 0,
-        successCount: 0,
-        errorCount: 0
+        totalTime: 0
       };
       this.history.push(todayStats);
     }
 
-    todayStats.totalCount += 1;
+    todayStats.totalFiles += 1;
     todayStats.totalSize += task.file.size;
     todayStats.totalTime += uploadTime;
 
     if (task.status === UploadStatus.SUCCESS) {
-      todayStats.successCount += 1;
+      todayStats.successFiles += 1;
     } else if (task.status === UploadStatus.ERROR) {
-      todayStats.errorCount += 1;
+      todayStats.failedFiles += 1;
     }
 
     // 更新平均速度（加权平均）

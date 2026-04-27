@@ -19,8 +19,8 @@ export enum ChunkStatus {
   RETRYING = 'retrying'
 }
 
-// 确保枚举作为值导出（不仅仅是类型）
-export { UploadStatus as UploadStatusEnum, ChunkStatus as ChunkStatusEnum };
+/** 网络质量等级 */
+export type NetworkQuality = 'good' | 'fair' | 'poor';
 
 /** 上传统计信息 */
 export interface UploadStats {
@@ -36,5 +36,5 @@ export interface UploadStats {
   averageSpeed: number; // KB/s
   estimatedTime: number; // seconds
   instantSpeed: number;
-  networkQuality: string;
+  networkQuality: NetworkQuality;
 }

@@ -1,4 +1,5 @@
 /** 文件处理服务 整合文件验证、压缩、预览生成等功能 */
+import { getAdapter } from '../adapters';
 import type { FileUploadOptions, UploadConfig } from '../types';
 import { _validateFileSize, validateFileType } from '../utils/validation';
 import { formatFileSize } from '../utils/format';
@@ -250,7 +251,7 @@ export class FileService {
       );
     } catch (error) {
       // 压缩失败不影响上传，静默处理
-      if (import.meta.env.DEV) {
+      if (getAdapter().isDev()) {
         console.warn('文件压缩失败:', error);
       }
       return file;
@@ -281,7 +282,7 @@ export class FileService {
       return undefined;
     } catch (error) {
       // 预览生成失败不影响上传，静默处理
-      if (import.meta.env.DEV) {
+      if (getAdapter().isDev()) {
         console.warn('生成预览失败:', error);
       }
       return undefined;

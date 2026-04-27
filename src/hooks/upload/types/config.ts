@@ -79,10 +79,5 @@ export interface UploadConfig {
   previewMaxHeight: number; // 预览高度
 }
 
-/** 扩展配置接口 */
-export interface ExtendedUploadConfig extends UploadConfig {
-  // 请求参数转换器（已在 UploadConfig 中定义，这里保持兼容）
-  chunkUploadTransformer?: ChunkUploadTransformer;
-  mergeChunksTransformer?: MergeChunksTransformer;
-  checkFileTransformer?: CheckFileTransformer;
-}
+/** 扩展配置类型（与 UploadConfig 完全一致，用于未来扩展） */
+export type ExtendedUploadConfig = UploadConfig;

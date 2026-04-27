@@ -17,9 +17,9 @@ export type {
 // 导出适配器管理器
 export { setAdapter, getAdapter, hasAdapter, setDefaultAdapter } from './manager';
 
-// 导出 Vue 适配器
+// 导出 Vue 适配器（Vue 环境消费者导入使用）
 export { vueReactiveAdapter } from './vueReactiveAdapter';
 
-// 导出纯 JS 适配器
+// 导出纯 JS 适配器（非 Vue 环境消费者导入使用）
 export { createPlainReactiveAdapter, plainReactiveAdapter } from './plainReactiveAdapter';
 export type { PlainReactiveAdapterOptions } from './plainReactiveAdapter';

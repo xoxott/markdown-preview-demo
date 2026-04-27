@@ -47,7 +47,8 @@ export default defineConfig({
         test: {
           include: ['src/hooks/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
           environment: 'happy-dom',
-          globals: true
+          globals: true,
+          setupFiles: ['./src/hooks/upload/__tests__/setup.ts']
         }
       }
     ]

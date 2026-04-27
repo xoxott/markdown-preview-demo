@@ -1,4 +1,5 @@
 /** 浏览器兼容性检测和降级方案 */
+import { logger } from './logger';
 
 /** 浏览器特性支持检测 */
 export interface BrowserFeatures {
@@ -148,42 +149,21 @@ export function getBrowserInfo(): {
 }
 
 /** 输出兼容性警告 */
-/** 输出兼容性警告（使用 logger） */
 export function warnCompatibility(): void {
   const result = checkCompatibility();
   const browserInfo = getBrowserInfo();
 
-  // 尝试使用 logger，否则使用 console
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { logger } = require('./logger');
-    if (!result.supported) {
-      logger.error('浏览器兼容性检查失败', {
-        browser: `${browserInfo.name} ${browserInfo.version}`,
-        warnings: result.warnings,
-        fallbacks: result.fallbacks
-      });
-    } else if (result.warnings.length > 0) {
-      logger.warn('浏览器兼容性警告', {
-        browser: `${browserInfo.name} ${browserInfo.version}`,
-        warnings: result.warnings,
-        fallbacks: result.fallbacks
-      });
-    }
-  } catch {
-    // 如果 logger 不可用，使用 console
-    if (!result.supported) {
-      console.error('❌ 浏览器兼容性检查失败', {
-        browser: `${browserInfo.name} ${browserInfo.version}`,
-        warnings: result.warnings,
-        fallbacks: result.fallbacks
-      });
-    } else if (result.warnings.length > 0) {
-      console.warn('⚠️ 浏览器兼容性警告', {
-        browser: `${browserInfo.name} ${browserInfo.version}`,
-        warnings: result.warnings,
-        fallbacks: result.fallbacks
-      });
-    }
+  if (!result.supported) {
+    logger.error('浏览器兼容性检查失败', {
+      browser: `${browserInfo.name} ${browserInfo.version}`,
+      warnings: result.warnings,
+      fallbacks: result.fallbacks
+    });
+  } else if (result.warnings.length > 0) {
+    logger.warn('浏览器兼容性警告', {
+      browser: `${browserInfo.name} ${browserInfo.version}`,
+      warnings: result.warnings,
+      fallbacks: result.fallbacks
+    });
   }
 }

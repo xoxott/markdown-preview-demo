@@ -3,13 +3,18 @@ import { computed, onUnmounted } from 'vue';
 import type { UploadFileInfo } from 'naive-ui';
 import { UploadOrchestrator } from './core/UploadOrchestrator';
 import type { UploadConfig } from './types';
-import { convertToNaiveStatus } from './adapters/vueFileAdapter';
+import { setDefaultAdapter } from './adapters';
+import { vueReactiveAdapter } from './adapters/vueReactiveAdapter';
+import { convertToNaiveStatus, createNaiveFileList } from './adapters/vueFileAdapter';
 import { createMethodWrappers, createPropertyAccessors } from './utils/api-wrapper';
 import { getFileColor, getFileIcon } from './utils/file-type';
 import { formatFileSize, formatSpeed, formatTime } from './utils/format';
 import { type StatusTextMap, i18n } from './utils/i18n';
 import { performanceMonitor } from './utils/performance-monitor';
 import { getStatusText, getStatusType } from './utils/status-mapper';
+
+// Vue 环境默认使用 vueReactiveAdapter
+setDefaultAdapter(vueReactiveAdapter);
 
 export function useChunkUpload(config: Partial<UploadConfig> = {}) {
   const uploader = new UploadOrchestrator(config);
@@ -52,26 +57,13 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
   ] as const);
 
   /** 创建 Naive UI 文件列表 */
-  const createNaiveFileList = (): UploadFileInfo[] => {
+  const naiveFileList = (): UploadFileInfo[] => {
     const allTasks = [
       ...state.uploadQueue.value,
       ...Array.from(state.activeUploads.value.values()),
       ...state.completedUploads.value
     ];
-
-    return allTasks.map(
-      (task): UploadFileInfo => ({
-        id: task.id,
-        name: task.file.name,
-        status: convertToNaiveStatus(task.status),
-        percentage: task.progress,
-        file: task.file,
-        thumbnailUrl: task.options.metadata?.preview,
-        url: task.result?.fileUrl,
-        type: task.file.type,
-        fullPath: task.file.webkitRelativePath || task.file.name
-      })
-    );
+    return createNaiveFileList(allTasks);
   };
 
   /** 统计信息 API */
@@ -108,7 +100,7 @@ export function useChunkUpload(config: Partial<UploadConfig> = {}) {
     // 方法
     ...methods,
     // 工具函数
-    createNaiveFileList,
+    createNaiveFileList: naiveFileList,
     convertToNaiveStatus,
     getStatusText,
     getStatusType,

@@ -1,5 +1,6 @@
 /** 基于 Web Worker 的 MD5 计算工具 */
 import { CONSTANTS } from '../constants';
+import { getAdapter } from '../adapters';
 
 const CHUNK_SIZE = CONSTANTS.UPLOAD.CHUNK_SIZE; // 2MB per chunk for MD5 calculation
 
@@ -55,7 +56,7 @@ export async function calculateFileMD5WithWorker(
     } catch (error) {
       // 如果内联 worker 失败，回退到主线程计算
       // 静默失败，回退到主线程
-      if (import.meta.env.DEV) {
+      if (getAdapter().isDev()) {
         console.warn('Worker 创建失败，回退到主线程计算:', error);
       }
       reject(error);
@@ -127,7 +128,7 @@ export async function calculateFileMD5Smart(
   } catch (error) {
     // Worker 失败时回退到主线程
     // 静默失败，回退到主线程
-    if (import.meta.env.DEV) {
+    if (getAdapter().isDev()) {
       console.warn('Worker 计算失败，回退到主线程:', error);
     }
     const { calculateFileMD5 } = await import('./hash');

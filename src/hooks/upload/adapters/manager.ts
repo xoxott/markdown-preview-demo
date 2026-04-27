@@ -2,12 +2,11 @@
 /**
  * 响应式适配器管理器
  *
- * 通过 Symbol key 在实例上存储适配器，避免全局状态污染 参考 markdown-it-render-vnode 的 adapter manager 设计
+ * 通过 Symbol key 在实例上存储适配器，避免全局状态污染 默认不加载任何框架适配器，由消费者根据环境显式设置
  *
  * @module adapters/manager
  */
 
-import { vueReactiveAdapter } from './vueReactiveAdapter';
 import type { ReactiveAdapter } from './types';
 
 /** 内部符号键，用于存储适配器（避免命名冲突） */
@@ -18,13 +17,13 @@ interface AdapterHost {
   [ADAPTER_KEY]?: ReactiveAdapter;
 }
 
-/** 默认适配器（Vue 响应式） */
-let defaultAdapter: ReactiveAdapter = vueReactiveAdapter;
+/** 默认适配器（延迟初始化，由消费者设置） */
+let defaultAdapter: ReactiveAdapter | null = null;
 
 /**
  * 设置默认适配器
  *
- * 当实例上未设置适配器时，使用默认适配器 适用于非 Vue 环境：可设置为 plainReactiveAdapter
+ * 必须在使用上传模块前调用。Vue 环境应设置 vueReactiveAdapter，纯 JS 环境应设置 plainReactiveAdapter
  *
  * @param adapter - 默认适配器实例
  */
@@ -45,7 +44,7 @@ export function setAdapter(instance: object, adapter: ReactiveAdapter): void {
 /**
  * 获取适配器
  *
- * 优先从实例上获取，未设置时返回默认适配器
+ * 优先从实例上获取，未设置时返回默认适配器 如果两者都未设置，抛出错误提示消费者配置适配器
  *
  * @param instance - 上传模块实例（可选）
  * @returns 响应式适配器
@@ -60,7 +59,15 @@ export function getAdapter(instance?: object): ReactiveAdapter {
   }
 
   // 2. 返回默认适配器
-  return defaultAdapter;
+  if (defaultAdapter) {
+    return defaultAdapter;
+  }
+
+  // 3. 无适配器可用，提示配置
+  throw new Error(
+    '未设置响应式适配器。请在使用上传模块前调用 setDefaultAdapter()，' +
+      'Vue 环境使用 vueReactiveAdapter，纯 JS 环境使用 plainReactiveAdapter'
+  );
 }
 
 /**

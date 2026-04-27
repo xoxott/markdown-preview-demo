@@ -62,7 +62,7 @@ export type TableConfig<A extends ApiFn, T, C> = {
   immediate?: boolean;
 };
 
-export default function useHookTable<A extends ApiFn, T, C>(config: TableConfig<A, T, C>) {
+export default function useTable<A extends ApiFn, T, C>(config: TableConfig<A, T, C>) {
   const { loading, startLoading, endLoading } = useLoading();
   const { bool: empty, setBool: setEmpty } = useBoolean();
 

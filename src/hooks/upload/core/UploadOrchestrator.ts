@@ -1,5 +1,6 @@
 /** 上传编排器 负责协调各个服务和管理器，提供统一的上传管理接口 */
 import { getAdapter } from '../adapters';
+import type { ReactiveComputed, ReactiveRef } from '../adapters';
 import { CONSTANTS } from '../constants';
 import { UploadController } from '../controllers/UploadController';
 import { CacheManager } from '../managers/CacheManager';
@@ -21,7 +22,13 @@ import {
   defaultChunkUploadTransformer,
   defaultMergeChunksTransformer
 } from '../transformers/RequestTransformer';
-import type { ExtendedUploadConfig, FileTask, FileUploadOptions, UploadConfig } from '../types';
+import type {
+  ExtendedUploadConfig,
+  FileTask,
+  FileUploadOptions,
+  UploadConfig,
+  UploadStats
+} from '../types';
 import { checkCompatibility, warnCompatibility } from '../utils/browser-compat';
 import { validateAndWarnConfig } from '../utils/config-validator';
 import { logger } from '../utils/logger';
@@ -56,43 +63,28 @@ export class UploadOrchestrator {
   // 核心引擎
   private uploadEngine: UploadEngine;
 
-  // 响应式状态
-  private readonly adapter = getAdapter(this);
-  public readonly uploadQueue = this.adapter.ref<FileTask[]>([]);
-  public readonly activeUploads = this.adapter.ref<Map<string, FileTask>>(new Map());
-  public readonly completedUploads = this.adapter.ref<FileTask[]>([]);
-  public readonly isUploading = this.adapter.ref(false);
-  private isAddingFiles = this.adapter.ref(false);
+  // 响应式适配器（使用 getter 确保 per-instance setAdapter 能正确生效）
+  private get adapter() {
+    return getAdapter(this);
+  }
+
+  // 响应式状态（在构造函数中初始化）
+  public readonly uploadQueue!: ReactiveRef<FileTask[]>;
+  public readonly activeUploads!: ReactiveRef<Map<string, FileTask>>;
+  public readonly completedUploads!: ReactiveRef<FileTask[]>;
+  public readonly isUploading!: ReactiveRef<boolean>;
+  private isAddingFiles!: ReactiveRef<boolean>;
   private addFilesAbortController?: AbortController;
   private addFilesPromise?: Promise<void>;
 
-  // 计算属性
-  public readonly totalProgress = this.adapter.computed(
-    () => this.progressManager.totalProgress.value
-  );
-  public readonly uploadSpeed = this.adapter.computed(() => this.progressManager.uploadSpeed.value);
-  public readonly networkQuality = this.adapter.computed(
-    () => this.progressManager.networkQuality.value
-  );
-  public readonly isPaused = this.adapter.computed(() => this.uploadController.isPaused.value);
-
-  public readonly uploadStats = this.adapter.computed(() =>
-    this.progressManager.calculateStats(
-      this.uploadQueue.value,
-      this.activeUploads.value,
-      this.completedUploads.value
-    )
-  );
+  // 计算属性（在构造函数中初始化）
+  public readonly totalProgress!: ReactiveComputed<number>;
+  public readonly uploadSpeed!: ReactiveComputed<number>;
+  public readonly networkQuality!: ReactiveComputed<string>;
+  public readonly isPaused!: ReactiveComputed<boolean>;
+  public readonly uploadStats!: ReactiveComputed<UploadStats>;
 
   constructor(config: Partial<ExtendedUploadConfig> = {}) {
-    // 检查浏览器兼容性（仅在开发环境或首次检查时）
-    if (this.adapter.isDev()) {
-      const compatResult = checkCompatibility();
-      if (!compatResult.supported) {
-        warnCompatibility();
-      }
-    }
-
     // 验证配置
     validateAndWarnConfig(config);
 
@@ -114,6 +106,26 @@ export class UploadOrchestrator {
     // 创建分片服务
     this.chunkService = new ChunkService(this.config, (chunk, size, time) =>
       this.progressManager.updateChunkProgress(chunk, size, time)
+    );
+
+    // 初始化响应式状态（必须在管理器之后，确保 computed 引用可用）
+    this.uploadQueue = this.adapter.ref<FileTask[]>([]);
+    this.activeUploads = this.adapter.ref<Map<string, FileTask>>(new Map());
+    this.completedUploads = this.adapter.ref<FileTask[]>([]);
+    this.isUploading = this.adapter.ref(false);
+    this.isAddingFiles = this.adapter.ref(false);
+
+    // 初始化计算属性
+    this.totalProgress = this.adapter.computed(() => this.progressManager.totalProgress.value);
+    this.uploadSpeed = this.adapter.computed(() => this.progressManager.uploadSpeed.value);
+    this.networkQuality = this.adapter.computed(() => this.progressManager.networkQuality.value);
+    this.isPaused = this.adapter.computed(() => this.uploadController.isPaused.value);
+    this.uploadStats = this.adapter.computed(() =>
+      this.progressManager.calculateStats(
+        this.uploadQueue.value,
+        this.activeUploads.value,
+        this.completedUploads.value
+      )
     );
 
     // 初始化新增的管理器
@@ -158,6 +170,14 @@ export class UploadOrchestrator {
 
     // 设置任务获取器
     this.uploadController.setTaskGetter((taskId: string) => this.taskStateManager.getTask(taskId));
+
+    // 检查浏览器兼容性（仅在开发环境或首次检查时）
+    if (this.adapter.isDev()) {
+      const compatResult = checkCompatibility();
+      if (!compatResult.supported) {
+        warnCompatibility();
+      }
+    }
 
     // 设置监听器
     this.setupWatchers();
