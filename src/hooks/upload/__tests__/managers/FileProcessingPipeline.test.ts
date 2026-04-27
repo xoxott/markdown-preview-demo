@@ -208,10 +208,8 @@ describe('FileProcessingPipeline', () => {
 
     it('应该计算已有任务数量（队列 + 活动上传）', async () => {
       const existingTask = createMockTask('existing');
-      taskStateManager.uploadQueue = { value: [existingTask] };
-      taskStateManager.activeUploads = {
-        value: new Map([['active-1', createMockTask('active-1')]])
-      };
+      taskStateManager.uploadQueue.value = [existingTask];
+      taskStateManager.activeUploads.value = new Map([['active-1', createMockTask('active-1')]]);
 
       const file = new File(['a'], 'a.txt', { type: 'text/plain' });
       const files = [file];

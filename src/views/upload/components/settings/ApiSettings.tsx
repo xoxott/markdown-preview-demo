@@ -40,12 +40,6 @@ export default defineComponent({
             onUpdateValue={value => props.onUpdate('checkFileUrl', value || undefined)}
           />
         </NFormItem>
-        <NFormItem label="取消上传 URL (可选)">
-          <NInput
-            value={props.settings.cancelUploadUrl}
-            onUpdateValue={value => props.onUpdate('cancelUploadUrl', value || undefined)}
-          />
-        </NFormItem>
       </NForm>
     );
   }

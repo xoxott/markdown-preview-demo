@@ -33,7 +33,6 @@ describe('NetworkAdaptationManager', () => {
     useWorker: false,
     enableCache: true,
     enableNetworkAdaptation: true,
-    enableSmartRetry: true,
     compressionQuality: 0.8,
     previewMaxWidth: 200,
     previewMaxHeight: 200

@@ -64,13 +64,7 @@ export default defineComponent({
             onUpdateValue={value => props.onUpdate('enableNetworkAdaptation', value)}
           />
         </NFormItem>
-        <NFormItem label="智能重试">
-          <NSwitch
-            value={props.settings.enableSmartRetry}
-            onUpdateValue={value => props.onUpdate('enableSmartRetry', value)}
-          />
-        </NFormItem>
-      </NForm>
+              </NForm>
     );
   }
 });

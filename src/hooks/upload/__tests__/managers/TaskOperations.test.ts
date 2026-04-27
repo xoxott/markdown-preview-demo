@@ -41,7 +41,6 @@ describe('TaskOperations', () => {
     useWorker: false,
     enableCache: true,
     enableNetworkAdaptation: false,
-    enableSmartRetry: true,
     compressionQuality: 0.8,
     previewMaxWidth: 200,
     previewMaxHeight: 200
@@ -262,9 +261,9 @@ describe('TaskOperations', () => {
     it('应该恢复暂停的任务', () => {
       const task = createMockTask('task-1', UploadStatus.PAUSED);
       taskStateManager.getTask = vi.fn().mockReturnValue(task);
-      taskStateManager.uploadQueue = { value: [] };
-      taskStateManager.activeUploads = { value: new Map() };
-      taskStateManager.completedUploads = { value: [] };
+      taskStateManager.uploadQueue.value = [];
+      taskStateManager.activeUploads.value = new Map();
+      taskStateManager.completedUploads.value = [];
 
       const startUpload = vi.fn();
 
@@ -290,9 +289,9 @@ describe('TaskOperations', () => {
     it('应该从已完成列表中移除恢复的任务', () => {
       const task = createMockTask('task-1', UploadStatus.PAUSED);
       taskStateManager.getTask = vi.fn().mockReturnValue(task);
-      taskStateManager.completedUploads = { value: [task] };
-      taskStateManager.uploadQueue = { value: [] };
-      taskStateManager.activeUploads = { value: new Map() };
+      taskStateManager.completedUploads.value = [task];
+      taskStateManager.uploadQueue.value = [];
+      taskStateManager.activeUploads.value = new Map();
 
       operations.resume('task-1', () => false, vi.fn());
 
@@ -302,9 +301,9 @@ describe('TaskOperations', () => {
     it('应该在未上传时调用 startUpload', () => {
       const task = createMockTask('task-1', UploadStatus.PAUSED);
       taskStateManager.getTask = vi.fn().mockReturnValue(task);
-      taskStateManager.uploadQueue = { value: [] };
-      taskStateManager.activeUploads = { value: new Map() };
-      taskStateManager.completedUploads = { value: [] };
+      taskStateManager.uploadQueue.value = [];
+      taskStateManager.activeUploads.value = new Map();
+      taskStateManager.completedUploads.value = [];
 
       const startUpload = vi.fn();
       const isUploading = vi.fn().mockReturnValue(false);
@@ -317,9 +316,9 @@ describe('TaskOperations', () => {
     it('应该在上传中时不调用 startUpload', () => {
       const task = createMockTask('task-1', UploadStatus.PAUSED);
       taskStateManager.getTask = vi.fn().mockReturnValue(task);
-      taskStateManager.uploadQueue = { value: [] };
-      taskStateManager.activeUploads = { value: new Map() };
-      taskStateManager.completedUploads = { value: [] };
+      taskStateManager.uploadQueue.value = [];
+      taskStateManager.activeUploads.value = new Map();
+      taskStateManager.completedUploads.value = [];
 
       const startUpload = vi.fn();
       const isUploading = vi.fn().mockReturnValue(true);
@@ -332,9 +331,9 @@ describe('TaskOperations', () => {
     it('应该将恢复的任务添加到队列（如果不在队列和活动中）', () => {
       const task = createMockTask('task-1', UploadStatus.PAUSED);
       taskStateManager.getTask = vi.fn().mockReturnValue(task);
-      taskStateManager.uploadQueue = { value: [] };
-      taskStateManager.activeUploads = { value: new Map() };
-      taskStateManager.completedUploads = { value: [] };
+      taskStateManager.uploadQueue.value = [];
+      taskStateManager.activeUploads.value = new Map();
+      taskStateManager.completedUploads.value = [];
 
       operations.resume('task-1', () => false, vi.fn());
 
@@ -344,9 +343,9 @@ describe('TaskOperations', () => {
     it('不应该重复添加已在队列中的任务', () => {
       const task = createMockTask('task-1', UploadStatus.PAUSED);
       taskStateManager.getTask = vi.fn().mockReturnValue(task);
-      taskStateManager.uploadQueue = { value: [task] };
-      taskStateManager.activeUploads = { value: new Map() };
-      taskStateManager.completedUploads = { value: [] };
+      taskStateManager.uploadQueue.value = [task];
+      taskStateManager.activeUploads.value = new Map();
+      taskStateManager.completedUploads.value = [];
 
       operations.resume('task-1', () => false, vi.fn());
 
@@ -361,9 +360,9 @@ describe('TaskOperations', () => {
       const pendingTask = createMockTask('task-2', UploadStatus.PENDING);
       const completedTask = createMockTask('task-3', UploadStatus.SUCCESS);
 
-      taskStateManager.uploadQueue = { value: [pendingTask, completedTask] };
-      taskStateManager.activeUploads = { value: new Map([['task-1', uploadingTask]]) };
-      taskStateManager.completedUploads = { value: [completedTask] };
+      taskStateManager.uploadQueue.value = [pendingTask, completedTask];
+      taskStateManager.activeUploads.value = new Map([['task-1', uploadingTask]]);
+      taskStateManager.completedUploads.value = [completedTask];
 
       operations.pauseAll();
 
@@ -380,9 +379,9 @@ describe('TaskOperations', () => {
       const uploadingTask = createMockTask('task-1', UploadStatus.UPLOADING);
       const pendingTask = createMockTask('task-2', UploadStatus.PENDING);
 
-      taskStateManager.uploadQueue = { value: [pendingTask] };
-      taskStateManager.activeUploads = { value: new Map([['task-1', uploadingTask]]) };
-      taskStateManager.completedUploads = { value: [] };
+      taskStateManager.uploadQueue.value = [pendingTask];
+      taskStateManager.activeUploads.value = new Map([['task-1', uploadingTask]]);
+      taskStateManager.completedUploads.value = [];
 
       operations.pauseAll();
 
@@ -393,9 +392,9 @@ describe('TaskOperations', () => {
       const uploadingTask = createMockTask('task-1', UploadStatus.UPLOADING);
       const pendingTask = createMockTask('task-2', UploadStatus.PENDING);
 
-      taskStateManager.uploadQueue = { value: [pendingTask] };
-      taskStateManager.activeUploads = { value: new Map([['task-1', uploadingTask]]) };
-      taskStateManager.completedUploads = { value: [] };
+      taskStateManager.uploadQueue.value = [pendingTask];
+      taskStateManager.activeUploads.value = new Map([['task-1', uploadingTask]]);
+      taskStateManager.completedUploads.value = [];
 
       operations.pauseAll();
 
@@ -406,9 +405,9 @@ describe('TaskOperations', () => {
 
   describe('resumeAll', () => {
     it('应该在无暂停任务时直接返回', () => {
-      taskStateManager.uploadQueue = { value: [] };
-      taskStateManager.activeUploads = { value: new Map() };
-      taskStateManager.completedUploads = { value: [] };
+      taskStateManager.uploadQueue.value = [];
+      taskStateManager.activeUploads.value = new Map();
+      taskStateManager.completedUploads.value = [];
 
       operations.resumeAll(() => false, vi.fn());
 
@@ -420,9 +419,9 @@ describe('TaskOperations', () => {
       const pausedTask2 = createMockTask('task-2', UploadStatus.PAUSED);
       const completedTask = createMockTask('task-3', UploadStatus.SUCCESS);
 
-      taskStateManager.uploadQueue = { value: [pausedTask1] };
-      taskStateManager.activeUploads = { value: new Map() };
-      taskStateManager.completedUploads = { value: [pausedTask2, completedTask] };
+      taskStateManager.uploadQueue.value = [pausedTask1];
+      taskStateManager.activeUploads.value = new Map();
+      taskStateManager.completedUploads.value = [pausedTask2, completedTask];
 
       operations.resumeAll(() => false, vi.fn());
 
@@ -438,9 +437,9 @@ describe('TaskOperations', () => {
       config.enableCache = true;
       const pausedTask = createMockTask('task-1', UploadStatus.PAUSED);
 
-      taskStateManager.uploadQueue = { value: [pausedTask] };
-      taskStateManager.activeUploads = { value: new Map() };
-      taskStateManager.completedUploads = { value: [] };
+      taskStateManager.uploadQueue.value = [pausedTask];
+      taskStateManager.activeUploads.value = new Map();
+      taskStateManager.completedUploads.value = [];
 
       operations.resumeAll(() => false, vi.fn());
 
@@ -449,9 +448,9 @@ describe('TaskOperations', () => {
 
     it('应该在未上传时调用 startUpload', () => {
       const pausedTask = createMockTask('task-1', UploadStatus.PAUSED);
-      taskStateManager.uploadQueue = { value: [pausedTask] };
-      taskStateManager.activeUploads = { value: new Map() };
-      taskStateManager.completedUploads = { value: [] };
+      taskStateManager.uploadQueue.value = [pausedTask];
+      taskStateManager.activeUploads.value = new Map();
+      taskStateManager.completedUploads.value = [];
 
       const startUpload = vi.fn();
       operations.resumeAll(() => false, startUpload);
@@ -461,9 +460,9 @@ describe('TaskOperations', () => {
 
     it('应该排序队列', () => {
       const pausedTask = createMockTask('task-1', UploadStatus.PAUSED);
-      taskStateManager.uploadQueue = { value: [pausedTask] };
-      taskStateManager.activeUploads = { value: new Map() };
-      taskStateManager.completedUploads = { value: [] };
+      taskStateManager.uploadQueue.value = [pausedTask];
+      taskStateManager.activeUploads.value = new Map();
+      taskStateManager.completedUploads.value = [];
 
       operations.resumeAll(() => false, vi.fn());
 
@@ -515,7 +514,7 @@ describe('TaskOperations', () => {
   describe('retrySingleFile', () => {
     it('应该在任务不存在或非 ERROR 状态时直接返回', () => {
       const successTask = createMockTask('task-1', UploadStatus.SUCCESS);
-      taskStateManager.completedUploads = { value: [successTask] };
+      taskStateManager.completedUploads.value = [successTask];
 
       operations.retrySingleFile('task-1', () => false, vi.fn());
 
@@ -524,7 +523,7 @@ describe('TaskOperations', () => {
 
     it('应该在任务 ID 不匹配时直接返回', () => {
       const errorTask = createMockTask('task-1', UploadStatus.ERROR);
-      taskStateManager.completedUploads = { value: [errorTask] };
+      taskStateManager.completedUploads.value = [errorTask];
 
       operations.retrySingleFile('nonexistent', () => false, vi.fn());
 
@@ -533,8 +532,8 @@ describe('TaskOperations', () => {
 
     it('应该重试失败的任务', () => {
       const errorTask = createMockTask('task-1', UploadStatus.ERROR);
-      taskStateManager.completedUploads = { value: [errorTask] };
-      taskStateManager.uploadQueue = { value: [] };
+      taskStateManager.completedUploads.value = [errorTask];
+      taskStateManager.uploadQueue.value = [];
 
       const startUpload = vi.fn();
 
@@ -552,8 +551,8 @@ describe('TaskOperations', () => {
 
     it('应该在未上传时调用 startUpload', () => {
       const errorTask = createMockTask('task-1', UploadStatus.ERROR);
-      taskStateManager.completedUploads = { value: [errorTask] };
-      taskStateManager.uploadQueue = { value: [] };
+      taskStateManager.completedUploads.value = [errorTask];
+      taskStateManager.uploadQueue.value = [];
 
       const startUpload = vi.fn();
       operations.retrySingleFile('task-1', () => false, startUpload);
@@ -563,8 +562,8 @@ describe('TaskOperations', () => {
 
     it('应该在上传中时不调用 startUpload', () => {
       const errorTask = createMockTask('task-1', UploadStatus.ERROR);
-      taskStateManager.completedUploads = { value: [errorTask] };
-      taskStateManager.uploadQueue = { value: [] };
+      taskStateManager.completedUploads.value = [errorTask];
+      taskStateManager.uploadQueue.value = [];
 
       const startUpload = vi.fn();
       operations.retrySingleFile('task-1', () => true, startUpload);
@@ -587,8 +586,8 @@ describe('TaskOperations', () => {
           }
         ]
       });
-      taskStateManager.completedUploads = { value: [errorTask] };
-      taskStateManager.uploadQueue = { value: [] };
+      taskStateManager.completedUploads.value = [errorTask];
+      taskStateManager.uploadQueue.value = [];
 
       operations.retrySingleFile('task-1', () => false, vi.fn());
 
@@ -599,7 +598,7 @@ describe('TaskOperations', () => {
 
   describe('retryFailed', () => {
     it('应该在无失败任务时直接返回', () => {
-      taskStateManager.completedUploads = { value: [] };
+      taskStateManager.completedUploads.value = [];
 
       operations.retryFailed(() => false, vi.fn());
 
@@ -611,8 +610,8 @@ describe('TaskOperations', () => {
       const errorTask2 = createMockTask('task-2', UploadStatus.ERROR);
       const successTask = createMockTask('task-3', UploadStatus.SUCCESS);
 
-      taskStateManager.completedUploads = { value: [errorTask1, errorTask2, successTask] };
-      taskStateManager.uploadQueue = { value: [] };
+      taskStateManager.completedUploads.value = [errorTask1, errorTask2, successTask];
+      taskStateManager.uploadQueue.value = [];
 
       operations.retryFailed(() => false, vi.fn());
 
@@ -629,8 +628,8 @@ describe('TaskOperations', () => {
       const errorTask = createMockTask('task-1', UploadStatus.ERROR);
       const successTask = createMockTask('task-2', UploadStatus.SUCCESS);
 
-      taskStateManager.completedUploads = { value: [errorTask, successTask] };
-      taskStateManager.uploadQueue = { value: [] };
+      taskStateManager.completedUploads.value = [errorTask, successTask];
+      taskStateManager.uploadQueue.value = [];
 
       operations.retryFailed(() => false, vi.fn());
 
@@ -641,8 +640,8 @@ describe('TaskOperations', () => {
 
     it('应该在未上传且有任务时调用 startUpload', () => {
       const errorTask = createMockTask('task-1', UploadStatus.ERROR);
-      taskStateManager.completedUploads = { value: [errorTask] };
-      taskStateManager.uploadQueue = { value: [] };
+      taskStateManager.completedUploads.value = [errorTask];
+      taskStateManager.uploadQueue.value = [];
 
       const startUpload = vi.fn();
       operations.retryFailed(() => false, startUpload);
@@ -652,8 +651,8 @@ describe('TaskOperations', () => {
 
     it('应该在上传中时不调用 startUpload', () => {
       const errorTask = createMockTask('task-1', UploadStatus.ERROR);
-      taskStateManager.completedUploads = { value: [errorTask] };
-      taskStateManager.uploadQueue = { value: [] };
+      taskStateManager.completedUploads.value = [errorTask];
+      taskStateManager.uploadQueue.value = [];
 
       const startUpload = vi.fn();
       operations.retryFailed(() => true, startUpload);

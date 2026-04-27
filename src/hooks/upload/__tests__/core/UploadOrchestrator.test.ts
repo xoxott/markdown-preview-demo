@@ -23,8 +23,7 @@ function createBaseConfig(): Partial<UploadConfig> {
     enableDeduplication: false,
     useWorker: false,
     enableCache: false,
-    enableNetworkAdaptation: false,
-    enableSmartRetry: false
+    enableNetworkAdaptation: false
   };
 }
 

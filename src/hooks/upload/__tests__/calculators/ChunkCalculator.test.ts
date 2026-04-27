@@ -26,7 +26,6 @@ describe('ChunkCalculator', () => {
     useWorker: false,
     enableCache: false,
     enableNetworkAdaptation: false,
-    enableSmartRetry: false,
     compressionQuality: CONSTANTS.COMPRESSION.COMPRESSION_QUALITY,
     previewMaxWidth: CONSTANTS.PREVIEW.PREVIEW_MAX_WIDTH,
     previewMaxHeight: CONSTANTS.PREVIEW.PREVIEW_MAX_HEIGHT

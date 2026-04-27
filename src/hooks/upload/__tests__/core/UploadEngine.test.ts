@@ -59,7 +59,6 @@ function createBaseConfig(): UploadConfig {
     useWorker: false,
     enableCache: false,
     enableNetworkAdaptation: false,
-    enableSmartRetry: false,
     enableCompression: false,
     compressionQuality: 0.8,
     enablePreview: false,
