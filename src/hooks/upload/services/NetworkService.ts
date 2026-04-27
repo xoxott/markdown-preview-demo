@@ -9,6 +9,9 @@ export class NetworkService {
   private speedHistory: number[] = [];
   private maxHistorySize = 10;
 
+  // 网络变化监听器引用（用于清理）
+  private networkChangeListener?: () => void;
+
   // 当前网络状态
   private currentNetworkInfo: {
     type: string;
@@ -59,10 +62,22 @@ export class NetworkService {
       this.updateNetworkInfo(connection);
 
       // 监听网络变化
-      connection.addEventListener('change', () => {
+      this.networkChangeListener = () => {
         this.updateNetworkInfo(connection);
         this.recalculateAdaptiveConfig();
-      });
+      };
+      connection.addEventListener('change', this.networkChangeListener);
+    }
+  }
+
+  /** 清理网络监听器 */
+  cleanup(): void {
+    if (!this.networkChangeListener || !('connection' in navigator)) return;
+
+    const connection = (navigator as NavigatorWithConnection).connection;
+    if (connection) {
+      connection.removeEventListener('change', this.networkChangeListener);
+      this.networkChangeListener = undefined;
     }
   }
 
@@ -237,15 +252,6 @@ export class NetworkService {
     // 计算最终质量
     if (score >= 10) return 'good';
     if (score >= 5) return 'fair';
-    return 'poor';
-  }
-
-  /** 根据当前上传速度评估网络质量 */
-  getNetworkQuality(speed: number): 'good' | 'fair' | 'poor' {
-    this.addSpeedToHistory(speed);
-
-    if (speed > CONSTANTS.NETWORK.QUALITY_THRESHOLDS.GOOD) return 'good';
-    if (speed > CONSTANTS.NETWORK.QUALITY_THRESHOLDS.FAIR) return 'fair';
     return 'poor';
   }
 

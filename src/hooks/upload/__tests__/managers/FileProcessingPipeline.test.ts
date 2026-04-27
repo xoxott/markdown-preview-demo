@@ -44,7 +44,8 @@ describe('FileProcessingPipeline', () => {
     } as unknown as TaskStateManager;
 
     queueManager = {
-      sort: vi.fn()
+      sort: vi.fn(),
+      isDuplicate: vi.fn().mockReturnValue(false)
     } as unknown as QueueManager;
 
     pipeline = new FileProcessingPipeline(
@@ -122,7 +123,7 @@ describe('FileProcessingPipeline', () => {
       fileService.validate = vi
         .fn()
         .mockReturnValue({ valid: [], errors: [{ file: files[0], reason: '文件为空' }] });
-      taskService.isDuplicate = vi.fn().mockReturnValue(false);
+      queueManager.isDuplicate = vi.fn().mockReturnValue(false);
 
       await pipeline.processFiles(files, defaultOptions);
 
@@ -148,7 +149,7 @@ describe('FileProcessingPipeline', () => {
       const task2 = createMockTask('task-2');
 
       fileService.validate = vi.fn().mockReturnValue({ valid: files, errors: [] });
-      taskService.isDuplicate = vi.fn().mockReturnValue(false);
+      queueManager.isDuplicate = vi.fn().mockReturnValue(false);
       fileService.processFile = vi.fn().mockResolvedValue({
         file: file1,
         originalFile: file1,
@@ -161,7 +162,7 @@ describe('FileProcessingPipeline', () => {
       await pipeline.processFiles(files, defaultOptions);
 
       expect(fileService.validate).toHaveBeenCalled();
-      expect(taskService.isDuplicate).toHaveBeenCalled();
+      expect(queueManager.isDuplicate).toHaveBeenCalled();
       expect(fileService.processFile).toHaveBeenCalledTimes(2);
       expect(taskService.createTask).toHaveBeenCalledTimes(2);
       expect(taskStateManager.addToQueue).toHaveBeenCalledTimes(2);
@@ -173,7 +174,7 @@ describe('FileProcessingPipeline', () => {
       const files = [file1];
 
       fileService.validate = vi.fn().mockReturnValue({ valid: files, errors: [] });
-      taskService.isDuplicate = vi.fn().mockReturnValue(true); // 标记为重复
+      queueManager.isDuplicate = vi.fn().mockReturnValue(true); // 标记为重复
 
       await pipeline.processFiles(files, defaultOptions);
 
@@ -188,7 +189,7 @@ describe('FileProcessingPipeline', () => {
       const task2 = createMockTask('task-2');
 
       fileService.validate = vi.fn().mockReturnValue({ valid: files, errors: [] });
-      taskService.isDuplicate = vi.fn().mockReturnValue(false);
+      queueManager.isDuplicate = vi.fn().mockReturnValue(false);
       // 第一个文件处理失败，第二个成功
       fileService.processFile = vi
         .fn()
@@ -219,7 +220,7 @@ describe('FileProcessingPipeline', () => {
       const files = [file];
 
       fileService.validate = vi.fn().mockReturnValue({ valid: files, errors: [] });
-      taskService.isDuplicate = vi.fn().mockReturnValue(false);
+      queueManager.isDuplicate = vi.fn().mockReturnValue(false);
       fileService.processFile = vi.fn().mockResolvedValue({
         file,
         originalFile: file,
@@ -240,7 +241,7 @@ describe('FileProcessingPipeline', () => {
       const task = createMockTask('task-1');
 
       fileService.validate = vi.fn().mockReturnValue({ valid: files, errors: [] });
-      taskService.isDuplicate = vi.fn().mockReturnValue(false);
+      queueManager.isDuplicate = vi.fn().mockReturnValue(false);
       fileService.processFile = vi.fn().mockResolvedValue({
         file,
         originalFile: file,

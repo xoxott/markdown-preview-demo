@@ -448,6 +448,10 @@ export class UploadOrchestrator {
     // 取消所有任务
     this.cancelAll();
 
+    // 清理网络监听器（避免内存泄漏）
+    this.networkAdaptationManager.cleanup();
+    this.networkService.cleanup();
+
     // 重置进度管理器
     this.progressManager.reset();
 

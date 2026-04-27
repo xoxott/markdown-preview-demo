@@ -111,8 +111,16 @@ export const plainReactiveAdapter: ReactiveAdapter = createPlainReactiveAdapter(
 function deepCloneForCompare(value: unknown): unknown {
   if (value instanceof Map) return new Map(value);
   if (value instanceof Set) return new Set(value);
-  if (Array.isArray(value)) return [...value];
-  if (typeof value === 'object' && value !== null) return { ...value };
+  // 对数组/对象使用 JSON 序列化实现深拷贝（File 等不可序列化对象会丢失，但数值属性变化已通过原始值 watcher 检测）
+  if (Array.isArray(value) || (typeof value === 'object' && value !== null)) {
+    try {
+      return JSON.parse(JSON.stringify(value));
+    } catch {
+      // 不可序列化的对象回退到浅拷贝
+      if (Array.isArray(value)) return [...value];
+      return { ...value };
+    }
+  }
   return value;
 }
 

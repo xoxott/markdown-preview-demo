@@ -58,7 +58,7 @@ export class FileProcessingPipeline {
       signal,
       processor: async (file, index) => {
         // 检查重复
-        if (this.taskService.isDuplicate(file, this.taskStateManager.getAllTasks())) {
+        if (this.queueManager.isDuplicate(file, this.taskStateManager.getAllTasks())) {
           logger.debug('跳过重复文件', { fileName: file.name });
           return null;
         }

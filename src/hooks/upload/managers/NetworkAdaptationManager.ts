@@ -17,6 +17,7 @@ import type { ProgressManager } from './ProgressManager';
 /** 网络自适应管理器 */
 export class NetworkAdaptationManager {
   private networkAdaptation: NetworkAdaptationConfig;
+  private networkChangeListener?: () => void;
 
   constructor(
     private config: ExtendedUploadConfig,
@@ -35,9 +36,20 @@ export class NetworkAdaptationManager {
 
     const connection = (navigator as NavigatorWithConnection).connection;
     if (connection) {
-      const updateNetworkInfo = () => this.networkService.adaptToConnection(connection);
-      connection.addEventListener('change', updateNetworkInfo);
-      updateNetworkInfo();
+      this.networkChangeListener = () => this.networkService.adaptToConnection(connection);
+      connection.addEventListener('change', this.networkChangeListener);
+      this.networkChangeListener();
+    }
+  }
+
+  /** 清理网络监听器 */
+  cleanup(): void {
+    if (!this.networkChangeListener || !('connection' in navigator)) return;
+
+    const connection = (navigator as NavigatorWithConnection).connection;
+    if (connection) {
+      connection.removeEventListener('change', this.networkChangeListener);
+      this.networkChangeListener = undefined;
     }
   }
 
