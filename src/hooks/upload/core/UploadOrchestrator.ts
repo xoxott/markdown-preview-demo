@@ -1,6 +1,6 @@
 /** 上传编排器 负责协调各个服务和管理器，提供统一的上传管理接口 */
 import { getAdapter } from '../adapters';
-import type { ReactiveComputed, ReactiveRef } from '../adapters';
+import type { ReactiveComputed, ReactiveRef, WatchStopHandle } from '../adapters';
 import { CONSTANTS } from '../constants';
 import { UploadController } from '../controllers/UploadController';
 import { CacheManager } from '../managers/CacheManager';
@@ -68,6 +68,9 @@ export class UploadOrchestrator {
   private get adapter() {
     return getAdapter(this);
   }
+
+  // Watcher stop handles（用于 destroy 时清理）
+  private watchStopHandles: WatchStopHandle[] = [];
 
   // 响应式状态（在构造函数中初始化）
   public readonly uploadQueue!: ReactiveRef<FileTask[]>;
@@ -257,17 +260,27 @@ export class UploadOrchestrator {
     };
 
     // 监听队列长度变化（使用 getter 避免 deep watch 的性能开销）
-    this.adapter.watch(() => this.uploadQueue.value.length, updateProgress);
-    this.adapter.watch(() => this.activeUploads.value.size, updateProgress);
-    this.adapter.watch(() => this.completedUploads.value.length, updateProgress);
+    this.watchStopHandles.push(
+      this.adapter.watch(() => this.uploadQueue.value.length, updateProgress)
+    );
+    this.watchStopHandles.push(
+      this.adapter.watch(() => this.activeUploads.value.size, updateProgress)
+    );
+    this.watchStopHandles.push(
+      this.adapter.watch(() => this.completedUploads.value.length, updateProgress)
+    );
 
-    this.adapter.watch(this.uploadSpeed, speed => {
-      this.callbackManager.emit('onSpeedChange', speed);
-    });
+    this.watchStopHandles.push(
+      this.adapter.watch(this.uploadSpeed, speed => {
+        this.callbackManager.emit('onSpeedChange', speed);
+      })
+    );
 
-    this.adapter.watch(this.totalProgress, progress => {
-      this.callbackManager.emit('onTotalProgress', progress, this.uploadStats.value);
-    });
+    this.watchStopHandles.push(
+      this.adapter.watch(this.totalProgress, progress => {
+        this.callbackManager.emit('onTotalProgress', progress, this.uploadStats.value);
+      })
+    );
   }
 
   /** 添加文件到上传队列 */
@@ -451,6 +464,10 @@ export class UploadOrchestrator {
     // 清理网络监听器（避免内存泄漏）
     this.networkAdaptationManager.cleanup();
     this.networkService.cleanup();
+
+    // 停止所有 watcher（避免内存泄漏）
+    this.watchStopHandles.forEach(stop => stop());
+    this.watchStopHandles = [];
 
     // 重置进度管理器
     this.progressManager.reset();

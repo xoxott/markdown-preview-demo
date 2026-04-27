@@ -1,7 +1,7 @@
 /** 文件处理服务 整合文件验证、压缩、预览生成等功能 */
 import { getAdapter } from '../adapters';
 import type { FileUploadOptions, UploadConfig } from '../types';
-import { _validateFileSize, validateFileType } from '../utils/validation';
+import { validateFileType } from '../utils/validation';
 import { formatFileSize } from '../utils/format';
 import { calculateFileMD5 } from '../utils/hash';
 import { calculateFileMD5Smart } from '../utils/hash-worker';
@@ -10,12 +10,14 @@ import { calculateFileMD5Smart } from '../utils/hash-worker';
 const FileCompressor = {
   /** 压缩图片文件 */
   async compressImage(file: File, quality = 0.8, maxWidth = 1920, maxHeight = 1080): Promise<File> {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d')!;
       const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
 
       img.onload = () => {
+        URL.revokeObjectURL(objectUrl);
         // 计算压缩后的尺寸
         let { width, height } = img;
         if (width > maxWidth || height > maxHeight) {
@@ -42,7 +44,12 @@ const FileCompressor = {
         );
       };
 
-      img.src = URL.createObjectURL(file);
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error(`图片加载失败: ${file.name}`));
+      };
+
+      img.src = objectUrl;
     });
   }
 };
