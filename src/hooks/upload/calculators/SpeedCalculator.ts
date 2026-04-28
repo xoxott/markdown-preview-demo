@@ -1,4 +1,4 @@
-/** 速度计算器 用于计算上传速度 */
+/** 速度计算器 用于计算上传速度（所有返回值单位为 KB/s） */
 export class SpeedCalculator {
   private dataPoints: Array<{ size: number; time: number; timestamp: number }> = [];
   private readonly windowSize: number;
@@ -37,7 +37,7 @@ export class SpeedCalculator {
     }
   }
 
-  /** 获取当前上传速度（bytes/s） */
+  /** 获取当前上传速度（KB/s） */
   getSpeed(): number {
     if (this.dataPoints.length === 0) return 0;
 
@@ -51,7 +51,7 @@ export class SpeedCalculator {
       return this.lastSpeed;
     }
 
-    const instantSpeed = (totalSize / totalTime) * 1000;
+    const instantSpeed = (totalSize / totalTime) * 1000 / 1024; // 输出 KB/s
 
     if (!Number.isFinite(instantSpeed) || instantSpeed < 0) {
       return this.lastSpeed;
@@ -67,7 +67,7 @@ export class SpeedCalculator {
     return Math.max(0, Number.isFinite(this.lastSpeed) ? this.lastSpeed : 0);
   }
 
-  /** 获取平均上传速度（bytes/s） */
+  /** 获取平均上传速度（KB/s） */
   getAverageSpeed(): number {
     if (this.dataPoints.length === 0) return 0;
 
@@ -78,7 +78,7 @@ export class SpeedCalculator {
       return 0;
     }
 
-    const avgSpeed = (totalSize / totalTime) * 1000;
+    const avgSpeed = (totalSize / totalTime) * 1000 / 1024; // 输出 KB/s
     return Number.isFinite(avgSpeed) ? Math.max(0, avgSpeed) : 0;
   }
 

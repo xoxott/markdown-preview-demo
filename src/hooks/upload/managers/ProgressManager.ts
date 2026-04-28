@@ -259,7 +259,7 @@ export class ProgressManager {
 
     const averageSpeed = this.speedCalculator.getAverageSpeed();
     const safeAverageSpeed = Number.isFinite(averageSpeed) && averageSpeed >= 0 ? averageSpeed : 0;
-    const estimatedTime = this.timeEstimator.update(remainingSize, safeAverageSpeed / 1024); // 转换为 KB/s
+    const estimatedTime = this.timeEstimator.update(remainingSize / 1024, safeAverageSpeed); // remainingSize 转 KB，speed 已为 KB/s
 
     return {
       completed,
@@ -271,11 +271,11 @@ export class ProgressManager {
       total,
       totalSize: safeTotalSize,
       uploadedSize: safeUploadedSize,
-      averageSpeed: safeAverageSpeed / 1024, // 转换为 KB/s
+      averageSpeed: safeAverageSpeed, // 已为 KB/s
       instantSpeed:
         Number.isFinite(this.uploadSpeed.value) && this.uploadSpeed.value >= 0
-          ? this.uploadSpeed.value / 1024
-          : 0, // 转换为 KB/s
+          ? this.uploadSpeed.value
+          : 0, // 已为 KB/s
       estimatedTime: Number.isFinite(estimatedTime) && estimatedTime >= 0 ? estimatedTime : 0,
       networkQuality: this.networkQuality.value
     };
@@ -283,7 +283,7 @@ export class ProgressManager {
 
   /** 更新网络质量评级 */
   private updateNetworkQuality(): void {
-    const speed = this.uploadSpeed.value / 1024; // 转换为 KB/s
+    const speed = this.uploadSpeed.value; // 已为 KB/s
     if (speed < 50) {
       this.networkQuality.value = 'poor';
     } else if (speed < 200) {

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { getFileExtension, getFileNameWithoutExtension } from '../../utils/file';
 import { generateId, generateUUID } from '../../utils/id';
 import { cancellableDelay, delay } from '../../utils/delay';
-import { debounce, throttle } from '../../utils/throttle';
+import { throttle } from '../../utils/throttle';
 
 describe('文件工具函数', () => {
   describe('generateId', () => {
@@ -86,24 +86,6 @@ describe('文件工具函数', () => {
       await delay(150);
       throttled();
       expect(callCount).toBe(2);
-    });
-  });
-
-  describe('debounce', () => {
-    it('应该延迟函数执行', async () => {
-      let callCount = 0;
-      const debounced = debounce(() => {
-        callCount += 1;
-      }, 100);
-
-      debounced();
-      debounced();
-      debounced();
-
-      expect(callCount).toBe(0);
-
-      await delay(150);
-      expect(callCount).toBe(1);
     });
   });
 });

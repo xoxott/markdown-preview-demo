@@ -11,7 +11,7 @@ export class TimeEstimator {
 
   private lastEstimatedTime = 0;
 
-  /** 更新预计时间 */
+  /** 更新预计时间（remainingSize 单位 KB，averageSpeed 单位 KB/s） */
   update(remainingSize: number, averageSpeed: number): number {
     if (!Number.isFinite(remainingSize) || remainingSize <= 0) {
       return 0;
@@ -21,8 +21,8 @@ export class TimeEstimator {
       return this.lastEstimatedTime > 0 ? this.lastEstimatedTime : 0;
     }
 
-    // 计算原始时间
-    const rawTime = remainingSize / 1024 / averageSpeed;
+    // 计算原始时间（remainingSize 和 averageSpeed 均以 KB 为单位）
+    const rawTime = remainingSize / averageSpeed;
 
     // 指数平滑处理
     const smoothedTime = this.exponentialSmoothing(rawTime);

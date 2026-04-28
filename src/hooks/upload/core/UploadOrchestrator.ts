@@ -479,12 +479,7 @@ export class UploadOrchestrator {
     // 清空回调
     this.callbackManager.clear();
 
-    // 重置性能监控
-    performanceMonitor.reset();
-
-    // 禁用日志（避免销毁后继续写入）
-    logger.updateConfig({ enabled: false });
-
+    // 记录销毁日志（不再全局禁用 logger，避免影响其他实例）
     logger.info('上传器已销毁', {});
   }
 

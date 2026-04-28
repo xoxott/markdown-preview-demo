@@ -2,7 +2,7 @@ import type { CSSProperties, PropType } from 'vue';
 import { computed, defineComponent, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useEventListener, useThrottleFn } from '@vueuse/core';
 import { useThemeVars } from 'naive-ui';
-import { debounce } from '@/hooks/upload/utils/throttle';
+import { debounce } from '@/utils/debounce';
 
 /** 坐标点类型 */
 interface Point {
