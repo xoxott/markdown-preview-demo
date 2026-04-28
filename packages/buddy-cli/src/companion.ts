@@ -21,10 +21,11 @@ import {
   type Rarity,
   SPECIES,
   STAT_NAMES,
+  type Species,
   type StatName,
   type StoredCompanion
 } from './types.js';
-import { getConfig, saveConfig } from './config.js';
+import { generateUserId, getConfig, invalidateConfigCache, saveConfig } from './config.js';
 
 // Mulberry32 — 小型种子PRNG，足够用于确定性生成伴侣
 function mulberry32(seed: number): () => number {
@@ -134,12 +135,19 @@ export function companionUserId(): string {
   return getConfig().userId;
 }
 
-/** 获取已有伴侣：重新从 userId 生成骨骼属性，与存储的灵魂属性合并 */
+/** 获取已有伴侣：重新从 userId 生成骨骼属性，与存储的灵魂属性合并。支持 forcedSpecies 覆盖物种 */
 export function getCompanion(): Companion | undefined {
-  const stored = getConfig().companion;
+  const cfg = getConfig();
+  const stored = cfg.companion;
   if (!stored) return undefined;
   const { bones } = roll(companionUserId());
-  return { ...stored, ...bones };
+  // 若配置了 forcedSpecies 且是合法物种，覆盖哈希生成的物种
+  const forced = cfg.forcedSpecies;
+  const finalBones =
+    forced && SPECIES.includes(forced as Species)
+      ? { ...bones, species: forced as Species }
+      : bones;
+  return { ...stored, ...finalBones };
 }
 
 // ---------------------------------------------------------------------------
@@ -212,6 +220,28 @@ export function hatch(): Companion {
     return { ...rest, companion: stored };
   });
   return { ...stored, ...bones };
+}
+
+/** 重新孵化：更换 userId 以获得不同的物种/稀有度/眼睛，保留名称和性格 */
+export function rehatch(): Companion {
+  const cfg = getConfig();
+  const stored = cfg.companion;
+  // 重新生成 userId
+  const newUserId = generateUserId();
+  // 清除 forcedSpecies（rehatch 随机生成，不再需要强制覆盖）
+  const { forcedSpecies: _fs, ...cfgWithout } = cfg;
+  saveConfig(() => ({
+    ...cfgWithout,
+    userId: newUserId,
+    companion: stored ?? {
+      name: pickName(Math.floor(Math.random() * 1e9)),
+      personality: DEFAULT_PERSONALITY,
+      hatchedAt: Date.now()
+    }
+  }));
+  invalidateConfigCache();
+  rollCache = undefined; // 清除滚动缓存
+  return getCompanion()!;
 }
 
 export { MAX_NAME_LEN, pickName };

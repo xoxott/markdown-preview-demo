@@ -56,6 +56,9 @@ export type Hat = (typeof HATS)[number];
 export const STAT_NAMES = ['DEBUGGING', 'PATIENCE', 'CHAOS', 'WISDOM', 'SNARK'] as const;
 export type StatName = (typeof STAT_NAMES)[number];
 
+// 强制物种覆盖：若设置此字段，覆盖哈希生成的物种
+export type ForcedSpecies = { forcedSpecies: Species };
+
 // 确定性骨骼属性：基于 hash(userId) 生成，不在配置中存储
 export type CompanionBones = {
   rarity: Rarity;

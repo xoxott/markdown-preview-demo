@@ -5,14 +5,16 @@
  * 终端宠物伴侣 CLI 工具，从 Claude Code buddy 彩蛋移植而来。 使用 cac 解析命令行参数，Ink 渲染交互式精灵动画。
  *
  * 命令列表： buddy — 启动交互式 Ink 模式（精灵动画 + 键盘交互） buddy hatch — 孵化伴侣或显示当前伴侣卡片 buddy pet — 给伴侣爱心 buddy
- * rename — 重命名伴侣（最多24字符） buddy mute — 静默伴侣（隐藏精灵） buddy unmute — 解除静默 buddy release — 释放伴侣（删除配置）
+ * rename — 重命名伴侣（最多24字符） buddy rehatch — 随机切换宠物（换userId → 新物种/稀有度/眼睛） buddy species —
+ * 手动指定宠物物种（覆盖哈希生成） buddy mute — 静默伴侣（隐藏精灵） buddy unmute — 解除静默 buddy release — 释放伴侣（删除配置）
  */
 import React from 'react';
 import { cac } from 'cac';
 import { render } from 'ink';
 import { BuddyApp } from './src/BuddyApp.js';
-import { getCompanion, hatch, renderCard } from './src/companion.js';
+import { getCompanion, hatch, rehatch, renderCard } from './src/companion.js';
 import { invalidateConfigCache, saveConfig } from './src/config.js';
+import { SPECIES } from './src/types.js';
 
 const cli = cac('buddy');
 
@@ -92,6 +94,45 @@ cli.command('unmute', 'Unmute your companion').action(() => {
   });
   invalidateConfigCache();
   console.log('Companion unmuted.');
+});
+
+// ---------------------------------------------------------------------------
+// buddy rehatch — 随机切换宠物（更换 userId → 生成新物种/稀有度/眼睛）
+// ---------------------------------------------------------------------------
+cli.command('rehatch', 'Randomly switch to a different companion').action(() => {
+  const c = getCompanion();
+  if (!c) {
+    console.log('No companion yet — run `buddy hatch` first.');
+    return;
+  }
+  const newC = rehatch();
+  console.log(
+    `${c.name} transformed into a ${newC.rarity} ${newC.species}!\n\n${renderCard(newC)}`
+  );
+});
+
+// ---------------------------------------------------------------------------
+// buddy species <名称> — 手动指定宠物物种
+// ---------------------------------------------------------------------------
+cli.command('species <name>', 'Force a specific companion species').action((name: string) => {
+  if (!name) {
+    console.log('Usage: buddy species <species name>');
+    console.log(`Available: ${SPECIES.join(', ')}`);
+    return;
+  }
+  const lower = name.toLowerCase();
+  if (!SPECIES.includes(lower as any)) {
+    console.log(`Unknown species "${name}". Available: ${SPECIES.join(', ')}`);
+    return;
+  }
+  const c = getCompanion();
+  if (!c) {
+    console.log('No companion yet — run `buddy hatch` first.');
+    return;
+  }
+  saveConfig(cfg => ({ ...cfg, forcedSpecies: lower }));
+  invalidateConfigCache();
+  console.log(`${c.name} is now a ${lower}! Run \`buddy\` to see the new sprite.`);
 });
 
 // ---------------------------------------------------------------------------

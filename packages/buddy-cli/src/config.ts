@@ -23,10 +23,11 @@ export type BuddyConfig = {
   userId: string;
   companion?: StoredCompanion;
   companionMuted?: boolean;
+  forcedSpecies?: string; // 强制物种覆盖（buddy species 命令设置）
 };
 
 /** 生成 UUID v4 格式的用户ID（仅用于确定性伴侣生成，非安全用途） */
-function generateUserId(): string {
+export function generateUserId(): string {
   const chars = '0123456789abcdef';
   let id = '';
   for (let i = 0; i < 32; i++) {
