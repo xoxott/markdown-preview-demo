@@ -132,7 +132,6 @@ const uploader = useChunkUpload({
   enableCache: true, // 缓存支持
   useWorker: true, // 使用 Web Worker 计算 MD5
   enableNetworkAdaptation: true, // 网络自适应
-  enableSmartRetry: true, // 智能重试
 
   // 压缩和预览配置
   compressionQuality: 0.8, // 压缩质量：80%
@@ -140,10 +139,7 @@ const uploader = useChunkUpload({
   previewMaxHeight: 200, // 预览图最大高度
 
   // 秒传检查（可选）
-  checkFileUrl: '/api/upload/check',
-
-  // 取消上传（可选）
-  cancelUploadUrl: '/api/upload/cancel'
+  checkFileUrl: '/api/upload/check'
 });
 ```
 
@@ -176,7 +172,7 @@ const uploader = useChunkUpload({
 #### `uploadSpeed`
 
 - **类型**：`Ref<number>`
-- **说明**：当前上传速度（KB/s）
+- **说明**：当前上传速度（KB/s，所有速度指标统一为 KB/s）
 
 #### `isUploading`
 
@@ -562,7 +558,6 @@ const metrics = getPerformanceMetrics();
 | `enableCache`             | `boolean` | `true`  | 启用缓存             |
 | `useWorker`               | `boolean` | `true`  | 使用 Web Worker      |
 | `enableNetworkAdaptation` | `boolean` | `true`  | 启用网络自适应       |
-| `enableSmartRetry`        | `boolean` | `true`  | 启用智能重试         |
 
 ### 压缩和预览配置
 
@@ -980,10 +975,7 @@ const uploader = useChunkUpload({
   useWorker: true,
 
   // 启用网络自适应，自动调整上传策略
-  enableNetworkAdaptation: true,
-
-  // 启用智能重试，提高成功率
-  enableSmartRetry: true
+  enableNetworkAdaptation: true
 });
 ```
 

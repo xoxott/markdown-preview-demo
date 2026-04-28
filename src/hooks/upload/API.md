@@ -204,7 +204,6 @@ interface UploadConfig {
   uploadChunkUrl: string;
   mergeChunksUrl: string;
   checkFileUrl?: string;
-  cancelUploadUrl?: string;
 
   // 请求配置
   headers: Record<string, string>;
@@ -224,7 +223,6 @@ interface UploadConfig {
   useWorker: boolean;
   enableCache: boolean;
   enableNetworkAdaptation: boolean;
-  enableSmartRetry: boolean;
 
   // 压缩和预览配置
   compressionQuality: number;
@@ -243,7 +241,7 @@ interface FileTask {
   file: File; // 文件对象
   status: UploadStatus; // 上传状态
   progress: number; // 上传进度（0-100）
-  speed: number; // 上传速度（KB/s）
+  speed: number; // 上传速度（KB/s，与所有速度指标统一）
   uploadedChunks: number; // 已上传分片数
   totalChunks: number; // 总分片数
   uploadedSize: number; // 已上传大小（字节）
