@@ -321,14 +321,11 @@ export class UploadTask {
       const stillRetryable = failedChunks.filter(c => c.retryCount < maxRetries);
 
       if (stillRetryable.length > 0) {
-        logger.warn(
-          `任务 ${this.task.id} 有 ${stillRetryable.length} 个分片失败，将在重试时处理`,
-          {
-            taskId: this.task.id,
-            failedChunks: stillRetryable.length,
-            totalFailed: failedChunks.length
-          }
-        );
+        logger.warn(`任务 ${this.task.id} 有 ${stillRetryable.length} 个分片失败，将在重试时处理`, {
+          taskId: this.task.id,
+          failedChunks: stillRetryable.length,
+          totalFailed: failedChunks.length
+        });
       } else {
         // 所有分片都失败且无法重试，任务失败
         // 检查是否所有待上传的分片都失败了（因为只有 pendingChunks 会被上传）

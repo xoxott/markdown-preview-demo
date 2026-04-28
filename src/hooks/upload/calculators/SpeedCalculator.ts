@@ -51,7 +51,7 @@ export class SpeedCalculator {
       return this.lastSpeed;
     }
 
-    const instantSpeed = (totalSize / totalTime) * 1000 / 1024; // 输出 KB/s
+    const instantSpeed = ((totalSize / totalTime) * 1000) / 1024; // 输出 KB/s
 
     if (!Number.isFinite(instantSpeed) || instantSpeed < 0) {
       return this.lastSpeed;
@@ -78,7 +78,7 @@ export class SpeedCalculator {
       return 0;
     }
 
-    const avgSpeed = (totalSize / totalTime) * 1000 / 1024; // 输出 KB/s
+    const avgSpeed = ((totalSize / totalTime) * 1000) / 1024; // 输出 KB/s
     return Number.isFinite(avgSpeed) ? Math.max(0, avgSpeed) : 0;
   }
 

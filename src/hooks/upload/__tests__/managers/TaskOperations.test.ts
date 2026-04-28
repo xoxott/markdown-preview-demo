@@ -1,7 +1,7 @@
 /** TaskOperations 测试 */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TaskOperations } from '../../managers/TaskOperations';
-import type { UploadConfig, FileTask } from '../../types';
+import type { FileTask, UploadConfig } from '../../types';
 import { ChunkStatus, UploadStatus } from '../../types';
 import type { UploadController } from '../../controllers/UploadController';
 import type { CallbackManager } from '../../managers/CallbackManager';
