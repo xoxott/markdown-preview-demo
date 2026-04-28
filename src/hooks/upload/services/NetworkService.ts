@@ -9,9 +9,6 @@ export class NetworkService {
   private speedHistory: number[] = [];
   private maxHistorySize = 10;
 
-  // 网络变化监听器引用（用于清理）
-  private networkChangeListener?: () => void;
-
   // 当前网络状态
   private currentNetworkInfo: {
     type: string;
@@ -48,37 +45,23 @@ export class NetworkService {
       lastUpdate: Date.now()
     };
 
-    // 监听网络变化
-    this.initNetworkListener();
+    // 初始化网络信息（监听由 NetworkAdaptationManager 统一管理）
+    this.initNetworkInfo();
   }
 
-  /** 初始化网络监听器 */
-  private initNetworkListener(): void {
+  /** 初始化网络信息（不注册监听器，由 NetworkAdaptationManager 统一管理） */
+  private initNetworkInfo(): void {
     if (!('connection' in navigator)) return;
 
     const connection = (navigator as NavigatorWithConnection).connection;
     if (connection) {
-      // 更新初始网络信息
       this.updateNetworkInfo(connection);
-
-      // 监听网络变化
-      this.networkChangeListener = () => {
-        this.updateNetworkInfo(connection);
-        this.recalculateAdaptiveConfig();
-      };
-      connection.addEventListener('change', this.networkChangeListener);
     }
   }
 
-  /** 清理网络监听器 */
+  /** 清理资源 */
   cleanup(): void {
-    if (!this.networkChangeListener || !('connection' in navigator)) return;
-
-    const connection = (navigator as NavigatorWithConnection).connection;
-    if (connection) {
-      connection.removeEventListener('change', this.networkChangeListener);
-      this.networkChangeListener = undefined;
-    }
+    // 无监听器需要清理，NetworkAdaptationManager 统一管理 change 事件
   }
 
   /** 更新网络信息 */

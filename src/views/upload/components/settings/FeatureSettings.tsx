@@ -64,7 +64,7 @@ export default defineComponent({
             onUpdateValue={value => props.onUpdate('enableNetworkAdaptation', value)}
           />
         </NFormItem>
-              </NForm>
+      </NForm>
     );
   }
 });

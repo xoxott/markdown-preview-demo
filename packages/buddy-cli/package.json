@@ -1,0 +1,31 @@
+{
+  "name": "@suga/buddy-cli",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "A terminal pet companion — ported from Claude Code buddy easter egg",
+  "bin": {
+    "buddy": "./bin.ts"
+  },
+  "scripts": {
+    "buddy": "tsx bin.ts",
+    "dev": "tsx bin.ts"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1"
+  },
+  "dependencies": {
+    "cac": "^6.7.14",
+    "figures": "^3.2.0",
+    "ink": "^4.4.1",
+    "kolorist": "^1.8.0",
+    "react": "^18.3.1",
+    "string-width": "^4.2.3",
+    "uuid": "^9.0.1",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "tsx": "^4.19.4",
+    "typescript": "^5.6.3"
+  }
+}

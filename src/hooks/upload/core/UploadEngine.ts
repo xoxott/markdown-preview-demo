@@ -69,12 +69,16 @@ export class UploadEngine {
         uploadTask.start().then(() => {
           activeUploads.delete(task.id);
 
-          if (!completedUploads.some(t => t.id === task.id)) {
+          // 仅将非暂停状态的任务推入已完成列表
+          if (
+            task.status !== UploadStatus.PAUSED &&
+            !completedUploads.some(t => t.id === task.id)
+          ) {
             completedUploads.push(task);
           }
 
-          // 记录统计信息
-          if (this.statsManager && task.startTime) {
+          // 仅对成功完成的任务记录统计
+          if (this.statsManager && task.status === UploadStatus.SUCCESS && task.startTime) {
             const uploadTime = (Date.now() - task.startTime) / 1000; // 转换为秒
             this.statsManager.recordTaskCompletion(task, uploadTime);
           }

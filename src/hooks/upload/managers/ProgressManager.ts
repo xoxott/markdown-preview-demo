@@ -295,6 +295,10 @@ export class ProgressManager {
 
   /** 重置进度管理器 */
   reset(): void {
+    // 取消待执行的节流定时器（避免 destroy 后仍触发更新）
+    this.throttledUpdateTotalProgress.cancel();
+    this.throttledUpdateSpeed.cancel();
+
     this.totalProgress.value = 0;
     this.uploadSpeed.value = 0;
     this.networkQuality.value = 'good';

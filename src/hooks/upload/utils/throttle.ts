@@ -1,20 +1,26 @@
 /** 节流工具函数 */
 
+/** 可取消的节流/防抖函数类型 */
+interface CancellableFn<T extends (...args: any[]) => any> {
+  (...args: Parameters<T>): void;
+  cancel: () => void;
+}
+
 /**
  * 节流函数
  *
  * @param func 要节流的函数
  * @param delay 延迟时间（毫秒）
- * @returns 节流后的函数
+ * @returns 节流后的函数（带 cancel 方法）
  */
 export function throttle<T extends (...args: any[]) => any>(
   func: T,
   delay: number
-): (...args: Parameters<T>) => void {
+): CancellableFn<T> {
   let lastCallTime = 0;
   let timeoutId: NodeJS.Timeout | null = null;
 
-  return function throttledFn(this: any, ...args: Parameters<T>) {
+  const throttledFn = function throttledFn(this: any, ...args: Parameters<T>) {
     const now = Date.now();
     const timeSinceLastCall = now - lastCallTime;
 
@@ -32,6 +38,15 @@ export function throttle<T extends (...args: any[]) => any>(
       timeoutId = setTimeout(callFunc, delay - timeSinceLastCall);
     }
   };
+
+  throttledFn.cancel = () => {
+    if (timeoutId !== null) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+  };
+
+  return throttledFn as CancellableFn<T>;
 }
 
 /**
@@ -39,15 +54,15 @@ export function throttle<T extends (...args: any[]) => any>(
  *
  * @param func 要防抖的函数
  * @param delay 延迟时间（毫秒）
- * @returns 防抖后的函数
+ * @returns 防抖后的函数（带 cancel 方法）
  */
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
   delay: number
-): (...args: Parameters<T>) => void {
+): CancellableFn<T> {
   let timeoutId: NodeJS.Timeout | null = null;
 
-  return function debouncedFn(this: any, ...args: Parameters<T>) {
+  const debouncedFn = function debouncedFn(this: any, ...args: Parameters<T>) {
     if (timeoutId) {
       clearTimeout(timeoutId);
     }
@@ -56,6 +71,15 @@ export function debounce<T extends (...args: any[]) => any>(
       timeoutId = null;
     }, delay);
   };
+
+  debouncedFn.cancel = () => {
+    if (timeoutId !== null) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+  };
+
+  return debouncedFn as CancellableFn<T>;
 }
 
 /**
