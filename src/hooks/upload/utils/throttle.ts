@@ -1,7 +1,7 @@
 /** 节流工具函数 */
 
 /** 可取消的节流函数类型 */
-interface CancellableFn<T extends (...args: any[]) => any> {
+export interface CancellableFn<T extends (...args: any[]) => any> {
   (...args: Parameters<T>): void;
   cancel: () => void;
 }

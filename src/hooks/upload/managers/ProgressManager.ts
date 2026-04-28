@@ -7,14 +7,15 @@ import type { ChunkInfo, FileTask, UploadStats } from '../types';
 import { ChunkStatus, UploadStatus } from '../types';
 import { filterTasksByStatus } from '../utils/task-helpers';
 import { throttle } from '../utils/throttle';
+import type { CancellableFn } from '../utils/throttle';
 
 export class ProgressManager {
   private speedCalculator: SpeedCalculator;
   private timeEstimator: TimeEstimator;
 
-  // 节流后的更新函数
-  private throttledUpdateTotalProgress: () => void;
-  private throttledUpdateSpeed: () => void;
+  // 节流后的更新函数（带 cancel 方法）
+  private throttledUpdateTotalProgress: CancellableFn<() => void>;
+  private throttledUpdateSpeed: CancellableFn<() => void>;
 
   private readonly adapter = getAdapter();
   public readonly totalProgress = this.adapter.ref(0);
