@@ -72,7 +72,7 @@ export class FileProcessingPipeline {
             file,
             processed.file,
             options,
-            this.progressManager.getAverageSpeed() / 1024, // 转换为 KB/s
+            this.progressManager.getAverageSpeed(), // 已为 KB/s
             processed.preview,
             processed.md5
           );

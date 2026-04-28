@@ -155,7 +155,7 @@ describe('FileProcessingPipeline', () => {
         md5: 'hash1'
       });
       taskService.createTask = vi.fn().mockReturnValueOnce(task1).mockReturnValueOnce(task2);
-      progressManager.getAverageSpeed = vi.fn().mockReturnValue(1024 * 1024); // 1 MB/s
+      progressManager.getAverageSpeed = vi.fn().mockReturnValue(1024); // 1024 KB/s
 
       await pipeline.processFiles(files, defaultOptions);
 
@@ -229,7 +229,7 @@ describe('FileProcessingPipeline', () => {
       expect(fileService.validate).toHaveBeenCalledWith(files, 2);
     });
 
-    it('应该将平均速度转换为 KB/s 传给 createTask', async () => {
+    it('应该将平均速度（KB/s）传给 createTask', async () => {
       const file = new File(['a'], 'a.txt', { type: 'text/plain' });
       const files = [file];
       const task = createMockTask('task-1');
@@ -242,16 +242,16 @@ describe('FileProcessingPipeline', () => {
         md5: 'hash'
       });
       taskService.createTask = vi.fn().mockReturnValue(task);
-      progressManager.getAverageSpeed = vi.fn().mockReturnValue(1024 * 1024); // 1 MB/s => 1024 KB/s
+      progressManager.getAverageSpeed = vi.fn().mockReturnValue(1024); // 1024 KB/s
 
       await pipeline.processFiles(files, defaultOptions);
 
-      // getAverageSpeed() 返回字节/s，除以 1024 转为 KB/s
+      // getAverageSpeed() 已返回 KB/s，直接传入
       expect(taskService.createTask).toHaveBeenCalledWith(
         expect.anything(),
         expect.anything(),
         defaultOptions,
-        1024, // 1MB/s / 1024 = 1024 KB/s
+        1024, // 1024 KB/s
         undefined,
         'hash'
       );

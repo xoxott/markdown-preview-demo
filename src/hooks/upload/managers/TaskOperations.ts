@@ -1,5 +1,5 @@
 /** 任务操作管理器 负责处理暂停、恢复、取消、重试等操作 */
-import type { ChunkInfo, UploadConfig, FileTask } from '../types';
+import type { ChunkInfo, FileTask, UploadConfig } from '../types';
 import { ChunkStatus, UploadStatus } from '../types';
 import type { UploadController } from '../controllers/UploadController';
 import { ChunkCalculator } from '../calculators/ChunkCalculator';
@@ -245,7 +245,7 @@ export class TaskOperations {
     if (this.config.enableNetworkAdaptation) {
       task.options.chunkSize = ChunkCalculator.calculateOptimalChunkSize(
         task.file.size,
-        this.progressManager.getAverageSpeed() / 1024,
+        this.progressManager.getAverageSpeed(), // 已为 KB/s
         this.config
       );
     }
