@@ -89,10 +89,10 @@ export class UploadOrchestrator {
   public readonly uploadStats!: ReactiveComputed<UploadStats>;
 
   constructor(config: Partial<ExtendedUploadConfig> = {}) {
-    // 验证配置
-    validateAndWarnConfig(config);
-
     this.config = this.mergeConfig(config);
+
+    // 验证合并后的最终配置（而非 partial config）
+    validateAndWarnConfig(this.config);
 
     // 初始化基础管理器
     this.cacheManager = new CacheManager();

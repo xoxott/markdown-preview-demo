@@ -10,6 +10,7 @@ import { ChunkStatus, UploadStatus } from '../types';
 import { getPendingChunks } from '../utils/chunk-helpers';
 import { buildRequestBody, fetchWithTimeout } from '../utils/fetch-with-timeout';
 import { classifyError } from '../utils/retry';
+import { logger } from '../utils/logger';
 import { Semaphore } from '../utils/semaphore';
 
 /** 上传任务类 */
@@ -320,20 +321,14 @@ export class UploadTask {
       const stillRetryable = failedChunks.filter(c => c.retryCount < maxRetries);
 
       if (stillRetryable.length > 0) {
-        // 使用 logger 记录（动态导入避免循环依赖）
-        try {
-          const { logger } = await import('../utils/logger');
-          logger.warn(
-            `任务 ${this.task.id} 有 ${stillRetryable.length} 个分片失败，将在重试时处理`,
-            {
-              taskId: this.task.id,
-              failedChunks: stillRetryable.length,
-              totalFailed: failedChunks.length
-            }
-          );
-        } catch {
-          // logger 不可用时静默处理
-        }
+        logger.warn(
+          `任务 ${this.task.id} 有 ${stillRetryable.length} 个分片失败，将在重试时处理`,
+          {
+            taskId: this.task.id,
+            failedChunks: stillRetryable.length,
+            totalFailed: failedChunks.length
+          }
+        );
       } else {
         // 所有分片都失败且无法重试，任务失败
         // 检查是否所有待上传的分片都失败了（因为只有 pendingChunks 会被上传）

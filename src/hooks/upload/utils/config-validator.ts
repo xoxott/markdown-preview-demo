@@ -20,13 +20,13 @@ export function validateConfig(config: Partial<UploadConfig>): ConfigValidationR
 
   // 必需配置检查
   if (!config.uploadChunkUrl) {
-    errors.push('uploadChunkUrl 是必需的配置项');
+    warnings.push('uploadChunkUrl 未配置，请在上传前设置有效的上传接口地址');
   } else if (!isValidUrl(config.uploadChunkUrl)) {
     errors.push('uploadChunkUrl 必须是有效的 URL');
   }
 
   if (!config.mergeChunksUrl) {
-    errors.push('mergeChunksUrl 是必需的配置项');
+    warnings.push('mergeChunksUrl 未配置，请在上传前设置有效的合并接口地址');
   } else if (!isValidUrl(config.mergeChunksUrl)) {
     errors.push('mergeChunksUrl 必须是有效的 URL');
   }

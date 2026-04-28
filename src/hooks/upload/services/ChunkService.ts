@@ -352,7 +352,15 @@ export class ChunkService {
         );
       }
 
-      return await response.json();
+      try {
+        return await response.json();
+      } catch (parseError) {
+        throw new ServerError(
+          `合并分块响应解析失败: ${(parseError as Error).message}`,
+          response.status,
+          response.statusText
+        );
+      }
     } catch (error: unknown) {
       const errorInfo = classifyError(error);
       const detailedError = createErrorFromErrorInfo(
