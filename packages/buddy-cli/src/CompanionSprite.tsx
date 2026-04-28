@@ -10,7 +10,7 @@
  *
  * 使用 Ink 的 Box/Text 组件实现终端布局和样式。
  */
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import figures from 'figures';
 import { Box, Text } from 'ink';
 import stringWidth from 'string-width';

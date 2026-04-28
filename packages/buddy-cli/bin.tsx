@@ -7,6 +7,7 @@
  * 命令列表： buddy — 启动交互式 Ink 模式（精灵动画 + 键盘交互） buddy hatch — 孵化伴侣或显示当前伴侣卡片 buddy pet — 给伴侣爱心 buddy
  * rename — 重命名伴侣（最多24字符） buddy mute — 静默伴侣（隐藏精灵） buddy unmute — 解除静默 buddy release — 释放伴侣（删除配置）
  */
+import React from 'react';
 import { cac } from 'cac';
 import { render } from 'ink';
 import { BuddyApp } from './src/BuddyApp.js';

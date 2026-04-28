@@ -7,9 +7,9 @@
     "buddy": "./bin.tsx"
   },
   "scripts": {
-    "buddy": "tsx bin.ts",
+    "buddy": "tsx bin.tsx",
     "build": "tsc",
-    "dev": "tsx bin.ts",
+    "dev": "tsx bin.tsx",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {

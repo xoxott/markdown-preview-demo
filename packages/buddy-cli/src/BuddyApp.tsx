@@ -3,7 +3,7 @@
  *
  * 负责初始化伴侣数据、监听键盘输入、渲染精灵或静默提示。 键盘交互： p — 给伴侣爱心（触发心形动画） h — 显示伴侣属性卡片 q / Esc — 退出交互模式
  */
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Box, Text, useApp, useInput } from 'ink';
 import { CompanionSprite } from './CompanionSprite.js';
 import { getCompanion, hatch, renderCard } from './companion.js';
