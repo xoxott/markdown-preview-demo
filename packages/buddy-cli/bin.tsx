@@ -1,4 +1,12 @@
 #!/usr/bin/env tsx
+/**
+ * buddy-cli 入口文件
+ *
+ * 终端宠物伴侣 CLI 工具，从 Claude Code buddy 彩蛋移植而来。 使用 cac 解析命令行参数，Ink 渲染交互式精灵动画。
+ *
+ * 命令列表： buddy — 启动交互式 Ink 模式（精灵动画 + 键盘交互） buddy hatch — 孵化伴侣或显示当前伴侣卡片 buddy pet — 给伴侣爱心 buddy
+ * rename — 重命名伴侣（最多24字符） buddy mute — 静默伴侣（隐藏精灵） buddy unmute — 解除静默 buddy release — 释放伴侣（删除配置）
+ */
 import { cac } from 'cac';
 import { render } from 'ink';
 import { BuddyApp } from './src/BuddyApp.js';
@@ -8,7 +16,7 @@ import { invalidateConfigCache, saveConfig } from './src/config.js';
 const cli = cac('buddy');
 
 // ---------------------------------------------------------------------------
-// /buddy — main command: start interactive Ink mode
+// buddy（默认命令）— 启动交互式 Ink 精灵动画模式
 // ---------------------------------------------------------------------------
 cli.command('', 'Meet your coding companion').action(async () => {
   const { waitUntilExit } = render(<BuddyApp />);
@@ -16,7 +24,7 @@ cli.command('', 'Meet your coding companion').action(async () => {
 });
 
 // ---------------------------------------------------------------------------
-// /buddy hatch — hatch or show companion card
+// buddy hatch — 孵化新伴侣或显示当前伴侣属性卡片
 // ---------------------------------------------------------------------------
 cli.command('hatch', 'Hatch a companion or show current one').action(() => {
   const existing = getCompanion();
@@ -29,7 +37,7 @@ cli.command('hatch', 'Hatch a companion or show current one').action(() => {
 });
 
 // ---------------------------------------------------------------------------
-// /buddy pet — pet the companion
+// buddy pet — 给伴侣爱心（纯文本输出）
 // ---------------------------------------------------------------------------
 cli.command('pet', 'Give your companion some love').action(() => {
   const c = getCompanion();
@@ -41,9 +49,9 @@ cli.command('pet', 'Give your companion some love').action(() => {
 });
 
 // ---------------------------------------------------------------------------
-// /buddy rename <name>
+// buddy rename <name> — 重命名伴侣
+// cac 将位置参数作为 action() 的第一个参数传入
 // ---------------------------------------------------------------------------
-// cac passes positional args as the first argument to action()
 cli.command('rename <name>', 'Rename your companion').action((name: string) => {
   if (!name) {
     console.log('Usage: buddy rename <new name>');
@@ -54,6 +62,7 @@ cli.command('rename <name>', 'Rename your companion').action((name: string) => {
     console.log('No companion yet — run `buddy hatch` first.');
     return;
   }
+  // 名称最长24字符，超出部分截断
   const trimmed = name.slice(0, 24);
   saveConfig(cfg => {
     if (!cfg.companion) return cfg;
@@ -64,7 +73,7 @@ cli.command('rename <name>', 'Rename your companion').action((name: string) => {
 });
 
 // ---------------------------------------------------------------------------
-// /buddy mute
+// buddy mute — 静默伴侣（精灵不再显示）
 // ---------------------------------------------------------------------------
 cli.command('mute', 'Mute your companion').action(() => {
   saveConfig(cfg => ({ ...cfg, companionMuted: true }));
@@ -73,7 +82,7 @@ cli.command('mute', 'Mute your companion').action(() => {
 });
 
 // ---------------------------------------------------------------------------
-// /buddy unmute
+// buddy unmute — 解除静默
 // ---------------------------------------------------------------------------
 cli.command('unmute', 'Unmute your companion').action(() => {
   saveConfig(cfg => {
@@ -85,7 +94,7 @@ cli.command('unmute', 'Unmute your companion').action(() => {
 });
 
 // ---------------------------------------------------------------------------
-// /buddy release
+// buddy release — 释放伴侣（从配置中删除，可重新 hatch）
 // ---------------------------------------------------------------------------
 cli.command('release', 'Release your companion back into the wild').action(() => {
   const c = getCompanion();

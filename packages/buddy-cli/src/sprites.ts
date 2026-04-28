@@ -1,8 +1,17 @@
+/**
+ * sprites.ts — ASCII 精灵数据与渲染
+ *
+ * 每个精灵 5行高、12字符宽（{E}替换为1字符后）。 每个物种有3个帧用于空闲小动作动画。 第0行是帽子插槽：帧0-1必须为空，帧2可使用。
+ *
+ * 渲染流程：
+ *
+ * 1. 选取指定帧的精灵体数据
+ * 2. 将 {E} 替换为伴侣眼睛字符
+ * 3. 若有帽子且第0行为空，插入帽子行
+ * 4. 若所有帧第0行均为空且当前也为空，移除帽子行
+ */
 import type { CompanionBones, Hat, Species } from './types.js';
 
-// Each sprite is 5 lines tall, 12 wide (after {E}→1char substitution).
-// Multiple frames per species for idle fidget animation.
-// Line 0 is the hat slot — must be blank in frames 0-1; frame 2 may use it.
 const BODIES: Record<Species, string[][]> = {
   duck: [
     ['            ', '    __      ', '  <({E} )___  ', '   (  ._>   ', '    `--´    '],
@@ -96,6 +105,7 @@ const BODIES: Record<Species, string[][]> = {
   ]
 };
 
+// 帽子行数据：按帽子类型映射到 ASCII 行
 const HAT_LINES: Record<Hat, string> = {
   none: '',
   crown: '   \\^^^/    ',
@@ -107,19 +117,21 @@ const HAT_LINES: Record<Hat, string> = {
   tinyduck: '    ,>      '
 };
 
+/** 渲染精灵：选取帧、替换眼睛、插入帽子，返回行数组 */
 export function renderSprite(bones: CompanionBones, frame = 0): string[] {
   const frames = BODIES[bones.species];
   const body = frames[frame % frames.length]!.map(line => line.replaceAll('{E}', bones.eye));
   const lines = [...body];
-  // Only replace with hat if line 0 is empty (some fidget frames use it for smoke etc)
+  // 仅在第0行为空时插入帽子（部分小动作帧第0行用于烟雾等特效）
   if (bones.hat !== 'none' && !lines[0]!.trim()) {
     lines[0] = HAT_LINES[bones.hat];
   }
-  // Drop blank hat slot when ALL frames have blank line 0 and current line 0 is also blank
+  // 若所有帧第0行均为空且当前也为空，移除帽子空行
   if (!lines[0]!.trim() && frames.every(f => !f[0]!.trim())) lines.shift();
   return lines;
 }
 
+/** 获取物种的帧数（用于动画循环） */
 export function spriteFrameCount(species: Species): number {
   return BODIES[species].length;
 }

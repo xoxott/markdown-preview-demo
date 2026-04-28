@@ -1,3 +1,15 @@
+/**
+ * CompanionSprite — 精灵动画 + 气泡组件
+ *
+ * 渲染 ASCII 精灵动画，包含：
+ *
+ * - 空闲动画：静息帧为主，偶尔小动作帧，罕见眨眼
+ * - 反应气泡：文字气泡从精灵右侧伸出，~10秒后淡出消失
+ * - 爱心动画：pet 命令触发心形符号向上漂浮，持续~2.5秒
+ * - 稀有度颜色：根据伴侣稀有度渲染 ANSI 颜色
+ *
+ * 使用 Ink 的 Box/Text 组件实现终端布局和样式。
+ */
 import { useEffect, useRef, useState } from 'react';
 import figures from 'figures';
 import { Box, Text } from 'ink';
@@ -8,21 +20,21 @@ import { advanceTick, setBuddyState, useBuddyStore } from './state.js';
 import { getConfig } from './config.js';
 
 // ---------------------------------------------------------------------------
-// Constants
+// 常量
 // ---------------------------------------------------------------------------
 
-const TICK_MS = 500;
-const BUBBLE_SHOW = 20; // ticks → ~10s at 500ms
-const FADE_WINDOW = 6; // last ~3s the bubble dims
-const PET_BURST_MS = 2500; // how long hearts float after /buddy pet
-const SPRITE_BODY_WIDTH = 12;
-const NAME_ROW_PAD = 2;
+const TICK_MS = 500; // 动画帧间隔
+const BUBBLE_SHOW = 20; // 气泡显示时长（tick数 → ~10秒）
+const FADE_WINDOW = 6; // 气泡淡出窗口（最后~3秒变灰）
+const PET_BURST_MS = 2500; // 爱心漂浮持续时间
+const SPRITE_BODY_WIDTH = 12; // 精灵体宽度
+const NAME_ROW_PAD = 2; // 名称行额外padding
 
-// Idle sequence: mostly rest (frame 0), occasional fidget (frames 1-2), rare blink.
-// -1 means "blink on frame 0".
+// 空闲动画序列：以静息帧(0)为主，偶尔小动作帧(1-2)，罕见眨眼(-1)
+// -1 表示"在第0帧眨眼"
 const IDLE_SEQUENCE = [0, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 2, 0, 0, 0];
 
-// Hearts float up-and-out over 5 ticks (~2.5s)
+// 爱心漂浮帧：5帧从密集到稀疏，持续~2.5秒
 const H = figures.heart;
 const PET_HEARTS = [
   `   ${H}    ${H}   `,
@@ -33,9 +45,10 @@ const PET_HEARTS = [
 ];
 
 // ---------------------------------------------------------------------------
-// Helpers
+// 辅助函数
 // ---------------------------------------------------------------------------
 
+/** 文本自动换行，按指定宽度拆分为多行 */
 function wrap(text: string, width: number): string[] {
   const words = text.split(' ');
   const lines: string[] = [];
@@ -52,14 +65,16 @@ function wrap(text: string, width: number): string[] {
   return lines;
 }
 
+/** 计算精灵列宽度：确保名称和精灵体都能容纳 */
 function spriteColWidth(nameWidth: number): number {
   return Math.max(SPRITE_BODY_WIDTH, nameWidth + NAME_ROW_PAD);
 }
 
 // ---------------------------------------------------------------------------
-// SpeechBubble
+// SpeechBubble — 气泡组件
 // ---------------------------------------------------------------------------
 
+/** 反应气泡：带圆角边框的文字气泡，支持右侧或下方尾巴 */
 function SpeechBubble({
   text,
   color,
@@ -90,6 +105,7 @@ function SpeechBubble({
     </Box>
   );
 
+  // 右侧尾巴：气泡在精灵左侧，尾巴指向精灵
   if (tail === 'right') {
     return (
       <Box flexDirection="row" alignItems="center">
@@ -99,6 +115,7 @@ function SpeechBubble({
     );
   }
 
+  // 下方尾巴：气泡在精灵上方，尾巴指向精灵
   return (
     <Box flexDirection="column" alignItems="flex-end" marginRight={1}>
       {bubble}
@@ -111,7 +128,7 @@ function SpeechBubble({
 }
 
 // ---------------------------------------------------------------------------
-// CompanionSprite — the main sprite component with animation
+// CompanionSprite — 精灵动画主组件
 // ---------------------------------------------------------------------------
 
 export function CompanionSprite(): JSX.Element | null {
@@ -120,19 +137,19 @@ export function CompanionSprite(): JSX.Element | null {
   const petAt = useBuddyStore(s => s.companionPetAt);
   const tick = useBuddyStore(s => s.tick);
 
-  // Sync-during-render for pet animation start
+  // 爱心动画起始tick：pet触发时同步记录当前tick用于计算动画进度
   const [petStart, setPetStart] = useState({ tick: 0, forPetAt: petAt });
   if (petAt !== petStart.forPetAt) {
     setPetStart({ tick, forPetAt: petAt });
   }
 
-  // Animation tick timer
+  // 动画帧定时器：每500ms推进一个tick
   useEffect(() => {
     const timer = setInterval(() => advanceTick(), TICK_MS);
     return () => clearInterval(timer);
   }, []);
 
-  // Reaction clear timer (~10s)
+  // 气泡自动消失：反应气泡显示约10秒后清除
   const lastSpokeTick = useRef(0);
   useEffect(() => {
     if (!reaction) return undefined;
@@ -143,7 +160,7 @@ export function CompanionSprite(): JSX.Element | null {
     return () => clearTimeout(timer);
   }, [reaction]);
 
-  // Get live companion data
+  // 静默或无伴侣时不渲染
   if (!companion) return null;
   const muted = getConfig().companionMuted;
   if (muted) return null;
@@ -156,14 +173,14 @@ export function CompanionSprite(): JSX.Element | null {
   const petAge = petAt ? tick - petStart.tick : Infinity;
   const petting = petAge * TICK_MS < PET_BURST_MS;
 
-  // For now, always use full sprite (no terminal size detection in Ink standalone)
   const frameCount = spriteFrameCount(companion.species);
   const heartFrame = petting ? PET_HEARTS[petAge % PET_HEARTS.length] : null;
 
+  // 帧选择逻辑：有反应或爱心时快速循环小动作帧，否则按空闲序列
   let spriteFrame: number;
   let blink = false;
   if (reaction || petting) {
-    // Excited: cycle all fidget frames fast
+    // 兴奋状态：快速循环所有小动作帧
     spriteFrame = tick % frameCount;
   } else {
     const step = IDLE_SEQUENCE[tick % IDLE_SEQUENCE.length]!;
@@ -175,6 +192,7 @@ export function CompanionSprite(): JSX.Element | null {
     }
   }
 
+  // 渲染精灵：眨眼时将眼睛替换为 '-'
   const body = renderSprite(companion, spriteFrame).map(line =>
     blink ? line.replaceAll(companion.eye, '-') : line
   );
@@ -193,10 +211,12 @@ export function CompanionSprite(): JSX.Element | null {
     </Box>
   );
 
+  // 无反应时只显示精灵列
   if (!reaction) {
     return <Box paddingX={1}>{spriteColumn}</Box>;
   }
 
+  // 有反应时：气泡 + 精灵并排
   return (
     <Box flexDirection="row" alignItems="flex-end" paddingX={1} flexShrink={0}>
       <SpeechBubble text={reaction} color={color} fading={fading} tail="right" />
