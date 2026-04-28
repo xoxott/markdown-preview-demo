@@ -1,5 +1,4 @@
 #!/usr/bin/env tsx
-import React from 'react';
 import { cac } from 'cac';
 import { render } from 'ink';
 import { BuddyApp } from './src/BuddyApp.js';
@@ -12,7 +11,7 @@ const cli = cac('buddy');
 // /buddy — main command: start interactive Ink mode
 // ---------------------------------------------------------------------------
 cli.command('', 'Meet your coding companion').action(async () => {
-  const { waitUntilExit } = render(React.createElement(BuddyApp));
+  const { waitUntilExit } = render(<BuddyApp />);
   await waitUntilExit();
 });
 

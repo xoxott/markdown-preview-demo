@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "A terminal pet companion — ported from Claude Code buddy easter egg",
   "bin": {
-    "buddy": "./bin.ts"
+    "buddy": "./bin.tsx"
   },
   "scripts": {
     "buddy": "tsx bin.ts",
@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
+    "react": "^18.3.1",
     "tsx": "^4.19.4",
     "typescript": "^5.6.3"
   }

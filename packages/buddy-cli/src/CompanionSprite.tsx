@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import figures from 'figures';
 import { Box, Text } from 'ink';
 import stringWidth from 'string-width';
@@ -70,7 +70,7 @@ function SpeechBubble({
   color: string;
   fading: boolean;
   tail: 'down' | 'right';
-}): React.ReactElement {
+}): JSX.Element {
   const lines = wrap(text, 30);
   const borderColor = fading ? 'gray' : color;
 
@@ -114,7 +114,7 @@ function SpeechBubble({
 // CompanionSprite — the main sprite component with animation
 // ---------------------------------------------------------------------------
 
-export function CompanionSprite(): React.ReactElement | null {
+export function CompanionSprite(): JSX.Element | null {
   const companion = useBuddyStore(s => s.companion);
   const reaction = useBuddyStore(s => s.companionReaction);
   const petAt = useBuddyStore(s => s.companionPetAt);
