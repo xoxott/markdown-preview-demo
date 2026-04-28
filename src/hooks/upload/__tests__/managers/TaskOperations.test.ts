@@ -1,7 +1,7 @@
 /** TaskOperations 测试 */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TaskOperations } from '../../managers/TaskOperations';
-import type { ExtendedUploadConfig, FileTask } from '../../types';
+import type { UploadConfig, FileTask } from '../../types';
 import { ChunkStatus, UploadStatus } from '../../types';
 import type { UploadController } from '../../controllers/UploadController';
 import type { CallbackManager } from '../../managers/CallbackManager';
@@ -12,7 +12,7 @@ import type { ProgressManager } from '../../managers/ProgressManager';
 
 describe('TaskOperations', () => {
   let operations: TaskOperations;
-  let config: ExtendedUploadConfig;
+  let config: UploadConfig;
   let uploadController: UploadController;
   let callbackManager: CallbackManager;
   let progressPersistence: ProgressPersistence;
@@ -20,7 +20,7 @@ describe('TaskOperations', () => {
   let queueManager: QueueManager;
   let progressManager: ProgressManager;
 
-  const defaultConfig: ExtendedUploadConfig = {
+  const defaultConfig: UploadConfig = {
     maxConcurrentFiles: 3,
     maxConcurrentChunks: 6,
     chunkSize: 2 * 1024 * 1024,

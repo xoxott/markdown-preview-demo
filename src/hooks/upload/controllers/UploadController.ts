@@ -1,11 +1,11 @@
 /** 上传控制器 负责控制上传任务的暂停、恢复和取消 */
 import { getAdapter } from '../adapters';
-import type { FileTask, IUploadController } from '../types';
+import type { FileTask } from '../types';
 import { UploadStatus } from '../types';
 import { logger } from '../utils/logger';
 import { abortAll, combineAbortSignals, safeAbort } from '../utils/abort-controller';
 
-export class UploadController implements IUploadController {
+export class UploadController {
   private taskAbortControllers = new Map<string, AbortController>();
   private chunkAbortControllers = new Map<string, Map<number, AbortController>>();
 

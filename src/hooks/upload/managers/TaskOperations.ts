@@ -1,5 +1,5 @@
 /** 任务操作管理器 负责处理暂停、恢复、取消、重试等操作 */
-import type { ChunkInfo, ExtendedUploadConfig, FileTask } from '../types';
+import type { ChunkInfo, UploadConfig, FileTask } from '../types';
 import { ChunkStatus, UploadStatus } from '../types';
 import type { UploadController } from '../controllers/UploadController';
 import { ChunkCalculator } from '../calculators/ChunkCalculator';
@@ -20,7 +20,7 @@ import type { ProgressManager } from './ProgressManager';
 /** 任务操作管理器 */
 export class TaskOperations {
   constructor(
-    private config: ExtendedUploadConfig,
+    private config: UploadConfig,
     private uploadController: UploadController,
     private callbackManager: CallbackManager,
     private progressPersistence: ProgressPersistence,

@@ -1,18 +1,18 @@
 /** NetworkAdaptationManager 测试 */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { NetworkAdaptationManager } from '../../managers/NetworkAdaptationManager';
-import type { ExtendedUploadConfig } from '../../types';
+import type { UploadConfig } from '../../types';
 import type { NetworkService } from '../../services/NetworkService';
 import type { ProgressManager } from '../../managers/ProgressManager';
 import { CONSTANTS } from '../../constants';
 
 describe('NetworkAdaptationManager', () => {
   let manager: NetworkAdaptationManager;
-  let config: ExtendedUploadConfig;
+  let config: UploadConfig;
   let networkService: NetworkService;
   let progressManager: ProgressManager;
 
-  const defaultConfig: ExtendedUploadConfig = {
+  const defaultConfig: UploadConfig = {
     maxConcurrentFiles: 3,
     maxConcurrentChunks: 6,
     chunkSize: 2 * 1024 * 1024,

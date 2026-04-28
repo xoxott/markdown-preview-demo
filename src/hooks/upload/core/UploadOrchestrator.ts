@@ -23,7 +23,6 @@ import {
   defaultMergeChunksTransformer
 } from '../transformers/RequestTransformer';
 import type {
-  ExtendedUploadConfig,
   FileTask,
   FileUploadOptions,
   NetworkQuality,
@@ -38,7 +37,7 @@ import { UploadEngine } from './UploadEngine';
 
 /** 上传编排器 协调各个服务和管理器 */
 export class UploadOrchestrator {
-  private config: ExtendedUploadConfig;
+  private config: UploadConfig;
 
   // 服务层
   private fileService: FileService;
@@ -88,7 +87,7 @@ export class UploadOrchestrator {
   public readonly isPaused!: ReactiveComputed<boolean>;
   public readonly uploadStats!: ReactiveComputed<UploadStats>;
 
-  constructor(config: Partial<ExtendedUploadConfig> = {}) {
+  constructor(config: Partial<UploadConfig> = {}) {
     this.config = this.mergeConfig(config);
 
     // 验证合并后的最终配置（而非 partial config）
@@ -189,7 +188,7 @@ export class UploadOrchestrator {
   }
 
   /** 合并配置 */
-  private mergeConfig(config: Partial<ExtendedUploadConfig>): ExtendedUploadConfig {
+  private mergeConfig(config: Partial<UploadConfig>): UploadConfig {
     return {
       // 并发控制
       maxConcurrentFiles: CONSTANTS.NETWORK.CONCURRENT_LIMITS.MAX_FILES,

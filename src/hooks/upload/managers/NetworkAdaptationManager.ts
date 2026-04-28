@@ -1,5 +1,5 @@
 /** 网络自适应管理器 负责网络监控和性能调整 */
-import type { ExtendedUploadConfig } from '../types';
+import type { UploadConfig } from '../types';
 import type { NavigatorWithConnection } from '../types/browser';
 import type { NetworkService } from '../services/NetworkService';
 import { logger } from '../utils/logger';
@@ -20,7 +20,7 @@ export class NetworkAdaptationManager {
   private networkChangeListener?: () => void;
 
   constructor(
-    private config: ExtendedUploadConfig,
+    private config: UploadConfig,
     private networkService: NetworkService,
     private progressManager: ProgressManager
   ) {

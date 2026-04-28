@@ -76,6 +76,3 @@ export interface UploadConfig {
   previewMaxWidth: number; // 预览宽度
   previewMaxHeight: number; // 预览高度
 }
-
-/** 扩展配置类型（与 UploadConfig 完全一致，用于未来扩展） */
-export type ExtendedUploadConfig = UploadConfig;

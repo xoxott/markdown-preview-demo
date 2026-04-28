@@ -1,11 +1,1 @@
-/** 接口定义 */
-
-/** 上传控制器接口 */
-export interface IUploadController {
-  pause(taskId: string): void;
-  resume(taskId: string): void;
-  cancel(taskId: string): void;
-  pauseAll(): void;
-  resumeAll(): void;
-  cancelAll(): void;
-}
+/** 接口定义 — 保留文件用于未来扩展 */
