@@ -46,8 +46,7 @@ cli.command('pet', 'Give your companion some love').action(() => {
 // ---------------------------------------------------------------------------
 // cac passes positional args as the first argument to action()
 cli.command('rename <name>', 'Rename your companion').action((name: string) => {
-  const newName = name;
-  if (!newName) {
+  if (!name) {
     console.log('Usage: buddy rename <new name>');
     return;
   }
@@ -56,12 +55,13 @@ cli.command('rename <name>', 'Rename your companion').action((name: string) => {
     console.log('No companion yet — run `buddy hatch` first.');
     return;
   }
+  const trimmed = name.slice(0, 24);
   saveConfig(cfg => {
     if (!cfg.companion) return cfg;
-    return { ...cfg, companion: { ...cfg.companion, name: newName.slice(0, 24) } };
+    return { ...cfg, companion: { ...cfg.companion, name: trimmed } };
   });
   invalidateConfigCache();
-  console.log(`Renamed to ${newName.slice(0, 24)}.`);
+  console.log(`Renamed to ${trimmed}.`);
 });
 
 // ---------------------------------------------------------------------------

@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import figures from 'figures';
 import { Box, Text } from 'ink';
 import stringWidth from 'string-width';
-import { getCompanion, hatch } from './companion.js';
 import { renderSprite, spriteFrameCount } from './sprites.js';
 import { RARITY_COLORS } from './types.js';
 import { advanceTick, setBuddyState, useBuddyStore } from './state.js';
@@ -136,7 +135,7 @@ export function CompanionSprite(): React.ReactElement | null {
   // Reaction clear timer (~10s)
   const lastSpokeTick = useRef(0);
   useEffect(() => {
-    if (!reaction) return;
+    if (!reaction) return undefined;
     lastSpokeTick.current = tick;
     const timer = setTimeout(() => {
       setBuddyState({ companionReaction: undefined });
@@ -204,17 +203,4 @@ export function CompanionSprite(): React.ReactElement | null {
       {spriteColumn}
     </Box>
   );
-}
-
-// ---------------------------------------------------------------------------
-// renderCardForTerminal — static card output (no Ink, just console.log)
-// ---------------------------------------------------------------------------
-
-export function renderCardForTerminal(): string {
-  const existing = getCompanion();
-  if (!existing) {
-    const fresh = hatch();
-    return `A companion appeared!\n\n${renderCard(fresh)}`;
-  }
-  return renderCard(existing);
 }

@@ -8,7 +8,9 @@
   },
   "scripts": {
     "buddy": "tsx bin.ts",
-    "dev": "tsx bin.ts"
+    "build": "tsc",
+    "dev": "tsx bin.ts",
+    "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
     "react": "^18.3.1"
@@ -17,10 +19,7 @@
     "cac": "^6.7.14",
     "figures": "^3.2.0",
     "ink": "^4.4.1",
-    "kolorist": "^1.8.0",
-    "react": "^18.3.1",
     "string-width": "^4.2.3",
-    "uuid": "^9.0.1",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

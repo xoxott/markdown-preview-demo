@@ -81,7 +81,7 @@ function rollStats(rng: () => number, rarity: Rarity): Record<StatName, number> 
 
 const SALT = 'friend-2026-401';
 
-export type Roll = {
+type Roll = {
   bones: CompanionBones;
   inspirationSeed: number;
 };
@@ -108,10 +108,6 @@ export function roll(userId: string): Roll {
   const value = rollFrom(mulberry32(hashString(key)));
   rollCache = { key, value };
   return value;
-}
-
-export function rollWithSeed(seed: string): Roll {
-  return rollFrom(mulberry32(hashString(seed)));
 }
 
 export function companionUserId(): string {
@@ -194,4 +190,4 @@ export function hatch(): Companion {
   return { ...stored, ...bones };
 }
 
-export { NAME_POOL, DEFAULT_PERSONALITY, MAX_NAME_LEN, pickName };
+export { MAX_NAME_LEN, pickName };

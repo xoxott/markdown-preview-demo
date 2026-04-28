@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { Box, Text, useApp, useInput } from 'ink';
 import { CompanionSprite } from './CompanionSprite.js';
 import { getCompanion, hatch, renderCard } from './companion.js';
@@ -9,12 +9,12 @@ import { setBuddyState, useBuddyStore } from './state.js';
 // BuddyApp — top-level Ink app with sprite + keyboard interaction
 // ---------------------------------------------------------------------------
 
-export function BuddyApp(): React.ReactElement {
+export function BuddyApp(): JSX.Element {
   const { exit } = useApp();
   const companion = useBuddyStore(s => s.companion);
 
   // Initialize companion on first render
-  React.useEffect(() => {
+  useEffect(() => {
     const c = getCompanion() ?? hatch();
     setBuddyState({ companion: c });
   }, []);

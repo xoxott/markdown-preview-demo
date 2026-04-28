@@ -1,4 +1,4 @@
-import type { CompanionBones, Eye, Hat, Species } from './types.js';
+import type { CompanionBones, Hat, Species } from './types.js';
 
 // Each sprite is 5 lines tall, 12 wide (after {E}→1char substitution).
 // Multiple frames per species for idle fidget animation.
@@ -122,47 +122,4 @@ export function renderSprite(bones: CompanionBones, frame = 0): string[] {
 
 export function spriteFrameCount(species: Species): number {
   return BODIES[species].length;
-}
-
-export function renderFace(bones: CompanionBones): string {
-  const eye: Eye = bones.eye;
-  switch (bones.species) {
-    case 'duck':
-    case 'goose':
-      return `(${eye}>`;
-    case 'blob':
-      return `(${eye}${eye})`;
-    case 'cat':
-      return `=${eye}ω${eye}=`;
-    case 'dragon':
-      return `<${eye}~${eye}>`;
-    case 'octopus':
-      return `~(${eye}${eye})~`;
-    case 'owl':
-      return `(${eye})(${eye})`;
-    case 'penguin':
-      return `(${eye}>)`;
-    case 'turtle':
-      return `[${eye}_${eye}]`;
-    case 'snail':
-      return `${eye}(@)`;
-    case 'ghost':
-      return `/${eye}${eye}\\`;
-    case 'axolotl':
-      return `}${eye}.${eye}{`;
-    case 'capybara':
-      return `(${eye}oo${eye})`;
-    case 'cactus':
-      return `|${eye}  ${eye}|`;
-    case 'robot':
-      return `[${eye}${eye}]`;
-    case 'rabbit':
-      return `(${eye}..${eye})`;
-    case 'mushroom':
-      return `|${eye}  ${eye}|`;
-    case 'chonk':
-      return `(${eye}.${eye})`;
-    default:
-      return `(${eye})`;
-  }
 }

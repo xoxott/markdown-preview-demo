@@ -16,10 +16,6 @@ export type BuddyConfig = {
   companionMuted?: boolean;
 };
 
-const _DEFAULT_CONFIG: BuddyConfig = {
-  userId: ''
-};
-
 function generateUserId(): string {
   // Simple UUID v4-like — enough for deterministic companion generation
   const chars = '0123456789abcdef';
