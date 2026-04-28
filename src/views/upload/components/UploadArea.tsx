@@ -1,5 +1,5 @@
 import { type PropType, defineComponent, ref } from 'vue';
-import { NButton, NCard, NIcon, NTag } from 'naive-ui';
+import { NButton, NCard, NIcon, NTag, NTooltip } from 'naive-ui';
 import {
   CloseCircleOutline,
   CloudUploadOutline,
@@ -17,15 +17,17 @@ interface Props {
   isUploading: boolean;
   isPaused: boolean;
   uploadQueueLength: number;
+  totalFiles: number;
   failedCount: number;
   themeVars: {
     primaryColor: string;
     primaryColorHover: string;
   };
+  isMobile: boolean;
   onFilesChange: (files: CustomUploadFileInfo[]) => Promise<void>;
   onUploadError: (error: { file: File; message: string }) => void;
   onExceed: (data: { files: File[]; max: number }) => void;
-  onStartUpload: () => Promise<void>;
+  onStartUpload: () => void;
   onPauseAll: () => Promise<void>;
   onResumeAll: () => void;
   onCancelAll: () => Promise<void>;
@@ -51,12 +53,20 @@ export default defineComponent({
       type: Number,
       required: true
     },
+    totalFiles: {
+      type: Number,
+      required: true
+    },
     failedCount: {
       type: Number,
       required: true
     },
     themeVars: {
       type: Object as PropType<Props['themeVars']>,
+      required: true
+    },
+    isMobile: {
+      type: Boolean,
       required: true
     },
     onFilesChange: {
@@ -95,16 +105,66 @@ export default defineComponent({
   setup(props) {
     const fileInputRef = ref<InstanceType<typeof CustomUpload>>();
 
+    /** 渲染按钮 — 桌面端显示文字+图标，移动端只显示图标 */
+    const renderButton = (config: {
+      type?: 'primary' | 'error' | 'warning' | 'default';
+      disabled: boolean;
+      loading?: boolean;
+      onClick: () => void;
+      icon: any;
+      text: string;
+      mobileText?: string;
+    }) => {
+      if (props.isMobile) {
+        return (
+          <NTooltip trigger="hover">
+            {{
+              trigger: () => (
+                <NButton
+                  type={config.type || 'default'}
+                  disabled={config.disabled}
+                  loading={config.loading}
+                  size="small"
+                  circle
+                  onClick={config.onClick}
+                >
+                  {{
+                    icon: () => <NIcon component={config.icon} size={18} />
+                  }}
+                </NButton>
+              ),
+              default: () => config.mobileText || config.text
+            }}
+          </NTooltip>
+        );
+      }
+
+      return (
+        <NButton
+          type={config.type || 'default'}
+          disabled={config.disabled}
+          loading={config.loading}
+          size="small"
+          onClick={config.onClick}
+        >
+          {{
+            icon: () => <NIcon component={config.icon} size={16} />,
+            default: () => config.text
+          }}
+        </NButton>
+      );
+    };
+
     return () => (
-      <NCard class="flex-[2]" title="文件上传">
+      <NCard class="card-wrapper lg:flex-[3]" bordered={false}>
         {{
           'header-extra': () => (
-            <NTag type="info" size="small">
-              支持拖拽、多选、文件夹
+            <NTag type="info" size="small" bordered={false}>
+              拖拽 / 多选 / 文件夹
             </NTag>
           ),
           'default': () => (
-            <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-3">
               <CustomUpload
                 ref={fileInputRef}
                 abstract={true}
@@ -123,16 +183,16 @@ export default defineComponent({
                   default: ({
                     isDragOver,
                     isProcessing,
-                    fileCount
+                    fileCount: _fileCount
                   }: {
                     isDragOver: boolean;
                     isProcessing: boolean;
                     fileCount: number;
                   }) => (
-                    <div class="flex flex-col items-center justify-center px-4 py-8 text-center">
+                    <div class="flex flex-col items-center justify-center py-6 text-center sm:py-8">
                       <NIcon
                         component={CloudUploadOutline}
-                        size={64}
+                        size={48}
                         color={
                           isDragOver
                             ? props.themeVars.primaryColor
@@ -140,65 +200,73 @@ export default defineComponent({
                         }
                         class="transition-all duration-300"
                       />
-                      <p class="mt-4 text-base font-medium">
+                      <p class="mt-3 text-sm font-medium">
                         {isProcessing ? '处理中...' : '拖拽文件到此处或点击选择'}
                       </p>
-                      <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        已选择 {fileCount} 个文件
+                      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        {props.uploadQueueLength > 0
+                          ? `队列中 ${props.uploadQueueLength} 个文件`
+                          : '支持拖拽、多选、文件夹'}
                       </p>
                     </div>
                   )
                 }}
               </CustomUpload>
 
-              {/* 控制按钮 */}
-              <div class="flex flex-wrap gap-2">
-                <NButton
-                  type="primary"
-                  disabled={props.uploadQueueLength === 0 || props.isUploading || props.isPaused}
-                  loading={props.isUploading}
-                  onClick={props.onStartUpload}
-                >
-                  {{
-                    icon: () => <NIcon component={PlayOutline} />,
-                    default: () => '开始上传'
-                  }}
-                </NButton>
-                <NButton disabled={!props.isUploading || props.isPaused} onClick={props.onPauseAll}>
-                  {{
-                    icon: () => <NIcon component={PauseOutline} />,
-                    default: () => '暂停全部'
-                  }}
-                </NButton>
-                <NButton
-                  disabled={!props.isPaused || props.isUploading}
-                  onClick={props.onResumeAll}
-                >
-                  {{
-                    icon: () => <NIcon component={PlayOutline} />,
-                    default: () => '恢复全部'
-                  }}
-                </NButton>
-                <NButton
-                  disabled={!props.isUploading && !props.isPaused}
-                  type="error"
-                  onClick={props.onCancelAll}
-                >
-                  {{
-                    icon: () => <NIcon component={CloseCircleOutline} />,
-                    default: () => '取消全部'
-                  }}
-                </NButton>
-                <NButton
-                  disabled={props.failedCount === 0}
-                  type="warning"
-                  onClick={props.onRetryFailed}
-                >
-                  {{
-                    icon: () => <NIcon component={RefreshOutline} />,
-                    default: () => `重试失败 (${props.failedCount})`
-                  }}
-                </NButton>
+              {/* 控制按钮 — 分组布局 */}
+              <div class="flex flex-wrap items-center gap-2">
+                {/* 主操作组 */}
+                <div class="flex items-center gap-1.5">
+                  {renderButton({
+                    type: 'primary',
+                    disabled: props.totalFiles === 0 || props.isUploading || props.isPaused,
+                    loading: props.isUploading,
+                    onClick: props.onStartUpload,
+                    icon: PlayOutline,
+                    text: '开始上传',
+                    mobileText: '开始'
+                  })}
+                  {renderButton({
+                    disabled: !props.isUploading || props.isPaused,
+                    onClick: props.onPauseAll,
+                    icon: PauseOutline,
+                    text: '暂停',
+                    mobileText: '暂停'
+                  })}
+                  {renderButton({
+                    disabled: !props.isPaused || props.isUploading,
+                    onClick: props.onResumeAll,
+                    icon: PlayOutline,
+                    text: '恢复',
+                    mobileText: '恢复'
+                  })}
+                </div>
+
+                {/* 分隔 */}
+                <div class="hidden h-4 w-px bg-gray-300 sm:block dark:bg-gray-600" />
+
+                {/* 危险操作 */}
+                {renderButton({
+                  type: 'error',
+                  disabled: !props.isUploading && !props.isPaused,
+                  onClick: props.onCancelAll,
+                  icon: CloseCircleOutline,
+                  text: '取消全部',
+                  mobileText: '取消'
+                })}
+
+                {/* 分隔 */}
+                <div class="hidden h-4 w-px bg-gray-300 sm:block dark:bg-gray-600" />
+
+                {/* 修复操作 */}
+                {renderButton({
+                  type: 'warning',
+                  disabled: props.failedCount === 0,
+                  onClick: props.onRetryFailed,
+                  icon: RefreshOutline,
+                  text: `重试 (${props.failedCount})`,
+                  mobileText: `重试${props.failedCount > 0 ? ` ${props.failedCount}` : ''}`
+                })}
               </div>
             </div>
           )

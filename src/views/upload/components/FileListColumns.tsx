@@ -27,12 +27,6 @@ export function createFileListColumns(
 ): DataTableColumns<FileListRow> {
   return [
     {
-      title: '序号',
-      key: 'index',
-      width: 60,
-      render: (row: FileListRow) => row.index + 1
-    },
-    {
       title: '文件名',
       key: 'name',
       ellipsis: { tooltip: true },
@@ -41,13 +35,13 @@ export function createFileListColumns(
     {
       title: '大小',
       key: 'size',
-      width: 100,
+      width: 90,
       render: (row: FileListRow) => utils.formatFileSize(row.file.size)
     },
     {
       title: '状态',
       key: 'status',
-      width: 100,
+      width: 80,
       render: (row: FileListRow) => {
         const statusText = utils.getStatusText(row.status);
         const statusType =
@@ -55,14 +49,20 @@ export function createFileListColumns(
             ? 'success'
             : row.status === UploadStatus.ERROR
               ? 'error'
-              : 'info';
-        return h(NTag, { type: statusType, size: 'small' }, { default: () => statusText });
+              : row.status === UploadStatus.PAUSED
+                ? 'warning'
+                : 'info';
+        return h(
+          NTag,
+          { type: statusType, size: 'small', bordered: false },
+          { default: () => statusText }
+        );
       }
     },
     {
       title: '进度',
       key: 'progress',
-      width: 150,
+      width: 130,
       render: (row: FileListRow) => {
         return h(NProgress, {
           type: 'line',
@@ -81,19 +81,19 @@ export function createFileListColumns(
     {
       title: '速度',
       key: 'speed',
-      width: 100,
+      width: 90,
       render: (row: FileListRow) => utils.formatSpeed(row.speed)
     },
     {
       title: '分片',
       key: 'chunks',
-      width: 100,
+      width: 80,
       render: (row: FileListRow) => `${row.uploadedChunks}/${row.totalChunks}`
     },
     {
       title: '操作',
       key: 'actions',
-      width: 220,
+      width: 180,
       fixed: 'right' as const,
       render: (row: FileListRow) => {
         return h(

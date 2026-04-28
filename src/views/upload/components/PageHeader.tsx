@@ -1,5 +1,5 @@
 import { type PropType, defineComponent } from 'vue';
-import { NButton, NIcon, NSpace } from 'naive-ui';
+import { NButton, NIcon, NTag } from 'naive-ui';
 import {
   CloudUploadOutline,
   CodeOutline,
@@ -14,8 +14,9 @@ interface Props {
   themeVars: {
     primaryColor: string;
   };
-  drawerState: Record<string, never>;
   uploadStatsTotal: number;
+  isUploading: boolean;
+  isPaused: boolean;
   onToggleDrawer: (type: 'settings' | 'stats' | 'performance' | 'events' | 'i18n') => void;
   onClear: () => void;
 }
@@ -27,12 +28,16 @@ export default defineComponent({
       type: Object as PropType<Props['themeVars']>,
       required: true
     },
-    drawerState: {
-      type: Object as PropType<Props['drawerState']>,
-      required: true
-    },
     uploadStatsTotal: {
       type: Number,
+      required: true
+    },
+    isUploading: {
+      type: Boolean,
+      required: true
+    },
+    isPaused: {
+      type: Boolean,
       required: true
     },
     onToggleDrawer: {
@@ -45,52 +50,82 @@ export default defineComponent({
     }
   },
   setup(props) {
-    return () => (
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <NIcon component={CloudUploadOutline} size={28} color={props.themeVars.primaryColor} />
-          <h1 class="m-0 text-2xl font-bold">Upload-V2 完整功能测试</h1>
+    const getStatusTag = (): { type: 'info' | 'warning' | 'success' | 'default'; text: string } => {
+      if (props.isUploading && !props.isPaused) return { type: 'info', text: '上传中' };
+      if (props.isPaused) return { type: 'warning', text: '已暂停' };
+      if (props.uploadStatsTotal > 0) return { type: 'success', text: '已完成' };
+      return { type: 'default', text: '待上传' };
+    };
+
+    const actionButtons = [
+      { key: 'i18n', icon: LanguageOutline, drawerType: 'i18n' as const, showOnMobile: false },
+      {
+        key: 'performance',
+        icon: FlashOutline,
+        drawerType: 'performance' as const,
+        showOnMobile: false
+      },
+      { key: 'stats', icon: StatsChartOutline, drawerType: 'stats' as const, showOnMobile: false },
+      { key: 'events', icon: CodeOutline, drawerType: 'events' as const, showOnMobile: false },
+      {
+        key: 'settings',
+        icon: SettingsOutline,
+        drawerType: 'settings' as const,
+        showOnMobile: true
+      }
+    ];
+
+    return () => {
+      const statusTag = getStatusTag();
+
+      return (
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div
+              class="flex items-center justify-center rounded-lg p-2"
+              style={{ backgroundColor: `${props.themeVars.primaryColor}15` }}
+            >
+              <NIcon
+                component={CloudUploadOutline}
+                size={24}
+                color={props.themeVars.primaryColor}
+              />
+            </div>
+            <div>
+              <h1 class="m-0 text-lg font-bold sm:text-xl">文件上传</h1>
+              <p class="m-0 mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                支持大文件分片上传、断点续传、拖拽上传
+              </p>
+            </div>
+            <NTag type={statusTag.type} size="small" bordered={false}>
+              {statusTag.text}
+            </NTag>
+          </div>
+          <div class="flex items-center gap-1.5">
+            {actionButtons.map(btn => (
+              <NButton
+                key={btn.key}
+                size="small"
+                quaternary
+                circle
+                class={btn.showOnMobile ? '' : 'hidden sm:inline-flex'}
+                onClick={() => props.onToggleDrawer(btn.drawerType)}
+              >
+                {{
+                  icon: () => <NIcon component={btn.icon} />
+                }}
+              </NButton>
+            ))}
+            {props.uploadStatsTotal > 0 && (
+              <NButton size="small" quaternary circle type="error" onClick={props.onClear}>
+                {{
+                  icon: () => <NIcon component={TrashOutline} />
+                }}
+              </NButton>
+            )}
+          </div>
         </div>
-        <NSpace>
-          <NButton size="small" quaternary circle onClick={() => props.onToggleDrawer('i18n')}>
-            {{
-              icon: () => <NIcon component={LanguageOutline} />
-            }}
-          </NButton>
-          <NButton
-            size="small"
-            quaternary
-            circle
-            onClick={() => props.onToggleDrawer('performance')}
-          >
-            {{
-              icon: () => <NIcon component={FlashOutline} />
-            }}
-          </NButton>
-          <NButton size="small" quaternary circle onClick={() => props.onToggleDrawer('stats')}>
-            {{
-              icon: () => <NIcon component={StatsChartOutline} />
-            }}
-          </NButton>
-          <NButton size="small" quaternary circle onClick={() => props.onToggleDrawer('events')}>
-            {{
-              icon: () => <NIcon component={CodeOutline} />
-            }}
-          </NButton>
-          <NButton size="small" quaternary circle onClick={() => props.onToggleDrawer('settings')}>
-            {{
-              icon: () => <NIcon component={SettingsOutline} />
-            }}
-          </NButton>
-          {props.uploadStatsTotal > 0 && (
-            <NButton size="small" quaternary circle type="error" onClick={props.onClear}>
-              {{
-                icon: () => <NIcon component={TrashOutline} />
-              }}
-            </NButton>
-          )}
-        </NSpace>
-      </div>
-    );
+      );
+    };
   }
 });

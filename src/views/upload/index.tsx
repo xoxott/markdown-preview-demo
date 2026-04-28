@@ -1,5 +1,6 @@
 import { computed, defineComponent, onMounted, ref } from 'vue';
-import { NMessageProvider, useMessage, useThemeVars } from 'naive-ui';
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
+import { useMessage, useThemeVars } from 'naive-ui';
 import type { ChunkInfo, FileTask } from '@/hooks/upload';
 import FileList from './components/FileList';
 import PageHeader from './components/PageHeader';
@@ -30,6 +31,8 @@ export default defineComponent({
     const themeVars = useThemeVars();
     const message = useMessage();
     const drawers = useDrawers();
+    const breakpoints = useBreakpoints(breakpointsTailwind);
+    const isMobile = breakpoints.smaller('lg');
 
     // ==================== 状态管理 ====================
     const language = ref<'zh-CN' | 'en-US'>('zh-CN');
@@ -70,7 +73,6 @@ export default defineComponent({
 
     // ==================== 事件监听 ====================
     onMounted(() => {
-      // 注册所有事件监听器
       uploadHook.uploader.onFileProgress((task: FileTask) => {
         addEventLog('progress', `文件进度更新: ${task.file.name}`, {
           progress: task.progress,
@@ -214,30 +216,33 @@ export default defineComponent({
     };
 
     return () => (
-      <div class="h-full w-full flex flex-col gap-4 p-4">
-        <NMessageProvider>
+      <div class="min-h-full bg-[rgb(var(--container-bg-color))] p-3 lg:p-6 sm:p-4">
+        <div class="mx-auto max-w-7xl flex flex-col gap-4">
           {/* 头部标题 */}
           <PageHeader
             themeVars={themeVars.value}
-            drawerState={{}}
             uploadStatsTotal={uploadHook.uploadStats.value.total}
+            isUploading={uploadHook.isUploading.value}
+            isPaused={uploadHook.isPaused.value}
             onToggleDrawer={handleToggleDrawer}
             onClear={() => fileOperationHandlers.handleClear(clearEventLogs)}
           />
 
           {/* 统计卡片 */}
-          <StatsCards uploadStats={uploadHook.uploadStats.value} />
+          <StatsCards uploadStats={uploadHook.uploadStats.value} themeVars={themeVars.value} />
 
-          {/* 上传区域和控制面板 */}
-          <div class="w-full flex flex-col gap-4 xl:flex-row">
+          {/* 上传区域和统计面板 */}
+          <div class="flex flex-col gap-4 lg:flex-row">
             {/* 上传区域 */}
             <UploadArea
               settings={settings}
               isUploading={uploadHook.isUploading.value}
               isPaused={uploadHook.isPaused.value}
               uploadQueueLength={uploadHook.uploadQueue.value.length}
+              totalFiles={uploadHook.uploadStats.value.total}
               failedCount={failedCount.value}
               themeVars={themeVars.value}
+              isMobile={isMobile.value}
               onFilesChange={fileHandlers.handleFilesChange}
               onUploadError={fileHandlers.handleUploadError}
               onExceed={fileHandlers.handleExceed}
@@ -261,6 +266,7 @@ export default defineComponent({
               formatSpeed={uploadHook.formatSpeed}
               formatTime={uploadHook.formatTime}
               formatFileSize={uploadHook.formatFileSize}
+              themeVars={themeVars.value}
             />
           </div>
 
@@ -272,8 +278,10 @@ export default defineComponent({
             completedUploadsLength={uploadHook.completedUploads.value.length}
             handlers={fileListHandlers}
             utils={fileListUtils}
+            isMobile={isMobile.value}
+            themeVars={themeVars.value}
           />
-        </NMessageProvider>
+        </div>
       </div>
     );
   }

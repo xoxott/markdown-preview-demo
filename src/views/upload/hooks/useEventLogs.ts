@@ -10,7 +10,7 @@ export function useEventLogs() {
   /** 添加事件日志 */
   const addEventLog = (type: EventLog['type'], message: string, data?: unknown): void => {
     const time = new Date().toLocaleTimeString();
-    eventLogs.value.unshift({ time, type, message, data });
+    eventLogs.value.push({ time, type, message, data });
 
     // 限制日志数量
     if (eventLogs.value.length > MAX_LOGS) {

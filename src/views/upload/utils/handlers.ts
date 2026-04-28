@@ -58,11 +58,11 @@ export function createUploadHandlers(
   },
   failedCount: { value: number }
 ) {
-  const handleStartUpload = async (): Promise<void> => {
+  const handleStartUpload = (): void => {
     try {
-      await uploadHook.start();
       addEventLog('start', '开始上传');
       message.info('开始上传');
+      uploadHook.start();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       addEventLog('error', '启动上传失败', { error });
