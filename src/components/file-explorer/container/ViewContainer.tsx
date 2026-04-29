@@ -1,13 +1,5 @@
-/*
- * @Author: yangtao 212920320@qq.com
- * @Date: 2025-11-03 09:19:21
- * @LastEditors: yangtao 212920320@qq.com
- * @LastEditTime: 2025-11-08 10:20:01
- * @FilePath: \markdown-preview-demo\src\components\file-explorer\container\ViewContainer.tsx
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
 import type { PropType, Ref } from 'vue';
-import { defineComponent } from 'vue';
+import { defineComponent, toRef } from 'vue';
 import { NScrollbar } from 'naive-ui';
 import { useContextMenuOptions } from '../hooks/useContextMenuOptions';
 import ContextMenu from '../interaction/ContextMenu';
@@ -15,6 +7,7 @@ import type { FileItem, GridSize, SortField, SortOrder, ViewMode } from '../type
 import NSelectionRect from '../interaction/NSelectionRect';
 import FileLoading from '../feedback/FileLoading';
 import FilePagination from '../layout/FilePagination';
+import { provideFileViewContext } from '../composables/useFileViewContext';
 import FileViewRenderer from './FileViewRenderer';
 
 export default defineComponent({
@@ -50,6 +43,18 @@ export default defineComponent({
       onSelect: props.onSelect
     });
 
+    // 提供视图上下文（替代 props 穿透到 FileViewRenderer）
+    provideFileViewContext({
+      items: toRef(props, 'items'),
+      selectedIds: props.selectedIds,
+      onSelect: props.onSelect,
+      onOpen: props.onOpen,
+      gridSize: toRef(props, 'gridSize'),
+      sortField: props.sortField ? toRef(props, 'sortField') : undefined,
+      sortOrder: props.sortOrder ? toRef(props, 'sortOrder') : undefined,
+      onSort: props.onSort
+    });
+
     /** 接收圈选结果 */
     const handleSelectionChange = (ids: string[]) => {
       props.onSelect(ids);
@@ -75,7 +80,7 @@ export default defineComponent({
                 class={'h-full'}
               >
                 <NScrollbar yPlacement="right" xPlacement="bottom" class="h-full">
-                  <FileViewRenderer {...props} />
+                  <FileViewRenderer viewMode={props.viewMode} />
                 </NScrollbar>
               </NSelectionRect>
             </ContextMenu>

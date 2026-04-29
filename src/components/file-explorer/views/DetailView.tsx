@@ -1,10 +1,10 @@
-import type { PropType, Ref } from 'vue';
 import { computed, defineComponent, onUnmounted, ref } from 'vue';
 import { NIcon, useThemeVars } from 'naive-ui';
 import { ChevronDown, ChevronUp } from '@vicons/tabler';
-import type { FileItem, SortField, SortOrder } from '../types/file-explorer';
+import type { FileItem, SortField } from '../types/file-explorer';
 import FileIcon from '../items/FileIcon';
 import { formatFileSize } from '../utils/fileHelpers';
+import { useFileViewContext } from '../composables/useFileViewContext';
 
 interface ColumnConfig {
   id: SortField;
@@ -22,19 +22,8 @@ function clampWidth(width: number, minWidth?: number, maxWidth?: number) {
 
 export default defineComponent({
   name: 'DetailView',
-  props: {
-    items: { type: Array as PropType<FileItem[]>, required: true },
-    selectedIds: { type: Object as PropType<Ref<Set<string>>>, required: true },
-    onSelect: {
-      type: Function as PropType<(id: string[], event?: MouseEvent) => void>,
-      required: true
-    },
-    onOpen: { type: Function as PropType<(item: FileItem) => void>, required: true },
-    sortField: { type: String as PropType<SortField>, required: true },
-    sortOrder: { type: String as PropType<SortOrder>, required: true },
-    onSort: { type: Function as PropType<(field: SortField) => void>, required: true }
-  },
-  setup(props, { expose: _expose }) {
+  setup() {
+    const ctx = useFileViewContext();
     const themeVars = useThemeVars();
     const tableRef = ref<HTMLTableElement | null>(null);
     const hoveredHeader = ref<SortField | null>(null);
@@ -89,7 +78,7 @@ export default defineComponent({
     };
 
     // 获取排序图标
-    const getSortIcon = () => (props.sortOrder === 'asc' ? ChevronUp : ChevronDown);
+    const getSortIcon = () => (ctx.sortOrder!.value === 'asc' ? ChevronUp : ChevronDown);
 
     // 优化的列宽调整逻辑
     const startResize = (e: MouseEvent, columnId: SortField) => {
@@ -313,7 +302,7 @@ export default defineComponent({
     // 渲染表头
     const SortHeader = (column: ColumnConfig, index: number) => {
       const SortIconComp = getSortIcon();
-      const isActive = props.sortField === column.id;
+      const isActive = ctx.sortField!.value === column.id;
       const isHovered = hoveredHeader.value === column.id;
       const isResizerHovered = hoveredResizer.value === column.id;
       const isDragging = draggingColumn.value?.id === column.id;
@@ -344,7 +333,7 @@ export default defineComponent({
           onClick={(e: MouseEvent) => {
             if (resizing.value) return;
             if ((e.target as HTMLElement).closest('.resize-handle')) return;
-            props.onSort(column.id);
+            ctx.onSort!(column.id);
           }}
         >
           <div class="pointer-events-none flex items-center gap-1">
@@ -553,8 +542,8 @@ export default defineComponent({
               <tr>{columns.value.map((column, index) => SortHeader(column, index))}</tr>
             </thead>
             <tbody data-selector="content-viewer">
-              {props.items.map(item => {
-                const isSelected = props.selectedIds.value.has(item.id);
+              {ctx.items.value.map(item => {
+                const isSelected = ctx.selectedIds.value.has(item.id);
                 return (
                   <tr
                     key={item.id}
@@ -571,8 +560,8 @@ export default defineComponent({
                     }}
                     onMouseenter={() => (hoveredRowId.value = item.id)}
                     onMouseleave={() => (hoveredRowId.value = null)}
-                    onClick={(e: MouseEvent) => props.onSelect([item.id], e)}
-                    onDblclick={() => props.onOpen(item)}
+                    onClick={(e: MouseEvent) => ctx.onSelect([item.id], e)}
+                    onDblclick={() => ctx.onOpen(item)}
                   >
                     {columns.value.map(column => (
                       <td key={column.id} class="px-4 py-1.5">

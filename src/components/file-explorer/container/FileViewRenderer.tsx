@@ -1,60 +1,33 @@
-import type { PropType, Ref } from 'vue';
-import { defineComponent, ref } from 'vue';
+import type { PropType } from 'vue';
+import { defineComponent } from 'vue';
 import GridView from '../views/GridView';
 import TileView from '../views/TileView';
 import DetailView from '../views/DetailView';
 import ListView from '../views/ListView';
 import ContentView from '../views/ContentView';
-import type { FileItem, GridSize, SortField, SortOrder, ViewMode } from '../types/file-explorer';
+import type { ViewMode } from '../types/file-explorer';
+import { useFileViewContext } from '../composables/useFileViewContext';
 
 export default defineComponent({
   name: 'FileViewRenderer',
   props: {
-    items: { type: Array as PropType<FileItem[]>, required: true },
-    selectedIds: { type: Object as PropType<Ref<Set<string>>>, required: true },
-    onSelect: {
-      type: Function as PropType<(ids: string[], event?: MouseEvent) => void>,
-      required: true
-    },
-    onOpen: { type: Function as PropType<(item: FileItem) => void>, required: true },
-    viewMode: { type: String as PropType<ViewMode>, required: true },
-    gridSize: { type: String as PropType<GridSize>, default: 'medium' },
-    sortField: { type: String as PropType<SortField>, required: false },
-    sortOrder: { type: String as PropType<SortOrder>, required: false },
-    onSort: { type: Function as PropType<(field: SortField) => void>, required: false }
+    viewMode: { type: String as PropType<ViewMode>, required: true }
   },
   setup(props) {
-    const viewRef = ref<any>(null);
+    const ctx = useFileViewContext();
 
     return () => {
-      const viewProps = {
-        items: props.items,
-        selectedIds: props.selectedIds,
-        onSelect: props.onSelect,
-        onOpen: props.onOpen
-      };
       switch (props.viewMode) {
         case 'grid':
-          return <GridView {...viewProps} gridSize={props.gridSize} />;
+          return <GridView gridSize={ctx.gridSize?.value} />;
         case 'list':
-          return <ListView {...viewProps} />;
+          return <ListView />;
         case 'tile':
-          return <TileView {...viewProps} />;
+          return <TileView />;
         case 'detail':
-          if (props.sortField && props.sortOrder && props.onSort) {
-            return (
-              <DetailView
-                {...viewProps}
-                ref={viewRef}
-                sortField={props.sortField}
-                sortOrder={props.sortOrder}
-                onSort={props.onSort}
-              />
-            );
-          }
-          return null;
+          return <DetailView />;
         case 'content':
-          return <ContentView {...viewProps} />;
+          return <ContentView />;
         default:
           return null;
       }

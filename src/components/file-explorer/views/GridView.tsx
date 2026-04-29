@@ -1,40 +1,22 @@
-import type { PropType, Ref } from 'vue';
 import { computed, defineComponent, inject, ref } from 'vue';
 import { useThemeVars } from 'naive-ui';
 import FileIcon from '../items/FileIcon';
-import type { FileItem, GridSize } from '../types/file-explorer';
+import type { GridSize } from '../types/file-explorer';
 import type { FileDragDropHook } from '../hooks/useFileDragDropEnhanced';
 import { FileDropZoneWrapper } from '../interaction/FileDropZoneWrapper';
+import { useFileViewContext } from '../composables/useFileViewContext';
 
 export default defineComponent({
   name: 'GridView',
-  props: {
-    items: {
-      type: Array as PropType<FileItem[]>,
-      required: true
-    },
-    selectedIds: {
-      type: Object as PropType<Ref<Set<string>>>,
-      required: true
-    },
-    onSelect: {
-      type: Function as PropType<(id: string[], event?: MouseEvent) => void>,
-      required: true
-    },
-    onOpen: {
-      type: Function as PropType<(item: FileItem) => void>,
-      required: true
-    },
-    gridSize: {
-      type: String as PropType<GridSize>,
-      required: true
-    }
-  },
-  setup(props) {
+  setup() {
     const themeVars = useThemeVars();
+    const ctx = useFileViewContext();
     const dragDrop = inject<FileDragDropHook>('FILE_DRAG_DROP')!;
     const hoveredItemId = ref<string | null>(null);
-    const sizeMap = {
+    const sizeMap: Record<
+      GridSize,
+      { icon: number; gap: number; itemWidth: number; padding: string }
+    > = {
       'small': { icon: 48, gap: 8, itemWidth: 70, padding: '4px 6px' },
       'medium': { icon: 64, gap: 10, itemWidth: 100, padding: '6px 8px' },
       'large': { icon: 96, gap: 12, itemWidth: 120, padding: '8px 10px' },
@@ -42,10 +24,12 @@ export default defineComponent({
     };
 
     const selectedItems = computed(() =>
-      props.items.filter(it => props.selectedIds.value.has(it.id))
+      ctx.items.value.filter(it => ctx.selectedIds.value.has(it.id))
     );
 
-    const getConfig = () => sizeMap[props.gridSize];
+    const gridSize = computed(() => ctx.gridSize?.value || 'small');
+
+    const getConfig = () => sizeMap[gridSize.value];
 
     const getItemBgColor = (id: string, isSelected: boolean) => {
       const dropZone = dragDrop.getDropZoneState(id);
@@ -55,6 +39,7 @@ export default defineComponent({
       if (hoveredItemId.value === id) return themeVars.value.hoverColor;
       return 'transparent';
     };
+
     return () => {
       const config = getConfig();
       return (
@@ -68,8 +53,8 @@ export default defineComponent({
             backgroundColor: themeVars.value.bodyColor
           }}
         >
-          {props.items.map(item => {
-            const isSelected = props.selectedIds.value.has(item.id);
+          {ctx.items.value.map(item => {
+            const isSelected = ctx.selectedIds.value.has(item.id);
             return (
               <FileDropZoneWrapper
                 key={item.id}
@@ -87,21 +72,18 @@ export default defineComponent({
                   onMouseenter={() => (hoveredItemId.value = item.id)}
                   onMouseleave={() => (hoveredItemId.value = null)}
                   data-selectable-id={item.id}
-                  onClick={(e: MouseEvent) => props.onSelect([item.id], e)}
-                  onDblclick={() => props.onOpen(item)}
+                  onClick={(e: MouseEvent) => ctx.onSelect([item.id], e)}
+                  onDblclick={() => ctx.onOpen(item)}
                   onDragstart={e => dragDrop.startDrag(selectedItems.value, e)}
                   draggable
                 >
-                  {/* 图标 */}
                   <div class="mb-1">
                     <FileIcon item={item} size={config.icon} />
                   </div>
-
-                  {/* 文件名 */}
                   <div
                     class="break-words text-center"
                     style={{
-                      fontSize: props.gridSize === 'small' ? '12px' : '14px',
+                      fontSize: gridSize.value === 'small' ? '12px' : '14px',
                       lineHeight: '1.4',
                       maxWidth: `${config.itemWidth - 16}px`,
                       wordBreak: 'break-word',
