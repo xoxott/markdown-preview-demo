@@ -13,6 +13,7 @@ import { defineComponent } from 'vue';
 import {
   BasicComponentsExample,
   ClockLoadingExample,
+  FilePreviewExample,
   FlowExamples,
   RequestClientExample,
   StreamingPenDebugExample,
@@ -45,6 +46,16 @@ export default defineComponent({
           <div class="rounded-lg bg-white p-6 shadow-sm">
             <BasicComponentsExample />
           </div>
+        </section>
+
+        {/* ==================== 文件预览 (File Preview) ==================== */}
+        <section class="space-y-4">
+          <div class="mb-4 flex items-center gap-3">
+            <div class="h-1 w-12 rounded bg-blue-500"></div>
+            <h1 class="text-3xl text-gray-900 font-bold">文件预览</h1>
+            <div class="h-1 flex-1 rounded bg-gray-200"></div>
+          </div>
+          <FilePreviewExample />
         </section>
 
         {/* ==================== 流程图组件 (Flow Components) ==================== */}

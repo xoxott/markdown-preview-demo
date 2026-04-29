@@ -1,10 +1,124 @@
 import type { PropType } from 'vue';
 import { computed, defineComponent } from 'vue';
-import Markdown from '@/components/markdown';
 import type { FileItem } from '../types/file-explorer';
-import TextPreview from './TextPreview';
-import ImagePreview from './ImagePreview';
+import type { FileCategory, PreviewerMatch } from './types';
+import { previewRegistry } from './previewRegistry';
+import { PreviewHeader } from './PreviewHeader';
+import { PreviewLoading } from './PreviewLoading';
+import { UnsupportedPreview } from './UnsupportedPreview';
+import { ImagePreviewer } from './previewers/ImagePreviewer';
+import { VideoPreviewer } from './previewers/VideoPreviewer';
+import { AudioPreviewer } from './previewers/AudioPreviewer';
+import { PDFPreviewer } from './previewers/PDFPreviewer';
+import { MarkdownPreviewer } from './previewers/MarkdownPreviewer';
+import { CodePreviewer } from './previewers/CodePreviewer';
+import { OfficePreviewer } from './previewers/OfficePreviewer';
+import { ArchivePreviewer } from './previewers/ArchivePreviewer';
+import { SvgPreviewer } from './previewers/SvgPreviewer';
+import { MermaidPreviewer } from './previewers/MermaidPreviewer';
+import { EchartsPreviewer } from './previewers/EchartsPreviewer';
+import { MindmapPreviewer } from './previewers/MindmapPreviewer';
+import { FontPreviewer } from './previewers/FontPreviewer';
 
+/** 初始化内置预览器注册表（仅执行一次） */
+let registryInitialized = false;
+
+function ensureRegistryInit() {
+  if (registryInitialized) return;
+  registryInitialized = true;
+
+  previewRegistry.registerAll([
+    { category: 'svg', extensions: ['svg'], component: SvgPreviewer, priority: 10 },
+    {
+      category: 'image',
+      extensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'ico', 'avif', 'tiff', 'tif'],
+      component: ImagePreviewer
+    },
+    {
+      category: 'video',
+      extensions: ['mp4', 'webm', 'avi', 'mov', 'mkv', 'flv', 'ogg', '3gp', 'wmv', 'm4v'],
+      component: VideoPreviewer
+    },
+    {
+      category: 'audio',
+      extensions: ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a', 'wma', 'mid', 'midi'],
+      component: AudioPreviewer
+    },
+    { category: 'pdf', extensions: ['pdf'], component: PDFPreviewer },
+    { category: 'markdown', extensions: ['md', 'markdown'], component: MarkdownPreviewer },
+    {
+      category: 'code',
+      extensions: [
+        'js',
+        'mjs',
+        'cjs',
+        'ts',
+        'jsx',
+        'tsx',
+        'vue',
+        'css',
+        'scss',
+        'less',
+        'html',
+        'json',
+        'xml',
+        'yaml',
+        'yml',
+        'sh',
+        'bash',
+        'py',
+        'java',
+        'cpp',
+        'c',
+        'h',
+        'go',
+        'rust',
+        'rs',
+        'sql',
+        'r',
+        'lua',
+        'perl',
+        'pl',
+        'rb',
+        'php',
+        'cs',
+        'swift',
+        'kt',
+        'dart',
+        'scala',
+        'clj',
+        'coffee',
+        'make',
+        'dockerfile',
+        'gitignore',
+        'env',
+        'log',
+        'conf',
+        'ini',
+        'toml',
+        'csv',
+        'txt'
+      ],
+      component: CodePreviewer
+    },
+    { category: 'mermaid', extensions: ['mermaid', 'mmd'], component: MermaidPreviewer },
+    { category: 'echarts', extensions: ['echarts', 'chart'], component: EchartsPreviewer },
+    { category: 'mindmap', extensions: ['markmap', 'mm'], component: MindmapPreviewer },
+    {
+      category: 'office',
+      extensions: ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'],
+      component: OfficePreviewer
+    },
+    {
+      category: 'archive',
+      extensions: ['zip', 'tar', 'gz', 'rar', '7z', 'bz2', 'xz'],
+      component: ArchivePreviewer
+    },
+    { category: 'font', extensions: ['ttf', 'otf', 'woff', 'woff2'], component: FontPreviewer }
+  ]);
+}
+
+/** 文件预览统一入口组件 — 通过注册表路由到具体预览器，统一处理 loading/error/文件信息头 */
 export default defineComponent({
   name: 'FilePreview',
   props: {
@@ -13,8 +127,8 @@ export default defineComponent({
       required: true
     },
     content: {
-      type: [String, Blob] as PropType<string | Blob>,
-      default: null
+      type: [String, Blob] as PropType<string | Blob | undefined>,
+      default: undefined
     },
     loading: {
       type: Boolean,
@@ -22,91 +136,45 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const fileExtension = computed(() => {
-      return props.file.extension?.toLowerCase() || '';
+    ensureRegistryInit();
+
+    const previewerMatch = computed<PreviewerMatch | null>(() => {
+      return previewRegistry.getPreviewer(props.file.extension, props.file.mimeType);
     });
 
-    const isTextFile = computed(() => {
-      const textExtensions = [
-        'txt',
-        'md',
-        'js',
-        'ts',
-        'json',
-        'html',
-        'css',
-        'vue',
-        'tsx',
-        'jsx',
-        'xml',
-        'yaml',
-        'yml',
-        'sh',
-        'py',
-        'java',
-        'cpp',
-        'c',
-        'h'
-      ];
-      return textExtensions.includes(fileExtension.value);
-    });
-
-    const isImageFile = computed(() => {
-      const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp', 'ico'];
-      return imageExtensions.includes(fileExtension.value);
-    });
-
-    const isMarkdownFile = computed(() => {
-      return fileExtension.value === 'md' || fileExtension.value === 'markdown';
+    const category = computed<FileCategory>(() => {
+      return previewerMatch.value?.category ?? 'unsupported';
     });
 
     return () => {
       if (props.loading) {
-        return (
-          <div class="h-full flex items-center justify-center">
-            <div class="text-center">
-              <div class="mb-2 text-sm text-gray-500">加载中...</div>
-            </div>
-          </div>
-        );
+        return <PreviewLoading tip="正在加载文件..." />;
       }
 
       if (!props.content) {
         return (
-          <div class="h-full flex items-center justify-center">
-            <div class="text-center text-gray-500">
-              <div class="mb-2 text-sm">无法预览此文件</div>
-              <div class="text-xs">文件类型: {props.file.extension || '未知'}</div>
-            </div>
+          <div class="h-full flex flex-col">
+            <PreviewHeader file={props.file} category={category.value} />
+            <UnsupportedPreview file={props.file} />
           </div>
         );
       }
 
-      // Markdown 文件
-      if (isMarkdownFile.value && typeof props.content === 'string') {
+      if (!previewerMatch.value) {
         return (
-          <div class="h-full overflow-auto">
-            <Markdown content={props.content} />
+          <div class="h-full flex flex-col">
+            <PreviewHeader file={props.file} category="unsupported" />
+            <UnsupportedPreview file={props.file} />
           </div>
         );
       }
 
-      // 图片文件
-      if (isImageFile.value && props.content instanceof Blob) {
-        return <ImagePreview file={props.file} blob={props.content} />;
-      }
-
-      // 文本文件
-      if (isTextFile.value && typeof props.content === 'string') {
-        return <TextPreview file={props.file} content={props.content} />;
-      }
-
-      // 其他文件类型
+      const PreviewerComponent = previewerMatch.value.component;
       return (
-        <div class="h-full flex items-center justify-center">
-          <div class="text-center text-gray-500">
-            <div class="mb-2 text-sm">不支持预览此文件类型</div>
-            <div class="text-xs">文件: {props.file.name}</div>
+        <div class="h-full flex flex-col">
+          <PreviewHeader file={props.file} category={category.value} />
+          <div class="flex-1 overflow-hidden">
+            <PreviewerComponent file={props.file} content={props.content} />
           </div>
         </div>
       );

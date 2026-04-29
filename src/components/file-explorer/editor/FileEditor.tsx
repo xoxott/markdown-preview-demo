@@ -1,11 +1,24 @@
 import type { PropType } from 'vue';
-import { computed, defineComponent, ref, watch } from 'vue';
-import { NButton, NIcon, useMessage, useThemeVars } from 'naive-ui';
+import { computed, defineComponent, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
+import { NButton, NIcon, NTooltip, useMessage, useThemeVars } from 'naive-ui';
+import { ArrowsMaximize, ArrowsMinimize, Copy, FileCode } from '@vicons/tabler';
 import { Close, Save } from '@vicons/ionicons5';
-import { MonacoEditor } from '@/components/monaco';
-import type { MonacoLanguage } from '@/components/monaco';
+import type * as monaco from 'monaco-editor-core';
+import { MonacoEditorCore } from '@/components/monaco';
+import { resolveLanguage } from '@/components/monaco/languageMap';
 import type { IFileDataSource } from '../datasources/types';
 import type { FileItem } from '../types/file-explorer';
+
+/** 扩展 HTMLElement 以包含非标准 webkit 全屏方法 */
+interface ElementWithWebkitFullscreen extends HTMLElement {
+  webkitRequestFullscreen?: () => Promise<void>;
+}
+
+/** 扩展 Document 以包含非标准 webkit 全屏属性和方法 */
+interface DocumentWithWebkitFullscreen extends Document {
+  webkitExitFullscreen?: () => Promise<void>;
+  webkitFullscreenElement?: Element | null;
+}
 
 export default defineComponent({
   name: 'FileEditor',
@@ -37,32 +50,12 @@ export default defineComponent({
     const editorContent = ref(props.content);
     const isDirty = ref(false);
     const saving = ref(false);
+    const editorInstance = shallowRef<monaco.editor.IStandaloneCodeEditor>();
+    const wrapperRef = ref<HTMLElement>();
+    const isFullscreen = ref(false);
 
-    // 推断语言
-    const language = computed(() => {
-      const ext = props.file.extension?.toLowerCase() || '';
-      const langMap: Record<string, MonacoLanguage> = {
-        js: 'javascript',
-        ts: 'typescript',
-        vue: 'vue',
-        jsx: 'jsx',
-        tsx: 'tsx',
-        css: 'css',
-        html: 'html',
-        json: 'json',
-        md: 'markdown'
-        // xml: 'xml',
-        // yaml: 'yaml',
-        // yml: 'yaml',
-        // sh: 'shell',
-        // py: 'python',
-        // java: 'java',
-        // cpp: 'cpp',
-        // c: 'c',
-        // h: 'c'
-      };
-      return langMap[ext] || 'plaintext';
-    });
+    // 推断语言 — 使用集中映射
+    const language = computed(() => resolveLanguage(props.file.extension || ''));
 
     // 监听内容变化
     watch(
@@ -81,6 +74,58 @@ export default defineComponent({
       isDirty.value = value !== props.content;
     };
 
+    // 编辑器 ready 回调
+    const handleReady = (editor: monaco.editor.IStandaloneCodeEditor) => {
+      editorInstance.value = editor;
+    };
+
+    // ==================== 工具栏操作 ====================
+
+    /** 复制代码 */
+    const handleCopy = async () => {
+      if (editorInstance.value) {
+        const value = editorInstance.value.getValue();
+        try {
+          await navigator.clipboard.writeText(value);
+          window.$message?.success('复制成功');
+        } catch (err) {
+          window.$message?.error('复制失败');
+          console.error(err);
+        }
+      }
+    };
+
+    /** 格式化代码 */
+    const handleFormat = () => {
+      if (editorInstance.value) {
+        editorInstance.value.getAction('editor.action.formatDocument')?.run();
+      }
+    };
+
+    /** 切换全屏 */
+    const handleToggleFullscreen = () => {
+      if (!wrapperRef.value) return;
+      if (!isFullscreen.value) {
+        if (wrapperRef.value.requestFullscreen) {
+          wrapperRef.value.requestFullscreen();
+        } else if ((wrapperRef.value as ElementWithWebkitFullscreen).webkitRequestFullscreen) {
+          (wrapperRef.value as ElementWithWebkitFullscreen).webkitRequestFullscreen!();
+        }
+      } else if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if ((document as DocumentWithWebkitFullscreen).webkitExitFullscreen) {
+        (document as DocumentWithWebkitFullscreen).webkitExitFullscreen!();
+      }
+    };
+
+    const handleFullscreenChange = () => {
+      const isCurrentlyFullscreen = Boolean(
+        document.fullscreenElement ||
+          (document as DocumentWithWebkitFullscreen).webkitFullscreenElement
+      );
+      isFullscreen.value = isCurrentlyFullscreen;
+    };
+
     // 保存文件
     const handleSave = async () => {
       if (!isDirty.value) {
@@ -94,14 +139,13 @@ export default defineComponent({
         if (props.onSave) {
           await props.onSave(props.file, editorContent.value);
         } else {
-          // 使用数据源保存
           await props.dataSource.writeFile(props.file.path, editorContent.value);
         }
 
         isDirty.value = false;
         message.success('保存成功');
-      } catch (error: any) {
-        message.error(`保存失败: ${error.message}`);
+      } catch (error: unknown) {
+        message.error(`保存失败: ${error instanceof Error ? error.message : String(error)}`);
         console.error('保存文件失败:', error);
       } finally {
         saving.value = false;
@@ -111,16 +155,30 @@ export default defineComponent({
     // 处理关闭
     const handleClose = () => {
       if (isDirty.value) {
-        // [PENDING] 显示确认对话框
         message.warning('文件已修改，请先保存');
         return;
       }
       props.onClose?.();
     };
 
+    // ==================== 生命周期 ====================
+
+    onBeforeUnmount(() => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    });
+
+    // 挂载全屏监听
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+
     return () => (
-      <div class="h-full flex flex-col" style={{ backgroundColor: themeVars.value.bodyColor }}>
-        {/* 工具栏 */}
+      <div
+        ref={wrapperRef}
+        class="h-full flex flex-col"
+        style={{ backgroundColor: themeVars.value.bodyColor, ...(isFullscreen.value ? {} : {}) }}
+      >
+        {/* 自定义工具栏 */}
         <div
           class="flex items-center justify-between border-b px-4 py-2"
           style={{
@@ -138,7 +196,49 @@ export default defineComponent({
               </span>
             )}
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1">
+            {/* 格式化 */}
+            <NTooltip>
+              {{
+                trigger: () => (
+                  <NButton quaternary size="small" onClick={handleFormat}>
+                    <NIcon size={16}>
+                      <FileCode />
+                    </NIcon>
+                  </NButton>
+                ),
+                default: () => '格式化代码'
+              }}
+            </NTooltip>
+
+            {/* 复制 */}
+            <NTooltip>
+              {{
+                trigger: () => (
+                  <NButton quaternary size="small" onClick={handleCopy}>
+                    <NIcon size={16}>
+                      <Copy />
+                    </NIcon>
+                  </NButton>
+                ),
+                default: () => '复制代码'
+              }}
+            </NTooltip>
+
+            {/* 全屏 */}
+            <NTooltip>
+              {{
+                trigger: () => (
+                  <NButton quaternary size="small" onClick={handleToggleFullscreen}>
+                    <NIcon size={16}>
+                      {isFullscreen.value ? <ArrowsMinimize /> : <ArrowsMaximize />}
+                    </NIcon>
+                  </NButton>
+                ),
+                default: () => (isFullscreen.value ? '退出全屏' : '全屏')
+              }}
+            </NTooltip>
+
             <NButton
               type="primary"
               size="small"
@@ -161,16 +261,16 @@ export default defineComponent({
           </div>
         </div>
 
-        {/* 编辑器 */}
+        {/* 编辑器核心 — 无内置 toolbar */}
         <div class="flex-1 overflow-hidden">
-          <MonacoEditor
+          <MonacoEditorCore
             modelValue={editorContent.value}
             filename={props.file.name}
             language={language.value}
             readonly={false}
-            showToolbar={true}
-            height="85vh"
+            height="100%"
             onUpdate:modelValue={handleContentChange}
+            onReady={handleReady}
           />
         </div>
       </div>

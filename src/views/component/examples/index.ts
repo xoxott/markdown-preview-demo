@@ -26,6 +26,9 @@ export { default as FlowBezierExample } from './FlowBezierExample';
 // RequestClient 示例
 export { default as RequestClientExample } from './RequestClientExample';
 
+// 文件预览示例
+export { FilePreviewExample } from './FilePreviewExample';
+
 // 流式笔写效果示例
 export { default as StreamingPenExample } from './StreamingPenExample';
 export { default as StreamingPenDebugExample } from './StreamingPenDebugExample';
