@@ -28,7 +28,7 @@ export function provideFileViewContext(ctx: FileViewContext) {
 
 /** 在视图组件中获取视图上下文 */
 export function useFileViewContext(): FileViewContext {
-  const ctx = inject<FileViewContext>(FILE_VIEW_CONTEXT_KEY, null);
+  const ctx = inject(FILE_VIEW_CONTEXT_KEY);
   if (!ctx) {
     throw new Error(
       'useFileViewContext must be used within a ViewContainer that provides FileViewContext'

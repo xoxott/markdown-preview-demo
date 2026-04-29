@@ -1,3 +1,4 @@
+import type { Component } from 'vue';
 import { File, FileCode, FileText, Folder, Music, Photo, Video } from '@vicons/tabler';
 import type { FileItem } from '../types/file-explorer';
 import { getFileCategoryByExtension } from '../config/extensionCategories';
@@ -47,7 +48,7 @@ export function formatDateTime(date?: string | Date): string {
 }
 
 /** 分类 → 图标映射 */
-const CATEGORY_ICON_MAP: Record<string, ReturnType<typeof File>> = {
+const CATEGORY_ICON_MAP: Record<string, Component> = {
   image: Photo,
   video: Video,
   audio: Music,

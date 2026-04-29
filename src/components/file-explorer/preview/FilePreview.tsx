@@ -1,5 +1,5 @@
 import type { PropType } from 'vue';
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, h } from 'vue';
 import type { FileItem } from '../types/file-explorer';
 import type { FileCategory, PreviewerMatch } from './types';
 import { previewRegistry } from './previewRegistry';
@@ -174,7 +174,7 @@ export default defineComponent({
         <div class="h-full flex flex-col">
           <PreviewHeader file={props.file} category={category.value} />
           <div class="flex-1 overflow-hidden">
-            <PreviewerComponent file={props.file} content={props.content} />
+            {h(PreviewerComponent, { file: props.file, content: props.content })}
           </div>
         </div>
       );
