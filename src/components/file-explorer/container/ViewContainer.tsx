@@ -1,7 +1,8 @@
 import type { PropType, Ref } from 'vue';
-import { defineComponent, toRef } from 'vue';
+import { computed, defineComponent, inject, toRef } from 'vue';
 import { NScrollbar } from 'naive-ui';
 import { useContextMenuOptions } from '../hooks/useContextMenuOptions';
+import { FILE_DRAG_DROP_KEY } from '../hooks/useFileDragDropEnhanced';
 import ContextMenu from '../interaction/ContextMenu';
 import type { FileItem, GridSize, SortField, SortOrder, ViewMode } from '../types/file-explorer';
 import NSelectionRect from '../interaction/NSelectionRect';
@@ -43,16 +44,27 @@ export default defineComponent({
       onSelect: props.onSelect
     });
 
+    // 注入拖拽系统（由 useFileExplorerLogic provide）
+    const dragDrop = inject(FILE_DRAG_DROP_KEY);
+
+    // 已选中文件列表（供拖拽使用）
+    const selectedItems = computed(() =>
+      props.items.filter(it => props.selectedIds.value.has(it.id))
+    );
+
     // 提供视图上下文（替代 props 穿透到 FileViewRenderer）
     provideFileViewContext({
       items: toRef(props, 'items'),
       selectedIds: props.selectedIds,
       onSelect: props.onSelect,
       onOpen: props.onOpen,
+      viewMode: toRef(props, 'viewMode'),
       gridSize: toRef(props, 'gridSize'),
       sortField: toRef(props, 'sortField'),
       sortOrder: toRef(props, 'sortOrder'),
-      onSort: props.onSort
+      onSort: props.onSort,
+      dragDrop,
+      selectedItems
     });
 
     /** 接收圈选结果 */
@@ -80,7 +92,7 @@ export default defineComponent({
                 class={'h-full'}
               >
                 <NScrollbar yPlacement="right" xPlacement="bottom" class="h-full">
-                  <FileViewRenderer viewMode={props.viewMode} />
+                  <FileViewRenderer />
                 </NScrollbar>
               </NSelectionRect>
             </ContextMenu>

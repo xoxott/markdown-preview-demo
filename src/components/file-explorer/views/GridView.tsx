@@ -1,18 +1,15 @@
-import { computed, defineComponent, inject, ref } from 'vue';
-import { useThemeVars } from 'naive-ui';
+import { computed, defineComponent } from 'vue';
 import FileIcon from '../items/FileIcon';
 import type { GridSize } from '../types/file-explorer';
-import { FILE_DRAG_DROP_KEY } from '../hooks/useFileDragDropEnhanced';
 import { FileDropZoneWrapper } from '../interaction/FileDropZoneWrapper';
-import { useFileViewContext } from '../composables/useFileViewContext';
+import { useViewItemState } from '../composables/useFileViewContext';
 
 export default defineComponent({
   name: 'GridView',
   setup() {
-    const themeVars = useThemeVars();
-    const ctx = useFileViewContext();
-    const dragDrop = inject(FILE_DRAG_DROP_KEY)!;
-    const hoveredItemId = ref<string | null>(null);
+    const { ctx, themeVars, hoveredItemId, dragDrop, selectedItems, getItemBgColor } =
+      useViewItemState();
+
     const sizeMap: Record<
       GridSize,
       { icon: number; gap: number; itemWidth: number; padding: string }
@@ -23,22 +20,9 @@ export default defineComponent({
       'extra-large': { icon: 128, gap: 14, itemWidth: 150, padding: '10px 12px' }
     };
 
-    const selectedItems = computed(() =>
-      ctx.items.value.filter(it => ctx.selectedIds.value.has(it.id))
-    );
-
     const gridSize = computed(() => ctx.gridSize?.value || 'small');
 
     const getConfig = () => sizeMap[gridSize.value];
-
-    const getItemBgColor = (id: string, isSelected: boolean) => {
-      const dropZone = dragDrop.getDropZoneState(id);
-      if (isSelected || (dropZone?.isOver && dropZone?.canDrop)) {
-        return `${themeVars.value.primaryColorHover}20`;
-      }
-      if (hoveredItemId.value === id) return themeVars.value.hoverColor;
-      return 'transparent';
-    };
 
     return () => {
       const config = getConfig();

@@ -1,6 +1,7 @@
 import type { Ref } from 'vue';
 import { onUnmounted, ref } from 'vue';
 import type { SortField } from '../types/file-explorer';
+import { useBodyStyleOverride } from './useBodyStyleOverride';
 
 interface ColumnConfig {
   id: SortField;
@@ -45,6 +46,7 @@ export function useColumnDrag(
   resizing: Ref<ResizingState | null>
 ): UseColumnDragReturn {
   const isUnmounted = ref(false);
+  const bodyOverride = useBodyStyleOverride();
   const draggingColumn = ref<{
     id: SortField;
     index: number;
@@ -76,8 +78,7 @@ export function useColumnDrag(
         hasMoved = true;
         draggingColumn.value = pendingDrag ? { ...pendingDrag, ghostX: evt.clientX } : null;
         dropTargetIndex.value = null;
-        document.body.style.cursor = 'grabbing';
-        document.body.style.userSelect = 'none';
+        bodyOverride.start({ cursor: 'grabbing', userSelect: 'none' });
       }
 
       if (!hasMoved) return;
@@ -125,8 +126,7 @@ export function useColumnDrag(
       draggingColumn.value = null;
       dropTargetIndex.value = null;
       pendingDrag = null;
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
+      bodyOverride.stop();
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
@@ -160,8 +160,7 @@ export function useColumnDrag(
     if (draggingColumn.value) {
       draggingColumn.value = null;
       dropTargetIndex.value = null;
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
+      bodyOverride.stop();
     }
   });
 

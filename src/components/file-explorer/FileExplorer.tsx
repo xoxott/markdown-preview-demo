@@ -1,5 +1,5 @@
 import { defineComponent, onMounted, ref } from 'vue';
-import { NButton, NDrawer, NDrawerContent, useMessage } from 'naive-ui';
+import { NButton, NDrawer, NDrawerContent } from 'naive-ui';
 import { DragPreview } from '@/components/common-interaction';
 import type { DragItem } from '@/components/common-interaction';
 import ViewContainer from './container/ViewContainer';
@@ -13,6 +13,8 @@ import { FilePreview } from './preview';
 import { FileEditor } from './editor';
 import { mockFileItems } from './config/mockData';
 import { useFileExplorerLogic } from './composables/useFileExplorerLogic';
+import { useFilePreview } from './composables/useFilePreview';
+import { getFileCategoryByExtension } from './config/extensionCategories';
 import type { FileItem } from './types/file-explorer';
 import FileIcon from './items/FileIcon';
 
@@ -32,14 +34,6 @@ export default defineComponent({
   setup() {
     // 容器引用
     const containerRef = ref<HTMLElement | null>(null);
-    const message = useMessage();
-
-    // 文件预览和编辑状态
-    const openedFile = ref<FileItem | null>(null);
-    const fileContent = ref<string | Blob | undefined>(undefined);
-    const fileLoading = ref(false);
-    const editorMode = ref<'preview' | 'edit'>('preview');
-    const showFileDrawer = ref(false);
 
     // 使用封装的业务逻辑（onOpen 回调延迟引用，执行时 handleOpenFile 已有定义）
     /* eslint-disable @typescript-eslint/no-use-before-define */
@@ -50,62 +44,20 @@ export default defineComponent({
     });
     /* eslint-enable @typescript-eslint/no-use-before-define */
 
-    // 打开文件
+    // 文件预览/编辑状态
+    const preview = useFilePreview({
+      dataSource: () => logic.dataSource.value,
+      refreshFileList: logic.refreshFileList
+    });
+
+    // 打开文件（文件夹导航 → 预览）
     const handleOpenFile = async (file: FileItem) => {
       if (file.type === 'folder') {
-        // 文件夹：导航到该文件夹
-        // 确保路径格式正确（移除开头的斜杠，因为 handleBreadcrumbNavigate 会处理）
         const targetPath = file.path.startsWith('/') ? file.path : `/${file.path}`;
         logic.handleBreadcrumbNavigate(targetPath);
         return;
       }
-
-      // 文件：打开预览或编辑
-      try {
-        openedFile.value = file;
-        fileLoading.value = true;
-        showFileDrawer.value = true;
-        editorMode.value = 'preview';
-
-        if (logic.dataSource.value) {
-          // 从数据源读取文件内容
-          const content = await logic.dataSource.value.readFile(file.path);
-          fileContent.value = content;
-        } else {
-          // 降级：使用空内容
-          fileContent.value = '';
-        }
-      } catch (error: unknown) {
-        message.error(`打开文件失败: ${error instanceof Error ? error.message : String(error)}`);
-        // 开发时可选：使用 message.error 已提供反馈，无需额外控制台日志
-      } finally {
-        fileLoading.value = false;
-      }
-    };
-
-    // 切换到编辑模式
-    const handleEditFile = () => {
-      if (openedFile.value && typeof fileContent.value === 'string') {
-        editorMode.value = 'edit';
-      }
-    };
-
-    // 保存文件
-    const handleSaveFile = async (file: FileItem, content: string) => {
-      if (logic.dataSource.value) {
-        await logic.dataSource.value.writeFile(file.path, content);
-        fileContent.value = content;
-        // 刷新文件列表
-        await logic.refreshFileList();
-      }
-    };
-
-    // 关闭文件
-    const handleCloseFile = () => {
-      openedFile.value = null;
-      fileContent.value = undefined;
-      showFileDrawer.value = false;
-      editorMode.value = 'preview';
+      await preview.openFile(file);
     };
 
     // 转换 FileItem 为 DragItem
@@ -118,41 +70,25 @@ export default defineComponent({
       }));
     };
 
+    // 分类 → Tailwind 颜色 class 映射（拖拽预览用）
+    const categoryTailwindColorMap: Record<string, string> = {
+      image: 'text-green-500',
+      video: 'text-purple-500',
+      audio: 'text-pink-500',
+      code: 'text-yellow-500',
+      document: 'text-blue-500',
+      archive: 'text-orange-500',
+      folder: 'text-blue-500',
+      other: 'text-gray-500'
+    };
+
     // 自定义文件项渲染器（返回包装容器）
     const renderFileItem = (item: DragItem, index: number) => {
       const dragFileItem = item.data as FileItem;
       const getFileColor = (): string => {
-        if (dragFileItem.type === 'folder') return 'text-blue-500';
-        const ext = dragFileItem.extension?.toLowerCase();
-        if (!ext) return 'text-gray-500';
-        if (['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp'].includes(ext))
-          return 'text-green-500';
-        if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm'].includes(ext))
-          return 'text-purple-500';
-        if (['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'].includes(ext)) return 'text-pink-500';
-        if (
-          [
-            'js',
-            'ts',
-            'jsx',
-            'tsx',
-            'vue',
-            'html',
-            'css',
-            'scss',
-            'json',
-            'xml',
-            'py',
-            'java',
-            'cpp',
-            'c',
-            'go',
-            'rs'
-          ].includes(ext)
-        )
-          return 'text-yellow-500';
-        if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext)) return 'text-orange-500';
-        return 'text-gray-500';
+        if (dragFileItem.type === 'folder') return categoryTailwindColorMap.folder;
+        const category = getFileCategoryByExtension(dragFileItem.extension);
+        return categoryTailwindColorMap[category] ?? categoryTailwindColorMap.other;
       };
 
       // 只在第一个项目时返回完整的包装容器
@@ -344,7 +280,7 @@ export default defineComponent({
 
         {/* 文件预览/编辑抽屉 */}
         <NDrawer
-          v-model:show={showFileDrawer.value}
+          v-model:show={preview.showFileDrawer.value}
           placement="right"
           width="80%"
           resizable
@@ -354,34 +290,37 @@ export default defineComponent({
             {{
               header: () => (
                 <div class="flex items-center justify-between">
-                  <span class="font-medium">{openedFile.value?.name || '文件'}</span>
-                  {editorMode.value === 'preview' && openedFile.value && (
-                    <NButton size="small" onClick={handleEditFile}>
+                  <span class="font-medium">{preview.openedFile.value?.name || '文件'}</span>
+                  {preview.editorMode.value === 'preview' && preview.openedFile.value && (
+                    <NButton size="small" onClick={preview.editFile}>
                       编辑
                     </NButton>
                   )}
                 </div>
               ),
               default: () => {
-                if (!openedFile.value) return null;
+                if (!preview.openedFile.value) return null;
 
-                if (editorMode.value === 'edit' && typeof fileContent.value === 'string') {
+                if (
+                  preview.editorMode.value === 'edit' &&
+                  typeof preview.fileContent.value === 'string'
+                ) {
                   return (
                     <FileEditor
-                      file={openedFile.value}
+                      file={preview.openedFile.value}
                       dataSource={logic.dataSource.value!}
-                      content={fileContent.value}
-                      onClose={handleCloseFile}
-                      onSave={handleSaveFile}
+                      content={preview.fileContent.value}
+                      onClose={preview.closeFile}
+                      onSave={preview.saveFile}
                     />
                   );
                 }
 
                 return (
                   <FilePreview
-                    file={openedFile.value}
-                    content={fileContent.value}
-                    loading={fileLoading.value}
+                    file={preview.openedFile.value}
+                    content={preview.fileContent.value}
+                    loading={preview.fileLoading.value}
                   />
                 );
               }

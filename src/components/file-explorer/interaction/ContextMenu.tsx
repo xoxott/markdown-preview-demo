@@ -227,24 +227,6 @@ export default defineComponent({
             </NDropdown>
           </div>
         )}
-        <style>{`
-          /* 快捷键样式 */
-          .context-menu-shortcut {
-            margin-left: auto;
-            padding-left: 32px;
-            opacity: 0.6;
-            font-size: 12px;
-          }
-
-          /* 危险操作样式 */
-          .n-dropdown-option.text-red-500 {
-            color: var(--n-color-error, #d03050) !important;
-          }
-
-          .n-dropdown-option.text-red-500:hover {
-            background-color: color-mix(in srgb, var(--n-color-error, #d03050) 10%, transparent) !important;
-          }
-        `}</style>
       </div>
     );
   }

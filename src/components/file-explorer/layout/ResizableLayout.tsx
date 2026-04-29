@@ -2,6 +2,7 @@ import type { PropType } from 'vue';
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref } from 'vue';
 import { NIcon, NLayout, NLayoutContent, NLayoutSider, useThemeVars } from 'naive-ui';
 import { Dots } from '@vicons/tabler';
+import { useBodyStyleOverride } from '../hooks/useBodyStyleOverride';
 
 export interface LayoutConfig {
   leftWidth: number;
@@ -35,6 +36,7 @@ export default defineComponent({
   emits: ['update:collapsed', 'update:config'],
   setup(props, { slots, emit }) {
     const themeVars = useThemeVars();
+    const bodyOverride = useBodyStyleOverride();
 
     const leftWidth = ref(props.config.leftWidth);
     const rightWidth = ref(props.config.rightWidth);
@@ -63,8 +65,7 @@ export default defineComponent({
       isResizingRight.value = true;
       startX.value = e.clientX;
       startWidth.value = rightWidth.value;
-      document.body.style.cursor = 'col-resize';
-      document.body.style.userSelect = 'none';
+      bodyOverride.start({ cursor: 'col-resize', userSelect: 'none' });
     };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -86,8 +87,7 @@ export default defineComponent({
     const handleMouseUp = () => {
       if (isResizingRight.value) {
         isResizingRight.value = false;
-        document.body.style.cursor = '';
-        document.body.style.userSelect = '';
+        bodyOverride.stop();
       }
     };
 

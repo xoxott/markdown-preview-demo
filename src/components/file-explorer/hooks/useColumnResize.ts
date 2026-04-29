@@ -1,6 +1,7 @@
 import type { Ref } from 'vue';
 import { onUnmounted, ref } from 'vue';
 import type { SortField } from '../types/file-explorer';
+import { useBodyStyleOverride } from './useBodyStyleOverride';
 
 interface ColumnConfig {
   id: SortField;
@@ -34,6 +35,7 @@ export interface UseColumnResizeReturn {
 /** 列宽调整 Hook — 处理 DetailView 表头列拖拽调整宽度逻辑 */
 export function useColumnResize(columns: Ref<ColumnConfig[]>): UseColumnResizeReturn {
   const isUnmounted = ref(false);
+  const bodyOverride = useBodyStyleOverride();
   const resizing = ref<{
     columnId: SortField;
     startX: number;
@@ -114,14 +116,12 @@ export function useColumnResize(columns: Ref<ColumnConfig[]>): UseColumnResizeRe
       resizing.value = null;
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
+      bodyOverride.stop();
     };
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
+    bodyOverride.start({ cursor: 'col-resize', userSelect: 'none' });
   };
 
   onUnmounted(() => {
@@ -131,8 +131,7 @@ export function useColumnResize(columns: Ref<ColumnConfig[]>): UseColumnResizeRe
         cancelAnimationFrame(resizing.value.animationFrame);
       }
       resizing.value = null;
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
+      bodyOverride.stop();
     }
   });
 

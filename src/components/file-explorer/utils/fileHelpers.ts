@@ -1,5 +1,6 @@
 import { File, FileCode, FileText, Folder, Music, Photo, Video } from '@vicons/tabler';
 import type { FileItem } from '../types/file-explorer';
+import { getFileCategoryByExtension } from '../config/extensionCategories';
 
 export function formatFileSize(bytes?: number): string {
   if (bytes === undefined || bytes === null) return '-';
@@ -45,28 +46,37 @@ export function formatDateTime(date?: string | Date): string {
   });
 }
 
+/** 分类 → 图标映射 */
+const CATEGORY_ICON_MAP: Record<string, ReturnType<typeof File>> = {
+  image: Photo,
+  video: Video,
+  audio: Music,
+  code: FileCode,
+  document: FileText,
+  folder: Folder,
+  other: File
+};
+
 export const getFileIcon = (item: FileItem) => {
   if (item.type === 'folder') return Folder;
+  const category = getFileCategoryByExtension(item.extension);
+  return CATEGORY_ICON_MAP[category] ?? File;
+};
 
-  const ext = item.extension?.toLowerCase();
-  if (['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'].includes(ext || '')) return Photo;
-  if (['mp4', 'avi', 'mov', 'mkv', 'webm'].includes(ext || '')) return Video;
-  if (['mp3', 'wav', 'ogg', 'flac'].includes(ext || '')) return Music;
-  if (['js', 'ts', 'jsx', 'tsx', 'py', 'java', 'cpp'].includes(ext || '')) return FileCode;
-  if (['txt', 'md', 'doc', 'docx'].includes(ext || '')) return FileText;
-
-  return File;
+/** 分类 → 颜色映射 */
+const CATEGORY_COLOR_MAP: Record<string, string> = {
+  image: '#f59e0b',
+  video: '#ec4899',
+  audio: '#8b5cf6',
+  code: '#eab308',
+  document: '#60a5fa',
+  archive: '#f97316',
+  folder: '#60a5fa',
+  other: '#6b7280'
 };
 
 export const getFileColor = (item: FileItem): string => {
   if (item.color) return item.color;
-  if (item.type === 'folder') return '#60a5fa';
-
-  const ext = item.extension?.toLowerCase();
-  if (['jpg', 'jpeg', 'png', 'gif'].includes(ext || '')) return '#f59e0b';
-  if (['mp4', 'avi', 'mov'].includes(ext || '')) return '#ec4899';
-  if (['mp3', 'wav'].includes(ext || '')) return '#8b5cf6';
-  if (['js', 'ts', 'jsx', 'tsx'].includes(ext || '')) return '#eab308';
-
-  return '#6b7280';
+  const category = item.type === 'folder' ? 'folder' : getFileCategoryByExtension(item.extension);
+  return CATEGORY_COLOR_MAP[category] ?? '#6b7280';
 };

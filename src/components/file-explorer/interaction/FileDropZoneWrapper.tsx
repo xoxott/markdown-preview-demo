@@ -24,7 +24,12 @@ export const FileDropZoneWrapper = defineComponent({
     hint: { type: String, default: '' }
   },
   setup(props, { slots }) {
-    const dragDrop = inject(FILE_DRAG_DROP_KEY)!;
+    const dragDrop = inject(FILE_DRAG_DROP_KEY, null);
+    if (!dragDrop) {
+      throw new Error(
+        'FileDropZoneWrapper must be used within a FileExplorer that provides FILE_DRAG_DROP_KEY'
+      );
+    }
 
     // 注册 DropZone
     dragDrop.registerDropZone(props.zoneId, props.targetPath);

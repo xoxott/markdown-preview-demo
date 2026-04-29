@@ -1,30 +1,15 @@
-import { computed, defineComponent, inject, ref } from 'vue';
-import { NText, useThemeVars } from 'naive-ui';
+import { defineComponent } from 'vue';
+import { NText } from 'naive-ui';
 import FileIcon from '../items/FileIcon';
 import { formatFileSize } from '../utils/fileHelpers';
-import { FILE_DRAG_DROP_KEY } from '../hooks/useFileDragDropEnhanced';
 import { FileDropZoneWrapper } from '../interaction/FileDropZoneWrapper';
-import { useFileViewContext } from '../composables/useFileViewContext';
+import { useViewItemState } from '../composables/useFileViewContext';
 
 export default defineComponent({
   name: 'TileView',
   setup() {
-    const themeVars = useThemeVars();
-    const ctx = useFileViewContext();
-    const hoveredItemId = ref<string | null>(null);
-    const dragDrop = inject(FILE_DRAG_DROP_KEY)!;
-    const selectedItems = computed(() =>
-      ctx.items.value.filter(it => ctx.selectedIds.value.has(it.id))
-    );
-
-    const getItemBgColor = (id: string, isSelected: boolean) => {
-      const dropZone = dragDrop.getDropZoneState(id);
-      if (isSelected || (dropZone?.isOver && dropZone?.canDrop)) {
-        return `${themeVars.value.primaryColorHover}20`;
-      }
-      if (hoveredItemId.value === id) return themeVars.value.hoverColor;
-      return 'transparent';
-    };
+    const { ctx, themeVars, hoveredItemId, dragDrop, selectedItems, getItemBgColor } =
+      useViewItemState();
 
     return () => (
       <div
