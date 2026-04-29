@@ -188,19 +188,20 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
     }
   };
 
-  // 监听视图模式和网格大小变化，更新分页
+  // 监听视图模式和网格大小变化，更新分页并刷新列表
+  // 使用 refreshFileList（含降级逻辑）而非直接调用 setPageSize → loadPage
   watch([viewMode, gridSize], () => {
-    const newPageSize = pagination.pageSize.value;
     const expectedPageSize = getPageSizeByViewMode(viewMode.value, gridSize.value);
-    if (newPageSize !== expectedPageSize) {
-      pagination.setPageSize(expectedPageSize);
+    if (pagination.pageSize.value !== expectedPageSize) {
+      pagination.pageSize.value = expectedPageSize;
+      refreshFileList();
     }
   });
 
-  // 监听路径变化，重置分页
+  // 监听路径变化，重置分页并刷新列表
   watch(currentPath, () => {
     pagination.reset();
-    pagination.loadPage();
+    refreshFileList();
   });
 
   // 打开本地文件夹
