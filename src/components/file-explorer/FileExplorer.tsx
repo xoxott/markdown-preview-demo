@@ -44,10 +44,7 @@ export default defineComponent({
     // 使用封装的业务逻辑
     const logic = useFileExplorerLogic({
       initialItems: mockFileItems,
-      containerRef,
-      validateDrop: (_items, targetPath) => {
-        return logic.mockItems.value.find(it => it.path === targetPath)?.type === 'folder';
-      }
+      containerRef
     });
 
     // 打开文件
@@ -294,7 +291,7 @@ export default defineComponent({
               ),
               default: () => (
                 <ViewContainer
-                  items={logic.sortedFiles.value}
+                  items={logic.paginatedSortedFiles.value}
                   viewMode={logic.viewMode.value}
                   gridSize={logic.gridSize.value}
                   selectedIds={logic.selectedIds}

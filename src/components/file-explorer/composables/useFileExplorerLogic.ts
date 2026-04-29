@@ -242,10 +242,27 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
   };
 
   // ==================== 排序和选择 ====================
-  // 对分页后的文件进行排序
-  const { setSorting, sortedFiles, sortOrder, sortField } = useFileSort(pagination.paginatedItems);
+  // 先对全量数据排序，再分页切片（保证排序影响所有文件而非仅当前页）
+  const { setSorting, sortedFiles, sortOrder, sortField } = useFileSort(mockItems);
+
+  // 从排序结果中切片出当前页的数据
+  const paginatedSortedFiles = computed(() => {
+    const start = (pagination.currentPage.value - 1) * pagination.pageSize.value;
+    const end = start + pagination.pageSize.value;
+    return sortedFiles.value.slice(start, end);
+  });
+
   const { selectedIds, selectFile, selectAll, clearSelection, selectedFiles } =
-    useFileSelection(sortedFiles);
+    useFileSelection(paginatedSortedFiles);
+
+  // 同步分页总数为全量数据数量（排序不改变总数）
+  watch(
+    mockItems,
+    items => {
+      pagination.total.value = items.length;
+    },
+    { immediate: true }
+  );
 
   // ==================== 操作进度状态 ====================
   const operationProgress = ref(0);
@@ -348,6 +365,7 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
     viewMode,
     mockItems,
     sortedFiles,
+    paginatedSortedFiles,
     sortOrder,
     sortField,
     selectedIds,

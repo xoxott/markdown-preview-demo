@@ -39,6 +39,8 @@ export default defineComponent({
     const tableRef = ref<HTMLTableElement | null>(null);
     const hoveredHeader = ref<SortField | null>(null);
     const hoveredResizer = ref<SortField | null>(null);
+    const hoveredRowId = ref<string | null>(null);
+    const isUnmounted = ref(false);
     // 列配置 - 自动应用约束
     const columns = ref<ColumnConfig[]>([
       { id: 'name', label: '名称', width: 300 },
@@ -60,14 +62,15 @@ export default defineComponent({
       animationFrame: number | null;
     } | null>(null);
 
-    // 拖拽列顺序状态
+    // 拖拽列顺序状态（自定义 mousedown/mousemove/mouseup 实现）
     const draggingColumn = ref<{
       id: SortField;
       index: number;
+      startX: number;
+      ghostX: number;
     } | null>(null);
+    // dropTargetIndex: 鼠标越界即标记的插入目标位置
     const dropTargetIndex = ref<number | null>(null);
-
-    // 计算表格总宽度
     const _totalWidth = computed(() => {
       return columns.value.reduce((sum, col) => sum + col.width, 0);
     });
@@ -112,7 +115,7 @@ export default defineComponent({
       };
 
       const handleMouseMove = (evt: MouseEvent) => {
-        if (!resizing.value) return;
+        if (isUnmounted.value || !resizing.value) return;
 
         // 使用 requestAnimationFrame 节流，避免过度计算
         if (resizing.value.animationFrame !== null) {
@@ -172,6 +175,11 @@ export default defineComponent({
       };
 
       const handleMouseUp = () => {
+        if (isUnmounted.value) {
+          document.removeEventListener('mousemove', handleMouseMove);
+          document.removeEventListener('mouseup', handleMouseUp);
+          return;
+        }
         if (resizing.value && resizing.value?.animationFrame !== null) {
           cancelAnimationFrame(resizing.value.animationFrame);
         }
@@ -188,117 +196,113 @@ export default defineComponent({
       document.body.style.userSelect = 'none';
     };
 
-    // 开始拖拽列
-    const startDragColumn = (e: DragEvent, index: number) => {
+    // 开始拖拽列（Finder 风格：浮动幽灵 + 插入指示线，零 transform 位移，零闪烁）
+    const startColumnDrag = (e: MouseEvent, index: number) => {
+      if (resizing.value) return;
       const column = columns.value[index];
-      draggingColumn.value = { id: column.id, index };
+      const startX = e.clientX;
 
-      if (e.dataTransfer) {
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', column.id);
+      // 获取拖拽列初始位置用于计算幽灵偏移
+      const thElements = tableRef.value?.querySelectorAll('th');
+      const initialRect = thElements?.[index]?.getBoundingClientRect();
 
-        const dragPreview = document.createElement('div');
-        dragPreview.textContent = column.label;
-        dragPreview.style.cssText = `
-          position: absolute;
-          top: -1000px;
-          padding: 8px 16px;
-          background: ${themeVars.value.primaryColor};
-          color: white;
-          border-radius: 4px;
-          font-size: 12px;
-          font-weight: 500;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        `;
-        document.body.appendChild(dragPreview);
-        e.dataTransfer.setDragImage(dragPreview, 0, 0);
-        setTimeout(() => document.body.removeChild(dragPreview), 0);
-      }
-    };
+      let pendingDrag = {
+        id: column.id,
+        index,
+        startX,
+        ghostX: initialRect ? initialRect.left : startX
+      };
+      let hasMoved = false;
 
-    const handleDragOver = (e: DragEvent, index: number) => {
-      e.preventDefault();
-      if (!draggingColumn.value || draggingColumn.value.index === index) {
+      const handleMouseMove = (evt: MouseEvent) => {
+        if (isUnmounted.value) return;
+
+        if (!hasMoved && Math.abs(evt.clientX - startX) > 3) {
+          hasMoved = true;
+          draggingColumn.value = { ...pendingDrag, ghostX: evt.clientX };
+          dropTargetIndex.value = null;
+          document.body.style.cursor = 'grabbing';
+          document.body.style.userSelect = 'none';
+        }
+
+        if (!hasMoved) return;
+
+        // 更新幽灵位置
+        draggingColumn.value!.ghostX = evt.clientX;
+
+        // 计算当前鼠标所在的列索引
+        const ths = tableRef.value?.querySelectorAll('th');
+        if (!ths || ths.length === 0) return;
+
+        const dragIndex = draggingColumn.value!.index;
+        let hoverIndex: number | null = null;
+        for (let i = 0; i < ths.length; i++) {
+          const rect = ths[i].getBoundingClientRect();
+          if (evt.clientX >= rect.left && evt.clientX <= rect.right) {
+            hoverIndex = i;
+            break;
+          }
+        }
+
+        if (hoverIndex === null || hoverIndex === dragIndex) {
+          dropTargetIndex.value = null;
+          return;
+        }
+
+        // 直接设置目标为鼠标所在列（越界即标记）
+        dropTargetIndex.value = hoverIndex;
+      };
+
+      const handleMouseUp = () => {
+        if (isUnmounted.value) {
+          document.removeEventListener('mousemove', handleMouseMove);
+          document.removeEventListener('mouseup', handleMouseUp);
+          return;
+        }
+        if (hasMoved && draggingColumn.value && dropTargetIndex.value !== null) {
+          const fromIndex = draggingColumn.value.index;
+          const toIndex = dropTargetIndex.value;
+          if (fromIndex !== toIndex) {
+            const newColumns = [...columns.value];
+            const [draggedCol] = newColumns.splice(fromIndex, 1);
+            newColumns.splice(toIndex, 0, draggedCol);
+            columns.value = newColumns;
+          }
+        }
+
+        draggingColumn.value = null;
         dropTargetIndex.value = null;
-        return;
-      }
+        pendingDrag = null as any;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
 
-      const currentTarget = e.currentTarget as HTMLElement;
-      const rect = currentTarget.getBoundingClientRect();
-      const mouseX = e.clientX;
-      const columnCenterX = rect.left + rect.width / 2;
-      const dragIndex = draggingColumn.value.index;
-
-      const isOverCenter = dragIndex < index ? mouseX > columnCenterX : mouseX < columnCenterX;
-
-      if (isOverCenter) {
-        dropTargetIndex.value = index;
-      } else if (dropTargetIndex.value === index) {
-        dropTargetIndex.value = null;
-      }
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
     };
 
-    const handleDragLeave = (e: DragEvent) => {
-      const relatedTarget = e.relatedTarget as HTMLElement;
-      if (relatedTarget && relatedTarget.tagName === 'TH') return;
-      dropTargetIndex.value = null;
-    };
-
-    const handleDrop = (e: DragEvent) => {
-      e.preventDefault();
-
-      if (!draggingColumn.value || dropTargetIndex.value === null) return;
-
-      const fromIndex = draggingColumn.value.index;
-      const toIndex = dropTargetIndex.value;
-
-      if (fromIndex === toIndex) return;
-
-      const newColumns = [...columns.value];
-      const [draggedColumn] = newColumns.splice(fromIndex, 1);
-      newColumns.splice(toIndex, 0, draggedColumn);
-      columns.value = newColumns;
-
-      draggingColumn.value = null;
-      dropTargetIndex.value = null;
-    };
-
-    const handleDragEnd = () => {
-      draggingColumn.value = null;
-      dropTargetIndex.value = null;
-    };
-
-    // 计算列的平移距离
-    const getColumnTransform = (index: number) => {
-      if (!draggingColumn.value || dropTargetIndex.value === null) {
-        return 'translateX(0)';
-      }
+    // 计算插入指示线的位置（在目标列的左或右边界）
+    const getIndicatorStyle = () => {
+      if (!draggingColumn.value || dropTargetIndex.value === null) return null;
+      const ths = tableRef.value?.querySelectorAll('th');
+      if (!ths) return null;
 
       const dragIndex = draggingColumn.value.index;
       const dropIndex = dropTargetIndex.value;
+      const dropRect = ths[dropIndex].getBoundingClientRect();
+      const tableRect = tableRef.value!.getBoundingClientRect();
 
-      if (index === dragIndex) {
-        let offset = 0;
-        if (dragIndex < dropIndex) {
-          for (let i = dragIndex + 1; i <= dropIndex; i++) {
-            offset += columns.value[i].width;
-          }
-        } else {
-          for (let i = dropIndex; i < dragIndex; i++) {
-            offset -= columns.value[i].width;
-          }
-        }
-        return `translateX(${offset}px)`;
-      }
+      // 指示线在目标列的左边界（向左拖）或右边界（向右拖）
+      const x =
+        dragIndex < dropIndex ? dropRect.right - tableRect.left : dropRect.left - tableRect.left;
 
-      if (dragIndex < dropIndex && index > dragIndex && index <= dropIndex) {
-        return `translateX(-${columns.value[dragIndex].width}px)`;
-      }
-      if (dragIndex > dropIndex && index >= dropIndex && index < dragIndex) {
-        return `translateX(${columns.value[dragIndex].width}px)`;
-      }
-
-      return 'translateX(0)';
+      return {
+        left: `${x}px`,
+        top: 0,
+        height: `${ths[dropIndex].offsetHeight}px`
+      };
     };
 
     const getColumnZIndex = (index: number) => {
@@ -318,33 +322,28 @@ export default defineComponent({
       return (
         <th
           key={column.id}
-          class="relative select-none px-4 py-3 text-left text-xs font-medium tracking-wider uppercase"
+          class="relative select-none px-4 py-2 text-left text-xs font-medium"
           style={{
             color: themeVars.value.textColor2,
-            backgroundColor: themeVars.value.tableHeaderColor,
+            backgroundColor: isActive
+              ? `${themeVars.value.primaryColor}08`
+              : isHovered
+                ? `${themeVars.value.primaryColorHover}08`
+                : themeVars.value.tableHeaderColor,
             cursor: isDragging ? 'grabbing' : 'grab',
-            opacity: isDragging ? 0.5 : 1,
-            transform: getColumnTransform(index),
-            transition: draggingColumn.value
-              ? 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.15s ease'
-              : 'none',
+            opacity: isDragging ? 0.3 : 1,
             zIndex: getColumnZIndex(index),
-            borderBottom: `1px solid ${themeVars.value.dividerColor}`,
-            borderRight:
-              dropTargetIndex.value === index ? `2px solid ${themeVars.value.primaryColor}` : 'none'
+            borderBottom: `1px solid ${themeVars.value.dividerColor}`
           }}
-          draggable
-          onDragstart={(e: DragEvent) => startDragColumn(e, index)}
-          onDragover={(e: DragEvent) => handleDragOver(e, index)}
-          onDragleave={(e: DragEvent) => handleDragLeave(e)}
-          onDrop={(e: DragEvent) => handleDrop(e)}
-          onDragend={handleDragEnd}
+          onMousedown={(e: MouseEvent) => {
+            if ((e.target as HTMLElement).closest('.resize-handle')) return;
+            startColumnDrag(e, index);
+          }}
           onMouseenter={() => (hoveredHeader.value = column.id)}
           onMouseleave={() => (hoveredHeader.value = null)}
           onClick={(e: MouseEvent) => {
-            if (resizing.value || (e.target as HTMLElement).closest('.resize-handle')) {
-              return;
-            }
+            if (resizing.value) return;
+            if ((e.target as HTMLElement).closest('.resize-handle')) return;
             props.onSort(column.id);
           }}
         >
@@ -379,11 +378,6 @@ export default defineComponent({
               e.stopPropagation();
               e.preventDefault();
             }}
-            onDragstart={(e: DragEvent) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-            draggable={false}
           >
             <div class="absolute inset-0" style={{ cursor: 'col-resize' }} />
             <div
@@ -418,7 +412,7 @@ export default defineComponent({
         case 'name':
           return (
             <div class="flex items-center gap-3 overflow-hidden">
-              <FileIcon item={item} size={24} showThumbnail={false} />
+              <FileIcon item={item} size={18} showThumbnail={false} />
               <span
                 class="truncate text-sm"
                 style={{
@@ -434,7 +428,7 @@ export default defineComponent({
         case 'modifiedAt':
           return (
             <span
-              class="block truncate text-sm"
+              class="block truncate text-xs"
               style={textStyle}
               title={formatDate(item.modifiedAt)}
             >
@@ -443,10 +437,9 @@ export default defineComponent({
           );
 
         case 'type':
-          const typeText =
-            item.type === 'folder' ? '文件夹' : item.extension?.toUpperCase() || '文件';
+          const typeText = item.type === 'folder' ? '文件夹' : item.extension || '文件';
           return (
-            <span class="block truncate text-sm" style={textStyle} title={typeText}>
+            <span class="block truncate text-xs" style={textStyle} title={typeText}>
               {typeText}
             </span>
           );
@@ -454,14 +447,14 @@ export default defineComponent({
         case 'size':
           const sizeText = item.type === 'file' ? formatFileSize(item.size) : '-';
           return (
-            <span class="block truncate text-sm" style={textStyle} title={sizeText}>
+            <span class="block truncate text-xs" style={textStyle} title={sizeText}>
               {sizeText}
             </span>
           );
         case 'createdAt':
           return (
             <span
-              class="block truncate text-sm"
+              class="block truncate text-xs"
               style={textStyle}
               title={formatDate(item.createdAt)}
             >
@@ -473,79 +466,126 @@ export default defineComponent({
       }
     };
 
-    // 清理资源
+    // 清理资源：取消任何进行中的 resize/drag 操作
     onUnmounted(() => {
-      if (resizing.value && resizing.value?.animationFrame !== null) {
-        cancelAnimationFrame(resizing.value.animationFrame);
+      isUnmounted.value = true;
+      if (resizing.value) {
+        if (resizing.value.animationFrame !== null) {
+          cancelAnimationFrame(resizing.value.animationFrame);
+        }
+        resizing.value = null;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
+      if (draggingColumn.value) {
+        draggingColumn.value = null;
+        dropTargetIndex.value = null;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
       }
     });
-    return () => (
-      <div
-        class="overflow-auto"
-        style={{
-          backgroundColor: themeVars.value.bodyColor,
-          overflowX: 'auto'
-        }}
-      >
-        <table
-          ref={tableRef}
-          class="min-w-full"
-          style={{
-            borderCollapse: 'separate',
-            borderSpacing: 0,
-            tableLayout: 'fixed',
-            width: '100%'
-            // width: `${totalWidth.value}px`
-          }}
-        >
-          <colgroup>
-            {columns.value.map(column => (
-              <col key={column.id} style={{ width: `${column.width}px` }} />
-            ))}
-          </colgroup>
-          <thead class="sticky top-0 z-10">
-            <tr>{columns.value.map((column, index) => SortHeader(column, index))}</tr>
-          </thead>
-          <tbody data-selector="content-viewer">
-            {props.items.map(item => {
-              const isSelected = props.selectedIds.value.has(item.id);
+    return () => {
+      const indicatorStyle = getIndicatorStyle();
+
+      return (
+        <div style={{ position: 'relative', backgroundColor: themeVars.value.bodyColor }}>
+          {/* 浮动幽灵：跟随鼠标显示被拖拽的列名 */}
+          {draggingColumn.value &&
+            (() => {
+              const tableRect = tableRef.value?.getBoundingClientRect();
+              const relativeX = tableRect ? draggingColumn.value!.ghostX - tableRect.left : 0;
               return (
-                <tr
-                  key={item.id}
-                  data-selectable-id={item.id}
-                  class="cursor-pointer select-none transition-colors"
+                <div
                   style={{
-                    backgroundColor: isSelected
-                      ? `${themeVars.value.primaryColorHover}20`
-                      : themeVars.value.cardColor,
-                    borderBottom: `1px solid ${themeVars.value.dividerColor}`
+                    position: 'absolute',
+                    left: `${relativeX}px`,
+                    top: 0,
+                    transform: 'translateX(-50%)',
+                    padding: '4px 12px',
+                    backgroundColor: themeVars.value.primaryColor,
+                    color: 'white',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    fontWeight: 500,
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                    zIndex: 200,
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap'
                   }}
-                  onMouseenter={(e: MouseEvent) => {
-                    if (!isSelected) {
-                      (e.currentTarget as HTMLElement).style.backgroundColor =
-                        themeVars.value.hoverColor;
-                    }
-                  }}
-                  onMouseleave={(e: MouseEvent) => {
-                    if (!isSelected) {
-                      (e.currentTarget as HTMLElement).style.backgroundColor =
-                        themeVars.value.cardColor;
-                    }
-                  }}
-                  onClick={(e: MouseEvent) => props.onSelect([item.id], e)}
-                  onDblclick={() => props.onOpen(item)}
                 >
-                  {columns.value.map(column => (
-                    <td key={column.id} class="px-4 py-3">
-                      {renderCell(item, column, isSelected)}
-                    </td>
-                  ))}
-                </tr>
+                  {columns.value[draggingColumn.value!.index]?.label}
+                </div>
               );
-            })}
-          </tbody>
-        </table>
-      </div>
-    );
+            })()}
+
+          {/* 插入指示线：蓝色竖线标记目标位置 */}
+          {indicatorStyle && (
+            <div
+              style={{
+                position: 'absolute',
+                ...indicatorStyle,
+                width: '2px',
+                backgroundColor: themeVars.value.primaryColor,
+                zIndex: 150,
+                pointerEvents: 'none',
+                borderRadius: '1px'
+              }}
+            />
+          )}
+
+          <table
+            ref={tableRef}
+            class="min-w-full"
+            style={{
+              borderCollapse: 'separate',
+              borderSpacing: 0,
+              tableLayout: 'fixed',
+              width: '100%',
+              backgroundColor: themeVars.value.bodyColor
+            }}
+          >
+            <colgroup>
+              {columns.value.map(column => (
+                <col key={column.id} style={{ width: `${column.width}px` }} />
+              ))}
+            </colgroup>
+            <thead class="sticky top-0 z-10" data-prevent-selection="true">
+              <tr>{columns.value.map((column, index) => SortHeader(column, index))}</tr>
+            </thead>
+            <tbody data-selector="content-viewer">
+              {props.items.map(item => {
+                const isSelected = props.selectedIds.value.has(item.id);
+                return (
+                  <tr
+                    key={item.id}
+                    data-selectable-id={item.id}
+                    {...(isSelected ? { 'data-prevent-selection': 'true' } : null)}
+                    class="cursor-pointer select-none transition-colors"
+                    style={{
+                      backgroundColor: isSelected
+                        ? `${themeVars.value.primaryColorHover}20`
+                        : hoveredRowId.value === item.id
+                          ? themeVars.value.hoverColor
+                          : 'transparent',
+                      borderBottom: `1px solid ${themeVars.value.dividerColor}`
+                    }}
+                    onMouseenter={() => (hoveredRowId.value = item.id)}
+                    onMouseleave={() => (hoveredRowId.value = null)}
+                    onClick={(e: MouseEvent) => props.onSelect([item.id], e)}
+                    onDblclick={() => props.onOpen(item)}
+                  >
+                    {columns.value.map(column => (
+                      <td key={column.id} class="px-4 py-1.5">
+                        {renderCell(item, column, isSelected)}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      );
+    };
   }
 });

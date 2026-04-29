@@ -56,7 +56,7 @@ export function useFileSelection(files: Ref<FileItem[]>) {
   };
 
   const clearSelection = () => {
-    selectedIds.value.clear();
+    selectedIds.value = new Set();
     lastSelectedId.value = undefined;
   };
 
