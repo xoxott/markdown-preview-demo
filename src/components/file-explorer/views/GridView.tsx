@@ -2,7 +2,7 @@ import { computed, defineComponent, inject, ref } from 'vue';
 import { useThemeVars } from 'naive-ui';
 import FileIcon from '../items/FileIcon';
 import type { GridSize } from '../types/file-explorer';
-import type { FileDragDropHook } from '../hooks/useFileDragDropEnhanced';
+import { FILE_DRAG_DROP_KEY } from '../hooks/useFileDragDropEnhanced';
 import { FileDropZoneWrapper } from '../interaction/FileDropZoneWrapper';
 import { useFileViewContext } from '../composables/useFileViewContext';
 
@@ -11,7 +11,7 @@ export default defineComponent({
   setup() {
     const themeVars = useThemeVars();
     const ctx = useFileViewContext();
-    const dragDrop = inject<FileDragDropHook>('FILE_DRAG_DROP')!;
+    const dragDrop = inject(FILE_DRAG_DROP_KEY)!;
     const hoveredItemId = ref<string | null>(null);
     const sizeMap: Record<
       GridSize,

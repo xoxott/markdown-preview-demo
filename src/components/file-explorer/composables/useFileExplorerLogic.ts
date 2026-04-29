@@ -2,7 +2,7 @@ import type { Ref } from 'vue';
 import { computed, provide, ref, watch } from 'vue';
 import { useMessage } from 'naive-ui';
 import type { FileItem } from '../types/file-explorer';
-import { useFileDragDropEnhanced } from '../hooks/useFileDragDropEnhanced';
+import { FILE_DRAG_DROP_KEY, useFileDragDropEnhanced } from '../hooks/useFileDragDropEnhanced';
 import { useFileSort } from '../hooks/useFileSort';
 import { useFileSelection } from '../hooks/useFileSelection';
 import { useFileOperations } from '../hooks/useFileOperations';
@@ -29,6 +29,8 @@ export interface UseFileExplorerLogicOptions {
   initialDataSourceType?: DataSourceType;
   /** 服务器数据源配置 */
   serverDataSourceConfig?: ServerFileDataSourceConfig;
+  /** 打开文件的回调（供快捷键/右键菜单使用） */
+  onOpen?: (file: FileItem) => void;
 }
 
 /** 文件管理器核心编排 — 组合子 composable，管理数据管线和交互配置 */
@@ -38,7 +40,8 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
     containerRef,
     validateDrop,
     initialDataSourceType = 'local',
-    serverDataSourceConfig
+    serverDataSourceConfig,
+    onOpen
   } = options;
   const message = useMessage();
 
@@ -84,7 +87,7 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
         return mockItems.value.find(it => it.path === targetPath)?.type === 'folder';
       })
   });
-  provide('FILE_DRAG_DROP', dragDrop);
+  provide(FILE_DRAG_DROP_KEY, dragDrop);
 
   // ==================== 分页系统 ====================
   const pagination = useFilePagination({ dataSource, currentPath, viewMode, gridSize });
@@ -93,19 +96,14 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
   const refreshFileList = async () => {
     if (!dataSource.value) {
       mockItems.value = initialItems;
-      pagination.paginatedItems.value = initialItems;
-      pagination.total.value = initialItems.length;
+      pagination.setFallbackItems(initialItems);
       return;
     }
 
-    if (dataSource.value.type === 'local') {
-      const localDataSource = dataSource.value as LocalFileDataSource;
-      if (!localDataSource.hasRootHandle()) {
-        mockItems.value = initialItems;
-        pagination.paginatedItems.value = initialItems;
-        pagination.total.value = initialItems.length;
-        return;
-      }
+    if (!dataSource.value.hasRootHandle()) {
+      mockItems.value = initialItems;
+      pagination.setFallbackItems(initialItems);
+      return;
     }
 
     try {
@@ -124,8 +122,7 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
       const msg = error instanceof Error ? error.message : String(error);
       message.error(`加载文件列表失败: ${msg}`);
       mockItems.value = initialItems;
-      pagination.paginatedItems.value = initialItems;
-      pagination.total.value = initialItems.length;
+      pagination.setFallbackItems(initialItems);
     } finally {
       setLoading(false);
     }
@@ -135,8 +132,7 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
   watch([viewMode, gridSize], () => {
     const expectedPageSize = getPageSizeByViewMode(viewMode.value, gridSize.value);
     if (pagination.pageSize.value !== expectedPageSize) {
-      pagination.pageSize.value = expectedPageSize;
-      refreshFileList();
+      pagination.setPageSize(expectedPageSize);
     }
   });
 
@@ -148,14 +144,13 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
 
   // 打开本地文件夹
   const openLocalFolder = async () => {
-    if (dataSource.value?.type !== 'local') {
-      message.warning('当前不是本地模式');
+    if (!dataSource.value) {
+      message.warning('当前没有数据源');
       return;
     }
-    const localDataSource = dataSource.value as LocalFileDataSource;
     try {
       setLoading(true, '正在打开文件夹...');
-      const handle = await localDataSource.openFolder();
+      const handle = await dataSource.value.openFolder();
       if (handle) {
         currentPath.value = '/';
         await refreshFileList();
@@ -219,7 +214,7 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
   const fileOperations = useFileOperations(selectedFiles, { ...operationsConfig, fileDialog });
 
   // ==================== 交互配置 ====================
-  const handleOpen = (_file: FileItem) => {};
+  const handleOpen = onOpen ?? ((_file: FileItem) => {});
   const handleBreadcrumbNavigate = async (path: string) => {
     const normalizedPath = path === '/' ? '/' : path.replace(/\/+$/, '');
     currentPath.value = normalizedPath;

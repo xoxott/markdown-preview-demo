@@ -9,18 +9,9 @@
 import type { PropType } from 'vue';
 import { defineComponent, inject, onUnmounted } from 'vue';
 import type { FileItem } from '../types/file-explorer';
-import type { FileDragDropHook } from '../hooks/useFileDragDropEnhanced';
+import { FILE_DRAG_DROP_KEY } from '../hooks/useFileDragDropEnhanced';
 import DropZone from './DropZone';
 import type { DropZoneDragState } from './DropZone';
-
-interface _Props {
-  item: FileItem;
-  zoneId: string;
-  targetPath: string;
-  disabled?: boolean;
-  asFolderZone?: boolean;
-  hint?: string;
-}
 
 export const FileDropZoneWrapper = defineComponent({
   name: 'FileDropZoneWrapper',
@@ -33,7 +24,7 @@ export const FileDropZoneWrapper = defineComponent({
     hint: { type: String, default: '' }
   },
   setup(props, { slots }) {
-    const dragDrop = inject<FileDragDropHook>('FILE_DRAG_DROP')!;
+    const dragDrop = inject(FILE_DRAG_DROP_KEY)!;
 
     // 注册 DropZone
     dragDrop.registerDropZone(props.zoneId, props.targetPath);

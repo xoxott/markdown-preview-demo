@@ -41,11 +41,14 @@ export default defineComponent({
     const editorMode = ref<'preview' | 'edit'>('preview');
     const showFileDrawer = ref(false);
 
-    // 使用封装的业务逻辑
+    // 使用封装的业务逻辑（onOpen 回调延迟引用，执行时 handleOpenFile 已有定义）
+    /* eslint-disable @typescript-eslint/no-use-before-define */
     const logic = useFileExplorerLogic({
       initialItems: mockFileItems,
-      containerRef
+      containerRef,
+      onOpen: (file: FileItem) => handleOpenFile(file)
     });
+    /* eslint-enable @typescript-eslint/no-use-before-define */
 
     // 打开文件
     const handleOpenFile = async (file: FileItem) => {

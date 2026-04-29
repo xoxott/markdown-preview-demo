@@ -3,7 +3,7 @@ import { NIcon, useThemeVars } from 'naive-ui';
 import { ChevronDown, ChevronUp } from '@vicons/tabler';
 import type { FileItem, SortField } from '../types/file-explorer';
 import FileIcon from '../items/FileIcon';
-import { formatFileSize } from '../utils/fileHelpers';
+import { formatDateTime, formatFileSize } from '../utils/fileHelpers';
 import { useFileViewContext } from '../composables/useFileViewContext';
 import { useColumnResize } from '../hooks/useColumnResize';
 import { useColumnDrag } from '../hooks/useColumnDrag';
@@ -44,19 +44,6 @@ export default defineComponent({
       tableRef,
       resizing
     );
-
-    // 格式化日期
-    const formatDate = (date?: string | Date) => {
-      if (!date) return '';
-      const d = date instanceof Date ? date : new Date(date);
-      return d.toLocaleString('zh-CN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    };
 
     // 获取排序图标
     const getSortIcon = () => (sortOrder.value === 'asc' ? ChevronUp : ChevronDown);
@@ -186,9 +173,9 @@ export default defineComponent({
             <span
               class="block truncate text-xs"
               style={textStyle}
-              title={formatDate(item.modifiedAt)}
+              title={formatDateTime(item.modifiedAt)}
             >
-              {formatDate(item.modifiedAt)}
+              {formatDateTime(item.modifiedAt)}
             </span>
           );
 
@@ -212,9 +199,9 @@ export default defineComponent({
             <span
               class="block truncate text-xs"
               style={textStyle}
-              title={formatDate(item.createdAt)}
+              title={formatDateTime(item.createdAt)}
             >
-              {formatDate(item.createdAt)}
+              {formatDateTime(item.createdAt)}
             </span>
           );
         default:

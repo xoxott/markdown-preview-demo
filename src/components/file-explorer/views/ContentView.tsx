@@ -3,7 +3,7 @@ import { useThemeVars } from 'naive-ui';
 import FileIcon from '../items/FileIcon';
 import { formatDate, formatFileSize } from '../utils/fileHelpers';
 import { FileDropZoneWrapper } from '../interaction/FileDropZoneWrapper';
-import type { FileDragDropHook } from '../hooks/useFileDragDropEnhanced';
+import { FILE_DRAG_DROP_KEY } from '../hooks/useFileDragDropEnhanced';
 import { useFileViewContext } from '../composables/useFileViewContext';
 
 export default defineComponent({
@@ -12,7 +12,7 @@ export default defineComponent({
     const themeVars = useThemeVars();
     const ctx = useFileViewContext();
     const hoveredItemId = ref<string | null>(null);
-    const dragDrop = inject<FileDragDropHook>('FILE_DRAG_DROP')!;
+    const dragDrop = inject(FILE_DRAG_DROP_KEY)!;
     const selectedItems = computed(() =>
       ctx.items.value.filter(it => ctx.selectedIds.value.has(it.id))
     );

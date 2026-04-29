@@ -15,7 +15,6 @@ import {
   Clock,
   File,
   FileText,
-  Folder,
   Music,
   Photo,
   Rocket,
@@ -92,22 +91,6 @@ export default defineComponent({
       return () => h(NIcon, null, { default: () => h(icon) });
     };
 
-    // 渲染菜单项的标签（带徽章）
-    const _renderMenuLabel = (item: QuickAccessItem) => {
-      return () =>
-        h('div', { class: 'flex items-center justify-between w-full' }, [
-          h('span', { class: 'truncate' }, item.label),
-          item.count !== undefined && item.count > 0
-            ? h(NBadge, {
-                value: item.count,
-                showZero: false,
-                type: 'info',
-                max: 99
-              })
-            : null
-        ]);
-    };
-
     // 构建菜单选项
     const menuOptions = computed<MenuOption[]>(() => {
       const options: MenuOption[] = [];
@@ -155,18 +138,6 @@ export default defineComponent({
     // 处理菜单选择
     const handleMenuSelect = (key: string) => {
       props.onNavigate(key);
-    };
-
-    // 渲染树节点前缀图标
-    const _renderTreePrefix = ({ option }: { option: TreeNode }) => {
-      return h(
-        NIcon,
-        {
-          size: 16,
-          color: themeVars.value.textColor3
-        },
-        { default: () => h(option.children?.length ? Folder : Folder) }
-      );
     };
 
     // 处理树节点选择

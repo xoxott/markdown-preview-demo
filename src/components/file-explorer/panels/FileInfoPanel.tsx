@@ -3,7 +3,7 @@ import { computed, defineComponent } from 'vue';
 import { NButton, NIcon, NScrollbar, NTag, NText, useThemeVars } from 'naive-ui';
 import { CloseOutline, InformationCircleOutline } from '@vicons/ionicons5';
 import type { FileItem } from '../types/file-explorer';
-import { formatFileSize } from '../utils/fileHelpers';
+import { formatDateTime, formatFileSize } from '../utils/fileHelpers';
 
 export default defineComponent({
   name: 'FileInfoPanel',
@@ -31,19 +31,6 @@ export default defineComponent({
     const currentFile = computed(() => {
       return props.selectedFiles.length === 1 ? props.selectedFiles[0] : null;
     });
-
-    // 格式化日期
-    const formatDate = (date?: Date | string): string => {
-      if (!date) return '-';
-      const d = typeof date === 'string' ? new Date(date) : date;
-      return d.toLocaleString('zh-CN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    };
 
     // 多选时的统计信息
     const selectionStats = computed(() => {
@@ -250,7 +237,7 @@ export default defineComponent({
                       >
                         <span style={{ color: themeVars.value.textColor3 }}>创建时间</span>
                         <span class="text-xs" style={{ color: themeVars.value.textColorBase }}>
-                          {formatDate(currentFile.value.createdAt)}
+                          {formatDateTime(currentFile.value.createdAt)}
                         </span>
                       </div>
                     )}
@@ -261,7 +248,7 @@ export default defineComponent({
                       >
                         <span style={{ color: themeVars.value.textColor3 }}>修改时间</span>
                         <span class="text-xs" style={{ color: themeVars.value.textColorBase }}>
-                          {formatDate(currentFile.value.modifiedAt)}
+                          {formatDateTime(currentFile.value.modifiedAt)}
                         </span>
                       </div>
                     )}

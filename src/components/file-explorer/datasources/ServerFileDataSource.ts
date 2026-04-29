@@ -42,6 +42,16 @@ export class ServerFileDataSource implements IFileDataSource {
   readonly type = 'server' as const;
   rootPath: string = '/';
   private baseUrl: string;
+
+  /** 服务器模式始终有根路径可用 */
+  hasRootHandle(): boolean {
+    return true;
+  }
+
+  /** 服务器模式不支持本地文件夹选择 */
+  async openFolder(): Promise<null> {
+    return null;
+  }
   private headers: Record<string, string>;
 
   constructor(config: ServerFileDataSourceConfig) {

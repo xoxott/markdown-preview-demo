@@ -2,7 +2,8 @@ import { File, FileCode, FileText, Folder, Music, Photo, Video } from '@vicons/t
 import type { FileItem } from '../types/file-explorer';
 
 export function formatFileSize(bytes?: number): string {
-  if (!bytes) return '-';
+  if (bytes === undefined || bytes === null) return '-';
+  if (bytes === 0) return '0 B';
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
   let size = bytes;
   let unitIndex = 0;
@@ -13,6 +14,7 @@ export function formatFileSize(bytes?: number): string {
   return `${size.toFixed(1)} ${units[unitIndex]}`;
 }
 
+/** 相对时间格式（今天/昨天/N天前） */
 export function formatDate(date?: Date): string {
   if (!date) return '-';
   const now = new Date();
@@ -27,6 +29,19 @@ export function formatDate(date?: Date): string {
     year: 'numeric',
     month: 'short',
     day: 'numeric'
+  });
+}
+
+/** 完整日期时间格式（年月日时分秒） */
+export function formatDateTime(date?: string | Date): string {
+  if (!date) return '';
+  const d = date instanceof Date ? date : new Date(date);
+  return d.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
   });
 }
 

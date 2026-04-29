@@ -3,6 +3,7 @@ import { computed, defineComponent } from 'vue';
 import { NIcon, NProgress, useThemeVars } from 'naive-ui';
 import { Check, File, Folder } from '@vicons/tabler';
 import type { FileItem } from '../types/file-explorer';
+import { formatFileSize } from '../utils/fileHelpers';
 
 export default defineComponent({
   name: 'FileStatusBar',
@@ -81,15 +82,6 @@ export default defineComponent({
   setup(props) {
     const themeVars = useThemeVars();
 
-    // 格式化文件大小
-    const formatSize = (bytes: number): string => {
-      if (bytes === 0) return '0 B';
-      const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-      const k = 1024;
-      const i = Math.floor(Math.log(bytes) / Math.log(k));
-      return `${(bytes / k ** i).toFixed(1)} ${units[i]}`;
-    };
-
     // 存储使用百分比
     const storagePercentage = computed(() => {
       if (props.storageTotal === 0) return 0;
@@ -101,7 +93,7 @@ export default defineComponent({
       const count = props.selectedItems.length;
       if (count === 0) return '';
 
-      const size = formatSize(props.selectedSize);
+      const size = formatFileSize(props.selectedSize);
       return `已选中 ${count} 项 (${size})`;
     });
 
@@ -154,7 +146,7 @@ export default defineComponent({
             <div class="flex items-center gap-1">
               <span style={{ color: themeVars.value.textColor3 }}>总大小:</span>
               <span class="font-medium" style={{ color: themeVars.value.textColorBase }}>
-                {formatSize(props.totalSize)}
+                {formatFileSize(props.totalSize)}
               </span>
             </div>
           )}
@@ -199,7 +191,7 @@ export default defineComponent({
           <div class="flex items-center gap-2">
             <span style={{ color: themeVars.value.textColor3 }}>存储:</span>
             <span style={{ color: themeVars.value.textColorBase }}>
-              {formatSize(props.storageUsed)} / {formatSize(props.storageTotal)}
+              {formatFileSize(props.storageUsed)} / {formatFileSize(props.storageTotal)}
             </span>
             <div class="w-20">
               <NProgress

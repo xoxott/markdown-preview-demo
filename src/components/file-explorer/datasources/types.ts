@@ -33,6 +33,12 @@ export interface IFileDataSource {
   /** 当前根路径 */
   readonly rootPath: string;
 
+  /** 是否已选择/连接根目录（本地模式需要先 openFolder） */
+  hasRootHandle(): boolean;
+
+  /** 打开文件夹选择器（仅本地模式有效，服务器模式返回 null） */
+  openFolder(): Promise<FileSystemDirectoryHandle | null>;
+
   /** 列出指定路径下的文件 */
   listFiles(path?: string): Promise<FileItem[]>;
 

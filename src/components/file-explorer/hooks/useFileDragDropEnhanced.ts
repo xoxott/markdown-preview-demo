@@ -1,6 +1,10 @@
-import type { Ref } from 'vue';
+import type { InjectionKey, Ref } from 'vue';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import type { DragDropOptions, DragState, DropZoneState, FileItem } from '../types/file-explorer';
+
+/** FILE_DRAG_DROP provide/inject 的 typed key */
+export const FILE_DRAG_DROP_KEY: InjectionKey<FileDragDropHook> = Symbol('FILE_DRAG_DROP');
+
 export interface FileDragDropHook {
   // 状态
   dragState: Ref<DragState>;

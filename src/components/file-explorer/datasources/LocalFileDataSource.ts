@@ -245,7 +245,7 @@ export class LocalFileDataSource implements IFileDataSource {
       parentHandle = await this.getDirectoryHandle(normalizedPath);
     }
 
-    const _newDirHandle = await parentHandle.getDirectoryHandle(name, { create: true });
+    await parentHandle.getDirectoryHandle(name, { create: true });
     const fullPath = normalizedPath === '' ? name : `${normalizedPath}/${name}`;
 
     return {

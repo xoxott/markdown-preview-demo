@@ -39,6 +39,8 @@ export interface UseFilePaginationReturn {
   reset: () => void;
   /** 加载分页数据 */
   loadPage: () => Promise<void>;
+  /** 设置 fallback 文件列表 */
+  setFallbackItems: (items: FileItem[]) => void;
 }
 
 /** 文件分页 Hook 根据数据源类型自动选择前端分页或接口分页 */
@@ -144,6 +146,12 @@ export function useFilePagination(options: UseFilePaginationOptions): UseFilePag
     paginatedItems.value = [];
   };
 
+  /** 设置 fallback 文件列表（无数据源或数据源未连接时使用） */
+  const setFallbackItems = (items: FileItem[]) => {
+    paginatedItems.value = items;
+    total.value = items.length;
+  };
+
   return {
     currentPage,
     pageSize,
@@ -156,6 +164,7 @@ export function useFilePagination(options: UseFilePaginationOptions): UseFilePag
     nextPage,
     setPageSize,
     reset,
-    loadPage
+    loadPage,
+    setFallbackItems
   };
 }

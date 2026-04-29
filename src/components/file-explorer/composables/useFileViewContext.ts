@@ -1,6 +1,7 @@
 import type { InjectionKey, Ref } from 'vue';
 import { inject, provide } from 'vue';
 import type { FileItem, GridSize, SortField, SortOrder } from '../types/file-explorer';
+import type { FileDragDropHook } from '../hooks/useFileDragDropEnhanced';
 
 /** 视图上下文 — 替代 props 穿透，通过 provide/inject 传递 */
 export interface FileViewContext {
@@ -12,6 +13,7 @@ export interface FileViewContext {
   sortField?: Ref<SortField | undefined>;
   sortOrder?: Ref<SortOrder | undefined>;
   onSort?: (field: SortField) => void;
+  dragDrop?: FileDragDropHook;
 }
 
 const FILE_VIEW_CONTEXT_KEY: InjectionKey<FileViewContext> = Symbol('FILE_VIEW_CONTEXT');
