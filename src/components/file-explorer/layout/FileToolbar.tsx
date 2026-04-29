@@ -10,6 +10,7 @@ import {
   NTooltip,
   useThemeVars
 } from 'naive-ui';
+import type { DropdownOption } from 'naive-ui';
 import {
   DocumentTextOutline,
   EllipsisHorizontal,
@@ -96,7 +97,7 @@ export default defineComponent({
 
     // 数据源模式选项
     const dataSourceOptions = computed(() => {
-      const opts: any[] = [
+      const opts: DropdownOption[] = [
         {
           label: '本地模式',
           key: 'local',
@@ -139,7 +140,7 @@ export default defineComponent({
 
     // 更多操作选项（移动/平板端）
     const moreOptions = computed(() => {
-      const opts: any[] = [];
+      const opts: DropdownOption[] = [];
       if (props.showNewFolder) {
         opts.push({
           label: '新建文件夹',

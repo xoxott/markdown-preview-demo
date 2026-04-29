@@ -83,8 +83,8 @@ export function createOperationsConfig(
           });
           message.warning(`已删除 ${items.length} 个项目`);
         }
-      } catch (error: any) {
-        message.error(`删除失败: ${error.message}`);
+      } catch (error: unknown) {
+        message.error(`删除失败: ${error instanceof Error ? error.message : String(error)}`);
         throw error;
       } finally {
         setLoading?.(false);
@@ -107,8 +107,8 @@ export function createOperationsConfig(
           });
           message.info(`重命名: ${item.name} -> ${newName}`);
         }
-      } catch (error: any) {
-        message.error(`重命名失败: ${error.message}`);
+      } catch (error: unknown) {
+        message.error(`重命名失败: ${error instanceof Error ? error.message : String(error)}`);
         throw error;
       } finally {
         setLoading?.(false);
@@ -132,8 +132,8 @@ export function createOperationsConfig(
           });
           message.success(`已创建文件夹: ${name}`);
         }
-      } catch (error: any) {
-        message.error(`创建文件夹失败: ${error.message}`);
+      } catch (error: unknown) {
+        message.error(`创建文件夹失败: ${error instanceof Error ? error.message : String(error)}`);
         throw error;
       } finally {
         setLoading?.(false);
@@ -154,8 +154,8 @@ export function createOperationsConfig(
           });
           message.info('已刷新');
         }
-      } catch (error: any) {
-        message.error(`刷新失败: ${error.message}`);
+      } catch (error: unknown) {
+        message.error(`刷新失败: ${error instanceof Error ? error.message : String(error)}`);
       } finally {
         setLoading?.(false);
       }

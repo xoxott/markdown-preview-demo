@@ -30,8 +30,8 @@ export class LocalFileDataSource implements IFileDataSource {
       this.rootHandle = handle;
       this.rootPath = handle.name;
       return handle;
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
+    } catch (error: unknown) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
         return null; // 用户取消
       }
       throw error;

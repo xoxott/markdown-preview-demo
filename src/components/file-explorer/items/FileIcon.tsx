@@ -45,8 +45,7 @@ export default defineComponent({
           {IconComp ? (
             <NIcon>
               {{
-                default: () =>
-                  h(IconComp as any, { style: { color, fontSize: size }, strokeWidth: 1.5 })
+                default: () => h(IconComp!, { style: { color, fontSize: size }, strokeWidth: 1.5 })
               }}
             </NIcon>
           ) : (

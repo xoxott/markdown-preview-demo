@@ -9,8 +9,8 @@ export interface FileViewContext {
   onSelect: (ids: string[], event?: MouseEvent) => void;
   onOpen: (item: FileItem) => void;
   gridSize?: Ref<GridSize>;
-  sortField?: Ref<SortField>;
-  sortOrder?: Ref<SortOrder>;
+  sortField?: Ref<SortField | undefined>;
+  sortOrder?: Ref<SortOrder | undefined>;
   onSort?: (field: SortField) => void;
 }
 

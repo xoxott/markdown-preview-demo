@@ -1,3 +1,4 @@
+import type { Ref } from 'vue';
 import { onUnmounted, ref } from 'vue';
 import type { SortField } from '../types/file-explorer';
 
@@ -5,6 +6,24 @@ interface ColumnConfig {
   id: SortField;
   label: string;
   width: number;
+}
+
+interface PendingDragState {
+  id: SortField;
+  index: number;
+  startX: number;
+  ghostX: number;
+}
+
+interface ResizingState {
+  columnId: SortField;
+  startX: number;
+  leftColumn: ColumnConfig;
+  rightColumn: ColumnConfig | null;
+  leftStartWidth: number;
+  rightStartWidth: number;
+  columnIndex: number;
+  animationFrame: number | null;
 }
 
 export interface UseColumnDragReturn {
@@ -23,7 +42,7 @@ export interface UseColumnDragReturn {
 export function useColumnDrag(
   columns: Ref<ColumnConfig[]>,
   tableRef: Ref<HTMLTableElement | null>,
-  resizing: Ref<any>
+  resizing: Ref<ResizingState | null>
 ): UseColumnDragReturn {
   const isUnmounted = ref(false);
   const draggingColumn = ref<{
@@ -42,7 +61,7 @@ export function useColumnDrag(
     const thElements = tableRef.value?.querySelectorAll('th');
     const initialRect = thElements?.[index]?.getBoundingClientRect();
 
-    let pendingDrag = {
+    let pendingDrag: PendingDragState | null = {
       id: column.id,
       index,
       startX,
@@ -55,7 +74,7 @@ export function useColumnDrag(
 
       if (!hasMoved && Math.abs(evt.clientX - startX) > 3) {
         hasMoved = true;
-        draggingColumn.value = { ...pendingDrag, ghostX: evt.clientX };
+        draggingColumn.value = pendingDrag ? { ...pendingDrag, ghostX: evt.clientX } : null;
         dropTargetIndex.value = null;
         document.body.style.cursor = 'grabbing';
         document.body.style.userSelect = 'none';
@@ -105,7 +124,7 @@ export function useColumnDrag(
 
       draggingColumn.value = null;
       dropTargetIndex.value = null;
-      pendingDrag = null as any;
+      pendingDrag = null;
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
       document.removeEventListener('mousemove', handleMouseMove);

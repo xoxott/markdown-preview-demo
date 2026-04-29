@@ -38,7 +38,7 @@ export interface FileItem {
   /** 缩略图 URL */
   thumbnailUrl?: string;
   /** 自定义元数据 */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   color?: string;
   /** 标签数组 */
   tags?: string[];
@@ -109,7 +109,7 @@ export interface DragTransferData {
   /** 时间戳 */
   timestamp: number;
   /** 自定义数据 */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /** 拖拽错误上下文 */

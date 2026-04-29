@@ -72,8 +72,8 @@ export default defineComponent({
           // 降级：使用空内容
           fileContent.value = '';
         }
-      } catch (error: any) {
-        message.error(`打开文件失败: ${error.message}`);
+      } catch (error: unknown) {
+        message.error(`打开文件失败: ${error instanceof Error ? error.message : String(error)}`);
         // 开发时可选：使用 message.error 已提供反馈，无需额外控制台日志
       } finally {
         fileLoading.value = false;

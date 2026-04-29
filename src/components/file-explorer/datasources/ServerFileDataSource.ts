@@ -6,6 +6,37 @@ import type {
   ServerFileDataSourceConfig
 } from './types';
 
+/** 服务器返回的原始文件对象结构 */
+interface ServerFileResponse {
+  id?: string;
+  name: string;
+  type?: string;
+  isDirectory?: boolean;
+  size?: number;
+  extension?: string;
+  modifiedAt?: string;
+  createdAt?: string;
+  mimeType?: string;
+}
+
+/** 服务器文件列表响应 */
+interface ServerFileListResponse {
+  files: ServerFileResponse[];
+}
+
+/** 服务器分页文件列表响应 */
+interface ServerPaginatedFileListResponse {
+  files: ServerFileResponse[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+/** 服务器单个文件响应 */
+interface ServerSingleFileResponse {
+  file: ServerFileResponse;
+}
+
 /** 服务器文件数据源实现 */
 export class ServerFileDataSource implements IFileDataSource {
   readonly type = 'server' as const;
@@ -60,7 +91,7 @@ export class ServerFileDataSource implements IFileDataSource {
   }
 
   /** 将服务器文件对象转换为 FileItem */
-  private serverFileToFileItem(file: any, parentPath: string = ''): FileItem {
+  private serverFileToFileItem(file: ServerFileResponse, parentPath: string = ''): FileItem {
     const fullPath = parentPath ? `${parentPath}/${file.name}` : file.name;
     return {
       id: file.id || fullPath,
@@ -71,8 +102,7 @@ export class ServerFileDataSource implements IFileDataSource {
       extension: file.extension || this.getExtension(file.name),
       modifiedAt: file.modifiedAt ? new Date(file.modifiedAt) : undefined,
       createdAt: file.createdAt ? new Date(file.createdAt) : undefined,
-      mimeType: file.mimeType,
-      ...file
+      mimeType: file.mimeType
     };
   }
 
@@ -88,7 +118,7 @@ export class ServerFileDataSource implements IFileDataSource {
       ? `/api/files/list?path=${encodeURIComponent(normalizedPath)}`
       : '/api/files/list';
 
-    const response = await this.request<{ files: any[] }>(endpoint);
+    const response = await this.request<ServerFileListResponse>(endpoint);
     const parentPath = normalizedPath || '';
 
     return response.files.map(file => this.serverFileToFileItem(file, parentPath));
@@ -106,12 +136,7 @@ export class ServerFileDataSource implements IFileDataSource {
     }
 
     const endpoint = `/api/files/list?${queryParams.toString()}`;
-    const response = await this.request<{
-      files: any[];
-      total: number;
-      page: number;
-      pageSize: number;
-    }>(endpoint);
+    const response = await this.request<ServerPaginatedFileListResponse>(endpoint);
 
     const parentPath = normalizedPath || '';
     const items = response.files.map(file => this.serverFileToFileItem(file, parentPath));
@@ -180,7 +205,7 @@ export class ServerFileDataSource implements IFileDataSource {
     const _fullPath = normalizedPath ? `${normalizedPath}/${name}` : name;
     const endpoint = '/api/files/create-folder';
 
-    const response = await this.request<{ file: any }>(endpoint, {
+    const response = await this.request<ServerSingleFileResponse>(endpoint, {
       method: 'POST',
       body: JSON.stringify({
         path: normalizedPath,
@@ -256,7 +281,7 @@ export class ServerFileDataSource implements IFileDataSource {
       const normalizedPath = this.normalizePath(path);
       const endpoint = `/api/files/info?path=${encodeURIComponent(normalizedPath)}`;
 
-      const response = await this.request<{ file: any }>(endpoint);
+      const response = await this.request<ServerSingleFileResponse>(endpoint);
       if (!response.file) {
         return null;
       }

@@ -1,4 +1,4 @@
-import type { CSSProperties, PropType } from 'vue';
+import type { CSSProperties, Component, PropType } from 'vue';
 import { computed, defineComponent, nextTick, ref, watch } from 'vue';
 import { useEventListener } from '@vueuse/core';
 import { NDropdown, NIcon } from 'naive-ui';
@@ -7,7 +7,7 @@ import type { DropdownOption } from 'naive-ui';
 export interface ContextMenuItem {
   key: string;
   label: string;
-  icon?: any; // Component
+  icon?: Component;
   disabled?: boolean;
   show?: boolean;
   children?: ContextMenuItem[];
@@ -19,6 +19,11 @@ export interface ContextMenuItem {
 interface ContextMenuPosition {
   x: number;
   y: number;
+}
+
+interface ContextTriggerData {
+  id?: string;
+  element?: HTMLElement;
 }
 
 export default defineComponent({
@@ -45,7 +50,7 @@ export default defineComponent({
   setup(props, { emit, slots }) {
     const showMenu = ref(false);
     const position = ref<ContextMenuPosition>({ x: 0, y: 0 });
-    const contextData = ref<any>(null);
+    const contextData = ref<ContextTriggerData | null>(null);
     const containerRef = ref<HTMLDivElement>();
 
     // 转换为 Naive UI Dropdown 格式
@@ -139,10 +144,10 @@ export default defineComponent({
         if (!triggerElement) return;
 
         // 获取触发元素的数据
+        const triggerEl = triggerElement as HTMLElement;
         contextData.value = {
-          id: (triggerElement as HTMLElement).dataset.selectableId,
-          element: triggerElement,
-          ...Object.fromEntries(Object.entries((triggerElement as HTMLElement).dataset))
+          id: triggerEl.dataset.selectableId,
+          element: triggerEl
         };
       } else {
         contextData.value = null;

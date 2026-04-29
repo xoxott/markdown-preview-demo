@@ -11,6 +11,7 @@ import { defineComponent, inject, onUnmounted } from 'vue';
 import type { FileItem } from '../types/file-explorer';
 import type { FileDragDropHook } from '../hooks/useFileDragDropEnhanced';
 import DropZone from './DropZone';
+import type { DropZoneDragState } from './DropZone';
 
 interface _Props {
   item: FileItem;
@@ -69,7 +70,7 @@ export const FileDropZoneWrapper = defineComponent({
         key={props.zoneId}
       >
         {{
-          default: (dragState: any) => slots.default?.(dragState)
+          default: (dragState: DropZoneDragState) => slots.default?.(dragState)
         }}
       </DropZone>
     );

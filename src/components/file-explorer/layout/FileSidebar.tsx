@@ -1,6 +1,15 @@
-import type { PropType } from 'vue';
+import type { Component, PropType } from 'vue';
 import { computed, defineComponent, h, ref } from 'vue';
-import { type MenuOption, NBadge, NDivider, NIcon, NMenu, NTree, useThemeVars } from 'naive-ui';
+import {
+  type MenuOption,
+  NBadge,
+  NDivider,
+  NIcon,
+  NMenu,
+  NTree,
+  type TreeOption,
+  useThemeVars
+} from 'naive-ui';
 import {
   Archive,
   Clock,
@@ -18,7 +27,7 @@ import {
 export interface QuickAccessItem {
   id: string;
   label: string;
-  icon: any;
+  icon: Component;
   path: string;
   count?: number;
 }
@@ -27,8 +36,8 @@ export interface TreeNode {
   key: string;
   label: string;
   children?: TreeNode[];
-  prefix?: () => any;
-  [key: string]: any;
+  prefix?: () => Component;
+  [key: string]: unknown;
 }
 
 export default defineComponent({
@@ -53,7 +62,7 @@ export default defineComponent({
       ]
     },
     treeData: {
-      type: Array as PropType<TreeNode[]>,
+      type: Array as PropType<TreeOption[]>,
       default: () => []
     },
     currentPath: {
@@ -79,7 +88,7 @@ export default defineComponent({
     const treeExpandedKeys = ref<string[]>([]);
 
     // 渲染菜单项的图标
-    const renderMenuIcon = (icon: any) => {
+    const renderMenuIcon = (icon: Component) => {
       return () => h(NIcon, null, { default: () => h(icon) });
     };
 

@@ -1,3 +1,4 @@
+import type { Ref } from 'vue';
 import { onUnmounted, ref } from 'vue';
 import type { SortField } from '../types/file-explorer';
 

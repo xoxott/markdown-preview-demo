@@ -57,6 +57,16 @@ import {
   FolderOpenOutline
 } from '@vicons/ionicons5';
 
+/** DropZone 插槽暴露的拖拽状态 */
+export interface DropZoneDragState {
+  isActive: boolean;
+  isDragOver: boolean;
+  canAcceptDrop: boolean;
+  disabled: boolean;
+  loading: boolean;
+  hintText: string;
+}
+
 /**
  * @typedef Props
  * @property {string} zoneId 拖拽区域唯一标识符，用于区分不同放置目标
@@ -256,7 +266,7 @@ export default defineComponent({
     });
 
     return () => {
-      const dragState = {
+      const dragState: DropZoneDragState = {
         isActive: isActive.value,
         isDragOver: isDragOver.value,
         canAcceptDrop: canAcceptDrop.value,

@@ -130,8 +130,8 @@ export function useContextMenuOptions({ selectedIds, onSelect }: UseContextMenuO
 
   const options = ref<ContextMenuItem[]>([]);
 
-  const handleContextMenuShow = (contextData: any) => {
-    const target = contextData.data.element as HTMLElement;
+  const handleContextMenuShow = (contextData: { data?: { element?: HTMLElement } }) => {
+    const target = contextData.data?.element as HTMLElement;
     const fileEl = target.closest('[data-selectable-id]') as HTMLElement | null;
 
     if (fileEl) {

@@ -50,8 +50,8 @@ export default defineComponent({
       onSelect: props.onSelect,
       onOpen: props.onOpen,
       gridSize: toRef(props, 'gridSize'),
-      sortField: props.sortField ? toRef(props, 'sortField') : undefined,
-      sortOrder: props.sortOrder ? toRef(props, 'sortOrder') : undefined,
+      sortField: toRef(props, 'sortField'),
+      sortOrder: toRef(props, 'sortOrder'),
       onSort: props.onSort
     });
 

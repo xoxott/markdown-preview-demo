@@ -120,8 +120,9 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
             ? pagination.paginatedItems.value
             : initialItems;
       }
-    } catch (error: any) {
-      message.error(`加载文件列表失败: ${error.message}`);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      message.error(`加载文件列表失败: ${msg}`);
       mockItems.value = initialItems;
       pagination.paginatedItems.value = initialItems;
       pagination.total.value = initialItems.length;
@@ -160,8 +161,9 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
         await refreshFileList();
         message.success('文件夹打开成功');
       }
-    } catch (error: any) {
-      message.error(`打开文件夹失败: ${error.message}`);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      message.error(`打开文件夹失败: ${msg}`);
     } finally {
       setLoading(false);
     }
