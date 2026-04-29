@@ -62,45 +62,30 @@ export function useFileOperations(
 
   /** 复制选中的文件 */
   const copyFiles = async () => {
-    if (selectedFiles.value.length === 0) {
-      console.warn('没有选中的文件可以复制');
-      return;
-    }
+    if (selectedFiles.value.length === 0) return;
 
     clipboard.value = [...selectedFiles.value];
     clipboardOperation.value = 'copy';
-
-    console.log(`📋 已复制 ${clipboard.value.length} 个项目`);
 
     await onCopy?.(clipboard.value);
   };
 
   /** 剪切选中的文件 */
   const cutFiles = async () => {
-    if (selectedFiles.value.length === 0) {
-      console.warn('没有选中的文件可以剪切');
-      return;
-    }
+    if (selectedFiles.value.length === 0) return;
 
     clipboard.value = [...selectedFiles.value];
     clipboardOperation.value = 'cut';
-
-    console.log(`✂️ 已剪切 ${clipboard.value.length} 个项目`);
 
     await onCut?.(clipboard.value);
   };
 
   /** 粘贴剪贴板中的文件 */
   const pasteFiles = async (targetPath?: string) => {
-    if (clipboard.value.length === 0 || !clipboardOperation.value) {
-      console.warn('剪贴板为空');
-      return;
-    }
+    if (clipboard.value.length === 0 || !clipboardOperation.value) return;
 
     const operation = clipboardOperation.value;
     const items = [...clipboard.value];
-
-    console.log(`📌 粘贴 ${items.length} 个项目 (${operation})`);
 
     await onPaste?.(items, operation, targetPath);
 
@@ -113,10 +98,7 @@ export function useFileOperations(
 
   /** 删除选中的文件 */
   const deleteFiles = async () => {
-    if (selectedFiles.value.length === 0) {
-      console.warn('没有选中的文件可以删除');
-      return;
-    }
+    if (selectedFiles.value.length === 0) return;
 
     const items = [...selectedFiles.value];
 
@@ -130,28 +112,22 @@ export function useFileOperations(
         type: 'warning',
         confirmText: '删除',
         onConfirm: async () => {
-          console.log(`🗑️ 删除 ${items.length} 个项目`);
           await onDelete?.(items);
         }
       });
     } else {
-      console.log(`🗑️ 删除 ${items.length} 个项目`);
       await onDelete?.(items);
     }
   };
 
   /** 重命名文件（仅当选中单个文件时） */
   const renameFile = async (item: FileItem, newName: string) => {
-    console.log(`✏️ 重命名: ${item.name} -> ${newName}`);
     await onRename?.(item, newName);
   };
 
   /** 触发重命名对话框 */
   const startRename = () => {
-    if (selectedFiles.value.length !== 1) {
-      console.warn('只能重命名单个文件');
-      return;
-    }
+    if (selectedFiles.value.length !== 1) return;
 
     const item = selectedFiles.value[0];
 
@@ -175,7 +151,6 @@ export function useFileOperations(
         }
       });
     } else {
-      console.log('🔧 开始重命名:', item.name);
       onRename?.(item, item.name);
     }
   };
@@ -195,34 +170,25 @@ export function useFileOperations(
           return true;
         },
         onConfirm: async (folderName: string) => {
-          console.log(`📁 新建文件夹: ${folderName}`);
           await onCreateFolder?.(folderName, parentPath);
         }
       });
     } else {
       const folderName = name || '新建文件夹';
-      console.log(`📁 新建文件夹: ${folderName}`);
       await onCreateFolder?.(folderName, parentPath);
     }
   };
 
   /** 刷新当前视图 */
   const refresh = async () => {
-    console.log('🔄 刷新视图');
-
     await onRefresh?.();
   };
 
   /** 显示文件属性 */
   const showProperties = () => {
-    if (selectedFiles.value.length !== 1) {
-      console.warn('只能查看单个文件的属性');
-      return;
-    }
+    if (selectedFiles.value.length !== 1) return;
 
     const item = selectedFiles.value[0];
-
-    console.log('ℹ️ 显示属性:', item.name);
 
     onShowProperties?.(item);
   };

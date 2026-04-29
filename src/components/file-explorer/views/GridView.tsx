@@ -1,12 +1,10 @@
 import type { PropType, Ref } from 'vue';
-import { computed, defineComponent, inject } from 'vue';
+import { computed, defineComponent, inject, ref } from 'vue';
 import { useThemeVars } from 'naive-ui';
 import FileIcon from '../items/FileIcon';
-import type { FileItem } from '../types/file-explorer';
+import type { FileItem, GridSize } from '../types/file-explorer';
 import type { FileDragDropHook } from '../hooks/useFileDragDropEnhanced';
 import { FileDropZoneWrapper } from '../interaction/FileDropZoneWrapper';
-
-type GridSize = 'small' | 'medium' | 'large' | 'extra-large';
 
 export default defineComponent({
   name: 'GridView',
@@ -35,6 +33,7 @@ export default defineComponent({
   setup(props) {
     const themeVars = useThemeVars();
     const dragDrop = inject<FileDragDropHook>('FILE_DRAG_DROP')!;
+    const hoveredItemId = ref<string | null>(null);
     const sizeMap = {
       'small': { icon: 48, gap: 8, itemWidth: 70, padding: '4px 6px' },
       'medium': { icon: 64, gap: 10, itemWidth: 100, padding: '6px 8px' },
@@ -48,16 +47,13 @@ export default defineComponent({
 
     const getConfig = () => sizeMap[props.gridSize];
 
-    const handleMouseEnter = (e: MouseEvent, isSelected: boolean) => {
-      if (!isSelected) {
-        (e.currentTarget as HTMLElement).style.backgroundColor = themeVars.value.hoverColor;
+    const getItemBgColor = (id: string, isSelected: boolean) => {
+      const dropZone = dragDrop.getDropZoneState(id);
+      if (isSelected || (dropZone?.isOver && dropZone?.canDrop)) {
+        return `${themeVars.value.primaryColorHover}20`;
       }
-    };
-
-    const handleMouseLeave = (e: MouseEvent, isSelected: boolean) => {
-      if (!isSelected) {
-        (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
-      }
+      if (hoveredItemId.value === id) return themeVars.value.hoverColor;
+      return 'transparent';
     };
     return () => {
       const config = getConfig();
@@ -85,16 +81,11 @@ export default defineComponent({
                   class="flex-col inline-flex select-none items-center rounded-lg transition-all duration-200"
                   style={{
                     padding: config.padding,
-                    backgroundColor:
-                      isSelected ||
-                      (dragDrop.getDropZoneState(item.id)?.isOver &&
-                        dragDrop.getDropZoneState(item.id)?.canDrop)
-                        ? `${themeVars.value.primaryColorHover}20`
-                        : 'transparent'
+                    backgroundColor: getItemBgColor(item.id, isSelected)
                   }}
                   {...(isSelected ? { 'data-prevent-selection': 'true' } : null)}
-                  onMouseenter={e => handleMouseEnter(e, isSelected)}
-                  onMouseleave={e => handleMouseLeave(e, isSelected)}
+                  onMouseenter={() => (hoveredItemId.value = item.id)}
+                  onMouseleave={() => (hoveredItemId.value = null)}
                   data-selectable-id={item.id}
                   onClick={(e: MouseEvent) => props.onSelect([item.id], e)}
                   onDblclick={() => props.onOpen(item)}

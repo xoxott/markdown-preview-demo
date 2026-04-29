@@ -1,5 +1,5 @@
 import type { PropType, Ref } from 'vue';
-import { computed, defineComponent, inject } from 'vue';
+import { computed, defineComponent, inject, ref } from 'vue';
 import { useThemeVars } from 'naive-ui';
 import type { FileItem } from '../types/file-explorer';
 import FileIcon from '../items/FileIcon';
@@ -29,21 +29,19 @@ export default defineComponent({
   },
   setup(props) {
     const themeVars = useThemeVars();
+    const hoveredItemId = ref<string | null>(null);
     const selectedItems = computed(() =>
       props.items.filter(it => props.selectedIds.value.has(it.id))
     );
     const dragDrop = inject<FileDragDropHook>('FILE_DRAG_DROP')!;
 
-    const handleMouseEnter = (e: MouseEvent, isSelected: boolean) => {
-      if (!isSelected) {
-        (e.currentTarget as HTMLElement).style.backgroundColor = themeVars.value.hoverColor;
+    const getItemBgColor = (id: string, isSelected: boolean) => {
+      const dropZone = dragDrop.getDropZoneState(id);
+      if (isSelected || (dropZone?.isOver && dropZone?.canDrop)) {
+        return `${themeVars.value.primaryColorHover}20`;
       }
-    };
-
-    const handleMouseLeave = (e: MouseEvent, isSelected: boolean) => {
-      if (!isSelected) {
-        (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
-      }
+      if (hoveredItemId.value === id) return themeVars.value.hoverColor;
+      return 'transparent';
     };
     return () => (
       <div
@@ -60,20 +58,12 @@ export default defineComponent({
               <div
                 class="group flex select-none items-center gap-3 px-4 py-3 transition-colors"
                 style={{
-                  backgroundColor:
-                    isSelected ||
-                    (dragDrop.getDropZoneState(item.id)?.isOver &&
-                      dragDrop.getDropZoneState(item.id)?.canDrop)
-                      ? `${themeVars.value.primaryColorHover}20`
-                      : themeVars.value.cardColor
-                  // borderLeft: isSelected
-                  //   ? `2px solid ${themeVars.value.primaryColor}`
-                  //   : '2px solid transparent'
+                  backgroundColor: getItemBgColor(item.id, isSelected)
                 }}
                 data-selectable-id={item.id}
                 {...(isSelected ? { 'data-prevent-selection': 'true' } : null)}
-                onMouseenter={e => handleMouseEnter(e, isSelected)}
-                onMouseleave={e => handleMouseLeave(e, isSelected)}
+                onMouseenter={() => (hoveredItemId.value = item.id)}
+                onMouseleave={() => (hoveredItemId.value = null)}
                 onClick={(e: MouseEvent) => props.onSelect([item.id], e)}
                 onDblclick={() => props.onOpen(item)}
                 onDragstart={e => dragDrop.startDrag(selectedItems.value, e)}

@@ -33,7 +33,6 @@ export function useKeyboardShortcuts(shortcuts: ShortcutMap, target?: Ref<HTMLEl
 
   onMounted(() => {
     const el = target?.value || document;
-    console.log('el', el);
     el.addEventListener('keydown', wrappedHandler);
   });
 

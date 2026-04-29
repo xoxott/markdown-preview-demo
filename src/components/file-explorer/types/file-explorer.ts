@@ -112,34 +112,6 @@ export interface DragTransferData {
   metadata?: Record<string, any>;
 }
 
-/** 拖拽事件钩子 */
-export interface DragDropHooks {
-  /** 拖拽开始前 */
-  onBeforeDragStart?: (items: FileItem[]) => boolean | Promise<boolean>;
-  /** 拖拽开始 */
-  onDragStart?: (items: FileItem[]) => void;
-  /** 拖拽移动 */
-  onDragMove?: (position: { x: number; y: number }) => void;
-  /** 拖拽结束 */
-  onDragEnd?: () => void;
-  /** 进入放置区域 */
-  onDragEnter?: (targetPath: string) => void;
-  /** 离开放置区域 */
-  onDragLeave?: (targetPath: string) => void;
-  /** 放置前验证 */
-  onBeforeDrop?: (items: FileItem[], targetPath: string) => boolean | Promise<boolean>;
-  /** 放置 */
-  onDrop?: (items: FileItem[], targetPath: string) => void | Promise<void>;
-  /** 移动操作 */
-  onMove?: (items: FileItem[], targetPath: string) => void | Promise<void>;
-  /** 复制操作 */
-  onCopy?: (items: FileItem[], targetPath: string) => void | Promise<void>;
-  /** 链接操作 */
-  onLink?: (items: FileItem[], targetPath: string) => void | Promise<void>;
-  /** 错误处理 */
-  onError?: (error: Error, context: DragDropErrorContext) => void;
-}
-
 /** 拖拽错误上下文 */
 export interface DragDropErrorContext {
   /** 错误类型 */
@@ -180,8 +152,6 @@ export interface DragDropOptions {
   enableDragOut?: boolean;
   /** 是否启用从外部拖入 */
   enableDragIn?: boolean;
-  /** 钩子函数 */
-  hooks?: DragDropHooks;
   /** 事件回调 */
   onDragStart?: (items: FileItem[]) => void;
   onDragEnd?: () => void;

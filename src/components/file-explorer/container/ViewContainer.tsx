@@ -36,10 +36,10 @@ export default defineComponent({
     loadingTip: { type: String, required: false, default: '加载中...' },
     onContextMenuSelect: { type: Function as PropType<(key: string) => void>, required: true },
     // 分页相关 props
-    currentPage: { type: Number, required: false },
-    pageSize: { type: Number, required: false },
-    total: { type: Number, required: false },
-    totalPages: { type: Number, required: false },
+    currentPage: { type: Number, required: false, default: 1 },
+    pageSize: { type: Number, required: false, default: 20 },
+    total: { type: Number, required: false, default: 0 },
+    totalPages: { type: Number, required: false, default: 1 },
     showPagination: { type: Boolean, required: false, default: false },
     onPageChange: { type: Function as PropType<(page: number) => void>, required: false },
     onPageSizeChange: { type: Function as PropType<(size: number) => void>, required: false }
@@ -87,10 +87,10 @@ export default defineComponent({
           {/* 分页器 */}
           {hasPagination && (
             <FilePagination
-              currentPage={props.currentPage!}
-              pageSize={props.pageSize!}
-              total={props.total!}
-              totalPages={props.totalPages!}
+              currentPage={props.currentPage}
+              pageSize={props.pageSize}
+              total={props.total}
+              totalPages={props.totalPages}
               show={props.showPagination}
               onPageChange={props.onPageChange || (() => {})}
               onPageSizeChange={props.onPageSizeChange}

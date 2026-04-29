@@ -98,8 +98,8 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}): FileDrag
       dragImage.style.top = '-9999px';
       document.body.appendChild(dragImage);
       event.dataTransfer.setDragImage(dragImage, 0, 0);
-      // 清理
-      setTimeout(() => document.body.removeChild(dragImage), 1);
+      // 立即移除，setDragImage 只在调用时引用元素，后续无需保留
+      document.body.removeChild(dragImage);
     }
 
     onDragStart?.(validItems);
@@ -270,18 +270,16 @@ export function useFileDragDropEnhanced(options: DragDropOptions = {}): FileDrag
       }
     };
 
-    // 🔥 全局 dragend 事件处理
+    // 全局 dragend 事件处理
     const handleGlobalDragEnd = (_e: DragEvent) => {
       if (isDragging.value) {
-        console.log('🛑 全局 dragend 触发，清理拖拽状态');
         endDrag();
       }
     };
 
-    // 🔥 全局 drop 事件处理（备用）
+    // 全局 drop 事件处理（备用）
     const handleGlobalDrop = (_e: DragEvent) => {
       if (isDragging.value) {
-        console.log('📦 全局 drop 触发');
         // drop 事件会在 dragend 之前触发，这里不做处理
         // 让具体的 DropZone 处理 drop 逻辑
       }

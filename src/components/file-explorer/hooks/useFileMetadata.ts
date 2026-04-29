@@ -56,8 +56,10 @@ export function useFileMetadata() {
    * @param tags 标签数组
    */
   const setTags = (fileId: string, tags: string[]) => {
-    const metadata = getMetadata(fileId);
-    metadata.tags = [...tags]; // 创建新数组避免引用问题
+    const existing = metadataMap.value.get(fileId);
+    const metadata = existing
+      ? { ...existing, tags: [...tags] }
+      : { fileId, tags: [...tags], notes: '' };
     metadataMap.value.set(fileId, metadata);
   };
 
@@ -68,8 +70,8 @@ export function useFileMetadata() {
    * @param notes 备注文本
    */
   const setNotes = (fileId: string, notes: string) => {
-    const metadata = getMetadata(fileId);
-    metadata.notes = notes;
+    const existing = metadataMap.value.get(fileId);
+    const metadata = existing ? { ...existing, notes } : { fileId, tags: [], notes };
     metadataMap.value.set(fileId, metadata);
   };
 
@@ -81,13 +83,13 @@ export function useFileMetadata() {
    */
   const addTag = (fileId: string, tag: string) => {
     if (!tag || tag.trim() === '') return;
-    const metadata = getMetadata(fileId);
+    const existing = metadataMap.value.get(fileId);
     const trimmedTag = tag.trim();
-    // 避免重复标签
-    if (!metadata.tags.includes(trimmedTag)) {
-      metadata.tags.push(trimmedTag);
-      metadataMap.value.set(fileId, metadata);
-    }
+    if (existing && existing.tags.includes(trimmedTag)) return;
+    const metadata = existing
+      ? { ...existing, tags: [...existing.tags, trimmedTag] }
+      : { fileId, tags: [trimmedTag], notes: '' };
+    metadataMap.value.set(fileId, metadata);
   };
 
   /**
@@ -97,8 +99,9 @@ export function useFileMetadata() {
    * @param tag 标签文本
    */
   const removeTag = (fileId: string, tag: string) => {
-    const metadata = getMetadata(fileId);
-    metadata.tags = metadata.tags.filter(t => t !== tag);
+    const existing = metadataMap.value.get(fileId);
+    if (!existing) return;
+    const metadata = { ...existing, tags: existing.tags.filter(t => t !== tag) };
     metadataMap.value.set(fileId, metadata);
   };
 
