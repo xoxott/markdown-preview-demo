@@ -149,7 +149,7 @@ export default defineComponent({
 
     return () => (
       <div
-        class="h-full flex flex-col overflow-hidden"
+        class="mac-vibrancy-sidebar h-full flex flex-col overflow-hidden"
         style={{
           backgroundColor: themeVars.value.cardColor
         }}
@@ -171,20 +171,15 @@ export default defineComponent({
         {/* 文件夹树部分 */}
         {props.showTree && props.treeData.length > 0 && !props.collapsed && (
           <>
-            <NDivider class="my-2" />
+            <NDivider class="my-2 opacity-30" />
             <div class="flex-1 overflow-y-auto px-2 pb-2">
               <div
-                class="mb-1 px-3 py-2 text-xs font-medium"
+                class="px-4 py-1 text-[11px] font-medium tracking-wide uppercase"
                 style={{ color: themeVars.value.textColor3 }}
               >
                 文件夹
               </div>
-              <div
-                class="rounded-md p-2"
-                style={{
-                  backgroundColor: themeVars.value.buttonColor2Hover
-                }}
-              >
+              <div class="px-2">
                 <NTree
                   data={props.treeData}
                   blockLine

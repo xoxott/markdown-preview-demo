@@ -191,14 +191,13 @@ export default defineComponent({
 
     return () => (
       <div
-        class="flex flex-col border-b"
+        class="mac-vibrancy-toolbar mac-toolbar h-10 flex flex-col"
         style={{
-          backgroundColor: themeVars.value.cardColor,
-          borderColor: themeVars.value.dividerColor
+          backgroundColor: themeVars.value.cardColor
         }}
       >
         {/* 主工具栏 */}
-        <div class="flex items-center justify-between gap-2 px-4 py-3">
+        <div class="flex items-center justify-between gap-2 px-3 py-0">
           {/* 左侧：模式切换和视图控制 */}
           <div class="flex flex-shrink-0 items-center gap-2">
             {/* 数据源模式切换 */}
@@ -267,7 +266,10 @@ export default defineComponent({
             )}
 
             {/* 分隔线 */}
-            <div class="h-6 w-px" style={{ backgroundColor: themeVars.value.dividerColor }} />
+            <div
+              class="h-4 w-px opacity-30"
+              style={{ backgroundColor: themeVars.value.dividerColor }}
+            />
 
             {/* 桌面端视图切换 */}
             {isDesktop.value && (
@@ -342,7 +344,7 @@ export default defineComponent({
 
           {/* 中间：搜索框（桌面/平板） */}
           {!isMobile.value && (
-            <div class="mx-4 max-w-md min-w-0 flex flex-1">
+            <div class="mac-search-input mx-2 max-w-[200px] min-w-0 flex flex-1">
               <NInput
                 value={props.searchQuery}
                 placeholder="搜索文件..."
@@ -422,7 +424,10 @@ export default defineComponent({
 
             {/* 分隔线 */}
             {(props.showNewFolder || (props.showUpload && props.dataSourceType === 'server')) && (
-              <div class="h-6 w-px" style={{ backgroundColor: themeVars.value.dividerColor }} />
+              <div
+                class="h-4 w-px opacity-30"
+                style={{ backgroundColor: themeVars.value.dividerColor }}
+              />
             )}
 
             {/* 操作按钮 */}
