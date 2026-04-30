@@ -29,10 +29,11 @@ coverage/
 # Git
 .git/
 
-# Lock files
+# Lock files & package manifests — prettier 格式化会破坏 npm/pnpm 的规范化结构
 pnpm-lock.yaml
 yarn.lock
 package-lock.json
+**/package.json
 
 # Temporary files
 .tmp/
