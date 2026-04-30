@@ -1,0 +1,17 @@
+/** @suga/ai-skill — Skill/Command 框架公共 API */
+
+// ——— 类型导出 ———
+export type * from './types';
+
+// ——— 常量导出 ———
+export { DEFAULT_SKILL_TIMEOUT, SKILL_TOOL_NAME, SKILL_NAME_PATTERN } from './constants';
+
+// ——— 注册表导出 ———
+export { SkillRegistry } from './registry/SkillRegistry';
+
+// ——— 执行器导出 ———
+export { SkillExecutor } from './executor/SkillExecutor';
+
+// ——— SkillTool 导出 ———
+export { createSkillTool } from './tool/SkillTool';
+export type { SkillToolResult } from './tool/SkillTool';

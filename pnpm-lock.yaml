@@ -349,6 +349,44 @@ importers:
         specifier: ^4.0.8
         version: 4.0.8(@types/debug@4.1.12)(@types/node@22.15.17)(@vitest/ui@4.0.16(vitest@4.0.8))(happy-dom@20.0.10)(jiti@2.6.1)(sass@1.88.0)(tsx@4.19.4)(yaml@2.8.1)
 
+  packages/ai-skill:
+    dependencies:
+      '@suga/ai-agent-loop':
+        specifier: workspace:*
+        version: link:../ai-agent-loop
+      '@suga/ai-hooks':
+        specifier: workspace:*
+        version: link:../ai-hooks
+      '@suga/ai-tool-core':
+        specifier: workspace:*
+        version: link:../ai-tool-core
+      zod:
+        specifier: ^4.2.1
+        version: 4.2.1
+    devDependencies:
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: ^4.0.8
+        version: 4.0.8(@types/debug@4.1.12)(@types/node@22.15.17)(@vitest/ui@4.0.16(vitest@4.0.8))(happy-dom@20.0.10)(jiti@2.6.1)(sass@1.88.0)(tsx@4.19.4)(yaml@2.8.1)
+
+  packages/ai-stream-executor:
+    dependencies:
+      '@suga/ai-agent-loop':
+        specifier: workspace:*
+        version: link:../ai-agent-loop
+      '@suga/ai-tool-core':
+        specifier: workspace:*
+        version: link:../ai-tool-core
+    devDependencies:
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: ^4.0.8
+        version: 4.0.8(@types/debug@4.1.12)(@types/node@22.15.17)(@vitest/ui@4.0.16(vitest@4.0.8))(happy-dom@20.0.10)(jiti@2.6.1)(sass@1.88.0)(tsx@4.19.4)(yaml@2.8.1)
+
   packages/ai-tool-adapter:
     dependencies:
       '@suga/ai-agent-loop':

@@ -1,0 +1,52 @@
+{
+  "name": "@suga/ai-stream-executor",
+  "version": "1.0.0",
+  "description": "流式工具并行执行器 — StreamingToolScheduler 并发安全分区、流式 addTool、按序 yield",
+  "author": {
+    "name": "yangtao",
+    "email": "212920320@qq.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/ai-stream-executor",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xoxott/suga-tools.git",
+    "directory": "packages/ai-stream-executor"
+  },
+  "bugs": {
+    "url": "https://github.com/xoxott/suga-tools/issues"
+  },
+  "keywords": [
+    "ai",
+    "streaming",
+    "tool-executor",
+    "concurrency",
+    "partition",
+    "async-generator",
+    "parallel"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./src/*"
+      ]
+    }
+  },
+  "dependencies": {
+    "@suga/ai-agent-loop": "workspace:*",
+    "@suga/ai-tool-core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^4.0.8"
+  }
+}
