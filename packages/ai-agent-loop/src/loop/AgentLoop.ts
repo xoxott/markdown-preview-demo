@@ -51,8 +51,10 @@ export class AgentLoop {
       ? config.toolRegistry.getAll().map(t => config.provider.formatToolDefinition(t))
       : undefined;
 
-    // 构建阶段链
-    this.phases = this.buildPhases(maxTurns, toolTimeout, toolDefs);
+    // 构建阶段链（自定义phases优先，否则使用默认buildPhases）
+    this.phases = config.phases
+      ? [...config.phases]
+      : this.buildPhases(maxTurns, toolTimeout, toolDefs);
   }
 
   /** 构建阶段链 */

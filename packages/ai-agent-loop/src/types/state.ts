@@ -6,6 +6,7 @@ import type { AgentToolUseContext } from '../context/ToolUseContext';
 import type { AgentMessage } from './messages';
 import type { LLMProvider } from './provider';
 import type { ToolScheduler } from './scheduler';
+import type { LoopPhase } from '../phase/LoopPhase';
 
 /** Agent 配置 */
 export interface AgentConfig {
@@ -21,6 +22,8 @@ export interface AgentConfig {
   readonly toolTimeout?: number;
   /** Hook 注册表（可选，提供则在 Phase 链中插入 HookPhase） */
   readonly hookRegistry?: HookRegistry;
+  /** 自定义Phase链（提供则跳过默认buildPhases） */
+  readonly phases?: readonly LoopPhase[];
 }
 
 /**
