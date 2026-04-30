@@ -1,22 +1,22 @@
 {
-  "name": "@suga/ai-agent-loop",
-  "version": "0.1.0",
-  "description": "框架无关的 Agent 循环引擎 — AsyncGenerator 状态机、流式处理、中断机制和工具调度",
+  "name": "@suga/ai-hooks",
+  "version": "1.0.0",
+  "description": "AI Hooks 生命周期系统 — 工具执行前后拦截、权限决策、聚合执行、LoopPhase集成",
   "author": {
     "name": "yangtao",
     "email": "212920320@qq.com"
   },
   "license": "MIT",
-  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/ai-agent-loop",
+  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/ai-hooks",
   "repository": {
     "type": "git",
     "url": "https://github.com/xoxott/suga-tools.git",
-    "directory": "packages/ai-agent-loop"
+    "directory": "packages/ai-hooks"
   },
   "bugs": {
     "url": "https://github.com/xoxott/suga-tools/issues"
   },
-  "keywords": ["agent", "loop", "llm", "tool", "streaming", "async-generator"],
+  "keywords": ["ai", "hooks", "lifecycle", "permission", "middleware", "pre-tool-use", "post-tool-use", "fail-closed"],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
@@ -33,8 +33,7 @@
   },
   "dependencies": {
     "@suga/ai-tool-core": "workspace:*",
-    "@suga/ai-hooks": "workspace:*",
-    "zod": "^4.2.1"
+    "@suga/ai-agent-loop": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.6.3",

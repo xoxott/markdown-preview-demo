@@ -1,6 +1,7 @@
 /** Agent 循环引擎（Agent Loop） 核心 AsyncGenerator while(true) 循环 */
 
 import { ToolExecutor, ToolRegistry } from '@suga/ai-tool-core';
+import { HookBeforeToolPhase, HookAfterToolPhase, HookStopPhase } from '@suga/ai-hooks';
 import type { AgentConfig, AgentState, TerminalTransition } from '../types/state';
 import type { AgentEvent } from '../types/events';
 import type { LoopResult } from '../types/result';
@@ -64,11 +65,17 @@ export class AgentLoop {
       inputSchema: Record<string, unknown>;
     }[]
   ): LoopPhase[] {
+    const hookRegistry = this.config.hookRegistry;
     const phases: LoopPhase[] = [
       new PreProcessPhase(),
       new CallModelPhase(this.config.provider, toolDefs),
       new CheckInterruptPhase()
     ];
+
+    // 有 hook 注册表 → 在 ExecuteTools 前插入 HookBeforeTool
+    if (hookRegistry) {
+      phases.push(new HookBeforeToolPhase(hookRegistry));
+    }
 
     // 有工具注册表时添加执行阶段
     if (this.config.toolRegistry) {
@@ -78,7 +85,18 @@ export class AgentLoop {
       );
     }
 
+    // 有 hook 注册表 → 在 ExecuteTools 后插入 HookAfterTool
+    if (hookRegistry) {
+      phases.push(new HookAfterToolPhase(hookRegistry));
+    }
+
     phases.push(new PostProcessPhase(maxTurns));
+
+    // 有 hook 注册表 → 在 PostProcess 后插入 HookStop
+    if (hookRegistry) {
+      phases.push(new HookStopPhase(hookRegistry));
+    }
+
     return phases;
   }
 

@@ -1,6 +1,7 @@
 /** Agent 状态与配置类型定义（Agent State Types） 循环状态机和过渡类型 */
 
 import type { ToolRegistry } from '@suga/ai-tool-core';
+import type { HookRegistry } from '@suga/ai-hooks';
 import type { AgentToolUseContext } from '../context/ToolUseContext';
 import type { AgentMessage } from './messages';
 import type { LLMProvider } from './provider';
@@ -18,6 +19,8 @@ export interface AgentConfig {
   readonly scheduler?: ToolScheduler;
   /** 工具执行超时时间（ms，默认 30000） */
   readonly toolTimeout?: number;
+  /** Hook 注册表（可选，提供则在 Phase 链中插入 HookPhase） */
+  readonly hookRegistry?: HookRegistry;
 }
 
 /**
