@@ -40,7 +40,16 @@ export interface ContextMenuHandlerDeps {
  * @returns 统一的右键菜单处理函数
  */
 export function createContextMenuHandler(deps: ContextMenuHandlerDeps) {
-  const { fileOperations, message, selectedFiles, onOpen, onSort, onToggleInfoPanel, onUploadFile, onUploadFolder } = deps;
+  const {
+    fileOperations,
+    message,
+    selectedFiles,
+    onOpen,
+    onSort,
+    onToggleInfoPanel,
+    onUploadFile,
+    onUploadFolder
+  } = deps;
 
   // 事件处理映射表
   const handlers: Record<string, () => void | Promise<void>> = {
