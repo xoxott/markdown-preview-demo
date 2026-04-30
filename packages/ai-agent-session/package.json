@@ -1,0 +1,43 @@
+{
+  "name": "@suga/ai-agent-session",
+  "version": "0.1.0",
+  "description": "Agent 会话管理层 — 生命周期封装、暂停恢复、状态序列化与持久化存储",
+  "author": {
+    "name": "yangtao",
+    "email": "212920320@qq.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/ai-agent-session",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xoxott/suga-tools.git",
+    "directory": "packages/ai-agent-session"
+  },
+  "bugs": {
+    "url": "https://github.com/xoxott/suga-tools/issues"
+  },
+  "keywords": ["agent", "session", "persist", "resume", "serialize", "lifecycle"],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "typesVersions": {
+    "*": {
+      "*": ["./src/*"]
+    }
+  },
+  "dependencies": {
+    "@suga/ai-agent-loop": "workspace:*",
+    "@suga/ai-tool-adapter": "workspace:*",
+    "@suga/ai-tool-core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^4.0.8"
+  }
+}
