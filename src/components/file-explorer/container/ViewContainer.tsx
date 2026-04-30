@@ -5,6 +5,7 @@ import { useContextMenuOptions } from '../hooks/useContextMenuOptions';
 import { FILE_DRAG_DROP_KEY } from '../hooks/useFileDragDropEnhanced';
 import ContextMenu from '../interaction/ContextMenu';
 import type { FileItem, GridSize, SortField, SortOrder, ViewMode } from '../types/file-explorer';
+import type { DataSourceType } from '../datasources/types';
 import NSelectionRect from '../interaction/NSelectionRect';
 import FileLoading from '../feedback/FileLoading';
 import FilePagination from '../layout/FilePagination';
@@ -36,12 +37,15 @@ export default defineComponent({
     totalPages: { type: Number, required: false, default: 1 },
     showPagination: { type: Boolean, required: false, default: false },
     onPageChange: { type: Function as PropType<(page: number) => void>, required: false },
-    onPageSizeChange: { type: Function as PropType<(size: number) => void>, required: false }
+    onPageSizeChange: { type: Function as PropType<(size: number) => void>, required: false },
+    // 上传相关 props
+    dataSourceType: { type: String as PropType<DataSourceType>, required: false, default: 'local' }
   },
-  setup(props) {
+  setup(props, { slots }) {
     const { handleContextMenuShow, handleContextMenuHide, options } = useContextMenuOptions({
       selectedIds: props.selectedIds,
-      onSelect: props.onSelect
+      onSelect: props.onSelect,
+      dataSourceType: toRef(props, 'dataSourceType')
     });
 
     // 注入拖拽系统（由 useFileExplorerLogic provide）
@@ -78,6 +82,9 @@ export default defineComponent({
       return (
         <div class="h-full flex flex-col" style={{ position: 'relative' }}>
           <div class={hasPagination ? 'flex-1 overflow-hidden' : 'h-full'}>
+            {/* 上传拖拽覆盖层 — 默认不可见，外部文件拖入时激活 */}
+            {slots.uploadDropOverlay?.()}
+
             <ContextMenu
               options={options.value}
               onSelect={props.onContextMenuSelect}

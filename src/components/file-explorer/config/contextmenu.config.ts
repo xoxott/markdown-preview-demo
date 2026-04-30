@@ -25,6 +25,10 @@ export interface ContextMenuHandlerDeps {
   onSort?: (field: SortField) => void;
   /** 切换信息面板的回调 */
   onToggleInfoPanel?: () => void;
+  /** 上传文件的回调（打开上传抽屉 + 触发文件选择器） */
+  onUploadFile?: () => void;
+  /** 上传文件夹的回调 */
+  onUploadFolder?: () => void;
 }
 
 /**
@@ -36,7 +40,7 @@ export interface ContextMenuHandlerDeps {
  * @returns 统一的右键菜单处理函数
  */
 export function createContextMenuHandler(deps: ContextMenuHandlerDeps) {
-  const { fileOperations, message, selectedFiles, onOpen, onSort, onToggleInfoPanel } = deps;
+  const { fileOperations, message, selectedFiles, onOpen, onSort, onToggleInfoPanel, onUploadFile, onUploadFolder } = deps;
 
   // 事件处理映射表
   const handlers: Record<string, () => void | Promise<void>> = {
@@ -49,6 +53,9 @@ export function createContextMenuHandler(deps: ContextMenuHandlerDeps) {
     'refresh': () => fileOperations.refresh(),
     'properties': () => fileOperations.showProperties(),
     'new-folder': () => fileOperations.createFolder(),
+    // ==================== 上传操作 ====================
+    'upload-file': () => onUploadFile?.(),
+    'upload-folder': () => onUploadFolder?.(),
     // ==================== 信息面板 ====================
     'info': () => {
       if (onToggleInfoPanel) {

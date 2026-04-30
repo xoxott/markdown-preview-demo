@@ -1,7 +1,10 @@
 import type { PropType } from 'vue';
 import { computed, defineComponent } from 'vue';
 import { NIcon, NProgress, useThemeVars } from 'naive-ui';
+import { CloudUploadOutline } from '@vicons/ionicons5';
 import { Check, File, Folder } from '@vicons/tabler';
+import { formatSpeed } from '@/hooks/upload/utils/format';
+import type { UploadProgressInfo } from '../composables/useFileExplorerUpload';
 import type { FileItem } from '../types/file-explorer';
 import { formatFileSize } from '../utils/fileHelpers';
 
@@ -76,6 +79,18 @@ export default defineComponent({
     showStorage: {
       type: Boolean,
       default: false
+    },
+
+    // 上传进度信息（来自 useFileExplorerUpload）
+    uploadProgress: {
+      type: Object as PropType<UploadProgressInfo | null>,
+      default: null
+    },
+
+    // 上传进度行点击回调（打开上传抽屉）
+    onUploadProgressClick: {
+      type: Function as PropType<() => void>,
+      default: undefined
     }
   },
 
@@ -183,6 +198,36 @@ export default defineComponent({
             <span class="text-xs font-medium" style={{ color: themeVars.value.textColorBase }}>
               {props.operationProgress}%
             </span>
+          </div>
+        )}
+
+        {/* 中间：上传进度 */}
+        {props.uploadProgress && (
+          <div
+            class="mx-4 flex flex-1 cursor-pointer items-center gap-2 transition-opacity hover:opacity-80"
+            onClick={props.onUploadProgressClick}
+          >
+            <NIcon
+              size={14}
+              component={CloudUploadOutline}
+              style={{ color: themeVars.value.primaryColor }}
+            />
+            <NProgress
+              type="line"
+              percentage={props.uploadProgress.progress}
+              showIndicator={false}
+              height={4}
+              status={props.uploadProgress.failed > 0 ? 'error' : 'default'}
+              style={{ flex: 1 }}
+            />
+            <span class="whitespace-nowrap text-xs" style={{ color: themeVars.value.textColor3 }}>
+              {props.uploadProgress.completed}/{props.uploadProgress.total} 个文件
+            </span>
+            {props.uploadProgress.speed > 0 && (
+              <span class="whitespace-nowrap text-xs" style={{ color: themeVars.value.textColor3 }}>
+                | {formatSpeed(props.uploadProgress.speed * 1024)}
+              </span>
+            )}
           </div>
         )}
 

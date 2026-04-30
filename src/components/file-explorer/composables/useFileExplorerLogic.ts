@@ -31,6 +31,10 @@ export interface UseFileExplorerLogicOptions {
   serverDataSourceConfig?: ServerFileDataSourceConfig;
   /** 打开文件的回调（供快捷键/右键菜单使用） */
   onOpen?: (file: FileItem) => void;
+  /** 上传文件回调（右键菜单 → 打开上传抽屉 + 文件选择器） */
+  onUploadFile?: () => void;
+  /** 上传文件夹回调 */
+  onUploadFolder?: () => void;
 }
 
 /** 文件管理器核心编排 — 组合子 composable，管理数据管线和交互配置 */
@@ -41,7 +45,9 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
     validateDrop,
     initialDataSourceType = 'local',
     serverDataSourceConfig,
-    onOpen
+    onOpen,
+    onUploadFile,
+    onUploadFolder
   } = options;
   const message = useMessage();
 
@@ -238,7 +244,9 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
     selectedFiles,
     onOpen: handleOpen,
     onSort: setSorting,
-    onToggleInfoPanel: toggleInfoPanel
+    onToggleInfoPanel: toggleInfoPanel,
+    onUploadFile,
+    onUploadFolder
   });
 
   // ==================== 返回 ====================

@@ -1,10 +1,12 @@
 import type { Ref } from 'vue';
 import { computed, ref } from 'vue';
 import {
+  CloudUploadOutline,
   CopyOutline,
   CreateOutline,
   CutOutline,
   DownloadOutline,
+  FolderOpenOutline,
   FunnelOutline,
   InformationCircleOutline,
   OpenOutline,
@@ -13,13 +15,21 @@ import {
   TrashOutline
 } from '@vicons/ionicons5';
 import type { ContextMenuItem } from '../interaction/ContextMenu';
+import type { DataSourceType } from '../datasources/types';
 
 interface UseContextMenuOptionsParams {
   selectedIds: Ref<Set<string>>;
   onSelect: (ids: string[], event?: MouseEvent) => void;
+  dataSourceType?: Ref<DataSourceType>;
 }
 
-export function useContextMenuOptions({ selectedIds, onSelect }: UseContextMenuOptionsParams) {
+export function useContextMenuOptions({
+  selectedIds,
+  onSelect,
+  dataSourceType
+}: UseContextMenuOptionsParams) {
+  const isServerMode = computed(() => dataSourceType?.value === 'server');
+
   // 空白区菜单（固定 show）
   const blankOptions: ContextMenuItem[] = [
     { key: 'refresh', label: '刷新', icon: OpenOutline, shortcut: 'F5', show: true },
@@ -29,6 +39,18 @@ export function useContextMenuOptions({ selectedIds, onSelect }: UseContextMenuO
       icon: CreateOutline,
       shortcut: 'Ctrl+Shift+N',
       show: true
+    },
+    {
+      key: 'upload-file',
+      label: '上传文件',
+      icon: CloudUploadOutline,
+      show: isServerMode.value
+    },
+    {
+      key: 'upload-folder',
+      label: '上传文件夹',
+      icon: FolderOpenOutline,
+      show: isServerMode.value
     },
     { key: 'paste', label: '粘贴', icon: CopyOutline, shortcut: 'Ctrl+V', show: true },
     {

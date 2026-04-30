@@ -14,6 +14,8 @@ import { FileEditor } from './editor';
 import { mockFileItems } from './config/mockData';
 import { useFileExplorerLogic } from './composables/useFileExplorerLogic';
 import { useFilePreview } from './composables/useFilePreview';
+import { useFileExplorerUpload } from './composables/useFileExplorerUpload';
+import { UploadDrawer, UploadDropOverlay } from './upload';
 import { getFileCategoryByExtension } from './config/extensionCategories';
 import type { FileItem } from './types/file-explorer';
 import FileIcon from './items/FileIcon';
@@ -35,12 +37,14 @@ export default defineComponent({
     // 容器引用
     const containerRef = ref<HTMLElement | null>(null);
 
-    // 使用封装的业务逻辑（onOpen 回调延迟引用，执行时 handleOpenFile 已有定义）
+    // 使用封装的业务逻辑（onOpen/onUpload 回调延迟引用，执行时函数已有定义）
     /* eslint-disable @typescript-eslint/no-use-before-define */
     const logic = useFileExplorerLogic({
       initialItems: mockFileItems,
       containerRef,
-      onOpen: (file: FileItem) => handleOpenFile(file)
+      onOpen: (file: FileItem) => handleOpenFile(file),
+      onUploadFile: () => handleOpenUploadDrawer(),
+      onUploadFolder: () => handleOpenUploadDrawer()
     });
     /* eslint-enable @typescript-eslint/no-use-before-define */
 
@@ -50,14 +54,28 @@ export default defineComponent({
       refreshFileList: logic.refreshFileList
     });
 
+    // 上传集成状态
+    const uploadIntegration = useFileExplorerUpload({
+      onUploadComplete: () => logic.refreshFileList()
+    });
+
     // 打开文件（文件夹导航 → 预览）
     const handleOpenFile = async (file: FileItem) => {
+      // 抽屉互斥：打开预览时关闭上传抽屉
+      uploadIntegration.closeUploadDrawer();
+
       if (file.type === 'folder') {
         const targetPath = file.path.startsWith('/') ? file.path : `/${file.path}`;
         logic.handleBreadcrumbNavigate(targetPath);
         return;
       }
       await preview.openFile(file);
+    };
+
+    // 打开上传抽屉（互斥：关闭预览抽屉）
+    const handleOpenUploadDrawer = () => {
+      preview.closeFile();
+      uploadIntegration.openUploadDrawer();
     };
 
     // 转换 FileItem 为 DragItem
@@ -182,6 +200,7 @@ export default defineComponent({
           dataSourceType={logic.dataSourceType.value}
           onDataSourceTypeChange={logic.switchDataSource}
           onOpenLocalFolder={logic.openLocalFolder}
+          onUpload={handleOpenUploadDrawer}
         />
 
         {/* 面包屑 */}
@@ -206,6 +225,8 @@ export default defineComponent({
           storageUsed={logic.storageUsed.value}
           storageTotal={logic.storageTotal.value}
           showStorage={logic.showStorage.value}
+          uploadProgress={uploadIntegration.uploadProgressInfo.value}
+          onUploadProgressClick={handleOpenUploadDrawer}
         />
 
         {/* 视图布局 */}
@@ -244,7 +265,18 @@ export default defineComponent({
                   showPagination={logic.pagination.showPagination.value}
                   onPageChange={logic.pagination.goToPage}
                   onPageSizeChange={logic.pagination.setPageSize}
-                />
+                  dataSourceType={logic.dataSourceType.value}
+                >
+                  {{
+                    uploadDropOverlay: () => (
+                      <UploadDropOverlay
+                        onFilesDrop={uploadIntegration.addFilesAndStart}
+                        disabled={logic.dataSourceType.value !== 'server'}
+                        currentPath={logic.currentPath.value}
+                      />
+                    )
+                  }}
+                </ViewContainer>
               ),
               right: () => (
                 <FileInfoPanel
@@ -319,6 +351,28 @@ export default defineComponent({
                   />
                 );
               }
+            }}
+          </NDrawerContent>
+        </NDrawer>
+
+        {/* 上传管理抽屉 */}
+        <NDrawer
+          v-model:show={uploadIntegration.showUploadDrawer.value}
+          placement="right"
+          width="60%"
+          resizable
+          contentClass="h-full"
+        >
+          <NDrawerContent closable nativeScrollbar={false}>
+            {{
+              header: () => <span class="font-medium">文件上传</span>,
+              default: () => (
+                <UploadDrawer
+                  show={uploadIntegration.showUploadDrawer.value}
+                  upload={uploadIntegration.upload}
+                  onClose={uploadIntegration.closeUploadDrawer}
+                />
+              )
             }}
           </NDrawerContent>
         </NDrawer>

@@ -115,7 +115,7 @@ class Logger {
   /** 输出到控制台 */
   private logToConsole(entry: LogEntry): void {
     const timestamp = new Date(entry.timestamp).toISOString();
-    const prefix = `[Upload-V2] [${timestamp}]`;
+    const prefix = `[Upload] [${timestamp}]`;
 
     switch (entry.level) {
       case LogLevel.DEBUG:
