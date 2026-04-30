@@ -34,7 +34,12 @@ export function advanceState(prevState: AgentState, ctx: MutableAgentContext): A
   const toolResultMsgs: ToolResultMessage[] = (ctx.meta.toolResults as ToolResultMessage[]) ?? [];
 
   // 合并消息历史
-  const newMessages: AgentMessage[] = [...prevState.messages, assistantMsg, ...toolResultMsgs];
+  // 如果 CompressPhase 产出了 compressedMessages，用它替换原始历史
+  // 这确保后续轮次使用压缩后的消息而非原始膨胀历史
+  const baseMessages: readonly AgentMessage[] =
+    (ctx.meta.compressedMessages as readonly AgentMessage[] | undefined) ?? prevState.messages;
+
+  const newMessages: AgentMessage[] = [...baseMessages, assistantMsg, ...toolResultMsgs];
 
   // 构造新的 AgentToolUseContext（递增 turnCount）
   const newToolUseContext: AgentToolUseContext = {

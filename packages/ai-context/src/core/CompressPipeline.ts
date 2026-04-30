@@ -1,12 +1,18 @@
 /** CompressPipeline — 压缩管线编排器 */
 
 import type { AgentMessage } from '@suga/ai-agent-loop';
-import type { CompressPipelineResult, CompressState, CompressResult, CompressStats } from '../types/compressor';
+import type {
+  CompressPipelineResult,
+  CompressState,
+  CompressResult,
+  CompressStats
+} from '../types/compressor';
 import type { CompressConfig } from '../types/config';
 import type { CompressDependencies } from '../types/injection';
 import { DEFAULT_CONTEXT_WINDOW } from '../constants';
 import { createContentReplacementTracker } from './ContentReplacementState';
 import { ToolResultBudgetLayer } from './ToolResultBudget';
+import { SnipCompactLayer } from './SnipCompactLayer';
 import { TimeBasedMicroCompactLayer } from './TimeBasedMicroCompact';
 import { AutoCompactLayer } from './AutoCompact';
 import { ReactiveCompactLayer } from './ReactiveCompact';
@@ -29,6 +35,7 @@ function createInitialCompressState(config: CompressConfig): CompressState {
 /** 压缩管线编排器 */
 export class CompressPipeline {
   private readonly budgetLayer: ToolResultBudgetLayer;
+  private readonly snipCompactLayer: SnipCompactLayer;
   private readonly microCompactLayer: TimeBasedMicroCompactLayer;
   private readonly autoCompactLayer: AutoCompactLayer;
   private readonly reactiveCompactLayer: ReactiveCompactLayer;
@@ -46,14 +53,19 @@ export class CompressPipeline {
       deps.persistToolResult
     );
 
+    this.snipCompactLayer = new SnipCompactLayer(config.snipCompact);
+
     this.microCompactLayer = new TimeBasedMicroCompactLayer(config.microCompact);
 
     this.autoCompactLayer = new AutoCompactLayer(config.autoCompact, deps.callModelForSummary);
 
-    this.reactiveCompactLayer = new ReactiveCompactLayer(config.reactiveCompact, deps.callModelForSummary);
+    this.reactiveCompactLayer = new ReactiveCompactLayer(
+      config.reactiveCompact,
+      deps.callModelForSummary
+    );
   }
 
-  /** 执行管线（前3层: Budget → MicroCompact → AutoCompact） */
+  /** 执行管线（4层: Budget → SnipCompact → MicroCompact → AutoCompact） */
   async compress(messages: readonly AgentMessage[]): Promise<CompressPipelineResult> {
     this.updateState(messages);
     this.state.estimatedTokens = this.deps.tokenEstimator?.(messages) ?? estimateTokens(messages);
@@ -74,13 +86,20 @@ export class CompressPipeline {
       this.frozen = true;
     }
 
-    // Layer 2: TimeBasedMicroCompact
+    // Layer 2: SnipCompact（裁剪旧 tool_result）
+    const snipResult = await this.snipCompactLayer.compress(currentMessages, this.state);
+    currentMessages = snipResult.messages;
+    if (snipResult.didCompress) anyCompressed = true;
+    if (snipResult.stats) allStats.push(snipResult.stats);
+
+    // Layer 3: TimeBasedMicroCompact
     const microResult = await this.microCompactLayer.compress(currentMessages, this.state);
+    currentMessages = microResult.messages;
     currentMessages = microResult.messages;
     if (microResult.didCompress) anyCompressed = true;
     if (microResult.stats) allStats.push(microResult.stats);
 
-    // Layer 3: AutoCompact
+    // Layer 4: AutoCompact
     const autoResult = await this.autoCompactLayer.compress(currentMessages, this.state);
     currentMessages = autoResult.messages;
     if (autoResult.didCompress) anyCompressed = true;

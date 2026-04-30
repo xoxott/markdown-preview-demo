@@ -47,6 +47,8 @@ export interface CompressStats {
   readonly replacedToolResults?: number;
   /** 被时间清除的 tool_result 数量 */
   readonly timeClearedToolResults?: number;
+  /** 被 SnipCompact 裁剪的 tool_result 数量 */
+  readonly snippedToolResults?: number;
   /** 是否生成了摘要 */
   readonly generatedSummary?: boolean;
   /** 摘要覆盖的消息数量 */

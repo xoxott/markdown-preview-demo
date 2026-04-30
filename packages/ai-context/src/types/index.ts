@@ -1,10 +1,6 @@
 /** 类型汇总导出 */
 
-export type {
-  CompressedToolResultContent,
-  CompactSummary,
-  SummarySections
-} from './messages';
+export type { CompressedToolResultContent, CompactSummary, SummarySections } from './messages';
 
 export type {
   CompressLayer,

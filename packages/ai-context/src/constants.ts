@@ -4,11 +4,22 @@
 export const DEFAULT_BUDGET_MAX_RESULT_SIZE = 150_000; // 150KB
 export const DEFAULT_BUDGET_PREVIEW_SIZE = 2_000; // 2KB
 
+/** SnipCompact 默认配置 */
+export const DEFAULT_SNIP_KEEP_RECENT = 3;
+export const DEFAULT_SNIP_REMOVE_ORPHANED_RESULTS = true;
+
 /** TimeBasedMicroCompact 默认配置 */
 export const DEFAULT_MICRO_COMPACT_GAP_THRESHOLD_MINUTES = 60;
 export const DEFAULT_MICRO_COMPACT_KEEP_RECENT = 5;
 export const DEFAULT_COMPACTABLE_TOOLS: readonly string[] = [
-  'Read', 'Shell', 'Grep', 'Glob', 'WebSearch', 'WebFetch', 'Edit', 'Write'
+  'Read',
+  'Shell',
+  'Grep',
+  'Glob',
+  'WebSearch',
+  'WebFetch',
+  'Edit',
+  'Write'
 ];
 
 /** AutoCompact 默认配置 */

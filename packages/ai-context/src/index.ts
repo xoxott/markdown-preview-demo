@@ -3,6 +3,7 @@
 // 核心实现
 export { createContentReplacementTracker } from './core/ContentReplacementState';
 export { ToolResultBudgetLayer } from './core/ToolResultBudget';
+export { SnipCompactLayer } from './core/SnipCompactLayer';
 export { TimeBasedMicroCompactLayer } from './core/TimeBasedMicroCompact';
 export { AutoCompactLayer } from './core/AutoCompact';
 export { ReactiveCompactLayer } from './core/ReactiveCompact';
@@ -24,6 +25,8 @@ export {
 export {
   DEFAULT_BUDGET_MAX_RESULT_SIZE,
   DEFAULT_BUDGET_PREVIEW_SIZE,
+  DEFAULT_SNIP_KEEP_RECENT,
+  DEFAULT_SNIP_REMOVE_ORPHANED_RESULTS,
   DEFAULT_MICRO_COMPACT_GAP_THRESHOLD_MINUTES,
   DEFAULT_MICRO_COMPACT_KEEP_RECENT,
   DEFAULT_COMPACTABLE_TOOLS,
@@ -54,6 +57,7 @@ export type {
 export type {
   CompressConfig,
   BudgetConfig,
+  SnipCompactConfig,
   MicroCompactConfig,
   AutoCompactConfig,
   ReactiveCompactConfig

@@ -2,6 +2,7 @@
 
 import type { MutableAgentContext } from '../context/AgentContext';
 import type { AgentEvent } from '../types/events';
+import type { AgentMessage } from '../types/messages';
 import type { LLMProvider, ToolDefinition } from '../types/provider';
 import type { LoopPhase } from './LoopPhase';
 
@@ -29,8 +30,12 @@ export class CallModelPhase implements LoopPhase {
     yield { type: 'turn_start', turnCount: ctx.state.turnCount };
 
     try {
+      // 优先使用压缩后的消息（P8 CompressPhase 写入 ctx.meta.compressedMessages）
+      const messages: readonly AgentMessage[] =
+        (ctx.meta.compressedMessages as readonly AgentMessage[] | undefined) ?? ctx.state.messages;
+
       const stream = this.provider.callModel(
-        ctx.state.messages,
+        messages,
         this.tools,
         ctx.state.toolUseContext.abortController.signal
       );

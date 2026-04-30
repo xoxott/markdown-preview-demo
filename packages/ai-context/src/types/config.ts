@@ -1,4 +1,4 @@
-/** 压缩配置类型 */
+/** 压缩配置 — 各层参数 */
 
 import type { SummarySections } from './messages';
 
@@ -6,6 +6,8 @@ import type { SummarySections } from './messages';
 export interface CompressConfig {
   /** ToolResultBudget 层配置 */
   readonly budget?: BudgetConfig;
+  /** SnipCompact 层配置 */
+  readonly snipCompact?: SnipCompactConfig;
   /** TimeBasedMicroCompact 层配置 */
   readonly microCompact?: MicroCompactConfig;
   /** AutoCompact 层配置 */
@@ -20,6 +22,14 @@ export interface BudgetConfig {
   readonly maxResultSize: number;
   /** 预览保留大小（字节） */
   readonly previewSize: number;
+}
+
+/** SnipCompact 层配置 */
+export interface SnipCompactConfig {
+  /** 保留最近 N 个 tool_result 不裁剪 */
+  readonly keepRecent?: number;
+  /** 是否移除孤立的 tool_result（没有对应 tool_use） */
+  readonly removeOrphanedResults?: boolean;
 }
 
 /** TimeBasedMicroCompact 层配置 */
