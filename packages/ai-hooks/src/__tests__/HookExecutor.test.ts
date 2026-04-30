@@ -1,11 +1,22 @@
-/** HookExecutor 测试 — 执行、超时、once、聚合 */
+/** HookExecutor 测试 — 执行、超时、once、聚合、新事件 */
 
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ToolRegistry } from '@suga/ai-tool-core';
 import { HookRegistry } from '../registry/HookRegistry';
 import { HookExecutor } from '../executor/HookExecutor';
-import type { HookDefinition, HookExecutionContext, HookResult } from '../types/hooks';
-import type { PostToolUseInput, PreToolUseInput, StopInput } from '../types/input';
+import type { HookExecutionContext } from '../types/hooks';
+import type {
+  NotificationInput,
+  PostCompactInput,
+  PostToolUseInput,
+  PreCompactInput,
+  PreToolUseInput,
+  SessionEndInput,
+  SessionStartInput,
+  StopFailureInput,
+  StopInput,
+  UserPromptSubmitInput
+} from '../types/input';
 
 /** 创建 HookExecutionContext */
 function createContext(): HookExecutionContext {
@@ -269,6 +280,157 @@ describe('HookExecutor', () => {
 
       expect(executor.getMatchingHookDefinitions('PreToolUse', 'Bash')).toHaveLength(1);
       expect(executor.getMatchingHookDefinitions('PreToolUse', 'Write')).toHaveLength(0);
+    });
+  });
+
+  describe('新事件类型执行', () => {
+    it('SessionStart 专用方法', async () => {
+      registry.register({
+        name: 'init-hook',
+        event: 'SessionStart',
+        handler: async () => ({ outcome: 'success', data: 'initialized' })
+      });
+
+      const input: SessionStartInput = {
+        hookEventName: 'SessionStart',
+        userMessage: 'hello'
+      };
+
+      const result = await executor.executeSessionStart(input, createContext());
+      expect(result.outcome).toBe('success');
+    });
+
+    it('SessionEnd 专用方法', async () => {
+      registry.register({
+        name: 'cleanup-hook',
+        event: 'SessionEnd',
+        handler: async () => ({ outcome: 'success', data: 'cleaned' })
+      });
+
+      const input: SessionEndInput = {
+        hookEventName: 'SessionEnd',
+        lastAssistantMessage: 'bye',
+        transitionType: 'completed',
+        turnCount: 3
+      };
+
+      const result = await executor.executeSessionEnd(input, createContext());
+      expect(result.outcome).toBe('success');
+    });
+
+    it('StopFailure 专用方法', async () => {
+      registry.register({
+        name: 'error-handler',
+        event: 'StopFailure',
+        handler: async () => ({ outcome: 'success', additionalContext: 'error logged' })
+      });
+
+      const input: StopFailureInput = {
+        hookEventName: 'StopFailure',
+        error: 'model error',
+        transitionType: 'model_error'
+      };
+
+      const result = await executor.executeStopFailure(input, createContext());
+      expect(result.additionalContexts).toContain('error logged');
+    });
+
+    it('UserPromptSubmit 专用方法', async () => {
+      registry.register({
+        name: 'prompt-filter',
+        event: 'UserPromptSubmit',
+        handler: async () => ({ outcome: 'success', updatedUserMessage: 'filtered message' })
+      });
+
+      const input: UserPromptSubmitInput = {
+        hookEventName: 'UserPromptSubmit',
+        userMessage: 'original',
+        sessionId: 'session-1'
+      };
+
+      const result = await executor.executeUserPromptSubmit(input, createContext());
+      expect(result.updatedUserMessage).toBe('filtered message');
+    });
+
+    it('Notification 专用方法', async () => {
+      registry.register({
+        name: 'notify-hook',
+        event: 'Notification',
+        matcher: 'Bash',
+        handler: async () => ({ outcome: 'success' })
+      });
+
+      const input: NotificationInput = {
+        hookEventName: 'Notification',
+        message: 'Running Bash',
+        toolName: 'Bash'
+      };
+
+      const result = await executor.executeNotification(input, createContext());
+      expect(result.outcome).toBe('success');
+    });
+
+    it('Notification matcher 匹配', async () => {
+      registry.register({
+        name: 'bash-notify',
+        event: 'Notification',
+        matcher: 'Bash',
+        handler: async () => ({ outcome: 'success' })
+      });
+
+      // toolName=Bash 匹配
+      const inputMatch: NotificationInput = {
+        hookEventName: 'Notification',
+        message: 'Running Bash',
+        toolName: 'Bash'
+      };
+      const result1 = await executor.executeNotification(inputMatch, createContext());
+      expect(result1.outcome).toBe('success');
+
+      // toolName=Write 不匹配 → 快速路径
+      const inputNoMatch: NotificationInput = {
+        hookEventName: 'Notification',
+        message: 'Writing file',
+        toolName: 'Write'
+      };
+      const result2 = await executor.executeNotification(inputNoMatch, createContext());
+      expect(result2.outcome).toBe('success');
+      expect(result2.additionalContexts).toEqual([]);
+    });
+
+    it('PreCompact 专用方法', async () => {
+      registry.register({
+        name: 'compact-guard',
+        event: 'PreCompact',
+        handler: async () => ({ outcome: 'success', additionalContext: 'tokens near limit' })
+      });
+
+      const input: PreCompactInput = {
+        hookEventName: 'PreCompact',
+        estimatedTokens: 150000,
+        contextWindow: 200000
+      };
+
+      const result = await executor.executePreCompact(input, createContext());
+      expect(result.additionalContexts).toContain('tokens near limit');
+    });
+
+    it('PostCompact 专用方法', async () => {
+      registry.register({
+        name: 'compact-notify',
+        event: 'PostCompact',
+        handler: async () => ({ outcome: 'success' })
+      });
+
+      const input: PostCompactInput = {
+        hookEventName: 'PostCompact',
+        originalTokenCount: 150000,
+        compressedTokenCount: 50000,
+        compressionMethod: 'auto'
+      };
+
+      const result = await executor.executePostCompact(input, createContext());
+      expect(result.outcome).toBe('success');
     });
   });
 });

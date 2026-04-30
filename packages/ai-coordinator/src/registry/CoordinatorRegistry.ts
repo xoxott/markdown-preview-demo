@@ -9,7 +9,9 @@ export class CoordinatorRegistry {
   /** 注册 AgentDefinition */
   register(def: AgentDefinition): void {
     if (!AGENT_TYPE_PATTERN.test(def.agentType)) {
-      throw new Error(`Agent type "${def.agentType}" 不合法，必须匹配 ${AGENT_TYPE_PATTERN.source}`);
+      throw new Error(
+        `Agent type "${def.agentType}" 不合法，必须匹配 ${AGENT_TYPE_PATTERN.source}`
+      );
     }
     if (this.definitions.has(def.agentType)) {
       throw new Error(`Agent type "${def.agentType}" 已注册`);

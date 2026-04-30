@@ -9,7 +9,9 @@ function createMockContext(): MutableAgentContext & { _messages: any[] } {
   return {
     state: {
       sessionId: 'test',
-      get messages() { return messages as any; },
+      get messages() {
+        return messages as any;
+      },
       status: 'running',
       turnCount: 0,
       error: null,
@@ -41,15 +43,23 @@ describe('CompressPhase', () => {
     );
 
     const ctx = createMockContext();
-    ctx._messages.push(
-      { id: 'tr1', role: 'tool_result', toolUseId: 'tu1', toolName: 'test', result: 'a'.repeat(200), isSuccess: true, timestamp: 0 }
-    );
+    ctx._messages.push({
+      id: 'tr1',
+      role: 'tool_result',
+      toolUseId: 'tu1',
+      toolName: 'test',
+      result: 'a'.repeat(200),
+      isSuccess: true,
+      timestamp: 0
+    });
 
     const phase = new CompressPhase(pipeline);
     const nextFn = () => emptyGenerator();
 
     const gen = phase.execute(ctx, nextFn);
-    for await (const _ of gen) { /* consume */ }
+    for await (const _ of gen) {
+      /* consume */
+    }
 
     expect(ctx.meta.compressedMessages).toBeDefined();
     expect(ctx.meta.compressStats).toBeDefined();
@@ -64,15 +74,15 @@ describe('CompressPhase', () => {
     });
 
     const ctx = createMockContext();
-    ctx._messages.push(
-      { id: 'u1', role: 'user', content: 'hello', timestamp: 0 }
-    );
+    ctx._messages.push({ id: 'u1', role: 'user', content: 'hello', timestamp: 0 });
 
     const phase = new CompressPhase(pipeline);
     const nextFn = () => emptyGenerator();
 
     const gen = phase.execute(ctx, nextFn);
-    for await (const _ of gen) { /* consume */ }
+    for await (const _ of gen) {
+      /* consume */
+    }
 
     expect(ctx.meta.preProcessed).toBe(true);
     expect(ctx.meta.compressedMessages).toBeUndefined();

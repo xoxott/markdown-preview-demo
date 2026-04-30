@@ -6,13 +6,7 @@ import { ToolRegistry, buildTool } from '@suga/ai-tool-core';
 import { AgentLoop } from '@suga/ai-agent-loop';
 import type { AgentEvent, ToolUseBlock, UserMessage } from '@suga/ai-agent-loop';
 import { HookRegistry } from '../registry/HookRegistry';
-import type {
-  HookExecutionContext,
-  HookResult,
-  PostToolUseInput,
-  PreToolUseInput,
-  StopInput
-} from '../types';
+import type { PostToolUseInput, PreToolUseInput, StopInput } from '../types';
 
 /** 创建用户消息 */
 function createUserMessage(content: string): UserMessage {

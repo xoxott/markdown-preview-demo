@@ -1,7 +1,13 @@
 /** Task 状态机类型 */
 
 /** Task 状态 */
-export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'failed' | 'blocked' | 'cancelled';
+export type TaskStatus =
+  | 'pending'
+  | 'in_progress'
+  | 'completed'
+  | 'failed'
+  | 'blocked'
+  | 'cancelled';
 
 /** Task 定义 */
 export interface TaskDefinition {

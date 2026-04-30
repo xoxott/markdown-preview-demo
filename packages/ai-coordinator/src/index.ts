@@ -1,18 +1,10 @@
 /** @suga/ai-coordinator — 多Worker协调引擎 公共 API */
 
 // 类型导出
-export type {
-  AgentDefinition,
-  WorkerIsolation,
-  WorkerStatus
-} from './types/agent';
+export type { AgentDefinition, WorkerIsolation, WorkerStatus } from './types/agent';
 export { AGENT_TYPE_PATTERN } from './types/agent';
 
-export type {
-  Worker,
-  Team as TeamType,
-  TeamStatus
-} from './types/team';
+export type { Worker, Team as TeamType, TeamStatus } from './types/team';
 
 export type {
   MailboxMessageType,
@@ -21,11 +13,7 @@ export type {
   Mailbox
 } from './types/mailbox';
 
-export type {
-  TaskDefinition,
-  TaskStatus,
-  TaskUpdateOp
-} from './types/task';
+export type { TaskDefinition, TaskStatus, TaskUpdateOp } from './types/task';
 
 export type {
   OrchestrationPhase,

@@ -18,6 +18,8 @@ export interface UserMessage extends BaseMessage {
   readonly role: 'user';
   /** 用户输入文本 */
   readonly content: string;
+  /** 是否为系统注入的 meta 消息（不计入对话质量评估） */
+  readonly isMeta?: boolean;
 }
 
 /** 工具调用块（Assistant 消息中的 tool_use 部分） */

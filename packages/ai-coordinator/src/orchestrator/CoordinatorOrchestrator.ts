@@ -1,6 +1,12 @@
 /** CoordinatorOrchestrator — 4阶段编排引擎 */
 
-import type { OrchestrationEvent, OrchestrationResult, OrchestrationContext, StepResult, PhaseStrategy } from '../types/orchestrator';
+import type {
+  OrchestrationEvent,
+  OrchestrationResult,
+  OrchestrationContext,
+  StepResult,
+  PhaseStrategy
+} from '../types/orchestrator';
 import type { Mailbox } from '../types/mailbox';
 import { CoordinatorRegistry } from '../registry/CoordinatorRegistry';
 import { TaskManager } from '../task/TaskManager';
@@ -63,7 +69,10 @@ export class CoordinatorOrchestrator {
           messageId: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
           from: 'coordinator',
           to: step.agentType,
-          content: { type: 'task_assignment', payload: { prompt: step.prompt, taskId: task.taskId } },
+          content: {
+            type: 'task_assignment',
+            payload: { prompt: step.prompt, taskId: task.taskId }
+          },
           timestamp: Date.now(),
           summary: step.prompt
         });

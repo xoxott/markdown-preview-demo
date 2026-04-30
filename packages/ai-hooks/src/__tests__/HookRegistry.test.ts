@@ -1,8 +1,9 @@
-/** HookRegistry 测试 — 注册、匹配、移除、once 机制 */
+/** HookRegistry 测试 — 注册、匹配、移除、once 机制、来源标记、安全门控 */
 
 import { describe, expect, it } from 'vitest';
 import { HookRegistry } from '../registry/HookRegistry';
 import type { HookDefinition, HookResult } from '../types/hooks';
+import type { HooksPolicy } from '../types/policy';
 
 /** 创建简单 hook handler */
 function createHandler(
@@ -153,6 +154,88 @@ describe('HookRegistry', () => {
       registry.clear();
       expect(registry.getAllHooks('PreToolUse')).toHaveLength(0);
       expect(registry.getAllHooks('PostToolUse')).toHaveLength(0);
+    });
+  });
+
+  describe('registerWithSource + getSource', () => {
+    it('registerWithSource 注册带来源标记', () => {
+      const registry = new HookRegistry();
+      registry.registerWithSource(
+        { name: 'managed-hook', event: 'Stop', handler: createHandler('m') },
+        'managed'
+      );
+      expect(registry.getSource('managed-hook')).toBe('managed');
+    });
+
+    it('register 默认来源为 user', () => {
+      const registry = new HookRegistry();
+      registry.register({ name: 'user-hook', event: 'PreToolUse', handler: createHandler('u') });
+      expect(registry.getSource('user-hook')).toBe('user');
+    });
+
+    it('remove 同时清除来源标记', () => {
+      const registry = new HookRegistry();
+      registry.registerWithSource(
+        { name: 'temp-hook', event: 'Stop', handler: createHandler('t') },
+        'plugin'
+      );
+      registry.remove('temp-hook');
+      expect(registry.getSource('temp-hook')).toBeUndefined();
+    });
+
+    it('getSource 对不存在名称返回 undefined', () => {
+      const registry = new HookRegistry();
+      expect(registry.getSource('nonexistent')).toBeUndefined();
+    });
+  });
+
+  describe('getMatchingHooks with policy', () => {
+    it('policy 过滤掉 deny 来源的 Hook', () => {
+      const registry = new HookRegistry();
+      registry.registerWithSource(
+        { name: 'user-hook', event: 'PreToolUse', handler: createHandler('u') },
+        'user'
+      );
+      registry.registerWithSource(
+        { name: 'managed-hook', event: 'PreToolUse', handler: createHandler('m') },
+        'managed'
+      );
+
+      const policy: HooksPolicy = { allowManagedHooksOnly: true };
+      const hooks = registry.getMatchingHooks('PreToolUse', undefined, policy);
+      expect(hooks).toHaveLength(1);
+      expect(hooks[0].name).toBe('managed-hook');
+    });
+
+    it('policy 为空时不过滤', () => {
+      const registry = new HookRegistry();
+      registry.registerWithSource(
+        { name: 'user-hook', event: 'PreToolUse', handler: createHandler('u') },
+        'user'
+      );
+
+      const hooks = registry.getMatchingHooks('PreToolUse', undefined, undefined);
+      expect(hooks).toHaveLength(1);
+    });
+
+    it('新事件类型 SessionStart 可注册和匹配', () => {
+      const registry = new HookRegistry();
+      registry.register({
+        name: 'session-init',
+        event: 'SessionStart',
+        handler: createHandler('si')
+      });
+      expect(registry.getMatchingHooks('SessionStart')).toHaveLength(1);
+    });
+
+    it('新事件类型 PreCompact 可注册和匹配', () => {
+      const registry = new HookRegistry();
+      registry.register({
+        name: 'compact-check',
+        event: 'PreCompact',
+        handler: createHandler('cc')
+      });
+      expect(registry.getMatchingHooks('PreCompact')).toHaveLength(1);
     });
   });
 });

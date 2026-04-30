@@ -62,10 +62,7 @@ function createUserMessage(text: string): AgentMessage {
 describe('SnipCompactLayer', () => {
   it('消息数量 ≤ keepRecent → 不裁剪', async () => {
     const layer = new SnipCompactLayer({ keepRecent: 5 });
-    const messages: AgentMessage[] = [
-      createUserMessage('hi'),
-      createToolResult('tu1', 'result1')
-    ];
+    const messages: AgentMessage[] = [createUserMessage('hi'), createToolResult('tu1', 'result1')];
 
     const result = await layer.compress(messages, createState());
 
@@ -119,7 +116,7 @@ describe('SnipCompactLayer', () => {
 
     const messages: AgentMessage[] = [
       createAssistantWithToolUse('tu1', 'thinking'),
-      createToolResult('tu1', 'short')  // 5字符，小于100阈值
+      createToolResult('tu1', 'short') // 5字符，小于100阈值
     ];
 
     const result = await layer.compress(messages, createState());

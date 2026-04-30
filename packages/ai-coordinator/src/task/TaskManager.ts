@@ -7,7 +7,12 @@ export class TaskManager {
   private readonly tasks = new Map<string, TaskDefinition>();
 
   /** 创建新 Task */
-  create(subject: string, description?: string, owner?: string, blockedBy?: readonly string[]): TaskDefinition {
+  create(
+    subject: string,
+    description?: string,
+    owner?: string,
+    blockedBy?: readonly string[]
+  ): TaskDefinition {
     const taskId = `${DEFAULT_TASK_ID_PREFIX}_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
     const task: TaskDefinition = {
       taskId,

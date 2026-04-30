@@ -9,9 +9,15 @@ export function createContentReplacementTracker(): ContentReplacementTracker {
   let frozen = false;
 
   return {
-    get seenIds() { return seenIds; },
-    get replacements() { return replacements; },
-    get frozen() { return frozen; },
+    get seenIds() {
+      return seenIds;
+    },
+    get replacements() {
+      return replacements;
+    },
+    get frozen() {
+      return frozen;
+    },
 
     markSeen(id: string): void {
       if (frozen) return;

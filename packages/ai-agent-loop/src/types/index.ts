@@ -15,7 +15,8 @@ export type {
   AgentState,
   TerminalTransition,
   ContinueTransition,
-  LoopTransition
+  LoopTransition,
+  HookBlockingError
 } from './state';
 export { isTerminal } from './state';
 

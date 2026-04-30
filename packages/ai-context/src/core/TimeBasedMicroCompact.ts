@@ -19,7 +19,8 @@ export class TimeBasedMicroCompactLayer implements CompressLayer {
   private readonly keepRecent: number;
 
   constructor(config?: MicroCompactConfig) {
-    this.gapThresholdMinutes = config?.gapThresholdMinutes ?? DEFAULT_MICRO_COMPACT_GAP_THRESHOLD_MINUTES;
+    this.gapThresholdMinutes =
+      config?.gapThresholdMinutes ?? DEFAULT_MICRO_COMPACT_GAP_THRESHOLD_MINUTES;
     this.compactableTools = config?.compactableTools ?? DEFAULT_COMPACTABLE_TOOLS;
     this.keepRecent = config?.keepRecent ?? DEFAULT_MICRO_COMPACT_KEEP_RECENT;
   }
@@ -43,9 +44,10 @@ export class TimeBasedMicroCompactLayer implements CompressLayer {
     }
 
     // 保留最近 keepRecent 个，其余清除
-    const idsToClear = toolUseBlocks.length > this.keepRecent
-      ? toolUseBlocks.slice(0, toolUseBlocks.length - this.keepRecent).map(tu => tu.id)
-      : [];
+    const idsToClear =
+      toolUseBlocks.length > this.keepRecent
+        ? toolUseBlocks.slice(0, toolUseBlocks.length - this.keepRecent).map(tu => tu.id)
+        : [];
 
     if (idsToClear.length === 0) {
       return { messages, didCompress: false };

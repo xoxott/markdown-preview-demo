@@ -1,14 +1,26 @@
 /** Hook 生命周期核心类型定义 */
 
-/** Hook 事件类型 — 先实现 4 种核心事件，后续迭代增加 */
-// 前置导入（运行时通过 @suga/ai-tool-core 获取）
-import type { ToolRegistry } from '@suga/ai-tool-core';
-
+/** Hook 事件类型 — 工具执行 + 生命周期 + 用户交互 + 通知 + 对话压缩 */
 export type HookEvent =
+  // 工具执行
   | 'PreToolUse' // 工具执行前
   | 'PostToolUse' // 工具执行后（成功）
   | 'PostToolUseFailure' // 工具执行后（失败）
-  | 'Stop'; // 对话循环结束
+  // 生命周期
+  | 'Stop' // 对话循环正常结束
+  | 'StopFailure' // 对话循环异常终止
+  | 'SessionStart' // 循环开始
+  | 'SessionEnd' // 循环结束（正常+异常）
+  // 用户交互
+  | 'UserPromptSubmit' // 用户消息提交前
+  // 通知
+  | 'Notification' // 模型通知输出
+  // 对话压缩
+  | 'PreCompact' // 压缩前拦截
+  | 'PostCompact'; // 压缩后通知
+
+/** Hook 执行方式类型 */
+export type HookType = 'command' | 'prompt' | 'http' | 'agent';
 
 /** Hook 执行结果状态 */
 export type HookOutcome = 'success' | 'blocking' | 'non_blocking_error' | 'cancelled';
@@ -30,12 +42,16 @@ export interface HookDefinition<TInput = unknown, TOutput = unknown> {
   readonly event: HookEvent;
   /** 工具名称匹配模式（如 "Bash"、"Write"），不设则匹配所有 */
   readonly matcher?: string;
+  /** 执行方式（默认回调=handler） */
+  readonly type?: HookType;
   /** 处理回调 */
   readonly handler: HookHandler<TInput, TOutput>;
   /** 执行超时（ms），默认 DEFAULT_HOOK_TIMEOUT */
   readonly timeout?: number;
   /** 执行一次后自动移除 */
   readonly once?: boolean;
+  /** 后台执行模式（不阻塞循环） */
+  readonly async?: boolean;
 }
 
 /** Hook 单次执行结果 */
@@ -66,6 +82,11 @@ export interface HookResult<T = unknown> {
 
   /** 修改后的工具输出（PostToolUse 可修改输出） */
   readonly updatedOutput?: unknown;
+
+  // ——— 生命周期事件专有字段 ———
+
+  /** 修改后的用户消息（UserPromptSubmit 可修改消息） */
+  readonly updatedUserMessage?: string;
 }
 
 /** 聚合结果状态 */
@@ -83,6 +104,8 @@ export interface AggregatedHookResult {
   readonly updatedInput?: Record<string, unknown>;
   /** 修改后的工具输出（取最后一个 updatedOutput） */
   readonly updatedOutput?: unknown;
+  /** 修改后的用户消息（取最后一个 updatedUserMessage） */
+  readonly updatedUserMessage?: string;
   /** 所有 additionalContext 汇集 */
   readonly additionalContexts: string[];
   /** 阻止原因 */
@@ -98,7 +121,14 @@ export interface HookExecutionContext {
   /** 中断信号（级联 timeout + 外部 abort） */
   readonly abortSignal: AbortSignal;
   /** 工具注册表（hook 可查找/调用其他工具） */
-  readonly toolRegistry: ToolRegistry;
+  readonly toolRegistry: import('@suga/ai-tool-core').ToolRegistry;
   /** 阶段间共享数据通道 */
   readonly meta: Record<string, unknown>;
+}
+
+/** Stop Hook 阻止错误（返回 blocking 但不阻止继续循环） */
+export interface HookBlockingError {
+  readonly hookName: string;
+  readonly message: string;
+  readonly exitCode?: number;
 }

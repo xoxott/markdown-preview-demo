@@ -38,7 +38,11 @@ export class InMemoryMailbox implements Mailbox {
     return messages;
   }
 
-  async broadcast(from: string, content: string | StructuredMessage, summary?: string): Promise<void> {
+  async broadcast(
+    from: string,
+    content: string | StructuredMessage,
+    summary?: string
+  ): Promise<void> {
     const message: MailboxMessage = {
       messageId: `${DEFAULT_MESSAGE_ID_PREFIX}_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
       from,

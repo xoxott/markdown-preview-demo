@@ -28,7 +28,8 @@ export class AutoCompactLayer implements CompressLayer {
     tokenEstimator?: (messages: readonly AgentMessage[]) => number
   ) {
     this.thresholdRatio = config?.thresholdRatio ?? DEFAULT_AUTO_COMPACT_THRESHOLD_RATIO;
-    this.maxConsecutiveFailures = config?.maxConsecutiveFailures ?? DEFAULT_AUTO_COMPACT_MAX_FAILURES;
+    this.maxConsecutiveFailures =
+      config?.maxConsecutiveFailures ?? DEFAULT_AUTO_COMPACT_MAX_FAILURES;
     this.messagesToKeep = config?.messagesToKeep ?? DEFAULT_AUTO_COMPACT_MESSAGES_TO_KEEP;
     this.summarySections = config?.summarySections;
     this.callModelForSummary = callModelForSummary;

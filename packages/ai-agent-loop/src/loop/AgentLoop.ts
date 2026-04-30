@@ -2,7 +2,12 @@
 
 import { ToolExecutor, ToolRegistry } from '@suga/ai-tool-core';
 import { HookAfterToolPhase, HookBeforeToolPhase, HookStopPhase } from '@suga/ai-hooks';
-import type { AgentConfig, AgentState, TerminalTransition } from '../types/state';
+import type {
+  AgentConfig,
+  AgentState,
+  TerminalTransition,
+  ContinueTransition
+} from '../types/state';
 import type { AgentEvent } from '../types/events';
 import type { LoopResult } from '../types/result';
 import type { AgentMessage } from '../types/messages';
@@ -185,7 +190,8 @@ export class AgentLoop {
       }
 
       // next_turn → advanceState → continue
-      state = advanceState(state, ctx);
+      // 不同 Continue reason → 不同 advanceState 逻辑
+      state = advanceState(state, ctx, transition as ContinueTransition);
     }
   }
 

@@ -33,7 +33,16 @@ export class ReactiveCompactLayer implements CompressLayer {
       // 激进时间清除: keepRecent=0, gapThreshold=0（立即清除所有旧结果）
       const microLayer = new TimeBasedMicroCompactLayer({
         gapThresholdMinutes: 0,
-        compactableTools: state.config.microCompact?.compactableTools ?? ['Read', 'Shell', 'Grep', 'Glob', 'WebSearch', 'WebFetch', 'Edit', 'Write'],
+        compactableTools: state.config.microCompact?.compactableTools ?? [
+          'Read',
+          'Shell',
+          'Grep',
+          'Glob',
+          'WebSearch',
+          'WebFetch',
+          'Edit',
+          'Write'
+        ],
         keepRecent: 0
       });
       const result = await microLayer.compress(currentMessages, state);

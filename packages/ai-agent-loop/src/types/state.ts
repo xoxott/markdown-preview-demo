@@ -42,8 +42,33 @@ export type TerminalTransition =
   | { type: 'model_error'; error: Error }
   | { type: 'max_turns'; maxTurns: number };
 
-/** 继续过渡类型（循环继续） */
-export type ContinueTransition = { type: 'next_turn' };
+/** Hook 阻止错误（Stop Hook 返回但允许继续） */
+export interface HookBlockingError {
+  readonly hookName: string;
+  readonly message: string;
+  readonly exitCode?: number;
+}
+
+/**
+ * 继续过渡类型 — 扩展为多种溢出恢复路径
+ *
+ * 参考 Claude Code query.ts 的 7 种 Continue reason:
+ * - next_turn: 正常下一轮
+ * - reactive_compact_retry: API 413 → 紧急压缩 → 重试
+ * - max_output_tokens_escalate: 输出 token 耗尽 → 提升上限 → 重试
+ * - max_output_tokens_recovery: 输出 token 耗尽 → 注入 recovery message → 继续
+ * - collapse_drain_retry: 增量折叠后排空溢出消息重试
+ * - stop_hook_blocking: Stop Hook 返回 blockingErrors 但不阻止继续
+ * - token_budget_continuation: Token 预算未耗尽，注入 nudge 续写
+ */
+export type ContinueTransition =
+  | { type: 'next_turn' }
+  | { type: 'reactive_compact_retry'; compressedMessages: readonly AgentMessage[] }
+  | { type: 'max_output_tokens_escalate'; escalatedLimit: number }
+  | { type: 'max_output_tokens_recovery'; recoveryMessage: AgentMessage }
+  | { type: 'collapse_drain_retry'; foldedMessages: readonly AgentMessage[]; boundaryUuid: string }
+  | { type: 'stop_hook_blocking'; blockingErrors: readonly HookBlockingError[] }
+  | { type: 'token_budget_continuation'; nudgeMessage: AgentMessage; budgetUsage: number };
 
 /** 循环过渡类型（由 PostProcessPhase 设置，决定循环行为） */
 export type LoopTransition = TerminalTransition | ContinueTransition;
@@ -58,11 +83,19 @@ export interface AgentState {
   readonly messages: readonly AgentMessage[];
   /** 工具使用上下文 */
   readonly toolUseContext: AgentToolUseContext;
-  /** 状态过渡（由 PostProcessPhase 设置） */
+  /** 状态过渡（由 PostProcessPhase/RecoveryPhase 设置） */
   transition: LoopTransition;
 }
 
 /** 判断过渡是否为终止类型 */
 export function isTerminal(transition: LoopTransition): transition is TerminalTransition {
-  return transition.type !== 'next_turn';
+  return (
+    transition.type !== 'next_turn' &&
+    transition.type !== 'reactive_compact_retry' &&
+    transition.type !== 'max_output_tokens_escalate' &&
+    transition.type !== 'max_output_tokens_recovery' &&
+    transition.type !== 'collapse_drain_retry' &&
+    transition.type !== 'stop_hook_blocking' &&
+    transition.type !== 'token_budget_continuation'
+  );
 }

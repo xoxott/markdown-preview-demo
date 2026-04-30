@@ -21,7 +21,11 @@ describe('CoordinatorOrchestrator', () => {
     const orchestrator = new CoordinatorOrchestrator();
 
     for await (const event of orchestrator.orchestrate(
-      '帮我重构auth模块', registry, mailbox, taskManager, strategy
+      '帮我重构auth模块',
+      registry,
+      mailbox,
+      taskManager,
+      strategy
     )) {
       if (event.type === 'phase_start') {
         phases.push(event.phase);
@@ -43,7 +47,11 @@ describe('CoordinatorOrchestrator', () => {
     const orchestrator = new CoordinatorOrchestrator();
 
     for await (const event of orchestrator.orchestrate(
-      '查询', registry, mailbox, taskManager, strategy
+      '查询',
+      registry,
+      mailbox,
+      taskManager,
+      strategy
     )) {
       if (event.type === 'task_created' && event.task.description?.includes('synthesis')) {
         synthesisTaskCreated = true;
@@ -67,7 +75,11 @@ describe('CoordinatorOrchestrator', () => {
     const orchestrator = new CoordinatorOrchestrator();
 
     for await (const event of orchestrator.orchestrate(
-      'test', registry, mailbox, taskManager, strategy
+      'test',
+      registry,
+      mailbox,
+      taskManager,
+      strategy
     )) {
       events.push(event);
     }

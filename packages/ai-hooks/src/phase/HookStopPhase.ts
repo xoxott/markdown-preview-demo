@@ -2,7 +2,7 @@
 
 import type { AgentEvent, LoopPhase, MutableAgentContext } from '@suga/ai-agent-loop';
 import type { StopInput } from '../types/input';
-import type { HookExecutionContext } from '../types/hooks';
+import type { HookExecutionContext, HookBlockingError } from '../types/hooks';
 import type { HookRegistry } from '../registry/HookRegistry';
 import { HookExecutor } from '../executor/HookExecutor';
 
@@ -69,6 +69,24 @@ export class HookStopPhase implements LoopPhase {
         // 记录 Stop hook 的错误
         if (aggregated.errors.length > 0) {
           ctx.meta.hookStopErrors = aggregated.errors;
+        }
+
+        // ★ Stop hook 有错误但 preventContinuation=false → stop_hook_blocking
+        // 场景：Stop hook 执行失败（如 lint 警告）但不阻止循环继续
+        // 保留 hasAttemptedReactiveCompact 防止无限循环
+        if (aggregated.errors.length > 0 && !aggregated.preventContinuation) {
+          const blockingErrors: HookBlockingError[] = aggregated.errors.map(err => ({
+            hookName: 'Stop',
+            message: err
+          }));
+          ctx.state.transition = {
+            type: 'stop_hook_blocking',
+            blockingErrors
+          };
+          ctx.meta.recoveryStrategy = 'stop_hook_blocking';
+          ctx.meta.recovered = true;
+          ctx.meta.hasAttemptedReactiveCompact = true;
+          return;
         }
       }
     }

@@ -8,8 +8,11 @@ describe('InMemoryMailbox', () => {
     mailbox.registerRecipient('coordinator');
 
     await mailbox.send({
-      messageId: 'msg_1', from: 'coordinator', to: 'worker-1',
-      content: '请研究这个文件', timestamp: 0
+      messageId: 'msg_1',
+      from: 'coordinator',
+      to: 'worker-1',
+      content: '请研究这个文件',
+      timestamp: 0
     });
 
     const pending = await mailbox.hasPending('worker-1');
@@ -49,12 +52,18 @@ describe('InMemoryMailbox', () => {
     mailbox.registerRecipient('worker-1');
 
     await mailbox.send({
-      messageId: 'msg_1', from: 'coord', to: 'worker-1',
-      content: '任务1', timestamp: 0
+      messageId: 'msg_1',
+      from: 'coord',
+      to: 'worker-1',
+      content: '任务1',
+      timestamp: 0
     });
     await mailbox.send({
-      messageId: 'msg_2', from: 'coord', to: 'worker-1',
-      content: '任务2', timestamp: 1
+      messageId: 'msg_2',
+      from: 'coord',
+      to: 'worker-1',
+      content: '任务2',
+      timestamp: 1
     });
 
     expect(await mailbox.hasPending('worker-1')).toBe(true);

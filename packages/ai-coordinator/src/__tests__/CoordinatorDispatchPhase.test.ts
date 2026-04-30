@@ -12,7 +12,9 @@ function createMockContext(): MutableAgentContext & { _messages: any[] } {
   return {
     state: {
       sessionId: 'test',
-      get messages() { return messages as any; },
+      get messages() {
+        return messages as any;
+      },
       status: 'running',
       turnCount: 0,
       error: null,
@@ -45,7 +47,9 @@ describe('CoordinatorDispatchPhase', () => {
     ctx._messages.push({ id: 'u1', role: 'user', content: '帮我研究这个项目', timestamp: 0 });
 
     const gen = phase.execute(ctx, () => emptyGenerator());
-    for await (const _ of gen) { /* consume */ }
+    for await (const _ of gen) {
+      /* consume */
+    }
 
     expect(ctx.meta.coordinatorResult).toBeDefined();
     expect(ctx.meta.preProcessed).toBe(true);
@@ -61,7 +65,9 @@ describe('CoordinatorDispatchPhase', () => {
     const ctx = createMockContext();
 
     const gen = phase.execute(ctx, () => emptyGenerator());
-    for await (const _ of gen) { /* consume */ }
+    for await (const _ of gen) {
+      /* consume */
+    }
 
     expect(ctx.meta.preProcessed).toBe(true);
     expect(ctx.meta.coordinatorResult).toBeUndefined();

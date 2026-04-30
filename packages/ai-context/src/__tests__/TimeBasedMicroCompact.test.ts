@@ -51,12 +51,17 @@ describe('TimeBasedMicroCompactLayer', () => {
   });
 
   it('超过阈值清除旧 tool_result', async () => {
-    const layer = new TimeBasedMicroCompactLayer(
-      { gapThresholdMinutes: 60, compactableTools: ['Read', 'Grep'], keepRecent: 1 }
-    );
+    const layer = new TimeBasedMicroCompactLayer({
+      gapThresholdMinutes: 60,
+      compactableTools: ['Read', 'Grep'],
+      keepRecent: 1
+    });
     const state = createMockState(0, 61 * 60_000); // gap 61min > 60min
     const messages: AgentMessage[] = [
-      createAssistantMsg([{ id: 'tu1', name: 'Read' }, { id: 'tu2', name: 'Grep' }]),
+      createAssistantMsg([
+        { id: 'tu1', name: 'Read' },
+        { id: 'tu2', name: 'Grep' }
+      ]),
       createToolResultMsg('tu1', 'Read', 'file content'),
       createToolResultMsg('tu2', 'Grep', 'grep results')
     ];
@@ -67,12 +72,17 @@ describe('TimeBasedMicroCompactLayer', () => {
   });
 
   it('keepRecent 保留最近 N 个', async () => {
-    const layer = new TimeBasedMicroCompactLayer(
-      { gapThresholdMinutes: 0, compactableTools: ['Read'], keepRecent: 1 }
-    );
+    const layer = new TimeBasedMicroCompactLayer({
+      gapThresholdMinutes: 0,
+      compactableTools: ['Read'],
+      keepRecent: 1
+    });
     const state = createMockState(0, 100); // gap > 0min threshold
     const messages: AgentMessage[] = [
-      createAssistantMsg([{ id: 'tu1', name: 'Read' }, { id: 'tu2', name: 'Read' }]),
+      createAssistantMsg([
+        { id: 'tu1', name: 'Read' },
+        { id: 'tu2', name: 'Read' }
+      ]),
       createToolResultMsg('tu1', 'Read', 'old content'),
       createToolResultMsg('tu2', 'Read', 'recent content')
     ];
@@ -81,16 +91,23 @@ describe('TimeBasedMicroCompactLayer', () => {
     expect(result.didCompress).toBe(true);
     // tu1 清除, tu2 保留
     const tr1 = result.messages.find(m => m.role === 'tool_result' && m.toolUseId === 'tu1')!;
-    expect((tr1 as AgentMessage & { result: string }).result).toBe('[Old tool result content cleared]');
+    expect((tr1 as AgentMessage & { result: string }).result).toBe(
+      '[Old tool result content cleared]'
+    );
   });
 
   it('compactableTools 过滤 — 不在列表中的工具不清除', async () => {
-    const layer = new TimeBasedMicroCompactLayer(
-      { gapThresholdMinutes: 0, compactableTools: ['Read'], keepRecent: 0 }
-    );
+    const layer = new TimeBasedMicroCompactLayer({
+      gapThresholdMinutes: 0,
+      compactableTools: ['Read'],
+      keepRecent: 0
+    });
     const state = createMockState(0, 100);
     const messages: AgentMessage[] = [
-      createAssistantMsg([{ id: 'tu1', name: 'Read' }, { id: 'tu2', name: 'Bash' }]),
+      createAssistantMsg([
+        { id: 'tu1', name: 'Read' },
+        { id: 'tu2', name: 'Bash' }
+      ]),
       createToolResultMsg('tu1', 'Read', 'content'),
       createToolResultMsg('tu2', 'Bash', 'bash output')
     ];

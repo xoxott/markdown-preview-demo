@@ -10,10 +10,17 @@ import type {
 } from '../types/hooks';
 import type {
   HookInput,
+  NotificationInput,
+  PostCompactInput,
   PostToolUseFailureInput,
   PostToolUseInput,
+  PreCompactInput,
   PreToolUseInput,
-  StopInput
+  SessionEndInput,
+  SessionStartInput,
+  StopFailureInput,
+  StopInput,
+  UserPromptSubmitInput
 } from '../types/input';
 import { DEFAULT_HOOK_TIMEOUT } from '../constants';
 import { aggregateHookResults } from '../utils/aggregate';
@@ -104,6 +111,62 @@ export class HookExecutor {
     return this.execute('Stop', input, context);
   }
 
+  /** StopFailure 专用方法 — 循环异常终止 */
+  async executeStopFailure(
+    input: StopFailureInput,
+    context: HookExecutionContext
+  ): Promise<AggregatedHookResult> {
+    return this.execute('StopFailure', input, context);
+  }
+
+  /** SessionStart 专用方法 — 循环开始 */
+  async executeSessionStart(
+    input: SessionStartInput,
+    context: HookExecutionContext
+  ): Promise<AggregatedHookResult> {
+    return this.execute('SessionStart', input, context);
+  }
+
+  /** SessionEnd 专用方法 — 循环结束 */
+  async executeSessionEnd(
+    input: SessionEndInput,
+    context: HookExecutionContext
+  ): Promise<AggregatedHookResult> {
+    return this.execute('SessionEnd', input, context);
+  }
+
+  /** UserPromptSubmit 专用方法 — 用户消息提交前 */
+  async executeUserPromptSubmit(
+    input: UserPromptSubmitInput,
+    context: HookExecutionContext
+  ): Promise<AggregatedHookResult> {
+    return this.execute('UserPromptSubmit', input, context);
+  }
+
+  /** Notification 专用方法 — 模型通知输出 */
+  async executeNotification(
+    input: NotificationInput,
+    context: HookExecutionContext
+  ): Promise<AggregatedHookResult> {
+    return this.execute('Notification', input, context);
+  }
+
+  /** PreCompact 专用方法 — 压缩前拦截 */
+  async executePreCompact(
+    input: PreCompactInput,
+    context: HookExecutionContext
+  ): Promise<AggregatedHookResult> {
+    return this.execute('PreCompact', input, context);
+  }
+
+  /** PostCompact 专用方法 — 压缩后通知 */
+  async executePostCompact(
+    input: PostCompactInput,
+    context: HookExecutionContext
+  ): Promise<AggregatedHookResult> {
+    return this.execute('PostCompact', input, context);
+  }
+
   /** 并行执行所有匹配 hooks — 每个 hook 有独立超时 */
   private async executeHooksParallel(
     hooks: HookDefinition[],
@@ -182,7 +245,8 @@ export class HookExecutor {
    * 从 HookInput 提取 matchQuery
    *
    * - PreToolUse/PostToolUse/PostToolUseFailure → toolName
-   * - Stop → 无 matcher
+   * - Notification → toolName (可选)
+   * - 其他事件 → 无 matcher
    */
   private extractMatchQuery(input: HookInput): string | undefined {
     if (
@@ -192,10 +256,13 @@ export class HookExecutor {
     ) {
       return input.toolName;
     }
-    // Stop 事件无 matcher
+    if (input.hookEventName === 'Notification') {
+      return input.toolName;
+    }
+    // 其他事件无 matcher
     return undefined;
   }
 }
 
 /** HookExecutorEventType — 与 HookEvent 一致，用于类型约束 */
-type HookExecutorEventType = 'PreToolUse' | 'PostToolUse' | 'PostToolUseFailure' | 'Stop';
+type HookExecutorEventType = HookEvent;

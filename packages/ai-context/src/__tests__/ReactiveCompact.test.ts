@@ -22,15 +22,26 @@ function createMockState(): CompressState {
 describe('ReactiveCompactLayer', () => {
   it('both 策略执行激进的 micro + auto compact', async () => {
     const callModel = vi.fn().mockResolvedValue('emergency summary');
-    const layer = new ReactiveCompactLayer(
-      { enabled: true, strategy: 'both' },
-      callModel
-    );
+    const layer = new ReactiveCompactLayer({ enabled: true, strategy: 'both' }, callModel);
     const state = createMockState();
 
     const messages: AgentMessage[] = [
-      { id: 'a1', role: 'assistant', content: '', toolUses: [{ id: 'tu1', name: 'Read', input: {} }], timestamp: 0 },
-      { id: 'tr1', role: 'tool_result', toolUseId: 'tu1', toolName: 'Read', result: 'file content', isSuccess: true, timestamp: 0 },
+      {
+        id: 'a1',
+        role: 'assistant',
+        content: '',
+        toolUses: [{ id: 'tu1', name: 'Read', input: {} }],
+        timestamp: 0
+      },
+      {
+        id: 'tr1',
+        role: 'tool_result',
+        toolUseId: 'tu1',
+        toolName: 'Read',
+        result: 'file content',
+        isSuccess: true,
+        timestamp: 0
+      },
       { id: 'u1', role: 'user', content: 'question', timestamp: 0 }
     ];
 

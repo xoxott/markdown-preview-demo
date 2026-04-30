@@ -12,6 +12,8 @@ export interface ToolCallOptions {
   maxResultSizeChars?: number;
   /** 是否跳过权限检查（仅用于内部信任场景） */
   skipPermissionCheck?: boolean;
+  /** 工具调用 ID（用于 PreHook/PostHook 桥接 P4 HookPhase 的 Map key） */
+  toolUseId?: string;
 }
 
 /**

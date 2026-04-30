@@ -15,11 +15,21 @@ describe('estimateTokens', () => {
     const messages: AgentMessage[] = [
       { id: 'u1', role: 'user', content: 'hi', timestamp: 0 },
       {
-        id: 'a1', role: 'assistant', content: 'hello',
+        id: 'a1',
+        role: 'assistant',
+        content: 'hello',
         toolUses: [{ id: 'tu1', name: 'Read', input: { path: '/test' } }],
         timestamp: 0
       },
-      { id: 'tr1', role: 'tool_result', toolUseId: 'tu1', toolName: 'Read', result: 'content', isSuccess: true, timestamp: 0 }
+      {
+        id: 'tr1',
+        role: 'tool_result',
+        toolUseId: 'tu1',
+        toolName: 'Read',
+        result: 'content',
+        isSuccess: true,
+        timestamp: 0
+      }
     ];
     const tokens = estimateTokens(messages);
     expect(tokens).toBeGreaterThan(0);

@@ -1,9 +1,18 @@
 /** SnipCompactLayer — 裁剪历史冗余消息 */
 
 import type { AgentMessage, ToolResultMessage } from '@suga/ai-agent-loop';
-import type { CompressLayer, CompressState, CompressResult, CompressStats } from '../types/compressor';
+import type {
+  CompressLayer,
+  CompressState,
+  CompressResult,
+  CompressStats
+} from '../types/compressor';
 import type { SnipCompactConfig } from '../types/config';
-import { DEFAULT_SNIP_KEEP_RECENT, DEFAULT_SNIP_REMOVE_ORPHANED_RESULTS, TIME_CLEARED_MESSAGE } from '../constants';
+import {
+  DEFAULT_SNIP_KEEP_RECENT,
+  DEFAULT_SNIP_REMOVE_ORPHANED_RESULTS,
+  TIME_CLEARED_MESSAGE
+} from '../constants';
 import { replaceToolResultMessage, getMessageContentSize } from '../utils/messageHelpers';
 
 /**
@@ -26,10 +35,14 @@ export class SnipCompactLayer implements CompressLayer {
 
   constructor(config?: SnipCompactConfig) {
     this.keepRecent = config?.keepRecent ?? DEFAULT_SNIP_KEEP_RECENT;
-    this.removeOrphanedResults = config?.removeOrphanedResults ?? DEFAULT_SNIP_REMOVE_ORPHANED_RESULTS;
+    this.removeOrphanedResults =
+      config?.removeOrphanedResults ?? DEFAULT_SNIP_REMOVE_ORPHANED_RESULTS;
   }
 
-  async compress(messages: readonly AgentMessage[], _state: CompressState): Promise<CompressResult> {
+  async compress(
+    messages: readonly AgentMessage[],
+    _state: CompressState
+  ): Promise<CompressResult> {
     if (messages.length <= this.keepRecent) {
       return { messages, didCompress: false };
     }
@@ -79,9 +92,8 @@ export class SnipCompactLayer implements CompressLayer {
       // 裁剪旧 tool_result 的内容（保留简要标记）
       const contentSize = getMessageContentSize(msg);
       if (contentSize > 100) {
-        const snippet = typeof msg.result === 'string'
-          ? msg.result.slice(0, 100) + '...[snipped]'
-          : '[snipped]';
+        const snippet =
+          typeof msg.result === 'string' ? msg.result.slice(0, 100) + '...[snipped]' : '[snipped]';
 
         newMessages[idx] = replaceToolResultMessage(msg, snippet);
         anySnipped = true;

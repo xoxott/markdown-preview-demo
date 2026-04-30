@@ -1,8 +1,8 @@
-/** 工具执行器（Tool Executor） 三阶段执行管线：验证 → 权限 → 调用 */
+/** 工具执行器（Tool Executor） 五阶段执行管线：验证 → PreHook → 权限(merged) → 调用 → PostHook */
 
 import type { BuiltTool, ToolResult } from './types/tool';
 import type { ToolCallOptions, ToolUseContext } from './types/context';
-import type { PermissionMode, PermissionResult } from './types/permission';
+import type { PermissionMode, PermissionResult, HookPermissionDecision } from './types/permission';
 
 /** 执行器结果 */
 export interface ExecutorResult<T = unknown> {
@@ -13,23 +13,26 @@ export interface ExecutorResult<T = unknown> {
 }
 
 /**
- * 工具执行器（三阶段执行管线）
+ * 工具执行器（五阶段执行管线）
  *
  * 执行流程：
  *
  * 1. 前置检查（工具是否启用、是否被拒绝规则禁止）
  * 2. 验证阶段（Zod Schema 验证 + 自定义 validateInput）
- * 3. 权限阶段（模式规则 + 自定义 checkPermissions）
- * 4. 调用阶段（执行工具的 call 方法 + AbortSignal 监听 + 结果截断）
+ * 3. PreHook 阶段（从 ToolUseContext.meta 读取 P4 HookBeforeToolPhase 写入的决策）
+ * 4. 权限阶段（合并 hook 决策 + 规则引擎决策，优先级: hook deny > settings deny > settings ask > hook allow）
+ * 5. 调用阶段（执行工具的 call 方法 + AbortSignal 监听 + 结果截断）
+ * 6. PostHook 阶段（从 ToolUseContext.meta 读取 P4 HookAfterToolPhase 写入的输出修改）
  *
- * 每个阶段都可以中断执行：
+ * PreHook 和 PostHook 通过 ToolUseContext.meta 桥接 P4 Hooks：
+ * - 无 meta 数据时完全跳过 Hook 阶段（向后兼容）
+ * - 有 meta 数据时合并 Hook 决策到权限流程
  *
- * - 工具未启用 → 返回错误
- * - 拒绝规则匹配 → 返回错误
- * - 验证失败 → 返回错误
- * - 权限拒绝 → 返回错误
- * - 权限询问 → 返回 interrupted=true（交给调用方决策）
- * - AbortSignal 触发 → 根据 interruptBehavior 决定行为
+ * 参考 Claude Code 的 resolveHookPermissionDecision:
+ * - hook deny 绝对覆盖所有规则
+ * - hook allow 不覆盖 settings deny/ask
+ * - hook ask 强制用户确认
+ * - hook passthrough 交由规则引擎
  */
 export class ToolExecutor {
   /**
@@ -84,45 +87,80 @@ export class ToolExecutor {
 
     const args = (validatedArgs.updatedInput ?? validatedArgs.data) as Input;
 
-    // === 阶段 2：权限 ===
+    // === 阶段 2：PreHook ===
+    // 从 ToolUseContext.meta 读取 P4 HookBeforeToolPhase 写入的决策
+    const hookDecision = this.preHookPhase(context, options);
+
+    // 检查 hook preventContinuation → 直接终止
+    if (hookDecision?.preventContinuation === true) {
+      return {
+        result: {
+          data: null as unknown as Output,
+          error: hookDecision.stopReason ?? 'Hook 阻止了执行',
+          metadata: { phase: 'preHook', hookBlocked: true }
+        },
+        interrupted: false
+      };
+    }
+
+    // 合并 hook 修改的输入（如果 hook 提供了 updatedInput）
+    const hookModifiedArgs = hookDecision?.updatedInput
+      ? ({ ...args, ...hookDecision.updatedInput } as Input)
+      : args;
+
+    // === 阶段 3：权限（合并 Hook + 规则引擎） ===
     if (!options?.skipPermissionCheck) {
-      const permissionResult = await this.permissionPhase(tool, args, context, options);
-      if (permissionResult.behavior === 'deny') {
+      const permissionResult = await this.permissionPhase(tool, hookModifiedArgs, context, options);
+      const mergedPermission = this.resolveHookPermission(hookDecision, permissionResult);
+
+      if (mergedPermission.behavior === 'deny') {
         return {
           result: {
             data: null as unknown as Output,
-            error: permissionResult.message,
-            metadata: { reason: permissionResult.reason, phase: 'permission' }
+            error: mergedPermission.message ?? `权限拒绝: 工具 "${tool.name}"`,
+            metadata: {
+              reason: mergedPermission.reason ?? mergedPermission.decisionReason,
+              phase: 'permission',
+              decisionSource: mergedPermission.decisionSource,
+              hookBlocked: mergedPermission.decisionSource === 'hook'
+            }
           },
           interrupted: false
         };
       }
 
-      if (permissionResult.behavior === 'ask') {
-        // 权限询问：返回给调用方决策
+      if (mergedPermission.behavior === 'ask') {
         return {
           result: {
             data: null as unknown as Output,
-            error: permissionResult.message,
+            error: mergedPermission.message,
             metadata: {
               permissionNeeded: true,
-              askMessage: permissionResult.message,
-              phase: 'permission'
+              askMessage: mergedPermission.message,
+              phase: 'permission',
+              decisionSource: mergedPermission.decisionSource
             }
           },
           interrupted: true
         };
       }
 
-      // 使用权限修正后的输入（如果有）
-      const finalArgs = (permissionResult.updatedInput ?? args) as Input;
+      // behavior === 'allow' 或 'passthrough' → 使用合并后的修正输入
+      const finalArgs =
+        mergedPermission.behavior === 'allow' && mergedPermission.updatedInput
+          ? (mergedPermission.updatedInput as Input)
+          : hookModifiedArgs;
 
-      // === 阶段 3：调用 ===
-      return this.callPhase(tool, finalArgs, context, options);
+      // === 阶段 4：调用 ===
+      const callResult = await this.callPhase(tool, finalArgs, context, options);
+
+      // === 阶段 5：PostHook ===
+      return this.postHookPhase(tool, callResult, context, options);
     }
 
-    // 跳过权限检查时直接调用
-    return this.callPhase(tool, args, context, options);
+    // 跳过权限检查时直接调用 + PostHook
+    const callResult = await this.callPhase(tool, hookModifiedArgs, context, options);
+    return this.postHookPhase(tool, callResult, context, options);
   }
 
   /** 验证阶段：Zod Schema 验证 + 自定义 validateInput */
@@ -165,14 +203,149 @@ export class ToolExecutor {
   }
 
   /**
-   * 权限阶段：模式规则 + 自定义 checkPermissions
+   * PreHook 阶段：从 ToolUseContext.meta 读取 P4 HookBeforeToolPhase 写入的决策
    *
-   * 模式规则优先于工具自定义检查：
+   * 桥接协议:
+   * - ctx.meta.hookPermissionBehavior → hook 的权限行为
+   * - ctx.meta.hookUpdatedInputs (Map<toolUseId, updatedInput>) → hook 修改的输入
+   * - ctx.meta.hookPreventContinuation → hook 是否阻止继续
+   * - ctx.meta.hookStopReason → hook 阻止原因
    *
-   * - restricted 模式：拒绝所有非只读工具
-   * - auto 模式：自动允许只读工具
-   * - default 模式：调用工具的 checkPermissions
+   * 无 meta 数据时返回 undefined（跳过 Hook 阶段，向后兼容）。
    */
+  private preHookPhase(
+    context: ToolUseContext,
+    options?: ToolCallOptions
+  ): HookPermissionDecision | undefined {
+    const meta = (context as ToolUseContext & Record<string, unknown>).meta as
+      | Record<string, unknown>
+      | undefined;
+    if (!meta) return undefined;
+
+    const permissionBehavior = meta.hookPermissionBehavior as
+      | HookPermissionDecision['permissionBehavior']
+      | undefined;
+    const preventContinuation = meta.hookPreventContinuation as boolean | undefined;
+    const stopReason = meta.hookStopReason as string | undefined;
+
+    // 从 hookUpdatedInputs Map 中提取当前工具的输入修改
+    const updatedInputs = meta.hookUpdatedInputs as
+      | Map<string, Record<string, unknown>>
+      | undefined;
+    const toolUseId = options?.toolUseId;
+    const hookUpdatedInput = toolUseId && updatedInputs ? updatedInputs.get(toolUseId) : undefined;
+
+    if (
+      permissionBehavior === undefined &&
+      preventContinuation === undefined &&
+      hookUpdatedInput === undefined
+    ) {
+      return undefined; // 无任何 hook 决策 → 跳过
+    }
+
+    return { permissionBehavior, updatedInput: hookUpdatedInput, preventContinuation, stopReason };
+  }
+
+  /**
+   * 合并 Hook 决策 + Permission 决策
+   *
+   * 优先级规则（与 Claude Code resolveHookPermissionDecision 一致）:
+   * - hook deny → 绝对覆盖（跳过所有规则检查）
+   * - hook allow → 不覆盖 settings deny/ask（规则优先）
+   * - hook ask → 强制用户确认
+   * - hook passthrough → 交由规则引擎（正常权限流程）
+   * - 无 hook → 纯 permission 决策
+   */
+  private resolveHookPermission(
+    hookDecision: HookPermissionDecision | undefined,
+    permissionResult: PermissionResult
+  ): PermissionResult {
+    if (!hookDecision || hookDecision.permissionBehavior === undefined) {
+      return permissionResult;
+    }
+
+    const { permissionBehavior } = hookDecision;
+
+    // hook deny → 绝对覆盖
+    if (permissionBehavior === 'deny') {
+      return {
+        behavior: 'deny',
+        message: hookDecision.stopReason ?? 'Hook 阻止了执行',
+        decisionSource: 'hook',
+        decisionReason: 'pre_tool_use_hook_deny'
+      };
+    }
+
+    // hook allow → 规则 deny/ask 可覆盖
+    if (permissionBehavior === 'allow') {
+      if (permissionResult.behavior === 'deny') return permissionResult;
+      if (permissionResult.behavior === 'ask') return permissionResult;
+      return {
+        behavior: 'allow',
+        updatedInput: hookDecision.updatedInput,
+        decisionSource: 'hook',
+        decisionReason: 'pre_tool_use_hook_allow'
+      };
+    }
+
+    // hook ask → 强制用户确认
+    if (permissionBehavior === 'ask') {
+      return {
+        behavior: 'ask',
+        message: hookDecision.stopReason ?? 'Hook 要求用户确认',
+        decisionSource: 'hook',
+        decisionReason: 'pre_tool_use_hook_ask'
+      };
+    }
+
+    // hook passthrough → 交由规则引擎
+    return permissionResult;
+  }
+
+  /**
+   * PostHook 阶段：从 ToolUseContext.meta 读取 P4 HookAfterToolPhase 写入的输出修改
+   *
+   * 桥接协议:
+   * - ctx.meta.hookUpdatedOutputs (Map<toolUseId, updatedOutput>) → hook 修改的输出
+   *
+   * 无 meta 数据时返回原始结果（向后兼容）。
+   */
+  private postHookPhase<Input, Output>(
+    tool: BuiltTool<Input, Output>,
+    executorResult: ExecutorResult<Output>,
+    context: ToolUseContext,
+    options?: ToolCallOptions
+  ): ExecutorResult<Output> {
+    const meta = (context as ToolUseContext & Record<string, unknown>).meta as
+      | Record<string, unknown>
+      | undefined;
+    if (!meta) return executorResult;
+
+    const updatedOutputs = meta.hookUpdatedOutputs as Map<string, unknown> | undefined;
+    if (!updatedOutputs) return executorResult;
+
+    // 从 hookUpdatedOutputs Map 中提取当前工具的输出修改
+    const toolUseId = options?.toolUseId;
+    if (!toolUseId) return executorResult;
+
+    const hookUpdatedOutput = updatedOutputs.get(toolUseId);
+    if (hookUpdatedOutput === undefined) return executorResult;
+
+    // 修改工具结果的数据
+    return {
+      ...executorResult,
+      result: {
+        ...executorResult.result,
+        data: hookUpdatedOutput as Output,
+        metadata: {
+          ...executorResult.result.metadata,
+          hookModifiedOutput: true
+        }
+      }
+    };
+  }
+
+  /** 权限阶段：模式规则 + 自定义 checkPermissions */
   private async permissionPhase<Input, Output>(
     tool: BuiltTool<Input, Output>,
     args: Input,
@@ -186,13 +359,14 @@ export class ToolExecutor {
       return {
         behavior: 'deny',
         message: `受限模式下不允许执行非只读工具 "${tool.name}"`,
-        reason: 'restricted_mode_non_readonly'
+        reason: 'restricted_mode_non_readonly',
+        decisionSource: 'mode'
       };
     }
 
-    // auto 模式：自动允许只读工具，非只读走 checkPermissions
+    // auto 模式：自动允许只读工具
     if (mode === 'auto' && tool.isReadOnly(args)) {
-      return { behavior: 'allow' };
+      return { behavior: 'allow', decisionSource: 'mode' };
     }
 
     // 调用工具自定义权限检查
@@ -206,7 +380,7 @@ export class ToolExecutor {
     context: ToolUseContext,
     options?: ToolCallOptions
   ): Promise<ExecutorResult<Output>> {
-    // 监听中断信号（先检查是否已经 aborted）
+    // 监听中断信号
     if (context.abortController.signal.aborted) {
       const behavior = tool.interruptBehavior();
       return {
@@ -233,45 +407,30 @@ export class ToolExecutor {
     });
 
     try {
-      // 执行工具调用，同时监听中断
       const result = await Promise.race([tool.call(args, context), abortPromise]);
-
-      // 截断结果（如果超过 maxResultSizeChars）
       const maxSize = options?.maxResultSizeChars ?? tool.maxResultSizeChars;
       const truncatedResult = this.truncateResult(result, maxSize);
-
       return { result: truncatedResult, interrupted: false };
     } catch (error) {
       if (context.abortController.signal.aborted) {
-        // 根据 interruptBehavior 决定行为
         const behavior = tool.interruptBehavior();
-        if (behavior === 'block') {
-          // block 模式：返回错误结果而非抛出
-          return {
-            result: {
-              data: null as unknown as Output,
-              error: `工具 "${tool.name}" 执行被中断（block 模式）`,
-              metadata: { phase: 'call', interrupted: true }
-            },
-            interrupted: true
-          };
-        }
-        // cancel 模式：抛出中断错误（由调用方捕获）
         return {
           result: {
             data: null as unknown as Output,
-            error: `工具 "${tool.name}" 执行被中断`,
+            error:
+              behavior === 'block'
+                ? `工具 "${tool.name}" 执行被中断（block 模式）`
+                : `工具 "${tool.name}" 执行被中断`,
             metadata: { phase: 'call', interrupted: true }
           },
           interrupted: true
         };
       }
-      // 非中断错误：重新抛出
       throw error;
     }
   }
 
-  /** 截断结果（超过 maxResultSizeChars 时截断并添加 metadata 标记） */
+  /** 截断结果 */
   private truncateResult<T>(result: ToolResult<T>, maxSize: number): ToolResult<T> {
     const dataStr = JSON.stringify(result.data);
     if (dataStr.length > maxSize) {

@@ -42,6 +42,7 @@ export function aggregateHookResults(results: HookResult[]): AggregatedHookResul
   let highestPriority = -1;
   let updatedInput: Record<string, unknown> | undefined;
   let updatedOutput: unknown;
+  let updatedUserMessage: string | undefined;
   let preventContinuation = false;
   let stopReason: string | undefined;
   const additionalContexts: string[] = [];
@@ -67,6 +68,11 @@ export function aggregateHookResults(results: HookResult[]): AggregatedHookResul
     // 输出修改: 取最后一个
     if (result.updatedOutput !== undefined) {
       updatedOutput = result.updatedOutput;
+    }
+
+    // 用户消息修改: 取最后一个
+    if (result.updatedUserMessage !== undefined) {
+      updatedUserMessage = result.updatedUserMessage;
     }
 
     // 阻止继续: 任一为 true 或 outcome 为 blocking 则 true
@@ -116,6 +122,7 @@ export function aggregateHookResults(results: HookResult[]): AggregatedHookResul
     permissionBehavior: highestPermission,
     updatedInput,
     updatedOutput,
+    updatedUserMessage,
     additionalContexts,
     stopReason,
     errors

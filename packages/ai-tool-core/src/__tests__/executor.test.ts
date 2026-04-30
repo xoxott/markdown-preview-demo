@@ -1,4 +1,4 @@
-/** ToolExecutor 测试 — 三阶段执行管线 */
+/** ToolExecutor 测试 — 五阶段执行管线（验证 → PreHook → 权限(merged) → 调用 → PostHook） */
 
 import { z } from 'zod';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -440,6 +440,221 @@ describe('ToolExecutor', () => {
       });
 
       expect(result.result.metadata?.truncated).toBe(true);
+    });
+  });
+
+  describe('PreHook 阶段 — Hook-执行链桥接', () => {
+    it('无 meta 数据时应跳过 Hook 阶段（向后兼容）', async () => {
+      const tool = buildTool({
+        name: 'no-meta-tool',
+        inputSchema: z.object({ x: z.number() }),
+        call: async args => ({ data: args.x }),
+        description: async () => 'desc'
+      });
+
+      const ctx = createTestContext();
+      const result = await executor.execute(tool, { x: 42 }, ctx);
+
+      expect(result.result.data).toBe(42);
+      expect(result.interrupted).toBe(false);
+    });
+
+    it('meta 中 hookPermissionBehavior=deny 应阻止执行', async () => {
+      const tool = buildTool({
+        name: 'hook-deny-tool',
+        inputSchema: z.object({ cmd: z.string() }),
+        call: async args => ({ data: args.cmd }),
+        description: async () => 'desc'
+      });
+
+      const ctx = createTestContext();
+      // 模拟 P4 HookBeforeToolPhase 写入的 meta
+      (ctx as ToolUseContext & Record<string, unknown>).meta = {
+        hookPermissionBehavior: 'deny',
+        hookStopReason: '安全策略禁止'
+      };
+
+      const result = await executor.execute(tool, { cmd: 'rm' }, ctx);
+
+      expect(result.result.error).toBe('安全策略禁止');
+      expect(result.result.metadata?.hookBlocked).toBe(true);
+    });
+
+    it('meta 中 hookPermissionBehavior=deny 应覆盖 settings allow', async () => {
+      const tool = buildTool({
+        name: 'hook-deny-overrides',
+        inputSchema: z.object({ x: z.number() }),
+        call: async args => ({ data: args.x }),
+        description: async () => 'desc',
+        checkPermissions: () => ({ behavior: 'allow' }) // settings 允许
+      });
+
+      const ctx = createTestContext();
+      (ctx as ToolUseContext & Record<string, unknown>).meta = {
+        hookPermissionBehavior: 'deny'
+      };
+
+      const result = await executor.execute(tool, { x: 1 }, ctx);
+
+      expect(result.result.error).toContain('Hook');
+      expect(result.result.metadata?.decisionSource).toBe('hook');
+    });
+
+    it('meta 中 hookPermissionBehavior=allow 不应覆盖 settings deny', async () => {
+      const tool = buildTool({
+        name: 'hook-allow-not-overwrite',
+        inputSchema: z.object({ x: z.number() }),
+        call: async args => ({ data: args.x }),
+        description: async () => 'desc',
+        checkPermissions: () => ({ behavior: 'deny', message: 'settings禁止' })
+      });
+
+      const ctx = createTestContext();
+      (ctx as ToolUseContext & Record<string, unknown>).meta = {
+        hookPermissionBehavior: 'allow'
+      };
+
+      const result = await executor.execute(tool, { x: 1 }, ctx);
+
+      expect(result.result.error).toBe('settings禁止');
+      // settings deny 覆盖 hook allow
+    });
+
+    it('meta 中 hookPermissionBehavior=allow 不应覆盖 settings ask', async () => {
+      const tool = buildTool({
+        name: 'hook-allow-not-overwrite-ask',
+        inputSchema: z.object({ x: z.number() }),
+        call: async args => ({ data: args.x }),
+        description: async () => 'desc',
+        checkPermissions: () => ({ behavior: 'ask', message: '确认?' })
+      });
+
+      const ctx = createTestContext();
+      (ctx as ToolUseContext & Record<string, unknown>).meta = {
+        hookPermissionBehavior: 'allow'
+      };
+
+      const result = await executor.execute(tool, { x: 1 }, ctx);
+
+      expect(result.interrupted).toBe(true);
+      // settings ask 覆盖 hook allow
+    });
+
+    it('meta 中 hookUpdatedInputs 应修改工具输入', async () => {
+      const tool = buildTool({
+        name: 'hook-modify-input',
+        inputSchema: z.object({ cmd: z.string() }),
+        call: async args => ({ data: args.cmd }),
+        description: async () => 'desc'
+      });
+
+      const ctx = createTestContext();
+      const updatedInputs = new Map<string, Record<string, unknown>>();
+      updatedInputs.set('call_1', { cmd: 'ls -la' });
+      (ctx as ToolUseContext & Record<string, unknown>).meta = {
+        hookPermissionBehavior: 'allow',
+        hookUpdatedInputs: updatedInputs
+      };
+
+      const result = await executor.execute(tool, { cmd: 'ls' }, ctx, { toolUseId: 'call_1' });
+
+      expect(result.result.data).toBe('ls -la');
+    });
+
+    it('meta 中 hookPermissionBehavior=passthrough 应走正常权限流程', async () => {
+      const tool = buildTool({
+        name: 'hook-passthrough',
+        inputSchema: z.object({ x: z.number() }),
+        call: async args => ({ data: args.x }),
+        description: async () => 'desc',
+        checkPermissions: () => ({ behavior: 'allow' })
+      });
+
+      const ctx = createTestContext();
+      (ctx as ToolUseContext & Record<string, unknown>).meta = {
+        hookPermissionBehavior: 'passthrough'
+      };
+
+      const result = await executor.execute(tool, { x: 1 }, ctx);
+
+      expect(result.result.data).toBe(1);
+    });
+
+    it('meta 中 hookPreventContinuation=true 应终止执行', async () => {
+      const tool = buildTool({
+        name: 'hook-prevent',
+        inputSchema: z.object({}),
+        call: async () => ({ data: 'done' }),
+        description: async () => 'desc'
+      });
+
+      const ctx = createTestContext();
+      (ctx as ToolUseContext & Record<string, unknown>).meta = {
+        hookPreventContinuation: true,
+        hookStopReason: 'Hook阻止继续'
+      };
+
+      const result = await executor.execute(tool, {}, ctx);
+
+      expect(result.result.error).toBe('Hook阻止继续');
+      expect(result.result.metadata?.hookBlocked).toBe(true);
+    });
+  });
+
+  describe('PostHook 阶段 — Hook 输出修改桥接', () => {
+    it('无 meta 数据时应返回原始结果（向后兼容）', async () => {
+      const tool = buildTool({
+        name: 'post-no-meta',
+        inputSchema: z.object({ x: z.number() }),
+        call: async args => ({ data: args.x }),
+        description: async () => 'desc'
+      });
+
+      const ctx = createTestContext();
+      const result = await executor.execute(tool, { x: 42 }, ctx);
+
+      expect(result.result.data).toBe(42);
+    });
+
+    it('meta 中 hookUpdatedOutputs 应修改工具输出', async () => {
+      const tool = buildTool({
+        name: 'post-modify-output',
+        inputSchema: z.object({ x: z.number() }),
+        call: async args => ({ data: args.x }),
+        description: async () => 'desc'
+      });
+
+      const ctx = createTestContext();
+      const updatedOutputs = new Map<string, unknown>();
+      updatedOutputs.set('call_1', 'formatted result');
+      (ctx as ToolUseContext & Record<string, unknown>).meta = {
+        hookUpdatedOutputs: updatedOutputs
+      };
+
+      const result = await executor.execute(tool, { x: 42 }, ctx, { toolUseId: 'call_1' });
+
+      expect(result.result.data).toBe('formatted result');
+      expect(result.result.metadata?.hookModifiedOutput).toBe(true);
+    });
+
+    it('hookUpdatedOutputs 无匹配 toolUseId 时应保持原始输出', async () => {
+      const tool = buildTool({
+        name: 'post-no-match',
+        inputSchema: z.object({ x: z.number() }),
+        call: async args => ({ data: args.x }),
+        description: async () => 'desc'
+      });
+
+      const ctx = createTestContext();
+      const updatedOutputs = new Map<string, unknown>();
+      updatedOutputs.set('other_call', 'other result');
+      (ctx as ToolUseContext & Record<string, unknown>).meta = {
+        hookUpdatedOutputs: updatedOutputs
+      };
+
+      const result = await executor.execute(tool, { x: 42 }, ctx, { toolUseId: 'call_1' });
+
+      expect(result.result.data).toBe(42); // 无匹配 → 保持原始
     });
   });
 });

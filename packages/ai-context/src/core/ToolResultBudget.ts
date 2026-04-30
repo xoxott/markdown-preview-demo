@@ -1,10 +1,19 @@
 /** ToolResultBudget — 大结果替换为文件引用+预览 */
 
 import type { AgentMessage } from '@suga/ai-agent-loop';
-import type { CompressLayer, CompressState, CompressResult, CompressStats } from '../types/compressor';
+import type {
+  CompressLayer,
+  CompressState,
+  CompressResult,
+  CompressStats
+} from '../types/compressor';
 import type { CompressedToolResultContent } from '../types/messages';
 import type { PersistToolResult } from '../types/injection';
-import { DEFAULT_BUDGET_MAX_RESULT_SIZE, DEFAULT_BUDGET_PREVIEW_SIZE, PERSISTED_OUTPUT_TEMPLATE } from '../constants';
+import {
+  DEFAULT_BUDGET_MAX_RESULT_SIZE,
+  DEFAULT_BUDGET_PREVIEW_SIZE,
+  PERSISTED_OUTPUT_TEMPLATE
+} from '../constants';
 import { getMessageContentSize, replaceToolResultMessage } from '../utils/messageHelpers';
 
 /** 构建 <persisted-output> 替换文本 */
@@ -55,7 +64,7 @@ export class ToolResultBudgetLayer implements CompressLayer {
         const cached = tracker.replacements.get(msg.toolUseId)!;
         const replacement = cached.persistedPath
           ? buildPersistedOutput(cached.originalSize, cached.persistedPath, cached.preview ?? '')
-          : cached.preview ?? '';
+          : (cached.preview ?? '');
         newMessages.push(replaceToolResultMessage(msg, replacement));
         replacedCount++;
       } else if (classification === 'frozen') {
@@ -66,7 +75,9 @@ export class ToolResultBudgetLayer implements CompressLayer {
         const size = getMessageContentSize(msg);
         if (size > maxSize) {
           // 大结果 → 替换
-          const preview = (typeof msg.result === 'string' ? msg.result : JSON.stringify(msg.result ?? '')).slice(0, prevSize);
+          const preview = (
+            typeof msg.result === 'string' ? msg.result : JSON.stringify(msg.result ?? '')
+          ).slice(0, prevSize);
           let persistedPath = '';
           if (this.persistToolResult) {
             persistedPath = await this.persistToolResult(msg.toolUseId, msg.result);
@@ -90,7 +101,9 @@ export class ToolResultBudgetLayer implements CompressLayer {
     }
 
     const didCompress = replacedCount > 0;
-    const stats: CompressStats | undefined = didCompress ? { replacedToolResults: replacedCount } : undefined;
+    const stats: CompressStats | undefined = didCompress
+      ? { replacedToolResults: replacedCount }
+      : undefined;
 
     return { messages: newMessages, didCompress, stats };
   }

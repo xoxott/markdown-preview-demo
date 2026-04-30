@@ -39,7 +39,11 @@ export class CoordinatorDispatchPhase implements LoopPhase {
       let finalResult: OrchestrationResult | undefined;
 
       for await (const event of orchestrator.orchestrate(
-        userRequest, this.registry, this.mailbox, this.taskManager, this.strategy
+        userRequest,
+        this.registry,
+        this.mailbox,
+        this.taskManager,
+        this.strategy
       )) {
         // 将编排事件转为 text_delta 描述
         if (event.type === 'phase_start') {

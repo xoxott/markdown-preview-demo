@@ -14,7 +14,8 @@ export function estimateTokens(messages: readonly AgentMessage[]): number {
         totalChars += JSON.stringify(tu.input).length;
       }
     } else if (msg.role === 'tool_result') {
-      const resultStr = typeof msg.result === 'string' ? msg.result : JSON.stringify(msg.result ?? '');
+      const resultStr =
+        typeof msg.result === 'string' ? msg.result : JSON.stringify(msg.result ?? '');
       totalChars += resultStr.length + (msg.error?.length ?? 0);
     }
   }
