@@ -1,11 +1,11 @@
 /** HookExecutor 测试 — 执行、超时、once、聚合 */
 
-import { describe, expect, it, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { ToolRegistry } from '@suga/ai-tool-core';
 import { HookRegistry } from '../registry/HookRegistry';
 import { HookExecutor } from '../executor/HookExecutor';
-import type { HookDefinition, HookResult, HookExecutionContext } from '../types/hooks';
-import type { PreToolUseInput, PostToolUseInput, StopInput } from '../types/input';
-import { ToolRegistry } from '@suga/ai-tool-core';
+import type { HookDefinition, HookExecutionContext, HookResult } from '../types/hooks';
+import type { PostToolUseInput, PreToolUseInput, StopInput } from '../types/input';
 
 /** 创建 HookExecutionContext */
 function createContext(): HookExecutionContext {
@@ -174,7 +174,9 @@ describe('HookExecutor', () => {
       registry.register({
         name: 'error-hook',
         event: 'PreToolUse',
-        handler: async () => { throw new Error('hook crashed'); }
+        handler: async () => {
+          throw new Error('hook crashed');
+        }
       });
 
       const input: PreToolUseInput = {

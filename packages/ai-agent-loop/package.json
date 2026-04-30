@@ -32,8 +32,8 @@
     }
   },
   "dependencies": {
-    "@suga/ai-tool-core": "workspace:*",
     "@suga/ai-hooks": "workspace:*",
+    "@suga/ai-tool-core": "workspace:*",
     "zod": "^4.2.1"
   },
   "devDependencies": {

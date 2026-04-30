@@ -8,7 +8,7 @@ import type { ChunkService } from '../services/ChunkService';
 import type { ChunkInfo, FileTask, MergeResponse, UploadConfig } from '../types';
 import { ChunkStatus, UploadStatus } from '../types';
 import { getPendingChunks } from '../utils/chunk-helpers';
-import { buildRequestBody, fetchWithTimeout } from '../utils/fetch-with-timeout';
+import { buildRequestBody, dispatchRequest } from '../utils/fetch-with-timeout';
 import { classifyError } from '../utils/retry';
 import { logger } from '../utils/logger';
 import { Semaphore } from '../utils/semaphore';
@@ -186,13 +186,17 @@ export class UploadTask {
         ...bodyHeaders
       };
 
-      const response = await fetchWithTimeout(this.config.checkFileUrl, {
-        method: 'POST',
-        headers,
-        body,
-        signal,
-        timeout: this.config.timeout || CONSTANTS.UPLOAD.TIMEOUT
-      });
+      const response = await dispatchRequest(
+        this.config.checkFileUrl,
+        {
+          method: 'POST',
+          headers,
+          body,
+          signal,
+          timeout: this.config.timeout || CONSTANTS.UPLOAD.TIMEOUT
+        },
+        this.config.customRequest
+      );
 
       if (!response.ok) {
         return false;

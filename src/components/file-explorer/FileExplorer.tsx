@@ -169,12 +169,7 @@ export default defineComponent({
 
     /** 渲染 */
     return () => (
-      <div
-        ref={containerRef}
-        class="h-500px flex flex-col"
-        tabindex={0}
-        style={{ outline: 'none' }}
-      >
+      <div ref={containerRef} class={'h-full w-full flex flex-col'}>
         {/* 工具栏 */}
         <FileToolbar
           viewMode={logic.viewMode.value}

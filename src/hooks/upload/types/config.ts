@@ -2,6 +2,12 @@
 import type { FileTask } from './task';
 import type { ChunkUploadTransformer } from './chunk';
 
+/** 自定义请求函数 — 签名兼容 fetchWithTimeout，可替换原生 fetch */
+export type CustomRequestFn = (
+  url: string,
+  options: RequestInit & { timeout?: number }
+) => Promise<Response>;
+
 /** 文件上传选项 */
 export interface FileUploadOptions {
   category?: string;
@@ -71,6 +77,9 @@ export interface UploadConfig {
   enableCache: boolean; // 缓存
 
   enableNetworkAdaptation: boolean; // 网络自适应
+
+  // 自定义请求
+  customRequest?: CustomRequestFn; // 替换原生 fetchWithTimeout
 
   compressionQuality: number; // 压缩百分比
   previewMaxWidth: number; // 预览宽度

@@ -1,8 +1,6 @@
 /** HookStopPhase — 对话循环结束时的 Stop Hook 拦截阶段 */
 
-import type { LoopPhase } from '@suga/ai-agent-loop';
-import type { MutableAgentContext } from '@suga/ai-agent-loop';
-import type { AgentEvent } from '@suga/ai-agent-loop';
+import type { AgentEvent, LoopPhase, MutableAgentContext } from '@suga/ai-agent-loop';
 import type { StopInput } from '../types/input';
 import type { HookExecutionContext } from '../types/hooks';
 import type { HookRegistry } from '../registry/HookRegistry';
@@ -18,6 +16,7 @@ import { HookExecutor } from '../executor/HookExecutor';
  * 3. 如果 Stop hook 返回 preventContinuation → 可修改过渡类型
  *
  * Stop hooks 在对话循环结束时触发，用于:
+ *
  * - 生成摘要/日志
  * - 执行清理操作
  * - 反馈最终结果给外部系统

@@ -1,11 +1,14 @@
 /** Hook 生命周期核心类型定义 */
 
 /** Hook 事件类型 — 先实现 4 种核心事件，后续迭代增加 */
+// 前置导入（运行时通过 @suga/ai-tool-core 获取）
+import type { ToolRegistry } from '@suga/ai-tool-core';
+
 export type HookEvent =
-  | 'PreToolUse'          // 工具执行前
-  | 'PostToolUse'         // 工具执行后（成功）
-  | 'PostToolUseFailure'  // 工具执行后（失败）
-  | 'Stop';               // 对话循环结束
+  | 'PreToolUse' // 工具执行前
+  | 'PostToolUse' // 工具执行后（成功）
+  | 'PostToolUseFailure' // 工具执行后（失败）
+  | 'Stop'; // 对话循环结束
 
 /** Hook 执行结果状态 */
 export type HookOutcome = 'success' | 'blocking' | 'non_blocking_error' | 'cancelled';
@@ -99,6 +102,3 @@ export interface HookExecutionContext {
   /** 阶段间共享数据通道 */
   readonly meta: Record<string, unknown>;
 }
-
-// 前置导入（运行时通过 @suga/ai-tool-core 获取）
-import type { ToolRegistry } from '@suga/ai-tool-core';

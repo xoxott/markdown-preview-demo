@@ -1,6 +1,11 @@
 /** Hook 结果聚合 — deny > ask > allow > passthrough 优先级 */
 
-import type { AggregatedHookResult, AggregatedOutcome, PermissionBehavior, HookResult } from '../types/hooks';
+import type {
+  AggregatedHookResult,
+  AggregatedOutcome,
+  HookResult,
+  PermissionBehavior
+} from '../types/hooks';
 
 /** 权限行为优先级排序: deny(最高) > ask > allow > passthrough(最低) */
 const PERMISSION_PRIORITY: Record<PermissionBehavior, number> = {
@@ -14,6 +19,7 @@ const PERMISSION_PRIORITY: Record<PermissionBehavior, number> = {
  * 聚合多个 HookResult 为单一 AggregatedHookResult
  *
  * 策略:
+ *
  * - 权限行为: deny > ask > allow > passthrough（参考 Claude Code）
  * - updatedInput: 取最后一个非 undefined 值
  * - updatedOutput: 取最后一个非 undefined 值
@@ -32,12 +38,12 @@ export function aggregateHookResults(results: HookResult[]): AggregatedHookResul
     };
   }
 
-  let highestPermission: PermissionBehavior | undefined = undefined;
+  let highestPermission: PermissionBehavior | undefined;
   let highestPriority = -1;
-  let updatedInput: Record<string, unknown> | undefined = undefined;
-  let updatedOutput: unknown = undefined;
+  let updatedInput: Record<string, unknown> | undefined;
+  let updatedOutput: unknown;
   let preventContinuation = false;
-  let stopReason: string | undefined = undefined;
+  let stopReason: string | undefined;
   const additionalContexts: string[] = [];
   const errors: string[] = [];
   let hasBlocking = false;

@@ -16,7 +16,16 @@
   "bugs": {
     "url": "https://github.com/xoxott/suga-tools/issues"
   },
-  "keywords": ["ai", "hooks", "lifecycle", "permission", "middleware", "pre-tool-use", "post-tool-use", "fail-closed"],
+  "keywords": [
+    "ai",
+    "hooks",
+    "lifecycle",
+    "permission",
+    "middleware",
+    "pre-tool-use",
+    "post-tool-use",
+    "fail-closed"
+  ],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
@@ -32,8 +41,8 @@
     }
   },
   "dependencies": {
-    "@suga/ai-tool-core": "workspace:*",
-    "@suga/ai-agent-loop": "workspace:*"
+    "@suga/ai-agent-loop": "workspace:*",
+    "@suga/ai-tool-core": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.6.3",

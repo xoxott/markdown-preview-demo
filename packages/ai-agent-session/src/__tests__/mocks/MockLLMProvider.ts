@@ -85,7 +85,9 @@ export class MockLLMProvider implements LLMProvider {
       }
 
       if (this.delay > 0) {
-        await new Promise<void>(resolve => { setTimeout(resolve, this.delay); });
+        await new Promise<void>(resolve => {
+          setTimeout(resolve, this.delay);
+        });
       }
 
       yield chunk;

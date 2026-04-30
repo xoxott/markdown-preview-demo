@@ -1,8 +1,6 @@
 /** HookBeforeToolPhase — 工具执行前的 Hook 拦截阶段 */
 
-import type { LoopPhase } from '@suga/ai-agent-loop';
-import type { MutableAgentContext } from '@suga/ai-agent-loop';
-import type { AgentEvent } from '@suga/ai-agent-loop';
+import type { AgentEvent, LoopPhase, MutableAgentContext } from '@suga/ai-agent-loop';
 import type { PreToolUseInput } from '../types/input';
 import type { HookExecutionContext } from '../types/hooks';
 import type { HookRegistry } from '../registry/HookRegistry';
@@ -16,6 +14,7 @@ import { HookExecutor } from '../executor/HookExecutor';
  * 1. 从 ctx.toolUses 获取当前轮的工具调用列表
  * 2. 对每个 toolUse 执行 PreToolUse hooks
  * 3. 聚合结果写入 ctx.meta:
+ *
  *    - hookPermissionBehavior → 权限行为决策
  *    - hookUpdatedInputs → 修改后的输入（Map<toolUseId, updatedInput>）
  *    - hookPreventContinuation → 是否阻止后续
@@ -41,9 +40,9 @@ export class HookBeforeToolPhase implements LoopPhase {
 
       // 聚合所有工具的 PreToolUse hook 结果
       let globalPreventContinuation = false;
-      let globalStopReason: string | undefined = undefined;
+      let globalStopReason: string | undefined;
       const updatedInputs = new Map<string, Record<string, unknown>>();
-      let permissionBehavior: 'allow' | 'deny' | 'ask' | 'passthrough' | undefined = undefined;
+      let permissionBehavior: 'allow' | 'deny' | 'ask' | 'passthrough' | undefined;
       const additionalContexts: string[] = [];
 
       for (const toolUse of toolUses) {
@@ -69,7 +68,10 @@ export class HookBeforeToolPhase implements LoopPhase {
 
         // 记录权限行为（取最严格）
         if (aggregated.permissionBehavior !== undefined) {
-          permissionBehavior = this.mergePermissionBehavior(permissionBehavior, aggregated.permissionBehavior);
+          permissionBehavior = this.mergePermissionBehavior(
+            permissionBehavior,
+            aggregated.permissionBehavior
+          );
         }
 
         // 汇集附加上下文

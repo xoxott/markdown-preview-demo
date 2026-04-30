@@ -9,7 +9,7 @@ import {
   NInputNumber,
   NSelect
 } from 'naive-ui';
-import MonacoEditor from '@/components/monaco/MonacoEditor';
+import { MonacoEditorCore } from '@/components/monaco';
 
 export default defineComponent({
   name: 'NodeConfigPanel',
@@ -172,9 +172,10 @@ export default defineComponent({
       <>
         <NFormItem label="转换代码">
           <div style={{ height: '300px', border: '1px solid #d0d0d0', borderRadius: '4px' }}>
-            <MonacoEditor
+            <MonacoEditorCore
               modelValue={formData.config.code || ''}
               language="javascript"
+              height="100%"
               onUpdate:modelValue={(val: string) => (formData.config.code = val)}
             />
           </div>

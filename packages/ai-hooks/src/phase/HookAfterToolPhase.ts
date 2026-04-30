@@ -1,11 +1,13 @@
 /** HookAfterToolPhase — 工具执行后的 Hook 拦截阶段 */
 
-import type { LoopPhase } from '@suga/ai-agent-loop';
-import type { MutableAgentContext } from '@suga/ai-agent-loop';
-import type { AgentEvent } from '@suga/ai-agent-loop';
-import type { PostToolUseInput, PostToolUseFailureInput } from '../types/input';
+import type {
+  AgentEvent,
+  LoopPhase,
+  MutableAgentContext,
+  ToolResultMessage
+} from '@suga/ai-agent-loop';
+import type { PostToolUseFailureInput, PostToolUseInput } from '../types/input';
 import type { HookExecutionContext } from '../types/hooks';
-import type { ToolResultMessage } from '@suga/ai-agent-loop';
 import type { HookRegistry } from '../registry/HookRegistry';
 import { HookExecutor } from '../executor/HookExecutor';
 
@@ -18,6 +20,7 @@ import { HookExecutor } from '../executor/HookExecutor';
  * 2. 从 ctx.meta.toolResults 获取工具结果列表
  * 3. 对每个结果执行 PostToolUse 或 PostToolUseFailure hooks
  * 4. 聚合结果 → 修改 ctx.meta:
+ *
  *    - updatedOutputs → 修改后的输出（Map<toolUseId, updatedOutput>）
  *    - hookAdditionalContexts → 附加上下文
  */
@@ -62,7 +65,7 @@ export class HookAfterToolPhase implements LoopPhase {
           const input: PostToolUseInput = {
             hookEventName: 'PostToolUse',
             toolName: toolResult.toolName,
-            toolInput: {},  // 工具输入在 toolUseBlock 中，不在 toolResult 中
+            toolInput: {}, // 工具输入在 toolUseBlock 中，不在 toolResult 中
             toolOutput: toolResult.result,
             toolUseId: toolResult.toolUseId
           };

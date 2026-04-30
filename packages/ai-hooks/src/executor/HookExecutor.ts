@@ -2,17 +2,17 @@
 
 import type { HookRegistry } from '../registry/HookRegistry';
 import type {
+  AggregatedHookResult,
   HookDefinition,
   HookEvent,
   HookExecutionContext,
-  HookResult,
-  AggregatedHookResult
+  HookResult
 } from '../types/hooks';
 import type {
   HookInput,
-  PreToolUseInput,
-  PostToolUseInput,
   PostToolUseFailureInput,
+  PostToolUseInput,
+  PreToolUseInput,
   StopInput
 } from '../types/input';
 import { DEFAULT_HOOK_TIMEOUT } from '../constants';
@@ -22,6 +22,7 @@ import { aggregateHookResults } from '../utils/aggregate';
  * Hook 执行引擎
  *
  * 执行策略:
+ *
  * - 并行: 所有匹配的 hooks 同时启动，独立超时
  * - 聚合: deny > ask > allow > passthrough 优先级
  * - 超时: 每个 hook 有独立 AbortSignal（timeout + 外部 signal 级联）
@@ -36,10 +37,12 @@ export class HookExecutor {
     return this.registry.getMatchingHooks(event, matchQuery);
   }
 
-  /**
-   * 通用执行入口 — 根据事件类型自动路由
-   */
-  async execute(event: HookExecutorEventType, input: HookInput, context: HookExecutionContext): Promise<AggregatedHookResult> {
+  /** 通用执行入口 — 根据事件类型自动路由 */
+  async execute(
+    event: HookExecutorEventType,
+    input: HookInput,
+    context: HookExecutionContext
+  ): Promise<AggregatedHookResult> {
     const matchQuery = this.extractMatchQuery(input);
     const matchingHooks = this.registry.getMatchingHooks(event, matchQuery);
 
@@ -70,28 +73,38 @@ export class HookExecutor {
   }
 
   /** PreToolUse 专用方法 */
-  async executePreToolUse(input: PreToolUseInput, context: HookExecutionContext): Promise<AggregatedHookResult> {
+  async executePreToolUse(
+    input: PreToolUseInput,
+    context: HookExecutionContext
+  ): Promise<AggregatedHookResult> {
     return this.execute('PreToolUse', input, context);
   }
 
   /** PostToolUse 专用方法 */
-  async executePostToolUse(input: PostToolUseInput, context: HookExecutionContext): Promise<AggregatedHookResult> {
+  async executePostToolUse(
+    input: PostToolUseInput,
+    context: HookExecutionContext
+  ): Promise<AggregatedHookResult> {
     return this.execute('PostToolUse', input, context);
   }
 
   /** PostToolUseFailure 专用方法 */
-  async executePostToolUseFailure(input: PostToolUseFailureInput, context: HookExecutionContext): Promise<AggregatedHookResult> {
+  async executePostToolUseFailure(
+    input: PostToolUseFailureInput,
+    context: HookExecutionContext
+  ): Promise<AggregatedHookResult> {
     return this.execute('PostToolUseFailure', input, context);
   }
 
   /** Stop 专用方法 */
-  async executeStop(input: StopInput, context: HookExecutionContext): Promise<AggregatedHookResult> {
+  async executeStop(
+    input: StopInput,
+    context: HookExecutionContext
+  ): Promise<AggregatedHookResult> {
     return this.execute('Stop', input, context);
   }
 
-  /**
-   * 并行执行所有匹配 hooks — 每个 hook 有独立超时
-   */
+  /** 并行执行所有匹配 hooks — 每个 hook 有独立超时 */
   private async executeHooksParallel(
     hooks: HookDefinition[],
     input: HookInput,
@@ -132,7 +145,9 @@ export class HookExecutor {
           return {
             outcome: 'cancelled',
             preventContinuation: false,
-            stopReason: context.abortSignal.aborted ? '外部中断' : `Hook "${hook.name}" 超时 (${timeout}ms)`
+            stopReason: context.abortSignal.aborted
+              ? '外部中断'
+              : `Hook "${hook.name}" 超时 (${timeout}ms)`
           };
         }
 
@@ -143,7 +158,9 @@ export class HookExecutor {
           return {
             outcome: 'cancelled',
             preventContinuation: false,
-            stopReason: context.abortSignal.aborted ? '外部中断' : `Hook "${hook.name}" 超时 (${timeout}ms)`
+            stopReason: context.abortSignal.aborted
+              ? '外部中断'
+              : `Hook "${hook.name}" 超时 (${timeout}ms)`
           };
         }
 
@@ -163,6 +180,7 @@ export class HookExecutor {
 
   /**
    * 从 HookInput 提取 matchQuery
+   *
    * - PreToolUse/PostToolUse/PostToolUseFailure → toolName
    * - Stop → 无 matcher
    */

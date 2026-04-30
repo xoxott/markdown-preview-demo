@@ -1,7 +1,7 @@
 /** Agent 循环引擎（Agent Loop） 核心 AsyncGenerator while(true) 循环 */
 
 import { ToolExecutor, ToolRegistry } from '@suga/ai-tool-core';
-import { HookBeforeToolPhase, HookAfterToolPhase, HookStopPhase } from '@suga/ai-hooks';
+import { HookAfterToolPhase, HookBeforeToolPhase, HookStopPhase } from '@suga/ai-hooks';
 import type { AgentConfig, AgentState, TerminalTransition } from '../types/state';
 import type { AgentEvent } from '../types/events';
 import type { LoopResult } from '../types/result';

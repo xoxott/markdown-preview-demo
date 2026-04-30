@@ -7,8 +7,7 @@ import { matchesPattern } from '../utils/match';
 /**
  * Hook 注册和管理器
  *
- * 支持注册、移除、查询、匹配。once hooks 执行后自动移除。
- * 匹配逻辑: matcher 支持精确匹配和 glob 模式，不设 matcher 则匹配所有。
+ * 支持注册、移除、查询、匹配。once hooks 执行后自动移除。 匹配逻辑: matcher 支持精确匹配和 glob 模式，不设 matcher 则匹配所有。
  */
 export class HookRegistry {
   private readonly hooks = new Map<HookEvent, HookDefinition[]>();

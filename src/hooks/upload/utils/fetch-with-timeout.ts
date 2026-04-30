@@ -1,5 +1,16 @@
 /** 带超时的 fetch 包装器 */
 
+import type { CustomRequestFn } from '../types';
+
+/** 统一请求分发：优先使用 customRequest，否则回退 fetchWithTimeout */
+export async function dispatchRequest(
+  url: string,
+  options: RequestInit & { timeout?: number },
+  customRequest?: CustomRequestFn
+): Promise<Response> {
+  return customRequest ? customRequest(url, options) : fetchWithTimeout(url, options);
+}
+
 /** 带超时的 fetch 请求 */
 export async function fetchWithTimeout(
   url: string,

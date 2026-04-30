@@ -10,7 +10,7 @@ import { ChunkStatus } from '../types';
 import { calculateFileMD5 } from '../utils/hash';
 import { calculateFileMD5Smart } from '../utils/hash-worker';
 import { ErrorType, classifyError, withRetry } from '../utils/retry';
-import { buildRequestBody, fetchWithTimeout } from '../utils/fetch-with-timeout';
+import { buildRequestBody, dispatchRequest } from '../utils/fetch-with-timeout';
 import { CONSTANTS } from '../constants';
 import { logger } from '../utils/logger';
 import { NetworkError, ServerError, TimeoutError, UploadError } from '../types/error';
@@ -220,13 +220,17 @@ export class ChunkService {
             ...bodyHeaders
           };
 
-          const response = await fetchWithTimeout(this.config.uploadChunkUrl, {
-            method: 'POST',
-            headers,
-            body,
-            signal: abortSignal,
-            timeout: this.config.timeout || CONSTANTS.UPLOAD.TIMEOUT
-          });
+          const response = await dispatchRequest(
+            this.config.uploadChunkUrl,
+            {
+              method: 'POST',
+              headers,
+              body,
+              signal: abortSignal,
+              timeout: this.config.timeout || CONSTANTS.UPLOAD.TIMEOUT
+            },
+            this.config.customRequest
+          );
 
           if (!response.ok) {
             const error = new ServerError(
@@ -336,13 +340,17 @@ export class ChunkService {
         ...bodyHeaders
       };
 
-      const response = await fetchWithTimeout(this.config.mergeChunksUrl, {
-        method: 'POST',
-        headers,
-        body,
-        signal: abortSignal,
-        timeout: this.config.timeout || CONSTANTS.UPLOAD.TIMEOUT
-      });
+      const response = await dispatchRequest(
+        this.config.mergeChunksUrl,
+        {
+          method: 'POST',
+          headers,
+          body,
+          signal: abortSignal,
+          timeout: this.config.timeout || CONSTANTS.UPLOAD.TIMEOUT
+        },
+        this.config.customRequest
+      );
 
       if (!response.ok) {
         throw new ServerError(

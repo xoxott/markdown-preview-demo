@@ -5,8 +5,7 @@ import type { HookDefinition, HookEvent } from '../../types/hooks';
 /**
  * Mock HookRegistry
  *
- * 内部使用数组，提供 register/getMatchingHooks/getAllHooks 的可控实现。
- * 支持设置指定事件的 Hook 列表。
+ * 内部使用数组，提供 register/getMatchingHooks/getAllHooks 的可控实现。 支持设置指定事件的 Hook 列表。
  */
 export class MockHookRegistry {
   private hooks = new Map<HookEvent, HookDefinition[]>();
@@ -30,7 +29,10 @@ export class MockHookRegistry {
     return definitions.filter(h => {
       if (matchQuery !== undefined) {
         if (h.matcher === undefined) return true;
-        return h.matcher === matchQuery || (h.matcher.includes('*') && matchQuery.startsWith(h.matcher.replace('*', '')));
+        return (
+          h.matcher === matchQuery ||
+          (h.matcher.includes('*') && matchQuery.startsWith(h.matcher.replace('*', '')))
+        );
       }
       return true;
     });

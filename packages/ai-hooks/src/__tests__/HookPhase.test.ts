@@ -4,10 +4,15 @@ import { z } from 'zod';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ToolRegistry, buildTool } from '@suga/ai-tool-core';
 import { AgentLoop } from '@suga/ai-agent-loop';
+import type { AgentEvent, ToolUseBlock, UserMessage } from '@suga/ai-agent-loop';
 import { HookRegistry } from '../registry/HookRegistry';
-import type { HookResult, HookExecutionContext, PreToolUseInput, PostToolUseInput, StopInput } from '../types';
-import type { AgentEvent } from '@suga/ai-agent-loop';
-import type { ToolUseBlock, UserMessage } from '@suga/ai-agent-loop';
+import type {
+  HookExecutionContext,
+  HookResult,
+  PostToolUseInput,
+  PreToolUseInput,
+  StopInput
+} from '../types';
 
 /** 创建用户消息 */
 function createUserMessage(content: string): UserMessage {
@@ -63,7 +68,11 @@ class MockLLMProvider {
     return this.callCount;
   }
 
-  formatToolDefinition(tool: { name: string }): { name: string; description: string; inputSchema: Record<string, unknown> } {
+  formatToolDefinition(tool: { name: string }): {
+    name: string;
+    description: string;
+    inputSchema: Record<string, unknown>;
+  } {
     return { name: tool.name, description: 'mock', inputSchema: {} };
   }
 
