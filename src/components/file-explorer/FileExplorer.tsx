@@ -368,7 +368,6 @@ export default defineComponent({
               header: () => <span class="font-medium">文件上传</span>,
               default: () => (
                 <UploadDrawer
-                  show={uploadIntegration.showUploadDrawer.value}
                   upload={uploadIntegration.upload}
                   onClose={uploadIntegration.closeUploadDrawer}
                 />
