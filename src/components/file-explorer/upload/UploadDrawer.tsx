@@ -16,36 +16,12 @@ import { formatSpeed } from '@/hooks/upload/utils/format';
 import CustomUpload from '@/components/custom-upload/index';
 import UploadFileItem from './UploadFileItem';
 
-/** useChunkUpload 返回值类型（核心子集） */
-interface UploadHookSlice {
-  uploadQueue: { value: FileTask[] };
-  activeUploads: { value: Map<string, FileTask> };
-  completedUploads: { value: FileTask[] };
-  uploadStats: { value: { total: number; completed: number; uploading: number; failed: number; pending: number; paused: number; cancelled: number; totalSize: number; uploadedSize: number; averageSpeed: number; estimatedTime: number; instantSpeed: number; networkQuality: string } };
-  isUploading: { value: boolean };
-  isPaused: { value: boolean };
-  totalProgress: { value: number };
-  uploadSpeed: { value: number };
-  addFiles: (files: File[] | FileList | File) => Promise<any>;
-  start: () => any;
-  pauseAll: () => Promise<any>;
-  resumeAll: () => any;
-  cancelAll: () => Promise<any>;
-  retryFailed: () => any;
-  pause: (taskId: string) => any;
-  resume: (taskId: string) => any;
-  cancel: (taskId: string) => any;
-  retrySingleFile: (taskId: string) => any;
-  removeFile: (taskId: string) => any;
-  uploader: any;
-}
-
 /** UploadDrawer — 上传管理抽屉内容 */
 export default defineComponent({
   name: 'UploadDrawer',
   props: {
-    /** useChunkUpload 完整返回值 */
-    upload: { type: Object as PropType<UploadHookSlice>, required: true },
+    /** useChunkUpload 完整返回值（包含响应式状态和方法） */
+    upload: { type: Object, required: true },
     /** 关闭抽屉回调 */
     onClose: { type: Function as PropType<() => void>, required: true }
   },
