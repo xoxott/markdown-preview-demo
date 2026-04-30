@@ -1,3 +1,5 @@
+import type { BaseDialogProps } from '../base-dialog/dialog';
+
 /** 用户表单数据 */
 export interface UserFormData {
   username: string;
@@ -14,7 +16,7 @@ export interface RoleOption {
 }
 
 /** 用户表单对话框配置 */
-export interface UserFormDialogConfig extends import('../base-dialog/dialog').BaseDialogProps {
+export interface UserFormDialogConfig extends BaseDialogProps {
   /** 是否为编辑模式 */
   isEdit: boolean;
   /** 表单数据 */

@@ -1,3 +1,5 @@
+import type { BaseDialogProps } from '../base-dialog/dialog';
+
 /** 角色表单数据 */
 export interface RoleFormData {
   name: string;
@@ -7,7 +9,7 @@ export interface RoleFormData {
 }
 
 /** 角色表单对话框配置 */
-export interface RoleFormDialogConfig extends import('../base-dialog/dialog').BaseDialogProps {
+export interface RoleFormDialogConfig extends BaseDialogProps {
   /** 是否为编辑模式 */
   isEdit: boolean;
   /** 表单数据 */

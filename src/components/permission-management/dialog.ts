@@ -1,3 +1,5 @@
+import type { BaseDialogProps } from '../base-dialog/dialog';
+
 /** 权限表单数据 */
 export interface PermissionFormData {
   name: string;
@@ -9,8 +11,7 @@ export interface PermissionFormData {
 }
 
 /** 权限表单对话框配置 */
-export interface PermissionFormDialogConfig
-  extends import('../base-dialog/dialog').BaseDialogProps {
+export interface PermissionFormDialogConfig extends BaseDialogProps {
   /** 是否为编辑模式 */
   isEdit: boolean;
   /** 表单数据 */

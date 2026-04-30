@@ -7,11 +7,14 @@ import { Close, Contract, Expand } from '@vicons/ionicons5';
 import type { BaseDialogProps, DialogPosition, ResizeDirection } from './dialog';
 import { DEFAULT_DIALOG_CONFIG } from './dialog';
 
+/** BaseDialog config prop 的宽松类型 — 允许 extends BaseDialogProps 的子类型传递额外字段 */
+type BaseDialogConfigProp = BaseDialogProps & Record<string, any>;
+
 export default defineComponent({
   name: 'BaseDialog',
   props: {
     show: { type: Boolean, required: true },
-    config: { type: Object as PropType<BaseDialogProps>, required: true }
+    config: { type: Object as PropType<BaseDialogConfigProp>, required: true }
   },
   setup(props, { slots }) {
     const themeVars = useThemeVars();
@@ -36,8 +39,6 @@ export default defineComponent({
     const showClose = computed(() => getConfig('showClose') ?? true);
     const showFullscreen = computed(() => getConfig('showFullscreen') ?? false);
     const closeOnEsc = computed(() => getConfig('closeOnEsc') ?? true);
-    const autoFocus = computed(() => getConfig('autoFocus') ?? true);
-    const trapFocus = computed(() => getConfig('trapFocus') ?? true);
     const transformOrigin = computed(() => getConfig('transformOrigin'));
     const position = computed(() => getConfig('position') ?? 'center');
     const zIndex = computed(() => getConfig('zIndex'));
