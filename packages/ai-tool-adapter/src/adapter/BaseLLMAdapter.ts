@@ -1,0 +1,109 @@
+/** 基础 LLM 适配器 — 共享 HTTP 请求基础设施 */
+
+import type {
+  AgentMessage,
+  LLMProvider,
+  LLMStreamChunk,
+  ToolDefinition
+} from '@suga/ai-agent-loop';
+import type { AnyBuiltTool } from '@suga/ai-tool-core';
+import type { BaseLLMAdapterConfig } from '../types/adapter';
+import { DEFAULT_ADAPTER_TIMEOUT } from '../types/adapter';
+
+/**
+ * 基础 LLM 适配器（抽象类）
+ *
+ * 提供共享的 HTTP 请求基础设施：
+ *
+ * - fetchWithAbort：级联超时 + 外部中断信号
+ * - 请求头构建
+ *
+ * 具体 Provider 适配器继承此基类，实现 callModel 和 formatToolDefinition。
+ */
+export abstract class BaseLLMAdapter implements LLMProvider {
+  protected readonly config: BaseLLMAdapterConfig;
+
+  constructor(config: BaseLLMAdapterConfig) {
+    this.config = config;
+  }
+
+  abstract callModel(
+    messages: readonly AgentMessage[],
+    tools?: readonly ToolDefinition[],
+    signal?: AbortSignal
+  ): AsyncGenerator<LLMStreamChunk>;
+
+  abstract formatToolDefinition(tool: AnyBuiltTool): ToolDefinition;
+
+  /**
+   * 发送 HTTP 请求（级联超时 + 外部中断信号）
+   *
+   * 创建内部 AbortController，级联：
+   *
+   * 1. 超时 AbortController → timeout ms 后自动 abort
+   * 2. 外部 signal → 用户手动 abort 时级联触发
+   *
+   * @param url 请求 URL
+   * @param body 请求体（JSON 可序列化对象）
+   * @param signal 外部中断信号
+   * @param headers 额外请求头
+   * @returns Response 对象
+   */
+  protected async fetchWithAbort(
+    url: string,
+    body: unknown,
+    signal?: AbortSignal,
+    headers?: Record<string, string>
+  ): Promise<Response> {
+    const timeout = this.config.timeout ?? DEFAULT_ADAPTER_TIMEOUT;
+
+    // 创建超时 AbortController
+    const timeoutController = new AbortController();
+    const timeoutId = setTimeout(() => timeoutController.abort(), timeout);
+
+    // 创建组合 AbortController，级联超时 + 外部 signal
+    const combinedController = new AbortController();
+
+    // 超时 → 级联
+    timeoutController.signal.addEventListener('abort', () => combinedController.abort(), {
+      once: true
+    });
+
+    // 外部 signal → 级联
+    if (signal) {
+      signal.addEventListener('abort', () => combinedController.abort(), { once: true });
+      // 如果外部信号已经 aborted，立即触发
+      if (signal.aborted) {
+        combinedController.abort();
+      }
+    }
+
+    const requestHeaders: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...headers,
+      ...this.config.customHeaders
+    };
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: requestHeaders,
+        body: JSON.stringify(body),
+        signal: combinedController.signal
+      });
+
+      return response;
+    } catch (err) {
+      // 区分中断错误和普通错误
+      if (combinedController.signal.aborted) {
+        if (signal?.aborted) {
+          throw new DOMException('请求被中断', 'AbortError');
+        }
+        throw new Error(`请求超时 (${timeout}ms)`);
+      }
+      throw err;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+}
