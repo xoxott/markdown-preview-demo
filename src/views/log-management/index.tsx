@@ -453,14 +453,16 @@ export default defineComponent({
         {/* 日志详情对话框 */}
         <BaseDialog
           show={logDetailVisible.value}
-          title={$t('page.logManagement.logDetail' as any)}
-          width={900}
-          height="auto"
-          draggable={true}
-          resizable={false}
-          onClose={() => {
-            logDetailVisible.value = false;
-            currentLogDetail.value = null;
+          config={{
+            title: $t('page.logManagement.logDetail' as any),
+            width: 900,
+            height: 'auto',
+            draggable: true,
+            resizable: false,
+            onClose: () => {
+              logDetailVisible.value = false;
+              currentLogDetail.value = null;
+            }
           }}
         >
           {{

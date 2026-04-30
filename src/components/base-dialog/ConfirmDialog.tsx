@@ -1,7 +1,7 @@
 /** ConfirmDialog - 确认对话框 用于确认操作(删除、覆盖等) */
 
 import type { PropType } from 'vue';
-import { defineComponent, ref } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
 import { NButton, NIcon, NSpace, useThemeVars } from 'naive-ui';
 import { CheckmarkCircle, CloseCircle, InformationCircle, WarningOutline } from '@vicons/ionicons5';
 import type { ConfirmDialogConfig } from './dialog';
@@ -47,8 +47,20 @@ export default defineComponent({
 
     // 关闭弹窗
     const handleClose = () => {
+      props.config.onCancel?.();
       emit('update:show', false);
     };
+
+    const dialogConfig = computed(() => ({
+      ...props.config,
+      onClose: handleClose,
+      title: props.config.title ?? '确认',
+      width: props.config.width ?? 450,
+      height: props.config.height ?? 'auto',
+      draggable: props.config.draggable ?? true,
+      resizable: props.config.resizable ?? false,
+      position: 'center' as const
+    }));
 
     // 确认
     const handleConfirm = async () => {
@@ -74,16 +86,7 @@ export default defineComponent({
       const showCancel = props.config.showCancel !== false;
 
       return (
-        <BaseDialog
-          show={props.show}
-          title={props.config.title || '确认'}
-          width={450}
-          height="auto"
-          draggable={true}
-          resizable={false}
-          onClose={handleClose}
-          position={'center'}
-        >
+        <BaseDialog show={props.show} config={dialogConfig.value}>
           {{
             default: () => (
               <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>

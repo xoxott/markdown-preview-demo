@@ -4,49 +4,45 @@ import type { PropType } from 'vue';
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { NButton, NCard, NIcon, NModal, useThemeVars } from 'naive-ui';
 import { Close, Contract, Expand } from '@vicons/ionicons5';
-import type { DialogPosition, ResizeDirection } from './dialog';
+import type { BaseDialogProps, DialogPosition, ResizeDirection } from './dialog';
 import { DEFAULT_DIALOG_CONFIG } from './dialog';
 
 export default defineComponent({
   name: 'BaseDialog',
   props: {
     show: { type: Boolean, required: true },
-    title: { type: String, default: '' },
-    width: { type: [Number, String], default: 600 },
-    height: { type: [Number, String], default: 'auto' },
-    minWidth: { type: Number, default: DEFAULT_DIALOG_CONFIG.minWidth },
-    minHeight: { type: Number, default: DEFAULT_DIALOG_CONFIG.minHeight },
-    maxWidth: { type: Number, default: undefined },
-    maxHeight: { type: Number, default: undefined },
-    draggable: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.draggable },
-    resizable: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.resizable },
-    showMask: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.showMask },
-    maskClosable: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.maskClosable },
-    showClose: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.showClose },
-    showFullscreen: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.showFullscreen },
-    closeOnEsc: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.closeOnEsc },
-    autoFocus: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.autoFocus },
-    trapFocus: { type: Boolean, default: DEFAULT_DIALOG_CONFIG.trapFocus },
-    transformOrigin: {
-      type: String as PropType<'center' | 'mouse' | undefined>,
-      default: DEFAULT_DIALOG_CONFIG.transformOrigin
-    },
-    position: {
-      type: [String, Object] as PropType<'center' | DialogPosition>,
-      default: DEFAULT_DIALOG_CONFIG.position
-    },
-    zIndex: { type: Number, default: DEFAULT_DIALOG_CONFIG.zIndex },
-    class: { type: String, default: '' },
-    contentClass: { type: String, default: '' },
-    onClose: { type: Function as PropType<() => void>, default: undefined },
-    onMaskClick: { type: Function as PropType<() => void>, default: undefined },
-    onAfterEnter: { type: Function as PropType<() => void>, default: undefined },
-    onAfterLeave: { type: Function as PropType<() => void>, default: undefined }
+    config: { type: Object as PropType<BaseDialogProps>, required: true }
   },
   setup(props, { slots }) {
     const themeVars = useThemeVars();
     const dialogRef = ref<HTMLElement | null>(null);
     const headerRef = ref<HTMLElement | null>(null);
+
+    // 从 config 中获取参数，带默认值
+    const getConfig = <K extends keyof BaseDialogProps>(key: K): BaseDialogProps[K] =>
+      props.config[key] ?? DEFAULT_DIALOG_CONFIG[key];
+
+    const title = computed(() => getConfig('title') ?? '');
+    const width = computed(() => getConfig('width') ?? 600);
+    const height = computed(() => getConfig('height') ?? 'auto');
+    const minWidth = computed(() => getConfig('minWidth') ?? 300);
+    const minHeight = computed(() => getConfig('minHeight') ?? 200);
+    const maxWidth = computed(() => getConfig('maxWidth'));
+    const maxHeight = computed(() => getConfig('maxHeight'));
+    const draggable = computed(() => getConfig('draggable') ?? false);
+    const resizable = computed(() => getConfig('resizable') ?? false);
+    const showMask = computed(() => getConfig('showMask') ?? true);
+    const maskClosable = computed(() => getConfig('maskClosable') ?? true);
+    const showClose = computed(() => getConfig('showClose') ?? true);
+    const showFullscreen = computed(() => getConfig('showFullscreen') ?? false);
+    const closeOnEsc = computed(() => getConfig('closeOnEsc') ?? true);
+    const autoFocus = computed(() => getConfig('autoFocus') ?? true);
+    const trapFocus = computed(() => getConfig('trapFocus') ?? true);
+    const transformOrigin = computed(() => getConfig('transformOrigin'));
+    const position = computed(() => getConfig('position') ?? 'center');
+    const zIndex = computed(() => getConfig('zIndex'));
+    const dialogClass = computed(() => getConfig('class') ?? '');
+    const contentClass = computed(() => getConfig('contentClass') ?? '');
 
     // 状态管理
     const isDragging = ref(false);
@@ -99,31 +95,31 @@ export default defineComponent({
       // 宽度
       if (currentSize.value.width > 0) {
         style.width = `${currentSize.value.width}px`;
-      } else if (typeof props.width === 'number') {
-        style.width = `${props.width}px`;
+      } else if (typeof width.value === 'number') {
+        style.width = `${width.value}px`;
       } else {
-        style.width = props.width;
+        style.width = width.value as string;
       }
 
       // 高度
       if (currentSize.value.height > 0) {
         style.height = `${currentSize.value.height}px`;
-      } else if (typeof props.height === 'number') {
-        style.height = `${props.height}px`;
-      } else if (props.height !== 'auto') {
-        style.height = props.height;
+      } else if (typeof height.value === 'number') {
+        style.height = `${height.value}px`;
+      } else if (height.value !== 'auto') {
+        style.height = height.value as string;
       }
 
       // 最小/最大尺寸
-      if (props.minWidth) style.minWidth = `${props.minWidth}px`;
-      if (props.minHeight) style.minHeight = `${props.minHeight}px`;
-      if (props.maxWidth) style.maxWidth = `${props.maxWidth}px`;
-      if (props.maxHeight) style.maxHeight = `${props.maxHeight}px`;
+      if (minWidth.value) style.minWidth = `${minWidth.value}px`;
+      if (minHeight.value) style.minHeight = `${minHeight.value}px`;
+      if (maxWidth.value) style.maxWidth = `${maxWidth.value}px`;
+      if (maxHeight.value) style.maxHeight = `${maxHeight.value}px`;
 
       // 位置
       if (
         isPositioned.value ||
-        (props.position !== 'center' && typeof props.position === 'object')
+        (position.value !== 'center' && typeof position.value === 'object')
       ) {
         style.position = 'fixed';
         style.left = `${currentPosition.value.x}px`;
@@ -137,8 +133,8 @@ export default defineComponent({
 
     // 初始化位置
     const initPosition = () => {
-      if (props.position !== 'center' && typeof props.position === 'object') {
-        currentPosition.value = { ...props.position };
+      if (position.value !== 'center' && typeof position.value === 'object') {
+        currentPosition.value = { ...(position.value as DialogPosition) };
         isPositioned.value = true;
       } else if (dialogRef.value) {
         const rect = dialogRef.value.getBoundingClientRect();
@@ -217,7 +213,7 @@ export default defineComponent({
 
     // 开始拖拽
     const handleDragStart = (e: MouseEvent) => {
-      if (!props.draggable || isFullscreen.value) return;
+      if (!draggable.value || isFullscreen.value) return;
       if (!headerRef.value?.contains(e.target as Node)) return;
 
       // 排除按钮
@@ -262,10 +258,10 @@ export default defineComponent({
       let newX = resizeStart.value.dialogX;
       let newY = resizeStart.value.dialogY;
 
-      const minW = props.minWidth || 200;
-      const minH = props.minHeight || 150;
-      const maxW = props.maxWidth || window.innerWidth;
-      const maxH = props.maxHeight || window.innerHeight;
+      const minW = minWidth.value || 200;
+      const minH = minHeight.value || 150;
+      const maxW = maxWidth.value || window.innerWidth;
+      const maxH = maxHeight.value || window.innerHeight;
 
       // 根据方向计算新尺寸和位置
       if (direction.includes('e')) {
@@ -338,7 +334,7 @@ export default defineComponent({
 
     // 开始调整大小
     const handleResizeStart = (e: MouseEvent, direction: ResizeDirection) => {
-      if (!props.resizable || isFullscreen.value) return;
+      if (!resizable.value || isFullscreen.value) return;
 
       e.preventDefault();
       e.stopPropagation();
@@ -389,7 +385,7 @@ export default defineComponent({
 
     // 渲染调整大小手柄
     const renderResizeHandles = () => {
-      if (!props.resizable || isFullscreen.value) return null;
+      if (!resizable.value || isFullscreen.value) return null;
 
       const directions: ResizeDirection[] = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
 
@@ -432,20 +428,20 @@ export default defineComponent({
 
     // 关闭弹窗
     const handleClose = () => {
-      props.onClose?.();
+      props.config.onClose?.();
     };
 
     // 遮罩点击
     const handleMaskClick = () => {
-      if (props.maskClosable) {
-        props.onMaskClick?.();
+      if (maskClosable.value) {
+        props.config.onMaskClick?.();
         handleClose();
       }
     };
 
     // 键盘事件
     const handleKeydown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && props.closeOnEsc && props.show) {
+      if (e.key === 'Escape' && closeOnEsc.value && props.show) {
         handleClose();
       }
     };
@@ -456,7 +452,7 @@ export default defineComponent({
       show => {
         if (show) {
           setTimeout(() => {
-            props.onAfterEnter?.();
+            props.config.onAfterEnter?.();
             initPosition();
           }, 50);
         } else {
@@ -465,7 +461,7 @@ export default defineComponent({
           // FIX: 这里重置状态会导致 弹框回到中心再执行动画后再销毁
           // isPositioned.value = false
           isFullscreen.value = false;
-          props.onAfterLeave?.();
+          props.config.onAfterLeave?.();
         }
       }
     );
@@ -486,20 +482,20 @@ export default defineComponent({
         show={props.show}
         trapFocus={false}
         autoFocus={false}
-        closeOnEsc={props.closeOnEsc}
-        unstableShowMask={props.showMask}
-        maskClosable={props.maskClosable}
+        closeOnEsc={closeOnEsc.value}
+        unstableShowMask={showMask.value}
+        maskClosable={maskClosable.value}
         onMaskClick={handleMaskClick}
         onUpdateShow={(show: boolean) => !show && handleClose()}
-        class={props.class}
-        zIndex={props.zIndex}
-        transformOrigin={props.transformOrigin}
+        class={dialogClass.value}
+        zIndex={zIndex.value}
+        transformOrigin={transformOrigin.value}
       >
         <div
           ref={dialogRef}
           class={[
             'relative',
-            props.draggable && 'cursor-default',
+            draggable.value && 'cursor-default',
             isDragging.value && 'select-none',
             isResizing.value && 'select-none transition-none'
           ]}
@@ -514,7 +510,7 @@ export default defineComponent({
                   ref={headerRef}
                   class={[
                     'flex items-center justify-between',
-                    props.draggable && !isFullscreen.value && 'cursor-move'
+                    draggable.value && !isFullscreen.value && 'cursor-move'
                   ]}
                   onMousedown={handleDragStart}
                   style={{
@@ -524,11 +520,11 @@ export default defineComponent({
                   {slots.header ? (
                     slots.header()
                   ) : (
-                    <div class="flex-1 text-base font-medium">{props.title}</div>
+                    <div class="flex-1 text-base font-medium">{title.value}</div>
                   )}
                   <div class="flex items-center gap-1">
                     {/* 全屏按钮 */}
-                    {props.showFullscreen && (
+                    {showFullscreen.value && (
                       <NButton text onClick={toggleFullscreen}>
                         {{
                           icon: () => (
@@ -540,7 +536,7 @@ export default defineComponent({
                       </NButton>
                     )}
                     {/* 关闭按钮 */}
-                    {props.showClose && (
+                    {showClose.value && (
                       <NButton text onClick={handleClose}>
                         {{
                           icon: () => (
@@ -555,7 +551,7 @@ export default defineComponent({
                 </div>
               ),
               default: () => (
-                <div class={['flex-1 overflow-auto px-4 py-3', props.contentClass]}>
+                <div class={['flex-1 overflow-auto px-4 py-3', contentClass.value]}>
                   {slots.default?.()}
                 </div>
               ),

@@ -9,7 +9,7 @@ export interface WorkflowFormData {
 }
 
 /** 工作流对话框选项 */
-export interface WorkflowDialogOptions {
+export interface WorkflowDialogOptions extends import('../../base-dialog/dialog').BaseDialogProps {
   isEdit: boolean;
   formData: WorkflowFormData;
   onConfirm: (data: WorkflowFormData) => Promise<void>;

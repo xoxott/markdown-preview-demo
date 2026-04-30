@@ -1,116 +1,104 @@
-import { type PropType, defineComponent, reactive, ref } from 'vue';
-import { NButton, NDynamicTags, NForm, NFormItem, NInput, NSelect, NSpace } from 'naive-ui';
+import { type PropType, computed, defineComponent, reactive, ref, watch } from 'vue';
+import { NButton, NForm, NFormItem, NInput, NSelect, NSpace } from 'naive-ui';
 import { useNaiveForm } from '@/hooks/common/form';
-import type { WorkflowFormData } from './dialog';
+import { $t } from '@/locales';
+import BaseDialog from '@/components/base-dialog';
+import type { WorkflowDialogOptions } from './dialog';
 
 export default defineComponent({
   name: 'WorkflowFormDialog',
   props: {
-    formData: {
-      type: Object as PropType<WorkflowFormData>,
-      required: true
-    },
-    isEdit: {
-      type: Boolean,
-      default: false
-    },
-    onConfirm: {
-      type: Function as PropType<(data: WorkflowFormData) => Promise<void>>,
-      required: true
-    },
-    onCancel: {
-      type: Function as PropType<() => void>,
+    show: { type: Boolean, required: true },
+    config: {
+      type: Object as PropType<WorkflowDialogOptions>,
       required: true
     }
   },
-  setup(props) {
-    const { formRef, validate } = useNaiveForm();
-    const loading = ref(false);
-
-    const model = reactive<WorkflowFormData>({
-      name: props.formData.name || '',
-      description: props.formData.description || '',
-      tags: props.formData.tags || [],
-      status: props.formData.status || 'draft'
+  emits: ['update:show'],
+  setup(props, { emit }) {
+    const { formRef, validate, restoreValidation } = useNaiveForm();
+    const formModel = reactive({
+      name: props.config.formData?.name ?? '',
+      description: props.config.formData?.description ?? '',
+      status: props.config.formData?.status ?? 'draft'
     });
 
-    const rules = {
-      name: [
-        {
-          required: true,
-          message: '请输入工作流名称',
-          trigger: 'blur'
-        },
-        {
-          min: 2,
-          max: 50,
-          message: '名称长度应在 2-50 个字符之间',
-          trigger: 'blur'
-        }
-      ]
+    const handleClose = () => {
+      props.config.onClose?.();
+      emit('update:show', false);
     };
 
-    const statusOptions = [
-      { label: '草稿', value: 'draft' },
-      { label: '已发布', value: 'published' },
-      { label: '已归档', value: 'archived' }
-    ];
+    const dialogConfig = computed(() => ({
+      ...props.config,
+      onClose: handleClose,
+      title: props.config.title ?? (props.config.isEdit ? $t('common.edit') : $t('common.add')),
+      width: props.config.width ?? 600,
+      height: props.config.height ?? 'auto',
+      draggable: props.config.draggable ?? true,
+      resizable: props.config.resizable ?? false,
+      maskClosable: props.config.maskClosable ?? false
+    }));
 
-    async function handleConfirm() {
-      const isValid = await validate();
-      if (!isValid) return;
+    const handleConfirm = async () => {
+      if (!(await validate())) return;
+      await props.config.onConfirm(formModel);
+      handleClose();
+    };
 
-      loading.value = true;
-      try {
-        await props.onConfirm(model);
-      } finally {
-        loading.value = false;
+    const handleCancel = () => {
+      props.config.onCancel?.();
+      handleClose();
+    };
+
+    watch(
+      () => props.show,
+      show => {
+        if (show) {
+          restoreValidation();
+        }
       }
-    }
+    );
 
     return () => (
-      <div class="p-4">
-        <NForm ref={formRef} model={model} rules={rules} labelPlacement="left" labelWidth={80}>
-          <NFormItem label="名称" path="name">
-            <NInput
-              v-model:value={model.name}
-              placeholder="请输入工作流名称"
-              maxlength={50}
-              showCount
-            />
-          </NFormItem>
-
-          <NFormItem label="描述" path="description">
-            <NInput
-              v-model:value={model.description}
-              type="textarea"
-              placeholder="请输入工作流描述"
-              rows={3}
-              maxlength={200}
-              showCount
-            />
-          </NFormItem>
-
-          <NFormItem label="标签" path="tags">
-            <NDynamicTags v-model:value={model.tags} />
-          </NFormItem>
-
-          {props.isEdit && (
-            <NFormItem label="状态" path="status">
-              <NSelect v-model:value={model.status} options={statusOptions} />
-            </NFormItem>
-          )}
-        </NForm>
-
-        <div class="mt-4 flex justify-end">
-          <NSpace>
-            <NButton onClick={props.onCancel}>取消</NButton>
-            <NButton type="primary" loading={loading.value} onClick={handleConfirm}>
-              确定
-            </NButton>
-          </NSpace>
-        </div>
-      </div>
+      <BaseDialog show={props.show} config={dialogConfig.value}>
+        {{
+          default: () => (
+            <NForm ref={formRef} model={formModel}>
+              <NFormItem label={$t('page.logManagement.name')} path="name">
+                <NInput
+                  v-model:value={formModel.name}
+                  placeholder={$t('page.logManagement.name')}
+                />
+              </NFormItem>
+              <NFormItem label={$t('page.logManagement.description')} path="description">
+                <NInput
+                  v-model:value={formModel.description}
+                  placeholder={$t('page.logManagement.description')}
+                />
+              </NFormItem>
+              <NFormItem label={$t('page.logManagement.status')} path="status">
+                <NSelect
+                  v-model:value={formModel.status}
+                  options={[
+                    { label: $t('page.logManagement.draft'), value: 'draft' },
+                    { label: $t('page.logManagement.active'), value: 'active' },
+                    { label: $t('page.logManagement.archived'), value: 'archived' }
+                  ]}
+                  placeholder={$t('page.logManagement.status')}
+                />
+              </NFormItem>
+            </NForm>
+          ),
+          footer: () => (
+            <NSpace justify="end">
+              <NButton onClick={handleCancel}>{$t('common.cancel')}</NButton>
+              <NButton type="primary" onClick={handleConfirm}>
+                {$t('common.confirm')}
+              </NButton>
+            </NSpace>
+          )
+        }}
+      </BaseDialog>
     );
   }
 });

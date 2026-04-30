@@ -1,7 +1,7 @@
 /** RenameDialog - 重命名对话框 用于文件/文件夹重命名 */
 
 import type { PropType } from 'vue';
-import { defineComponent, nextTick, ref, watch } from 'vue';
+import { computed, defineComponent, nextTick, ref, watch } from 'vue';
 import { NButton, NInput, NSpace, useThemeVars } from 'naive-ui';
 import BaseDialog from '@/components/base-dialog';
 import type { RenameDialogConfig } from '../../base-dialog/dialog';
@@ -86,11 +86,20 @@ export default defineComponent({
       }
     };
 
-    // 确认重命名
     // 关闭弹窗
     const handleClose = () => {
       emit('update:show', false);
     };
+
+    const dialogConfig = computed(() => ({
+      ...props.config,
+      onClose: handleClose,
+      title: props.config.title ?? '重命名',
+      width: props.config.width ?? 450,
+      height: props.config.height ?? 'auto',
+      draggable: props.config.draggable ?? true,
+      resizable: props.config.resizable ?? false
+    }));
 
     const handleConfirm = async () => {
       if (!validateInput(inputValue.value)) {
@@ -128,15 +137,7 @@ export default defineComponent({
     };
 
     return () => (
-      <BaseDialog
-        show={props.show}
-        title={props.config.title || '重命名'}
-        width={450}
-        height="auto"
-        draggable={true}
-        resizable={false}
-        onClose={handleClose}
-      >
+      <BaseDialog show={props.show} config={dialogConfig.value}>
         {{
           default: () => (
             <div>

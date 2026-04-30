@@ -12,7 +12,8 @@ export interface VersionLogFormData {
 }
 
 /** 版本日志表单对话框配置 */
-export interface VersionLogFormDialogConfig {
+export interface VersionLogFormDialogConfig
+  extends import('../base-dialog/dialog').BaseDialogProps {
   /** 是否为编辑模式 */
   isEdit: boolean;
   /** 表单数据 */

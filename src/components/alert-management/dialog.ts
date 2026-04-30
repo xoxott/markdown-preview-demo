@@ -12,7 +12,7 @@ export interface AlertFormData {
 }
 
 /** 告警表单对话框配置 */
-export interface AlertFormDialogConfig {
+export interface AlertFormDialogConfig extends import('../base-dialog/dialog').BaseDialogProps {
   /** 是否为编辑模式 */
   isEdit: boolean;
   /** 表单数据 */

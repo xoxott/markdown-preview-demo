@@ -1,47 +1,24 @@
+import type { App } from 'vue';
 import { h } from 'vue';
 import { useDialog, useMessage } from 'naive-ui';
-import WorkflowFormDialog from './WorkflowFormDialog';
+import { createDialogInstance } from '@/components/base-dialog/useDialog';
 import ExecutionDetailDialog from './ExecutionDetailDialog';
 import VersionHistoryDialog from './VersionHistoryDialog';
+import WorkflowFormDialog from './WorkflowFormDialog';
 import type {
   ExecutionDetailDialogOptions,
   VersionHistoryDialogOptions,
   WorkflowDialogOptions
 } from './dialog';
 
-export function useWorkflowDialog() {
+export function useWorkflowDialog(app?: App) {
   const dialog = useDialog();
   const _message = useMessage();
 
   /** 显示工作流表单对话框 */
   async function showWorkflowForm(options: WorkflowDialogOptions) {
-    return new Promise<void>((resolve, reject) => {
-      const d = dialog.create({
-        title: options.isEdit ? '编辑工作流' : '新建工作流',
-        content: () =>
-          h(WorkflowFormDialog, {
-            formData: options.formData,
-            isEdit: options.isEdit,
-            onConfirm: async (data: any) => {
-              try {
-                await options.onConfirm(data);
-                d.destroy();
-                resolve();
-              } catch (error) {
-                reject(error);
-                throw error;
-              }
-            },
-            onCancel: () => {
-              d.destroy();
-              reject(new Error('User cancelled'));
-            }
-          }),
-        style: { width: '600px' },
-        closable: true,
-        maskClosable: false
-      });
-    });
+    const instance = await createDialogInstance(WorkflowFormDialog, options, app);
+    return instance;
   }
 
   /** 显示执行详情对话框 */

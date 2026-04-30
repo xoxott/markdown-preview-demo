@@ -194,11 +194,13 @@ export default defineComponent({
 
           <BaseDialog
             show={test.value}
-            resizable
-            onClose={() => (test.value = false)}
-            title="测试弹窗"
-            width={400}
-            height={300}
+            config={{
+              title: '测试弹窗',
+              width: 400,
+              height: 300,
+              resizable: true,
+              onClose: () => (test.value = false)
+            }}
           >
             {{
               default: () => <div>测试弹窗</div>,

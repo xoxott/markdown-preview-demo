@@ -1,5 +1,5 @@
 import type { PropType } from 'vue';
-import { defineComponent, reactive, ref, watch } from 'vue';
+import { computed, defineComponent, reactive, ref, watch } from 'vue';
 import {
   NButton,
   NDatePicker,
@@ -79,8 +79,19 @@ export default defineComponent({
 
     // 关闭弹窗
     const handleClose = () => {
+      props.config.onClose?.();
       emit('update:show', false);
     };
+
+    const dialogConfig = computed(() => ({
+      ...props.config,
+      onClose: handleClose,
+      title: props.config.title ?? (props.config.isEdit ? $t('common.edit') : $t('common.add')),
+      width: props.config.width ?? 800,
+      height: props.config.height ?? 'auto',
+      draggable: props.config.draggable ?? true,
+      resizable: props.config.resizable ?? false
+    }));
 
     // 确认提交
     const handleConfirm = async () => {
@@ -114,15 +125,7 @@ export default defineComponent({
     );
 
     return () => (
-      <BaseDialog
-        show={props.show}
-        title={props.config.isEdit ? $t('common.edit') : $t('common.add')}
-        width={800}
-        height="auto"
-        draggable={true}
-        resizable={false}
-        onClose={handleClose}
-      >
+      <BaseDialog show={props.show} config={dialogConfig.value}>
         {{
           default: () => (
             <NForm

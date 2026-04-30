@@ -71,7 +71,7 @@ export interface BaseDialogProps {
 }
 
 /** 重命名对话框配置 */
-export interface RenameDialogConfig {
+export interface RenameDialogConfig extends BaseDialogProps {
   /** 标题 */
   title?: string;
   /** 默认值 */

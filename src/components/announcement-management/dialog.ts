@@ -10,7 +10,8 @@ export interface AnnouncementFormData {
 }
 
 /** 公告表单对话框配置 */
-export interface AnnouncementFormDialogConfig {
+export interface AnnouncementFormDialogConfig
+  extends import('../base-dialog/dialog').BaseDialogProps {
   /** 是否为编辑模式 */
   isEdit: boolean;
   /** 表单数据 */
