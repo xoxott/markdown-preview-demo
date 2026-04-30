@@ -10,18 +10,22 @@ import {
   PlayOutline,
   RefreshOutline
 } from '@vicons/ionicons5';
+import type { useChunkUpload } from '@/hooks/upload';
 import { UploadStatus } from '@/hooks/upload/types';
 import type { FileTask } from '@/hooks/upload/types';
 import { formatSpeed } from '@/hooks/upload/utils/format';
 import CustomUpload from '@/components/custom-upload/index';
 import UploadFileItem from './UploadFileItem';
 
+/** useChunkUpload 返回值类型 */
+type UploadHookReturn = ReturnType<typeof useChunkUpload>;
+
 /** UploadDrawer — 上传管理抽屉内容 */
 export default defineComponent({
   name: 'UploadDrawer',
   props: {
     /** useChunkUpload 完整返回值（包含响应式状态和方法） */
-    upload: { type: Object, required: true },
+    upload: { type: Object as PropType<UploadHookReturn>, required: true },
     /** 关闭抽屉回调 */
     onClose: { type: Function as PropType<() => void>, required: true }
   },
