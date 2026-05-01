@@ -3,12 +3,12 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { AgentMessage, AgentState } from '@suga/ai-agent-loop';
 import type { CompressResult } from '@suga/ai-context';
+import { ToolRegistry } from '@suga/ai-tool-core';
 import { RecoveryPhase } from '../integration/RecoveryPhase';
 import { ReactiveCompactRecovery } from '../core/ReactiveCompactRecovery';
 import { MaxOutputTokensRecovery } from '../core/MaxOutputTokensRecovery';
 import { TokenBudgetTracker } from '../core/TokenBudgetTracker';
 import { ContextCollapseStrategy } from '../core/ContextCollapseStrategy';
-import { ToolRegistry } from '@suga/ai-tool-core';
 
 /** 辅助：检查消息是否为 meta */
 function isMetaMsg(msg: AgentMessage): boolean {

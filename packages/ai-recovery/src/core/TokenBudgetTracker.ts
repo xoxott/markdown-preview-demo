@@ -12,12 +12,12 @@ function generateId(): string {
  * Token 预算续写追踪器
  *
  * 参考 Claude Code checkTokenBudget:
+ *
  * - turnTokens < budget * budgetRatio → 应继续生成
  * - continuationCount >= maxContinuations → 强制停止
  * - 递减收益: 最近两轮增量 < minDeltaTokens → 强制停止
  *
- * nudge 消息: "Stopped at X% (Y/Z). Keep working — do not summarize."
- * (isMeta: true — 不计入对话质量评估)
+ * nudge 消息: "Stopped at X% (Y/Z). Keep working — do not summarize." (isMeta: true — 不计入对话质量评估)
  */
 export class TokenBudgetTracker {
   private continuationCount = 0;

@@ -3,14 +3,16 @@
 import type { AgentMessage, ContinueTransition } from '@suga/ai-agent-loop';
 import type { CompressPipeline } from '@suga/ai-context';
 import type { ApiOverflowError, RecoveryResult } from '../types/recovery';
+import { parsePTLTokenGap } from './PTLTokenGapParser';
 
 /**
  * ReactiveCompact 恢复器
  *
- * 当 API 返回 413 (prompt-too-long) 时，调用 CompressPipeline.reactiveCompact
- * 进行紧急压缩，然后构造 reactive_compact_retry ContinueTransition。
+ * 当 API 返回 413 (prompt-too-long) 时，调用 CompressPipeline.reactiveCompact 进行紧急压缩，然后构造
+ * reactive_compact_retry ContinueTransition。
  *
  * 流程：
+ *
  * 1. 检测 API 413 错误
  * 2. 调用 pipeline.reactiveCompact 进行紧急压缩
  * 3. 构造 reactive_compact_retry transition（使用压缩后的消息作为基础）
@@ -83,11 +85,19 @@ function defaultIsApiOverflowError(error: unknown): boolean {
 export function extractApiError(error: unknown): ApiOverflowError {
   if (error && typeof error === 'object') {
     const obj = error as Record<string, unknown>;
-    return {
+    const base: ApiOverflowError = {
       statusCode: (obj.statusCode as number) ?? (obj.status as number) ?? 413,
       message: (obj.message as string) ?? 'API prompt-too-long',
       originalError: error
     };
+
+    // 解析 PTL token gap
+    const gapResult = parsePTLTokenGap(error);
+    if (gapResult.promptTokens !== undefined) {
+      return { ...base, ...gapResult };
+    }
+
+    return base;
   }
   return { statusCode: 413, message: 'Unknown API overflow error', originalError: error };
 }

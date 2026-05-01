@@ -16,14 +16,16 @@ const DEFAULT_MAX_ESCALATIONS = 3;
  * 当 LLM 输出达到 max_output_tokens 限制时：
  *
  * 1. 前 maxEscalations 次 → escalation（提升输出 token 上限后重试）
+ *
  *    - 使用 max_output_tokens_escalate transition
  *    - 本轮 assistant 部分有效，advanceState 保留截断的产出
- *
  * 2. 超过 maxEscalations 次 → 注入 recovery meta message 后继续
+ *
  *    - 使用 max_output_tokens_recovery transition
  *    - 注入一条 user 消息提示 LLM 继续之前的输出
  *
  * 参考 Claude Code query.ts 的 max_output_tokens handling:
+ *
  * - 先尝试 escalation（提升 max_tokens）
  * - 3次后 → 注入 "[Recovery]" 消息让 LLM 继续
  */

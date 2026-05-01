@@ -1,6 +1,7 @@
 /** 恢复系统类型定义 */
 
 import type { ContinueTransition } from '@suga/ai-agent-loop';
+import type { CollapseCommitLog } from './collapse';
 
 /** API 溢出错误信息 */
 export interface ApiOverflowError {
@@ -10,6 +11,12 @@ export interface ApiOverflowError {
   readonly message: string;
   /** 原始错误对象 */
   readonly originalError?: unknown;
+  /** API 报告的实际 prompt token 数（从错误消息解析） */
+  readonly promptTokens?: number;
+  /** API 报告的 context window 上限（从错误消息解析） */
+  readonly maxTokens?: number;
+  /** 需要释放的 token 数 = promptTokens - maxTokens */
+  readonly tokenGap?: number;
 }
 
 /** 恢复结果 */
@@ -29,7 +36,9 @@ export type RecoveryStrategy =
   | 'max_output_tokens_recovery'
   | 'collapse_drain_retry'
   | 'token_budget_continuation'
-  | 'no_recovery_needed';
+  | 'no_recovery_needed'
+  | 'spiral_terminated'
+  | 'token_budget_diminishing';
 
 /** 恢复 meta 信息（写入 ctx.meta） */
 export interface RecoveryMeta {
@@ -47,4 +56,12 @@ export interface RecoveryMeta {
   readonly tokenBudget?: number;
   /** Token 预算已使用量 */
   readonly tokenBudgetUsed?: number;
+  /** 是否已尝试过 reactive compact（螺旋防护标记） */
+  readonly hasAttemptedReactiveCompact?: boolean;
+  /** PTL token gap（需要释放的 token 数） */
+  readonly ptlTokenGap?: number;
+  /** Collapse 是否正在进行（与 AutoCompact 互斥标记） */
+  readonly collapseInProgress?: boolean;
+  /** Collapse 提交日志（跨 turn 持久化） */
+  readonly collapseCommitLog?: CollapseCommitLog;
 }

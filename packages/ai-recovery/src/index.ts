@@ -5,6 +5,8 @@ export { ReactiveCompactRecovery, extractApiError } from './core/ReactiveCompact
 export { MaxOutputTokensRecovery } from './core/MaxOutputTokensRecovery';
 export { TokenBudgetTracker } from './core/TokenBudgetTracker';
 export { ContextCollapseStrategy } from './core/ContextCollapseStrategy';
+export { CollapseCommitLogImpl } from './core/CollapseCommitLog';
+export { parsePTLTokenGap } from './core/PTLTokenGapParser';
 
 // 集成阶段
 export { RecoveryPhase } from './integration/RecoveryPhase';
@@ -14,7 +16,8 @@ export type {
   RecoveryConfig,
   MaxOutputTokensRecoveryConfig,
   ContextCollapseConfig,
-  TokenBudgetConfig
+  TokenBudgetConfig,
+  SpiralGuardConfig
 } from './types/config';
 
 export type {
@@ -23,3 +26,12 @@ export type {
   RecoveryStrategy,
   RecoveryMeta
 } from './types/recovery';
+
+export type {
+  CollapseSpan,
+  CollapseSpanStatus,
+  DrainResult,
+  CollapseCommitLog
+} from './types/collapse';
+
+export type { PTLTokenGapResult } from './core/PTLTokenGapParser';
