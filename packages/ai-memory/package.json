@@ -1,0 +1,51 @@
+{
+  "name": "@suga/ai-memory",
+  "version": "0.1.0",
+  "description": "全局记忆系统 — 4分类闭包记忆类型、路径安全验证、MEMORY.md入口索引、扫描排序、关键词相关性评分、行为提示注入",
+  "author": {
+    "name": "yangtao",
+    "email": "212920320@qq.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/ai-memory",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xoxott/suga-tools.git",
+    "directory": "packages/ai-memory"
+  },
+  "bugs": {
+    "url": "https://github.com/xoxott/suga-tools/issues"
+  },
+  "keywords": [
+    "ai",
+    "memory",
+    "memdir",
+    "prompt",
+    "relevance",
+    "scan",
+    "taxonomy"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./src/*"
+      ]
+    }
+  },
+  "dependencies": {
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^4.0.8"
+  }
+}

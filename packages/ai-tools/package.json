@@ -1,0 +1,42 @@
+{
+  "name": "@suga/ai-tools",
+  "version": "1.0.0",
+  "description": "AI 核心工具实现包 — 6 个内置工具（Glob/Grep/Read/Edit/Write/Bash）基于宿主注入模式",
+  "author": {
+    "name": "yangtao",
+    "email": "212920320@qq.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/ai-tools",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xoxott/suga-tools.git",
+    "directory": "packages/ai-tools"
+  },
+  "bugs": {
+    "url": "https://github.com/xoxott/suga-tools/issues"
+  },
+  "keywords": ["ai", "tool", "glob", "grep", "file", "bash", "permission", "host-injection"],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "typesVersions": {
+    "*": {
+      "*": ["./src/*"]
+    }
+  },
+  "dependencies": {
+    "@suga/ai-tool-core": "workspace:*",
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^4.0.8"
+  }
+}

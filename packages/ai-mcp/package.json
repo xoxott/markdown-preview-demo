@@ -1,0 +1,49 @@
+{
+  "name": "@suga/ai-mcp",
+  "version": "1.0.0",
+  "description": "MCP 协议抽象层 — 配置类型、传输接口、连接管理、名称规范化",
+  "author": {
+    "name": "yangtao",
+    "email": "212920320@qq.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/ai-mcp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xoxott/suga-tools.git",
+    "directory": "packages/ai-mcp"
+  },
+  "bugs": {
+    "url": "https://github.com/xoxott/suga-tools/issues"
+  },
+  "keywords": ["ai", "mcp", "model-context-protocol", "transport", "connection", "permission", "config", "zod"],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "typesVersions": {
+    "*": {
+      "*": ["./src/*"]
+    }
+  },
+  "dependencies": {
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^4.0.8"
+  },
+  "peerDependencies": {
+    "@suga/ai-tool-core": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@suga/ai-tool-core": {
+      "optional": true
+    }
+  }
+}

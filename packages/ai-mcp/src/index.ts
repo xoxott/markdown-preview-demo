@@ -1,0 +1,71 @@
+/**
+ * @suga/ai-mcp
+ * MCP 协议抽象层 — 配置类型、传输接口、连接管理、名称规范化
+ */
+
+// 类型导出
+export type * from './types';
+
+// Zod Schema
+export {
+  McpStdioServerConfigSchema,
+  McpSSEServerConfigSchema,
+  McpSSEIDEServerConfigSchema,
+  McpHTTPServerConfigSchema,
+  McpWebSocketServerConfigSchema,
+  McpWebSocketIDEServerConfigSchema,
+  McpSdkServerConfigSchema,
+  McpServerConfigSchema,
+  McpJsonConfigSchema
+} from './types/mcp-config';
+
+export {
+  McpConfigScopeSchema,
+  getMcpScopePriority,
+  MCP_CONFIG_SCOPE_PRIORITY
+} from './types/mcp-scope';
+
+// 连接状态辅助
+export {
+  getConnectionName,
+  isMcpConnected,
+  getConnectionStateType,
+  isReconnecting,
+  needsAuthentication,
+  hasFailed,
+  isDisabled
+} from './types/mcp-connection';
+
+// 名称规范化
+export { normalizeNameForMCP } from './naming/normalization';
+export {
+  mcpInfoFromString,
+  getMcpPrefix,
+  buildMcpToolName,
+  getMcpDisplayName,
+  extractMcpToolDisplayName,
+  getToolNameForPermissionCheck
+} from './naming/mcpStringUtils';
+
+// 环境变量扩展
+export { expandEnvVarsInString } from './config/envExpansion';
+
+// 传输
+export { createLinkedTransportPair, InProcessTransport } from './transport/InProcessTransport';
+
+// 连接管理
+export { InMemoryMcpConnectionManager } from './connection/McpConnectionManager';
+export type { McpConnectionManager } from './connection/McpConnectionManager';
+
+// 配置加载
+export {
+  validateMcpServerConfig,
+  validateMcpJsonConfig,
+  validateMcpConfigScope,
+  getMcpServerTransportType,
+  isStdioConfig,
+  isRemoteConfig,
+  getStdioCommandArray,
+  mergeScopedConfigs
+} from './connection/McpConfigLoader';
+export type { McpConfigLoader } from './connection/McpConfigLoader';
