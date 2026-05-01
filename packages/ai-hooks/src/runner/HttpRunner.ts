@@ -97,7 +97,7 @@ export class HttpRunner implements HookRunner {
 
   /** ${env:VAR_NAME} 插值 — 仅白名单变量被替换 */
   private interpolateEnvVars(value: string, allowedEnvVars: readonly string[]): string {
-    return value.replace(/\$\{env:([A-Za-z_][A-Za-z0-9_]*)\}/g, (match, varName) => {
+    return value.replace(/\$\{env:([A-Za-z_][A-Za-z0-9_]*)\}/g, (_match, varName) => {
       if (allowedEnvVars.length === 0 || !allowedEnvVars.includes(varName)) {
         // 不在白名单 → 替换为空字符串（防止泄露）
         return '';

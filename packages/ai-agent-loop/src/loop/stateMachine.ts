@@ -102,6 +102,11 @@ export function advanceState(
       // Token 预算续写：追加 nudge 消息
       newMessages = [...baseMessages, assistantMsg, ...toolResultMsgs, transition.nudgeMessage];
       break;
+
+    default:
+      // 未知的 transition type — 按正常下一轮处理
+      newMessages = [...baseMessages, assistantMsg, ...toolResultMsgs];
+      break;
   }
 
   // 构造新的 AgentToolUseContext（递增 turnCount）

@@ -37,8 +37,8 @@ export interface ExtendedSkillExecutionContext extends SkillExecutionContext {
 
 /** Provider 缺失错误 — 统一报错格式 */
 export class ProviderMissingError extends Error {
-  constructor(providerName: string, commandName: string) {
-    super(`${commandName}: ${providerName} not available. Host must inject ${providerName}.`);
+  constructor(name: string, commandName: string) {
+    super(`${commandName}: ${name} not available. Host must inject ${name}.`);
     this.name = 'ProviderMissingError';
   }
 }

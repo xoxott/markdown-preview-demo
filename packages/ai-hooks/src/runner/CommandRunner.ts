@@ -27,7 +27,7 @@ export class CommandRunner implements HookRunner {
 
   async run(
     hook: HookDefinition,
-    input: HookInput,
+    _input: HookInput,
     context: HookExecutionContext
   ): Promise<HookResult> {
     const command = hook.command!;

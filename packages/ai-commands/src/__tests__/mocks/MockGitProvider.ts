@@ -40,7 +40,7 @@ export class MockGitProvider implements GitProvider {
   private _stagedDiff: string = DEFAULT_DIFF;
   private _unstagedDiff: string = 'diff --git a/package.json b/package.json\n+change';
   private _log: GitLogEntry[] = DEFAULT_LOG;
-  private _fullDiff: string = `${DEFAULT_DIFF}\n` + `unstaged diff content`;
+  private _fullDiff: string = `${DEFAULT_DIFF}\nunstaged diff content`;
 
   /** 设置自定义 status 数据 */
   setStatus(status: GitStatusResult): this {

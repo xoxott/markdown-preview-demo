@@ -53,10 +53,10 @@ export function parsePTLTokenGap(error: unknown): PTLTokenGapResult {
       const promptTokens = Number.parseInt(match[1], 10);
       const maxTokens = match[2] ? Number.parseInt(match[2], 10) : undefined;
 
-      if (isNaN(promptTokens)) continue;
+      if (Number.isNaN(promptTokens)) continue;
 
       const tokenGap =
-        maxTokens !== undefined && !isNaN(maxTokens) ? promptTokens - maxTokens : undefined;
+        maxTokens !== undefined && !Number.isNaN(maxTokens) ? promptTokens - maxTokens : undefined;
 
       return { promptTokens, maxTokens, tokenGap };
     }
@@ -66,7 +66,7 @@ export function parsePTLTokenGap(error: unknown): PTLTokenGapResult {
   const tokensMatch = messageText.match(/(\d+)\s+tokens?/i);
   if (tokensMatch) {
     const promptTokens = Number.parseInt(tokensMatch[1], 10);
-    if (!isNaN(promptTokens)) {
+    if (!Number.isNaN(promptTokens)) {
       return { promptTokens };
     }
   }

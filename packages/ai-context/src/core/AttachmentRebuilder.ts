@@ -162,7 +162,7 @@ export class AttachmentRebuilder {
   }
 
   /** 构建 delta 附件（增量变更） */
-  private buildDeltaAttachment(timestamp: number): AgentMessage[] {
+  private buildDeltaAttachment(_timestamp: number): AgentMessage[] {
     // delta 附件通常由运行时注入，此处为接口预留
     // 具体实现依赖运行时环境提供增量变更信息
     return [];

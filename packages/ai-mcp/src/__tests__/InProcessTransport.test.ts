@@ -18,7 +18,9 @@ describe('createLinkedTransportPair', () => {
     };
     await pair.clientTransport.send({ type: 'test', data: 42 });
     // queueMicrotask 异步，需要等待
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise(resolve => {
+      setTimeout(resolve, 0);
+    });
     expect(received).toEqual([{ type: 'test', data: 42 }]);
   });
 
@@ -29,7 +31,9 @@ describe('createLinkedTransportPair', () => {
       received.push(msg);
     };
     await pair.serverTransport.send({ type: 'response' });
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise(resolve => {
+      setTimeout(resolve, 0);
+    });
     expect(received).toEqual([{ type: 'response' }]);
   });
 
@@ -97,7 +101,9 @@ describe('createLinkedTransportPair', () => {
     await pair.clientTransport.send('msg1');
     await pair.clientTransport.send('msg2');
     await pair.clientTransport.send('msg3');
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await new Promise(resolve => {
+      setTimeout(resolve, 10);
+    });
     expect(received).toEqual(['msg1', 'msg2', 'msg3']);
   });
 });

@@ -44,7 +44,7 @@ const createMockCtx = (
   } as unknown as MutableAgentContext;
 };
 
-const emptyNext = async function* (): AsyncGenerator<AgentEvent> {};
+const emptyNext = async function* emptyNext(): AsyncGenerator<AgentEvent> {};
 
 const userMsg = (content: string): AgentMessage => ({
   id: 'u1',

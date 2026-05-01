@@ -389,7 +389,7 @@ export class ToolExecutor {
    * 无 meta 数据时返回原始结果（向后兼容）。
    */
   private postHookPhase<Input, Output>(
-    tool: BuiltTool<Input, Output>,
+    _tool: BuiltTool<Input, Output>,
     executorResult: ExecutorResult<Output>,
     context: ToolUseContext,
     options?: ToolCallOptions

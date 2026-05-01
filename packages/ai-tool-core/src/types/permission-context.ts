@@ -107,6 +107,9 @@ function classifyRules(rules: readonly PermissionRule[]): {
       case 'ask':
         askRules.push(rule);
         break;
+      default:
+        // 未知 behavior 类型，安全忽略
+        break;
     }
   }
 
@@ -180,5 +183,8 @@ export function applyPermissionUpdate(
         settings: update.merged
       };
     }
+
+    default:
+      return ctx;
   }
 }

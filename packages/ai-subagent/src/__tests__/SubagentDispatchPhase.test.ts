@@ -29,7 +29,7 @@ const createMockCtx = (coordinatorResult?: OrchestrationResult): MutableAgentCon
   }) as unknown as MutableAgentContext;
 
 /** 空的 next 函数 */
-const emptyNext = async function* (): AsyncGenerator<AgentEvent> {
+const emptyNext = async function* emptyNext(): AsyncGenerator<AgentEvent> {
   // 不产出任何事件
 };
 

@@ -86,12 +86,12 @@ function truncateForPTLRetry(
   const groups = groupByApiRound(messages);
 
   // 从最老的 group 开始移除
-  let remainingCount = messages.length;
+  let _remainingCount = messages.length;
 
   for (let i = 0; i < groups.length - 1; i++) {
     // 保留最后一个 group
     const groupToRemove = groups[i];
-    remainingCount -= groupToRemove.messages.length;
+    _remainingCount -= groupToRemove.messages.length;
     const remainingMessages = messages.slice(groupToRemove.endIndex + 1);
 
     if (tokenEstimator(remainingMessages) < contextWindow) {

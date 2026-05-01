@@ -81,6 +81,9 @@ export const mcpSkill: SkillDefinition = {
         await mcpProvider.restartServer(parsed.name ?? '');
         return { content: buildMcpRestartPrompt({ name: parsed.name ?? '' }) };
       }
+      default: {
+        return { content: `Unknown mcp subcommand: "${parsed.subcommand}"` };
+      }
     }
   }
 };

@@ -6,6 +6,10 @@ import type { SessionHookStore } from '../types/session';
 import { HookExecutor } from '../executor/HookExecutor';
 import { RunnerRegistryImpl } from './RunnerRegistry';
 import { CallbackRunner } from './CallbackRunner';
+import { CommandRunner } from './CommandRunner';
+import { HttpRunner } from './HttpRunner';
+import { PromptRunner } from './PromptRunner';
+import { AgentRunner } from './AgentRunner';
 
 /**
  * createDefaultHookExecutor — 仅注册 CallbackRunner
@@ -38,27 +42,23 @@ export function createFullHookExecutor(
   // CallbackRunner 始终注册（作为 fallback）
   runnerRegistry.register(new CallbackRunner());
 
-  // CommandRunner — 需要 ShellExecutor（后续 Phase 实现后导入）
+  // CommandRunner — 需要 ShellExecutor
   if (deps.shellExecutor !== undefined) {
-    const { CommandRunner } = require('./CommandRunner');
     runnerRegistry.register(new CommandRunner(deps.shellExecutor));
   }
 
-  // HttpRunner — 需要 HttpClient（后续 Phase 实现后导入）
+  // HttpRunner — 需要 HttpClient
   if (deps.httpClient !== undefined) {
-    const { HttpRunner } = require('./HttpRunner');
     runnerRegistry.register(new HttpRunner(deps.httpClient, deps.ssrfGuard, deps.envProvider));
   }
 
-  // PromptRunner — 需要 LLMProvider（后续 Phase 实现后导入）
+  // PromptRunner — 需要 LLMProvider
   if (deps.llmProvider !== undefined) {
-    const { PromptRunner } = require('./PromptRunner');
     runnerRegistry.register(new PromptRunner(deps.llmProvider));
   }
 
-  // AgentRunner — 需要 LLMProvider（后续 Phase 实现后导入）
+  // AgentRunner — 需要 LLMProvider
   if (deps.llmProvider !== undefined) {
-    const { AgentRunner } = require('./AgentRunner');
     runnerRegistry.register(new AgentRunner(deps.llmProvider));
   }
 

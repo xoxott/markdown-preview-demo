@@ -32,6 +32,9 @@ function classifyRulesByBehavior(rules: readonly PermissionRule[]): {
       case 'ask':
         askRules.push(rule as Extract<PermissionRule, { behavior: 'ask' }>);
         break;
+      default:
+        // 未知 behavior 类型，安全忽略
+        break;
     }
   }
 

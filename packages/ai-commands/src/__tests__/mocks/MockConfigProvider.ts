@@ -39,6 +39,7 @@ export class MockConfigProvider implements ConfigProvider {
   }
 
   async reset(key: string): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- mock dynamic key delete
     delete this._setValues[key];
   }
 

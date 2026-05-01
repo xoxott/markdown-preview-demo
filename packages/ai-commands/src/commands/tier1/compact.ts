@@ -49,7 +49,7 @@ export const compactSkill: SkillDefinition = {
 
   getPromptForCommand: async (
     args: string,
-    context: SkillExecutionContext
+    _context: SkillExecutionContext
   ): Promise<SkillPromptResult> => {
     const parsed = parseCommandArgs(args, CompactArgsSchema);
 

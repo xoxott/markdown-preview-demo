@@ -12,7 +12,7 @@ import type { SettingSource } from '../types/settings-source';
 describe('DropInSettingsReader 接口', () => {
   it('接口应可被宿主实现', () => {
     const reader: DropInSettingsReader = {
-      readDropInDirectory: async (dirPath: string): Promise<SettingSource[]> => []
+      readDropInDirectory: async (_dirPath: string): Promise<SettingSource[]> => []
     };
     expect(reader.readDropInDirectory).toBeInstanceOf(Function);
   });

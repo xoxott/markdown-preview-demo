@@ -22,7 +22,7 @@ import { SettingsSchema } from './settings-schema';
 export function settingsMergeCustomizer(
   objValue: unknown,
   srcValue: unknown,
-  key: string
+  _key: string
 ): unknown {
   // 数组字段 → concat（拼接去重）
   if (Array.isArray(objValue) && Array.isArray(srcValue)) {
@@ -160,7 +160,7 @@ export function deepMergeSettings(
   base: Record<string, unknown>,
   overlay: Record<string, unknown>
 ): Record<string, unknown> {
-  const result: Record<string, unknown> = { ...base };
+  let result: Record<string, unknown> = { ...base };
 
   for (const [key, overlayValue] of Object.entries(overlay)) {
     const baseValue = result[key];
@@ -187,9 +187,10 @@ export function deepMergeSettings(
       continue;
     }
 
-    // overlay 值为 undefined → 删除 base 中对应键
+    // overlay 值为 undefined → 从 base 中移除对应键
     if (overlayValue === undefined) {
-      delete result[key];
+      const { [key]: _, ...rest } = result;
+      result = rest;
       continue;
     }
 

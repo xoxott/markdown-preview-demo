@@ -6,12 +6,10 @@ import { CommandRunner } from '../runner/CommandRunner';
 import { RunnerRegistryImpl } from '../runner/RunnerRegistry';
 import { HookExecutor } from '../executor/HookExecutor';
 import { HookRegistry } from '../registry/HookRegistry';
+import { CallbackRunner } from '../runner/CallbackRunner';
 import type { ShellExecutor, ShellResult } from '../types/runner';
 import type { HookDefinition, HookExecutionContext } from '../types/hooks';
 import type { PreToolUseInput } from '../types/input';
-
-/** CallbackRunner 导入 — 集成测试需要 */
-import { CallbackRunner } from '../runner/CallbackRunner';
 
 /** MockShellExecutor — 预设 exitCode/stdout/stderr */
 class MockShellExecutor implements ShellExecutor {

@@ -181,7 +181,9 @@ export async function withLLMRetry<T>(
 
 /** 简易 sleep 函数 */
 function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
 }
 
 /** 从 Error 对象提取 HTTP 状态码 */

@@ -61,7 +61,7 @@ export class RemoteAgentTask implements TaskType {
       if (resultMessage) break;
 
       // 等待一小段时间再轮询
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => { setTimeout(resolve, 500); });
     }
 
     if (!resultMessage) {

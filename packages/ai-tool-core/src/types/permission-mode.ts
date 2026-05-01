@@ -122,6 +122,8 @@ export function classifyPermissionMode(mode: PermissionMode): PermissionModeCate
       return 'restricted';
     case 'bypassPermissions':
       return 'bypass';
+    default:
+      return 'interactive';
   }
 }
 

@@ -117,6 +117,9 @@ export const memorySkill: SkillDefinition = {
           content: buildMemoryRefreshPrompt({ result })
         };
       }
+      default: {
+        return { content: `Unknown memory subcommand: "${parsed.subcommand}"` };
+      }
     }
   }
 };

@@ -16,7 +16,7 @@ function createMockState(configOverrides?: Record<string, unknown>): CompressSta
   };
 }
 
-function createToolResultMsg(id: string, result: unknown, size?: number): AgentMessage {
+function createToolResultMsg(id: string, result: unknown, _size?: number): AgentMessage {
   const resultStr = typeof result === 'string' ? result : JSON.stringify(result);
   return {
     id: `tr_${id}`,

@@ -163,7 +163,7 @@ describe('withLLMRetry', () => {
     const delays: number[] = [];
     const config: LLMRetryConfig = {
       maxRetries: 1,
-      retryDelay: attempt => 5 // 固定 5ms
+      retryDelay: _attempt => 5 // 固定 5ms
     };
     let attempt = 0;
     const fn = () => {

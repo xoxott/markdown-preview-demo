@@ -68,7 +68,7 @@ export function createEmptySettingsCache(): SettingsCache {
  * @param cache 当前缓存
  * @returns 清空后的新缓存
  */
-export function invalidateSettingsCache(cache: SettingsCache): SettingsCache {
+export function invalidateSettingsCache(_cache: SettingsCache): SettingsCache {
   return createEmptySettingsCache();
 }
 

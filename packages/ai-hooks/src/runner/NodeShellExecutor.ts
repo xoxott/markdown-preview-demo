@@ -58,11 +58,11 @@ export class NodeShellExecutor implements ShellExecutor {
       let stdout = '';
       let stderr = '';
 
-      child.stdout?.on('data', (data: Buffer) => {
-        stdout += data.toString();
+      child.stdout?.on('data', (data: unknown) => {
+        stdout += String(data);
       });
 
-      child.stderr?.on('data', (data: Buffer) => {
+      child.stderr?.on('data', (data: unknown) => {
         stderr += data.toString();
       });
 

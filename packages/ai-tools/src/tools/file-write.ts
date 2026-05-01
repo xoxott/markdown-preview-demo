@@ -72,7 +72,7 @@ export const fileWriteTool = buildTool<FileWriteInput, FileWriteOutput>({
   ): Promise<ToolResult<FileWriteOutput>> => {
     await context.fsProvider.writeFile(input.filePath, input.content);
     return {
-      data: { written: true, bytesWritten: Buffer.byteLength(input.content, 'utf-8') }
+      data: { written: true, bytesWritten: new TextEncoder().encode(input.content).length }
     };
   },
 

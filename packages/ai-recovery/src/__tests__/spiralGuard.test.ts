@@ -78,7 +78,7 @@ const createMockCtx = (meta?: Record<string, unknown>): MutableAgentContext => {
   return ctx;
 };
 
-const emptyNext = async function* (): AsyncGenerator<AgentEvent> {};
+const emptyNext = async function* emptyNext(): AsyncGenerator<AgentEvent> {};
 
 describe('螺旋防护', () => {
   it('首次 413 触发 reactive_compact_retry（正常）', async () => {
@@ -103,6 +103,7 @@ describe('螺旋防护', () => {
     // 第一次：正常 reactive compact
     const ctx1 = createMockCtx({ apiError: { statusCode: 413, message: 'PTL' } });
     for await (const _ of phase.execute(ctx1, emptyNext)) {
+      /* empty */
     }
 
     // 第二次：螺旋防护 → 终止
@@ -124,17 +125,20 @@ describe('螺旋防护', () => {
     // 第一次：413 → reactive compact 成功
     const ctx1 = createMockCtx({ apiError: { statusCode: 413, message: 'PTL' } });
     for await (const _ of phase.execute(ctx1, emptyNext)) {
+      /* empty */
     }
     expect(ctx1.meta.hasAttemptedReactiveCompact).toBe(true);
 
     // 第二次：无 apiError → 重置标记
     const ctx2 = createMockCtx(); // 无溢出
     for await (const _ of phase.execute(ctx2, emptyNext)) {
+      /* empty */
     }
 
     // 第三次：如果再次 413 → 应正常触发 reactive compact（标记已重置）
     const ctx3 = createMockCtx({ apiError: { statusCode: 413, message: 'PTL new' } });
     for await (const _ of phase.execute(ctx3, emptyNext)) {
+      /* empty */
     }
 
     expect(ctx3.meta.recoveryStrategy).toBe('reactive_compact');
@@ -147,6 +151,7 @@ describe('螺旋防护', () => {
 
     const ctx = createMockCtx(); // 无溢出
     for await (const _ of phase.execute(ctx, emptyNext)) {
+      /* empty */
     }
 
     expect(ctx.state.transition.type).toBe('next_turn');
@@ -159,11 +164,13 @@ describe('螺旋防护', () => {
     // 第一次：413 → reactive compact
     const ctx1 = createMockCtx({ apiError: { statusCode: 413, message: 'PTL' } });
     for await (const _ of phase.execute(ctx1, emptyNext)) {
+      /* empty */
     }
 
     // 第二次：413 → 仍然触发 reactive compact（不防护）
     const ctx2 = createMockCtx({ apiError: { statusCode: 413, message: 'PTL again' } });
     for await (const _ of phase.execute(ctx2, emptyNext)) {
+      /* empty */
     }
 
     expect(ctx2.meta.recoveryStrategy).toBe('reactive_compact');
@@ -180,18 +187,21 @@ describe('螺旋防护', () => {
     // 第一次：413 → 正常 reactive compact
     const ctx1 = createMockCtx({ apiError: { statusCode: 413, message: 'PTL' } });
     for await (const _ of phase.execute(ctx1, emptyNext)) {
+      /* empty */
     }
     expect(ctx1.meta.recoveryStrategy).toBe('reactive_compact');
 
     // 第二次：413 → 仍允许（maxAttempts=2）
     const ctx2 = createMockCtx({ apiError: { statusCode: 413, message: 'PTL again' } });
     for await (const _ of phase.execute(ctx2, emptyNext)) {
+      /* empty */
     }
     expect(ctx2.meta.recoveryStrategy).toBe('reactive_compact');
 
     // 第三次：超过 maxAttempts=2 → spiral terminated
     const ctx3 = createMockCtx({ apiError: { statusCode: 413, message: 'PTL 3rd' } });
     for await (const _ of phase.execute(ctx3, emptyNext)) {
+      /* empty */
     }
     expect(ctx3.meta.recoveryStrategy).toBe('spiral_terminated');
   });
@@ -203,17 +213,20 @@ describe('螺旋防护', () => {
     // reactive_compact 策略触发
     const ctx1 = createMockCtx({ apiError: { statusCode: 413, message: 'PTL' } });
     for await (const _ of phase.execute(ctx1, emptyNext)) {
+      /* empty */
     }
     expect(ctx1.meta.recoveryStrategy).toBe('reactive_compact');
 
     // 无溢出 → 重置计数
     const ctx2 = createMockCtx();
     for await (const _ of phase.execute(ctx2, emptyNext)) {
+      /* empty */
     }
 
     // max_output_tokens 策略触发（不受 reactive_compact 影响）
     const ctx3 = createMockCtx({ maxOutputTokensReached: true });
     for await (const _ of phase.execute(ctx3, emptyNext)) {
+      /* empty */
     }
     expect(ctx3.meta.recoveryStrategy).toBe('max_output_tokens_escalate');
   });
@@ -225,16 +238,19 @@ describe('螺旋防护', () => {
     // 触发两种策略
     const ctx1 = createMockCtx({ apiError: { statusCode: 413, message: 'PTL' } });
     for await (const _ of phase.execute(ctx1, emptyNext)) {
+      /* empty */
     }
 
     // 无溢出 → 重置
     const ctx2 = createMockCtx();
     for await (const _ of phase.execute(ctx2, emptyNext)) {
+      /* empty */
     }
 
     // 之前触发过的策略现在可重新触发
     const ctx3 = createMockCtx({ apiError: { statusCode: 413, message: 'PTL again' } });
     for await (const _ of phase.execute(ctx3, emptyNext)) {
+      /* empty */
     }
     expect(ctx3.meta.recoveryStrategy).toBe('reactive_compact');
     expect(ctx3.meta.recovered).toBe(true);

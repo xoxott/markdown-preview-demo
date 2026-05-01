@@ -41,7 +41,7 @@ export class MockMemoryStorageProvider implements MemoryStorageProvider {
     return this.files.has(path);
   }
 
-  async mkdir(path: string): Promise<void> {
+  async mkdir(_path: string): Promise<void> {
     // Mock: 无需真实创建目录，文件路径即存在
   }
 

@@ -60,7 +60,7 @@ export class MockSpawnProvider implements SpawnProvider {
     return this._agentResult;
   }
 
-  async abortSession(handle: AgentSessionHandle): Promise<void> {
+  async abortSession(_handle: AgentSessionHandle): Promise<void> {
     // Mock: 无操作
   }
 }

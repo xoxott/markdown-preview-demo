@@ -85,6 +85,9 @@ export const configSkill: SkillDefinition = {
         await configProvider.reset(parsed.key ?? '');
         return { content: buildConfigResetPrompt({ key: parsed.key ?? '' }) };
       }
+      default: {
+        return { content: `Unknown config subcommand: "${parsed.subcommand}"` };
+      }
     }
   }
 };
