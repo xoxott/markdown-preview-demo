@@ -14,7 +14,8 @@ export {
   STATUS_TITLE,
   DIFF_TITLE,
   MCP_TITLE,
-  INIT_TITLE
+  INIT_TITLE,
+  PROVIDER_MISSING_TEMPLATE
 } from './constants';
 
 // 上下文扩展

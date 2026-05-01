@@ -47,6 +47,7 @@ export {
   DEFAULT_REACTIVE_STRATEGY,
   DEFAULT_CONTEXT_WINDOW,
   TIME_CLEARED_MESSAGE,
+  PERSISTED_OUTPUT_TEMPLATE,
   DEFAULT_PTL_RETRY_MAX,
   DEFAULT_BLOCKING_LIMIT_RESERVE_TOKENS
 } from './constants';
@@ -55,7 +56,8 @@ export {
 export type {
   CompressedToolResultContent,
   CompactSummary,
-  SummarySections
+  SummarySections,
+  BlockingLimitError
 } from './types/messages';
 
 export type {
@@ -74,14 +76,17 @@ export type {
   MicroCompactConfig,
   AutoCompactConfig,
   ReactiveCompactConfig,
-  PartialCompactConfig
+  PartialCompactConfig,
+  PTLRetryConfig,
+  BlockingLimitConfig
 } from './types/config';
 
 export type {
   CompressDependencies,
   PersistToolResult,
   CallModelForSummary,
-  TokenEstimator
+  TokenEstimator,
+  IsPTLError
 } from './types/injection';
 
 export type {
