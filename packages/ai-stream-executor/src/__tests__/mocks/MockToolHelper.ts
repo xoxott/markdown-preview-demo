@@ -1,8 +1,8 @@
-/** P6 内部 Mock 工具 — 不依赖 P0 的 **tests**/mocks（exports 不暴露） */
+/** P6 内部 Mock 工具 — 不依赖 P0 的 tests/mocks（exports 不暴露） */
 
 import { z } from 'zod';
 import { buildTool } from '@suga/ai-tool-core';
-import type { ToolResult, ToolUseContext, SafetyLabel  } from '@suga/ai-tool-core';
+import type { SafetyLabel, ToolResult, ToolUseContext } from '@suga/ai-tool-core';
 
 /** Mock 工具配置 */
 export interface MockToolConfig {

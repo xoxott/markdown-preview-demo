@@ -1,8 +1,7 @@
 /** Team — Worker 分组与发现 */
 
 import type { AgentDefinition } from '../types/agent';
-import type { Worker } from '../types/team';
-import type { TeamStatus } from '../types/team';
+import type { TeamStatus, Worker } from '../types/team';
 import { DEFAULT_WORKER_ID_PREFIX } from '../constants';
 
 export class Team {

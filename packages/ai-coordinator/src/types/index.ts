@@ -18,3 +18,24 @@ export type {
   OrchestrationEvent,
   PhaseStrategy
 } from './orchestrator';
+
+export type {
+  PermissionBubbleRequest,
+  PermissionBubbleResponse,
+  PermissionBubbleRule,
+  PermissionBubbleSuggestion
+} from './permission-bubble';
+
+export type { PermissionUpdateMessage, SettingsUpdateMessage } from './permission-sync';
+
+export type {
+  SpawnProvider,
+  SpawnCallOptions,
+  AgentSessionHandle,
+  AgentResult,
+  TaskTypeIdentifier,
+  TaskExecutionContext,
+  TaskResult,
+  TaskType,
+  BatchExecutionMode
+} from './task-executor';

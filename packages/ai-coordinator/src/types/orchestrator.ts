@@ -54,8 +54,20 @@ export interface OrchestrationResult {
 export type OrchestrationEvent =
   | { readonly type: 'phase_start'; readonly phase: OrchestrationPhase }
   | { readonly type: 'task_created'; readonly task: TaskDefinition }
+  | {
+      readonly type: 'task_completed';
+      readonly task: TaskDefinition;
+      readonly result: import('./task-executor').TaskResult;
+    }
   | { readonly type: 'message_sent'; readonly to: string; readonly content: string }
   | { readonly type: 'phase_end'; readonly phase: OrchestrationPhase; readonly summary: string }
+  | {
+      readonly type: 'permission_bubble';
+      readonly workerId: string;
+      readonly toolName: string;
+      readonly reason: string;
+    }
+  | { readonly type: 'permission_resolved'; readonly workerId: string; readonly approved: boolean }
   | { readonly type: 'orchestration_end'; readonly result: OrchestrationResult };
 
 /** 编排策略接口 — 可插拔策略 */

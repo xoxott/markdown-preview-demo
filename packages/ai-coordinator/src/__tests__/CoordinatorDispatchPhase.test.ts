@@ -1,11 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import type { AgentEvent, MutableAgentContext } from '@suga/ai-agent-loop';
 import { CoordinatorRegistry } from '../registry/CoordinatorRegistry';
 import { InMemoryMailbox } from '../mailbox/InMemoryMailbox';
 import { TaskManager } from '../task/TaskManager';
 import { DefaultPhaseStrategy } from '../orchestrator/PhaseStrategy';
 import { CoordinatorDispatchPhase } from '../integration/CoordinatorDispatchPhase';
-import type { MutableAgentContext } from '@suga/ai-agent-loop';
-import type { AgentEvent } from '@suga/ai-agent-loop';
 
 function createMockContext(): MutableAgentContext & { _messages: any[] } {
   const messages: any[] = [];
@@ -28,8 +27,6 @@ function createMockContext(): MutableAgentContext & { _messages: any[] } {
     _messages: messages
   } as any;
 }
-
-import { vi } from 'vitest';
 
 async function* emptyGenerator(): AsyncGenerator<AgentEvent> {}
 

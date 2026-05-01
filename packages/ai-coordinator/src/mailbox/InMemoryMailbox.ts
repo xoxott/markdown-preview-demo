@@ -1,6 +1,6 @@
 /** InMemoryMailbox — 内存默认实现 */
 
-import type { MailboxMessage, Mailbox, StructuredMessage } from '../types/mailbox';
+import type { Mailbox, MailboxMessage, StructuredMessage } from '../types/mailbox';
 import { DEFAULT_MESSAGE_ID_PREFIX } from '../constants';
 
 export class InMemoryMailbox implements Mailbox {

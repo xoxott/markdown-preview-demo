@@ -1,20 +1,16 @@
 /** CoordinatorDispatchPhase — P1 LoopPhase 集成 */
 
-import type { MutableAgentContext } from '@suga/ai-agent-loop';
-import type { AgentEvent } from '@suga/ai-agent-loop';
-import type { LoopPhase } from '@suga/ai-agent-loop';
-import type { OrchestrationResult } from '../types/orchestrator';
+import type { AgentEvent, LoopPhase, MutableAgentContext } from '@suga/ai-agent-loop';
+import type { OrchestrationResult, PhaseStrategy } from '../types/orchestrator';
 import type { Mailbox } from '../types/mailbox';
 import { CoordinatorOrchestrator } from '../orchestrator/CoordinatorOrchestrator';
-import { CoordinatorRegistry } from '../registry/CoordinatorRegistry';
-import { TaskManager } from '../task/TaskManager';
-import type { PhaseStrategy } from '../types/orchestrator';
+import type { CoordinatorRegistry } from '../registry/CoordinatorRegistry';
+import type { TaskManager } from '../task/TaskManager';
 
 /**
  * Coordinator 编排预处理阶段
  *
- * 在 Phase 链中插入，从用户消息提取请求，运行编排引擎，
- * 将编排结果写入 ctx.meta.coordinatorResult。
+ * 在 Phase 链中插入，从用户消息提取请求，运行编排引擎， 将编排结果写入 ctx.meta.coordinatorResult。
  */
 export class CoordinatorDispatchPhase implements LoopPhase {
   constructor(

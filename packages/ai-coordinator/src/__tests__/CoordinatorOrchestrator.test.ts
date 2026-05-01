@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { CoordinatorOrchestrator } from '../orchestrator/CoordinatorOrchestrator';
 import { CoordinatorRegistry } from '../registry/CoordinatorRegistry';
 import { InMemoryMailbox } from '../mailbox/InMemoryMailbox';

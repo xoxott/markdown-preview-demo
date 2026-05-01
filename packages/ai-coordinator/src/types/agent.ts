@@ -14,8 +14,8 @@ export const AGENT_TYPE_PATTERN = /^[a-z][a-z0-9-]*$/;
 /**
  * AgentDefinition — Worker 定义模板
  *
- * 对齐 Claude Code 的 BaseAgentDefinition，描述一个 Worker 的能力边界。
- * Coordinator 根据 AgentDefinition 选择合适的 Worker 执行任务。
+ * 对齐 Claude Code 的 BaseAgentDefinition，描述一个 Worker 的能力边界。 Coordinator 根据 AgentDefinition 选择合适的
+ * Worker 执行任务。
  */
 export interface AgentDefinition {
   /** 唯一标识符 (如 "researcher", "coder", "tester") */
@@ -30,8 +30,16 @@ export interface AgentDefinition {
   readonly model?: string;
   /** 最大轮次限制 */
   readonly maxTurns?: number;
-  /** 权限模式 */
+  /** 权限模式（自由文本，向后兼容） */
   readonly permissionMode?: string;
+  /** 结构化权限模式（精确标记，可选） */
+  readonly structuredPermissionMode?:
+    | 'default'
+    | 'plan'
+    | 'acceptEdits'
+    | 'bypassPermissions'
+    | 'auto'
+    | 'restricted';
   /** 会话级 hooks 配置 */
   readonly hooks?: HooksSettings;
   /** 预加载 skill 列表 */

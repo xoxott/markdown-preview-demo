@@ -1,19 +1,18 @@
 /** DefaultPhaseStrategy — 默认4阶段编排策略 */
 
 import type {
+  OrchestrationContext,
   OrchestrationPhase,
   OrchestrationStep,
-  OrchestrationContext,
   PhaseStrategy
 } from '../types/orchestrator';
 
 /**
  * 默认4阶段编排策略
  *
- * Research: 为包含 "research" 关键词的 agentType 创建步骤
- * Synthesis: Coordinator 自己综合，不创建 Worker
- * Implementation: 为包含 "implement/coder/develop" 关键词的 agentType 创建步骤
- * Verification: 为包含 "verify/test/check" 关键词的 agentType 创建步骤
+ * Research: 为包含 "research" 关键词的 agentType 创建步骤 Synthesis: Coordinator 自己综合，不创建 Worker
+ * Implementation: 为包含 "implement/coder/develop" 关键词的 agentType 创建步骤 Verification: 为包含
+ * "verify/test/check" 关键词的 agentType 创建步骤
  */
 export class DefaultPhaseStrategy implements PhaseStrategy {
   plan(phase: OrchestrationPhase, context: OrchestrationContext): OrchestrationStep[] {

@@ -25,6 +25,15 @@ export type {
   PhaseStrategy
 } from './types/orchestrator';
 
+export type {
+  PermissionBubbleRequest,
+  PermissionBubbleResponse,
+  PermissionBubbleRule,
+  PermissionBubbleSuggestion
+} from './types/permission-bubble';
+
+export type { PermissionUpdateMessage, SettingsUpdateMessage } from './types/permission-sync';
+
 // 常量导出
 export {
   DEFAULT_TEAM_NAME_PREFIX,
@@ -43,9 +52,34 @@ export { TeamManager } from './team/TeamManager';
 
 // Mailbox
 export { InMemoryMailbox } from './mailbox/InMemoryMailbox';
+export { FileMailbox } from './mailbox/FileMailbox';
+export type {
+  FileMailboxOptions,
+  FileMailboxReader,
+  FileMailboxWriter,
+  FileMailboxLocker
+} from './mailbox/FileMailbox';
+
+// Permission Bubble
+export {
+  sendPermissionBubble,
+  receivePermissionBubbleRequests,
+  sendPermissionBubbleResponse,
+  pollPermissionBubbleResponse
+} from './permission/PermissionBubbleHandler';
+export { PermissionBubbleQueue } from './permission/PermissionBubbleQueue';
+export type { PendingPermissionBubble } from './permission/PermissionBubbleQueue';
 
 // Task
 export { TaskManager } from './task/TaskManager';
+export { TaskExecutor } from './task/TaskExecutor';
+export { TaskTypeRegistry } from './task/TaskTypeRegistry';
+export { LocalAgentTask } from './task/LocalAgentTask';
+export { LocalShellTask } from './task/LocalShellTask';
+export { InProcessTeammate } from './task/InProcessTeammate';
+export { LocalWorkflowTask } from './task/LocalWorkflowTask';
+export { RemoteAgentTask } from './task/RemoteAgentTask';
+export { DreamTask } from './task/DreamTask';
 
 // Orchestrator
 export { CoordinatorOrchestrator } from './orchestrator/CoordinatorOrchestrator';

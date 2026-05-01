@@ -8,6 +8,10 @@ export type MailboxMessageType =
   | 'shutdown_request'
   | 'shutdown_response'
   | 'plan_approval_response'
+  | 'permission_request'
+  | 'permission_response'
+  | 'permission_update'
+  | 'settings_update'
   | 'broadcast'
   | 'custom';
 
@@ -36,8 +40,7 @@ export interface MailboxMessage {
 /**
  * Mailbox 抽象接口 — 跨 Worker 消息传递
  *
- * 默认提供 InMemoryMailbox 实现。
- * 下游可替换为文件系统实现或网络实现。
+ * 默认提供 InMemoryMailbox 实现。 下游可替换为文件系统实现或网络实现。
  */
 export interface Mailbox {
   /** 发送消息 */
