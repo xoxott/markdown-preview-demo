@@ -3,6 +3,7 @@
 import type { z } from 'zod';
 import { DEFAULT_MAX_RESULT_SIZE, TOOL_NAME_PATTERN } from './constants';
 import type { BuiltTool, ToolDef } from './types/tool';
+import type { ToolClassifierInput } from './types/permission-classifier';
 
 /**
  * 工具默认值（失败封闭默认值 — 保守策略）
@@ -27,7 +28,14 @@ export const TOOL_DEFAULTS = {
   checkPermissions: () => ({ behavior: 'allow' as const }),
   safetyLabel: () => 'system' as const,
   maxResultSizeChars: DEFAULT_MAX_RESULT_SIZE,
-  interruptBehavior: () => 'cancel' as const
+  interruptBehavior: () => 'cancel' as const,
+  toAutoClassifierInput: (_input: unknown): ToolClassifierInput => ({
+    toolName: '',
+    input: _input,
+    safetyLabel: 'system',
+    isReadOnly: false,
+    isDestructive: false
+  })
 };
 
 /**
@@ -82,6 +90,9 @@ export function buildTool<Input, Output>(def: ToolDef<Input, Output>): BuiltTool
     checkPermissions: def.checkPermissions ?? TOOL_DEFAULTS.checkPermissions,
     safetyLabel: def.safetyLabel ?? TOOL_DEFAULTS.safetyLabel,
     maxResultSizeChars: def.maxResultSizeChars ?? TOOL_DEFAULTS.maxResultSizeChars,
-    interruptBehavior: def.interruptBehavior ?? TOOL_DEFAULTS.interruptBehavior
+    interruptBehavior: def.interruptBehavior ?? TOOL_DEFAULTS.interruptBehavior,
+    toAutoClassifierInput: (def.toAutoClassifierInput ?? TOOL_DEFAULTS.toAutoClassifierInput) as (
+      input: unknown
+    ) => ToolClassifierInput
   };
 }

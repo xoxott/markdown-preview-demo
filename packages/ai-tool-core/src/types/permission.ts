@@ -1,26 +1,31 @@
 /** 权限类型定义（Permission Types） 工具执行权限相关类型 */
 
+import type { PermissionDecisionReason } from './permission-decision';
+
 /**
  * 权限决策来源 — 标记决策是从哪个系统产生的
  *
  * 参考 Claude Code 的 resolveHookPermissionDecision:
+ *
  * - rule: 规则引擎（settings.json 中的权限规则）
  * - hook: PreToolUse hook 产生的决策
- * - mode: PermissionMode 产生的决策（auto/restricted）
+ * - mode: PermissionMode 产生的决策（auto/restricted/plan/acceptEdits）
  * - classifier: Bash Classifier 自动分类产生的决策
  * - user: 用户交互式审批产生的决策
+ * - flag: CLI flag 产生的决策（--dangerously-skip-permissions 等）
  * - default: 工具默认权限检查产生的决策
  */
-export type PermissionDecisionSource = 'rule' | 'hook' | 'mode' | 'classifier' | 'user' | 'default';
+export type PermissionDecisionSource =
+  | 'rule'
+  | 'hook'
+  | 'mode'
+  | 'classifier'
+  | 'user'
+  | 'flag'
+  | 'default';
 
-/**
- * 权限模式
- *
- * - default: 默认交互模式，通过 checkPermissions 决策
- * - auto: 自动模式，只读工具自动允许
- * - restricted: 受限模式，只允许只读工具
- */
-export type PermissionMode = 'default' | 'auto' | 'restricted';
+/** 权限模式 — 从 permission-mode.ts re-export，6种模式 */
+export type { PermissionMode } from './permission-mode';
 
 /**
  * 安全标签（用于标记工具的安全级别）
@@ -40,8 +45,14 @@ export interface PermissionAllow {
   updatedInput?: unknown;
   /** 决策来源 */
   decisionSource?: PermissionDecisionSource;
-  /** 决策原因 */
+  /** 决策原因（自由文本，向后兼容） */
   decisionReason?: string;
+  /** 结构化决策原因（精确标记，用于新管线） */
+  structuredReason?: PermissionDecisionReason;
+  /** P16F: 权限更新操作（用户选择"永久允许"时，宿主应应用此更新） */
+  permissionUpdate?: import('./permission-context').PermissionUpdate;
+  /** P16F: 用户反馈文本（可选） */
+  feedback?: string;
 }
 
 /** 权限拒绝 */
@@ -53,8 +64,12 @@ export interface PermissionDeny {
   reason?: string;
   /** 决策来源 */
   decisionSource?: PermissionDecisionSource;
-  /** 决策原因 */
+  /** 决策原因（自由文本，向后兼容） */
   decisionReason?: string;
+  /** 结构化决策原因（精确标记，用于新管线） */
+  structuredReason?: PermissionDecisionReason;
+  /** P16F: 用户反馈文本（可选，用户拒绝时附加的原因说明） */
+  feedback?: string;
 }
 
 /** 权限询问（需要用户确认，由调用方决策） */
@@ -64,21 +79,24 @@ export interface PermissionAsk {
   message: string;
   /** 决策来源 */
   decisionSource?: PermissionDecisionSource;
-  /** 决策原因 */
+  /** 决策原因（自由文本，向后兼容） */
   decisionReason?: string;
+  /** 结构化决策原因（精确标记，用于新管线） */
+  structuredReason?: PermissionDecisionReason;
 }
 
 /**
  * 权限透传 — PreToolUse hook 不做权限决策，交由规则引擎
  *
- * 参考 Claude Code 的 passthrough 行为:
- * hook 未指定 permissionBehavior 时，不干预权限流程，
- * 正常走 checkPermissions 规则引擎。
+ * 参考 Claude Code 的 passthrough 行为: hook 未指定 permissionBehavior 时，不干预权限流程， 正常走 checkPermissions
+ * 规则引擎。
  */
 export interface PermissionPassthrough {
   behavior: 'passthrough';
   /** 决策来源（通常是 'hook'） */
   decisionSource?: PermissionDecisionSource;
+  /** 结构化决策原因（精确标记，用于新管线） */
+  structuredReason?: PermissionDecisionReason;
 }
 
 /** 权限结果（判别联合类型，基于 behavior 字段判别） */
@@ -91,11 +109,10 @@ export type PermissionResult =
 /**
  * Hook 权限决策 — PreToolUse hook 产生的权限决策信息
  *
- * 从 ToolUseContext.meta 中读取（由 P4 HookBeforeToolPhase 写入），
- * ToolExecutor 在 permissionPhase 中合并此决策与规则引擎决策。
+ * 从 ToolUseContext.meta 中读取（由 P4 HookBeforeToolPhase 写入）， ToolExecutor 在 permissionPhase
+ * 中合并此决策与规则引擎决策。
  *
- * 优先级规则（与 Claude Code 一致）:
- * hook deny > settings deny > settings ask > hook allow > settings allow
+ * 优先级规则（与 Claude Code 一致）: hook deny > settings deny > settings ask > hook allow > settings allow
  */
 export interface HookPermissionDecision {
   /** Hook 的权限行为（deny/allow/ask/passthrough） */

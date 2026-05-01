@@ -2,7 +2,9 @@
 
 import type { BuiltTool, ToolResult } from './types/tool';
 import type { ToolCallOptions, ToolUseContext } from './types/context';
-import type { PermissionMode, PermissionResult, HookPermissionDecision } from './types/permission';
+import type { HookPermissionDecision, PermissionMode, PermissionResult } from './types/permission';
+import { hasPermissionsToUseTool, resolveHookPermissionWithPipeline } from './permission-pipeline';
+import type { PermissionPipelineInput } from './types/permission-decision';
 
 /** 执行器结果 */
 export interface ExecutorResult<T = unknown> {
@@ -25,10 +27,17 @@ export interface ExecutorResult<T = unknown> {
  * 6. PostHook 阶段（从 ToolUseContext.meta 读取 P4 HookAfterToolPhase 写入的输出修改）
  *
  * PreHook 和 PostHook 通过 ToolUseContext.meta 桥接 P4 Hooks：
+ *
  * - 无 meta 数据时完全跳过 Hook 阶段（向后兼容）
  * - 有 meta 数据时合并 Hook 决策到权限流程
  *
+ * 权限阶段支持两种模式:
+ *
+ * - 有 permCtx → 使用新权限管线（hasPermissionsToUseTool 6步管线）
+ * - 无 permCtx → 使用旧逻辑（legacyPermissionPhase，PermissionMode + checkPermissions）
+ *
  * 参考 Claude Code 的 resolveHookPermissionDecision:
+ *
  * - hook deny 绝对覆盖所有规则
  * - hook allow 不覆盖 settings deny/ask
  * - hook ask 强制用户确认
@@ -111,7 +120,9 @@ export class ToolExecutor {
     // === 阶段 3：权限（合并 Hook + 规则引擎） ===
     if (!options?.skipPermissionCheck) {
       const permissionResult = await this.permissionPhase(tool, hookModifiedArgs, context, options);
-      const mergedPermission = this.resolveHookPermission(hookDecision, permissionResult);
+      const mergedPermission = hookDecision
+        ? resolveHookPermissionWithPipeline(hookDecision, permissionResult)
+        : this.resolveHookPermission(hookDecision, permissionResult);
 
       if (mergedPermission.behavior === 'deny') {
         return {
@@ -206,6 +217,7 @@ export class ToolExecutor {
    * PreHook 阶段：从 ToolUseContext.meta 读取 P4 HookBeforeToolPhase 写入的决策
    *
    * 桥接协议:
+   *
    * - ctx.meta.hookPermissionBehavior → hook 的权限行为
    * - ctx.meta.hookUpdatedInputs (Map<toolUseId, updatedInput>) → hook 修改的输入
    * - ctx.meta.hookPreventContinuation → hook 是否阻止继续
@@ -217,9 +229,8 @@ export class ToolExecutor {
     context: ToolUseContext,
     options?: ToolCallOptions
   ): HookPermissionDecision | undefined {
-    const meta = (context as ToolUseContext & Record<string, unknown>).meta as
-      | Record<string, unknown>
-      | undefined;
+    // 通过 interface merging，meta 现在是 ToolUseContext 的正式可选字段
+    const meta = context.meta;
     if (!meta) return undefined;
 
     const permissionBehavior = meta.hookPermissionBehavior as
@@ -247,9 +258,75 @@ export class ToolExecutor {
   }
 
   /**
-   * 合并 Hook 决策 + Permission 决策
+   * 权限阶段 — 双分支逻辑
+   *
+   * 有 permCtx → 使用新权限管线（hasPermissionsToUseTool 6步管线） 无 permCtx → 使用旧逻辑（legacyPermissionPhase）
+   */
+  private async permissionPhase<Input, Output>(
+    tool: BuiltTool<Input, Output>,
+    args: Input,
+    context: ToolUseContext,
+    options?: ToolCallOptions
+  ): Promise<PermissionResult> {
+    const permCtx = context.permCtx;
+
+    // 有 permCtx → 使用新管线
+    if (permCtx) {
+      const pipelineInput: PermissionPipelineInput = {
+        tool: tool as BuiltTool<unknown, unknown>,
+        args,
+        context,
+        permCtx,
+        canUseToolFn: context.canUseToolFn,
+        denialTracking: context.denialTracking
+      };
+
+      return hasPermissionsToUseTool(pipelineInput);
+    }
+
+    // 无 permCtx → 使用旧逻辑（向后兼容）
+    return this.legacyPermissionPhase(tool, args, context, options);
+  }
+
+  /**
+   * 旧权限阶段逻辑 — PermissionMode + checkPermissions
+   *
+   * 保留此方法确保无 permCtx 时行为不变。
+   */
+  private async legacyPermissionPhase<Input, Output>(
+    tool: BuiltTool<Input, Output>,
+    args: Input,
+    context: ToolUseContext,
+    options?: ToolCallOptions
+  ): Promise<PermissionResult> {
+    const mode: PermissionMode = options?.permissionMode ?? 'default';
+
+    // restricted 模式：拒绝所有非只读工具
+    if (mode === 'restricted' && !tool.isReadOnly(args)) {
+      return {
+        behavior: 'deny',
+        message: `受限模式下不允许执行非只读工具 "${tool.name}"`,
+        reason: 'restricted_mode_non_readonly',
+        decisionSource: 'mode'
+      };
+    }
+
+    // auto 模式：自动允许只读工具
+    if (mode === 'auto' && tool.isReadOnly(args)) {
+      return { behavior: 'allow', decisionSource: 'mode' };
+    }
+
+    // 调用工具自定义权限检查
+    return tool.checkPermissions(args, context);
+  }
+
+  /**
+   * 合并 Hook 决策 + Permission 决策（旧版逻辑）
+   *
+   * 当 hookDecision 不为 undefined 且有新管线时， 使用 resolveHookPermissionWithPipeline。 否则使用此旧版逻辑。
    *
    * 优先级规则（与 Claude Code resolveHookPermissionDecision 一致）:
+   *
    * - hook deny → 绝对覆盖（跳过所有规则检查）
    * - hook allow → 不覆盖 settings deny/ask（规则优先）
    * - hook ask → 强制用户确认
@@ -306,6 +383,7 @@ export class ToolExecutor {
    * PostHook 阶段：从 ToolUseContext.meta 读取 P4 HookAfterToolPhase 写入的输出修改
    *
    * 桥接协议:
+   *
    * - ctx.meta.hookUpdatedOutputs (Map<toolUseId, updatedOutput>) → hook 修改的输出
    *
    * 无 meta 数据时返回原始结果（向后兼容）。
@@ -316,9 +394,7 @@ export class ToolExecutor {
     context: ToolUseContext,
     options?: ToolCallOptions
   ): ExecutorResult<Output> {
-    const meta = (context as ToolUseContext & Record<string, unknown>).meta as
-      | Record<string, unknown>
-      | undefined;
+    const meta = context.meta;
     if (!meta) return executorResult;
 
     const updatedOutputs = meta.hookUpdatedOutputs as Map<string, unknown> | undefined;
@@ -343,34 +419,6 @@ export class ToolExecutor {
         }
       }
     };
-  }
-
-  /** 权限阶段：模式规则 + 自定义 checkPermissions */
-  private async permissionPhase<Input, Output>(
-    tool: BuiltTool<Input, Output>,
-    args: Input,
-    context: ToolUseContext,
-    options?: ToolCallOptions
-  ): Promise<PermissionResult> {
-    const mode: PermissionMode = options?.permissionMode ?? 'default';
-
-    // restricted 模式：拒绝所有非只读工具
-    if (mode === 'restricted' && !tool.isReadOnly(args)) {
-      return {
-        behavior: 'deny',
-        message: `受限模式下不允许执行非只读工具 "${tool.name}"`,
-        reason: 'restricted_mode_non_readonly',
-        decisionSource: 'mode'
-      };
-    }
-
-    // auto 模式：自动允许只读工具
-    if (mode === 'auto' && tool.isReadOnly(args)) {
-      return { behavior: 'allow', decisionSource: 'mode' };
-    }
-
-    // 调用工具自定义权限检查
-    return tool.checkPermissions(args, context);
   }
 
   /** 调用阶段：执行工具的 call 方法 + AbortSignal 监听 + 结果截断 */

@@ -4,6 +4,7 @@ import type { z } from 'zod';
 import type { PermissionResult, SafetyLabel } from './permission';
 import type { ValidationResult } from './validation';
 import type { ToolCallOptions, ToolUseContext } from './context';
+import type { ToolClassifierInput } from './permission-classifier';
 
 /** 工具结果（工具执行后的返回值） */
 export interface ToolResult<T = unknown> {
@@ -83,6 +84,8 @@ export interface ToolDef<Input = unknown, Output = unknown> {
   maxResultSizeChars?: number;
   /** 中断行为（默认 'cancel' — 中断时取消执行；'block' 等待工具自行处理） */
   interruptBehavior?(): 'cancel' | 'block';
+  /** 分类器投影（可选，P16-B 前置 — 从工具投影出分类器所需的信息） */
+  toAutoClassifierInput?(input: Input): ToolClassifierInput;
 }
 
 /**
@@ -119,4 +122,6 @@ export interface BuiltTool<Input = unknown, Output = unknown> {
   readonly maxResultSizeChars: number;
   /** 中断行为（已填充默认值: () => 'cancel'） */
   readonly interruptBehavior: () => 'cancel' | 'block';
+  /** 分类器投影（已填充默认值，P16-B 前置接口） */
+  readonly toAutoClassifierInput: (input: unknown) => ToolClassifierInput;
 }
