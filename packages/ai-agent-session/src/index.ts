@@ -23,6 +23,7 @@ export {
 
 // 存储
 export { InMemoryStorageAdapter } from './storage/InMemoryStorageAdapter';
+export { NodeFileStorageAdapter } from './storage/NodeFileStorageAdapter';
 
 // 会话层
 export { Session } from './session/Session';

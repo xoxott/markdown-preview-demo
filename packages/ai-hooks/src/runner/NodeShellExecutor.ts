@@ -63,7 +63,7 @@ export class NodeShellExecutor implements ShellExecutor {
       });
 
       child.stderr?.on('data', (data: unknown) => {
-        stderr += data.toString();
+        stderr += String(data);
       });
 
       return await new Promise<ShellResult>((resolve, reject) => {

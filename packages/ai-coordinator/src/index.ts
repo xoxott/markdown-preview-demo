@@ -26,6 +26,18 @@ export type {
 } from './types/orchestrator';
 
 export type {
+  SpawnProvider,
+  SpawnCallOptions,
+  AgentSessionHandle,
+  AgentResult,
+  TaskTypeIdentifier,
+  TaskExecutionContext,
+  TaskResult,
+  TaskType,
+  BatchExecutionMode
+} from './types/task-executor';
+
+export type {
   PermissionBubbleRequest,
   PermissionBubbleResponse,
   PermissionBubbleRule,

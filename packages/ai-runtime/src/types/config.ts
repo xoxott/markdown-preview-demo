@@ -9,8 +9,10 @@ import type {
   CoordinatorRegistry,
   Mailbox,
   PhaseStrategy,
+  SpawnProvider,
   TaskManager
 } from '@suga/ai-coordinator';
+import type { SubagentRegistry, SubagentSpawner } from '@suga/ai-subagent';
 
 /**
  * 运行时配置 — 聚合所有子包的可选配置
@@ -55,6 +57,14 @@ export interface RuntimeConfig {
   readonly coordinatorTaskManager?: TaskManager;
   /** 编排策略（默认 DefaultPhaseStrategy） */
   readonly coordinatorStrategy?: PhaseStrategy;
+  /** SpawnProvider — 真实Agent执行能力（提供时CoordinatorDispatchPhase使用真实TaskExecutor） */
+  readonly spawnProvider?: SpawnProvider;
+
+  // === P10 Subagent (可选) ===
+  /** Subagent注册表（提供时SubagentDispatchPhase插入Phase链） */
+  readonly subagentRegistry?: SubagentRegistry;
+  /** SubagentSpawner — 真实spawn能力 */
+  readonly subagentSpawner?: SubagentSpawner;
 }
 
 /** RuntimeSession 状态 — P7 Store 管理 */

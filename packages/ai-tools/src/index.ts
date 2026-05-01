@@ -1,8 +1,5 @@
 /**
  * @suga/ai-tools — 6 核心工具实现包 barrel 导出
- *
- * Phase 1 stub: 仅导出类型和 context merge
- * Phase 2+: 导出工具实现
  */
 
 // ToolUseContext 扩展类型
@@ -40,3 +37,6 @@ export { fileReadTool } from './tools/file-read';
 export { fileWriteTool } from './tools/file-write';
 export { fileEditTool } from './tools/file-edit';
 export { bashTool } from './tools/bash';
+
+// Provider 实现
+export { NodeFileSystemProvider } from './provider/NodeFileSystemProvider';

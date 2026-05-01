@@ -3,6 +3,7 @@
 import type { AgentEvent, LoopPhase, MutableAgentContext } from '@suga/ai-agent-loop';
 import type { OrchestrationResult, PhaseStrategy } from '../types/orchestrator';
 import type { Mailbox } from '../types/mailbox';
+import type { SpawnProvider } from '../types/task-executor';
 import { CoordinatorOrchestrator } from '../orchestrator/CoordinatorOrchestrator';
 import type { CoordinatorRegistry } from '../registry/CoordinatorRegistry';
 import type { TaskManager } from '../task/TaskManager';
@@ -17,7 +18,8 @@ export class CoordinatorDispatchPhase implements LoopPhase {
     private readonly registry: CoordinatorRegistry,
     private readonly mailbox: Mailbox,
     private readonly taskManager: TaskManager,
-    private readonly strategy: PhaseStrategy
+    private readonly strategy: PhaseStrategy,
+    private readonly spawnProvider?: SpawnProvider
   ) {}
 
   async *execute(
@@ -39,7 +41,8 @@ export class CoordinatorDispatchPhase implements LoopPhase {
         this.registry,
         this.mailbox,
         this.taskManager,
-        this.strategy
+        this.strategy,
+        this.spawnProvider
       )) {
         // 将编排事件转为 text_delta 描述
         if (event.type === 'phase_start') {

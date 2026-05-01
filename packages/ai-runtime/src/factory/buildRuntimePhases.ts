@@ -17,6 +17,7 @@ import {
   InMemoryMailbox,
   TaskManager
 } from '@suga/ai-coordinator';
+import { SubagentDispatchPhase } from '@suga/ai-subagent';
 import { ToolExecutor } from '@suga/ai-tool-core';
 import type { RuntimeConfig } from '../types/config';
 import { DEFAULT_RUNTIME_MAX_TURNS, DEFAULT_RUNTIME_TOOL_TIMEOUT } from '../constants';
@@ -70,9 +71,17 @@ export function buildRuntimePhases(config: RuntimeConfig): LoopPhase[] {
     const mailbox = config.coordinatorMailbox ?? new InMemoryMailbox();
     const taskManager = config.coordinatorTaskManager ?? new TaskManager();
     const strategy = config.coordinatorStrategy ?? new DefaultPhaseStrategy();
+    const spawnProvider = config.spawnProvider;
     phases.push(
-      new CoordinatorDispatchPhase(config.coordinatorRegistry, mailbox, taskManager, strategy)
+      new CoordinatorDispatchPhase(
+        config.coordinatorRegistry, mailbox, taskManager, strategy, spawnProvider
+      )
     );
+  }
+
+  // --- Phase 4b: P10 SubagentDispatch (可选) ---
+  if (config.subagentRegistry && config.subagentSpawner) {
+    phases.push(new SubagentDispatchPhase(config.subagentRegistry, config.subagentSpawner));
   }
 
   // --- Phase 5: P4 HookBeforeTool (可选) ---

@@ -3,6 +3,7 @@
 import type { HookRegistry } from '../registry/HookRegistry';
 import type { HookRunnerDeps } from '../types/runner';
 import type { SessionHookStore } from '../types/session';
+import type { LLMQueryService } from '../types/llmQuery';
 import { HookExecutor } from '../executor/HookExecutor';
 import { RunnerRegistryImpl } from './RunnerRegistry';
 import { CallbackRunner } from './CallbackRunner';
@@ -54,12 +55,12 @@ export function createFullHookExecutor(
 
   // PromptRunner — 需要 LLMProvider
   if (deps.llmProvider !== undefined) {
-    runnerRegistry.register(new PromptRunner(deps.llmProvider));
+    runnerRegistry.register(new PromptRunner(deps.llmProvider as LLMQueryService));
   }
 
   // AgentRunner — 需要 LLMProvider
   if (deps.llmProvider !== undefined) {
-    runnerRegistry.register(new AgentRunner(deps.llmProvider));
+    runnerRegistry.register(new AgentRunner(deps.llmProvider as LLMQueryService));
   }
 
   const executor = new HookExecutor(registry, runnerRegistry, sessionStore);

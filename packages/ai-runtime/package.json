@@ -41,6 +41,7 @@
     "@suga/ai-skill": "workspace:*",
     "@suga/ai-context": "workspace:*",
     "@suga/ai-coordinator": "workspace:*",
+    "@suga/ai-subagent": "workspace:*",
     "@suga/ai-tool-adapter": "workspace:*",
     "@suga/ai-stream-executor": "workspace:*",
     "@suga/ai-agent-session": "workspace:*",

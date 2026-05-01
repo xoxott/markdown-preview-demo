@@ -91,5 +91,6 @@ export {
   ensureBodySections
 } from './core/memory-save';
 
-// 存储提供者 + Mock
+// 存储提供者
 export { MockMemoryStorageProvider } from './core/memory-storage';
+export { NodeFileMemoryStorageProvider } from './core/NodeFileMemoryStorageProvider';
