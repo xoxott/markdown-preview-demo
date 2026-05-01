@@ -46,10 +46,18 @@
     }
   },
   "peerDependencies": {
-    "react": "^18.0.0 || ^19.0.0"
+    "react": "^18.0.0 || ^19.0.0",
+    "@suga/ai-tool-core": "workspace:*",
+    "@suga/ai-coordinator": "workspace:*"
   },
   "peerDependenciesMeta": {
     "react": {
+      "optional": true
+    },
+    "@suga/ai-tool-core": {
+      "optional": true
+    },
+    "@suga/ai-coordinator": {
       "optional": true
     }
   },
