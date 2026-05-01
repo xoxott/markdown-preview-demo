@@ -2,9 +2,9 @@
 
 import { describe, expect, it, vi } from 'vitest';
 import type { AgentEvent, AgentState, MutableAgentContext } from '@suga/ai-agent-loop';
+import { ToolRegistry } from '@suga/ai-tool-core';
 import { HookStopPhase } from '../phase/HookStopPhase';
 import { HookRegistry } from '../registry/HookRegistry';
-import { ToolRegistry } from '@suga/ai-tool-core';
 
 /** 辅助：创建 mock MutableAgentContext */
 function createMockCtx(transitionType: string, metaOverrides?: Record<string, unknown>) {

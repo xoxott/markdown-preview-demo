@@ -1,7 +1,7 @@
 /** HookRegistry — Hook 注册和管理器 */
 
 import type { HookDefinition, HookEvent } from '../types/hooks';
-import type { HooksPolicy, HookSource } from '../types/policy';
+import type { HookSource, HooksPolicy } from '../types/policy';
 import { HOOK_NAME_PATTERN } from '../constants';
 import { matchesPattern } from '../utils/match';
 import { resolveHooksPolicy } from '../utils/resolvePolicy';
@@ -12,6 +12,7 @@ import { resolveHooksPolicy } from '../utils/resolvePolicy';
  * 支持注册、移除、查询、匹配。once hooks 执行后自动移除。 匹配逻辑: matcher 支持精确匹配和 glob 模式，不设 matcher 则匹配所有。
  *
  * 扩展功能:
+ *
  * - registerWithSource: 注册带来源标记的 Hook，用于安全门控
  * - getSource: 获取 Hook 的来源类型
  * - getMatchingHooks: 支持 HooksPolicy 过滤

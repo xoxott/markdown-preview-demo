@@ -8,8 +8,11 @@ import type {
 } from '@suga/ai-agent-loop';
 import type { PostToolUseFailureInput, PostToolUseInput } from '../types/input';
 import type { HookExecutionContext } from '../types/hooks';
+import type { HookExecutorDeps } from '../types/runner';
 import type { HookRegistry } from '../registry/HookRegistry';
 import { HookExecutor } from '../executor/HookExecutor';
+import { RunnerRegistryImpl } from '../runner/RunnerRegistry';
+import { CallbackRunner } from '../runner/CallbackRunner';
 
 /**
  * HookAfterToolPhase — 工具执行后的 Hook 拦截
@@ -27,8 +30,16 @@ import { HookExecutor } from '../executor/HookExecutor';
 export class HookAfterToolPhase implements LoopPhase {
   private readonly executor: HookExecutor;
 
-  constructor(registry: HookRegistry) {
-    this.executor = new HookExecutor(registry);
+  constructor(registryOrDeps: HookRegistry | HookExecutorDeps) {
+    if ('registry' in registryOrDeps && 'runnerRegistry' in registryOrDeps) {
+      const deps = registryOrDeps as HookExecutorDeps;
+      this.executor = new HookExecutor(deps.registry, deps.runnerRegistry, deps.sessionStore);
+    } else {
+      const registry = registryOrDeps as HookRegistry;
+      const runnerRegistry = new RunnerRegistryImpl();
+      runnerRegistry.register(new CallbackRunner());
+      this.executor = new HookExecutor(registry, runnerRegistry);
+    }
   }
 
   async *execute(

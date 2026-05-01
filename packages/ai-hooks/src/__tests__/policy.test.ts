@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { resolveHooksPolicy } from '../utils/resolvePolicy';
-import type { HooksPolicy, HookSource } from '../types/policy';
+import type { HookSource, HooksPolicy } from '../types/policy';
 
 describe('resolveHooksPolicy — 4层安全门控', () => {
   /** 层级1: disableAllHooks — 全禁用 */

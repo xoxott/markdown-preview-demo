@@ -1,6 +1,6 @@
 /** resolveHooksPolicy — 4层安全门控级联决策 */
 
-import type { HooksPolicy, HooksCustomizationSurface, HookSource } from '../types/policy';
+import type { HookSource, HooksCustomizationSurface, HooksPolicy } from '../types/policy';
 
 /** 高信任来源 — 在所有门控层级中均被允许 */
 const HIGH_TRUST_SOURCES: readonly HookSource[] = ['managed', 'policy', 'built-in'];

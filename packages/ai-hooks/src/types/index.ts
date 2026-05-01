@@ -33,5 +33,29 @@ export type { HooksPolicy, HooksTrustLevel, HooksCustomizationSurface, HookSourc
 
 export type { FunctionHook, FunctionHookCallback, SessionHookStore } from './session';
 
+export type {
+  HookRunner,
+  RunnerRegistry,
+  ShellExecutor,
+  ShellExecuteOptions,
+  ShellResult,
+  HttpClient,
+  HttpPostOptions,
+  HttpResponse,
+  SsrfGuard,
+  EnvProvider,
+  AsyncRewakeCallback,
+  HookRunnerDeps,
+  HookExecutorDeps
+} from './runner';
+
+export type {
+  LLMQueryService,
+  LLMQueryResult,
+  LLMMultiTurnResult,
+  LLMQueryOptions,
+  LLMToolDefinition
+} from './llmQuery';
+
 // context.ts 含 declare module 扩展，需作为副作用导入以确保类型合并生效
 export {} from './context';

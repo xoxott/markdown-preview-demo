@@ -2,9 +2,12 @@
 
 import type { AgentEvent, LoopPhase, MutableAgentContext } from '@suga/ai-agent-loop';
 import type { StopInput } from '../types/input';
-import type { HookExecutionContext, HookBlockingError } from '../types/hooks';
+import type { HookBlockingError, HookExecutionContext } from '../types/hooks';
+import type { HookExecutorDeps } from '../types/runner';
 import type { HookRegistry } from '../registry/HookRegistry';
 import { HookExecutor } from '../executor/HookExecutor';
+import { RunnerRegistryImpl } from '../runner/RunnerRegistry';
+import { CallbackRunner } from '../runner/CallbackRunner';
 
 /**
  * HookStopPhase — 对话循环结束时的 Stop Hook
@@ -24,8 +27,16 @@ import { HookExecutor } from '../executor/HookExecutor';
 export class HookStopPhase implements LoopPhase {
   private readonly executor: HookExecutor;
 
-  constructor(registry: HookRegistry) {
-    this.executor = new HookExecutor(registry);
+  constructor(registryOrDeps: HookRegistry | HookExecutorDeps) {
+    if ('registry' in registryOrDeps && 'runnerRegistry' in registryOrDeps) {
+      const deps = registryOrDeps as HookExecutorDeps;
+      this.executor = new HookExecutor(deps.registry, deps.runnerRegistry, deps.sessionStore);
+    } else {
+      const registry = registryOrDeps as HookRegistry;
+      const runnerRegistry = new RunnerRegistryImpl();
+      runnerRegistry.register(new CallbackRunner());
+      this.executor = new HookExecutor(registry, runnerRegistry);
+    }
   }
 
   async *execute(
@@ -86,7 +97,6 @@ export class HookStopPhase implements LoopPhase {
           ctx.meta.recoveryStrategy = 'stop_hook_blocking';
           ctx.meta.recovered = true;
           ctx.meta.hasAttemptedReactiveCompact = true;
-          return;
         }
       }
     }

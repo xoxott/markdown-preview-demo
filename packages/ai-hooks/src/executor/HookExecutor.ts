@@ -1,6 +1,8 @@
 /** HookExecutor — Hook 执行引擎 */
 
 import type { HookRegistry } from '../registry/HookRegistry';
+import type { RunnerRegistry } from '../types/runner';
+import type { SessionHookStore } from '../types/session';
 import type {
   AggregatedHookResult,
   HookDefinition,
@@ -24,20 +26,36 @@ import type {
 } from '../types/input';
 import { DEFAULT_HOOK_TIMEOUT } from '../constants';
 import { aggregateHookResults } from '../utils/aggregate';
+import { adaptFunctionHook } from '../runner/adaptFunctionHook';
 
 /**
  * Hook 执行引擎
  *
  * 执行策略:
  *
+ * - 路由: 根据 HookDefinition.type 选择对应 Runner（command/prompt/http/agent/callback）
  * - 并行: 所有匹配的 hooks 同时启动，独立超时
  * - 聚合: deny > ask > allow > passthrough 优先级
  * - 超时: 每个 hook 有独立 AbortSignal（timeout + 外部 signal 级联）
  * - once: 执行后自动从 registry 移除
+ * - SessionHook: FunctionHookCallback 适配后合并到并行执行
+ * - 异步: async=true 的 Hook 后台执行，立即返回占位结果
  * - 空匹配: 无匹配 hooks 时立即返回快速路径
  */
 export class HookExecutor {
-  constructor(private readonly registry: HookRegistry) {}
+  private readonly registry: HookRegistry;
+  private readonly runnerRegistry: RunnerRegistry;
+  private readonly sessionStore?: SessionHookStore;
+
+  constructor(
+    registry: HookRegistry,
+    runnerRegistry: RunnerRegistry,
+    sessionStore?: SessionHookStore
+  ) {
+    this.registry = registry;
+    this.runnerRegistry = runnerRegistry;
+    this.sessionStore = sessionStore;
+  }
 
   /** 获取匹配的 Hook 定义列表（用于 Phase 的快速路径判断） */
   getMatchingHookDefinitions(event: HookEvent, matchQuery?: string): HookDefinition[] {
@@ -51,7 +69,15 @@ export class HookExecutor {
     context: HookExecutionContext
   ): Promise<AggregatedHookResult> {
     const matchQuery = this.extractMatchQuery(input);
-    const matchingHooks = this.registry.getMatchingHooks(event, matchQuery);
+
+    // 从 HookRegistry 获取匹配 Hook
+    const registryHooks = this.registry.getMatchingHooks(event, matchQuery);
+
+    // 从 SessionHookStore 获取匹配 FunctionHook → 适配为 HookDefinition
+    const functionHooks = this.getMatchingFunctionHooks(event, matchQuery);
+
+    // 合并执行列表
+    const matchingHooks = [...registryHooks, ...functionHooks];
 
     // 快速路径: 无匹配 hooks
     if (matchingHooks.length === 0) {
@@ -77,6 +103,24 @@ export class HookExecutor {
     }
 
     return aggregated;
+  }
+
+  /** 从 SessionHookStore 获取匹配的 FunctionHook 并适配 */
+  private getMatchingFunctionHooks(event: HookEvent, matchQuery?: string): HookDefinition[] {
+    if (!this.sessionStore) return [];
+
+    const functionHooks = this.sessionStore.getSessionFunctionHooks();
+
+    // 过滤匹配事件 + matcher 的 FunctionHook
+    const matched = functionHooks.filter(fnHook => {
+      if (fnHook.event !== event) return false;
+      if (fnHook.matcher === undefined) return true;
+      if (matchQuery === undefined) return false;
+      // 使用简单的 glob 匹配
+      return fnHook.matcher === matchQuery || fnHook.matcher === '*';
+    });
+
+    return matched.map(adaptFunctionHook);
   }
 
   /** PreToolUse 专用方法 */
@@ -167,13 +211,38 @@ export class HookExecutor {
     return this.execute('PostCompact', input, context);
   }
 
-  /** 并行执行所有匹配 hooks — 每个 hook 有独立超时 */
+  /** 并行执行所有匹配 hooks — 每个 hook 有独立超时 + Runner 路由 */
   private async executeHooksParallel(
     hooks: HookDefinition[],
     input: HookInput,
     context: HookExecutionContext
   ): Promise<HookResult[]> {
     const promises = hooks.map(async (hook): Promise<HookResult> => {
+      // 异步 Hook: 后台执行，立即返回占位
+      if (hook.async === true) {
+        const runner = this.runnerRegistry.resolve(hook.type);
+        runner
+          .run(hook, input, { ...context })
+          .then(result => {
+            if (context.onAsyncComplete) {
+              context.onAsyncComplete(hook.name, result);
+            }
+          })
+          .catch(err => {
+            if (context.onAsyncComplete) {
+              context.onAsyncComplete(hook.name, {
+                outcome: 'non_blocking_error',
+                error: err instanceof Error ? err.message : String(err),
+                preventContinuation: false
+              });
+            }
+          });
+
+        // 立即返回占位 — 异步结果不参与本轮聚合
+        return { outcome: 'success', preventContinuation: false };
+      }
+
+      // 同步 Hook: 正常执行
       const timeout = hook.timeout ?? DEFAULT_HOOK_TIMEOUT;
 
       // 创建级联 AbortSignal: timeout + 外部 signal
@@ -201,7 +270,9 @@ export class HookExecutor {
       };
 
       try {
-        const result = await hook.handler(input, hookContext);
+        // ★ Runner 路由 — 根据 hook.type 选择对应执行引擎
+        const runner = this.runnerRegistry.resolve(hook.type);
+        const result = await runner.run(hook, input, hookContext);
 
         // 已被中断 → 标记 cancelled
         if (combinedController.signal.aborted) {

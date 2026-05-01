@@ -15,6 +15,7 @@ function nextFunctionHookId(): string {
  * InMemorySessionHookStore — 会话级 Hook 内存存储
  *
  * 参考 Claude Code 源码 sessionHooks.ts 的 SessionHooksState 设计:
+ *
  * - sessionHooks: Map<HookEvent, HookDefinition[]> — 按事件分组
  * - functionHooks: Map<string, FunctionHook> — 按 ID 索引
  * - 使用 Map 避免 O(N^2) 并发问题（.set/.delete 不触发 listener 通知）

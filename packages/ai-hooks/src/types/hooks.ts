@@ -44,9 +44,45 @@ export interface HookDefinition<TInput = unknown, TOutput = unknown> {
   readonly matcher?: string;
   /** 执行方式（默认回调=handler） */
   readonly type?: HookType;
-  /** 处理回调 */
-  readonly handler: HookHandler<TInput, TOutput>;
-  /** 执行超时（ms），默认 DEFAULT_HOOK_TIMEOUT */
+
+  // ——— Callback Runner (type=undefined) ———
+
+  /** 处理回调 — type=undefined 时必须提供 */
+  readonly handler?: HookHandler<TInput, TOutput>;
+
+  // ——— Command Runner (type='command') ———
+
+  /** Shell 命令字符串 — type='command' 时必须提供 */
+  readonly command?: string;
+
+  // ——— Prompt Runner (type='prompt') ———
+
+  /** LLM 提示模板 — type='prompt' 时必须提供 */
+  readonly prompt?: string;
+  /** 覆盖使用的 LLM 模型名称 */
+  readonly model?: string;
+
+  // ——— Agent Runner (type='agent') ———
+
+  /** 验证任务描述 — type='agent' 时必须提供（或 fallback handler） */
+  readonly agentPrompt?: string;
+  /** 子 Agent 最大轮次（默认 10） */
+  readonly maxTurns?: number;
+  /** 禁止子 Agent 使用的工具列表 */
+  readonly disallowedTools?: readonly string[];
+
+  // ——— HTTP Runner (type='http') ———
+
+  /** 目标 URL — type='http' 时必须提供 */
+  readonly url?: string;
+  /** 环境变量白名单 — 仅允许这些变量在 headers 中插值 */
+  readonly allowedEnvVars?: readonly string[];
+  /** 自定义请求头 */
+  readonly headers?: Record<string, string>;
+
+  // ——— 通用 ———
+
+  /** 执行超时（ms），默认 DEFAULT_HOOK_TIMEOUT 或按 type 使用默认 */
   readonly timeout?: number;
   /** 执行一次后自动移除 */
   readonly once?: boolean;
@@ -124,6 +160,8 @@ export interface HookExecutionContext {
   readonly toolRegistry: import('@suga/ai-tool-core').ToolRegistry;
   /** 阶段间共享数据通道 */
   readonly meta: Record<string, unknown>;
+  /** 异步 Hook 完成回调（仅 async=true 的 Hook 使用） */
+  readonly onAsyncComplete?: import('./runner').AsyncRewakeCallback;
 }
 
 /** Stop Hook 阻止错误（返回 blocking 但不阻止继续循环） */

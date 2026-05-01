@@ -3,8 +3,11 @@
 import type { AgentEvent, LoopPhase, MutableAgentContext } from '@suga/ai-agent-loop';
 import type { PreToolUseInput } from '../types/input';
 import type { HookExecutionContext } from '../types/hooks';
+import type { HookExecutorDeps } from '../types/runner';
 import type { HookRegistry } from '../registry/HookRegistry';
 import { HookExecutor } from '../executor/HookExecutor';
+import { RunnerRegistryImpl } from '../runner/RunnerRegistry';
+import { CallbackRunner } from '../runner/CallbackRunner';
 
 /**
  * HookBeforeToolPhase — 工具执行前的 Hook 拦截
@@ -24,8 +27,19 @@ import { HookExecutor } from '../executor/HookExecutor';
 export class HookBeforeToolPhase implements LoopPhase {
   private readonly executor: HookExecutor;
 
-  constructor(registry: HookRegistry) {
-    this.executor = new HookExecutor(registry);
+  /** 向后兼容: 传入 HookRegistry 时自动创建默认 RunnerRegistry（仅 CallbackRunner） */
+  constructor(registryOrDeps: HookRegistry | HookExecutorDeps) {
+    if ('registry' in registryOrDeps && 'runnerRegistry' in registryOrDeps) {
+      // 新接口: HookExecutorDeps
+      const deps = registryOrDeps as HookExecutorDeps;
+      this.executor = new HookExecutor(deps.registry, deps.runnerRegistry, deps.sessionStore);
+    } else {
+      // 旧接口: HookRegistry — 自动创建默认 RunnerRegistry
+      const registry = registryOrDeps as HookRegistry;
+      const runnerRegistry = new RunnerRegistryImpl();
+      runnerRegistry.register(new CallbackRunner());
+      this.executor = new HookExecutor(registry, runnerRegistry);
+    }
   }
 
   async *execute(

@@ -9,14 +9,14 @@ export type HooksTrustLevel = 'full' | 'managed_only' | 'plugin_only' | 'disable
 /** 可定制表面 — strictPluginOnlyCustomization 可锁定哪些表面 */
 export type HooksCustomizationSurface = 'hooks' | 'skills' | 'agents' | 'mcp';
 
-/** HooksPolicy — 4层安全门控配置
+/**
+ * HooksPolicy — 4层安全门控配置
  *
  * 参考 Claude Code 源码 hooksConfigSnapshot.ts 的级联门控逻辑:
  *
- * 层级1: disableAllHooks — 全局禁用所有 hooks（仅 policy/built-in 可绕过）
- * 层级2: allowManagedHooksOnly — 仅允许 managed/policy/built-in 来源的 hooks
- * 层级3: strictPluginOnlyCustomization — 仅允许 plugin/policy/built-in 来源（可锁定指定表面）
- * 层级4: workspaceTrust — 工作区未信任时跳过 user/project 来源的 hooks
+ * 层级1: disableAllHooks — 全局禁用所有 hooks（仅 policy/built-in 可绕过） 层级2: allowManagedHooksOnly — 仅允许
+ * managed/policy/built-in 来源的 hooks 层级3: strictPluginOnlyCustomization — 仅允许 plugin/policy/built-in
+ * 来源（可锁定指定表面） 层级4: workspaceTrust — 工作区未信任时跳过 user/project 来源的 hooks
  */
 export interface HooksPolicy {
   /** 层级1: 全局禁用所有 hooks（含 managed） */

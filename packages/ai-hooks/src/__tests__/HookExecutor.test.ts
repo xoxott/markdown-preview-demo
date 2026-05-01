@@ -4,6 +4,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { ToolRegistry } from '@suga/ai-tool-core';
 import { HookRegistry } from '../registry/HookRegistry';
 import { HookExecutor } from '../executor/HookExecutor';
+import { RunnerRegistryImpl } from '../runner/RunnerRegistry';
+import { CallbackRunner } from '../runner/CallbackRunner';
 import type { HookExecutionContext } from '../types/hooks';
 import type {
   NotificationInput,
@@ -34,7 +36,9 @@ describe('HookExecutor', () => {
 
   beforeEach(() => {
     registry = new HookRegistry();
-    executor = new HookExecutor(registry);
+    const runnerRegistry = new RunnerRegistryImpl();
+    runnerRegistry.register(new CallbackRunner());
+    executor = new HookExecutor(registry, runnerRegistry);
   });
 
   describe('快速路径 — 无匹配 hooks', () => {
