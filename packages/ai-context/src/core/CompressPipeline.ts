@@ -3,21 +3,23 @@
 import type { AgentMessage } from '@suga/ai-agent-loop';
 import type {
   CompressPipelineResult,
-  CompressState,
   CompressResult,
+  CompressState,
   CompressStats
 } from '../types/compressor';
 import type { CompressConfig } from '../types/config';
 import type { CompressDependencies } from '../types/injection';
 import { DEFAULT_CONTEXT_WINDOW } from '../constants';
+import { estimateTokensPrecise } from '../utils/tokenEstimate';
+import { findLastAssistantTimestamp } from '../utils/messageHelpers';
 import { createContentReplacementTracker } from './ContentReplacementState';
 import { ToolResultBudgetLayer } from './ToolResultBudget';
 import { SnipCompactLayer } from './SnipCompactLayer';
 import { TimeBasedMicroCompactLayer } from './TimeBasedMicroCompact';
 import { AutoCompactLayer } from './AutoCompact';
 import { ReactiveCompactLayer } from './ReactiveCompact';
-import { estimateTokens } from '../utils/tokenEstimate';
-import { findLastAssistantTimestamp } from '../utils/messageHelpers';
+import { PTLRetryHandler } from './PTLRetryHandler';
+import { PartialCompactLayer } from './PartialCompactLayer';
 
 /** 创建初始 CompressState */
 function createInitialCompressState(config: CompressConfig): CompressState {
@@ -38,6 +40,7 @@ export class CompressPipeline {
   private readonly snipCompactLayer: SnipCompactLayer;
   private readonly microCompactLayer: TimeBasedMicroCompactLayer;
   private readonly autoCompactLayer: AutoCompactLayer;
+  private readonly partialCompactLayer: PartialCompactLayer;
   private readonly reactiveCompactLayer: ReactiveCompactLayer;
   private readonly deps: CompressDependencies;
   private state: CompressState;
@@ -57,7 +60,18 @@ export class CompressPipeline {
 
     this.microCompactLayer = new TimeBasedMicroCompactLayer(config.microCompact);
 
-    this.autoCompactLayer = new AutoCompactLayer(config.autoCompact, deps.callModelForSummary);
+    const ptlRetryHandler = new PTLRetryHandler(config.ptlRetry, deps.isPTLError);
+    const tokenEstimator = deps.tokenEstimator ?? estimateTokensPrecise;
+
+    this.autoCompactLayer = new AutoCompactLayer(
+      config.autoCompact,
+      deps.callModelForSummary,
+      tokenEstimator,
+      ptlRetryHandler,
+      config.attachmentRebuild
+    );
+
+    this.partialCompactLayer = new PartialCompactLayer(config.partialCompact);
 
     this.reactiveCompactLayer = new ReactiveCompactLayer(
       config.reactiveCompact,
@@ -66,9 +80,13 @@ export class CompressPipeline {
   }
 
   /** 执行管线（4层: Budget → SnipCompact → MicroCompact → AutoCompact） */
-  async compress(messages: readonly AgentMessage[]): Promise<CompressPipelineResult> {
+  async compress(
+    messages: readonly AgentMessage[],
+    skipAutoCompact?: boolean
+  ): Promise<CompressPipelineResult> {
     this.updateState(messages);
-    this.state.estimatedTokens = this.deps.tokenEstimator?.(messages) ?? estimateTokens(messages);
+    this.state.estimatedTokens =
+      this.deps.tokenEstimator?.(messages) ?? estimateTokensPrecise(messages);
 
     let currentMessages = messages;
     let anyCompressed = false;
@@ -99,11 +117,19 @@ export class CompressPipeline {
     if (microResult.didCompress) anyCompressed = true;
     if (microResult.stats) allStats.push(microResult.stats);
 
-    // Layer 4: AutoCompact
-    const autoResult = await this.autoCompactLayer.compress(currentMessages, this.state);
-    currentMessages = autoResult.messages;
-    if (autoResult.didCompress) anyCompressed = true;
-    if (autoResult.stats) allStats.push(autoResult.stats);
+    // Layer 4: AutoCompact（collapseInProgress 时跳过，与 ContextCollapse 互斥）
+    if (!skipAutoCompact) {
+      const autoResult = await this.autoCompactLayer.compress(currentMessages, this.state);
+      currentMessages = autoResult.messages;
+      if (autoResult.didCompress) anyCompressed = true;
+      if (autoResult.stats) allStats.push(autoResult.stats);
+    }
+
+    // Layer 5: PartialCompact（AutoCompact 熔断时的保底 fallback）
+    const partialResult = await this.partialCompactLayer.compress(currentMessages, this.state);
+    currentMessages = partialResult.messages;
+    if (partialResult.didCompress) anyCompressed = true;
+    if (partialResult.stats) allStats.push(partialResult.stats);
 
     return { messages: currentMessages, didCompress: anyCompressed, stats: allStats };
   }

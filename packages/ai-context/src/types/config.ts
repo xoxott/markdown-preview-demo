@@ -1,6 +1,7 @@
 /** 压缩配置 — 各层参数 */
 
 import type { SummarySections } from './messages';
+import type { AttachmentRebuildConfig } from './attachment';
 
 /** 压缩配置 — 各层参数 */
 export interface CompressConfig {
@@ -14,6 +15,26 @@ export interface CompressConfig {
   readonly autoCompact?: AutoCompactConfig;
   /** ReactiveCompact 层配置 */
   readonly reactiveCompact?: ReactiveCompactConfig;
+  /** PTL Retry 配置（AutoCompact 摘要请求自身 PTL 时重试） */
+  readonly ptlRetry?: PTLRetryConfig;
+  /** BlockingLimit 预拦截配置 */
+  readonly blockingLimit?: BlockingLimitConfig;
+  /** Post-compact 附件重建配置 */
+  readonly attachmentRebuild?: AttachmentRebuildConfig;
+  /** PartialCompact 保底配置（AutoCompact 熔断时的 fallback） */
+  readonly partialCompact?: PartialCompactConfig;
+}
+
+/** PTL Retry 配置 */
+export interface PTLRetryConfig {
+  /** 最大 PTL 重试次数（默认 3） */
+  readonly maxPTLRetries?: number;
+}
+
+/** BlockingLimit 预拦截配置 */
+export interface BlockingLimitConfig {
+  /** 阻塞阈值预留 token 数（默认 3000） */
+  readonly reserveTokens?: number;
 }
 
 /** ToolResultBudget 层配置 */
@@ -60,4 +81,14 @@ export interface ReactiveCompactConfig {
   readonly enabled: boolean;
   /** 紧急压缩策略 */
   readonly strategy: 'micro_compact' | 'auto_compact' | 'both';
+}
+
+/** PartialCompact 保底配置 */
+export interface PartialCompactConfig {
+  /** 是否启用 PartialCompact 保底（默认 true） */
+  readonly enabled?: boolean;
+  /** 裁剪比例（裁剪最老多少比例的 API rounds，默认 0.2） */
+  readonly truncateRatio?: number;
+  /** 保底最大裁剪 groups 数（默认 3） */
+  readonly maxTruncatedGroups?: number;
 }

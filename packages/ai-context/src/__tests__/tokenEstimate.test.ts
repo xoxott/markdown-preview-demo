@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { AgentMessage } from '@suga/ai-agent-loop';
 import { estimateTokens } from '../utils/tokenEstimate';
 

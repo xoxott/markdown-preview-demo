@@ -42,3 +42,9 @@ export const PERSISTED_OUTPUT_TEMPLATE = {
   savedPrefix: 'Full output saved to:',
   previewPrefix: 'Preview (first 2KB):'
 } as const;
+
+/** PTL Retry 默认配置 */
+export const DEFAULT_PTL_RETRY_MAX = 3;
+
+/** BlockingLimit 默认配置 */
+export const DEFAULT_BLOCKING_LIMIT_RESERVE_TOKENS = 3_000;

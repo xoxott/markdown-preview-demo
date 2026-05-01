@@ -15,12 +15,17 @@ export type CallModelForSummary = (
 /** Token 估算函数 — 可注入自定义 token 计算逻辑 */
 export type TokenEstimator = (messages: readonly AgentMessage[]) => number;
 
+/** PTL 错误检测函数 — 判断摘要请求是否自身也 PTL */
+export type IsPTLError = (error: unknown) => boolean;
+
 /** 压缩依赖注入集合 */
 export interface CompressDependencies {
   /** 持久化函数（ToolResultBudget 层需要） */
   readonly persistToolResult?: PersistToolResult;
   /** LLM 摘要调用函数（AutoCompact 层需要） */
   readonly callModelForSummary?: CallModelForSummary;
-  /** 自定义 token 估算函数（默认使用字符数/4） */
+  /** 自定义 token 估算函数（默认使用 estimateTokensPrecise） */
   readonly tokenEstimator?: TokenEstimator;
+  /** PTL 错误检测函数（AutoCompact PTL Retry 需要） */
+  readonly isPTLError?: IsPTLError;
 }

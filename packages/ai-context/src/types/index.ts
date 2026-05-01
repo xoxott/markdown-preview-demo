@@ -1,6 +1,11 @@
 /** 类型汇总导出 */
 
-export type { CompressedToolResultContent, CompactSummary, SummarySections } from './messages';
+export type {
+  CompressedToolResultContent,
+  CompactSummary,
+  SummarySections,
+  BlockingLimitError
+} from './messages';
 
 export type {
   CompressLayer,
@@ -16,12 +21,24 @@ export type {
   BudgetConfig,
   MicroCompactConfig,
   AutoCompactConfig,
-  ReactiveCompactConfig
+  ReactiveCompactConfig,
+  PTLRetryConfig,
+  BlockingLimitConfig,
+  PartialCompactConfig
 } from './config';
 
 export type {
   CompressDependencies,
   PersistToolResult,
   CallModelForSummary,
-  TokenEstimator
+  TokenEstimator,
+  IsPTLError
 } from './injection';
+
+export type {
+  AttachmentType,
+  AttachmentFile,
+  AttachmentSkill,
+  AttachmentRebuildConfig,
+  AttachmentRebuildResult
+} from './attachment';

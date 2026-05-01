@@ -1,6 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
-import type { MutableAgentContext } from '@suga/ai-agent-loop';
-import type { AgentEvent } from '@suga/ai-agent-loop';
+import { describe, expect, it, vi } from 'vitest';
+import type { AgentEvent, MutableAgentContext } from '@suga/ai-agent-loop';
 import { CompressPipeline } from '../core/CompressPipeline';
 import { CompressPhase } from '../integration/CompressPhase';
 

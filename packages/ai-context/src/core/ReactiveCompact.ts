@@ -1,7 +1,7 @@
 /** ReactiveCompact — API 413 后紧急压缩 */
 
 import type { AgentMessage } from '@suga/ai-agent-loop';
-import type { CompressLayer, CompressState, CompressResult } from '../types/compressor';
+import type { CompressLayer, CompressResult, CompressState } from '../types/compressor';
 import type { ReactiveCompactConfig } from '../types/config';
 import type { CallModelForSummary } from '../types/injection';
 import { DEFAULT_REACTIVE_STRATEGY } from '../constants';

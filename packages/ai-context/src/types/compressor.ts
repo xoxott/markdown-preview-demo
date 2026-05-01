@@ -2,8 +2,8 @@
 
 import type { AgentMessage } from '@suga/ai-agent-loop';
 import type { CompressedToolResultContent } from './messages';
-export type { CompressedToolResultContent } from './messages';
 import type { CompressConfig } from './config';
+export type { CompressedToolResultContent } from './messages';
 
 /** 压缩层接口 — 每个压缩层实现此接口 */
 export interface CompressLayer {
@@ -53,6 +53,10 @@ export interface CompressStats {
   readonly generatedSummary?: boolean;
   /** 摘要覆盖的消息数量 */
   readonly summaryMessageCount?: number;
+  /** PartialCompact 裁剪的 API round 数 */
+  readonly partialCompactTrimmedRounds?: number;
+  /** PartialCompact 裁剪的消息数 */
+  readonly partialCompactTrimmedMessages?: number;
 }
 
 /** 管线整体结果 */

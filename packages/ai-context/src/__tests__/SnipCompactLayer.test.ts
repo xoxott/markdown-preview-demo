@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { SnipCompactLayer } from '../core/SnipCompactLayer';
+import { describe, expect, it } from 'vitest';
 import type { AgentMessage, ToolResultMessage } from '@suga/ai-agent-loop';
+import { SnipCompactLayer } from '../core/SnipCompactLayer';
 import type { CompressState } from '../types/compressor';
 import { TIME_CLEARED_MESSAGE } from '../constants';
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { AgentMessage } from '@suga/ai-agent-loop';
 import type { CompressState } from '../types/compressor';
 import { createContentReplacementTracker } from '../core/ContentReplacementState';

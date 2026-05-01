@@ -3,8 +3,8 @@
 import type { AgentMessage } from '@suga/ai-agent-loop';
 import type {
   CompressLayer,
-  CompressState,
   CompressResult,
+  CompressState,
   CompressStats
 } from '../types/compressor';
 import type { CompressedToolResultContent } from '../types/messages';

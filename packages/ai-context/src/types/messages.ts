@@ -36,3 +36,12 @@ export interface SummarySections {
   currentWork?: string;
   optionalNextStep?: string;
 }
+
+/** 阻塞限制错误 — 当 token 超过 blockingThreshold 时拒绝 API 调用 */
+export interface BlockingLimitError {
+  readonly type: 'blocking_limit';
+  readonly estimatedTokens: number;
+  readonly contextWindow: number;
+  readonly reserveTokens: number;
+  readonly message: string;
+}

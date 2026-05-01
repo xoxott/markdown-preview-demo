@@ -1,12 +1,12 @@
 /** TimeBasedMicroCompact — 时间间隔清除旧 tool_result */
 
 import type { AgentMessage } from '@suga/ai-agent-loop';
-import type { CompressLayer, CompressState, CompressResult } from '../types/compressor';
+import type { CompressLayer, CompressResult, CompressState } from '../types/compressor';
 import type { MicroCompactConfig } from '../types/config';
 import {
+  DEFAULT_COMPACTABLE_TOOLS,
   DEFAULT_MICRO_COMPACT_GAP_THRESHOLD_MINUTES,
   DEFAULT_MICRO_COMPACT_KEEP_RECENT,
-  DEFAULT_COMPACTABLE_TOOLS,
   TIME_CLEARED_MESSAGE
 } from '../constants';
 import { collectToolUseBlocks, replaceToolResultMessage } from '../utils/messageHelpers';

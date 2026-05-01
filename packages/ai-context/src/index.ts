@@ -9,9 +9,18 @@ export { AutoCompactLayer } from './core/AutoCompact';
 export { ReactiveCompactLayer } from './core/ReactiveCompact';
 export { CompressPipeline } from './core/CompressPipeline';
 export { CompressPhase } from './integration/CompressPhase';
+export { BlockingLimitPhase } from './integration/BlockingLimitPhase';
+export { PTLRetryHandler } from './core/PTLRetryHandler';
+export { AttachmentRebuilder } from './core/AttachmentRebuilder';
+export { PartialCompactLayer } from './core/PartialCompactLayer';
 
 // 辅助工具
-export { estimateTokens } from './utils/tokenEstimate';
+export {
+  estimateTokens,
+  estimateTokensPrecise,
+  TOKEN_ESTIMATE_COEFFICIENTS,
+  looksLikeJson
+} from './utils/tokenEstimate';
 export {
   findLastAssistantTimestamp,
   collectToolUseBlocks,
@@ -20,6 +29,8 @@ export {
   replaceToolResultMessage,
   createSummaryMessage
 } from './utils/messageHelpers';
+export { groupByApiRound } from './utils/messageGrouping';
+export type { ApiRoundGroup } from './utils/messageGrouping';
 
 // 常量
 export {
@@ -35,7 +46,9 @@ export {
   DEFAULT_AUTO_COMPACT_MESSAGES_TO_KEEP,
   DEFAULT_REACTIVE_STRATEGY,
   DEFAULT_CONTEXT_WINDOW,
-  TIME_CLEARED_MESSAGE
+  TIME_CLEARED_MESSAGE,
+  DEFAULT_PTL_RETRY_MAX,
+  DEFAULT_BLOCKING_LIMIT_RESERVE_TOKENS
 } from './constants';
 
 // 类型导出
@@ -60,7 +73,8 @@ export type {
   SnipCompactConfig,
   MicroCompactConfig,
   AutoCompactConfig,
-  ReactiveCompactConfig
+  ReactiveCompactConfig,
+  PartialCompactConfig
 } from './types/config';
 
 export type {
@@ -69,3 +83,11 @@ export type {
   CallModelForSummary,
   TokenEstimator
 } from './types/injection';
+
+export type {
+  AttachmentType,
+  AttachmentFile,
+  AttachmentSkill,
+  AttachmentRebuildConfig,
+  AttachmentRebuildResult
+} from './types/attachment';

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { AgentMessage } from '@suga/ai-agent-loop';
 import { CompressPipeline } from '../core/CompressPipeline';
 
