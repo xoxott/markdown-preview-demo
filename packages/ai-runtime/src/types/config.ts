@@ -1,6 +1,6 @@
 /** RuntimeConfig — 聚合所有P0-P9子包配置 */
 
-import type { LLMProvider, ToolScheduler } from '@suga/ai-agent-loop';
+import type { AgentEvent, LLMProvider, ToolScheduler } from '@suga/ai-agent-loop';
 import type { ToolRegistry } from '@suga/ai-tool-core';
 import type { HookRegistry } from '@suga/ai-hooks';
 import type { SkillRegistry } from '@suga/ai-skill';
@@ -8,16 +8,14 @@ import type { CompressConfig, CompressDependencies } from '@suga/ai-context';
 import type {
   CoordinatorRegistry,
   Mailbox,
-  TaskManager,
-  PhaseStrategy
+  PhaseStrategy,
+  TaskManager
 } from '@suga/ai-coordinator';
-import type { AgentEvent } from '@suga/ai-agent-loop';
 
 /**
  * 运行时配置 — 聚合所有子包的可选配置
  *
- * 每个子包配置都是可选的，不提供则该 Phase 不插入链中。
- * 只有 `provider` 是必填项（P1 AgentLoop 的硬性依赖）。
+ * 每个子包配置都是可选的，不提供则该 Phase 不插入链中。 只有 `provider` 是必填项（P1 AgentLoop 的硬性依赖）。
  */
 export interface RuntimeConfig {
   // === P1 核心 (必填) ===

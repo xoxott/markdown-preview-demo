@@ -5,8 +5,8 @@ import { HookAfterToolPhase, HookBeforeToolPhase, HookStopPhase } from '@suga/ai
 import type {
   AgentConfig,
   AgentState,
-  TerminalTransition,
-  ContinueTransition
+  ContinueTransition,
+  TerminalTransition
 } from '../types/state';
 import type { AgentEvent } from '../types/events';
 import type { LoopResult } from '../types/result';

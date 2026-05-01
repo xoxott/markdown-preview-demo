@@ -1,21 +1,24 @@
-import { describe, it, expect } from 'vitest';
-import { buildRuntimePhases } from '../factory/buildRuntimePhases';
-import { buildEffectiveToolRegistry } from '../factory/buildEffectiveToolRegistry';
-import type { RuntimeConfig } from '../types/config';
+import { describe, expect, it } from 'vitest';
 import { ToolRegistry } from '@suga/ai-tool-core';
-import { HookRegistry } from '@suga/ai-hooks';
+import {
+  HookAfterToolPhase,
+  HookBeforeToolPhase,
+  HookRegistry,
+  HookStopPhase
+} from '@suga/ai-hooks';
 import { SkillRegistry } from '@suga/ai-skill';
 import { CompressPhase } from '@suga/ai-context';
-import { CoordinatorDispatchPhase } from '@suga/ai-coordinator';
-import { CoordinatorRegistry } from '@suga/ai-coordinator';
-import { HookBeforeToolPhase, HookAfterToolPhase, HookStopPhase } from '@suga/ai-hooks';
+import { CoordinatorDispatchPhase, CoordinatorRegistry } from '@suga/ai-coordinator';
 import {
-  PreProcessPhase,
   CallModelPhase,
   CheckInterruptPhase,
   ExecuteToolsPhase,
-  PostProcessPhase
+  PostProcessPhase,
+  PreProcessPhase
 } from '@suga/ai-agent-loop';
+import type { RuntimeConfig } from '../types/config';
+import { buildEffectiveToolRegistry } from '../factory/buildEffectiveToolRegistry';
+import { buildRuntimePhases } from '../factory/buildRuntimePhases';
 import { MockLLMProvider } from './mocks/MockLLMProvider';
 
 /** 辅助：创建最小配置 */

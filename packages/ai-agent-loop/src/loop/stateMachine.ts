@@ -21,6 +21,7 @@ function generateId(): string {
  * 构造本轮的 AssistantMessage 和 ToolResultMessage， 合并到消息历史，递增 turnCount，构造新的 AgentState。
  *
  * 支持多种 Continue reason（溢出恢复路径）:
+ *
  * - next_turn: 正常合并本轮消息
  * - reactive_compact_retry: 使用压缩后的消息作为基础（本轮因 413 被丢弃）
  * - max_output_tokens_escalate: 提升上限后重试，本轮 assistant 部分有效

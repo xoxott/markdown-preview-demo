@@ -3,10 +3,10 @@
 import type { ToolRegistry } from '@suga/ai-tool-core';
 import type { HookRegistry } from '@suga/ai-hooks';
 import type { AgentToolUseContext } from '../context/ToolUseContext';
+import type { LoopPhase } from '../phase/LoopPhase';
 import type { AgentMessage } from './messages';
 import type { LLMProvider } from './provider';
 import type { ToolScheduler } from './scheduler';
-import type { LoopPhase } from '../phase/LoopPhase';
 
 /** Agent 配置 */
 export interface AgentConfig {
@@ -53,6 +53,7 @@ export interface HookBlockingError {
  * 继续过渡类型 — 扩展为多种溢出恢复路径
  *
  * 参考 Claude Code query.ts 的 7 种 Continue reason:
+ *
  * - next_turn: 正常下一轮
  * - reactive_compact_retry: API 413 → 紧急压缩 → 重试
  * - max_output_tokens_escalate: 输出 token 耗尽 → 提升上限 → 重试

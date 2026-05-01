@@ -2,21 +2,22 @@
 
 import type { LoopPhase } from '@suga/ai-agent-loop';
 import {
-  PreProcessPhase,
   CallModelPhase,
   CheckInterruptPhase,
   ExecuteToolsPhase,
-  PostProcessPhase
+  ParallelScheduler,
+  PostProcessPhase,
+  PreProcessPhase
 } from '@suga/ai-agent-loop';
-import { HookBeforeToolPhase, HookAfterToolPhase, HookStopPhase } from '@suga/ai-hooks';
-import { CompressPhase } from '@suga/ai-context';
-import { CompressPipeline } from '@suga/ai-context';
-import { CoordinatorDispatchPhase } from '@suga/ai-coordinator';
-import { InMemoryMailbox } from '@suga/ai-coordinator';
-import { TaskManager } from '@suga/ai-coordinator';
-import { DefaultPhaseStrategy } from '@suga/ai-coordinator';
+import { HookAfterToolPhase, HookBeforeToolPhase, HookStopPhase } from '@suga/ai-hooks';
+import { CompressPhase, CompressPipeline } from '@suga/ai-context';
+import {
+  CoordinatorDispatchPhase,
+  DefaultPhaseStrategy,
+  InMemoryMailbox,
+  TaskManager
+} from '@suga/ai-coordinator';
 import { ToolExecutor } from '@suga/ai-tool-core';
-import { ParallelScheduler } from '@suga/ai-agent-loop';
 import type { RuntimeConfig } from '../types/config';
 import { DEFAULT_RUNTIME_MAX_TURNS, DEFAULT_RUNTIME_TOOL_TIMEOUT } from '../constants';
 import { buildEffectiveToolRegistry } from './buildEffectiveToolRegistry';
@@ -26,15 +27,9 @@ import { buildEffectiveToolRegistry } from './buildEffectiveToolRegistry';
  *
  * Phase 链完整顺序（全启用时）：
  *
- *   CompressPhase(P8) | PreProcessPhase(P1)
- *     → CallModelPhase(P1)
- *     → CheckInterruptPhase(P1)
- *     → CoordinatorDispatchPhase(P9)
- *     → HookBeforeToolPhase(P4)
- *     → ExecuteToolsPhase(P1)
- *     → HookAfterToolPhase(P4)
- *     → PostProcessPhase(P1)
- *     → HookStopPhase(P4)
+ * CompressPhase(P8) | PreProcessPhase(P1) → CallModelPhase(P1) → CheckInterruptPhase(P1) →
+ * CoordinatorDispatchPhase(P9) → HookBeforeToolPhase(P4) → ExecuteToolsPhase(P1) →
+ * HookAfterToolPhase(P4) → PostProcessPhase(P1) → HookStopPhase(P4)
  *
  * @param config RuntimeConfig
  * @returns LoopPhase[] 完整 Phase 铱

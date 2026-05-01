@@ -1,15 +1,18 @@
-import { describe, it, expect } from 'vitest';
-import { buildRuntimePhases } from '../factory/buildRuntimePhases';
-import { buildEffectiveToolRegistry } from '../factory/buildEffectiveToolRegistry';
-import { RuntimeSession } from '../session/RuntimeSession';
-import { MockLLMProvider } from './mocks/MockLLMProvider';
-import type { RuntimeConfig } from '../types/config';
+import { describe, expect, it } from 'vitest';
 import type { AgentEvent } from '@suga/ai-agent-loop';
-import { HookRegistry } from '@suga/ai-hooks';
+import {
+  HookAfterToolPhase,
+  HookBeforeToolPhase,
+  HookRegistry,
+  HookStopPhase
+} from '@suga/ai-hooks';
 import { CompressPhase } from '@suga/ai-context';
-import { CoordinatorDispatchPhase } from '@suga/ai-coordinator';
-import { CoordinatorRegistry } from '@suga/ai-coordinator';
-import { HookBeforeToolPhase, HookAfterToolPhase, HookStopPhase } from '@suga/ai-hooks';
+import { CoordinatorDispatchPhase, CoordinatorRegistry } from '@suga/ai-coordinator';
+import type { RuntimeConfig } from '../types/config';
+import { RuntimeSession } from '../session/RuntimeSession';
+import { buildEffectiveToolRegistry } from '../factory/buildEffectiveToolRegistry';
+import { buildRuntimePhases } from '../factory/buildRuntimePhases';
+import { MockLLMProvider } from './mocks/MockLLMProvider';
 
 /** 辅助：消费所有事件 */
 async function consumeAllEvents(generator: AsyncGenerator<AgentEvent>): Promise<AgentEvent[]> {

@@ -1,7 +1,7 @@
 /** RuntimeSession — 集成会话，连接 P1 AgentLoop + P7 Store<T> 状态管理 */
 
 import type { AgentEvent, AgentMessage } from '@suga/ai-agent-loop';
-import { createStore, type Store } from '@suga/ai-state';
+import { type Store, createStore } from '@suga/ai-state';
 import type { RuntimeConfig, RuntimeSessionState } from '../types/config';
 import { createRuntimeAgentLoop } from '../factory/createRuntimeAgentLoop';
 

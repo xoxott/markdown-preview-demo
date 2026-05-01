@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest';
-import { RuntimeSession } from '../session/RuntimeSession';
-import { MockLLMProvider } from './mocks/MockLLMProvider';
-import type { RuntimeConfig } from '../types/config';
+import { describe, expect, it } from 'vitest';
 import type { AgentEvent } from '@suga/ai-agent-loop';
+import { RuntimeSession } from '../session/RuntimeSession';
+import type { RuntimeConfig } from '../types/config';
+import { MockLLMProvider } from './mocks/MockLLMProvider';
 
 /** 辅助：消费所有事件 */
 async function consumeAllEvents(generator: AsyncGenerator<AgentEvent>): Promise<AgentEvent[]> {
