@@ -1,4 +1,4 @@
-/** 基础 LLM 适配器 — 共享 HTTP 请求基础设施 */
+/** 基础 LLM 适配器 — 共享 HTTP 请求基础设施 + 宿主注入扩展 */
 
 import type {
   AgentMessage,
@@ -9,6 +9,9 @@ import type {
 import type { AnyBuiltTool } from '@suga/ai-tool-core';
 import type { BaseLLMAdapterConfig } from '../types/adapter';
 import { DEFAULT_ADAPTER_TIMEOUT } from '../types/adapter';
+import type { UsageTracker } from '../types/usage';
+import type { LLMRequestLifecycleHook } from '../lifecycle/request-lifecycle';
+import type { LLMRetryConfig } from '../retry/retry-strategy';
 
 /**
  * 基础 LLM 适配器（抽象类）
@@ -17,14 +20,51 @@ import { DEFAULT_ADAPTER_TIMEOUT } from '../types/adapter';
  *
  * - fetchWithAbort：级联超时 + 外部中断信号
  * - 请求头构建
+ * - 宿主注入：UsageTracker / LifecycleHook / RetryConfig
  *
  * 具体 Provider 适配器继承此基类，实现 callModel 和 formatToolDefinition。
  */
 export abstract class BaseLLMAdapter implements LLMProvider {
   protected readonly config: BaseLLMAdapterConfig;
+  /** 用量追踪器（宿主注入） */
+  private usageTracker?: UsageTracker;
+  /** 生命周期钩子（宿主注入） */
+  private lifecycleHook?: LLMRequestLifecycleHook;
+  /** 重试配置（宿主注入） */
+  private retryConfig?: LLMRetryConfig;
 
   constructor(config: BaseLLMAdapterConfig) {
     this.config = config;
+  }
+
+  /** 设置用量追踪器（宿主注入） */
+  setUsageTracker(tracker: UsageTracker): void {
+    this.usageTracker = tracker;
+  }
+
+  /** 获取用量追踪器（子类可用） */
+  protected getUsageTracker(): UsageTracker | undefined {
+    return this.usageTracker;
+  }
+
+  /** 设置生命周期钩子（宿主注入） */
+  setLifecycleHook(hook: LLMRequestLifecycleHook): void {
+    this.lifecycleHook = hook;
+  }
+
+  /** 获取生命周期钩子（子类可用） */
+  protected getLifecycleHook(): LLMRequestLifecycleHook | undefined {
+    return this.lifecycleHook;
+  }
+
+  /** 设置重试配置（宿主注入） */
+  setRetryConfig(config: LLMRetryConfig): void {
+    this.retryConfig = config;
+  }
+
+  /** 获取重试配置（子类可用） */
+  protected getRetryConfig(): LLMRetryConfig | undefined {
+    return this.retryConfig;
   }
 
   abstract callModel(
