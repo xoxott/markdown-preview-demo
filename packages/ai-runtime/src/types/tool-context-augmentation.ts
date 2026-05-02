@@ -3,8 +3,15 @@
  *
  * P36: 将 11 个 provider 字段添加到 ai-tool-core 的 ToolUseContext 接口。 当 ai-runtime 包被导入时，所有工具的 call() 方法中
  * context 自动包含这些字段。
+ *
+ * P39: 添加 promptHandler/canUseToolFn/denialTracking 权限交互字段。
  */
 
+import type {
+  CanUseToolFn,
+  DenialTrackingState,
+  PermissionPromptHandler
+} from '@suga/ai-tool-core';
 import type {
   ConfigProvider,
   FileSystemProvider,
@@ -43,6 +50,12 @@ declare module '@suga/ai-tool-core' {
     readonly mcpResourceProvider?: McpResourceProvider;
     /** 计划模式提供者（可选 — plan-mode 工具使用） */
     readonly planModeProvider?: PlanModeProvider;
+    /** P39: 权限确认交互接口（可选 — TerminalPermissionPromptHandler等） */
+    readonly promptHandler?: PermissionPromptHandler;
+    /** P39: 用户确认函数（可选 — 向后兼容boolean版） */
+    readonly canUseToolFn?: CanUseToolFn;
+    /** P39: 拒绝追踪状态（可选 — 默认DEFAULT_DENIAL_TRACKING） */
+    readonly denialTracking?: DenialTrackingState;
   }
 }
 

@@ -1,7 +1,12 @@
 /** RuntimeConfig — 聚合所有P0-P10+P35+P36子包配置 */
 
 import type { AgentEvent, LLMProvider, SystemPrompt, ToolScheduler } from '@suga/ai-agent-loop';
-import type { ToolRegistry } from '@suga/ai-tool-core';
+import type {
+  CanUseToolFn,
+  DenialTrackingState,
+  PermissionPromptHandler,
+  ToolRegistry
+} from '@suga/ai-tool-core';
 import type { HookRegistry } from '@suga/ai-hooks';
 import type { SkillRegistry } from '@suga/ai-skill';
 import type { CompressConfig, CompressDependencies } from '@suga/ai-context';
@@ -130,6 +135,14 @@ export interface RuntimeConfig {
   // === P37 LLM Classifier (可选) ===
   /** LLM分类器配置（auto模式使用，无默认则使用YoloPermissionClassifier stub） */
   readonly classifierConfig?: LLMClassifierConfig;
+
+  // === P39 用户交互注入 ===
+  /** 权限确认交互接口（TerminalPermissionPromptHandler等） */
+  readonly promptHandler?: PermissionPromptHandler;
+  /** 用户确认函数（向后兼容boolean版） */
+  readonly canUseToolFn?: CanUseToolFn;
+  /** 拒绝追踪初始状态（默认DEFAULT_DENIAL_TRACKING） */
+  readonly denialTracking?: DenialTrackingState;
 }
 
 /** Provider Map — 从 RuntimeConfig 提取的 provider 字段集合 */
@@ -145,6 +158,9 @@ export interface ProviderMap {
   readonly configProvider?: ConfigProvider;
   readonly mcpResourceProvider?: McpResourceProvider;
   readonly planModeProvider?: PlanModeProvider;
+  readonly promptHandler?: PermissionPromptHandler;
+  readonly canUseToolFn?: CanUseToolFn;
+  readonly denialTracking?: DenialTrackingState;
 }
 
 /** RuntimeSession 状态 — P7 Store 管理 */

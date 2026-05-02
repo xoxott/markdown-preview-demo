@@ -278,6 +278,7 @@ export class ToolExecutor {
         context,
         permCtx,
         canUseToolFn: context.canUseToolFn,
+        promptHandler: context.promptHandler,
         denialTracking: context.denialTracking
       };
 

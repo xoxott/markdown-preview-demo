@@ -2,6 +2,7 @@
 
 import type { ToolPermissionContext } from './permission-context';
 import type { CanUseToolFn, DenialTrackingState } from './permission-decision';
+import type { PermissionPromptHandler } from './permission-prompt';
 import type { MergedSettings } from './settings-schema';
 
 /**
@@ -11,6 +12,8 @@ import type { MergedSettings } from './settings-schema';
  *
  * 同时添加 meta 字段 — 消除 executor.ts 中的 `(context as ToolUseContext & Record<string, unknown>).meta`
  * 强制类型断言。
+ *
+ * P39: 新增 promptHandler 字段 — 宿主注入权限确认交互接口。
  */
 declare module './context' {
   interface ToolUseContext {
@@ -18,6 +21,8 @@ declare module './context' {
     readonly permCtx?: ToolPermissionContext;
     /** 用户确认函数（可选，宿主环境注入） */
     readonly canUseToolFn?: CanUseToolFn;
+    /** P39: 权限确认交互接口（可选，宿主注入，TerminalPermissionPromptHandler等） */
+    readonly promptHandler?: PermissionPromptHandler;
     /** 拒绝追踪状态（可选） */
     readonly denialTracking?: DenialTrackingState;
     /** 元数据（可选，P4 HookPhase 桥接协议） */

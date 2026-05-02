@@ -1,6 +1,7 @@
 /** buildProviderMap — 从 RuntimeConfig 提取 provider 字段，应用默认值 */
 
 import { DefaultHttpProvider } from '@suga/ai-tools';
+import { DEFAULT_DENIAL_TRACKING } from '@suga/ai-tool-core';
 import type { RuntimeConfig } from '../types/config';
 
 /**
@@ -8,6 +9,9 @@ import type { RuntimeConfig } from '../types/config';
  *
  * - fsProvider: 必填，直接取值
  * - httpProvider: 可选，默认 DefaultHttpProvider（使用全局 fetch + regex html→md）
+ * - promptHandler: 可选，宿主注入权限确认交互接口
+ * - canUseToolFn: 可选，宿主注入用户确认函数（向后兼容）
+ * - denialTracking: 可选，默认 DEFAULT_DENIAL_TRACKING
  * - 其余 provider: 可选，无默认
  *
  * 返回的对象兼容 Record<string, unknown>（可 spread 到 ToolUseContext）
@@ -24,6 +28,9 @@ export function buildProviderMap(config: RuntimeConfig): Record<string, unknown>
     skillProvider: config.skillProvider,
     configProvider: config.configProvider,
     mcpResourceProvider: config.mcpResourceProvider,
-    planModeProvider: config.planModeProvider
+    planModeProvider: config.planModeProvider,
+    promptHandler: config.promptHandler,
+    canUseToolFn: config.canUseToolFn,
+    denialTracking: config.denialTracking ?? DEFAULT_DENIAL_TRACKING
   };
 }

@@ -124,6 +124,8 @@ export type {
 export { classifyBashCommand } from '@suga/ai-tools';
 export type { BashClassifyResult, BashCommandDecision } from '@suga/ai-tools';
 export { NodeFileSystemProvider } from '@suga/ai-tools';
+export { TerminalPermissionPromptHandler } from '@suga/ai-tools';
+export type { TerminalPermissionPromptConfig } from '@suga/ai-tools';
 export { query, unstable_v2_prompt, setQueryEngine } from './api/query';
 export type { QueryEngineLike } from './api/query';
 export {

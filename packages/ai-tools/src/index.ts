@@ -119,3 +119,5 @@ export { InMemorySkillProvider } from './provider/InMemorySkillProvider';
 export { InMemoryConfigProvider } from './provider/InMemoryConfigProvider';
 export { InMemoryMcpResourceProvider } from './provider/InMemoryMcpResourceProvider';
 export { InMemoryPlanModeProvider } from './provider/InMemoryPlanModeProvider';
+export { TerminalPermissionPromptHandler } from './provider/TerminalPermissionPromptHandler';
+export type { TerminalPermissionPromptConfig } from './provider/TerminalPermissionPromptHandler';
