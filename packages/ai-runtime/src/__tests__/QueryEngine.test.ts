@@ -5,6 +5,9 @@ import type { SDKMessage, SDKResultError, SDKResultSuccess } from '@suga/ai-sdk'
 import type { RuntimeConfig } from '../types/config';
 import { QueryEngine } from '../sdk/QueryEngine';
 import { MockLLMProvider } from './mocks/MockLLMProvider';
+import { MockFileSystemProvider } from './mocks/MockFileSystemProvider';
+
+const mockFsProvider = new MockFileSystemProvider();
 
 /** 辅助：消费所有SDKMessage */
 async function consumeAllSDKMessages(iter: AsyncIterable<SDKMessage>): Promise<SDKMessage[]> {
@@ -20,7 +23,7 @@ describe('QueryEngine', () => {
     const provider = new MockLLMProvider();
     provider.addSimpleTextResponse('hello world');
 
-    const config: RuntimeConfig = { provider };
+    const config: RuntimeConfig = { provider, fsProvider: mockFsProvider };
     const engine = new QueryEngine(config);
 
     const msgs = await consumeAllSDKMessages(engine.query('hi'));
@@ -39,7 +42,7 @@ describe('QueryEngine', () => {
     provider.addSimpleTextResponse('hello');
     provider.addSimpleTextResponse('world');
 
-    const config: RuntimeConfig = { provider };
+    const config: RuntimeConfig = { provider, fsProvider: mockFsProvider };
     const engine = new QueryEngine(config);
 
     // 第1轮
@@ -62,7 +65,7 @@ describe('QueryEngine', () => {
       }
     };
 
-    const config: RuntimeConfig = { provider };
+    const config: RuntimeConfig = { provider, fsProvider: mockFsProvider };
     const engine = new QueryEngine(config);
 
     const msgs = await consumeAllSDKMessages(engine.query('test'));

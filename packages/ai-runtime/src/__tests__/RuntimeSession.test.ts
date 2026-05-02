@@ -3,6 +3,9 @@ import type { AgentEvent } from '@suga/ai-agent-loop';
 import { RuntimeSession } from '../session/RuntimeSession';
 import type { RuntimeConfig } from '../types/config';
 import { MockLLMProvider } from './mocks/MockLLMProvider';
+import { MockFileSystemProvider } from './mocks/MockFileSystemProvider';
+
+const mockFsProvider = new MockFileSystemProvider();
 
 /** 辅助：消费所有事件 */
 async function consumeAllEvents(generator: AsyncGenerator<AgentEvent>): Promise<AgentEvent[]> {
@@ -18,7 +21,7 @@ describe('RuntimeSession', () => {
     const provider = new MockLLMProvider();
     provider.addSimpleTextResponse('hello');
 
-    const config: RuntimeConfig = { provider };
+    const config: RuntimeConfig = { provider, fsProvider: mockFsProvider };
     const session = new RuntimeSession(config);
 
     const events = await consumeAllEvents(session.sendMessage('hi'));
@@ -35,7 +38,7 @@ describe('RuntimeSession', () => {
     const provider = new MockLLMProvider();
     provider.addSimpleTextResponse('hi');
 
-    const config: RuntimeConfig = { provider };
+    const config: RuntimeConfig = { provider, fsProvider: mockFsProvider };
     const session = new RuntimeSession(config);
 
     const gen = session.sendMessage('test');
@@ -52,7 +55,7 @@ describe('RuntimeSession', () => {
     const provider = new MockLLMProvider();
     provider.addSimpleTextResponse('done');
 
-    const config: RuntimeConfig = { provider };
+    const config: RuntimeConfig = { provider, fsProvider: mockFsProvider };
     const session = new RuntimeSession(config);
 
     await consumeAllEvents(session.sendMessage('hi'));
@@ -63,7 +66,7 @@ describe('RuntimeSession', () => {
 
   it('destroy → Store 状态变为 destroyed', async () => {
     const provider = new MockLLMProvider();
-    const config: RuntimeConfig = { provider };
+    const config: RuntimeConfig = { provider, fsProvider: mockFsProvider };
     const session = new RuntimeSession(config);
 
     await session.destroy();
@@ -73,7 +76,7 @@ describe('RuntimeSession', () => {
 
   it('destroyed 状态 sendMessage → 抛出错误', async () => {
     const provider = new MockLLMProvider();
-    const config: RuntimeConfig = { provider };
+    const config: RuntimeConfig = { provider, fsProvider: mockFsProvider };
     const session = new RuntimeSession(config);
 
     await session.destroy();
@@ -88,7 +91,7 @@ describe('RuntimeSession', () => {
 
   it('getSessionId → 返回 runtime_ 前缀的 ID', () => {
     const provider = new MockLLMProvider();
-    const config: RuntimeConfig = { provider };
+    const config: RuntimeConfig = { provider, fsProvider: mockFsProvider };
     const session = new RuntimeSession(config);
 
     expect(session.getSessionId().startsWith('runtime_')).toBe(true);
@@ -96,7 +99,7 @@ describe('RuntimeSession', () => {
 
   it('getStore → 返回 Store 实例', () => {
     const provider = new MockLLMProvider();
-    const config: RuntimeConfig = { provider };
+    const config: RuntimeConfig = { provider, fsProvider: mockFsProvider };
     const session = new RuntimeSession(config);
 
     const store = session.getStore();
@@ -114,7 +117,7 @@ describe('RuntimeSession P34多轮持久化', () => {
     provider.addSimpleTextResponse('hello'); // 第1轮
     provider.addSimpleTextResponse('world'); // 第2轮
 
-    const config: RuntimeConfig = { provider };
+    const config: RuntimeConfig = { provider, fsProvider: mockFsProvider };
     const session = new RuntimeSession(config);
 
     // 第1轮
@@ -134,7 +137,7 @@ describe('RuntimeSession P34多轮持久化', () => {
     const provider = new MockLLMProvider();
     provider.addSimpleTextResponse('done');
 
-    const config: RuntimeConfig = { provider };
+    const config: RuntimeConfig = { provider, fsProvider: mockFsProvider };
     const session = new RuntimeSession(config);
 
     await consumeAllEvents(session.sendMessage('hi'));
@@ -146,7 +149,7 @@ describe('RuntimeSession P34多轮持久化', () => {
     const provider = new MockLLMProvider();
     provider.addSimpleTextResponse('response');
 
-    const config: RuntimeConfig = { provider };
+    const config: RuntimeConfig = { provider, fsProvider: mockFsProvider };
     const session = new RuntimeSession(config);
 
     expect(session.getMessages()).toHaveLength(0);
@@ -159,7 +162,7 @@ describe('RuntimeSession P34多轮持久化', () => {
     const provider = new MockLLMProvider();
     provider.addSimpleTextResponse('ok');
 
-    const config: RuntimeConfig = { provider };
+    const config: RuntimeConfig = { provider, fsProvider: mockFsProvider };
     const session = new RuntimeSession(config);
 
     await consumeAllEvents(session.sendMessage('hi'));

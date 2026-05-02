@@ -26,6 +26,8 @@ export interface AgentConfig {
   readonly phases?: readonly LoopPhase[];
   /** 系统提示段落（可选，不传则使用 Provider 的默认 system） */
   readonly systemPrompt?: import('./provider').SystemPrompt;
+  /** Provider Map（P36 — 工具执行所需宿主环境注入，spread 到 ToolUseContext） */
+  readonly providers?: Record<string, unknown>;
 }
 
 /**

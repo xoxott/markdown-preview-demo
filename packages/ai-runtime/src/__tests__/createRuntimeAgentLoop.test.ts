@@ -6,6 +6,9 @@ import { SkillRegistry } from '@suga/ai-skill';
 import type { RuntimeConfig } from '../types/config';
 import { createRuntimeAgentLoop } from '../factory/createRuntimeAgentLoop';
 import { MockLLMProvider } from './mocks/MockLLMProvider';
+import { MockFileSystemProvider } from './mocks/MockFileSystemProvider';
+
+const mockFsProvider = new MockFileSystemProvider();
 
 /** 辅助：消费所有事件 */
 async function consumeAllEvents(generator: AsyncGenerator<AgentEvent>): Promise<AgentEvent[]> {
@@ -21,7 +24,7 @@ describe('createRuntimeAgentLoop', () => {
     const provider = new MockLLMProvider();
     provider.addSimpleTextResponse('hello');
 
-    const config: RuntimeConfig = { provider };
+    const config: RuntimeConfig = { provider, fsProvider: mockFsProvider };
     const loop = createRuntimeAgentLoop(config);
 
     const events = await consumeAllEvents(
@@ -37,7 +40,7 @@ describe('createRuntimeAgentLoop', () => {
     provider.addSimpleTextResponse('hello');
 
     // createRuntimeAgentLoop 会自动构建 phases，通过 AgentConfig.phases 传入
-    const config: RuntimeConfig = { provider };
+    const config: RuntimeConfig = { provider, fsProvider: mockFsProvider };
     const loop = createRuntimeAgentLoop(config);
 
     // 验证 AgentLoop 能正常执行（phases 通过 AgentConfig.phases 传入）
@@ -56,6 +59,7 @@ describe('createRuntimeAgentLoop', () => {
 
     const config: RuntimeConfig = {
       provider,
+      fsProvider: mockFsProvider,
       hookRegistry
     };
 
@@ -76,6 +80,7 @@ describe('createRuntimeAgentLoop', () => {
 
     const config: RuntimeConfig = {
       provider,
+      fsProvider: mockFsProvider,
       toolRegistry,
       skillRegistry
     };

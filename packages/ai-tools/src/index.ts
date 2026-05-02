@@ -99,6 +99,7 @@ export { structuredOutputTool } from './tools/structured-output';
 
 // Provider 实现
 export { NodeFileSystemProvider } from './provider/NodeFileSystemProvider';
+export { YoloPermissionClassifier } from './provider/YoloPermissionClassifier';
 export { DefaultHttpProvider } from './types/http-provider';
 export { InMemoryTaskStoreProvider } from './provider/InMemoryTaskStoreProvider';
 export { InMemoryTeamProvider } from './provider/InMemoryTeamProvider';

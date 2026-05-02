@@ -8,8 +8,8 @@ import { createAgentToolUseContext } from '../context/ToolUseContext';
 import type { AgentState } from '../types/state';
 import type { MutableAgentContext } from '../context/AgentContext';
 import type { AgentEvent } from '../types/events';
-import { MockLLMProvider } from './mocks/MockLLMProvider';
 import { createSystemPrompt } from '../types/provider';
+import { MockLLMProvider } from './mocks/MockLLMProvider';
 
 /** 辅助：创建测试上下文 */
 function createTestCtx(): MutableAgentContext {

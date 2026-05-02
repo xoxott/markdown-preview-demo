@@ -1,18 +1,22 @@
 /** fetchSystemPrompt 测试 — system prompt 组装（含 Memory 注入） */
 
 import { describe, expect, it } from 'vitest';
-import type { RuntimeConfig } from '../types/config';
-import { fetchSystemPrompt } from '../sdk/fetchSystemPrompt';
 import { createSystemPrompt } from '@suga/ai-agent-loop';
 import { MockMemoryStorageProvider } from '@suga/ai-memory';
+import type { RuntimeConfig } from '../types/config';
+import { fetchSystemPrompt } from '../sdk/fetchSystemPrompt';
+import { MockFileSystemProvider } from './mocks/MockFileSystemProvider';
+
+const mockFsProvider = new MockFileSystemProvider();
 
 /** 创建最小测试配置 */
 function createTestConfig(): RuntimeConfig {
   return {
     provider: {
-      callModel: async function* () {},
+      async *callModel() {},
       formatToolDefinition: () => ({ name: 'test', description: 'mock', inputSchema: {} })
-    }
+    },
+    fsProvider: mockFsProvider
   };
 }
 

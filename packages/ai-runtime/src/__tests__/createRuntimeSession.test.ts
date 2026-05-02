@@ -3,6 +3,9 @@ import type { AnthropicAdapterConfig } from '@suga/ai-tool-adapter';
 import { createRuntimeSession } from '../session/createRuntimeSession';
 import { RuntimeSession } from '../session/RuntimeSession';
 import { MockLLMProvider } from './mocks/MockLLMProvider';
+import { MockFileSystemProvider } from './mocks/MockFileSystemProvider';
+
+const mockFsProvider = new MockFileSystemProvider();
 
 describe('createRuntimeSession', () => {
   it('从 AnthropicAdapterConfig 创建 → provider 为 AnthropicAdapter', () => {
@@ -38,7 +41,7 @@ describe('createRuntimeSession', () => {
     const provider = new MockLLMProvider();
     provider.addSimpleTextResponse('hello');
 
-    const session = new RuntimeSession({ provider });
+    const session = new RuntimeSession({ provider, fsProvider: mockFsProvider });
 
     expect(session.getStatus()).toBe('active');
     await session.destroy();

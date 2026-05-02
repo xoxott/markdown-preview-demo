@@ -5,10 +5,13 @@ import { ToolRegistry } from '@suga/ai-tool-core';
 import type { RuntimeConfig } from '../types/config';
 import { createSDKSystemMessage } from '../sdk/createSDKSystemMessage';
 import { MockLLMProvider } from './mocks/MockLLMProvider';
+import { MockFileSystemProvider } from './mocks/MockFileSystemProvider';
+
+const mockFsProvider = new MockFileSystemProvider();
 
 describe('createSDKSystemMessage', () => {
   it('默认配置 → 系统初始化消息', () => {
-    const config: RuntimeConfig = { provider: new MockLLMProvider() };
+    const config: RuntimeConfig = { provider: new MockLLMProvider(), fsProvider: mockFsProvider };
     const msg = createSDKSystemMessage(config);
 
     expect(msg.type).toBe('system');
@@ -24,6 +27,7 @@ describe('createSDKSystemMessage', () => {
     const tools = registry.getAll();
     const config: RuntimeConfig = {
       provider: new MockLLMProvider(),
+      fsProvider: mockFsProvider,
       toolRegistry: registry
     };
     const msg = createSDKSystemMessage(config);

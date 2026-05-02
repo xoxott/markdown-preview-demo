@@ -28,6 +28,7 @@ export type * from './sdk/runtimeTypes';
 
 // === 常量 ===
 export { HOOK_EVENTS, EXIT_REASONS, PERMISSION_MODES } from './sdk/constants';
+export { ANTHROPIC_PROMPT_CACHE_BETA, ANTHROPIC_TOKEN_BATCHING_BETA } from '@suga/ai-tool-adapter';
 export type {
   HookEventName,
   ExitReason,
@@ -112,6 +113,8 @@ export {
 
 // === 公开API函数 ===
 export { tool, createSdkMcpServer, SDKAbortError } from './api/mcpTool';
+export { YoloPermissionClassifier } from '@suga/ai-tools';
+export { NodeFileSystemProvider } from '@suga/ai-tools';
 export { query, unstable_v2_prompt, setQueryEngine } from './api/query';
 export type { QueryEngineLike } from './api/query';
 export {

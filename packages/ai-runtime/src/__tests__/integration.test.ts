@@ -13,6 +13,9 @@ import { RuntimeSession } from '../session/RuntimeSession';
 import { buildEffectiveToolRegistry } from '../factory/buildEffectiveToolRegistry';
 import { buildRuntimePhases } from '../factory/buildRuntimePhases';
 import { MockLLMProvider } from './mocks/MockLLMProvider';
+import { MockFileSystemProvider } from './mocks/MockFileSystemProvider';
+
+const mockFsProvider = new MockFileSystemProvider();
 
 /** 辅助：消费所有事件 */
 async function consumeAllEvents(generator: AsyncGenerator<AgentEvent>): Promise<AgentEvent[]> {
@@ -30,6 +33,7 @@ describe('集成测试', () => {
 
     const config: RuntimeConfig = {
       provider,
+      fsProvider: mockFsProvider,
       hookRegistry,
       compressConfig: {
         budget: { maxResultSize: 150_000, previewSize: 2_000 },
@@ -55,6 +59,7 @@ describe('集成测试', () => {
 
     const config: RuntimeConfig = {
       provider,
+      fsProvider: mockFsProvider,
       hookRegistry,
       coordinatorRegistry
     };
@@ -74,6 +79,7 @@ describe('集成测试', () => {
 
     const config: RuntimeConfig = {
       provider,
+      fsProvider: mockFsProvider,
       hookRegistry,
       compressConfig: {
         budget: { maxResultSize: 150_000, previewSize: 2_000 },
@@ -92,7 +98,7 @@ describe('集成测试', () => {
 
   it('默认配置产生4个Phase', () => {
     const provider = new MockLLMProvider();
-    const config: RuntimeConfig = { provider };
+    const config: RuntimeConfig = { provider, fsProvider: mockFsProvider };
     const phases = buildRuntimePhases(config);
 
     expect(phases.length).toBe(4);
@@ -102,7 +108,7 @@ describe('集成测试', () => {
     const provider = new MockLLMProvider();
     provider.addSimpleTextResponse('store test');
 
-    const config: RuntimeConfig = { provider };
+    const config: RuntimeConfig = { provider, fsProvider: mockFsProvider };
     const session = new RuntimeSession(config);
     const store = session.getStore();
 
@@ -117,7 +123,7 @@ describe('集成测试', () => {
 
   it('buildEffectiveToolRegistry — 无 registry → undefined', () => {
     const provider = new MockLLMProvider();
-    const result = buildEffectiveToolRegistry({ provider });
+    const result = buildEffectiveToolRegistry({ provider, fsProvider: mockFsProvider });
     expect(result).toBeUndefined();
   });
 });

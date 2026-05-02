@@ -3,6 +3,9 @@
  * Agent 集成运行时 — 聚合P0-P9子包配置，构建完整Phase链，提供工厂和会话层
  */
 
+// Module augmentation — P36 ToolUseContext 扩展（必须在最前面导入以确保augmentation安装）
+import './types/tool-context-augmentation';
+
 // 类型导出
 export type * from './types';
 
@@ -14,6 +17,7 @@ export { buildRuntimePhases } from './factory/buildRuntimePhases';
 export { buildEffectiveToolRegistry } from './factory/buildEffectiveToolRegistry';
 export { createRuntimeAgentLoop } from './factory/createRuntimeAgentLoop';
 export { createCallModelForSummary } from './factory/createCallModelForSummary';
+export { buildProviderMap } from './factory/buildProviderMap';
 
 // Session 层
 export { RuntimeSession } from './session/RuntimeSession';

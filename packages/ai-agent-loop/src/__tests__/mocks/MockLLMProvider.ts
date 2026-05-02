@@ -1,7 +1,13 @@
 /** Mock LLM Provider — 用于测试的可控流式产出模拟 */
 
 import type { AnyBuiltTool } from '@suga/ai-tool-core';
-import type { CallModelOptions, LLMProvider, LLMStreamChunk, SystemPrompt, ToolDefinition } from '../../types/provider';
+import type {
+  CallModelOptions,
+  LLMProvider,
+  LLMStreamChunk,
+  SystemPrompt,
+  ToolDefinition
+} from '../../types/provider';
 import type { AgentMessage, ToolUseBlock } from '../../types/messages';
 
 /** Mock LLM Provider 配置 */
@@ -25,8 +31,11 @@ export class MockLLMProvider implements LLMProvider {
   private failError: Error = new Error('Mock LLM error');
   private delay = 0;
   private callCount = 0;
-  private callHistory: { messages: readonly AgentMessage[]; tools?: readonly ToolDefinition[]; systemPrompt?: SystemPrompt }[] =
-    [];
+  private callHistory: {
+    messages: readonly AgentMessage[];
+    tools?: readonly ToolDefinition[];
+    systemPrompt?: SystemPrompt;
+  }[] = [];
 
   constructor(config?: MockLLMProviderConfig) {
     if (config?.shouldFail) this.shouldFail = config.shouldFail;

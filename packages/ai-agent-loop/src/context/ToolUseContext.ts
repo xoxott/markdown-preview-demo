@@ -29,13 +29,15 @@ export function createAgentToolUseContext(
   agentId: string,
   turnCount: number,
   registry: ToolRegistry,
-  abortController: AbortController
+  abortController: AbortController,
+  providers?: Record<string, unknown>
 ): AgentToolUseContext {
   return {
     abortController,
     tools: registry,
     sessionId: agentId,
     agentId,
-    turnCount
+    turnCount,
+    ...providers
   };
 }

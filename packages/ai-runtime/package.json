@@ -37,6 +37,7 @@
   "dependencies": {
     "@suga/ai-agent-loop": "workspace:*",
     "@suga/ai-tool-core": "workspace:*",
+    "@suga/ai-tools": "workspace:*",
     "@suga/ai-hooks": "workspace:*",
     "@suga/ai-skill": "workspace:*",
     "@suga/ai-context": "workspace:*",

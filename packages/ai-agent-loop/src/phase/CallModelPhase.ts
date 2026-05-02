@@ -38,11 +38,10 @@ export class CallModelPhase implements LoopPhase {
       const messages: readonly AgentMessage[] =
         (ctx.meta.compressedMessages as readonly AgentMessage[] | undefined) ?? ctx.state.messages;
 
-      const stream = this.provider.callModel(
-        messages,
-        this.tools,
-        { signal: ctx.state.toolUseContext.abortController.signal, systemPrompt: this.systemPrompt }
-      );
+      const stream = this.provider.callModel(messages, this.tools, {
+        signal: ctx.state.toolUseContext.abortController.signal,
+        systemPrompt: this.systemPrompt
+      });
 
       for await (const chunk of stream) {
         // 文本增量

@@ -21,10 +21,13 @@ import type { RuntimeConfig } from '../types/config';
 import { buildEffectiveToolRegistry } from '../factory/buildEffectiveToolRegistry';
 import { buildRuntimePhases } from '../factory/buildRuntimePhases';
 import { MockLLMProvider } from './mocks/MockLLMProvider';
+import { MockFileSystemProvider } from './mocks/MockFileSystemProvider';
+
+const mockFsProvider = new MockFileSystemProvider();
 
 /** 辅助：创建最小配置 */
 function createMinimalConfig(): RuntimeConfig {
-  return { provider: new MockLLMProvider() };
+  return { provider: new MockLLMProvider(), fsProvider: mockFsProvider };
 }
 
 describe('buildRuntimePhases', () => {
@@ -41,6 +44,7 @@ describe('buildRuntimePhases', () => {
   it('带 compressConfig → CompressPhase 替换 PreProcessPhase', () => {
     const config: RuntimeConfig = {
       provider: new MockLLMProvider(),
+      fsProvider: mockFsProvider,
       compressConfig: {
         budget: { maxResultSize: 150_000, previewSize: 2_000 },
         microCompact: { gapThresholdMinutes: 60, compactableTools: ['Read'], keepRecent: 5 },
@@ -60,6 +64,7 @@ describe('buildRuntimePhases', () => {
   it('带 hookRegistry → 插入 HookBeforeTool+HookAfterTool+HookStop', () => {
     const config: RuntimeConfig = {
       provider: new MockLLMProvider(),
+      fsProvider: mockFsProvider,
       hookRegistry: new HookRegistry()
     };
 
@@ -76,6 +81,7 @@ describe('buildRuntimePhases', () => {
   it('带 toolRegistry → 插入 ExecuteToolsPhase', () => {
     const config: RuntimeConfig = {
       provider: new MockLLMProvider(),
+      fsProvider: mockFsProvider,
       toolRegistry: new ToolRegistry()
     };
 
@@ -91,6 +97,7 @@ describe('buildRuntimePhases', () => {
 
     const config: RuntimeConfig = {
       provider: new MockLLMProvider(),
+      fsProvider: mockFsProvider,
       coordinatorRegistry: registry
     };
 
@@ -107,6 +114,7 @@ describe('buildRuntimePhases', () => {
 
     const effectiveRegistry = buildEffectiveToolRegistry({
       provider: new MockLLMProvider(),
+      fsProvider: mockFsProvider,
       toolRegistry,
       skillRegistry
     });
@@ -126,6 +134,7 @@ describe('buildRuntimePhases', () => {
 
     const config: RuntimeConfig = {
       provider,
+      fsProvider: mockFsProvider,
       hookRegistry,
       toolRegistry,
       compressConfig: {
@@ -160,6 +169,7 @@ describe('buildRuntimePhases', () => {
     // 只提供 registry，不提供 mailbox/taskManager/strategy
     const config: RuntimeConfig = {
       provider: new MockLLMProvider(),
+      fsProvider: mockFsProvider,
       coordinatorRegistry: registry
     };
 
@@ -180,6 +190,7 @@ describe('buildRuntimePhases P33增强', () => {
   it('recoveryConfig+compressConfig → RecoveryPhase插入CheckInterruptPhase之后', () => {
     const config: RuntimeConfig = {
       provider: new MockLLMProvider(),
+      fsProvider: mockFsProvider,
       compressConfig,
       recoveryConfig: {}
     };
@@ -198,6 +209,7 @@ describe('buildRuntimePhases P33增强', () => {
   it('blockingLimit配置 → BlockingLimitPhase插入CallModelPhase之前', () => {
     const config: RuntimeConfig = {
       provider: new MockLLMProvider(),
+      fsProvider: mockFsProvider,
       compressConfig: {
         ...compressConfig,
         blockingLimit: { reserveTokens: 5000 }
@@ -215,6 +227,7 @@ describe('buildRuntimePhases P33增强', () => {
   it('recoveryConfig但无compressConfig → 不插入RecoveryPhase（需要pipeline）', () => {
     const config: RuntimeConfig = {
       provider: new MockLLMProvider(),
+      fsProvider: mockFsProvider,
       recoveryConfig: {}
     };
 

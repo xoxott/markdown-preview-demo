@@ -215,7 +215,13 @@ export class AgentLoop {
       sessionId,
       turnCount: 0,
       messages,
-      toolUseContext: createAgentToolUseContext(sessionId, 0, registry, abortController),
+      toolUseContext: createAgentToolUseContext(
+        sessionId,
+        0,
+        registry,
+        abortController,
+        this.config.providers
+      ),
       transition: { type: 'next_turn' }
     };
   }

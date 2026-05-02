@@ -1,4 +1,4 @@
-/** RuntimeConfig — 聚合所有P0-P10+P35子包配置 */
+/** RuntimeConfig — 聚合所有P0-P10+P35+P36子包配置 */
 
 import type { AgentEvent, LLMProvider, SystemPrompt, ToolScheduler } from '@suga/ai-agent-loop';
 import type { ToolRegistry } from '@suga/ai-tool-core';
@@ -14,12 +14,26 @@ import type {
   TaskManager
 } from '@suga/ai-coordinator';
 import type { SubagentRegistry, SubagentSpawner } from '@suga/ai-subagent';
-import type { MemoryPromptConfig, MemoryStorageProvider, MemoryPathConfig } from '@suga/ai-memory';
+import type { MemoryPathConfig, MemoryPromptConfig, MemoryStorageProvider } from '@suga/ai-memory';
+import type {
+  ConfigProvider,
+  FileSystemProvider,
+  HttpProvider,
+  MailboxProvider,
+  McpResourceProvider,
+  PlanModeProvider,
+  SearchProvider,
+  SkillProvider,
+  TaskStoreProvider,
+  TeamProvider,
+  UserInteractionProvider
+} from '@suga/ai-tools';
 
 /**
  * 运行时配置 — 聚合所有子包的可选配置
  *
- * 每个子包配置都是可选的，不提供则该 Phase 不插入链中。 只有 `provider` 是必填项（P1 AgentLoop 的硬性依赖）。
+ * 每个子包配置都是可选的，不提供则该 Phase 不插入链中。 只有 `provider` 和 `fsProvider` 是必填项（P1 AgentLoop 和 bash/file
+ * 工具的硬性依赖）。
  */
 export interface RuntimeConfig {
   // === P1 核心 (必填) ===
@@ -85,6 +99,45 @@ export interface RuntimeConfig {
   readonly customSystemPrompt?: string;
   /** 附加系统提示（追加到 system prompt 末尾） */
   readonly appendSystemPrompt?: string;
+
+  // === P36 Tool Provider Wiring ===
+  /** 文件系统提供者（必填 — bash/file工具的硬性依赖） */
+  readonly fsProvider: FileSystemProvider;
+  /** HTTP提供者（可选，默认 DefaultHttpProvider） */
+  readonly httpProvider?: HttpProvider;
+  /** 搜索提供者（可选，无默认） */
+  readonly searchProvider?: SearchProvider;
+  /** 任务存储提供者（可选，无默认） */
+  readonly taskStoreProvider?: TaskStoreProvider;
+  /** Team管理提供者（可选，无默认） */
+  readonly teamProvider?: TeamProvider;
+  /** 消息收发提供者（可选，无默认） */
+  readonly mailboxProvider?: MailboxProvider;
+  /** 用户交互提供者（可选，无默认） */
+  readonly userInteractionProvider?: UserInteractionProvider;
+  /** Skill提供者（可选，无默认） */
+  readonly skillProvider?: SkillProvider;
+  /** 配置管理提供者（可选，无默认） */
+  readonly configProvider?: ConfigProvider;
+  /** MCP资源提供者（可选，无默认） */
+  readonly mcpResourceProvider?: McpResourceProvider;
+  /** 计划模式提供者（可选，无默认） */
+  readonly planModeProvider?: PlanModeProvider;
+}
+
+/** Provider Map — 从 RuntimeConfig 提取的 provider 字段集合 */
+export interface ProviderMap {
+  readonly fsProvider: FileSystemProvider;
+  readonly httpProvider?: HttpProvider;
+  readonly searchProvider?: SearchProvider;
+  readonly taskStoreProvider?: TaskStoreProvider;
+  readonly teamProvider?: TeamProvider;
+  readonly mailboxProvider?: MailboxProvider;
+  readonly userInteractionProvider?: UserInteractionProvider;
+  readonly skillProvider?: SkillProvider;
+  readonly configProvider?: ConfigProvider;
+  readonly mcpResourceProvider?: McpResourceProvider;
+  readonly planModeProvider?: PlanModeProvider;
 }
 
 /** RuntimeSession 状态 — P7 Store 管理 */

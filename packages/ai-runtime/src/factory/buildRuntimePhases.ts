@@ -40,7 +40,10 @@ import { createCallModelForSummary } from './createCallModelForSummary';
  * @param config RuntimeConfig
  * @returns LoopPhase[] 完整 Phase 链
  */
-export function buildRuntimePhases(config: RuntimeConfig, systemPrompt?: SystemPrompt): LoopPhase[] {
+export function buildRuntimePhases(
+  config: RuntimeConfig,
+  systemPrompt?: SystemPrompt
+): LoopPhase[] {
   const maxTurns = config.maxTurns ?? DEFAULT_RUNTIME_MAX_TURNS;
   const toolTimeout = config.toolTimeout ?? DEFAULT_RUNTIME_TOOL_TIMEOUT;
 

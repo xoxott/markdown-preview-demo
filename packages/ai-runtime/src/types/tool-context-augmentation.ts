@@ -1,0 +1,50 @@
+/**
+ * ai-runtime 的 ToolUseContext module augmentation
+ *
+ * P36: 将 11 个 provider 字段添加到 ai-tool-core 的 ToolUseContext 接口。 当 ai-runtime 包被导入时，所有工具的 call() 方法中
+ * context 自动包含这些字段。
+ */
+
+import type {
+  ConfigProvider,
+  FileSystemProvider,
+  HttpProvider,
+  MailboxProvider,
+  McpResourceProvider,
+  PlanModeProvider,
+  SearchProvider,
+  SkillProvider,
+  TaskStoreProvider,
+  TeamProvider,
+  UserInteractionProvider
+} from '@suga/ai-tools';
+
+declare module '@suga/ai-tool-core' {
+  interface ToolUseContext {
+    /** 文件系统提供者（必填 — bash/file 工具硬性依赖） */
+    readonly fsProvider?: FileSystemProvider;
+    /** HTTP 提供者（可选 — web-fetch 工具使用） */
+    readonly httpProvider?: HttpProvider;
+    /** 搜索提供者（可选 — web-search 工具使用） */
+    readonly searchProvider?: SearchProvider;
+    /** 任务存储提供者（可选 — task 工具使用） */
+    readonly taskStoreProvider?: TaskStoreProvider;
+    /** Team 管理提供者（可选 — team 工具使用） */
+    readonly teamProvider?: TeamProvider;
+    /** 消息收发提供者（可选 — send-message 工具使用） */
+    readonly mailboxProvider?: MailboxProvider;
+    /** 用户交互提供者（可选 — ask-user 工具使用） */
+    readonly userInteractionProvider?: UserInteractionProvider;
+    /** Skill 提供者（可选 — skill 工具使用） */
+    readonly skillProvider?: SkillProvider;
+    /** 配置管理提供者（可选 — config 工具使用） */
+    readonly configProvider?: ConfigProvider;
+    /** MCP 资源提供者（可选 — mcp-resource 工具使用） */
+    readonly mcpResourceProvider?: McpResourceProvider;
+    /** 计划模式提供者（可选 — plan-mode 工具使用） */
+    readonly planModeProvider?: PlanModeProvider;
+  }
+}
+
+// Side-effect: 确保 augmentation 安装
+export {};
