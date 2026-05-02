@@ -17,11 +17,22 @@
 
 import type { ToolUseContext } from '@suga/ai-tool-core';
 import type { FileSystemProvider } from './types/fs-provider';
+import type { HttpProvider } from './types/http-provider';
+import type { TaskStoreProvider } from './types/task-provider';
+import type { MailboxProvider, TeamProvider } from './types/team-provider';
 
-/** 扩展的 ToolUseContext — 包含 fsProvider */
+/** 扩展的 ToolUseContext — 包含所有宿主注入Provider */
 export interface ExtendedToolUseContext extends ToolUseContext {
   /** 文件系统提供者 — 宿主注入实现 */
   fsProvider: FileSystemProvider;
+  /** HTTP提供者 — 宿主注入实现（WebFetchTool使用） */
+  httpProvider?: HttpProvider;
+  /** 任务存储提供者 — 宿主注入实现（TaskTools使用） */
+  taskStoreProvider?: TaskStoreProvider;
+  /** Team管理提供者 — 宿主注入实现（TeamTools使用） */
+  teamProvider?: TeamProvider;
+  /** 消息收发提供者 — 宿主注入实现（SendMessageTool使用） */
+  mailboxProvider?: MailboxProvider;
 }
 
 // Side-effect export 确保 augmentation 说明生效

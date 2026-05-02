@@ -121,7 +121,7 @@ export interface SessionMutationOptions {
 
 // === MCP工具定义 ===
 
-/** SDK MCP工具定义 */
+/** SDK MCP工具定义 — T关联input_schema与handler的输入类型 */
 export interface SdkMcpToolDefinition<T = unknown> {
   /** 工具名称 */
   readonly name: string;
@@ -129,9 +129,12 @@ export interface SdkMcpToolDefinition<T = unknown> {
   readonly description: string;
   /** 输入schema（Zod） */
   readonly input_schema: z.ZodType<T>;
-  /** 处理函数 */
+  /** 处理函数 — input由Zod schema验证后传入 */
   readonly handler: (input: T) => Promise<string>;
 }
+
+/** SDK MCP工具定义（可变泛型） — 用于tools数组聚合 */
+export type AnySdkMcpToolDefinition = SdkMcpToolDefinition<unknown>;
 
 /** SDK MCP工具定义（不含handler，用于注册） */
 export interface SdkMcpToolSpec {
@@ -144,7 +147,7 @@ export interface SdkMcpToolSpec {
 export interface CreateSdkMcpServerConfig {
   readonly name: string;
   readonly version: string;
-  readonly tools: readonly SdkMcpToolDefinition[];
+  readonly tools: readonly SdkMcpToolDefinition<unknown>[];
 }
 
 // === Query返回类型 ===

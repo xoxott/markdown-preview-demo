@@ -1,0 +1,49 @@
+{
+  "name": "@suga/ai-auth",
+  "version": "1.0.0",
+  "description": "OAuth 2.0 认证层 — PKCE流程 + AuthProvider + MCP OAuth桥接 + Token管理 + RFC 9728 Discovery",
+  "author": {
+    "name": "yangtao",
+    "email": "212920320@qq.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/ai-auth",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xoxott/suga-tools.git",
+    "directory": "packages/ai-auth"
+  },
+  "bugs": {
+    "url": "https://github.com/xoxott/suga-tools/issues"
+  },
+  "keywords": ["ai", "oauth", "auth", "pkce", "mcp", "token", "discovery", "provider"],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "typesVersions": {
+    "*": {
+      "*": ["./src/*"]
+    }
+  },
+  "dependencies": {
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^4.0.8"
+  },
+  "peerDependencies": {
+    "@suga/ai-mcp": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@suga/ai-mcp": {
+      "optional": true
+    }
+  }
+}

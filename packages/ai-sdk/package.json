@@ -1,7 +1,7 @@
 {
   "name": "@suga/ai-sdk",
   "version": "0.1.0",
-  "description": "Agent SDK 统一入口 — 聚合17包类型导出 + Zod Schema + 公开API函数签名 + 控制协议",
+  "description": "Agent SDK 统一入口 — 聚合18包类型导出 + Zod Schema + 公开API函数签名 + 控制协议",
   "author": {
     "name": "yangtao",
     "email": "212920320@qq.com"
@@ -52,6 +52,7 @@
     "@suga/ai-tools": "workspace:*",
     "@suga/ai-runtime": "workspace:*",
     "@suga/ai-commands": "workspace:*",
+    "@suga/ai-auth": "workspace:*",
     "zod": "^4.2.1"
   },
   "devDependencies": {

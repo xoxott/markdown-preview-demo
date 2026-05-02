@@ -1,11 +1,15 @@
 /**
  * DaemonLifecycle.ts — 进程级生命周期管理
  *
- * 处理daemon启动、信号处理、优雅关闭。
- * 对齐Claude Code daemon/main.ts + cli.tsx的信号处理逻辑。
+ * 处理daemon启动、信号处理、优雅关闭。 对齐Claude Code daemon/main.ts + cli.tsx的信号处理逻辑。
  */
 
-import type { DaemonConfig, DaemonLifecycleEvent, DaemonLifecycleListener, GracefulShutdownOptions } from '../types/server';
+import type {
+  DaemonConfig,
+  DaemonLifecycleEvent,
+  DaemonLifecycleListener,
+  GracefulShutdownOptions
+} from '../types/server';
 
 /** 进程信号常量 */
 const SHUTDOWN_SIGNALS = ['SIGINT', 'SIGTERM'] as const;
@@ -14,6 +18,7 @@ const SHUTDOWN_SIGNALS = ['SIGINT', 'SIGTERM'] as const;
  * DaemonLifecycle — 进程级生命周期管理器
  *
  * 负责：
+ *
  * 1. 启动时初始化（注册信号处理器）
  * 2. 信号处理（SIGINT/SIGTERM触发优雅关闭）
  * 3. 优雅关闭流程（超时保护）

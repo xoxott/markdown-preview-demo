@@ -155,9 +155,13 @@ describe('CollapseCommitLogImpl', () => {
 
       // span 覆盖 0-2 → 替换为折叠占位符
       expect(view.length).toBeLessThan(messages.length);
-      expect(view[0].content).toContain('<collapsed');
-      expect(view[0].content).toContain('Early conversation');
-      expect(view[0].isMeta).toBe(true);
+      const collapsed = view[0];
+      expect(collapsed.role).toBe('user');
+      if (collapsed.role === 'user') {
+        expect(collapsed.content).toContain('<collapsed');
+        expect(collapsed.content).toContain('Early conversation');
+        expect(collapsed.isMeta).toBe(true);
+      }
     });
 
     it('无 spans 时应返回原始消息', () => {
@@ -186,7 +190,9 @@ describe('CollapseCommitLogImpl', () => {
       const view = log.getProjectView(messages);
 
       // 整个 0-4 范围只输出 1 个占位符
-      const collapsedCount = view.filter(m => m.content?.includes('<collapsed')).length;
+      const collapsedCount = view.filter(
+        m => (m.role === 'user' || m.role === 'assistant') && m.content.includes('<collapsed')
+      ).length;
       expect(collapsedCount).toBe(1);
     });
   });

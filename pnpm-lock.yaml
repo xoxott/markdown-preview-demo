@@ -333,6 +333,22 @@ importers:
         specifier: ^4.0.8
         version: 4.0.8(@types/debug@4.1.12)(@types/node@22.15.17)(@vitest/ui@4.0.16)(happy-dom@20.0.10)(jiti@2.6.1)(jsdom@26.1.0)(sass@1.88.0)(tsx@4.19.4)(yaml@2.8.1)
 
+  packages/ai-auth:
+    dependencies:
+      '@suga/ai-mcp':
+        specifier: '>=1.0.0'
+        version: link:../ai-mcp
+      zod:
+        specifier: ^4.2.1
+        version: 4.2.1
+    devDependencies:
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: ^4.0.8
+        version: 4.0.8(@types/debug@4.1.12)(@types/node@22.15.17)(@vitest/ui@4.0.16)(happy-dom@20.0.10)(jiti@2.6.1)(jsdom@26.1.0)(sass@1.88.0)(tsx@4.19.4)(yaml@2.8.1)
+
   packages/ai-commands:
     dependencies:
       '@suga/ai-skill':
@@ -499,6 +515,9 @@ importers:
       '@suga/ai-agent-session':
         specifier: workspace:*
         version: link:../ai-agent-session
+      '@suga/ai-auth':
+        specifier: workspace:*
+        version: link:../ai-auth
       '@suga/ai-commands':
         specifier: workspace:*
         version: link:../ai-commands

@@ -12,6 +12,7 @@ import type {
   CommandResult,
   EditResult,
   FileContent,
+  FileLsEntry,
   FileStat,
   FileSystemProvider,
   GrepFileCount,
@@ -445,5 +446,47 @@ export class NodeFileSystemProvider implements FileSystemProvider {
       default:
         return { mode: 'content', matches: [], totalMatches: 0 };
     }
+  }
+
+  // ─── 目录列表 ───
+
+  async ls(dirPath: string, options?: { recursive?: boolean }): Promise<FileLsEntry[]> {
+    const absolutePath = path.resolve(dirPath);
+    const entries: FileLsEntry[] = [];
+
+    const readDir = async (dir: string) => {
+      const items = await fs.promises.readdir(dir, { withFileTypes: true });
+
+      for (const item of items) {
+        const fullPath = path.join(dir, item.name);
+        try {
+          const stat = await fs.promises.stat(fullPath);
+          const type: FileLsEntry['type'] = item.isDirectory()
+            ? 'directory'
+            : item.isFile()
+              ? 'file'
+              : item.isSymbolicLink()
+                ? 'symlink'
+                : 'other';
+
+          entries.push({
+            name: path.relative(absolutePath, fullPath) || item.name,
+            type,
+            size: stat.size,
+            mtimeMs: stat.mtimeMs
+          });
+
+          // 递归遍历子目录
+          if (options?.recursive && item.isDirectory()) {
+            await readDir(fullPath);
+          }
+        } catch {
+          // 权限不足或文件消失 → skip
+        }
+      }
+    };
+
+    await readDir(absolutePath);
+    return entries;
   }
 }

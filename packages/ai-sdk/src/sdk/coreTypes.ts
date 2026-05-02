@@ -9,7 +9,27 @@ export type * from '@suga/ai-tool-adapter';
 export type * from '@suga/ai-hooks';
 export type * from '@suga/ai-coordinator';
 export type * from '@suga/ai-context';
-export type * from '@suga/ai-recovery';
+// === ai-recovery — 显式导出（AutoCompactConfig/MicroCompactConfig与ai-context冲突） ===
+export type {
+  RecoveryConfig,
+  MaxOutputTokensRecoveryConfig,
+  ContextCollapseConfig,
+  TokenBudgetConfig,
+  SpiralGuardConfig,
+  ApiOverflowError,
+  RecoveryResult,
+  RecoveryStrategy,
+  RecoveryMeta,
+  CollapseSpan,
+  CollapseSpanStatus,
+  DrainResult,
+  CollapseCommitLog,
+  PTLTokenGapResult,
+  CompactMessage,
+  CompactResult,
+  CompactHostProvider,
+  SessionMemoryCompactConfig
+} from '@suga/ai-recovery';
 export type * from '@suga/ai-skill';
 export type * from '@suga/ai-commands';
 export type * from '@suga/ai-stream-executor';
@@ -209,3 +229,6 @@ export type {
   ExtendedToolUseContext
 } from '@suga/ai-tools';
 export type { TruncateResult as ToolTruncateResult } from '@suga/ai-tools';
+
+// === ai-auth — OAuth认证类型（无冲突，通配符导出） ===
+export type * from '@suga/ai-auth';

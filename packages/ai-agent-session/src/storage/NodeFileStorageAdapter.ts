@@ -1,9 +1,7 @@
 /**
  * NodeFileStorageAdapter — 基于 Node.js fs 的持久化会话存储
  *
- * 使用 JSON 文件存储序列化会话，每个会话一个文件。
- * 文件存储在指定目录中，会话 ID 作为文件名。
- * 适合 Node.js 服务端持久化场景。
+ * 使用 JSON 文件存储序列化会话，每个会话一个文件。 文件存储在指定目录中，会话 ID 作为文件名。 适合 Node.js 服务端持久化场景。
  */
 
 import * as fs from 'node:fs';

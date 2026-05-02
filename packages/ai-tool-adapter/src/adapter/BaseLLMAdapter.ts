@@ -42,8 +42,8 @@ export abstract class BaseLLMAdapter implements LLMProvider {
     this.usageTracker = tracker;
   }
 
-  /** 获取用量追踪器（子类可用） */
-  protected getUsageTracker(): UsageTracker | undefined {
+  /** 获取用量追踪器 */
+  getUsageTracker(): UsageTracker | undefined {
     return this.usageTracker;
   }
 
@@ -52,8 +52,8 @@ export abstract class BaseLLMAdapter implements LLMProvider {
     this.lifecycleHook = hook;
   }
 
-  /** 获取生命周期钩子（子类可用） */
-  protected getLifecycleHook(): LLMRequestLifecycleHook | undefined {
+  /** 获取生命周期钩子 */
+  getLifecycleHook(): LLMRequestLifecycleHook | undefined {
     return this.lifecycleHook;
   }
 
@@ -62,8 +62,8 @@ export abstract class BaseLLMAdapter implements LLMProvider {
     this.retryConfig = config;
   }
 
-  /** 获取重试配置（子类可用） */
-  protected getRetryConfig(): LLMRetryConfig | undefined {
+  /** 获取重试配置 */
+  getRetryConfig(): LLMRetryConfig | undefined {
     return this.retryConfig;
   }
 

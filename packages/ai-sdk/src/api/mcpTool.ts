@@ -31,12 +31,12 @@ export function tool<T>(
   description: string,
   inputSchema: z.ZodType<T>,
   handler: (input: T) => Promise<string>
-): SdkMcpToolDefinition<T> {
+): SdkMcpToolDefinition<unknown> {
   return {
     name,
     description,
     input_schema: inputSchema,
-    handler
+    handler: handler as (input: unknown) => Promise<string>
   };
 }
 

@@ -22,6 +22,7 @@ const cli = cac('buddy');
 // buddy（默认命令）— 启动交互式 Ink 精灵动画模式
 // ---------------------------------------------------------------------------
 cli.command('', 'Meet your coding companion').action(async () => {
+  // @ts-expect-error — Ink render + Vue JSX namespace pollution in monorepo
   const { waitUntilExit } = render(<BuddyApp />);
   await waitUntilExit();
 });

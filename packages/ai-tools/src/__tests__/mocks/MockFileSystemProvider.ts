@@ -4,6 +4,7 @@ import type {
   CommandResult,
   EditResult,
   FileContent,
+  FileLsEntry,
   FileStat,
   FileSystemProvider,
   GrepFileCount,
@@ -209,6 +210,22 @@ export class MockFileSystemProvider implements FileSystemProvider {
       return { ...preconfigured, cwd: options?.cwd ?? preconfigured.cwd };
     }
     return { ...this.defaultCommandResult, cwd: options?.cwd };
+  }
+
+  async ls(dirPath: string, options?: { recursive?: boolean }): Promise<FileLsEntry[]> {
+    const entries: FileLsEntry[] = [];
+    for (const [filePath] of this.files.entries()) {
+      if (filePath.startsWith(dirPath)) {
+        const name = filePath.replace(`${dirPath}/`, '');
+        entries.push({
+          name,
+          type: 'file',
+          size: this.files.get(filePath)?.content.length ?? 0,
+          mtimeMs: this.files.get(filePath)?.mtimeMs ?? 0
+        });
+      }
+    }
+    return entries;
   }
 }
 

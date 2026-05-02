@@ -2,17 +2,14 @@
  * DaemonSessionManager.ts — Daemon级会话管理器
  *
  * 基于ai-agent-session的SessionManager扩展，增加：
+ *
  * 1. 并发控制（maxSessions限制）
  * 2. 空闲超时清理
  * 3. 会话状态跟踪（DaemonSessionState状态机）
  * 4. 优雅关闭时批量停止所有会话
  */
 
-import type {
-  DaemonConfig,
-  DaemonSessionInfo,
-  DaemonSessionState
-} from '../types/server';
+import type { DaemonConfig, DaemonSessionInfo, DaemonSessionState } from '../types/server';
 import { DaemonLifecycle } from './DaemonLifecycle';
 
 /** 会话注册条目 — 内部使用的完整会话记录 */
@@ -33,8 +30,7 @@ interface SessionEntry {
 /**
  * DaemonSessionManager — Daemon级会话管理器
  *
- * 不直接依赖ai-agent-session的Session类（因为daemon可能在子进程中运行），
- * 而是管理"会话注册表" — 记录会话ID/状态/元数据。
+ * 不直接依赖ai-agent-session的Session类（因为daemon可能在子进程中运行）， 而是管理"会话注册表" — 记录会话ID/状态/元数据。
  * 实际的Agent执行通过宿主注入的executeSession回调完成。
  */
 export class DaemonSessionManager {

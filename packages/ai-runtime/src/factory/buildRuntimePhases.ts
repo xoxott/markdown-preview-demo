@@ -74,7 +74,11 @@ export function buildRuntimePhases(config: RuntimeConfig): LoopPhase[] {
     const spawnProvider = config.spawnProvider;
     phases.push(
       new CoordinatorDispatchPhase(
-        config.coordinatorRegistry, mailbox, taskManager, strategy, spawnProvider
+        config.coordinatorRegistry,
+        mailbox,
+        taskManager,
+        strategy,
+        spawnProvider
       )
     );
   }

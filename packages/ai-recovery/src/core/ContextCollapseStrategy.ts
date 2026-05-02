@@ -7,6 +7,14 @@ import type { ContextCollapseConfig } from '../types/config';
 import type { CollapseCommitLog, CollapseSpan, DrainResult } from '../types/collapse';
 import { CollapseCommitLogImpl } from './CollapseCommitLog';
 
+/** 从AgentMessage提取文本内容 — UserMessage/AssistantMessage有content, ToolResultMessage用error/result */
+function getMessageContent(msg: AgentMessage | undefined): string | undefined {
+  if (!msg) return undefined;
+  if (msg.role === 'user' || msg.role === 'assistant') return msg.content;
+  if (msg.role === 'tool_result') return msg.error ?? String(msg.result ?? '');
+  return undefined;
+}
+
 /** 生成唯一 ID */
 function generateId(): string {
   return `collapse_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
@@ -33,14 +41,14 @@ const DEFAULT_MAX_STAGED_SPANS = 5;
 export class ContextCollapseStrategy {
   private readonly drainThreshold: number;
   private readonly planThreshold: number;
-  private readonly outputReserveTokens: number;
+  private readonly _outputReserveTokens: number;
   private readonly maxStagedSpans: number;
   readonly commitLog: CollapseCommitLog;
 
   constructor(config?: ContextCollapseConfig) {
     this.drainThreshold = config?.drainThreshold ?? 0.95;
     this.planThreshold = config?.planThreshold ?? 0.9;
-    this.outputReserveTokens = config?.outputReserveTokens ?? DEFAULT_OUTPUT_RESERVE_TOKENS;
+    this._outputReserveTokens = config?.outputReserveTokens ?? DEFAULT_OUTPUT_RESERVE_TOKENS;
     this.maxStagedSpans = config?.maxStagedSpans ?? DEFAULT_MAX_STAGED_SPANS;
     this.commitLog = new CollapseCommitLogImpl();
   }
@@ -107,7 +115,7 @@ export class ContextCollapseStrategy {
         startIndex: group.startIndex,
         endIndex: group.endIndex,
         summary: summaryResult.didCompress
-          ? (summaryResult.messages[0]?.content ?? 'Compressed conversation segment')
+          ? (getMessageContent(summaryResult.messages[0]) ?? 'Compressed conversation segment')
           : `[Segment ${group.startIndex}-${group.endIndex} collapsed]`,
         archivedMessageIds: unfoldedMessages.map(m => m.id),
         estimatedTokens: groupTokens,

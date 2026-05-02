@@ -1,8 +1,7 @@
 /**
  * HeadlessIO.ts — stdin/stdout JSON流通信层
  *
- * 对齐Claude Code cli/structuredIO.ts的核心功能：
- * stdin读取JSON消息（newline-delimited），stdout写入JSON消息。
+ * 对齐Claude Code cli/structuredIO.ts的核心功能： stdin读取JSON消息（newline-delimited），stdout写入JSON消息。
  * 是daemon/headless模式的核心通信机制。
  */
 
@@ -11,8 +10,7 @@ import type { HeadlessIO, HeadlessIOOptions } from '../types/server';
 /**
  * NodeHeadlessIO — Node.js环境的stdin/stdout JSON流实现
  *
- * 消息格式：每行一个JSON对象（newline-delimited JSON）
- * 对齐Claude Code的stream-json输入/输出格式。
+ * 消息格式：每行一个JSON对象（newline-delimited JSON） 对齐Claude Code的stream-json输入/输出格式。
  */
 export class NodeHeadlessIO implements HeadlessIO {
   private readonly inputStream: NodeJS.ReadableStream;
@@ -53,7 +51,9 @@ export class NodeHeadlessIO implements HeadlessIO {
     });
   }
 
-  get closed(): boolean { return this._closed; }
+  get closed(): boolean {
+    return this._closed;
+  }
 
   /** 读取stdin的下一行JSON消息 */
   readMessage(): Promise<unknown> {
@@ -67,7 +67,7 @@ export class NodeHeadlessIO implements HeadlessIO {
     }
 
     // 等待下一条消息
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       this.resolveRead = resolve;
     });
   }
@@ -77,13 +77,13 @@ export class NodeHeadlessIO implements HeadlessIO {
     if (this._closed) return;
 
     const serialized = this.serializeMessage(message);
-    this.outputStream.write(serialized + '\n');
+    this.outputStream.write(`${serialized}\n`);
   }
 
   /** 写入stderr */
   writeError(error: string): void {
     if (this._closed) return;
-    this.errorStream.write(error + '\n');
+    this.errorStream.write(`${error}\n`);
   }
 
   /** 关闭IO通道 */

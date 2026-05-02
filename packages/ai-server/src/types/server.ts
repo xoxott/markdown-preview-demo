@@ -1,8 +1,7 @@
 /**
  * server.ts — Server/Daemon核心类型定义
  *
- * 定义daemon配置、会话状态机、headless IO接口、生命周期管理类型。
- * 对齐Claude Code server/types.ts的核心结构，但独立设计@suga特有字段。
+ * 定义daemon配置、会话状态机、headless IO接口、生命周期管理类型。 对齐Claude Code server/types.ts的核心结构，但独立设计@suga特有字段。
  */
 
 import { z } from 'zod/v4';
@@ -32,7 +31,9 @@ export interface DaemonConfig {
 }
 
 /** Daemon默认配置 */
-export const DEFAULT_DAEMON_CONFIG: Required<Pick<DaemonConfig, 'port' | 'host' | 'idleTimeoutMs' | 'maxSessions'>> = {
+export const DEFAULT_DAEMON_CONFIG: Required<
+  Pick<DaemonConfig, 'port' | 'host' | 'idleTimeoutMs' | 'maxSessions'>
+> = {
   port: 8765,
   host: 'localhost',
   idleTimeoutMs: 300_000, // 5min
@@ -43,12 +44,12 @@ export const DEFAULT_DAEMON_CONFIG: Required<Pick<DaemonConfig, 'port' | 'host' 
 
 /** Daemon会话生命周期状态 */
 export type DaemonSessionState =
-  | 'starting'    // 会话正在创建
-  | 'running'     // 会话活跃执行中
-  | 'paused'      // 会话暂停（等待恢复）
-  | 'detached'    // 客户端断开，会话保留
-  | 'stopping'    // 正在优雅关闭
-  | 'stopped';    // 已完全停止
+  | 'starting' // 会话正在创建
+  | 'running' // 会话活跃执行中
+  | 'paused' // 会话暂停（等待恢复）
+  | 'detached' // 客户端断开，会话保留
+  | 'stopping' // 正在优雅关闭
+  | 'stopped'; // 已完全停止
 
 /** Daemon会话信息 — 会话注册表中的摘要 */
 export interface DaemonSessionInfo {

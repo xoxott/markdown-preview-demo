@@ -1,11 +1,15 @@
 /**
  * DaemonServer.ts — Daemon主入口
  *
- * 组合DaemonLifecycle + DaemonSessionManager + HeadlessIO，
- * 提供完整的daemon运行能力。
+ * 组合DaemonLifecycle + DaemonSessionManager + HeadlessIO， 提供完整的daemon运行能力。
  */
 
-import type { DaemonConfig, DaemonSessionInfo, ServerConnectResponse, ServerApi } from '../types/server';
+import type {
+  DaemonConfig,
+  DaemonSessionInfo,
+  ServerApi,
+  ServerConnectResponse
+} from '../types/server';
 import { DaemonLifecycle } from '../core/DaemonLifecycle';
 import { DaemonSessionManager } from '../core/DaemonSessionManager';
 import { NodeHeadlessIO } from '../io/HeadlessIO';
@@ -14,6 +18,7 @@ import { NodeHeadlessIO } from '../io/HeadlessIO';
  * DaemonServer — 完整的daemon服务
  *
  * 使用方式：
+ *
  * ```ts
  * const daemon = new DaemonServer({ maxSessions: 5 });
  * daemon.start(); // 注册信号处理器
@@ -33,7 +38,7 @@ export class DaemonServer implements ServerApi {
     this.headlessIO = new NodeHeadlessIO();
 
     // 生命周期事件转发到session管理
-    this.lifecycle.addListener((event) => {
+    this.lifecycle.addListener(event => {
       if (event.type === 'idle_timeout') {
         // 空闲超时 → 自动detach会话
         this.sessionManager.updateSessionState(event.sessionId, 'detached');

@@ -15,7 +15,7 @@ describe('DaemonLifecycle', () => {
   it('boot → 注册信号处理器 + 发出boot事件', () => {
     const events: DaemonLifecycleEvent[] = [];
     const lifecycle = new DaemonLifecycle(defaultConfig);
-    lifecycle.addListener((e) => events.push(e));
+    lifecycle.addListener(e => events.push(e));
 
     lifecycle.boot();
     expect(lifecycle.isBooted()).toBe(true);
@@ -26,7 +26,7 @@ describe('DaemonLifecycle', () => {
   it('boot(重复) → 不重复触发', () => {
     const events: DaemonLifecycleEvent[] = [];
     const lifecycle = new DaemonLifecycle(defaultConfig);
-    lifecycle.addListener((e) => events.push(e));
+    lifecycle.addListener(e => events.push(e));
 
     lifecycle.boot();
     lifecycle.boot();
@@ -36,7 +36,7 @@ describe('DaemonLifecycle', () => {
   it('initiateShutdown → 发出shutdown事件 + 标记关闭', async () => {
     const events: DaemonLifecycleEvent[] = [];
     const lifecycle = new DaemonLifecycle(defaultConfig);
-    lifecycle.addListener((e) => events.push(e));
+    lifecycle.addListener(e => events.push(e));
 
     lifecycle.boot();
     await lifecycle.initiateShutdown('test shutdown');

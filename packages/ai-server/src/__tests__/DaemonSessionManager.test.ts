@@ -124,7 +124,7 @@ describe('DaemonSessionManager', () => {
   it('lifecycle事件 → session_created/session_destroyed', () => {
     const events: DaemonLifecycleEvent[] = [];
     const lifecycle = new DaemonLifecycle(defaultConfig);
-    lifecycle.addListener((e) => events.push(e));
+    lifecycle.addListener(e => events.push(e));
     const manager = new DaemonSessionManager(defaultConfig, lifecycle);
 
     manager.registerSession('sess_ev');

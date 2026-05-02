@@ -1,8 +1,7 @@
 /**
  * NodeFileMemoryStorageProvider — 基于 Node.js fs 的真实 MemoryStorageProvider 实现
  *
- * 使用 Node.js fs/promises 实现所有 7 个接口方法。
- * 宿主在 Node.js 环境中直接使用此实现，无需自行适配。
+ * 使用 Node.js fs/promises 实现所有 7 个接口方法。 宿主在 Node.js 环境中直接使用此实现，无需自行适配。
  */
 
 import * as fs from 'node:fs';
@@ -12,8 +11,7 @@ import type { MemoryStorageProvider } from '../types/memory-storage';
 /**
  * NodeFileMemoryStorageProvider — 真实文件系统实现
  *
- * 所有方法直接操作文件系统，无模拟行为。
- * mkdir 自动 recursive，realpath 使用 fs.realpath.native。
+ * 所有方法直接操作文件系统，无模拟行为。 mkdir 自动 recursive，realpath 使用 fs.realpath.native。
  */
 export class NodeFileMemoryStorageProvider implements MemoryStorageProvider {
   async readFile(filePath: string): Promise<string> {
@@ -41,7 +39,10 @@ export class NodeFileMemoryStorageProvider implements MemoryStorageProvider {
 
   async listFiles(dir: string, extension?: string): Promise<string[]> {
     try {
-      const exists = await fs.promises.access(dir, fs.constants.F_OK).then(() => true).catch(() => false);
+      const exists = await fs.promises
+        .access(dir, fs.constants.F_OK)
+        .then(() => true)
+        .catch(() => false);
       if (!exists) return [];
 
       const entries = await fs.promises.readdir(dir, { withFileTypes: true });

@@ -8,6 +8,12 @@ export { ContextCollapseStrategy } from './core/ContextCollapseStrategy';
 export { CollapseCommitLogImpl } from './core/CollapseCommitLog';
 export { parsePTLTokenGap } from './core/PTLTokenGapParser';
 
+// Compact策略
+export { AutoCompactStrategy } from './core/AutoCompactStrategy';
+export { MicroCompactStrategy } from './core/MicroCompactStrategy';
+export { SessionMemoryCompact } from './core/SessionMemoryCompact';
+export { CompactOrchestrator } from './core/CompactOrchestrator';
+
 // 集成阶段
 export { RecoveryPhase } from './integration/RecoveryPhase';
 
@@ -35,3 +41,19 @@ export type {
 } from './types/collapse';
 
 export type { PTLTokenGapResult } from './core/PTLTokenGapParser';
+
+// Compact策略类型导出
+export type {
+  CompactMessage,
+  CompactResult,
+  CompactHostProvider,
+  AutoCompactConfig,
+  MicroCompactConfig,
+  SessionMemoryCompactConfig
+} from './types/compact';
+
+export {
+  DEFAULT_AUTO_COMPACT_CONFIG,
+  DEFAULT_MICRO_COMPACT_CONFIG,
+  DEFAULT_SESSION_MEMORY_COMPACT_CONFIG
+} from './types/compact';

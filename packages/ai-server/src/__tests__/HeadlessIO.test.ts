@@ -1,8 +1,8 @@
 /** @suga/ai-server — NodeHeadlessIO测试 */
 
+import { PassThrough } from 'node:stream';
 import { describe, expect, it } from 'vitest';
 import { NodeHeadlessIO } from '../io/HeadlessIO';
-import { PassThrough } from 'node:stream';
 
 describe('NodeHeadlessIO', () => {
   it('readMessage → 读取JSON消息', async () => {
@@ -14,7 +14,7 @@ describe('NodeHeadlessIO', () => {
       errorStream: new PassThrough()
     });
 
-    input.write(JSON.stringify({ type: 'user', message: 'hello' }) + '\n');
+    input.write(`${JSON.stringify({ type: 'user', message: 'hello' })}\n`);
 
     const msg = await io.readMessage();
     expect(msg).toEqual({ type: 'user', message: 'hello' });
@@ -31,8 +31,8 @@ describe('NodeHeadlessIO', () => {
       errorStream: new PassThrough()
     });
 
-    input.write(JSON.stringify({ type: 'msg1' }) + '\n');
-    input.write(JSON.stringify({ type: 'msg2' }) + '\n');
+    input.write(`${JSON.stringify({ type: 'msg1' })}\n`);
+    input.write(`${JSON.stringify({ type: 'msg2' })}\n`);
 
     const msg1 = await io.readMessage();
     expect(msg1).toEqual({ type: 'msg1' });

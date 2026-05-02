@@ -146,12 +146,26 @@ export interface CommandResult {
   readonly cwd?: string;
 }
 
+// === 目录列表 ===
+
+/** 目录列表条目 */
+export interface FileLsEntry {
+  /** 文件/目录名 */
+  readonly name: string;
+  /** 类型 */
+  readonly type: 'file' | 'directory' | 'symlink' | 'other';
+  /** 大小（字节） */
+  readonly size: number;
+  /** 最后修改时间（毫秒时间戳） */
+  readonly mtimeMs: number;
+}
+
 // === FileSystemProvider 接口 ===
 
 /**
  * 文件系统提供者 — 宿主注入实现
  *
- * 6 个核心工具的所有 I/O 操作委托到此接口。 工具本身不直接使用 fs/child_process，完全依赖宿主注入。
+ * 工具的所有 I/O 操作委托到此接口。 工具本身不直接使用 fs/child_process，完全依赖宿主注入。
  */
 export interface FileSystemProvider {
   // === 文件操作 ===
@@ -178,6 +192,11 @@ export interface FileSystemProvider {
 
   /** Grep (ripgrep 风格) 搜索 */
   grep(pattern: string, options: GrepOptions): Promise<GrepResult>;
+
+  // === 目录列表 ===
+
+  /** 列出目录内容 */
+  ls(path: string, options?: { recursive?: boolean }): Promise<FileLsEntry[]>;
 
   // === 命令执行 ===
 

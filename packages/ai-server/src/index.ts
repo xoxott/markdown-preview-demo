@@ -14,4 +14,8 @@ export { DaemonServer } from './daemon/DaemonServer';
 export type * from './types/server';
 
 // === Zod Schema导出 ===
-export { DaemonConfigSchema, ServerConnectResponseSchema, DEFAULT_DAEMON_CONFIG } from './types/server';
+export {
+  DaemonConfigSchema,
+  ServerConnectResponseSchema,
+  DEFAULT_DAEMON_CONFIG
+} from './types/server';
