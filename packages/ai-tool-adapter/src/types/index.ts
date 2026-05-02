@@ -3,6 +3,7 @@
 export type { BaseLLMAdapterConfig } from './adapter';
 
 export type {
+  AnthropicBetaFeatures,
   AnthropicAdapterConfig,
   AnthropicThinkingConfig,
   AnthropicRequestBody,
@@ -79,7 +80,11 @@ export type {
 
 export { DEFAULT_ADAPTER_TIMEOUT, DEFAULT_ADAPTER_MAX_TOKENS } from './adapter';
 
-export { DEFAULT_ANTHROPIC_API_VERSION } from './anthropic';
+export {
+  DEFAULT_ANTHROPIC_API_VERSION,
+  ANTHROPIC_PROMPT_CACHE_BETA,
+  ANTHROPIC_TOKEN_BATCHING_BETA
+} from './anthropic';
 
 export { DEFAULT_MODEL_CONFIG } from './model-config';
 

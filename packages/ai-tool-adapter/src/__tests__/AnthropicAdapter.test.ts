@@ -261,7 +261,9 @@ describe('AnthropicAdapter', () => {
 
       const prompt = createSystemPrompt(['You are a helpful assistant.', 'Memory: remember X']);
       const adapter = new AnthropicAdapter(createTestConfig());
-      await consumeAll(adapter.callModel([createUserMsg('hi')], undefined, { systemPrompt: prompt }));
+      await consumeAll(
+        adapter.callModel([createUserMsg('hi')], undefined, { systemPrompt: prompt })
+      );
 
       const body = JSON.parse(mockFetch.mock.calls[0][1].body as string);
       expect(Array.isArray(body.system)).toBe(true);
@@ -284,7 +286,9 @@ describe('AnthropicAdapter', () => {
 
       const prompt = createSystemPrompt(['You are a helpful assistant.']);
       const adapter = new AnthropicAdapter(createTestConfig());
-      await consumeAll(adapter.callModel([createUserMsg('hi')], undefined, { systemPrompt: prompt }));
+      await consumeAll(
+        adapter.callModel([createUserMsg('hi')], undefined, { systemPrompt: prompt })
+      );
 
       const body = JSON.parse(mockFetch.mock.calls[0][1].body as string);
       expect(typeof body.system).toBe('string');
@@ -326,11 +330,92 @@ describe('AnthropicAdapter', () => {
 
       const prompt = createSystemPrompt(['Override prompt']);
       const adapter = new AnthropicAdapter(config);
-      await consumeAll(adapter.callModel([createUserMsg('hi')], undefined, { systemPrompt: prompt }));
+      await consumeAll(
+        adapter.callModel([createUserMsg('hi')], undefined, { systemPrompt: prompt })
+      );
 
       const body = JSON.parse(mockFetch.mock.calls[0][1].body as string);
       expect(body.system).toBe('Override prompt');
       expect(body.system).not.toBe('你是助手');
+    });
+  });
+
+  describe('P36 betaFeatures → anthropic-beta header', () => {
+    it('betaFeatures.promptCaching=true → 包含 anthropic-beta header', async () => {
+      const config: AnthropicAdapterConfig = {
+        ...createTestConfig(),
+        betaFeatures: { promptCaching: true }
+      };
+
+      mockFetch.mockResolvedValue(
+        createSSEResponse([
+          { type: 'message_start', data: { type: 'message_start' } },
+          { type: 'message_stop', data: { type: 'message_stop' } }
+        ])
+      );
+
+      const adapter = new AnthropicAdapter(config);
+      await consumeAll(adapter.callModel([createUserMsg('hi')]));
+
+      const headers = mockFetch.mock.calls[0][1].headers as Record<string, string>;
+      expect(headers['anthropic-beta']).toBe('prompt-caching-2024-07-31');
+    });
+
+    it('betaFeatures undefined → 不含 anthropic-beta header', async () => {
+      mockFetch.mockResolvedValue(
+        createSSEResponse([
+          { type: 'message_start', data: { type: 'message_start' } },
+          { type: 'message_stop', data: { type: 'message_stop' } }
+        ])
+      );
+
+      const adapter = new AnthropicAdapter(createTestConfig());
+      await consumeAll(adapter.callModel([createUserMsg('hi')]));
+
+      const headers = mockFetch.mock.calls[0][1].headers as Record<string, string>;
+      expect(headers['anthropic-beta']).toBeUndefined();
+    });
+
+    it('betaFeatures.promptCaching=false → 不含 anthropic-beta header', async () => {
+      const config: AnthropicAdapterConfig = {
+        ...createTestConfig(),
+        betaFeatures: { promptCaching: false }
+      };
+
+      mockFetch.mockResolvedValue(
+        createSSEResponse([
+          { type: 'message_start', data: { type: 'message_start' } },
+          { type: 'message_stop', data: { type: 'message_stop' } }
+        ])
+      );
+
+      const adapter = new AnthropicAdapter(config);
+      await consumeAll(adapter.callModel([createUserMsg('hi')]));
+
+      const headers = mockFetch.mock.calls[0][1].headers as Record<string, string>;
+      expect(headers['anthropic-beta']).toBeUndefined();
+    });
+
+    it('多 beta feature → 逗号拼接', async () => {
+      const config: AnthropicAdapterConfig = {
+        ...createTestConfig(),
+        betaFeatures: { promptCaching: true, tokenBatching: true }
+      };
+
+      mockFetch.mockResolvedValue(
+        createSSEResponse([
+          { type: 'message_start', data: { type: 'message_start' } },
+          { type: 'message_stop', data: { type: 'message_stop' } }
+        ])
+      );
+
+      const adapter = new AnthropicAdapter(config);
+      await consumeAll(adapter.callModel([createUserMsg('hi')]));
+
+      const headers = mockFetch.mock.calls[0][1].headers as Record<string, string>;
+      expect(headers['anthropic-beta']).toContain('prompt-caching-2024-07-31');
+      expect(headers['anthropic-beta']).toContain('token-batching-2025-04-01');
+      expect(headers['anthropic-beta'].split(',').length).toBe(2);
     });
   });
 });

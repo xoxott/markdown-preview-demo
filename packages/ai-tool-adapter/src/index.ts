@@ -6,6 +6,9 @@
 // 类型导出
 export type * from './types';
 
+// Beta 常量（P36 新增）
+export { ANTHROPIC_PROMPT_CACHE_BETA, ANTHROPIC_TOKEN_BATCHING_BETA } from './types/anthropic';
+
 // 适配器
 export { BaseLLMAdapter } from './adapter/BaseLLMAdapter';
 export { AnthropicAdapter } from './adapter/AnthropicAdapter';

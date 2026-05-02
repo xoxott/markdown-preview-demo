@@ -1,5 +1,13 @@
 /** Anthropic Claude API 专有类型定义 */
 
+/** Anthropic Beta 功能配置 */
+export interface AnthropicBetaFeatures {
+  /** 启用 Prompt Caching（注入 anthropic-beta header） */
+  readonly promptCaching?: boolean;
+  /** 启用 Token Batching */
+  readonly tokenBatching?: boolean;
+}
+
 /** Anthropic 适配器配置 */
 export interface AnthropicAdapterConfig {
   /** API 基础 URL（支持代理地址） */
@@ -20,6 +28,8 @@ export interface AnthropicAdapterConfig {
   readonly customHeaders?: Record<string, string>;
   /** 思考模式配置 */
   readonly thinking?: AnthropicThinkingConfig;
+  /** Beta 功能开关（P36 新增 — 组合 anthropic-beta header） */
+  readonly betaFeatures?: AnthropicBetaFeatures;
 }
 
 /** Anthropic 思考模式配置 */
@@ -174,3 +184,9 @@ export const DEFAULT_ANTHROPIC_API_VERSION = '2023-06-01';
 
 /** 默认最大输出 token 数 */
 export const DEFAULT_ANTHROPIC_MAX_TOKENS = 4096;
+
+/** Prompt Caching beta 标识符 */
+export const ANTHROPIC_PROMPT_CACHE_BETA = 'prompt-caching-2024-07-31';
+
+/** Token Batching beta 标识符 */
+export const ANTHROPIC_TOKEN_BATCHING_BETA = 'token-batching-2025-04-01';

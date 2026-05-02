@@ -1,6 +1,12 @@
 /** Anthropic Claude API 适配器 — HTTP 流式调用实现 */
 
-import type { AgentMessage, CallModelOptions, LLMStreamChunk, SystemPrompt, ToolDefinition } from '@suga/ai-agent-loop';
+import type {
+  AgentMessage,
+  CallModelOptions,
+  LLMStreamChunk,
+  SystemPrompt,
+  ToolDefinition
+} from '@suga/ai-agent-loop';
 import type { AnyBuiltTool } from '@suga/ai-tool-core';
 import type {
   AnthropicAdapterConfig,
@@ -9,7 +15,12 @@ import type {
   AnthropicSystemField,
   AnthropicSystemTextBlock
 } from '../types/anthropic';
-import { DEFAULT_ANTHROPIC_API_VERSION, DEFAULT_ANTHROPIC_MAX_TOKENS } from '../types/anthropic';
+import {
+  ANTHROPIC_PROMPT_CACHE_BETA,
+  ANTHROPIC_TOKEN_BATCHING_BETA,
+  DEFAULT_ANTHROPIC_API_VERSION,
+  DEFAULT_ANTHROPIC_MAX_TOKENS
+} from '../types/anthropic';
 import { convertToAnthropicMessages } from '../convert/message-converter';
 import { formatAnthropicToolDefinition } from '../convert/tool-definition';
 import { parseAnthropicSSEStream } from '../stream/sse-parser';
@@ -130,10 +141,24 @@ export class AnthropicAdapter extends BaseLLMAdapter {
   private buildHeaders(): Record<string, string> {
     const apiVersion = this.anthropicConfig.apiVersion ?? DEFAULT_ANTHROPIC_API_VERSION;
 
-    return {
+    const headers: Record<string, string> = {
       'x-api-key': this.config.apiKey,
       'anthropic-version': apiVersion
     };
+
+    // 组合 anthropic-beta header（多 feature 逗号拼接）
+    const betaFlags: string[] = [];
+    if (this.anthropicConfig.betaFeatures?.promptCaching) {
+      betaFlags.push(ANTHROPIC_PROMPT_CACHE_BETA);
+    }
+    if (this.anthropicConfig.betaFeatures?.tokenBatching) {
+      betaFlags.push(ANTHROPIC_TOKEN_BATCHING_BETA);
+    }
+    if (betaFlags.length > 0) {
+      headers['anthropic-beta'] = betaFlags.join(',');
+    }
+
+    return headers;
   }
 
   /** 构建 Anthropic API 请求体 */
