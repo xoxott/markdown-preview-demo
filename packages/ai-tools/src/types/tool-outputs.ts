@@ -6,11 +6,23 @@ import type { CommandResult, EditResult, FileContent, GrepResult } from './fs-pr
 
 // === TaskTools ===
 
-import type { TaskEntry, TaskUpdateResult } from './task-provider';
+import type { TaskEntry, TaskOutputResult, TaskStopResult, TaskUpdateResult } from './task-provider';
 
 // === TeamTools ===
 
 import type { SendMessageResult, TeamDeleteResult, TeamResult } from './team-provider';
+
+// === WebSearchTool ===
+
+import type { SearchResultItem } from './search-provider';
+
+// === AskUserQuestionTool ===
+
+import type { QuestionInput } from './user-interaction-provider';
+
+// === ConfigTool ===
+
+import type { ConfigValue } from './config-provider';
 
 export interface WebFetchOutput {
   readonly content: string;
@@ -77,3 +89,44 @@ export type TaskUpdateOutput = TaskUpdateResult;
 export type TeamCreateOutput = TeamResult;
 export type TeamDeleteOutput = TeamDeleteResult;
 export type SendMessageOutput = SendMessageResult;
+
+// === TaskOutputTool ===
+export type TaskOutputOutput = TaskOutputResult;
+
+// === TaskStopTool ===
+export type TaskStopOutput = TaskStopResult;
+
+// === WebSearchTool ===
+export interface WebSearchOutput {
+  readonly query: string;
+  readonly results: SearchResultItem[];
+  readonly durationSeconds: number;
+}
+
+// === AskUserQuestionTool ===
+export interface AskUserQuestionOutput {
+  readonly questions: QuestionInput[];
+  readonly answers: Record<string, string>;
+  readonly annotations?: Record<string, { preview?: string; notes?: string }>;
+}
+
+// === SkillTool ===
+export interface SkillOutput {
+  readonly success: boolean;
+  readonly commandName: string;
+  readonly status: 'inline' | 'forked';
+  readonly allowedTools?: string[];
+  readonly model?: string;
+  readonly result?: string;
+}
+
+// === ConfigTool ===
+export interface ConfigOutput {
+  readonly success: boolean;
+  readonly operation?: 'get' | 'set';
+  readonly setting?: string;
+  readonly value?: ConfigValue;
+  readonly previousValue?: ConfigValue;
+  readonly newValue?: ConfigValue;
+  readonly error?: string;
+}

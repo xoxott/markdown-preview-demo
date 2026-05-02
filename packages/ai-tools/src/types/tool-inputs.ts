@@ -230,3 +230,90 @@ export const SendMessageInputSchema = z.object({
 });
 
 export type SendMessageInput = z.infer<typeof SendMessageInputSchema>;
+
+// === WebSearchTool ===
+
+export const WebSearchInputSchema = z.strictObject({
+  query: z.string().min(2).describe('Search query to use'),
+  allowedDomains: z.array(z.string()).optional().describe('Only include results from these domains'),
+  blockedDomains: z.array(z.string()).optional().describe('Never include results from these domains')
+});
+
+export type WebSearchInput = z.infer<typeof WebSearchInputSchema>;
+
+// === AskUserQuestionTool ===
+
+export const AskUserQuestionInputSchema = z.object({
+  questions: z
+    .array(
+      z.strictObject({
+        question: z.string().describe('The complete question to ask the user'),
+        header: z.string().max(12).describe('Short label displayed as chip/tag (max 12 chars)'),
+        options: z
+          .array(
+            z.strictObject({
+              label: z.string().describe('Display text for this option'),
+              description: z.string().describe('Explanation of what this option means'),
+              preview: z.string().optional().describe('Optional preview content for visual comparison')
+            })
+          )
+          .min(2)
+          .max(4)
+          .describe('Available choices for this question'),
+        multiSelect: z.boolean().describe('Whether user can select multiple options')
+      })
+    )
+    .min(1)
+    .max(4)
+    .describe('Questions to ask the user (1-4)'),
+  answers: z.record(z.string(), z.string()).optional().describe('User answers collected by permission component'),
+  annotations: z
+    .record(
+      z.string(),
+      z.strictObject({
+        preview: z.string().optional(),
+        notes: z.string().optional()
+      })
+    )
+    .optional()
+    .describe('Optional per-question annotations from user'),
+  metadata: z.strictObject({ source: z.string().optional() }).optional().describe('Optional metadata for tracking')
+});
+
+export type AskUserQuestionInput = z.infer<typeof AskUserQuestionInputSchema>;
+
+// === SkillTool ===
+
+export const SkillInputSchema = z.strictObject({
+  skill: z.string().describe('The skill name to invoke'),
+  args: z.string().optional().describe('Optional arguments for the skill')
+});
+
+export type SkillInput = z.infer<typeof SkillInputSchema>;
+
+// === ConfigTool ===
+
+export const ConfigInputSchema = z.strictObject({
+  setting: z.string().describe('The config key (e.g. "theme", "model")'),
+  value: z.union([z.string(), z.boolean(), z.number()]).optional().describe('Value to set (omit to get current)')
+});
+
+export type ConfigInput = z.infer<typeof ConfigInputSchema>;
+
+// === TaskOutputTool ===
+
+export const TaskOutputInputSchema = z.strictObject({
+  taskId: z.string().describe('Task ID to get output from'),
+  block: z.boolean().optional().describe('Wait for completion (default true)'),
+  timeout: z.number().optional().describe('Max wait time in ms')
+});
+
+export type TaskOutputInput = z.infer<typeof TaskOutputInputSchema>;
+
+// === TaskStopTool ===
+
+export const TaskStopInputSchema = z.strictObject({
+  taskId: z.string().describe('Task ID to stop')
+});
+
+export type TaskStopInput = z.infer<typeof TaskStopInputSchema>;

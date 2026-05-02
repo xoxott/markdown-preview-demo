@@ -20,6 +20,10 @@ import type { FileSystemProvider } from './types/fs-provider';
 import type { HttpProvider } from './types/http-provider';
 import type { TaskStoreProvider } from './types/task-provider';
 import type { MailboxProvider, TeamProvider } from './types/team-provider';
+import type { SearchProvider } from './types/search-provider';
+import type { UserInteractionProvider } from './types/user-interaction-provider';
+import type { SkillProvider } from './types/skill-provider';
+import type { ConfigProvider } from './types/config-provider';
 
 /** 扩展的 ToolUseContext — 包含所有宿主注入Provider */
 export interface ExtendedToolUseContext extends ToolUseContext {
@@ -33,6 +37,14 @@ export interface ExtendedToolUseContext extends ToolUseContext {
   teamProvider?: TeamProvider;
   /** 消息收发提供者 — 宿主注入实现（SendMessageTool使用） */
   mailboxProvider?: MailboxProvider;
+  /** 搜索提供者 — 宿主注入实现（WebSearchTool使用） */
+  searchProvider?: SearchProvider;
+  /** 用户交互提供者 — 宿主注入实现（AskUserQuestionTool使用） */
+  userInteractionProvider?: UserInteractionProvider;
+  /** Skill提供者 — 宿主注入实现（SkillTool使用） */
+  skillProvider?: SkillProvider;
+  /** 配置管理提供者 — 宿主注入实现（ConfigTool使用） */
+  configProvider?: ConfigProvider;
 }
 
 // Side-effect export 确保 augmentation 说明生效

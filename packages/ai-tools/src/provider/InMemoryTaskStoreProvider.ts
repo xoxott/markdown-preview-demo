@@ -2,7 +2,9 @@
 
 import type {
   TaskEntry,
+  TaskOutputResult,
   TaskStatus,
+  TaskStopResult,
   TaskStoreCreateInput,
   TaskStoreProvider,
   TaskUpdateFields,
@@ -21,6 +23,8 @@ function generateTaskId(): string {
  */
 export class InMemoryTaskStoreProvider implements TaskStoreProvider {
   private tasks = new Map<string, TaskEntry>();
+  /** 后台任务输出存储 */
+  private taskOutputs = new Map<string, string>();
 
   reset(): void {
     this.tasks.clear();
@@ -117,5 +121,32 @@ export class InMemoryTaskStoreProvider implements TaskStoreProvider {
 
   async deleteTask(taskId: string): Promise<void> {
     this.tasks.delete(taskId);
+  }
+
+  /** 设置后台任务输出（测试辅助） */
+  setTaskOutput(taskId: string, output: string): void {
+    this.taskOutputs.set(taskId, output);
+  }
+
+  async getTaskOutput(taskId: string): Promise<TaskOutputResult> {
+    const entry = this.tasks.get(taskId);
+    if (!entry) {
+      return { taskId, status: 'not_found', output: undefined };
+    }
+    return {
+      taskId,
+      status: entry.status,
+      output: this.taskOutputs.get(taskId) ?? undefined,
+      outputFilePath: undefined
+    };
+  }
+
+  async stopTask(taskId: string): Promise<TaskStopResult> {
+    const entry = this.tasks.get(taskId);
+    if (!entry) {
+      return { success: false, taskId, message: `Task "${taskId}" not found` };
+    }
+    entry.status = 'completed';
+    return { success: true, taskId, message: 'Task stopped' };
   }
 }

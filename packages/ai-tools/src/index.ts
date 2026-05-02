@@ -10,6 +10,10 @@ export type * from './types/tool-inputs';
 export type * from './types/team-provider';
 export type * from './types/task-provider';
 export type * from './types/tool-outputs';
+export type * from './types/search-provider';
+export type * from './types/user-interaction-provider';
+export type * from './types/skill-provider';
+export type * from './types/config-provider';
 
 // 工具输入 Schema 导出（供宿主构建工具时使用）
 export {
@@ -28,7 +32,13 @@ export {
   TaskUpdateInputSchema,
   TeamCreateInputSchema,
   TeamDeleteInputSchema,
-  SendMessageInputSchema
+  SendMessageInputSchema,
+  WebSearchInputSchema,
+  AskUserQuestionInputSchema,
+  SkillInputSchema,
+  ConfigInputSchema,
+  TaskOutputInputSchema,
+  TaskStopInputSchema
 } from './types/tool-inputs';
 
 // 纯函数工具导出
@@ -63,9 +73,21 @@ export { teamCreateTool } from './tools/team-create';
 export { teamDeleteTool } from './tools/team-delete';
 export { sendMessageTool } from './tools/send-message';
 
+// P29工具导出
+export { webSearchTool } from './tools/web-search';
+export { askUserQuestionTool } from './tools/ask-user-question';
+export { skillTool } from './tools/skill';
+export { configTool } from './tools/config';
+export { taskOutputTool } from './tools/task-output';
+export { taskStopTool } from './tools/task-stop';
+
 // Provider 实现
 export { NodeFileSystemProvider } from './provider/NodeFileSystemProvider';
 export { DefaultHttpProvider } from './types/http-provider';
 export { InMemoryTaskStoreProvider } from './provider/InMemoryTaskStoreProvider';
 export { InMemoryTeamProvider } from './provider/InMemoryTeamProvider';
 export { InMemoryMailboxProvider } from './provider/InMemoryMailboxProvider';
+export { InMemorySearchProvider } from './provider/InMemorySearchProvider';
+export { InMemoryUserInteractionProvider } from './provider/InMemoryUserInteractionProvider';
+export { InMemorySkillProvider } from './provider/InMemorySkillProvider';
+export { InMemoryConfigProvider } from './provider/InMemoryConfigProvider';

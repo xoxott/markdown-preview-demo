@@ -46,6 +46,21 @@ export interface TaskStoreCreateInput {
   metadata?: Record<string, unknown>;
 }
 
+/** 后台任务输出结果 */
+export interface TaskOutputResult {
+  taskId: string;
+  status: string;
+  output?: string;
+  outputFilePath?: string;
+}
+
+/** 停止任务结果 */
+export interface TaskStopResult {
+  success: boolean;
+  taskId: string;
+  message?: string;
+}
+
 /**
  * TaskStoreProvider — 任务CRUD宿主注入
  *
@@ -62,4 +77,8 @@ export interface TaskStoreProvider {
   updateTask(taskId: string, updates: TaskUpdateFields): Promise<TaskUpdateResult>;
   /** 删除任务 */
   deleteTask(taskId: string): Promise<void>;
+  /** 获取后台任务输出 */
+  getTaskOutput(taskId: string): Promise<TaskOutputResult>;
+  /** 停止后台任务 */
+  stopTask(taskId: string): Promise<TaskStopResult>;
 }
