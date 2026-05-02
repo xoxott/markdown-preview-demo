@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@suga/ai-hooks": "workspace:*",
+    "@suga/ai-stream-executor": "workspace:*",
     "@suga/ai-tool-core": "workspace:*",
     "zod": "^4.2.1"
   },

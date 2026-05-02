@@ -2,6 +2,7 @@
 
 import { ToolExecutor, ToolRegistry } from '@suga/ai-tool-core';
 import { HookAfterToolPhase, HookBeforeToolPhase, HookStopPhase } from '@suga/ai-hooks';
+import { StreamingToolScheduler } from '@suga/ai-stream-executor';
 import type {
   AgentConfig,
   AgentState,
@@ -22,7 +23,6 @@ import { PostProcessPhase } from '../phase/PostProcessPhase';
 import { createMutableAgentContext } from '../context/AgentContext';
 import { createAgentToolUseContext } from '../context/ToolUseContext';
 import { isTerminal } from '../types/state';
-import { ParallelScheduler } from '../scheduler/ToolScheduler';
 import { DEFAULT_MAX_TURNS, DEFAULT_SESSION_ID, DEFAULT_TOOL_TIMEOUT } from '../constants';
 import { advanceState } from './stateMachine';
 
@@ -87,7 +87,7 @@ export class AgentLoop {
 
     // 有工具注册表时添加执行阶段
     if (this.config.toolRegistry) {
-      const scheduler = this.config.scheduler ?? new ParallelScheduler();
+      const scheduler = this.config.scheduler ?? new StreamingToolScheduler();
       phases.push(
         new ExecuteToolsPhase(scheduler, new ToolExecutor(), this.config.toolRegistry, toolTimeout)
       );

@@ -16,7 +16,7 @@ export interface AgentConfig {
   readonly provider: LLMProvider;
   /** 工具注册表（可选，不提供则跳过工具执行阶段） */
   readonly toolRegistry?: ToolRegistry;
-  /** 工具调度器（可选，默认 ParallelScheduler） */
+  /** 工具调度器（可选，默认 StreamingToolScheduler） */
   readonly scheduler?: ToolScheduler;
   /** 工具执行超时时间（ms，默认 30000） */
   readonly toolTimeout?: number;

@@ -5,11 +5,11 @@ import {
   CallModelPhase,
   CheckInterruptPhase,
   ExecuteToolsPhase,
-  ParallelScheduler,
   PostProcessPhase,
   PreProcessPhase
 } from '@suga/ai-agent-loop';
 import { HookAfterToolPhase, HookBeforeToolPhase, HookStopPhase } from '@suga/ai-hooks';
+import { StreamingToolScheduler } from '@suga/ai-stream-executor';
 import { BlockingLimitPhase, CompressPhase, CompressPipeline } from '@suga/ai-context';
 import { RecoveryPhase } from '@suga/ai-recovery';
 import {
@@ -121,12 +121,12 @@ export function buildRuntimePhases(
 
   // --- Phase 9: ExecuteTools (条件性) ---
   if (effectiveRegistry) {
-    const scheduler = config.scheduler ?? new ParallelScheduler();
+    const scheduler = config.scheduler ?? new StreamingToolScheduler();
     phases.push(
       new ExecuteToolsPhase(scheduler, new ToolExecutor(), effectiveRegistry, toolTimeout)
     );
   } else if (config.toolRegistry) {
-    const scheduler = config.scheduler ?? new ParallelScheduler();
+    const scheduler = config.scheduler ?? new StreamingToolScheduler();
     phases.push(
       new ExecuteToolsPhase(scheduler, new ToolExecutor(), config.toolRegistry, toolTimeout)
     );
