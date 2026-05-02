@@ -9,6 +9,7 @@
  * 4. 优雅关闭时批量停止所有会话
  */
 
+import { Buffer } from 'node:buffer';
 import type { DaemonConfig, DaemonSessionInfo, DaemonSessionState } from '../types/server';
 import { DaemonLifecycle } from './DaemonLifecycle';
 

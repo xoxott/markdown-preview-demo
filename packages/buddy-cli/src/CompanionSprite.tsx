@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck — Vue JSX namespace pollution in monorepo overrides global JSX.Element with VNode, breaking Ink/React JSX
 /**
  * CompanionSprite — 精灵动画 + 气泡组件

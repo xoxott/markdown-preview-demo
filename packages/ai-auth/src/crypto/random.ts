@@ -4,6 +4,7 @@
  * 使用Node.js crypto模块的randomBytes + createHash。 作为宿主注入的默认实现，也可被其他实现替换（如浏览器环境的Web Crypto API）。
  */
 
+import { Buffer } from 'node:buffer';
 import { createHash, randomBytes } from 'node:crypto';
 import type { CryptoProvider, HashInstance } from '../provider/AuthProviderInterface';
 

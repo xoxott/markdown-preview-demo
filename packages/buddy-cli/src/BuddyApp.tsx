@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck — Vue JSX namespace pollution in monorepo overrides global JSX.Element with VNode, breaking Ink/React JSX
 /**
  * BuddyApp — Ink 交互式应用根组件

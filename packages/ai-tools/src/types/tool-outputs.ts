@@ -1,40 +1,25 @@
 /** 工具输出类型定义 */
 
 // === WebFetchTool ===
-
 import type { CommandResult, EditResult, FileContent, GrepResult } from './fs-provider';
-
 // === TaskTools ===
-
 import type {
   TaskEntry,
   TaskOutputResult,
   TaskStopResult,
   TaskUpdateResult
 } from './task-provider';
-
 // === TeamTools ===
-
 import type { SendMessageResult, TeamDeleteResult, TeamResult } from './team-provider';
-
 // === WebSearchTool ===
-
 import type { SearchResultItem } from './search-provider';
-
 // === AskUserQuestionTool ===
-
 import type { QuestionInput } from './user-interaction-provider';
-
 // === ConfigTool ===
-
 import type { ConfigValue } from './config-provider';
-
 // === MCP Resource ===
-
 import type { McpResourceContent, McpResourceEntry } from './mcp-resource-provider';
-
 // === PlanMode ===
-
 import type { PlanModeResult } from './plan-mode-provider';
 
 export interface WebFetchOutput {

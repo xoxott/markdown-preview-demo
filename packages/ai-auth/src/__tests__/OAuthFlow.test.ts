@@ -1,5 +1,6 @@
 /** @suga/ai-auth — OAuthFlow测试 */
 
+import { Buffer } from 'node:buffer';
 import { describe, expect, it, vi } from 'vitest';
 import { performTokenRefresh, revokeTokens } from '../flow/OAuthFlow';
 import { createInMemoryAuthProvider } from '../provider/InMemoryAuthImpl';
@@ -18,7 +19,7 @@ const defaultConfig: AuthProviderConfig = {
 function createMockFetch(
   responses: Map<string, { status: number; body: Record<string, unknown> }>
 ): FetchLike {
-  return async (url: string | URL, init?: RequestInit) => {
+  return async (url: string | URL, _init?: RequestInit) => {
     const urlStr = url.toString();
     const matched =
       responses.get(urlStr) ?? responses.get(new URL(urlStr).origin + new URL(urlStr).pathname);
