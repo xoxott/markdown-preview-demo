@@ -19,6 +19,7 @@ import type {
   ConfigProvider,
   FileSystemProvider,
   HttpProvider,
+  LLMClassifierConfig,
   MailboxProvider,
   McpResourceProvider,
   PlanModeProvider,
@@ -47,7 +48,7 @@ export interface RuntimeConfig {
   // === P0 工具层 (可选) ===
   /** 工具注册表（不提供则无工具执行阶段） */
   readonly toolRegistry?: ToolRegistry;
-  /** 工具调度器（默认 ParallelScheduler，可替换为 StreamingToolScheduler） */
+  /** 工具调度器（默认 StreamingToolScheduler，可替换为自定义调度器） */
   readonly scheduler?: ToolScheduler;
 
   // === P4 Hooks层 (可选) ===
@@ -123,6 +124,10 @@ export interface RuntimeConfig {
   readonly mcpResourceProvider?: McpResourceProvider;
   /** 计划模式提供者（可选，无默认） */
   readonly planModeProvider?: PlanModeProvider;
+
+  // === P37 LLM Classifier (可选) ===
+  /** LLM分类器配置（auto模式使用，无默认则使用YoloPermissionClassifier stub） */
+  readonly classifierConfig?: LLMClassifierConfig;
 }
 
 /** Provider Map — 从 RuntimeConfig 提取的 provider 字段集合 */

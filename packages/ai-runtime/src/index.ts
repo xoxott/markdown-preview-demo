@@ -18,6 +18,8 @@ export { buildEffectiveToolRegistry } from './factory/buildEffectiveToolRegistry
 export { createRuntimeAgentLoop } from './factory/createRuntimeAgentLoop';
 export { createCallModelForSummary } from './factory/createCallModelForSummary';
 export { buildProviderMap } from './factory/buildProviderMap';
+export { buildClassifierFn } from './factory/buildClassifierFn';
+export { createCallModelFnFromProvider } from './factory/createCallModelFnFromProvider';
 
 // Session 层
 export { RuntimeSession } from './session/RuntimeSession';
