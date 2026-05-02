@@ -14,7 +14,7 @@ class TestAdapter extends BaseLLMAdapter {
   async *callModel(
     _messages: readonly any[],
     _tools?: readonly ToolDefinition[],
-    _signal?: AbortSignal
+    _options?: import('@suga/ai-agent-loop').CallModelOptions
   ): AsyncGenerator<LLMStreamChunk> {
     yield { textDelta: 'hello', done: false };
     yield { done: true };

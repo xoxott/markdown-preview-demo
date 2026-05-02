@@ -8,7 +8,11 @@ import type { BaseLLMAdapterConfig } from '../types/adapter';
 
 /** 测试用具体适配器（实现抽象方法） */
 class TestAdapter extends BaseLLMAdapter {
-  async *callModel(): AsyncGenerator<LLMStreamChunk> {
+  async *callModel(
+    _messages?: readonly any[],
+    _tools?: readonly ToolDefinition[],
+    _options?: import('@suga/ai-agent-loop').CallModelOptions
+  ): AsyncGenerator<LLMStreamChunk> {
     yield { done: true };
   }
 

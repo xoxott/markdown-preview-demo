@@ -1,7 +1,7 @@
 /** Mock LLM Provider — 用于测试的可控流式产出模拟 */
 
 import type { AnyBuiltTool } from '@suga/ai-tool-core';
-import type { LLMProvider, LLMStreamChunk, ToolDefinition } from '../../types/provider';
+import type { CallModelOptions, LLMProvider, LLMStreamChunk, SystemPrompt, ToolDefinition } from '../../types/provider';
 import type { AgentMessage, ToolUseBlock } from '../../types/messages';
 
 /** Mock LLM Provider 配置 */
@@ -25,7 +25,7 @@ export class MockLLMProvider implements LLMProvider {
   private failError: Error = new Error('Mock LLM error');
   private delay = 0;
   private callCount = 0;
-  private callHistory: { messages: readonly AgentMessage[]; tools?: readonly ToolDefinition[] }[] =
+  private callHistory: { messages: readonly AgentMessage[]; tools?: readonly ToolDefinition[]; systemPrompt?: SystemPrompt }[] =
     [];
 
   constructor(config?: MockLLMProviderConfig) {
@@ -99,9 +99,9 @@ export class MockLLMProvider implements LLMProvider {
   async *callModel(
     messages: readonly AgentMessage[],
     tools?: readonly ToolDefinition[],
-    signal?: AbortSignal
+    options?: CallModelOptions
   ): AsyncGenerator<LLMStreamChunk> {
-    this.callHistory.push({ messages, tools });
+    this.callHistory.push({ messages, tools, systemPrompt: options?.systemPrompt });
     this.callCount++;
 
     if (this.shouldFail) {
@@ -117,7 +117,7 @@ export class MockLLMProvider implements LLMProvider {
     }
 
     for (const chunk of chunks) {
-      if (signal?.aborted) {
+      if (options?.signal?.aborted) {
         throw new DOMException('Mock LLM aborted', 'AbortError');
       }
 

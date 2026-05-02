@@ -36,6 +36,22 @@ export interface ToolDefinition {
   readonly inputSchema: Record<string, unknown>;
 }
 
+/** SystemPrompt — branded string[]，不可与普通 string[] 混用 */
+export type SystemPrompt = readonly string[] & { readonly __brand: 'SystemPrompt' };
+
+/** 创建 branded SystemPrompt */
+export function createSystemPrompt(sections: readonly string[]): SystemPrompt {
+  return sections as SystemPrompt;
+}
+
+/** callModel 的 Options 参数（P35 新增，替代原 AbortSignal 位置参数） */
+export interface CallModelOptions {
+  /** 系统提示段落（branded string[]，可选） */
+  readonly systemPrompt?: SystemPrompt;
+  /** 中断信号（可选） */
+  readonly signal?: AbortSignal;
+}
+
 /**
  * LLM Provider 接口（抽象 Anthropic/OpenAI 等 SDK）
  *
@@ -47,7 +63,7 @@ export interface ToolDefinition {
  *
  * @example
  *   class MyProvider implements LLMProvider {
- *     async *callModel(messages, tools, signal) {
+ *     async *callModel(messages, tools, options) {
  *       // 调用具体的 LLM API，流式产出 LLMStreamChunk
  *     }
  *     formatToolDefinition(tool) {
@@ -61,13 +77,13 @@ export interface LLMProvider {
    *
    * @param messages 消息历史
    * @param tools 可用工具定义（可选，无工具时不传）
-   * @param signal 中断信号（可选）
+   * @param options 调用选项（含 systemPrompt 和 signal，可选）
    * @returns AsyncGenerator<LLMStreamChunk> 流式产出块
    */
   callModel(
     messages: readonly AgentMessage[],
     tools?: readonly ToolDefinition[],
-    signal?: AbortSignal
+    options?: CallModelOptions
   ): AsyncGenerator<LLMStreamChunk>;
 
   /**

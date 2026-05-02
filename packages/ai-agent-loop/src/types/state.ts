@@ -24,6 +24,8 @@ export interface AgentConfig {
   readonly hookRegistry?: HookRegistry;
   /** 自定义Phase链（提供则跳过默认buildPhases） */
   readonly phases?: readonly LoopPhase[];
+  /** 系统提示段落（可选，不传则使用 Provider 的默认 system） */
+  readonly systemPrompt?: import('./provider').SystemPrompt;
 }
 
 /**

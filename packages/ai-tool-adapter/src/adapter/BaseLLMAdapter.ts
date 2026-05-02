@@ -121,7 +121,7 @@ export abstract class BaseLLMAdapter implements LLMProvider {
   abstract callModel(
     messages: readonly AgentMessage[],
     tools?: readonly ToolDefinition[],
-    signal?: AbortSignal
+    options?: import('@suga/ai-agent-loop').CallModelOptions
   ): AsyncGenerator<LLMStreamChunk>;
 
   abstract formatToolDefinition(tool: AnyBuiltTool): ToolDefinition;

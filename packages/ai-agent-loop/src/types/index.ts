@@ -24,6 +24,7 @@ export type { LoopResult } from './result';
 
 export type { AgentEvent } from './events';
 
-export type { LLMStreamChunk, ToolDefinition, LLMProvider } from './provider';
+export type { LLMStreamChunk, ToolDefinition, LLMProvider, SystemPrompt, CallModelOptions } from './provider';
+export { createSystemPrompt } from './provider';
 
 export type { ToolScheduler } from './scheduler';

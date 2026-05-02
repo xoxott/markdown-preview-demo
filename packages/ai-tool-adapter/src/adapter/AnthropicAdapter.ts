@@ -53,7 +53,7 @@ export class AnthropicAdapter extends BaseLLMAdapter {
   async *callModel(
     messages: readonly AgentMessage[],
     tools?: readonly ToolDefinition[],
-    signal?: AbortSignal
+    options?: import('@suga/ai-agent-loop').CallModelOptions
   ): AsyncGenerator<LLMStreamChunk> {
     // 1. 转换消息格式
     const apiMessages = convertToAnthropicMessages(messages);
@@ -64,6 +64,7 @@ export class AnthropicAdapter extends BaseLLMAdapter {
     // 3. 发送 HTTP 请求（可重试部分）
     const url = `${this.config.baseURL}/v1/messages`;
     const headers = this.buildHeaders();
+    const signal = options?.signal;
 
     const response = await withLLMRetry(
       () => this.fetchWithAbort(url, requestBody, signal, headers),
