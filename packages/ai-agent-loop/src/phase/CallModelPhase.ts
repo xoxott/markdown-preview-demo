@@ -40,7 +40,7 @@ export class CallModelPhase implements LoopPhase {
       const stream = this.provider.callModel(
         messages,
         this.tools,
-        ctx.state.toolUseContext.abortController.signal
+        { signal: ctx.state.toolUseContext.abortController.signal }
       );
 
       for await (const chunk of stream) {

@@ -2,6 +2,7 @@
 
 import type {
   AgentMessage,
+  CallModelOptions,
   LLMProvider,
   LLMStreamChunk,
   ToolDefinition,
@@ -52,7 +53,7 @@ export class MockLLMProvider implements LLMProvider {
   async *callModel(
     _messages: readonly AgentMessage[],
     _tools?: readonly ToolDefinition[],
-    signal?: AbortSignal
+    options?: CallModelOptions
   ): AsyncGenerator<LLMStreamChunk> {
     this.callCount++;
 
@@ -62,7 +63,7 @@ export class MockLLMProvider implements LLMProvider {
     }
 
     for (const chunk of chunks) {
-      if (signal?.aborted) {
+      if (options?.signal?.aborted) {
         throw new DOMException('Mock LLM aborted', 'AbortError');
       }
       yield chunk;

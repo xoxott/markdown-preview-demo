@@ -46,7 +46,7 @@ export class MockLLMProvider implements LLMProvider {
   async *callModel(
     _messages: readonly AgentMessage[],
     _tools?: readonly ToolDefinition[],
-    signal?: AbortSignal
+    options?: import('@suga/ai-agent-loop').CallModelOptions
   ): AsyncGenerator<LLMStreamChunk> {
     this.callCount++;
 
@@ -60,7 +60,7 @@ export class MockLLMProvider implements LLMProvider {
     }
 
     for (const chunk of chunks) {
-      if (signal?.aborted) {
+      if (options?.signal?.aborted) {
         throw new DOMException('Mock LLM aborted', 'AbortError');
       }
       yield chunk;
