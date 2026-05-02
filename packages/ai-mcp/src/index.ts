@@ -52,6 +52,9 @@ export { expandEnvVarsInString } from './config/envExpansion';
 
 // 传输
 export { createLinkedTransportPair, InProcessTransport } from './transport/InProcessTransport';
+export { StdioTransport } from './transport/StdioTransport';
+export type { StdioTransportOptions } from './transport/StdioTransport';
+export { StdioTransportFactory } from './transport/StdioTransportFactory';
 
 // 连接管理
 export { InMemoryMcpConnectionManager } from './connection/McpConnectionManager';

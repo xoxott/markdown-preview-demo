@@ -30,6 +30,8 @@ export interface McpStdioServerConfig {
   readonly args?: readonly string[];
   /** 环境变量 */
   readonly env?: Record<string, string>;
+  /** 工作目录（默认 process.cwd()） */
+  readonly cwd?: string;
 }
 
 // ─── SSE 配置 ───
@@ -118,7 +120,8 @@ export const McpStdioServerConfigSchema = z.object({
   type: z.literal('stdio').optional(),
   command: z.string().min(1, 'Command cannot be empty'),
   args: z.array(z.string()).default([]),
-  env: z.record(z.string(), z.string()).optional()
+  env: z.record(z.string(), z.string()).optional(),
+  cwd: z.string().optional()
 });
 
 export const McpSSEServerConfigSchema = z.object({
