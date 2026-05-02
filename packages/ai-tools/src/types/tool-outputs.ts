@@ -24,6 +24,14 @@ import type { QuestionInput } from './user-interaction-provider';
 
 import type { ConfigValue } from './config-provider';
 
+// === MCP Resource ===
+
+import type { McpResourceContent, McpResourceEntry } from './mcp-resource-provider';
+
+// === PlanMode ===
+
+import type { PlanModeResult } from './plan-mode-provider';
+
 export interface WebFetchOutput {
   readonly content: string;
   readonly mimeType: string;
@@ -129,4 +137,29 @@ export interface ConfigOutput {
   readonly previousValue?: ConfigValue;
   readonly newValue?: ConfigValue;
   readonly error?: string;
+}
+
+// === ListMcpResourcesTool ===
+export type ListMcpResourcesOutput = McpResourceEntry[];
+
+// === ReadMcpResourceTool ===
+export type ReadMcpResourceOutput = McpResourceContent;
+
+// === EnterPlanModeTool ===
+export type EnterPlanModeOutput = PlanModeResult;
+
+// === ExitPlanModeTool ===
+export type ExitPlanModeOutput = PlanModeResult;
+
+// === SleepTool ===
+export interface SleepOutput {
+  readonly slept: boolean;
+  readonly seconds: number;
+}
+
+// === StructuredOutputTool ===
+export interface StructuredOutputOutput {
+  readonly valid: boolean;
+  readonly data: Record<string, unknown>;
+  readonly errors?: string[];
 }

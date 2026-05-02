@@ -14,6 +14,8 @@ export type * from './types/search-provider';
 export type * from './types/user-interaction-provider';
 export type * from './types/skill-provider';
 export type * from './types/config-provider';
+export type * from './types/mcp-resource-provider';
+export type * from './types/plan-mode-provider';
 
 // 工具输入 Schema 导出（供宿主构建工具时使用）
 export {
@@ -38,7 +40,13 @@ export {
   SkillInputSchema,
   ConfigInputSchema,
   TaskOutputInputSchema,
-  TaskStopInputSchema
+  TaskStopInputSchema,
+  ListMcpResourcesInputSchema,
+  ReadMcpResourceInputSchema,
+  EnterPlanModeInputSchema,
+  ExitPlanModeInputSchema,
+  SleepInputSchema,
+  StructuredOutputInputSchema
 } from './types/tool-inputs';
 
 // 纯函数工具导出
@@ -81,6 +89,14 @@ export { configTool } from './tools/config';
 export { taskOutputTool } from './tools/task-output';
 export { taskStopTool } from './tools/task-stop';
 
+// P30工具导出
+export { listMcpResourcesTool } from './tools/list-mcp-resources';
+export { readMcpResourceTool } from './tools/read-mcp-resource';
+export { enterPlanModeTool } from './tools/enter-plan-mode';
+export { exitPlanModeTool } from './tools/exit-plan-mode';
+export { sleepTool } from './tools/sleep';
+export { structuredOutputTool } from './tools/structured-output';
+
 // Provider 实现
 export { NodeFileSystemProvider } from './provider/NodeFileSystemProvider';
 export { DefaultHttpProvider } from './types/http-provider';
@@ -91,3 +107,5 @@ export { InMemorySearchProvider } from './provider/InMemorySearchProvider';
 export { InMemoryUserInteractionProvider } from './provider/InMemoryUserInteractionProvider';
 export { InMemorySkillProvider } from './provider/InMemorySkillProvider';
 export { InMemoryConfigProvider } from './provider/InMemoryConfigProvider';
+export { InMemoryMcpResourceProvider } from './provider/InMemoryMcpResourceProvider';
+export { InMemoryPlanModeProvider } from './provider/InMemoryPlanModeProvider';

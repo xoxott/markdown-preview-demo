@@ -317,3 +317,51 @@ export const TaskStopInputSchema = z.strictObject({
 });
 
 export type TaskStopInput = z.infer<typeof TaskStopInputSchema>;
+
+// === ListMcpResourcesTool ===
+
+export const ListMcpResourcesInputSchema = z.strictObject({
+  server: z.string().optional().describe('MCP server name (omit to list all)')
+});
+
+export type ListMcpResourcesInput = z.infer<typeof ListMcpResourcesInputSchema>;
+
+// === ReadMcpResourceTool ===
+
+export const ReadMcpResourceInputSchema = z.strictObject({
+  server: z.string().describe('MCP server name'),
+  uri: z.string().describe('Resource URI to read')
+});
+
+export type ReadMcpResourceInput = z.infer<typeof ReadMcpResourceInputSchema>;
+
+// === EnterPlanModeTool ===
+
+export const EnterPlanModeInputSchema = z.strictObject({});
+
+export type EnterPlanModeInput = z.infer<typeof EnterPlanModeInputSchema>;
+
+// === ExitPlanModeTool ===
+
+export const ExitPlanModeInputSchema = z.strictObject({});
+
+export type ExitPlanModeInput = z.infer<typeof ExitPlanModeInputSchema>;
+
+// === SleepTool ===
+
+export const SleepInputSchema = z.strictObject({
+  seconds: z.number().min(0).max(300).describe('Seconds to sleep')
+});
+
+export type SleepInput = z.infer<typeof SleepInputSchema>;
+
+// === StructuredOutputTool ===
+
+export const StructuredOutputInputSchema = z.strictObject({
+  schema: z
+    .record(z.string(), z.unknown())
+    .describe('JSON Schema for validation'),
+  data: z.record(z.string(), z.unknown()).describe('Data to validate against schema')
+});
+
+export type StructuredOutputInput = z.infer<typeof StructuredOutputInputSchema>;

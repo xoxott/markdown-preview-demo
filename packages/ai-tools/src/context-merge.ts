@@ -24,6 +24,8 @@ import type { SearchProvider } from './types/search-provider';
 import type { UserInteractionProvider } from './types/user-interaction-provider';
 import type { SkillProvider } from './types/skill-provider';
 import type { ConfigProvider } from './types/config-provider';
+import type { McpResourceProvider } from './types/mcp-resource-provider';
+import type { PlanModeProvider } from './types/plan-mode-provider';
 
 /** 扩展的 ToolUseContext — 包含所有宿主注入Provider */
 export interface ExtendedToolUseContext extends ToolUseContext {
@@ -45,6 +47,10 @@ export interface ExtendedToolUseContext extends ToolUseContext {
   skillProvider?: SkillProvider;
   /** 配置管理提供者 — 宿主注入实现（ConfigTool使用） */
   configProvider?: ConfigProvider;
+  /** MCP资源提供者 — 宿主注入实现（MCP Resource Tools使用） */
+  mcpResourceProvider?: McpResourceProvider;
+  /** 计划模式提供者 — 宿主注入实现（PlanMode Tools使用） */
+  planModeProvider?: PlanModeProvider;
 }
 
 // Side-effect export 确保 augmentation 说明生效
