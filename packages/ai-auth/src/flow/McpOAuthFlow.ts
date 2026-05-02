@@ -59,9 +59,8 @@ export async function performMcpOAuthFlow(
   // Step 1: 标记需要认证
   if (bridge) bridge.markNeedsAuth(serverName);
 
-  try {
-    // Step 2: Discovery — 获取authorization server metadata
-    const cachedState = await provider.discoveryState();
+  // Step 2: Discovery — 获取authorization server metadata
+  const cachedState = await provider.discoveryState();
     const discoveryResult = await fetchAuthServerMetadata(
       serverUrl,
       options?.authServerMetadataUrl,
@@ -96,10 +95,6 @@ export async function performMcpOAuthFlow(
     if (bridge) await bridge.markAuthComplete(serverName);
 
     return tokens;
-  } catch (error) {
-    // 认证失败 → 保持needs-auth状态
-    throw error;
-  }
 }
 
 // ─── DCR ───
@@ -112,7 +107,7 @@ export async function performMcpOAuthFlow(
 async function performDynamicClientRegistration(
   provider: OAuthClientProvider,
   metadata: AuthorizationServerMetadata,
-  serverUrl: string,
+  _serverUrl: string,
   fetchFn: FetchLike
 ): Promise<void> {
   if (!metadata.registration_endpoint) return;

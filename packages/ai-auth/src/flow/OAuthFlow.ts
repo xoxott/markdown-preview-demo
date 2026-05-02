@@ -237,7 +237,7 @@ export async function performTokenRefresh(
 
       // 指数退避：1s, 2s, 4s...
       const delayMs = 2 ** (attempt - 1) * 1000;
-      await new Promise(resolve => setTimeout(resolve, delayMs));
+      await new Promise<void>(resolve => { setTimeout(resolve, delayMs); });
     }
   }
 
@@ -296,6 +296,7 @@ async function attemptRevoke(
     });
 
     // RFC 7009: 200=成功, 503=不支持 → 其他也graceful忽略
+    // eslint-disable-next-line no-void
     void response; // 响应状态不影响流程
   } catch {
     // 网络错误 → graceful忽略（revocation是尽力而为）

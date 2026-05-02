@@ -100,6 +100,7 @@ export class InMemoryTaskStoreProvider implements TaskStoreProvider {
       // null值删除key
       for (const [key, value] of Object.entries(updates.metadata)) {
         if (value === null) {
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
           delete entry.metadata![key];
         }
       }

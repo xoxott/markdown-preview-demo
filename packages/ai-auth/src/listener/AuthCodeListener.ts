@@ -92,6 +92,7 @@ export class AuthCodeListener {
       });
 
       // 服务器已经在监听，立即调用onReady
+      // eslint-disable-next-line no-void
       void onReady();
     });
   }
