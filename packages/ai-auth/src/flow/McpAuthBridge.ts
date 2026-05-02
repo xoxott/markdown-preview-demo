@@ -40,7 +40,7 @@ export class McpAuthBridge implements McpAuthBridgeProvider {
   // ─── McpAuthBridgeProvider接口实现 ───
 
   /** 标记服务器需要认证 → 状态变为needs-auth */
-  markNeedsAuth(serverName: string): void {
+  markNeedsAuth(_serverName: string): void {
     // 触发宿主的needs-auth状态更新
     // 实际OAuth流程由handleAuthRequired触发
   }

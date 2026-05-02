@@ -6,7 +6,7 @@
  * 对齐Claude Code ClaudeAuthProvider对secureStorage + browser + crypto的依赖。
  */
 
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import type { OAuthDiscoveryState } from '../types/mcp-auth-types';
 
 // ─── Token Storage Provider ───

@@ -1,6 +1,5 @@
 /** @suga/ai-auth — OAuthFlow测试 */
 
-import { Buffer } from 'node:buffer';
 import { describe, expect, it, vi } from 'vitest';
 import { performTokenRefresh, revokeTokens } from '../flow/OAuthFlow';
 import { createInMemoryAuthProvider } from '../provider/InMemoryAuthImpl';

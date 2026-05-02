@@ -31,7 +31,7 @@ export const skillTool = buildTool<SkillInput, SkillOutput>({
 
   isReadOnly: () => false,
   isConcurrencySafe: () => false,
-  safetyLabel: (input?: SkillInput): SafetyLabel => {
+  safetyLabel: (_input?: SkillInput): SafetyLabel => {
     // inline skill → readonly, fork → system
     // 无input时默认system（保守策略）
     return 'system' as SafetyLabel;

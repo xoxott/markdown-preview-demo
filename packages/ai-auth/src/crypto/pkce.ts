@@ -5,7 +5,7 @@
  * 所有随机数/hash操作通过宿主注入的CryptoProvider完成（不直接依赖crypto模块）。
  */
 
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import type { CryptoProvider } from '../provider/AuthProviderInterface';
 
 /**

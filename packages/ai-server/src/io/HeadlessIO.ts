@@ -5,7 +5,7 @@
  * 是daemon/headless模式的核心通信机制。
  */
 
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import type { HeadlessIO, HeadlessIOOptions } from '../types/server';
 
 /**

@@ -20,7 +20,7 @@ class MockHttpProvider implements HttpProvider {
     this.mockResponses.set(url, response);
   }
 
-  async fetch(url: string, init?: RequestInit): Promise<Response> {
+  async fetch(url: string, _init?: RequestInit): Promise<Response> {
     const mock = this.mockResponses.get(url);
     if (!mock) {
       return new Response('Not found', { status: 404 });

@@ -10,8 +10,7 @@ import {
   onBeforeUnmount,
   onMounted,
   ref,
-  shallowRef,
-  watch
+  shallowRef
 } from 'vue';
 import type * as monaco from 'monaco-editor-core';
 import { useMarkdownTheme } from '../markdown/hooks/useMarkdownTheme';
@@ -60,7 +59,7 @@ export const MonacoEditor = defineComponent({
     'change': (_value: string) => true
   },
   setup(props, { emit }) {
-    const { darkMode } = useMarkdownTheme();
+    const { darkMode: _darkMode } = useMarkdownTheme();
     const editorRef = shallowRef<monaco.editor.IStandaloneCodeEditor>();
     const wrapperRef = ref<HTMLElement>();
     const isFullscreen = ref(false);

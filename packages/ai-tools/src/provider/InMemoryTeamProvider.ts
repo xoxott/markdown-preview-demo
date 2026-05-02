@@ -13,7 +13,7 @@ export class InMemoryTeamProvider implements TeamProvider {
     this.currentTeam = null;
   }
 
-  async createTeam(teamName: string, description?: string): Promise<TeamResult> {
+  async createTeam(teamName: string, _description?: string): Promise<TeamResult> {
     const leadAgentId = generateAgentId(teamName);
     this.currentTeam = {
       teamName,

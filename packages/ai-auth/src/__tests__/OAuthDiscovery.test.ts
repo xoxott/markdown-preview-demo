@@ -31,7 +31,7 @@ const sampleResourceMetadata = {
 function createDiscoveryFetch(
   responses: Record<string, { status: number; body: Record<string, unknown> }>
 ): FetchLike {
-  return async (url: string | URL, init?: RequestInit) => {
+  return async (url: string | URL, _init?: RequestInit) => {
     const urlStr = url.toString();
     const matched = responses[urlStr];
     if (!matched) {

@@ -212,7 +212,7 @@ export class MockFileSystemProvider implements FileSystemProvider {
     return { ...this.defaultCommandResult, cwd: options?.cwd };
   }
 
-  async ls(dirPath: string, options?: { recursive?: boolean }): Promise<FileLsEntry[]> {
+  async ls(dirPath: string, _options?: { recursive?: boolean }): Promise<FileLsEntry[]> {
     const entries: FileLsEntry[] = [];
     for (const [filePath] of this.files.entries()) {
       if (filePath.startsWith(dirPath)) {
