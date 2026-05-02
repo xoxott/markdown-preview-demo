@@ -6,6 +6,7 @@
  * 基于 Claude Code services/mcp/StdioClientTransport 模式提取
  */
 
+import type { Buffer } from 'node:buffer';
 import { spawn } from 'node:child_process';
 import type { ChildProcess } from 'node:child_process';
 import type { McpTransport } from '../types/mcp-transport';

@@ -237,7 +237,9 @@ export async function performTokenRefresh(
 
       // 指数退避：1s, 2s, 4s...
       const delayMs = 2 ** (attempt - 1) * 1000;
-      await new Promise<void>(resolve => { setTimeout(resolve, delayMs); });
+      await new Promise<void>(resolve => {
+        setTimeout(resolve, delayMs);
+      });
     }
   }
 

@@ -61,40 +61,40 @@ export async function performMcpOAuthFlow(
 
   // Step 2: Discovery — 获取authorization server metadata
   const cachedState = await provider.discoveryState();
-    const discoveryResult = await fetchAuthServerMetadata(
-      serverUrl,
-      options?.authServerMetadataUrl,
-      cachedState,
-      _fetch
-    );
+  const discoveryResult = await fetchAuthServerMetadata(
+    serverUrl,
+    options?.authServerMetadataUrl,
+    cachedState,
+    _fetch
+  );
 
-    // 保存discovery state
-    await provider.saveDiscoveryState(discoveryResult.discoveryState);
+  // 保存discovery state
+  await provider.saveDiscoveryState(discoveryResult.discoveryState);
 
-    const metadata = discoveryResult.metadata;
+  const metadata = discoveryResult.metadata;
 
-    // Step 3: DCR — Dynamic Client Registration（如需要）
-    const clientInfo = await provider.clientInformation();
-    if (!clientInfo?.client_id && metadata.registration_endpoint) {
-      await performDynamicClientRegistration(provider, metadata, serverUrl, _fetch);
-    }
+  // Step 3: DCR — Dynamic Client Registration（如需要）
+  const clientInfo = await provider.clientInformation();
+  if (!clientInfo?.client_id && metadata.registration_endpoint) {
+    await performDynamicClientRegistration(provider, metadata, serverUrl, _fetch);
+  }
 
-    // Step 4: PKCE授权码流程
-    const config: AuthProviderConfig = {
-      serverName,
-      serverUrl: metadata.authorization_endpoint,
-      redirectUri: options?.callbackPort
-        ? buildRedirectUri(options.callbackPort, '/callback')
-        : provider.redirectUrl,
-      skipBrowserOpen: options?.skipBrowserOpen
-    };
+  // Step 4: PKCE授权码流程
+  const config: AuthProviderConfig = {
+    serverName,
+    serverUrl: metadata.authorization_endpoint,
+    redirectUri: options?.callbackPort
+      ? buildRedirectUri(options.callbackPort, '/callback')
+      : provider.redirectUrl,
+    skipBrowserOpen: options?.skipBrowserOpen
+  };
 
-    const tokens = await performOAuthFlow(provider, config, crypto, options, _fetch);
+  const tokens = await performOAuthFlow(provider, config, crypto, options, _fetch);
 
-    // Step 5: 标记认证完成
-    if (bridge) await bridge.markAuthComplete(serverName);
+  // Step 5: 标记认证完成
+  if (bridge) await bridge.markAuthComplete(serverName);
 
-    return tokens;
+  return tokens;
 }
 
 // ─── DCR ───
