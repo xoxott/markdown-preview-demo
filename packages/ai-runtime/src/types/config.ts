@@ -73,8 +73,8 @@ export interface RuntimeConfig {
   readonly subagentSpawner?: SubagentSpawner;
 
   // === P35 Memory注入 (可选) ===
-  /** Memory配置（提供时在 system prompt 中注入 memory 段落） */
-  readonly memoryConfig?: MemoryPromptConfig;
+  /** Memory配置（提供时在 system prompt 中注入 memory 段落，支持 Partial） */
+  readonly memoryConfig?: Partial<MemoryPromptConfig>;
   /** MemoryStorageProvider（读取 MEMORY.md 的文件系统抽象） */
   readonly memoryProvider?: MemoryStorageProvider;
   /** Memory路径配置（计算 MEMORY.md 路径） */
