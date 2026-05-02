@@ -79,7 +79,12 @@ describe('ConfigTool', () => {
   it('config(无provider) → 返回错误', async () => {
     const result = await configTool.call(
       { setting: 'theme' } as ConfigInput,
-      { abortController: new AbortController(), tools: {} as ToolRegistry, sessionId: 'test', fsProvider: {} as any } as ExtendedToolUseContext
+      {
+        abortController: new AbortController(),
+        tools: {} as ToolRegistry,
+        sessionId: 'test',
+        fsProvider: {} as any
+      } as ExtendedToolUseContext
     );
     expect(result.data.success).toBe(false);
     expect(result.data.error).toContain('not available');
@@ -98,7 +103,9 @@ describe('ConfigTool', () => {
   });
 
   it('safetyLabel(SET) → system', () => {
-    expect(configTool.safetyLabel!({ setting: 'theme', value: 'dark' } as ConfigInput)).toBe('system');
+    expect(configTool.safetyLabel!({ setting: 'theme', value: 'dark' } as ConfigInput)).toBe(
+      'system'
+    );
   });
 
   it('checkPermissions(GET) → allow', () => {
@@ -109,7 +116,10 @@ describe('ConfigTool', () => {
 
   it('checkPermissions(SET) → ask', () => {
     const ctx = createContext();
-    const result = configTool.checkPermissions!({ setting: 'theme', value: 'dark' } as ConfigInput, ctx);
+    const result = configTool.checkPermissions!(
+      { setting: 'theme', value: 'dark' } as ConfigInput,
+      ctx
+    );
     expect(result.behavior).toBe('ask');
   });
 });

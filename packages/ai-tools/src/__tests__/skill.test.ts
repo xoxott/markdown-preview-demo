@@ -27,10 +27,7 @@ describe('SkillTool', () => {
       prompt: 'Create a commit for the staged changes',
       context: 'inline'
     });
-    const result = await skillTool.call(
-      { skill: 'commit' } as SkillInput,
-      createContext(provider)
-    );
+    const result = await skillTool.call({ skill: 'commit' } as SkillInput, createContext(provider));
     expect(result.data.success).toBe(true);
     expect(result.data.commandName).toBe('commit');
     expect(result.data.status).toBe('inline');
@@ -66,7 +63,12 @@ describe('SkillTool', () => {
   it('invoke(无provider) → 返回错误', async () => {
     const result = await skillTool.call(
       { skill: 'commit' } as SkillInput,
-      { abortController: new AbortController(), tools: {} as ToolRegistry, sessionId: 'test', fsProvider: {} as any } as ExtendedToolUseContext
+      {
+        abortController: new AbortController(),
+        tools: {} as ToolRegistry,
+        sessionId: 'test',
+        fsProvider: {} as any
+      } as ExtendedToolUseContext
     );
     expect(result.data.success).toBe(false);
     expect(result.data.result).toContain('not available');
@@ -80,10 +82,7 @@ describe('SkillTool', () => {
       prompt: 'Create a commit',
       allowedTools: ['bash', 'file-edit']
     });
-    const result = await skillTool.call(
-      { skill: 'commit' } as SkillInput,
-      createContext(provider)
-    );
+    const result = await skillTool.call({ skill: 'commit' } as SkillInput, createContext(provider));
     expect(result.data.allowedTools).toEqual(['bash', 'file-edit']);
   });
 

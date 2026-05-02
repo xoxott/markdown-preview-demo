@@ -11,6 +11,7 @@ import type {
 import type { AgentEvent } from '../types/events';
 import type { LoopResult } from '../types/result';
 import type { AgentMessage } from '../types/messages';
+import type { LLMStreamChunk } from '../types/provider';
 import type { LoopPhase } from '../phase/LoopPhase';
 import { composePhases } from '../phase/LoopPhase';
 import { PreProcessPhase } from '../phase/PreProcessPhase';
@@ -158,6 +159,8 @@ export class AgentLoop {
   ): AsyncGenerator<AgentEvent> {
     let state = initialState;
     const composed = composePhases(this.phases);
+    /** 累积最后一轮的 usage（CallModelPhase 写入 ctx.meta.usage） */
+    let lastUsage: LLMStreamChunk['usage'] | undefined;
 
     // while(true) 无限循环
     while (true) {
@@ -166,6 +169,11 @@ export class AgentLoop {
 
       // 执行阶段链，流式产出事件
       yield* composed(ctx);
+
+      // harvest本轮usage（CallModelPhase将LLMStreamChunk.usage写入ctx.meta）
+      if (ctx.meta.usage) {
+        lastUsage = ctx.meta.usage as LLMStreamChunk['usage'];
+      }
 
       // 如果有错误但 PostProcessPhase 未被调用（composePhases 短路），
       // 需要手动设置终止过渡
@@ -184,7 +192,7 @@ export class AgentLoop {
         // 终止：产出 loop_end 事件并退出循环
         yield {
           type: 'loop_end',
-          result: this.buildLoopResult(transition, state)
+          result: this.buildLoopResult(transition, state, lastUsage)
         };
         return;
       }
@@ -213,7 +221,11 @@ export class AgentLoop {
   }
 
   /** 构建循环结果 */
-  private buildLoopResult(transition: TerminalTransition, state: AgentState): LoopResult {
+  private buildLoopResult(
+    transition: TerminalTransition,
+    state: AgentState,
+    usage?: LLMStreamChunk['usage']
+  ): LoopResult {
     const reasonMap: Record<TerminalTransition['type'], string> = {
       completed: transition.type === 'completed' ? transition.reason : '对话结束',
       aborted: transition.type === 'aborted' ? transition.reason : '被中断',
@@ -224,7 +236,8 @@ export class AgentLoop {
     return {
       type: transition.type,
       reason: reasonMap[transition.type],
-      messages: state.messages
+      messages: state.messages,
+      usage
     };
   }
 }

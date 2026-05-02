@@ -93,3 +93,64 @@ describe('PostProcessPhase', () => {
     expect(events.some(e => e.type === 'turn_end' && e.turnCount === 3)).toBe(true);
   });
 });
+
+describe('PostProcessPhase P33增强', () => {
+  it('pre-set reactive_compact_retry → 不覆盖（RecoveryPhase尊重）', async () => {
+    const ctx = createTestCtx(0);
+    ctx.state.transition = {
+      type: 'reactive_compact_retry',
+      compressedMessages: [{ id: 'u1', role: 'user', content: 'compressed', timestamp: Date.now() }]
+    };
+
+    const phase = new PostProcessPhase(10);
+    await consumeAll(phase.execute(ctx, emptyNext));
+
+    // RecoveryPhase已设transition → PostProcessPhase不覆盖
+    expect(ctx.state.transition.type).toBe('reactive_compact_retry');
+  });
+
+  it('pre-set max_output_tokens_escalate → 不覆盖', async () => {
+    const ctx = createTestCtx(0);
+    ctx.state.transition = {
+      type: 'max_output_tokens_escalate',
+      escalatedLimit: 16384
+    };
+
+    const phase = new PostProcessPhase(10);
+    await consumeAll(phase.execute(ctx, emptyNext));
+
+    expect(ctx.state.transition.type).toBe('max_output_tokens_escalate');
+  });
+
+  it('apiError但transition仍next_turn → 安全网设ctx.error', async () => {
+    const ctx = createTestCtx(0);
+    // RecoveryPhase未处理：apiError在meta但transition仍next_turn
+    ctx.meta.apiError = {
+      statusCode: 413,
+      message: 'prompt too long',
+      originalError: new Error('413')
+    };
+
+    const phase = new PostProcessPhase(10);
+    await consumeAll(phase.execute(ctx, emptyNext));
+
+    // 安全网：设ctx.error → PostProcessPhase走model_error
+    expect(ctx.error).toBeDefined();
+    expect(ctx.state.transition.type).toBe('model_error');
+  });
+
+  it('ctx.error优先于recovery transition', async () => {
+    const ctx = createTestCtx(0);
+    ctx.setError(new Error('fatal error'));
+    ctx.state.transition = {
+      type: 'reactive_compact_retry',
+      compressedMessages: []
+    };
+
+    const phase = new PostProcessPhase(10);
+    await consumeAll(phase.execute(ctx, emptyNext));
+
+    // ctx.error存在 → 优先走错误处理，不尊重recovery transition
+    expect(ctx.state.transition.type).toBe('model_error');
+  });
+});

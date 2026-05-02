@@ -4,6 +4,7 @@ import type { LLMStreamChunk, ToolUseBlock } from '@suga/ai-agent-loop';
 import type {
   AnthropicContentBlock,
   AnthropicContentDelta,
+  AnthropicMessageStartUsage,
   AnthropicSSEEventData,
   AnthropicToolUseBlock
 } from '../types/anthropic';
@@ -17,6 +18,20 @@ function isToolUseBlock(block: AnthropicContentBlock): block is AnthropicToolUse
 /** SSE 事件行前缀 */
 const SSE_EVENT_PREFIX = 'event: ';
 const SSE_DATA_PREFIX = 'data: ';
+
+/** 将 Anthropic message_start usage 映射为 LLMStreamChunk.usage */
+function mapAnthropicStartUsage(usage: AnthropicMessageStartUsage): LLMStreamChunk['usage'] {
+  return {
+    inputTokens: usage.input_tokens,
+    outputTokens: usage.output_tokens,
+    cacheCreationInputTokens: usage.cache_creation_input_tokens,
+    cacheReadInputTokens: usage.cache_read_input_tokens,
+    cacheCreationEphemeralInputTokens:
+      usage.cache_creation?.ephemeral_1h_input_tokens ??
+      usage.cache_creation?.ephemeral_5m_input_tokens,
+    serviceTier: usage.service_tier
+  };
+}
 
 /**
  * 解析 Anthropic SSE 流式响应为 LLMStreamChunk 序列
@@ -167,8 +182,36 @@ async function* handleSSEEvent(
       break;
     }
 
-    case 'message_delta':
-    case 'message_start':
+    case 'message_start': {
+      // message_start → yield usage（完整 input_tokens + cache 信息）
+      if (data.message && data.message.usage) {
+        yield {
+          done: false,
+          usage: mapAnthropicStartUsage(data.message.usage)
+        };
+      }
+      break;
+    }
+
+    case 'message_delta': {
+      // message_delta → yield usage.output_tokens + stopReason
+      const usage = data.usage;
+      const stopReason =
+        data.delta && typeof data.delta === 'object' && 'stop_reason' in data.delta
+          ? (data.delta as { stop_reason?: string }).stop_reason
+          : undefined;
+      if (usage) {
+        yield {
+          done: false,
+          usage: { inputTokens: 0, outputTokens: usage.output_tokens },
+          stopReason
+        };
+      } else if (stopReason) {
+        yield { done: false, stopReason };
+      }
+      break;
+    }
+
     case 'ping':
     case 'error': {
       // message_start, message_delta, ping → 不产出 chunk

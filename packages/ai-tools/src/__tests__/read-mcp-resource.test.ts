@@ -46,32 +46,49 @@ describe('ReadMcpResourceTool', () => {
   it('read(无provider) → 返回空内容', async () => {
     const result = await readMcpResourceTool.call(
       { server: 'fs', uri: 'fs://dir' } as ReadMcpResourceInput,
-      { abortController: new AbortController(), tools: {} as ToolRegistry, sessionId: 'test', fsProvider: {} as any } as ExtendedToolUseContext
+      {
+        abortController: new AbortController(),
+        tools: {} as ToolRegistry,
+        sessionId: 'test',
+        fsProvider: {} as any
+      } as ExtendedToolUseContext
     );
     expect(result.data.contents).toEqual([]);
   });
 
   it('validateInput(空server) → deny', () => {
     const ctx = createContext();
-    const result = readMcpResourceTool.validateInput!({ server: '', uri: 'x' } as ReadMcpResourceInput, ctx);
+    const result = readMcpResourceTool.validateInput!(
+      { server: '', uri: 'x' } as ReadMcpResourceInput,
+      ctx
+    );
     expect(result.behavior).toBe('deny');
   });
 
   it('validateInput(空uri) → deny', () => {
     const ctx = createContext();
-    const result = readMcpResourceTool.validateInput!({ server: 'fs', uri: '' } as ReadMcpResourceInput, ctx);
+    const result = readMcpResourceTool.validateInput!(
+      { server: 'fs', uri: '' } as ReadMcpResourceInput,
+      ctx
+    );
     expect(result.behavior).toBe('deny');
   });
 
   it('isReadOnly → true', () => {
-    expect(readMcpResourceTool.isReadOnly!({ server: 'fs', uri: 'x' } as ReadMcpResourceInput)).toBe(true);
+    expect(
+      readMcpResourceTool.isReadOnly!({ server: 'fs', uri: 'x' } as ReadMcpResourceInput)
+    ).toBe(true);
   });
 
   it('safetyLabel → network', () => {
-    expect(readMcpResourceTool.safetyLabel!({ server: 'fs', uri: 'x' } as ReadMcpResourceInput)).toBe('network');
+    expect(
+      readMcpResourceTool.safetyLabel!({ server: 'fs', uri: 'x' } as ReadMcpResourceInput)
+    ).toBe('network');
   });
 
   it('isDestructive → false', () => {
-    expect(readMcpResourceTool.isDestructive!({ server: 'fs', uri: 'x' } as ReadMcpResourceInput)).toBe(false);
+    expect(
+      readMcpResourceTool.isDestructive!({ server: 'fs', uri: 'x' } as ReadMcpResourceInput)
+    ).toBe(false);
   });
 });

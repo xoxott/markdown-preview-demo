@@ -1,10 +1,11 @@
-/** RuntimeConfig — 聚合所有P0-P9子包配置 */
+/** RuntimeConfig — 聚合所有P0-P10子包配置 */
 
 import type { AgentEvent, LLMProvider, ToolScheduler } from '@suga/ai-agent-loop';
 import type { ToolRegistry } from '@suga/ai-tool-core';
 import type { HookRegistry } from '@suga/ai-hooks';
 import type { SkillRegistry } from '@suga/ai-skill';
 import type { CompressConfig, CompressDependencies } from '@suga/ai-context';
+import type { RecoveryConfig } from '@suga/ai-recovery';
 import type {
   CoordinatorRegistry,
   Mailbox,
@@ -48,6 +49,10 @@ export interface RuntimeConfig {
   /** 压缩依赖注入（callModelForSummary 等） */
   readonly compressDeps?: CompressDependencies;
 
+  // === P3 恢复系统 (可选, 需要 compressConfig) ===
+  /** 恢复配置（提供时 RecoveryPhase 插入 Phase 链，需要 compressConfig 提供 CompressPipeline） */
+  readonly recoveryConfig?: RecoveryConfig;
+
   // === P9 Coordinator (可选) ===
   /** Coordinator注册表（提供时 CoordinatorDispatchPhase 插入 Phase 链） */
   readonly coordinatorRegistry?: CoordinatorRegistry;
@@ -73,4 +78,5 @@ export interface RuntimeSessionState {
   readonly status: 'active' | 'paused' | 'completed' | 'destroyed';
   readonly turnCount: number;
   readonly lastEvent: AgentEvent | null;
+  readonly messageCount: number;
 }

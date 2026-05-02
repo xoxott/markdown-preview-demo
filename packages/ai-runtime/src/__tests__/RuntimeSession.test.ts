@@ -57,8 +57,8 @@ describe('RuntimeSession', () => {
 
     await consumeAllEvents(session.sendMessage('hi'));
 
-    expect(session.getStatus()).toBe('completed');
-    expect(session.getStore().getState().status).toBe('completed');
+    expect(session.getStatus()).toBe('active');
+    expect(session.getStore().getState().status).toBe('active');
   });
 
   it('destroy → Store 状态变为 destroyed', async () => {
@@ -105,5 +105,71 @@ describe('RuntimeSession', () => {
     expect(store.getState().status).toBe('active');
     expect(store.getState().turnCount).toBe(0);
     expect(store.getState().lastEvent).toBeNull();
+  });
+});
+
+describe('RuntimeSession P34多轮持久化', () => {
+  it('连续2次sendMessage → 消息历史累积', async () => {
+    const provider = new MockLLMProvider();
+    provider.addSimpleTextResponse('hello'); // 第1轮
+    provider.addSimpleTextResponse('world'); // 第2轮
+
+    const config: RuntimeConfig = { provider };
+    const session = new RuntimeSession(config);
+
+    // 第1轮
+    const events1 = await consumeAllEvents(session.sendMessage('hi'));
+    expect(events1.some(e => e.type === 'text_delta')).toBe(true);
+    const history1 = session.getMessages().length;
+    expect(history1).toBeGreaterThan(0);
+
+    // 第2轮 — 携带第1轮的历史
+    const events2 = await consumeAllEvents(session.sendMessage('more'));
+    expect(events2.some(e => e.type === 'text_delta')).toBe(true);
+    // 第2轮历史应比第1轮更长（累积了第1轮+第2轮的消息）
+    expect(session.getMessages().length).toBeGreaterThan(history1);
+  });
+
+  it('sendMessage完成后status仍active → 可继续发送', async () => {
+    const provider = new MockLLMProvider();
+    provider.addSimpleTextResponse('done');
+
+    const config: RuntimeConfig = { provider };
+    const session = new RuntimeSession(config);
+
+    await consumeAllEvents(session.sendMessage('hi'));
+    expect(session.getStatus()).toBe('active');
+    // 可以继续sendMessage（多轮对话）
+  });
+
+  it('getMessages → 返回完整历史', async () => {
+    const provider = new MockLLMProvider();
+    provider.addSimpleTextResponse('response');
+
+    const config: RuntimeConfig = { provider };
+    const session = new RuntimeSession(config);
+
+    expect(session.getMessages()).toHaveLength(0);
+
+    await consumeAllEvents(session.sendMessage('hi'));
+    expect(session.getMessages().length).toBeGreaterThan(0);
+  });
+
+  it('destroy后sendMessage → throw', async () => {
+    const provider = new MockLLMProvider();
+    provider.addSimpleTextResponse('ok');
+
+    const config: RuntimeConfig = { provider };
+    const session = new RuntimeSession(config);
+
+    await consumeAllEvents(session.sendMessage('hi'));
+    await session.destroy();
+
+    try {
+      await consumeAllEvents(session.sendMessage('another'));
+      expect.unreachable('应抛出错误');
+    } catch (err) {
+      expect((err as Error).message).toContain('已销毁');
+    }
   });
 });

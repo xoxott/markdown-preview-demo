@@ -6,7 +6,12 @@ import { InMemoryMcpResourceProvider } from '../provider/InMemoryMcpResourceProv
 describe('InMemoryMcpResourceProvider', () => {
   it('listResources(指定server) → 返回该server资源', async () => {
     const provider = new InMemoryMcpResourceProvider();
-    provider.registerResource('github', { uri: 'gh://repo', name: 'Repo', mimeType: 'text/plain', server: 'github' });
+    provider.registerResource('github', {
+      uri: 'gh://repo',
+      name: 'Repo',
+      mimeType: 'text/plain',
+      server: 'github'
+    });
     const resources = await provider.listResources('github');
     expect(resources.length).toBe(1);
     expect(resources[0].name).toBe('Repo');

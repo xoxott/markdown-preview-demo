@@ -4,6 +4,7 @@ import type { LLMStreamChunk } from '@suga/ai-agent-loop';
 import type {
   AnthropicContentBlock,
   AnthropicContentDelta,
+  AnthropicMessageStartUsage,
   AnthropicSSEEventData,
   AnthropicToolUseBlock
 } from '../types/anthropic';
@@ -11,6 +12,20 @@ import type {
 /** 类型守卫：判断 AnthropicContentBlock 是否为 tool_use */
 function isToolUseBlock(block: AnthropicContentBlock): block is AnthropicToolUseBlock {
   return block.type === 'tool_use';
+}
+
+/** 将 Anthropic message_start usage 映射为 LLMStreamChunk.usage */
+function mapStartUsage(usage: AnthropicMessageStartUsage): LLMStreamChunk['usage'] {
+  return {
+    inputTokens: usage.input_tokens,
+    outputTokens: usage.output_tokens,
+    cacheCreationInputTokens: usage.cache_creation_input_tokens,
+    cacheReadInputTokens: usage.cache_read_input_tokens,
+    cacheCreationEphemeralInputTokens:
+      usage.cache_creation?.ephemeral_1h_input_tokens ??
+      usage.cache_creation?.ephemeral_5m_input_tokens,
+    serviceTier: usage.service_tier
+  };
 }
 
 /**
@@ -89,12 +104,40 @@ export function mapSSEEventsToChunks(events: readonly AnthropicSSEEventData[]): 
         break;
       }
 
+      case 'message_start': {
+        if (event.message && event.message.usage) {
+          chunks.push({
+            done: false,
+            usage: mapStartUsage(event.message.usage)
+          });
+        }
+        break;
+      }
+
+      case 'message_delta': {
+        const usage = event.usage;
+        const stopReason =
+          event.delta && typeof event.delta === 'object' && 'stop_reason' in event.delta
+            ? (event.delta as { stop_reason?: string }).stop_reason
+            : undefined;
+        if (usage) {
+          chunks.push({
+            done: false,
+            usage: { inputTokens: 0, outputTokens: usage.output_tokens },
+            stopReason
+          });
+        } else if (stopReason) {
+          chunks.push({ done: false, stopReason });
+        }
+        break;
+      }
+
       case 'message_stop': {
         chunks.push({ done: true });
         break;
       }
 
-      // message_start, message_delta, ping, error → 不产出 chunk
+      // ping, error → 不产出 chunk
       default:
         break;
     }

@@ -235,8 +235,14 @@ export type SendMessageInput = z.infer<typeof SendMessageInputSchema>;
 
 export const WebSearchInputSchema = z.strictObject({
   query: z.string().min(2).describe('Search query to use'),
-  allowedDomains: z.array(z.string()).optional().describe('Only include results from these domains'),
-  blockedDomains: z.array(z.string()).optional().describe('Never include results from these domains')
+  allowedDomains: z
+    .array(z.string())
+    .optional()
+    .describe('Only include results from these domains'),
+  blockedDomains: z
+    .array(z.string())
+    .optional()
+    .describe('Never include results from these domains')
 });
 
 export type WebSearchInput = z.infer<typeof WebSearchInputSchema>;
@@ -254,7 +260,10 @@ export const AskUserQuestionInputSchema = z.object({
             z.strictObject({
               label: z.string().describe('Display text for this option'),
               description: z.string().describe('Explanation of what this option means'),
-              preview: z.string().optional().describe('Optional preview content for visual comparison')
+              preview: z
+                .string()
+                .optional()
+                .describe('Optional preview content for visual comparison')
             })
           )
           .min(2)
@@ -266,7 +275,10 @@ export const AskUserQuestionInputSchema = z.object({
     .min(1)
     .max(4)
     .describe('Questions to ask the user (1-4)'),
-  answers: z.record(z.string(), z.string()).optional().describe('User answers collected by permission component'),
+  answers: z
+    .record(z.string(), z.string())
+    .optional()
+    .describe('User answers collected by permission component'),
   annotations: z
     .record(
       z.string(),
@@ -277,7 +289,10 @@ export const AskUserQuestionInputSchema = z.object({
     )
     .optional()
     .describe('Optional per-question annotations from user'),
-  metadata: z.strictObject({ source: z.string().optional() }).optional().describe('Optional metadata for tracking')
+  metadata: z
+    .strictObject({ source: z.string().optional() })
+    .optional()
+    .describe('Optional metadata for tracking')
 });
 
 export type AskUserQuestionInput = z.infer<typeof AskUserQuestionInputSchema>;
@@ -295,7 +310,10 @@ export type SkillInput = z.infer<typeof SkillInputSchema>;
 
 export const ConfigInputSchema = z.strictObject({
   setting: z.string().describe('The config key (e.g. "theme", "model")'),
-  value: z.union([z.string(), z.boolean(), z.number()]).optional().describe('Value to set (omit to get current)')
+  value: z
+    .union([z.string(), z.boolean(), z.number()])
+    .optional()
+    .describe('Value to set (omit to get current)')
 });
 
 export type ConfigInput = z.infer<typeof ConfigInputSchema>;
@@ -358,9 +376,7 @@ export type SleepInput = z.infer<typeof SleepInputSchema>;
 // === StructuredOutputTool ===
 
 export const StructuredOutputInputSchema = z.strictObject({
-  schema: z
-    .record(z.string(), z.unknown())
-    .describe('JSON Schema for validation'),
+  schema: z.record(z.string(), z.unknown()).describe('JSON Schema for validation'),
   data: z.record(z.string(), z.unknown()).describe('Data to validate against schema')
 });
 

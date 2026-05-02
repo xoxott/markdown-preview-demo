@@ -1,4 +1,4 @@
-/** buildRuntimePhases — 根据 RuntimeConfig 构建完整 Phase 链 */
+/** buildRuntimePhases — 根据 RuntimeConfig 构建完整 Phase 链（含 RecoveryPhase + BlockingLimitPhase） */
 
 import type { LoopPhase } from '@suga/ai-agent-loop';
 import {
@@ -10,7 +10,8 @@ import {
   PreProcessPhase
 } from '@suga/ai-agent-loop';
 import { HookAfterToolPhase, HookBeforeToolPhase, HookStopPhase } from '@suga/ai-hooks';
-import { CompressPhase, CompressPipeline } from '@suga/ai-context';
+import { BlockingLimitPhase, CompressPhase, CompressPipeline } from '@suga/ai-context';
+import { RecoveryPhase } from '@suga/ai-recovery';
 import {
   CoordinatorDispatchPhase,
   DefaultPhaseStrategy,
@@ -22,18 +23,22 @@ import { ToolExecutor } from '@suga/ai-tool-core';
 import type { RuntimeConfig } from '../types/config';
 import { DEFAULT_RUNTIME_MAX_TURNS, DEFAULT_RUNTIME_TOOL_TIMEOUT } from '../constants';
 import { buildEffectiveToolRegistry } from './buildEffectiveToolRegistry';
+import { createCallModelForSummary } from './createCallModelForSummary';
 
 /**
  * 根据 RuntimeConfig 构建 Phase 链
  *
  * Phase 链完整顺序（全启用时）：
  *
- * CompressPhase(P8) | PreProcessPhase(P1) → CallModelPhase(P1) → CheckInterruptPhase(P1) →
- * CoordinatorDispatchPhase(P9) → HookBeforeToolPhase(P4) → ExecuteToolsPhase(P1) →
- * HookAfterToolPhase(P4) → PostProcessPhase(P1) → HookStopPhase(P4)
+ * CompressPhase(P8) | PreProcessPhase(P1) → BlockingLimitPhase(P8) → CallModelPhase(P1) →
+ * CheckInterruptPhase(P1) → RecoveryPhase(P3) → CoordinatorDispatchPhase(P9) →
+ * HookBeforeToolPhase(P4) → ExecuteToolsPhase(P1) → HookAfterToolPhase(P4) → PostProcessPhase(P1) →
+ * HookStopPhase(P4)
+ *
+ * CompressPipeline 为共享实例，跨 CompressPhase/BlockingLimitPhase/RecoveryPhase 使用。
  *
  * @param config RuntimeConfig
- * @returns LoopPhase[] 完整 Phase 铱
+ * @returns LoopPhase[] 完整 Phase 链
  */
 export function buildRuntimePhases(config: RuntimeConfig): LoopPhase[] {
   const maxTurns = config.maxTurns ?? DEFAULT_RUNTIME_MAX_TURNS;
@@ -49,24 +54,42 @@ export function buildRuntimePhases(config: RuntimeConfig): LoopPhase[] {
       ? config.toolRegistry.getAll().map(t => config.provider.formatToolDefinition(t))
       : undefined;
 
+  // 创建共享 CompressPipeline（跨 CompressPhase/BlockingLimitPhase/RecoveryPhase）
+  const pipeline = config.compressConfig
+    ? new CompressPipeline(
+        config.compressConfig,
+        mergeCompressDeps(config.compressDeps, config.provider)
+      )
+    : undefined;
+
   const phases: LoopPhase[] = [];
 
   // --- Phase 1: 前处理 ---
   // P8 CompressPhase 替换 PreProcessPhase（如果提供压缩配置）
-  if (config.compressConfig) {
-    const pipeline = new CompressPipeline(config.compressConfig, config.compressDeps ?? {});
+  if (pipeline) {
     phases.push(new CompressPhase(pipeline));
   } else {
     phases.push(new PreProcessPhase());
   }
 
-  // --- Phase 2: CallModel ---
+  // --- Phase 2: BlockingLimit 预拦截 (需要 pipeline) ---
+  // compressConfig.blockingLimit 或默认配置 → 在 CallModelPhase 前拦截超限请求
+  if (pipeline && config.compressConfig?.blockingLimit) {
+    phases.push(new BlockingLimitPhase(pipeline, config.compressConfig.blockingLimit));
+  }
+
+  // --- Phase 3: CallModelPhase (P1, 增强版含错误分类) ---
   phases.push(new CallModelPhase(config.provider, toolDefs));
 
-  // --- Phase 3: CheckInterrupt ---
+  // --- Phase 4: CheckInterruptPhase ---
   phases.push(new CheckInterruptPhase());
 
-  // --- Phase 4: P9 CoordinatorDispatch (可选) ---
+  // --- Phase 5: RecoveryPhase (P3, 需要 pipeline) ---
+  if (pipeline && config.recoveryConfig) {
+    phases.push(new RecoveryPhase(pipeline, config.recoveryConfig));
+  }
+
+  // --- Phase 6: P9 CoordinatorDispatch (可选) ---
   if (config.coordinatorRegistry) {
     const mailbox = config.coordinatorMailbox ?? new InMemoryMailbox();
     const taskManager = config.coordinatorTaskManager ?? new TaskManager();
@@ -83,17 +106,17 @@ export function buildRuntimePhases(config: RuntimeConfig): LoopPhase[] {
     );
   }
 
-  // --- Phase 4b: P10 SubagentDispatch (可选) ---
+  // --- Phase 7: P10 SubagentDispatch (可选) ---
   if (config.subagentRegistry && config.subagentSpawner) {
     phases.push(new SubagentDispatchPhase(config.subagentRegistry, config.subagentSpawner));
   }
 
-  // --- Phase 5: P4 HookBeforeTool (可选) ---
+  // --- Phase 8: P4 HookBeforeTool (可选) ---
   if (config.hookRegistry) {
     phases.push(new HookBeforeToolPhase(config.hookRegistry));
   }
 
-  // --- Phase 6: ExecuteTools (条件性) ---
+  // --- Phase 9: ExecuteTools (条件性) ---
   if (effectiveRegistry) {
     const scheduler = config.scheduler ?? new ParallelScheduler();
     phases.push(
@@ -106,18 +129,35 @@ export function buildRuntimePhases(config: RuntimeConfig): LoopPhase[] {
     );
   }
 
-  // --- Phase 7: P4 HookAfterTool (可选) ---
+  // --- Phase 10: P4 HookAfterTool (可选) ---
   if (config.hookRegistry) {
     phases.push(new HookAfterToolPhase(config.hookRegistry));
   }
 
-  // --- Phase 8: PostProcess ---
+  // --- Phase 11: PostProcessPhase (P1, 增强版含恢复尊重) ---
   phases.push(new PostProcessPhase(maxTurns));
 
-  // --- Phase 9: P4 HookStop (可选) ---
+  // --- Phase 12: P4 HookStop (可选) ---
   if (config.hookRegistry) {
     phases.push(new HookStopPhase(config.hookRegistry));
   }
 
   return phases;
+}
+
+/**
+ * 合并 CompressDependencies — 自动从 LLMProvider 创建 callModelForSummary
+ *
+ * 如果用户未提供 compressDeps.callModelForSummary， 自动通过 createCallModelForSummary(provider) 桥接。
+ */
+function mergeCompressDeps(
+  userDeps: RuntimeConfig['compressDeps'],
+  provider: RuntimeConfig['provider']
+): NonNullable<RuntimeConfig['compressDeps']> {
+  const callModelForSummary = userDeps?.callModelForSummary ?? createCallModelForSummary(provider);
+
+  return {
+    ...userDeps,
+    callModelForSummary
+  };
 }

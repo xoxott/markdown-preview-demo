@@ -55,7 +55,12 @@ describe('ListMcpResourcesTool', () => {
   it('list(无provider) → 返回空列表', async () => {
     const result = await listMcpResourcesTool.call(
       {} as ListMcpResourcesInput,
-      { abortController: new AbortController(), tools: {} as ToolRegistry, sessionId: 'test', fsProvider: {} as any } as ExtendedToolUseContext
+      {
+        abortController: new AbortController(),
+        tools: {} as ToolRegistry,
+        sessionId: 'test',
+        fsProvider: {} as any
+      } as ExtendedToolUseContext
     );
     expect(result.data).toEqual([]);
   });

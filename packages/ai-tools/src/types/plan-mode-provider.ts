@@ -11,8 +11,7 @@ export interface PlanModeResult {
 /**
  * PlanModeProvider — 计划模式宿主注入
  *
- * 工具通过此接口切换计划模式。
- *宿主的AppState/权限管理可作为真实宿主后端。
+ * 工具通过此接口切换计划模式。 宿主的AppState/权限管理可作为真实宿主后端。
  */
 export interface PlanModeProvider {
   /** 进入计划模式 */

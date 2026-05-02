@@ -24,8 +24,7 @@ export interface SearchResult {
 /**
  * SearchProvider — 搜索查询宿主注入
  *
- * 工具通过此接口执行搜索查询，宿主注入具体实现。
- * Anthropic API的web_search_20250305 server-side tool可作为真实宿主后端。
+ * 工具通过此接口执行搜索查询，宿主注入具体实现。 Anthropic API的web_search_20250305 server-side tool可作为真实宿主后端。
  */
 export interface SearchProvider {
   /** 执行搜索查询 */

@@ -5,9 +5,20 @@ import { mapSSEEventsToChunks } from '../stream/chunk-mapper';
 import type { AnthropicSSEEventData } from '../types/anthropic';
 
 describe('mapSSEEventsToChunks', () => {
-  it('纯文本流 → text_delta chunks + done', () => {
+  it('纯文本流 → text_delta chunks + usage + done', () => {
     const events: AnthropicSSEEventData[] = [
-      { type: 'message_start' },
+      {
+        type: 'message_start',
+        message: {
+          id: 'msg_1',
+          type: 'message',
+          role: 'assistant',
+          content: [],
+          model: 'claude-sonnet-4-20250514',
+          stop_reason: null,
+          usage: { input_tokens: 100, output_tokens: 0, cache_read_input_tokens: 80 }
+        }
+      },
       { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
       { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'Hello' } },
       { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: ' World' } },
@@ -18,10 +29,13 @@ describe('mapSSEEventsToChunks', () => {
 
     const chunks = mapSSEEventsToChunks(events);
 
-    expect(chunks).toHaveLength(3);
-    expect(chunks[0].textDelta).toBe('Hello');
-    expect(chunks[1].textDelta).toBe(' World');
-    expect(chunks[2].done).toBe(true);
+    expect(chunks).toHaveLength(5); // message_start usage + 2 text_delta + message_delta usage + done
+    expect(chunks[0].usage?.inputTokens).toBe(100);
+    expect(chunks[1].textDelta).toBe('Hello');
+    expect(chunks[2].textDelta).toBe(' World');
+    expect(chunks[3].usage?.outputTokens).toBe(2);
+    expect(chunks[3].stopReason).toBe('end_turn');
+    expect(chunks[4].done).toBe(true);
   });
 
   it('思考模式 → thinking_delta chunks', () => {
@@ -92,14 +106,51 @@ describe('mapSSEEventsToChunks', () => {
     expect(chunks).toHaveLength(0);
   });
 
-  it('message_start / message_delta / ping → 不产出 chunk', () => {
-    const events: AnthropicSSEEventData[] = [
-      { type: 'message_start' },
-      { type: 'ping' },
-      { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { output_tokens: 1 } }
-    ];
+  it('ping → 不产出 chunk', () => {
+    const events: AnthropicSSEEventData[] = [{ type: 'ping' }];
 
     const chunks = mapSSEEventsToChunks(events);
     expect(chunks).toHaveLength(0);
+  });
+
+  it('message_start → 产出 usage chunk', () => {
+    const events: AnthropicSSEEventData[] = [
+      {
+        type: 'message_start',
+        message: {
+          id: 'msg_1',
+          type: 'message',
+          role: 'assistant',
+          content: [],
+          model: 'claude-sonnet-4-20250514',
+          stop_reason: null,
+          usage: {
+            input_tokens: 500,
+            output_tokens: 0,
+            cache_creation_input_tokens: 200,
+            cache_read_input_tokens: 300
+          }
+        }
+      }
+    ];
+
+    const chunks = mapSSEEventsToChunks(events);
+    expect(chunks).toHaveLength(1);
+    expect(chunks[0].usage?.inputTokens).toBe(500);
+    expect(chunks[0].usage?.cacheCreationInputTokens).toBe(200);
+    expect(chunks[0].usage?.cacheReadInputTokens).toBe(300);
+    expect(chunks[0].done).toBe(false);
+  });
+
+  it('message_delta → 产出 output_tokens + stopReason', () => {
+    const events: AnthropicSSEEventData[] = [
+      { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { output_tokens: 50 } }
+    ];
+
+    const chunks = mapSSEEventsToChunks(events);
+    expect(chunks).toHaveLength(1);
+    expect(chunks[0].usage?.outputTokens).toBe(50);
+    expect(chunks[0].stopReason).toBe('end_turn');
+    expect(chunks[0].done).toBe(false);
   });
 });

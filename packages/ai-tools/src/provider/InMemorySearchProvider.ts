@@ -1,10 +1,10 @@
 /** InMemorySearchProvider — 内存搜索实现（测试+轻量宿主） */
 
 import type {
-  SearchResult,
-  SearchResultItem,
   SearchOptions,
-  SearchProvider
+  SearchProvider,
+  SearchResult,
+  SearchResultItem
 } from '../types/search-provider';
 
 export class InMemorySearchProvider implements SearchProvider {
@@ -33,16 +33,12 @@ export class InMemorySearchProvider implements SearchProvider {
 
     // 过滤 allowedDomains
     if (options?.allowedDomains?.length) {
-      results = results.filter(r =>
-        options.allowedDomains!.some(d => r.url.includes(d))
-      );
+      results = results.filter(r => options.allowedDomains!.some(d => r.url.includes(d)));
     }
 
     // 过滤 blockedDomains
     if (options?.blockedDomains?.length) {
-      results = results.filter(r =>
-        !options.blockedDomains!.some(d => r.url.includes(d))
-      );
+      results = results.filter(r => !options.blockedDomains!.some(d => r.url.includes(d)));
     }
 
     return { results, durationSeconds: 0.5 };

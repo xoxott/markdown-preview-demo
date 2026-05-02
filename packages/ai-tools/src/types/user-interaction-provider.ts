@@ -25,9 +25,7 @@ export interface QuestionResult {
 /**
  * UserInteractionProvider — 用户交互宿主注入
  *
- * 工具通过此接口向用户展示问题并收集回答。
- * TUI/IDE的交互组件可作为真实宿主后端。
- * 无人值守模式(Telegram/Discord等)时isEnabled()返回false。
+ * 工具通过此接口向用户展示问题并收集回答。 TUI/IDE的交互组件可作为真实宿主后端。 无人值守模式(Telegram/Discord等)时isEnabled()返回false。
  */
 export interface UserInteractionProvider {
   /** 向用户展示问题并收集回答 */

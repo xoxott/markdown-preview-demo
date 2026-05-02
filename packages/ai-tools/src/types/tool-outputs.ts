@@ -6,7 +6,12 @@ import type { CommandResult, EditResult, FileContent, GrepResult } from './fs-pr
 
 // === TaskTools ===
 
-import type { TaskEntry, TaskOutputResult, TaskStopResult, TaskUpdateResult } from './task-provider';
+import type {
+  TaskEntry,
+  TaskOutputResult,
+  TaskStopResult,
+  TaskUpdateResult
+} from './task-provider';
 
 // === TeamTools ===
 

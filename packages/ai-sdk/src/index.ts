@@ -112,7 +112,8 @@ export {
 
 // === 公开API函数 ===
 export { tool, createSdkMcpServer, SDKAbortError } from './api/mcpTool';
-export { query, unstable_v2_prompt } from './api/query';
+export { query, unstable_v2_prompt, setQueryEngine } from './api/query';
+export type { QueryEngineLike } from './api/query';
 export {
   unstable_v2_createSession,
   unstable_v2_resumeSession,

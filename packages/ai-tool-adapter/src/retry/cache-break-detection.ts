@@ -20,7 +20,9 @@ export interface CacheBreakResult {
 export type CacheBreakReason =
   | 'cache_creation_spike' // cacheCreationInputTokens 突然增加
   | 'cache_read_drop' // cacheReadInputTokens 突然减少
-  | 'input_prefix_changed'; // 输入前缀变化导致缓存失效
+  | 'input_prefix_changed' // 输入前缀变化导致缓存失效
+  | 'hash_changed' // Prompt content hash 变化（两阶段检测）
+  | 'ttl_expired'; // Cache TTL 过期推断
 
 /** 缓存断裂检测阈值配置 */
 export interface CacheBreakThreshold {

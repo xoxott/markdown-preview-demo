@@ -18,7 +18,9 @@ export const listMcpResourcesTool = buildTool<ListMcpResourcesInput, ListMcpReso
   inputSchema: ListMcpResourcesInputSchema,
 
   description: async input =>
-    input.server ? `List resources from MCP server "${input.server}"` : 'List resources from all MCP servers',
+    input.server
+      ? `List resources from MCP server "${input.server}"`
+      : 'List resources from all MCP servers',
 
   isReadOnly: () => true,
   isConcurrencySafe: () => true,

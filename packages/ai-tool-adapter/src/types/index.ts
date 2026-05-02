@@ -28,6 +28,33 @@ export type {
   OverageResult
 } from './usage';
 
+export type { RateLimitStatus, RateLimitProvider } from './rate-limit';
+
+export type {
+  PromptStateSnapshot,
+  PromptCacheBreakResult,
+  PromptStateTrackerConfig
+} from './prompt-state';
+
+export type {
+  SessionIngressEntry,
+  SessionIngressProvider,
+  SessionIngressFilter,
+  SessionIngressEventType
+} from './session-ingress';
+
+export type {
+  QuerySource,
+  AuthRefreshProvider,
+  CannotRetryError,
+  FallbackTriggeredError,
+  ContextOverflowError,
+  RetryContext
+} from './retry-providers';
+export { FOREGROUND_QUERY_SOURCES } from './retry-providers';
+
+export type { AnthropicMessageStartUsage, AnthropicMessageDeltaUsage } from './anthropic';
+
 export type {
   OpenAIAdapterConfig,
   OpenAIRequestBody,

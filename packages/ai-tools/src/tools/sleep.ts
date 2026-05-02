@@ -32,10 +32,18 @@ export const sleepTool = buildTool<SleepInput, SleepOutput>({
 
   validateInput: (input: SleepInput): ValidationResult => {
     if (input.seconds < 0) {
-      return { behavior: 'deny', message: 'Duration must be non-negative', reason: 'invalid_duration' };
+      return {
+        behavior: 'deny',
+        message: 'Duration must be non-negative',
+        reason: 'invalid_duration'
+      };
     }
     if (input.seconds > 300) {
-      return { behavior: 'deny', message: 'Duration must be ≤ 300 seconds', reason: 'duration_exceeded' };
+      return {
+        behavior: 'deny',
+        message: 'Duration must be ≤ 300 seconds',
+        reason: 'duration_exceeded'
+      };
     }
     return { behavior: 'allow' };
   },

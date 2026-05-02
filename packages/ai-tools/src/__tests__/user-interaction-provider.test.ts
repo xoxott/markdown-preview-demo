@@ -7,7 +7,10 @@ const sampleQuestions = [
   {
     question: 'Which?',
     header: 'Choice',
-    options: [{ label: 'A', description: 'Option A' }, { label: 'B', description: 'Option B' }],
+    options: [
+      { label: 'A', description: 'Option A' },
+      { label: 'B', description: 'Option B' }
+    ],
     multiSelect: false
   }
 ];

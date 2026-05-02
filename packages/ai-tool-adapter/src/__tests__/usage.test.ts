@@ -34,6 +34,34 @@ describe('LLMUsageInfo', () => {
     };
     expect(usage.serverToolUseInputTokens).toBe(50);
   });
+
+  it('含ephemeral缓存 → cacheCreationEphemeralInputTokens', () => {
+    const usage: LLMUsageInfo = {
+      inputTokens: 1000,
+      outputTokens: 200,
+      cacheCreationInputTokens: 500,
+      cacheCreationEphemeralInputTokens: 300
+    };
+    expect(usage.cacheCreationEphemeralInputTokens).toBe(300);
+  });
+
+  it('含serviceTier → serviceTier字段', () => {
+    const usage: LLMUsageInfo = {
+      inputTokens: 100,
+      outputTokens: 50,
+      serviceTier: 'priority'
+    };
+    expect(usage.serviceTier).toBe('priority');
+  });
+
+  it('含inferenceGeo → inferenceGeo字段', () => {
+    const usage: LLMUsageInfo = {
+      inputTokens: 100,
+      outputTokens: 50,
+      inferenceGeo: 'us-east-1'
+    };
+    expect(usage.inferenceGeo).toBe('us-east-1');
+  });
 });
 
 describe('InMemoryUsageTracker', () => {
@@ -43,6 +71,7 @@ describe('InMemoryUsageTracker', () => {
     expect(summary.totalInputTokens).toBe(0);
     expect(summary.totalOutputTokens).toBe(0);
     expect(summary.apiCallCount).toBe(0);
+    expect(summary.totalCacheCreationEphemeralTokens).toBe(0);
   });
 
   it('trackUsage → 累加 token 数', () => {
@@ -74,6 +103,30 @@ describe('InMemoryUsageTracker', () => {
     const summary = tracker.getUsageSummary();
     expect(summary.totalCacheCreationTokens).toBe(0);
     expect(summary.totalCacheReadTokens).toBe(0);
+    expect(summary.totalCacheCreationEphemeralTokens).toBe(0);
+  });
+
+  it('trackUsage → 累加 ephemeral 缓存 token', () => {
+    const tracker = new InMemoryUsageTracker();
+    tracker.trackUsage({
+      inputTokens: 1000,
+      outputTokens: 200,
+      cacheCreationEphemeralInputTokens: 300
+    });
+    tracker.trackUsage({
+      inputTokens: 500,
+      outputTokens: 100,
+      cacheCreationEphemeralInputTokens: 200
+    });
+    const summary = tracker.getUsageSummary();
+    expect(summary.totalCacheCreationEphemeralTokens).toBe(500);
+  });
+
+  it('trackUsage → 缺失 ephemeral 视为 0', () => {
+    const tracker = new InMemoryUsageTracker();
+    tracker.trackUsage({ inputTokens: 100, outputTokens: 50 });
+    const summary = tracker.getUsageSummary();
+    expect(summary.totalCacheCreationEphemeralTokens).toBe(0);
   });
 
   it('isOverBudget → 输入溢出', () => {
@@ -105,6 +158,7 @@ describe('detectOverage', () => {
       totalOutputTokens: 100,
       totalCacheCreationTokens: 0,
       totalCacheReadTokens: 0,
+      totalCacheCreationEphemeralTokens: 0,
       apiCallCount: 1
     };
     const result = detectOverage(usage, { maxInputTokens: 1000 });
@@ -120,6 +174,7 @@ describe('detectOverage', () => {
       totalOutputTokens: 5000,
       totalCacheCreationTokens: 0,
       totalCacheReadTokens: 0,
+      totalCacheCreationEphemeralTokens: 0,
       apiCallCount: 1
     };
     const result = detectOverage(usage, { maxOutputTokens: 1000 });
@@ -135,6 +190,7 @@ describe('detectOverage', () => {
       totalOutputTokens: 5000,
       totalCacheCreationTokens: 0,
       totalCacheReadTokens: 0,
+      totalCacheCreationEphemeralTokens: 0,
       apiCallCount: 1
     };
     const result = detectOverage(usage, { maxTotalTokens: 8000 });
@@ -150,6 +206,7 @@ describe('detectOverage', () => {
       totalOutputTokens: 200,
       totalCacheCreationTokens: 0,
       totalCacheReadTokens: 0,
+      totalCacheCreationEphemeralTokens: 0,
       apiCallCount: 1
     };
     const result = detectOverage(usage, { maxInputTokens: 1000, maxOutputTokens: 500 });
@@ -162,6 +219,7 @@ describe('detectOverage', () => {
       totalOutputTokens: 999999,
       totalCacheCreationTokens: 0,
       totalCacheReadTokens: 0,
+      totalCacheCreationEphemeralTokens: 0,
       apiCallCount: 1
     };
     const result = detectOverage(usage, {});
@@ -174,6 +232,7 @@ describe('detectOverage', () => {
       totalOutputTokens: 2000,
       totalCacheCreationTokens: 0,
       totalCacheReadTokens: 0,
+      totalCacheCreationEphemeralTokens: 0,
       apiCallCount: 1
     };
     const result = detectOverage(usage, { maxInputTokens: 1000, maxOutputTokens: 1000 });

@@ -99,15 +99,42 @@ export type AnthropicSSEEventType =
   | 'ping'
   | 'error';
 
+/** Anthropic message_start 事件中的 usage（完整） */
+export interface AnthropicMessageStartUsage {
+  readonly input_tokens: number;
+  readonly output_tokens: number;
+  readonly cache_creation_input_tokens?: number;
+  readonly cache_read_input_tokens?: number;
+  readonly cache_creation?: {
+    readonly ephemeral_1h_input_tokens?: number;
+    readonly ephemeral_5m_input_tokens?: number;
+  };
+  readonly service_tier?: string;
+}
+
+/** Anthropic message_delta 事件中的 usage（增量 output_tokens） */
+export interface AnthropicMessageDeltaUsage {
+  readonly output_tokens: number;
+}
+
 /** Anthropic SSE 事件数据 */
 export interface AnthropicSSEEventData {
   readonly type: AnthropicSSEEventType;
   readonly index?: number;
   readonly content_block?: AnthropicContentBlock;
   readonly delta?: AnthropicContentDelta | AnthropicMessageDelta;
-  readonly message?: unknown;
+  readonly message?: {
+    readonly id: string;
+    readonly type: string;
+    readonly role: string;
+    readonly content: readonly AnthropicContentBlock[];
+    readonly model: string;
+    readonly stop_reason?: string | null;
+    readonly stop_sequence?: string | null;
+    readonly usage: AnthropicMessageStartUsage;
+  };
   readonly stop_reason?: string;
-  readonly usage?: { readonly output_tokens: number };
+  readonly usage?: AnthropicMessageDeltaUsage;
   readonly error?: { readonly type: string; readonly message: string };
 }
 

@@ -77,7 +77,12 @@ describe('AskUserQuestionTool', () => {
   it('askQuestions(无provider) → 返回空answers', async () => {
     const result = await askUserQuestionTool.call(
       { questions: baseQuestions } as AskUserQuestionInput,
-      { abortController: new AbortController(), tools: {} as ToolRegistry, sessionId: 'test', fsProvider: {} as any } as ExtendedToolUseContext
+      {
+        abortController: new AbortController(),
+        tools: {} as ToolRegistry,
+        sessionId: 'test',
+        fsProvider: {} as any
+      } as ExtendedToolUseContext
     );
     expect(result.data.answers).toEqual({});
   });
@@ -98,16 +103,23 @@ describe('AskUserQuestionTool', () => {
   });
 
   it('isReadOnly → true', () => {
-    expect(askUserQuestionTool.isReadOnly!({ questions: baseQuestions } as AskUserQuestionInput)).toBe(true);
+    expect(
+      askUserQuestionTool.isReadOnly!({ questions: baseQuestions } as AskUserQuestionInput)
+    ).toBe(true);
   });
 
   it('checkPermissions → ask', () => {
     const ctx = createContext();
-    const result = askUserQuestionTool.checkPermissions!({ questions: baseQuestions } as AskUserQuestionInput, ctx);
+    const result = askUserQuestionTool.checkPermissions!(
+      { questions: baseQuestions } as AskUserQuestionInput,
+      ctx
+    );
     expect(result.behavior).toBe('ask');
   });
 
   it('isDestructive → false', () => {
-    expect(askUserQuestionTool.isDestructive!({ questions: baseQuestions } as AskUserQuestionInput)).toBe(false);
+    expect(
+      askUserQuestionTool.isDestructive!({ questions: baseQuestions } as AskUserQuestionInput)
+    ).toBe(false);
   });
 });

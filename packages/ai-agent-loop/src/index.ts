@@ -24,6 +24,10 @@ export { CheckInterruptPhase } from './phase/CheckInterruptPhase';
 export { ExecuteToolsPhase } from './phase/ExecuteToolsPhase';
 export { PostProcessPhase } from './phase/PostProcessPhase';
 
+// 错误分类
+export { classifyLLMError } from './phase/classifyLLMError';
+export type { LLMErrorClassification, ApiErrorInfo } from './phase/classifyLLMError';
+
 // 调度器
 export { ParallelScheduler, SerialScheduler } from './scheduler/ToolScheduler';
 

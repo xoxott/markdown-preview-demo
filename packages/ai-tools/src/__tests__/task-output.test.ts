@@ -43,7 +43,12 @@ describe('TaskOutputTool', () => {
   it('getOutput(无provider) → 返回not_found', async () => {
     const result = await taskOutputTool.call(
       { taskId: 'task1' } as TaskOutputInput,
-      { abortController: new AbortController(), tools: {} as ToolRegistry, sessionId: 'test', fsProvider: {} as any } as ExtendedToolUseContext
+      {
+        abortController: new AbortController(),
+        tools: {} as ToolRegistry,
+        sessionId: 'test',
+        fsProvider: {} as any
+      } as ExtendedToolUseContext
     );
     expect(result.data.status).toBe('not_found');
   });

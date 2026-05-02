@@ -1,4 +1,7 @@
-/** LLM API 特定重试策略 — 可配置重试+指数退避+错误分类 */
+/** LLM API 特定重试策略 — 可配置重试+指数退避+错误分类+生产级增强 */
+
+import type { AuthRefreshProvider, QuerySource, RetryContext } from '../types/retry-providers';
+import { CannotRetryError } from '../types/retry-providers';
 
 /** LLM API 可重试错误类型 */
 export type RetryableErrorType =
@@ -26,6 +29,14 @@ export interface LLMRetryConfig {
   readonly shouldRetry?: (error: unknown, attempt: number) => boolean;
   /** 延迟计算的自定义函数（覆盖默认指数退避） */
   readonly retryDelay?: (attempt: number, error: unknown) => number;
+  /** 查询源类型 — 529 前后台分流（默认 'repl'） */
+  readonly querySource?: QuerySource;
+  /** 连续 529 阈值 — 达到后触发 CannotRetryError（默认 3） */
+  readonly maxConsecutive529?: number;
+  /** context overflow 安全缓冲 token 数（默认 1000） */
+  readonly contextOverflowBuffer?: number;
+  /** 最小 maxTokens（默认 3000） */
+  readonly minContextTokens?: number;
 }
 
 /** 默认重试配置 */
@@ -38,21 +49,21 @@ export const DEFAULT_LLM_RETRY_CONFIG: LLMRetryConfig = {
   retryableErrorTypes: ['rate_limit', 'overloaded', 'timeout', 'server_error', 'network_error']
 };
 
-/**
- * 分类 LLM API 错误类型的纯函数
- *
- * 根据错误对象的特征（HTTP 状态码、错误类型字符串、错误消息） 分类为可重试类型或不可重试类型。
- *
- * @param error 错误对象
- * @returns 错误类型分类
- */
+/** 默认连续 529 阈值 */
+const DEFAULT_MAX_CONSECUTIVE_529 = 3;
+
+/** 默认 context overflow 安全缓冲 */
+const DEFAULT_CONTEXT_OVERFLOW_BUFFER = 1000;
+
+/** 默认最小 context tokens */
+const DEFAULT_MIN_CONTEXT_TOKENS = 3000;
+
+/** 分类 LLM API 错误类型的纯函数 */
 export function classifyLLMError(error: unknown): RetryableErrorType | 'non_retryable' {
-  // DOMException(AbortError) → timeout
   if (error instanceof DOMException && error.name === 'AbortError') {
     return 'timeout';
   }
 
-  // Error with status code
   if (error instanceof Error) {
     const status = extractStatusCode(error);
     if (status !== undefined) {
@@ -61,12 +72,10 @@ export function classifyLLMError(error: unknown): RetryableErrorType | 'non_retr
       if (status === 529) return 'overloaded';
     }
 
-    // 检查错误类型字符串
     const errorType = extractErrorType(error);
     if (errorType === 'overloaded_error') return 'overloaded';
     if (errorType === 'rate_limit_error') return 'rate_limit';
 
-    // 检查错误消息关键词
     const message = error.message.toLowerCase();
     if (message.includes('rate limit') || message.includes('too many requests'))
       return 'rate_limit';
@@ -77,7 +86,6 @@ export function classifyLLMError(error: unknown): RetryableErrorType | 'non_retr
     if (message.includes('500')) return 'server_error';
   }
 
-  // 网络错误（TypeError from fetch）
   if (error instanceof TypeError) {
     return 'network_error';
   }
@@ -85,15 +93,7 @@ export function classifyLLMError(error: unknown): RetryableErrorType | 'non_retr
   return 'non_retryable';
 }
 
-/**
- * 计算指数退避延迟的纯函数
- *
- * delay = min(initialDelay * backoffMultiplier^attempt, maxDelay)
- *
- * @param attempt 当前重试次数（0-based）
- * @param config 重试配置
- * @returns 延迟毫秒数
- */
+/** 计算指数退避延迟的纯函数 */
 export function calculateBackoffDelay(attempt: number, config: LLMRetryConfig): number {
   const initialDelay = config.initialDelayMs ?? DEFAULT_LLM_RETRY_CONFIG.initialDelayMs!;
   const maxDelay = config.maxDelayMs ?? DEFAULT_LLM_RETRY_CONFIG.maxDelayMs!;
@@ -102,22 +102,12 @@ export function calculateBackoffDelay(attempt: number, config: LLMRetryConfig): 
   return Math.min(delay, maxDelay);
 }
 
-/**
- * 判断是否应重试的纯函数
- *
- * 优先使用自定义 shouldRetry 函数， 否则使用默认逻辑：attempt < maxRetries && error 是可重试类型。
- *
- * @param error 错误对象
- * @param attempt 当前重试次数
- * @param config 重试配置
- * @returns 是否应重试
- */
+/** 判断是否应重试的纯函数 */
 export function shouldRetryLLMCall(
   error: unknown,
   attempt: number,
   config: LLMRetryConfig
 ): boolean {
-  // 自定义 shouldRetry 优先
   if (config.shouldRetry) {
     return config.shouldRetry(error, attempt);
   }
@@ -125,7 +115,6 @@ export function shouldRetryLLMCall(
   const maxRetries = config.maxRetries ?? DEFAULT_LLM_RETRY_CONFIG.maxRetries!;
   if (attempt >= maxRetries) return false;
 
-  // 检查错误类型
   const errorType = classifyLLMError(error);
   if (errorType === 'non_retryable') return false;
 
@@ -135,24 +124,113 @@ export function shouldRetryLLMCall(
 }
 
 /**
- * 带重试的异步函数执行器
+ * 判断 529 错误是否应重试（前台后台分流）
  *
- * 在 LLM API 调用失败时自动重试，支持指数退避和自定义策略。
+ * 只有前台查询源才重试 529，后台查询源（summary/title/classifier） 直接抛出 CannotRetryError，防止容量级联时网关放大效应。
+ */
+export function shouldRetry529(querySource?: QuerySource): boolean {
+  if (!querySource) return true;
+  return ['repl', 'sdk', 'agent', 'compact', 'hook'].includes(querySource);
+}
+
+/**
+ * 从 Error 对象提取 Retry-After header 的毫秒数
+ *
+ * Anthropic API 在 429 响应中可能返回 retry-after header。
+ */
+export function extractRetryAfterMs(error: unknown): number | undefined {
+  if (!(error instanceof Error)) return undefined;
+
+  const headers = (error as unknown as Record<string, unknown>).headers;
+  if (!headers || typeof headers !== 'object') return undefined;
+
+  const headersObj = headers as Record<string, string>;
+  const retryAfter = headersObj['retry-after'];
+  if (!retryAfter) return undefined;
+
+  // 尝试解析为秒数
+  const seconds = Number(retryAfter);
+  if (!Number.isNaN(seconds) && seconds > 0) {
+    return seconds * 1000;
+  }
+
+  // 尝试解析为 HTTP Date
+  const date = new Date(retryAfter);
+  if (!Number.isNaN(date.getTime())) {
+    return Math.max(0, date.getTime() - Date.now());
+  }
+
+  return undefined;
+}
+
+/**
+ * 解析 context overflow 错误 — 计算推荐的 maxTokens
+ *
+ * Anthropic API 返回 400 错误时，错误消息可能包含： "input length and max_tokens exceed context limit"
+ */
+export function parseContextOverflowError(error: unknown):
+  | {
+      inputTokens: number;
+      maxTokens: number;
+      contextLimit: number;
+      recommendedMaxTokens: number;
+    }
+  | undefined {
+  if (!(error instanceof Error)) return undefined;
+
+  const status = extractStatusCode(error);
+  if (status !== 400) return undefined;
+
+  const message = error.message;
+
+  // 尝试解析数字信息
+  const contextLimitMatch = message.match(/context[_ ]?limit[: =]+(\d+)/i);
+  if (!contextLimitMatch) return undefined;
+
+  const contextLimit = Number(contextLimitMatch[1]);
+  const inputTokensMatch = message.match(/input[_ ]?tokens[: =]+(\d+)/i);
+  const inputTokens = inputTokensMatch ? Number(inputTokensMatch[1]) : 0;
+  const maxTokensMatch = message.match(/max[_ ]?tokens[: =]+(\d+)/i);
+  const maxTokens = maxTokensMatch ? Number(maxTokensMatch[1]) : 4096;
+
+  const recommendedMaxTokens = Math.max(
+    DEFAULT_MIN_CONTEXT_TOKENS,
+    contextLimit - inputTokens - DEFAULT_CONTEXT_OVERFLOW_BUFFER
+  );
+
+  return { inputTokens, maxTokens, contextLimit, recommendedMaxTokens };
+}
+
+/**
+ * 带重试的异步函数执行器（生产级增强版）
+ *
+ * 在 LLM API 调用失败时自动重试，支持：
+ *
+ * - 指数退避 + Retry-After header 优先
+ * - 529 前台后台分流
+ * - 连续 529 计数 + CannotRetryError
+ * - Context overflow auto-adjust → RetryContext.maxTokensOverride
+ * - Auth refresh (401) via AuthRefreshProvider
  *
  * @param fn 要执行的异步函数
- * @param config 重试配置（可选，默认 DEFAULT_LLM_RETRY_CONFIG）
- * @param onRetry 重试回调（可选，接收 attempt/error/delayMs）
- * @returns fn 的返回值
- * @throws 当所有重试都失败时抛出最后一次的错误
+ * @param config 重试配置（可选）
+ * @param onRetry 重试回调（可选）
+ * @param retryContext 重试上下文（可选，传递调整参数如 maxTokensOverride）
+ * @param authRefreshProvider Auth刷新Provider（可选，401时自动刷新）
  */
 export async function withLLMRetry<T>(
   fn: () => Promise<T>,
   config?: LLMRetryConfig,
-  onRetry?: (attempt: number, error: unknown, delayMs: number) => void
+  onRetry?: (attempt: number, error: unknown, delayMs: number) => void,
+  retryContext?: RetryContext,
+  authRefreshProvider?: AuthRefreshProvider
 ): Promise<T> {
   const effectiveConfig = config ?? DEFAULT_LLM_RETRY_CONFIG;
   const maxRetries = effectiveConfig.maxRetries ?? DEFAULT_LLM_RETRY_CONFIG.maxRetries!;
+  const maxConsecutive529 = effectiveConfig.maxConsecutive529 ?? DEFAULT_MAX_CONSECUTIVE_529;
+  const querySource = effectiveConfig.querySource ?? 'repl';
   let lastError: unknown;
+  let consecutive529Count = 0;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
@@ -160,13 +238,51 @@ export async function withLLMRetry<T>(
     } catch (error) {
       lastError = error;
 
+      // 1. 529 前台后台分流
+      if (classifyLLMError(error) === 'overloaded') {
+        consecutive529Count++;
+        if (!shouldRetry529(querySource)) {
+          throw new CannotRetryError(
+            '529 overloaded in background query, not retrying to prevent cascade',
+            'background_529'
+          );
+        }
+        if (consecutive529Count >= maxConsecutive529) {
+          throw new CannotRetryError(
+            `Consecutive 529 errors (${consecutive529Count}), giving up`,
+            'consecutive_529'
+          );
+        }
+      } else {
+        consecutive529Count = 0;
+      }
+
+      // 2. Auth refresh (401)
+      if (is401Error(error) && authRefreshProvider) {
+        const refreshed = await authRefreshProvider.refreshAuth();
+        if (refreshed) continue; // 刷新成功 → 不计入 attempt
+        throw error; // 刷新失败 → 不重试
+      }
+
+      // 3. Context overflow auto-adjust
+      const overflowInfo = parseContextOverflowError(error);
+      if (overflowInfo && retryContext) {
+        retryContext.maxTokensOverride = overflowInfo.recommendedMaxTokens;
+        continue; // 不计入 attempt，下次调用使用新 maxTokens
+      }
+
+      // 4. 到达最大重试次数或不可重试 → 抛出
       if (attempt >= maxRetries || !shouldRetryLLMCall(error, attempt, effectiveConfig)) {
         throw error;
       }
 
-      const delay = effectiveConfig.retryDelay
-        ? effectiveConfig.retryDelay(attempt, error)
-        : calculateBackoffDelay(attempt, effectiveConfig);
+      // 5. 计算延迟 — Retry-After header 优先
+      const retryAfterMs = extractRetryAfterMs(error);
+      const delay =
+        retryAfterMs ??
+        (effectiveConfig.retryDelay
+          ? effectiveConfig.retryDelay(attempt, error)
+          : calculateBackoffDelay(attempt, effectiveConfig));
 
       if (onRetry) {
         onRetry(attempt, error, delay);
@@ -179,6 +295,13 @@ export async function withLLMRetry<T>(
   throw lastError;
 }
 
+/** 判断是否是 401 认证错误 */
+function is401Error(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const status = extractStatusCode(error);
+  return status === 401;
+}
+
 /** 简易 sleep 函数 */
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => {
@@ -188,9 +311,7 @@ function sleep(ms: number): Promise<void> {
 
 /** 从 Error 对象提取 HTTP 状态码 */
 function extractStatusCode(error: Error): number | undefined {
-  // 检查 error.status（某些 HTTP Error 有此属性）
   if ('status' in error && typeof error.status === 'number') return error.status;
-  // 检查 error.response.status（axios 等格式）
   if ('response' in error) {
     const resp = (error as Record<string, unknown>).response;
     if (typeof resp === 'object' && resp !== null && 'status' in resp) {
@@ -202,7 +323,6 @@ function extractStatusCode(error: Error): number | undefined {
 
 /** 从 Error 对象提取错误类型字符串 */
 function extractErrorType(error: Error): string | undefined {
-  // 检查 error.error.type（Anthropic API 格式）
   if ('error' in error) {
     const errObj = (error as Record<string, unknown>).error;
     if (typeof errObj === 'object' && errObj !== null && 'type' in errObj) {

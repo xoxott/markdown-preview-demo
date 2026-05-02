@@ -30,11 +30,19 @@ export function mapAnthropicError(status: number, body: string): Error {
 
   switch (status) {
     case 401:
-      return new Error(`认证失败：API 密钥无效${errorMessage ? ` — ${errorMessage}` : ''}`);
+      return createErrorWithHeaders(
+        `认证失败：API 密钥无效${errorMessage ? ` — ${errorMessage}` : ''}`,
+        status,
+        body
+      );
     case 403:
       return new Error(`权限不足${errorMessage ? ` — ${errorMessage}` : ''}`);
     case 429:
-      return new Error(`请求频率限制${errorMessage ? ` — ${errorMessage}` : ''}`);
+      return createErrorWithHeaders(
+        `请求频率限制${errorMessage ? ` — ${errorMessage}` : ''}`,
+        status,
+        body
+      );
     case 500:
       return new Error(`Anthropic 服务内部错误${errorMessage ? ` — ${errorMessage}` : ''}`);
     case 529:
@@ -58,4 +66,19 @@ export function mapAnthropicError(status: number, body: string): Error {
  */
 export function createAbortError(reason?: string): DOMException {
   return new DOMException(reason ?? '请求被中断', 'AbortError');
+}
+
+/**
+ * 创建带 HTTP 状态码的错误（用于 parseContextOverflowError/extractRetryAfterMs）
+ *
+ * 在 Error 对象上附加 status 和 headers 属性，使 retry-strategy 的纯函数 可以从 Error 中提取 context overflow 信息和
+ * retry-after header。
+ */
+function createErrorWithHeaders(message: string, status: number, _body: string): Error {
+  const error = new Error(message);
+  (error as unknown as Record<string, unknown>).status = status;
+  // headers 目前为空（fetch Response.headers 未传递到 error-mapper）
+  // 在 AnthropicAdapter 集成后会填充
+  (error as unknown as Record<string, unknown>).headers = {};
+  return error;
 }

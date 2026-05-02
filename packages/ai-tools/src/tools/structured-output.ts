@@ -75,7 +75,10 @@ export const structuredOutputTool = buildTool<StructuredOutputInput, StructuredO
             errors.push(`Field "${key}" should be boolean, got ${actualType}`);
           } else if (expectedType === 'array' && !Array.isArray(value)) {
             errors.push(`Field "${key}" should be array`);
-          } else if (expectedType === 'object' && (typeof value !== 'object' || Array.isArray(value))) {
+          } else if (
+            expectedType === 'object' &&
+            (typeof value !== 'object' || Array.isArray(value))
+          ) {
             errors.push(`Field "${key}" should be object`);
           }
         }

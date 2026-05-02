@@ -7,7 +7,8 @@ import {
   HookStopPhase
 } from '@suga/ai-hooks';
 import { SkillRegistry } from '@suga/ai-skill';
-import { CompressPhase } from '@suga/ai-context';
+import { BlockingLimitPhase, CompressPhase } from '@suga/ai-context';
+import { RecoveryPhase } from '@suga/ai-recovery';
 import { CoordinatorDispatchPhase, CoordinatorRegistry } from '@suga/ai-coordinator';
 import {
   CallModelPhase,
@@ -49,8 +50,11 @@ describe('buildRuntimePhases', () => {
 
     const phases = buildRuntimePhases(config);
 
+    // Compress, CallModel, CheckInterrupt, PostProcess (无recoveryConfig→无RecoveryPhase)
     expect(phases[0]).toBeInstanceOf(CompressPhase);
     expect(phases[1]).toBeInstanceOf(CallModelPhase);
+    expect(phases[2]).toBeInstanceOf(CheckInterruptPhase);
+    expect(phases[3]).toBeInstanceOf(PostProcessPhase);
   });
 
   it('带 hookRegistry → 插入 HookBeforeTool+HookAfterTool+HookStop', () => {
@@ -113,7 +117,7 @@ describe('buildRuntimePhases', () => {
     expect(allTools.some(t => t.name === 'skill')).toBe(true);
   });
 
-  it('全配置组合 → 完整 Phase 铱', () => {
+  it('全配置组合 → 完整 Phase 链', () => {
     const provider = new MockLLMProvider();
     const hookRegistry = new HookRegistry();
     const toolRegistry = new ToolRegistry();
@@ -129,20 +133,24 @@ describe('buildRuntimePhases', () => {
         microCompact: { gapThresholdMinutes: 60, compactableTools: ['Read'], keepRecent: 5 },
         autoCompact: { thresholdRatio: 0.93, maxConsecutiveFailures: 3, messagesToKeep: 4 }
       },
+      recoveryConfig: {},
       coordinatorRegistry
     };
 
     const phases = buildRuntimePhases(config);
 
-    // Compress, CallModel, CheckInterrupt, Coordinator, HookBeforeTool, ExecuteTools, HookAfterTool, PostProcess, HookStop
-    expect(phases.length).toBe(9);
+    // Compress, CallModel, CheckInterrupt, Recovery, Coordinator, HookBeforeTool, ExecuteTools, HookAfterTool, PostProcess, HookStop
+    expect(phases.length).toBe(10);
     expect(phases[0]).toBeInstanceOf(CompressPhase);
-    expect(phases[3]).toBeInstanceOf(CoordinatorDispatchPhase);
-    expect(phases[4]).toBeInstanceOf(HookBeforeToolPhase);
-    expect(phases[5]).toBeInstanceOf(ExecuteToolsPhase);
-    expect(phases[6]).toBeInstanceOf(HookAfterToolPhase);
-    expect(phases[7]).toBeInstanceOf(PostProcessPhase);
-    expect(phases[8]).toBeInstanceOf(HookStopPhase);
+    expect(phases[1]).toBeInstanceOf(CallModelPhase);
+    expect(phases[2]).toBeInstanceOf(CheckInterruptPhase);
+    expect(phases[3]).toBeInstanceOf(RecoveryPhase);
+    expect(phases[4]).toBeInstanceOf(CoordinatorDispatchPhase);
+    expect(phases[5]).toBeInstanceOf(HookBeforeToolPhase);
+    expect(phases[6]).toBeInstanceOf(ExecuteToolsPhase);
+    expect(phases[7]).toBeInstanceOf(HookAfterToolPhase);
+    expect(phases[8]).toBeInstanceOf(PostProcessPhase);
+    expect(phases[9]).toBeInstanceOf(HookStopPhase);
   });
 
   it('coordinatorRegistry 但无 mailbox → 自动创建 InMemoryMailbox', () => {
@@ -159,5 +167,62 @@ describe('buildRuntimePhases', () => {
 
     // 应正常插入 CoordinatorDispatchPhase（使用默认值）
     expect(phases[3]).toBeInstanceOf(CoordinatorDispatchPhase);
+  });
+});
+
+describe('buildRuntimePhases P33增强', () => {
+  const compressConfig = {
+    budget: { maxResultSize: 150_000, previewSize: 2_000 },
+    microCompact: { gapThresholdMinutes: 60, compactableTools: ['Read'], keepRecent: 5 },
+    autoCompact: { thresholdRatio: 0.93, maxConsecutiveFailures: 3, messagesToKeep: 4 }
+  };
+
+  it('recoveryConfig+compressConfig → RecoveryPhase插入CheckInterruptPhase之后', () => {
+    const config: RuntimeConfig = {
+      provider: new MockLLMProvider(),
+      compressConfig,
+      recoveryConfig: {}
+    };
+
+    const phases = buildRuntimePhases(config);
+
+    // Compress, CallModel, CheckInterrupt, Recovery, PostProcess
+    expect(phases.length).toBe(5);
+    expect(phases[0]).toBeInstanceOf(CompressPhase);
+    expect(phases[1]).toBeInstanceOf(CallModelPhase);
+    expect(phases[2]).toBeInstanceOf(CheckInterruptPhase);
+    expect(phases[3]).toBeInstanceOf(RecoveryPhase);
+    expect(phases[4]).toBeInstanceOf(PostProcessPhase);
+  });
+
+  it('blockingLimit配置 → BlockingLimitPhase插入CallModelPhase之前', () => {
+    const config: RuntimeConfig = {
+      provider: new MockLLMProvider(),
+      compressConfig: {
+        ...compressConfig,
+        blockingLimit: { reserveTokens: 5000 }
+      }
+    };
+
+    const phases = buildRuntimePhases(config);
+
+    // Compress, BlockingLimit, CallModel, CheckInterrupt, PostProcess
+    expect(phases[0]).toBeInstanceOf(CompressPhase);
+    expect(phases[1]).toBeInstanceOf(BlockingLimitPhase);
+    expect(phases[2]).toBeInstanceOf(CallModelPhase);
+  });
+
+  it('recoveryConfig但无compressConfig → 不插入RecoveryPhase（需要pipeline）', () => {
+    const config: RuntimeConfig = {
+      provider: new MockLLMProvider(),
+      recoveryConfig: {}
+    };
+
+    const phases = buildRuntimePhases(config);
+
+    // 无pipeline → PreProcess, CallModel, CheckInterrupt, PostProcess (无Recovery)
+    expect(phases.length).toBe(4);
+    expect(phases[0]).toBeInstanceOf(PreProcessPhase);
+    expect(phases.some(p => p instanceof RecoveryPhase)).toBe(false);
   });
 });

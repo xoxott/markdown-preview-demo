@@ -87,7 +87,7 @@ describe('集成测试', () => {
 
     expect(events.some(e => e.type === 'text_delta')).toBe(true);
     expect(events.some(e => e.type === 'loop_end')).toBe(true);
-    expect(session.getStatus()).toBe('completed');
+    expect(session.getStatus()).toBe('active');
   });
 
   it('默认配置产生4个Phase', () => {
@@ -111,7 +111,7 @@ describe('集成测试', () => {
 
     await consumeAllEvents(session.sendMessage('hi'));
 
-    expect(store.getState().status).toBe('completed');
+    expect(store.getState().status).toBe('active');
     expect(store.getState().lastEvent!.type).toBe('loop_end');
   });
 

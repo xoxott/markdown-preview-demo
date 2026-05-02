@@ -10,6 +10,9 @@ import type { AnyBuiltTool } from '@suga/ai-tool-core';
 import type { BaseLLMAdapterConfig } from '../types/adapter';
 import { DEFAULT_ADAPTER_TIMEOUT } from '../types/adapter';
 import type { UsageTracker } from '../types/usage';
+import type { RateLimitProvider } from '../types/rate-limit';
+import type { SessionIngressProvider } from '../types/session-ingress';
+import type { AuthRefreshProvider, RetryContext } from '../types/retry-providers';
 import type { LLMRequestLifecycleHook } from '../lifecycle/request-lifecycle';
 import type { LLMRetryConfig } from '../retry/retry-strategy';
 
@@ -32,6 +35,14 @@ export abstract class BaseLLMAdapter implements LLMProvider {
   private lifecycleHook?: LLMRequestLifecycleHook;
   /** 重试配置（宿主注入） */
   private retryConfig?: LLMRetryConfig;
+  /** Rate Limit Provider（宿主注入） */
+  private rateLimitProvider?: RateLimitProvider;
+  /** Session Ingress Provider（宿主注入） */
+  private sessionIngress?: SessionIngressProvider;
+  /** Auth Refresh Provider（宿主注入，P32新增） */
+  private authRefreshProvider?: AuthRefreshProvider;
+  /** Retry Context（P32新增，传递 maxTokensOverride 等调整参数） */
+  private retryContext?: RetryContext;
 
   constructor(config: BaseLLMAdapterConfig) {
     this.config = config;
@@ -65,6 +76,46 @@ export abstract class BaseLLMAdapter implements LLMProvider {
   /** 获取重试配置 */
   getRetryConfig(): LLMRetryConfig | undefined {
     return this.retryConfig;
+  }
+
+  /** 设置 Rate Limit Provider（宿主注入） */
+  setRateLimitProvider(provider: RateLimitProvider): void {
+    this.rateLimitProvider = provider;
+  }
+
+  /** 获取 Rate Limit Provider */
+  getRateLimitProvider(): RateLimitProvider | undefined {
+    return this.rateLimitProvider;
+  }
+
+  /** 设置 Session Ingress Provider（宿主注入） */
+  setSessionIngress(ingress: SessionIngressProvider): void {
+    this.sessionIngress = ingress;
+  }
+
+  /** 获取 Session Ingress Provider */
+  getSessionIngress(): SessionIngressProvider | undefined {
+    return this.sessionIngress;
+  }
+
+  /** 设置 Auth Refresh Provider（宿主注入，P32新增） */
+  setAuthRefreshProvider(provider: AuthRefreshProvider): void {
+    this.authRefreshProvider = provider;
+  }
+
+  /** 获取 Auth Refresh Provider */
+  getAuthRefreshProvider(): AuthRefreshProvider | undefined {
+    return this.authRefreshProvider;
+  }
+
+  /** 设置 Retry Context（P32新增） */
+  setRetryContext(context: RetryContext): void {
+    this.retryContext = context;
+  }
+
+  /** 获取 Retry Context */
+  getRetryContext(): RetryContext | undefined {
+    return this.retryContext;
   }
 
   abstract callModel(

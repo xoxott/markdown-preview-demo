@@ -2,6 +2,7 @@
 
 import type { AgentMessage } from './messages';
 import type { TerminalTransition } from './state';
+import type { LLMStreamChunk } from './provider';
 
 /** 循环最终结果 */
 export interface LoopResult {
@@ -11,4 +12,6 @@ export interface LoopResult {
   readonly reason: string;
   /** 最终消息历史 */
   readonly messages: readonly AgentMessage[];
+  /** 用量信息（从 ctx.meta.usage harvest） */
+  readonly usage?: LLMStreamChunk['usage'];
 }

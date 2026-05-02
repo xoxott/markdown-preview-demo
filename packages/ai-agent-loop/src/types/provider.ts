@@ -13,6 +13,17 @@ export interface LLMStreamChunk {
   readonly toolUse?: ToolUseBlock;
   /** 是否流结束 */
   readonly done: boolean;
+  /** 用量信息（message_start 或 message_delta 事件中的 usage） */
+  readonly usage?: {
+    readonly inputTokens: number;
+    readonly outputTokens: number;
+    readonly cacheCreationInputTokens?: number;
+    readonly cacheReadInputTokens?: number;
+    readonly cacheCreationEphemeralInputTokens?: number;
+    readonly serviceTier?: string;
+  };
+  /** 停止原因（message_delta 事件中的 stop_reason） */
+  readonly stopReason?: string;
 }
 
 /** LLM 工具定义（Provider 适配后的格式） */

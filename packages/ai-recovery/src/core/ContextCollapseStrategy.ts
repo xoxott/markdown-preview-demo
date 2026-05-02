@@ -42,7 +42,7 @@ export class ContextCollapseStrategy {
   private readonly drainThreshold: number;
   private readonly planThreshold: number;
   // @ts-expect-error — 未来折叠逻辑使用
-	private readonly _outputReserveTokens: number;
+  private readonly _outputReserveTokens: number;
   private readonly maxStagedSpans: number;
   readonly commitLog: CollapseCommitLog;
 

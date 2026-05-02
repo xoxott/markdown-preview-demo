@@ -22,10 +22,7 @@ describe('ExitPlanModeTool', () => {
   it('exit(从plan模式) → 成功切换到default', async () => {
     const provider = new InMemoryPlanModeProvider();
     await provider.enterPlanMode();
-    const result = await exitPlanModeTool.call(
-      {} as ExitPlanModeInput,
-      createContext(provider)
-    );
+    const result = await exitPlanModeTool.call({} as ExitPlanModeInput, createContext(provider));
     expect(result.data.success).toBe(true);
     expect(result.data.currentMode).toBe('default');
     expect(provider.isInPlanMode()).toBe(false);
@@ -33,10 +30,7 @@ describe('ExitPlanModeTool', () => {
 
   it('exit(不在plan模式) → 返回已有状态', async () => {
     const provider = new InMemoryPlanModeProvider();
-    const result = await exitPlanModeTool.call(
-      {} as ExitPlanModeInput,
-      createContext(provider)
-    );
+    const result = await exitPlanModeTool.call({} as ExitPlanModeInput, createContext(provider));
     expect(result.data.currentMode).toBe('default');
     expect(result.data.message).toContain('Already');
   });
@@ -44,7 +38,12 @@ describe('ExitPlanModeTool', () => {
   it('exit(无provider) → 返回错误', async () => {
     const result = await exitPlanModeTool.call(
       {} as ExitPlanModeInput,
-      { abortController: new AbortController(), tools: {} as ToolRegistry, sessionId: 'test', fsProvider: {} as any } as ExtendedToolUseContext
+      {
+        abortController: new AbortController(),
+        tools: {} as ToolRegistry,
+        sessionId: 'test',
+        fsProvider: {} as any
+      } as ExtendedToolUseContext
     );
     expect(result.data.success).toBe(false);
   });

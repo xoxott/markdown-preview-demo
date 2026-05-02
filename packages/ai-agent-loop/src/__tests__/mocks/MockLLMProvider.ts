@@ -47,6 +47,17 @@ export class MockLLMProvider implements LLMProvider {
     ]);
   }
 
+  /** 设置带 usage 的简单文本响应 */
+  addSimpleTextResponseWithUsage(
+    text: string,
+    usage: { inputTokens: number; outputTokens: number }
+  ): void {
+    this.responses.push([
+      ...text.split('').map(c => ({ textDelta: c, done: false })),
+      { done: true, usage, stopReason: 'end_turn' }
+    ]);
+  }
+
   /** 设置带工具调用的响应 */
   addToolUseResponse(text: string, toolUses: ToolUseBlock[]): void {
     this.responses.push([

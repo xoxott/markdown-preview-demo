@@ -43,7 +43,12 @@ describe('TaskStopTool', () => {
   it('stop(无provider) → 返回失败', async () => {
     const result = await taskStopTool.call(
       { taskId: 'task1' } as TaskStopInput,
-      { abortController: new AbortController(), tools: {} as ToolRegistry, sessionId: 'test', fsProvider: {} as any } as ExtendedToolUseContext
+      {
+        abortController: new AbortController(),
+        tools: {} as ToolRegistry,
+        sessionId: 'test',
+        fsProvider: {} as any
+      } as ExtendedToolUseContext
     );
     expect(result.data.success).toBe(false);
     expect(result.data.message).toContain('not available');
@@ -55,10 +60,7 @@ describe('TaskStopTool', () => {
     // 模拟in_progress状态
     await provider.updateTask(task.id, { status: 'in_progress' });
 
-    await taskStopTool.call(
-      { taskId: task.id } as TaskStopInput,
-      createContext(provider)
-    );
+    await taskStopTool.call({ taskId: task.id } as TaskStopInput, createContext(provider));
 
     const updated = await provider.getTask(task.id);
     expect(updated?.status).toBe('completed');

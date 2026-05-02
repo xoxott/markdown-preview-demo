@@ -13,6 +13,7 @@ const EMPTY_SUMMARY: LLMUsageSummary = {
   totalOutputTokens: 0,
   totalCacheCreationTokens: 0,
   totalCacheReadTokens: 0,
+  totalCacheCreationEphemeralTokens: 0,
   apiCallCount: 0
 };
 
@@ -22,6 +23,7 @@ export class InMemoryUsageTracker implements UsageTracker {
   private totalOutputTokens = 0;
   private totalCacheCreationTokens = 0;
   private totalCacheReadTokens = 0;
+  private totalCacheCreationEphemeralTokens = 0;
   private apiCallCount = 0;
 
   trackUsage(usage: LLMUsageInfo): void {
@@ -29,6 +31,7 @@ export class InMemoryUsageTracker implements UsageTracker {
     this.totalOutputTokens += usage.outputTokens;
     this.totalCacheCreationTokens += usage.cacheCreationInputTokens ?? 0;
     this.totalCacheReadTokens += usage.cacheReadInputTokens ?? 0;
+    this.totalCacheCreationEphemeralTokens += usage.cacheCreationEphemeralInputTokens ?? 0;
     this.apiCallCount += 1;
   }
 
@@ -38,6 +41,7 @@ export class InMemoryUsageTracker implements UsageTracker {
       totalOutputTokens: this.totalOutputTokens,
       totalCacheCreationTokens: this.totalCacheCreationTokens,
       totalCacheReadTokens: this.totalCacheReadTokens,
+      totalCacheCreationEphemeralTokens: this.totalCacheCreationEphemeralTokens,
       apiCallCount: this.apiCallCount
     };
   }
@@ -52,6 +56,7 @@ export class InMemoryUsageTracker implements UsageTracker {
     this.totalOutputTokens = 0;
     this.totalCacheCreationTokens = 0;
     this.totalCacheReadTokens = 0;
+    this.totalCacheCreationEphemeralTokens = 0;
     this.apiCallCount = 0;
   }
 }

@@ -5,10 +5,15 @@ import {
   DEFAULT_LLM_RETRY_CONFIG,
   calculateBackoffDelay,
   classifyLLMError,
+  extractRetryAfterMs,
+  parseContextOverflowError,
+  shouldRetry529,
   shouldRetryLLMCall,
   withLLMRetry
 } from '../retry/retry-strategy';
 import type { LLMRetryConfig } from '../retry/retry-strategy';
+import type { AuthRefreshProvider, RetryContext } from '../types/retry-providers';
+import { CannotRetryError } from '../types/retry-providers';
 
 describe('classifyLLMError', () => {
   it('DOMException(AbortError) → timeout', () => {
@@ -176,5 +181,174 @@ describe('withLLMRetry', () => {
     };
     await withLLMRetry(fn, config, onRetry);
     expect(delays[0]).toBe(5);
+  });
+});
+
+describe('shouldRetry529', () => {
+  it('前台查询源 → 应重试', () => {
+    expect(shouldRetry529('repl')).toBe(true);
+    expect(shouldRetry529('sdk')).toBe(true);
+    expect(shouldRetry529('agent')).toBe(true);
+    expect(shouldRetry529('compact')).toBe(true);
+    expect(shouldRetry529('hook')).toBe(true);
+  });
+
+  it('后台查询源 → 不应重试', () => {
+    expect(shouldRetry529('summary')).toBe(false);
+    expect(shouldRetry529('title')).toBe(false);
+    expect(shouldRetry529('classifier')).toBe(false);
+  });
+
+  it('无querySource → 默认重试', () => {
+    expect(shouldRetry529()).toBe(true);
+  });
+});
+
+describe('extractRetryAfterMs', () => {
+  it('秒数格式 → 返回毫秒数', () => {
+    const error = new Error('rate limited');
+    (error as any).headers = { 'retry-after': '5' };
+    expect(extractRetryAfterMs(error)).toBe(5000);
+  });
+
+  it('无retry-after header → undefined', () => {
+    const error = new Error('rate limited');
+    (error as any).headers = {};
+    expect(extractRetryAfterMs(error)).toBeUndefined();
+  });
+
+  it('无headers属性 → undefined', () => {
+    const error = new Error('rate limited');
+    expect(extractRetryAfterMs(error)).toBeUndefined();
+  });
+
+  it('非Error对象 → undefined', () => {
+    expect(extractRetryAfterMs('not an error')).toBeUndefined();
+  });
+});
+
+describe('parseContextOverflowError', () => {
+  it('400 + context limit信息 → 解析成功', () => {
+    const error = new Error(
+      'input_tokens: 50000 and max_tokens: 4096 exceed context_limit: 200000'
+    );
+    (error as any).status = 400;
+    const result = parseContextOverflowError(error);
+    expect(result).toBeDefined();
+    expect(result!.contextLimit).toBe(200000);
+    expect(result!.inputTokens).toBe(50000);
+    expect(result!.recommendedMaxTokens).toBeGreaterThan(0);
+  });
+
+  it('非400错误 → undefined', () => {
+    const error = new Error('rate limited');
+    (error as any).status = 429;
+    expect(parseContextOverflowError(error)).toBeUndefined();
+  });
+
+  it('无context limit信息 → undefined', () => {
+    const error = new Error('bad request');
+    (error as any).status = 400;
+    expect(parseContextOverflowError(error)).toBeUndefined();
+  });
+});
+
+describe('withLLMRetry P32增强', () => {
+  it('529后台查询 → CannotRetryError', async () => {
+    const fn = () => Promise.reject(Object.assign(new Error('overloaded'), { status: 529 }));
+    const config: LLMRetryConfig = { maxRetries: 3, querySource: 'summary' };
+
+    await expect(withLLMRetry(fn, config)).rejects.toThrow(CannotRetryError);
+  });
+
+  it('529前台查询 → 正常重试', async () => {
+    let attempt = 0;
+    const fn = () => {
+      attempt++;
+      if (attempt < 3)
+        return Promise.reject(Object.assign(new Error('overloaded'), { status: 529 }));
+      return Promise.resolve('ok');
+    };
+    const config: LLMRetryConfig = { maxRetries: 5, querySource: 'repl', initialDelayMs: 5 };
+
+    const result = await withLLMRetry(fn, config);
+    expect(result).toBe('ok');
+  });
+
+  it('Retry-After header → 优先使用', async () => {
+    const delays: number[] = [];
+    let attempt = 0;
+    const fn = () => {
+      attempt++;
+      if (attempt === 1) {
+        const error = new Error('rate limited');
+        (error as any).status = 429;
+        (error as any).headers = { 'retry-after': '2' };
+        throw error;
+      }
+      return Promise.resolve('ok');
+    };
+    const config: LLMRetryConfig = { maxRetries: 1, initialDelayMs: 10000 };
+    const onRetry = (_a: number, _e: unknown, delay: number) => delays.push(delay);
+
+    await withLLMRetry(fn, config, onRetry);
+    expect(delays[0]).toBe(2000); // retry-after=2s=2000ms, 优先于10000ms退避
+  });
+
+  it('context overflow auto-adjust → 设置RetryContext', async () => {
+    const retryContext: RetryContext = {};
+    let attempt = 0;
+    const fn = () => {
+      attempt++;
+      if (attempt === 1) {
+        const error = new Error(
+          'input length and max_tokens exceed context limit: input_tokens=95000, max_tokens=4096, context_limit=100000'
+        );
+        (error as any).status = 400;
+        throw error;
+      }
+      return Promise.resolve('ok');
+    };
+    const config: LLMRetryConfig = { maxRetries: 1 };
+
+    await withLLMRetry(fn, config, undefined, retryContext);
+    expect(retryContext.maxTokensOverride).toBeDefined();
+    expect(retryContext.maxTokensOverride!).toBeGreaterThan(0);
+  });
+
+  it('auth refresh (401) → 刷新成功后重试', async () => {
+    let attempt = 0;
+    const mockProvider: AuthRefreshProvider = {
+      refreshAuth: async () => true,
+      clearCredentialCache: () => {}
+    };
+    const fn = () => {
+      attempt++;
+      if (attempt === 1) {
+        const error = new Error('auth failed');
+        (error as any).status = 401;
+        throw error;
+      }
+      return Promise.resolve('ok');
+    };
+
+    const result = await withLLMRetry(fn, undefined, undefined, undefined, mockProvider);
+    expect(result).toBe('ok');
+  });
+
+  it('auth refresh (401) → 刷新失败后不重试', async () => {
+    const mockProvider: AuthRefreshProvider = {
+      refreshAuth: async () => false,
+      clearCredentialCache: () => {}
+    };
+    const fn = () => {
+      const error = new Error('auth failed');
+      (error as any).status = 401;
+      throw error;
+    };
+
+    await expect(withLLMRetry(fn, undefined, undefined, undefined, mockProvider)).rejects.toThrow(
+      'auth failed'
+    );
   });
 });

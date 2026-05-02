@@ -32,15 +32,27 @@ export {
   emptyUsageSummary
 } from './lifecycle/UsageTrackerImpl';
 
-// 重试策略（P18 新增）
+// 重试策略（P18 新增, P32 增强）
 export {
   classifyLLMError,
   calculateBackoffDelay,
   shouldRetryLLMCall,
   withLLMRetry,
+  shouldRetry529,
+  extractRetryAfterMs,
+  parseContextOverflowError,
   DEFAULT_LLM_RETRY_CONFIG
 } from './retry/retry-strategy';
 export type { RetryableErrorType, LLMRetryConfig } from './retry/retry-strategy';
+
+// Retry Provider 类型（P32 新增）
+export type { QuerySource, AuthRefreshProvider, RetryContext } from './types/retry-providers';
+export {
+  FOREGROUND_QUERY_SOURCES,
+  CannotRetryError,
+  FallbackTriggeredError,
+  ContextOverflowError
+} from './types/retry-providers';
 
 // Prompt Cache 断裂检测（P18 新增）
 export {
@@ -61,3 +73,30 @@ export type {
   LLMResponseContext,
   LLMRequestLifecycleHook
 } from './lifecycle/request-lifecycle';
+
+// Rate Limit（P31 新增）
+export { extractRateLimitStatus, parseResetTimestamp } from './rate-limit/extract-rate-limit';
+export { InMemoryRateLimitProvider } from './rate-limit/InMemoryRateLimitProvider';
+export type { RateLimitStatus, RateLimitProvider } from './types/rate-limit';
+
+// Prompt State Tracker（P31 新增，增强 cache break 检测）
+export {
+  computePromptHash,
+  recordPromptState,
+  checkPromptStateForCacheBreak,
+  PromptStateTracker
+} from './retry/prompt-state-tracker';
+export type {
+  PromptStateSnapshot,
+  PromptCacheBreakResult,
+  PromptStateTrackerConfig
+} from './types/prompt-state';
+
+// Session Ingress（P31 新增）
+export { InMemorySessionIngress } from './session-ingress/InMemorySessionIngress';
+export type {
+  SessionIngressEntry,
+  SessionIngressProvider,
+  SessionIngressFilter,
+  SessionIngressEventType
+} from './types/session-ingress';

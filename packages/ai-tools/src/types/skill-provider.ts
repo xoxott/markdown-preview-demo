@@ -15,8 +15,7 @@ export interface SkillDefinition {
 /**
  * SkillProvider — 斜杠命令宿主注入
  *
- * 工具通过此接口查找和调用skill定义。
- * ai-skill的SkillRegistry可作为真实宿主后端。
+ * 工具通过此接口查找和调用skill定义。 ai-skill的SkillRegistry可作为真实宿主后端。
  */
 export interface SkillProvider {
   /** 查找skill定义，null表示不存在 */

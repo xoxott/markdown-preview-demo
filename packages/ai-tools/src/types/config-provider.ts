@@ -22,8 +22,7 @@ export interface ConfigUpdateResult {
 /**
  * ConfigProvider — 配置管理宿主注入
  *
- * 工具通过此接口读写配置，宿主注入具体实现。
- * ~/.claude.json + settings.json 可作为真实宿主后端。
+ * 工具通过此接口读写配置，宿主注入具体实现。 ~/.claude.json + settings.json 可作为真实宿主后端。
  */
 export interface ConfigProvider {
   /** 获取配置值 */

@@ -72,7 +72,12 @@ describe('WebSearchTool', () => {
   it('search(无provider) → 返回空结果', async () => {
     const result = await webSearchTool.call(
       { query: 'test' } as WebSearchInput,
-      { abortController: new AbortController(), tools: {} as ToolRegistry, sessionId: 'test', fsProvider: {} as any } as ExtendedToolUseContext
+      {
+        abortController: new AbortController(),
+        tools: {} as ToolRegistry,
+        sessionId: 'test',
+        fsProvider: {} as any
+      } as ExtendedToolUseContext
     );
     expect(result.data.results).toEqual([]);
   });

@@ -12,6 +12,8 @@ import { convertToAnthropicMessages } from '../convert/message-converter';
 import { formatAnthropicToolDefinition } from '../convert/tool-definition';
 import { parseAnthropicSSEStream } from '../stream/sse-parser';
 import { mapAnthropicError } from '../error/error-mapper';
+import { extractRateLimitStatus } from '../rate-limit/extract-rate-limit';
+import { withLLMRetry } from '../retry/retry-strategy';
 import { BaseLLMAdapter } from './BaseLLMAdapter';
 
 /**
@@ -23,18 +25,9 @@ import { BaseLLMAdapter } from './BaseLLMAdapter';
  * - 支持自定义 baseURL 和 headers（适配代理环境）
  * - SSE 流式响应解析
  * - 工具调用（tool_use）和思考模式（thinking）支持
- *
- * @example
- *   const adapter = new AnthropicAdapter({
- *     baseURL: 'https://api.anthropic.com',
- *     apiKey: process.env.ANTHROPIC_API_KEY!,
- *     model: 'claude-sonnet-4-20250514'
- *   });
- *
- *   const loop = new AgentLoop({ provider: adapter, maxTurns: 5 });
- *   for await (const event of loop.queryLoop([userMsg])) {
- *     console.log(event);
- *   }
+ * - Rate Limit header 提取 → RateLimitProvider
+ * - SSE usage 提取 → UsageTracker
+ * - withLLMRetry 包裹 HTTP 请求部分（流式消费不重试）
  */
 export class AnthropicAdapter extends BaseLLMAdapter {
   private readonly anthropicConfig: AnthropicAdapterConfig;
@@ -65,12 +58,36 @@ export class AnthropicAdapter extends BaseLLMAdapter {
     // 1. 转换消息格式
     const apiMessages = convertToAnthropicMessages(messages);
 
-    // 2. 构建请求体
+    // 2. 构建请求体（支持 RetryContext.maxTokensOverride）
     const requestBody = this.buildRequestBody(apiMessages, tools);
 
-    // 3. 发送 HTTP 请求
+    // 3. 发送 HTTP 请求（可重试部分）
     const url = `${this.config.baseURL}/v1/messages`;
-    const response = await this.fetchWithAbort(url, requestBody, signal, this.buildHeaders());
+    const headers = this.buildHeaders();
+
+    const response = await withLLMRetry(
+      () => this.fetchWithAbort(url, requestBody, signal, headers),
+      this.getRetryConfig(),
+      (attempt, error, delayMs) => {
+        // 通知生命周期钩子
+        const hook = this.getLifecycleHook();
+        if (hook?.onRetry) {
+          hook.onRetry(
+            {
+              model: this.config.model,
+              messageCount: messages.length,
+              toolCount: tools?.length ?? 0,
+              startTime: Date.now()
+            },
+            attempt,
+            error,
+            delayMs
+          );
+        }
+      },
+      this.getRetryContext(),
+      this.getAuthRefreshProvider()
+    );
 
     // 4. 检查非流式错误响应
     if (!response.ok) {
@@ -78,8 +95,32 @@ export class AnthropicAdapter extends BaseLLMAdapter {
       throw mapAnthropicError(response.status, errorBody);
     }
 
-    // 5. 解析 SSE 流 → LLMStreamChunk
-    yield* parseAnthropicSSEStream(response, signal);
+    // 5. 提取 Rate Limit headers → RateLimitProvider
+    const rateLimitStatus = extractRateLimitStatus(response.headers);
+    if (rateLimitStatus) {
+      const provider = this.getRateLimitProvider();
+      if (provider) {
+        provider.onRateLimitUpdate(rateLimitStatus);
+      }
+    }
+
+    // 6. 解析 SSE 流 → LLMStreamChunk + 提取 usage → UsageTracker
+    const tracker = this.getUsageTracker();
+
+    for await (const chunk of parseAnthropicSSEStream(response, signal)) {
+      // 提取 usage → UsageTracker
+      if (chunk.usage && tracker) {
+        tracker.trackUsage({
+          inputTokens: chunk.usage.inputTokens,
+          outputTokens: chunk.usage.outputTokens,
+          cacheCreationInputTokens: chunk.usage.cacheCreationInputTokens,
+          cacheReadInputTokens: chunk.usage.cacheReadInputTokens,
+          cacheCreationEphemeralInputTokens: chunk.usage.cacheCreationEphemeralInputTokens,
+          serviceTier: chunk.usage.serviceTier
+        });
+      }
+      yield chunk;
+    }
   }
 
   /** 构建 Anthropic API 请求头 */
@@ -97,7 +138,10 @@ export class AnthropicAdapter extends BaseLLMAdapter {
     messages: readonly AnthropicMessage[],
     tools?: readonly ToolDefinition[]
   ): AnthropicRequestBody {
-    const maxTokens = this.config.maxTokens ?? DEFAULT_ANTHROPIC_MAX_TOKENS;
+    // 支持 RetryContext.maxTokensOverride（context overflow auto-adjust）
+    const retryContext = this.getRetryContext();
+    const maxTokensOverride = retryContext?.maxTokensOverride;
+    const maxTokens = maxTokensOverride ?? this.config.maxTokens ?? DEFAULT_ANTHROPIC_MAX_TOKENS;
 
     const body: AnthropicRequestBody = {
       model: this.config.model,

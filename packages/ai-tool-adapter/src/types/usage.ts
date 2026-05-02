@@ -12,6 +12,12 @@ export interface LLMUsageInfo {
   readonly cacheReadInputTokens?: number;
   /** 服务端工具使用输入 token 数 */
   readonly serverToolUseInputTokens?: number;
+  /** 缓存创建 ephemeral token 数（5-min TTL 部分） */
+  readonly cacheCreationEphemeralInputTokens?: number;
+  /** 服务层级（如 "standard"、"priority"） */
+  readonly serviceTier?: string;
+  /** 推理地理位置标识（如 "us-east-1"） */
+  readonly inferenceGeo?: string;
 }
 
 /** 用量追踪器接口 — 宿主注入实现 */
@@ -34,6 +40,8 @@ export interface LLMUsageSummary {
   readonly totalCacheCreationTokens: number;
   /** 总缓存读取 token 数 */
   readonly totalCacheReadTokens: number;
+  /** 总缓存写入 ephemeral token 数 */
+  readonly totalCacheCreationEphemeralTokens: number;
   /** API 调用次数 */
   readonly apiCallCount: number;
 }

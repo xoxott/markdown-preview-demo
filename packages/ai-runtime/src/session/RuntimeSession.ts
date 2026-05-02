@@ -1,4 +1,4 @@
-/** RuntimeSession — 集成会话，连接 P1 AgentLoop + P7 Store<T> 状态管理 */
+/** RuntimeSession — 集成会话，连接 P1 AgentLoop + P7 Store<T> 状态管理 + 多轮消息历史 */
 
 import type { AgentEvent, AgentMessage } from '@suga/ai-agent-loop';
 import { type Store, createStore } from '@suga/ai-state';
@@ -6,20 +6,27 @@ import type { RuntimeConfig, RuntimeSessionState } from '../types/config';
 import { createRuntimeAgentLoop } from '../factory/createRuntimeAgentLoop';
 
 /**
- * RuntimeSession — P10 集成会话
+ * RuntimeSession — P10+P34 集成会话
  *
- * 连接 P1 AgentLoop + P7 Store<T> 状态管理：
+ * 连接 P1 AgentLoop + P7 Store<T> 状态管理 + 多轮消息历史：
  *
  * - sendMessage → createRuntimeAgentLoop → queryLoop → Store.setState
+ *
+ *   - 携带历史消息实现多轮对话
+ *   - loop_end后更新messageHistory + status='active'（允许后续sendMessage）
  * - pause → abort + Store 状态='paused'
+ * - resume → 从messageHistory恢复 → 新queryLoop
  * - destroy → Store 状态='destroyed'
  * - getStore → 返回 Store<RuntimeSessionState> 供 React useAppState 订阅
+ * - getMessages → 返回完整消息历史
  */
 export class RuntimeSession {
   private readonly config: RuntimeConfig;
   private readonly store: Store<RuntimeSessionState>;
   private readonly sessionId: string;
   private currentAbortController: AbortController | undefined;
+  /** 多轮对话消息历史 — 每次sendMessage后从loop_end.result.messages更新 */
+  private messageHistory: AgentMessage[] = [];
 
   constructor(config: RuntimeConfig) {
     this.config = config;
@@ -29,7 +36,8 @@ export class RuntimeSession {
       sessionId: this.sessionId,
       status: 'active',
       turnCount: 0,
-      lastEvent: null
+      lastEvent: null,
+      messageCount: 0
     });
   }
 
@@ -48,7 +56,12 @@ export class RuntimeSession {
     return this.store.getState().status;
   }
 
-  /** 发送消息 */
+  /** 获取完整消息历史 */
+  getMessages(): readonly AgentMessage[] {
+    return this.messageHistory;
+  }
+
+  /** 发送消息（支持多轮对话） */
   async *sendMessage(content: string, signal?: AbortSignal): AsyncGenerator<AgentEvent> {
     const currentStatus = this.store.getState().status;
     if (currentStatus === 'destroyed') {
@@ -72,7 +85,10 @@ export class RuntimeSession {
       timestamp: Date.now()
     };
 
-    for await (const event of loop.queryLoop([userMessage], this.currentAbortController.signal)) {
+    // 携带历史消息实现多轮对话
+    const allMessages: readonly AgentMessage[] = [...this.messageHistory, userMessage];
+
+    for await (const event of loop.queryLoop(allMessages, this.currentAbortController.signal)) {
       this.store.setState(prev => ({
         ...prev,
         lastEvent: event
@@ -81,10 +97,12 @@ export class RuntimeSession {
       yield event;
 
       if (event.type === 'loop_end') {
-        const resultStatus = event.result.type === 'aborted' ? 'completed' : 'completed';
+        // 更新消息历史（完整对话记录）
+        this.messageHistory = [...event.result.messages];
         this.store.setState(prev => ({
           ...prev,
-          status: this.store.getState().status === 'paused' ? 'paused' : resultStatus
+          status: 'active',
+          messageCount: this.messageHistory.length
         }));
       }
     }
@@ -99,6 +117,45 @@ export class RuntimeSession {
 
     this.store.setState(prev => ({ ...prev, status: 'paused' }));
     this.currentAbortController?.abort();
+  }
+
+  /** 恢复会话（从暂停状态恢复，携带历史消息重新开始） */
+  async *resume(signal?: AbortSignal): AsyncGenerator<AgentEvent> {
+    const currentStatus = this.store.getState().status;
+    if (currentStatus !== 'paused') {
+      throw new Error(`RuntimeSession ${this.sessionId} 当前状态 ${currentStatus}，无法恢复`);
+    }
+
+    this.currentAbortController = new AbortController();
+    if (signal) {
+      signal.addEventListener('abort', () => this.currentAbortController!.abort(), { once: true });
+    }
+
+    this.store.setState(prev => ({ ...prev, status: 'active' }));
+
+    // 从历史消息恢复 — 创建新loop并传入历史消息
+    const loop = createRuntimeAgentLoop(this.config);
+
+    for await (const event of loop.queryLoop(
+      this.messageHistory,
+      this.currentAbortController.signal
+    )) {
+      this.store.setState(prev => ({
+        ...prev,
+        lastEvent: event
+      }));
+
+      yield event;
+
+      if (event.type === 'loop_end') {
+        this.messageHistory = [...event.result.messages];
+        this.store.setState(prev => ({
+          ...prev,
+          status: 'active',
+          messageCount: this.messageHistory.length
+        }));
+      }
+    }
   }
 
   /** 销毁会话 */

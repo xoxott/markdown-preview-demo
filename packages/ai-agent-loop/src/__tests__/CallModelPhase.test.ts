@@ -119,3 +119,118 @@ describe('CallModelPhase', () => {
     expect((ctx.error as DOMException).name).toBe('AbortError');
   });
 });
+
+describe('CallModelPhase P33增强', () => {
+  it("stopReason='max_tokens' → ctx.meta.maxOutputTokensReached=true", async () => {
+    const provider = new MockLLMProvider();
+    provider.addResponse([
+      { textDelta: 'hello', done: false },
+      { stopReason: 'max_tokens', done: true }
+    ]);
+
+    const ctx = createTestCtx();
+    const phase = new CallModelPhase(provider);
+    await consumeAll(phase.execute(ctx, emptyNext));
+
+    expect(ctx.meta.maxOutputTokensReached).toBe(true);
+    expect(ctx.meta.stopReason).toBe('max_tokens');
+  });
+
+  it("stopReason='end_turn' → ctx.meta.stopReason='end_turn'（非max_tokens不设标记）", async () => {
+    const provider = new MockLLMProvider();
+    provider.addResponse([
+      { textDelta: 'hello', done: false },
+      { stopReason: 'end_turn', done: true }
+    ]);
+
+    const ctx = createTestCtx();
+    const phase = new CallModelPhase(provider);
+    await consumeAll(phase.execute(ctx, emptyNext));
+
+    expect(ctx.meta.stopReason).toBe('end_turn');
+    expect(ctx.meta.maxOutputTokensReached).toBeUndefined();
+  });
+
+  it('usage chunk → ctx.meta.usage + tokenBudgetUsed', async () => {
+    const provider = new MockLLMProvider();
+    provider.addResponse([
+      { textDelta: 'hello', done: false },
+      { usage: { inputTokens: 100, outputTokens: 50 }, done: true }
+    ]);
+
+    const ctx = createTestCtx();
+    const phase = new CallModelPhase(provider);
+    await consumeAll(phase.execute(ctx, emptyNext));
+
+    expect(ctx.meta.usage).toEqual({ inputTokens: 100, outputTokens: 50 });
+    expect(ctx.meta.tokenBudgetUsed).toBe(50);
+  });
+
+  it('recoverable 413 → ctx.meta.apiError, 不设ctx.error', async () => {
+    const provider = new MockLLMProvider();
+    const error = Object.assign(new Error('prompt is too long'), { status: 413 });
+    provider.setShouldFail(true, error);
+
+    const ctx = createTestCtx();
+    const phase = new CallModelPhase(provider);
+    await consumeAll(phase.execute(ctx, emptyNext));
+
+    // 可恢复错误：apiError在meta，error不在ctx
+    expect(ctx.meta.apiError).toBeDefined();
+    expect(ctx.error).toBeUndefined();
+    const apiError = ctx.meta.apiError as { statusCode?: number };
+    expect(apiError.statusCode).toBe(413);
+  });
+
+  it('recoverable overloaded(529) → ctx.meta.apiError', async () => {
+    const provider = new MockLLMProvider();
+    const error = Object.assign(new Error('Overloaded'), { status: 529 });
+    provider.setShouldFail(true, error);
+
+    const ctx = createTestCtx();
+    const phase = new CallModelPhase(provider);
+    await consumeAll(phase.execute(ctx, emptyNext));
+
+    expect(ctx.meta.apiError).toBeDefined();
+    expect(ctx.error).toBeUndefined();
+    const apiError = ctx.meta.apiError as { statusCode?: number };
+    expect(apiError.statusCode).toBe(529);
+  });
+
+  it('recoverable error → yield* next()被调用', async () => {
+    const provider = new MockLLMProvider();
+    const error = Object.assign(new Error('prompt is too long'), { status: 413 });
+    provider.setShouldFail(true, error);
+
+    const ctx = createTestCtx();
+    let nextCalled = false;
+    // eslint-disable-next-line require-yield
+    async function* trackingNext(): AsyncGenerator<AgentEvent> {
+      nextCalled = true;
+    }
+
+    const phase = new CallModelPhase(provider);
+    await consumeAll(phase.execute(ctx, trackingNext));
+
+    expect(nextCalled).toBe(true);
+  });
+
+  it('unrecoverable 401 → ctx.setError + 短路', async () => {
+    const provider = new MockLLMProvider();
+    const error = Object.assign(new Error('auth failed'), { status: 401 });
+    provider.setShouldFail(true, error);
+
+    const ctx = createTestCtx();
+    let nextCalled = false;
+    // eslint-disable-next-line require-yield
+    async function* trackingNext(): AsyncGenerator<AgentEvent> {
+      nextCalled = true;
+    }
+
+    const phase = new CallModelPhase(provider);
+    await consumeAll(phase.execute(ctx, trackingNext));
+
+    expect(ctx.error).toBeDefined();
+    expect(nextCalled).toBe(false); // 不可恢复 → 短路，next未调用
+  });
+});
