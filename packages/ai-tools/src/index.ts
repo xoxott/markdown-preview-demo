@@ -107,6 +107,8 @@ export type {
   ClassifierModelResponse,
   LLMClassifierConfig
 } from './provider/LLMPermissionClassifier';
+export { classifyBashCommand } from './provider/BashCommandClassifier';
+export type { BashClassifyResult, BashCommandDecision } from './provider/BashCommandClassifier';
 export { DefaultHttpProvider } from './types/http-provider';
 export { InMemoryTaskStoreProvider } from './provider/InMemoryTaskStoreProvider';
 export { InMemoryTeamProvider } from './provider/InMemoryTeamProvider';

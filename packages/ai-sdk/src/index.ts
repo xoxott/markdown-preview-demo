@@ -121,6 +121,8 @@ export type {
   ClassifierModelResponse,
   LLMClassifierConfig
 } from '@suga/ai-tools';
+export { classifyBashCommand } from '@suga/ai-tools';
+export type { BashClassifyResult, BashCommandDecision } from '@suga/ai-tools';
 export { NodeFileSystemProvider } from '@suga/ai-tools';
 export { query, unstable_v2_prompt, setQueryEngine } from './api/query';
 export type { QueryEngineLike } from './api/query';

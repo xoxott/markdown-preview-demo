@@ -42,7 +42,7 @@ describe('buildClassifierFn', () => {
     const config: RuntimeConfig = {
       ...createMinimalConfig(),
       classifierConfig: {
-        callModel: async req => {
+        callModel: async (req: { model: string }) => {
           capturedModel = req.model;
           return { content: 'ALLOW', model: req.model };
         },

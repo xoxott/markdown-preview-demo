@@ -27,13 +27,10 @@ export function createCallModelFnFromProvider(
   return async (request): Promise<ClassifierModelResponse> => {
     const messages = [
       {
+        id: `classifier-${Date.now()}`,
         role: 'user' as const,
-        content: [
-          {
-            type: 'text' as const,
-            text: request.userContent
-          }
-        ]
+        content: request.userContent,
+        timestamp: Date.now()
       }
     ];
 

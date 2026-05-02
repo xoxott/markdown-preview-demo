@@ -30,6 +30,8 @@ import type {
   UserInteractionProvider
 } from '@suga/ai-tools';
 
+export type { LLMClassifierConfig };
+
 /**
  * 运行时配置 — 聚合所有子包的可选配置
  *
