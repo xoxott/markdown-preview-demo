@@ -102,6 +102,9 @@ export type {
   LLMProvider,
   ToolDefinition,
   ToolScheduler,
+  // P35 System prompt
+  SystemPrompt,
+  CallModelOptions,
   // Context
   AgentContext,
   MutableAgentContext,
@@ -109,6 +112,7 @@ export type {
   // Phase
   LoopPhase
 } from '@suga/ai-agent-loop';
+export { createSystemPrompt } from '@suga/ai-agent-loop';
 
 // === ai-agent-session — 显式导出（避免SessionStatus与ai-state冲突） ===
 export type {
