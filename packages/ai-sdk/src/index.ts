@@ -114,6 +114,13 @@ export {
 // === 公开API函数 ===
 export { tool, createSdkMcpServer, SDKAbortError } from './api/mcpTool';
 export { YoloPermissionClassifier } from '@suga/ai-tools';
+export { LLMPermissionClassifier } from '@suga/ai-tools';
+export type {
+  CallModelFn,
+  ClassifierModelRequest,
+  ClassifierModelResponse,
+  LLMClassifierConfig
+} from '@suga/ai-tools';
 export { NodeFileSystemProvider } from '@suga/ai-tools';
 export { query, unstable_v2_prompt, setQueryEngine } from './api/query';
 export type { QueryEngineLike } from './api/query';
