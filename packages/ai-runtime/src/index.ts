@@ -19,10 +19,11 @@ export { createCallModelForSummary } from './factory/createCallModelForSummary';
 export { RuntimeSession } from './session/RuntimeSession';
 export { createRuntimeSession } from './session/createRuntimeSession';
 
-// SDK 层 — QueryEngine + AgentEvent→SDKMessage 映射
+// SDK 层 — QueryEngine + AgentEvent→SDKMessage 映射 + system prompt 组装
 export { QueryEngine } from './sdk/QueryEngine';
 export { createQueryEngine } from './sdk/createQueryEngine';
 export { createSDKSystemMessage } from './sdk/createSDKSystemMessage';
+export { fetchSystemPrompt } from './sdk/fetchSystemPrompt';
 export {
   mapAgentEventToSDKMessages,
   createSDKMapContext,

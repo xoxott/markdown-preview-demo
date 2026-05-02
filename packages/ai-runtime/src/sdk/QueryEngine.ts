@@ -5,6 +5,7 @@ import type { RuntimeConfig } from '../types/config';
 import { RuntimeSession } from '../session/RuntimeSession';
 import { createSDKSystemMessage } from './createSDKSystemMessage';
 import { applyQueryOptions } from './applyQueryOptions';
+import { fetchSystemPrompt } from './fetchSystemPrompt';
 import {
   createSDKMapContext,
   mapAgentEventToSDKMessages,
@@ -43,8 +44,11 @@ export class QueryEngine {
   ): AsyncIterable<SDKMessage> {
     const effectiveConfig = applyQueryOptions(this.config, options as any);
 
-    // 1. 创建会话
-    const session = new RuntimeSession(effectiveConfig);
+    // P35: 预计算 system prompt（含 memory 注入）
+    const systemPrompt = await fetchSystemPrompt(effectiveConfig);
+
+    // 1. 创建会话（传入 systemPrompt）
+    const session = new RuntimeSession(effectiveConfig, systemPrompt);
 
     // 2. 产出系统初始化消息
     yield createSDKSystemMessage(effectiveConfig);

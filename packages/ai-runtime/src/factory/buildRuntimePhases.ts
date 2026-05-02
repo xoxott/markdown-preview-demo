@@ -1,6 +1,6 @@
 /** buildRuntimePhases — 根据 RuntimeConfig 构建完整 Phase 链（含 RecoveryPhase + BlockingLimitPhase） */
 
-import type { LoopPhase } from '@suga/ai-agent-loop';
+import type { LoopPhase, SystemPrompt } from '@suga/ai-agent-loop';
 import {
   CallModelPhase,
   CheckInterruptPhase,
@@ -40,7 +40,7 @@ import { createCallModelForSummary } from './createCallModelForSummary';
  * @param config RuntimeConfig
  * @returns LoopPhase[] 完整 Phase 链
  */
-export function buildRuntimePhases(config: RuntimeConfig): LoopPhase[] {
+export function buildRuntimePhases(config: RuntimeConfig, systemPrompt?: SystemPrompt): LoopPhase[] {
   const maxTurns = config.maxTurns ?? DEFAULT_RUNTIME_MAX_TURNS;
   const toolTimeout = config.toolTimeout ?? DEFAULT_RUNTIME_TOOL_TIMEOUT;
 
@@ -79,7 +79,7 @@ export function buildRuntimePhases(config: RuntimeConfig): LoopPhase[] {
   }
 
   // --- Phase 3: CallModelPhase (P1, 增强版含错误分类) ---
-  phases.push(new CallModelPhase(config.provider, toolDefs));
+  phases.push(new CallModelPhase(config.provider, toolDefs, systemPrompt));
 
   // --- Phase 4: CheckInterruptPhase ---
   phases.push(new CheckInterruptPhase());

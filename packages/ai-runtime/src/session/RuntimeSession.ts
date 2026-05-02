@@ -1,6 +1,6 @@
 /** RuntimeSession — 集成会话，连接 P1 AgentLoop + P7 Store<T> 状态管理 + 多轮消息历史 */
 
-import type { AgentEvent, AgentMessage } from '@suga/ai-agent-loop';
+import type { AgentEvent, AgentMessage, SystemPrompt } from '@suga/ai-agent-loop';
 import { type Store, createStore } from '@suga/ai-state';
 import type { RuntimeConfig, RuntimeSessionState } from '../types/config';
 import { createRuntimeAgentLoop } from '../factory/createRuntimeAgentLoop';
@@ -22,13 +22,16 @@ import { createRuntimeAgentLoop } from '../factory/createRuntimeAgentLoop';
  */
 export class RuntimeSession {
   private readonly config: RuntimeConfig;
+  private readonly systemPrompt?: SystemPrompt;
   private readonly store: Store<RuntimeSessionState>;
   private readonly sessionId: string;
   private currentAbortController: AbortController | undefined;
   /** 多轮对话消息历史 — 每次sendMessage后从loop_end.result.messages更新 */
   private messageHistory: AgentMessage[] = [];
 
-  constructor(config: RuntimeConfig) {
+  constructor(config: RuntimeConfig, systemPrompt?: SystemPrompt) {
+    this.config = config;
+    this.systemPrompt = systemPrompt;
     this.config = config;
     this.sessionId = `runtime_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
@@ -76,7 +79,7 @@ export class RuntimeSession {
       signal.addEventListener('abort', () => this.currentAbortController!.abort(), { once: true });
     }
 
-    const loop = createRuntimeAgentLoop(this.config);
+    const loop = createRuntimeAgentLoop(this.config, this.systemPrompt);
 
     const userMessage: AgentMessage = {
       id: `user_${Date.now()}`,
@@ -134,7 +137,7 @@ export class RuntimeSession {
     this.store.setState(prev => ({ ...prev, status: 'active' }));
 
     // 从历史消息恢复 — 创建新loop并传入历史消息
-    const loop = createRuntimeAgentLoop(this.config);
+    const loop = createRuntimeAgentLoop(this.config, this.systemPrompt);
 
     for await (const event of loop.queryLoop(
       this.messageHistory,

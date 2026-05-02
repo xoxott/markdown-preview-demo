@@ -1,6 +1,6 @@
-/** RuntimeConfig — 聚合所有P0-P10子包配置 */
+/** RuntimeConfig — 聚合所有P0-P10+P35子包配置 */
 
-import type { AgentEvent, LLMProvider, ToolScheduler } from '@suga/ai-agent-loop';
+import type { AgentEvent, LLMProvider, SystemPrompt, ToolScheduler } from '@suga/ai-agent-loop';
 import type { ToolRegistry } from '@suga/ai-tool-core';
 import type { HookRegistry } from '@suga/ai-hooks';
 import type { SkillRegistry } from '@suga/ai-skill';
@@ -14,6 +14,7 @@ import type {
   TaskManager
 } from '@suga/ai-coordinator';
 import type { SubagentRegistry, SubagentSpawner } from '@suga/ai-subagent';
+import type { MemoryPromptConfig, MemoryStorageProvider, MemoryPathConfig } from '@suga/ai-memory';
 
 /**
  * 运行时配置 — 聚合所有子包的可选配置
@@ -70,6 +71,20 @@ export interface RuntimeConfig {
   readonly subagentRegistry?: SubagentRegistry;
   /** SubagentSpawner — 真实spawn能力 */
   readonly subagentSpawner?: SubagentSpawner;
+
+  // === P35 Memory注入 (可选) ===
+  /** Memory配置（提供时在 system prompt 中注入 memory 段落） */
+  readonly memoryConfig?: MemoryPromptConfig;
+  /** MemoryStorageProvider（读取 MEMORY.md 的文件系统抽象） */
+  readonly memoryProvider?: MemoryStorageProvider;
+  /** Memory路径配置（计算 MEMORY.md 路径） */
+  readonly memoryPathConfig?: MemoryPathConfig;
+  /** 预计算的 systemPrompt（提供时直接使用，跳过 fetchSystemPrompt） */
+  readonly systemPrompt?: SystemPrompt;
+  /** 自定义系统提示（替代默认 system prompt） */
+  readonly customSystemPrompt?: string;
+  /** 附加系统提示（追加到 system prompt 末尾） */
+  readonly appendSystemPrompt?: string;
 }
 
 /** RuntimeSession 状态 — P7 Store 管理 */
