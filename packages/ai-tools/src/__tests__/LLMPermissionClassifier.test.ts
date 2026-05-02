@@ -305,4 +305,119 @@ describe('LLMPermissionClassifier', () => {
 
     expect(capturedModel).toBe('claude-sonnet-4-6');
   });
+
+  // ===== P38: Bash确定性快速路径委托 =====
+
+  it('bash "ls -la" → allow (确定性，不调用callModel)', async () => {
+    let callModelCount = 0;
+    const classifier = new LLMPermissionClassifier({
+      callModel: async () => {
+        callModelCount++;
+        return { content: 'ALLOW', model: 'mock-model' };
+      }
+    });
+
+    const result = await classifier.classify(
+      createClassifierInput('bash', {
+        input: { command: 'ls -la /tmp' },
+        safetyLabel: 'system',
+        isReadOnly: false
+      })
+    );
+
+    expect(result.behavior).toBe('allow');
+    expect(result.confidence).toBe('high');
+    expect(result.reason).toContain('ls');
+    expect(callModelCount).toBe(0); // 确定性分类，不调用LLM
+  });
+
+  it('bash "rm -rf /" → deny (确定性，不调用callModel)', async () => {
+    let callModelCount = 0;
+    const classifier = new LLMPermissionClassifier({
+      callModel: async () => {
+        callModelCount++;
+        return { content: 'BLOCK', model: 'mock-model' };
+      }
+    });
+
+    const result = await classifier.classify(
+      createClassifierInput('bash', {
+        input: { command: 'rm -rf /' },
+        safetyLabel: 'system',
+        isReadOnly: false
+      })
+    );
+
+    expect(result.behavior).toBe('deny');
+    expect(result.confidence).toBe('high');
+    expect(result.reason).toContain('rm');
+    expect(callModelCount).toBe(0);
+  });
+
+  it('bash "curl https://..." → ask → 继续LLM两阶段', async () => {
+    let callModelCount = 0;
+    const countingClassifier = new LLMPermissionClassifier({
+      callModel: async () => {
+        callModelCount++;
+        if (callModelCount === 1) return { content: 'BLOCK', model: 'mock-model' };
+        return {
+          content: '<decision>ASK</decision><reason>Network operation unclear</reason>',
+          model: 'mock-model'
+        };
+      }
+    });
+
+    const result = await countingClassifier.classify(
+      createClassifierInput('bash', {
+        input: { command: 'curl https://example.com' },
+        safetyLabel: 'system',
+        isReadOnly: false
+      })
+    );
+
+    // curl不在白/黑名单 → ask → 继续走LLM两阶段
+    expect(result.behavior).toBe('ask');
+    expect(result.confidence).toBe('high');
+    expect(callModelCount).toBe(2); // Stage 1 + Stage 2
+  });
+
+  it('bash 无command字段 → 继续LLM两阶段', async () => {
+    const classifier = new LLMPermissionClassifier({
+      callModel: createMockCallModel([{ content: 'ALLOW', model: 'mock-model' }])
+    });
+
+    const result = await classifier.classify(
+      createClassifierInput('bash', {
+        input: {}, // 无command字段
+        safetyLabel: 'system',
+        isReadOnly: false
+      })
+    );
+
+    // 无command → 无法确定性分类 → 继续LLM
+    expect(result.behavior).toBe('allow');
+    expect(result.confidence).toBe('medium'); // fast classifier allow → medium confidence
+  });
+
+  it('bash "sudo ls" → deny (sudo黑名单，不调用callModel)', async () => {
+    let callModelCount = 0;
+    const classifier = new LLMPermissionClassifier({
+      callModel: async () => {
+        callModelCount++;
+        return { content: 'ALLOW', model: 'mock-model' };
+      }
+    });
+
+    const result = await classifier.classify(
+      createClassifierInput('bash', {
+        input: { command: 'sudo ls' },
+        safetyLabel: 'system',
+        isReadOnly: false
+      })
+    );
+
+    expect(result.behavior).toBe('deny');
+    expect(result.reason).toContain('sudo');
+    expect(callModelCount).toBe(0);
+  });
 });

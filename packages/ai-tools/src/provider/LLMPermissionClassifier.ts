@@ -27,6 +27,7 @@ import type {
   PermissionClassifier,
   ToolClassifierInput
 } from '@suga/ai-tool-core';
+import { classifyBashCommand } from './BashCommandClassifier';
 
 // ========== 类型定义 ==========
 
@@ -210,6 +211,25 @@ export class LLMPermissionClassifier implements PermissionClassifier {
   }
 
   async classify(input: ToolClassifierInput): Promise<ClassifierResult> {
+    // ===== P38: Bash确定性快速路径 =====
+    // 在调用LLM之前，先尝试确定性规则分类bash命令
+    // 确定性allow/deny直接返回，跳过LLM API调用
+    // 模糊命令(ask)继续走LLM两阶段分类
+    if (input.toolName === 'bash') {
+      const bashInput = input.input as { command?: string } | null;
+      if (bashInput?.command) {
+        const bashResult = classifyBashCommand(bashInput.command);
+        if (bashResult.decision !== 'ask') {
+          return {
+            behavior: bashResult.decision === 'allow' ? 'allow' : 'deny',
+            reason: bashResult.reason,
+            confidence: bashResult.confidence,
+          };
+        }
+        // ask → 继续走LLM两阶段分类（与当前逻辑相同）
+      }
+    }
+
     const abortController = new AbortController();
 
     // 序列化分类器输入为用户内容
