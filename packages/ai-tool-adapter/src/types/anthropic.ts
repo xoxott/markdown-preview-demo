@@ -27,6 +27,16 @@ export type AnthropicThinkingConfig =
   | { type: 'enabled'; budget_tokens: number }
   | { type: 'disabled' };
 
+/** Anthropic system 内容块 — 支持 cache_control */
+export interface AnthropicSystemTextBlock {
+  readonly type: 'text';
+  readonly text: string;
+  readonly cache_control?: { readonly type: 'ephemeral' };
+}
+
+/** Anthropic system 字段类型 — string 或 TextBlockParam[] */
+export type AnthropicSystemField = string | readonly AnthropicSystemTextBlock[];
+
 /** Anthropic 消息请求体 */
 export interface AnthropicRequestBody {
   /** 模型名称 */
@@ -35,8 +45,8 @@ export interface AnthropicRequestBody {
   readonly max_tokens: number;
   /** 是否流式响应 */
   readonly stream: true;
-  /** 系统提示（顶层字段） */
-  readonly system?: string;
+  /** 系统提示（顶层字段 — string 或 TextBlockParam[]） */
+  readonly system?: AnthropicSystemField;
   /** 消息列表 */
   readonly messages: readonly AnthropicMessage[];
   /** 工具定义列表 */

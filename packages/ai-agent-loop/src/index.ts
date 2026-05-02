@@ -5,6 +5,8 @@
 
 // 类型导出
 export type * from './types';
+// 值导出（createSystemPrompt 是函数，不是纯类型）
+export { createSystemPrompt } from './types';
 
 // 常量
 export { DEFAULT_MAX_TURNS, DEFAULT_TOOL_TIMEOUT, DEFAULT_SESSION_ID } from './constants';

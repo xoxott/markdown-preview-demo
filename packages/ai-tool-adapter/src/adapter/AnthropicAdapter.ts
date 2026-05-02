@@ -1,11 +1,13 @@
 /** Anthropic Claude API 适配器 — HTTP 流式调用实现 */
 
-import type { AgentMessage, LLMStreamChunk, ToolDefinition } from '@suga/ai-agent-loop';
+import type { AgentMessage, CallModelOptions, LLMStreamChunk, SystemPrompt, ToolDefinition } from '@suga/ai-agent-loop';
 import type { AnyBuiltTool } from '@suga/ai-tool-core';
 import type {
   AnthropicAdapterConfig,
   AnthropicMessage,
-  AnthropicRequestBody
+  AnthropicRequestBody,
+  AnthropicSystemField,
+  AnthropicSystemTextBlock
 } from '../types/anthropic';
 import { DEFAULT_ANTHROPIC_API_VERSION, DEFAULT_ANTHROPIC_MAX_TOKENS } from '../types/anthropic';
 import { convertToAnthropicMessages } from '../convert/message-converter';
@@ -53,13 +55,13 @@ export class AnthropicAdapter extends BaseLLMAdapter {
   async *callModel(
     messages: readonly AgentMessage[],
     tools?: readonly ToolDefinition[],
-    options?: import('@suga/ai-agent-loop').CallModelOptions
+    options?: CallModelOptions
   ): AsyncGenerator<LLMStreamChunk> {
     // 1. 转换消息格式
     const apiMessages = convertToAnthropicMessages(messages);
 
-    // 2. 构建请求体（支持 RetryContext.maxTokensOverride）
-    const requestBody = this.buildRequestBody(apiMessages, tools);
+    // 2. 构建请求体（支持 systemPrompt + RetryContext.maxTokensOverride）
+    const requestBody = this.buildRequestBody(apiMessages, tools, options?.systemPrompt);
 
     // 3. 发送 HTTP 请求（可重试部分）
     const url = `${this.config.baseURL}/v1/messages`;
@@ -137,19 +139,25 @@ export class AnthropicAdapter extends BaseLLMAdapter {
   /** 构建 Anthropic API 请求体 */
   private buildRequestBody(
     messages: readonly AnthropicMessage[],
-    tools?: readonly ToolDefinition[]
+    tools?: readonly ToolDefinition[],
+    systemPrompt?: SystemPrompt
   ): AnthropicRequestBody {
     // 支持 RetryContext.maxTokensOverride（context overflow auto-adjust）
     const retryContext = this.getRetryContext();
     const maxTokensOverride = retryContext?.maxTokensOverride;
     const maxTokens = maxTokensOverride ?? this.config.maxTokens ?? DEFAULT_ANTHROPIC_MAX_TOKENS;
 
+    // system 字段：传入 systemPrompt 时用动态构建，否则 fallback 到构造时配置
+    const systemField: AnthropicSystemField | undefined = systemPrompt
+      ? this.buildSystemPromptBlocks(systemPrompt)
+      : this.anthropicConfig.system;
+
     const body: AnthropicRequestBody = {
       model: this.config.model,
       max_tokens: maxTokens,
       stream: true,
       messages: [...messages],
-      system: this.anthropicConfig.system,
+      system: systemField,
       tools:
         tools && tools.length > 0
           ? tools.map(t => ({
@@ -162,5 +170,25 @@ export class AnthropicAdapter extends BaseLLMAdapter {
     };
 
     return body;
+  }
+
+  /** 将 SystemPrompt (branded string[]) 转为 Anthropic API system 字段 */
+  private buildSystemPromptBlocks(systemPrompt: SystemPrompt): AnthropicSystemField {
+    // 过滤空段
+    const filtered = systemPrompt.filter(s => s !== '');
+    if (filtered.length === 0) return undefined as unknown as AnthropicSystemField;
+
+    // 单段 → 简化为 string（无需 TextBlockParam）
+    if (filtered.length === 1) return filtered[0];
+
+    // 多段 → AnthropicSystemTextBlock[]（最后一段带 cache_control）
+    return filtered.map((text, i) => {
+      const block: AnthropicSystemTextBlock = {
+        type: 'text',
+        text,
+        cache_control: i === filtered.length - 1 ? { type: 'ephemeral' } : undefined
+      };
+      return block;
+    });
   }
 }

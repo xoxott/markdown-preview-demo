@@ -15,7 +15,9 @@ export type {
   AnthropicSSEEventType,
   AnthropicSSEEventData,
   AnthropicContentDelta,
-  AnthropicErrorResponse
+  AnthropicErrorResponse,
+  AnthropicSystemTextBlock,
+  AnthropicSystemField
 } from './anthropic';
 
 export type { ModelConfig, ThinkingConfig, ModelIdentifier } from './model-config';

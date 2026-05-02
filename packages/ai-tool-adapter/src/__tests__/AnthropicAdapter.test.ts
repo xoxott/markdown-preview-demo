@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildTool } from '@suga/ai-tool-core';
 import type { AgentMessage, LLMStreamChunk } from '@suga/ai-agent-loop';
+import { createSystemPrompt } from '@suga/ai-agent-loop';
 import { AnthropicAdapter } from '../adapter/AnthropicAdapter';
 import type { AnthropicAdapterConfig } from '../types/anthropic';
 
@@ -246,6 +247,90 @@ describe('AnthropicAdapter', () => {
 
       const url = mockFetch.mock.calls[0][0];
       expect(url).toBe('https://my-proxy.local/v1/messages');
+    });
+  });
+
+  describe('P35 systemPrompt → Anthropic API system 字段', () => {
+    it('多段 systemPrompt → TextBlockParam[] (最后一段带 cache_control)', async () => {
+      mockFetch.mockResolvedValue(
+        createSSEResponse([
+          { type: 'message_start', data: { type: 'message_start' } },
+          { type: 'message_stop', data: { type: 'message_stop' } }
+        ])
+      );
+
+      const prompt = createSystemPrompt(['You are a helpful assistant.', 'Memory: remember X']);
+      const adapter = new AnthropicAdapter(createTestConfig());
+      await consumeAll(adapter.callModel([createUserMsg('hi')], undefined, { systemPrompt: prompt }));
+
+      const body = JSON.parse(mockFetch.mock.calls[0][1].body as string);
+      expect(Array.isArray(body.system)).toBe(true);
+      expect(body.system.length).toBe(2);
+      expect(body.system[0].type).toBe('text');
+      expect(body.system[0].text).toBe('You are a helpful assistant.');
+      expect(body.system[0].cache_control).toBeUndefined();
+      expect(body.system[1].type).toBe('text');
+      expect(body.system[1].text).toBe('Memory: remember X');
+      expect(body.system[1].cache_control).toEqual({ type: 'ephemeral' });
+    });
+
+    it('单段 systemPrompt → 简化为 string', async () => {
+      mockFetch.mockResolvedValue(
+        createSSEResponse([
+          { type: 'message_start', data: { type: 'message_start' } },
+          { type: 'message_stop', data: { type: 'message_stop' } }
+        ])
+      );
+
+      const prompt = createSystemPrompt(['You are a helpful assistant.']);
+      const adapter = new AnthropicAdapter(createTestConfig());
+      await consumeAll(adapter.callModel([createUserMsg('hi')], undefined, { systemPrompt: prompt }));
+
+      const body = JSON.parse(mockFetch.mock.calls[0][1].body as string);
+      expect(typeof body.system).toBe('string');
+      expect(body.system).toBe('You are a helpful assistant.');
+    });
+
+    it('不传 systemPrompt → fallback 到 anthropicConfig.system', async () => {
+      const config: AnthropicAdapterConfig = {
+        ...createTestConfig(),
+        system: '你是助手'
+      };
+
+      mockFetch.mockResolvedValue(
+        createSSEResponse([
+          { type: 'message_start', data: { type: 'message_start' } },
+          { type: 'message_stop', data: { type: 'message_stop' } }
+        ])
+      );
+
+      const adapter = new AnthropicAdapter(config);
+      await consumeAll(adapter.callModel([createUserMsg('hi')]));
+
+      const body = JSON.parse(mockFetch.mock.calls[0][1].body as string);
+      expect(body.system).toBe('你是助手');
+    });
+
+    it('传 systemPrompt → 覆盖 anthropicConfig.system', async () => {
+      const config: AnthropicAdapterConfig = {
+        ...createTestConfig(),
+        system: '你是助手'
+      };
+
+      mockFetch.mockResolvedValue(
+        createSSEResponse([
+          { type: 'message_start', data: { type: 'message_start' } },
+          { type: 'message_stop', data: { type: 'message_stop' } }
+        ])
+      );
+
+      const prompt = createSystemPrompt(['Override prompt']);
+      const adapter = new AnthropicAdapter(config);
+      await consumeAll(adapter.callModel([createUserMsg('hi')], undefined, { systemPrompt: prompt }));
+
+      const body = JSON.parse(mockFetch.mock.calls[0][1].body as string);
+      expect(body.system).toBe('Override prompt');
+      expect(body.system).not.toBe('你是助手');
     });
   });
 });
