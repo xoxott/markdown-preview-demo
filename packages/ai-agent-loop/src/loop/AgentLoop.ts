@@ -76,7 +76,7 @@ export class AgentLoop {
     const hookRegistry = this.config.hookRegistry;
     const phases: LoopPhase[] = [
       new PreProcessPhase(),
-      new CallModelPhase(this.config.provider, toolDefs),
+      new CallModelPhase(this.config.provider, toolDefs, this.config.systemPrompt),
       new CheckInterruptPhase()
     ];
 

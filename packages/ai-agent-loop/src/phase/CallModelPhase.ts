@@ -3,7 +3,7 @@
 import type { MutableAgentContext } from '../context/AgentContext';
 import type { AgentEvent } from '../types/events';
 import type { AgentMessage } from '../types/messages';
-import type { LLMProvider, ToolDefinition } from '../types/provider';
+import type { LLMProvider, SystemPrompt, ToolDefinition } from '../types/provider';
 import type { LoopPhase } from './LoopPhase';
 import { classifyLLMError } from './classifyLLMError';
 
@@ -22,7 +22,8 @@ import { classifyLLMError } from './classifyLLMError';
 export class CallModelPhase implements LoopPhase {
   constructor(
     private readonly provider: LLMProvider,
-    private readonly tools?: readonly ToolDefinition[]
+    private readonly tools?: readonly ToolDefinition[],
+    private readonly systemPrompt?: SystemPrompt
   ) {}
 
   async *execute(
@@ -40,7 +41,7 @@ export class CallModelPhase implements LoopPhase {
       const stream = this.provider.callModel(
         messages,
         this.tools,
-        { signal: ctx.state.toolUseContext.abortController.signal }
+        { signal: ctx.state.toolUseContext.abortController.signal, systemPrompt: this.systemPrompt }
       );
 
       for await (const chunk of stream) {

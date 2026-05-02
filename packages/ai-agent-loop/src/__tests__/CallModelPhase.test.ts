@@ -9,6 +9,7 @@ import type { AgentState } from '../types/state';
 import type { MutableAgentContext } from '../context/AgentContext';
 import type { AgentEvent } from '../types/events';
 import { MockLLMProvider } from './mocks/MockLLMProvider';
+import { createSystemPrompt } from '../types/provider';
 
 /** 辅助：创建测试上下文 */
 function createTestCtx(): MutableAgentContext {
@@ -232,5 +233,30 @@ describe('CallModelPhase P33增强', () => {
 
     expect(ctx.error).toBeDefined();
     expect(nextCalled).toBe(false); // 不可恢复 → 短路，next未调用
+  });
+});
+
+describe('CallModelPhase P35 systemPrompt传递', () => {
+  it('systemPrompt → provider.callModel 接收到 options.systemPrompt', async () => {
+    const provider = new MockLLMProvider();
+    provider.addSimpleTextResponse('hello');
+
+    const prompt = createSystemPrompt(['You are a helpful assistant.', 'Memory: remember X']);
+    const ctx = createTestCtx();
+    const phase = new CallModelPhase(provider, undefined, prompt);
+    await consumeAll(phase.execute(ctx, emptyNext));
+
+    expect(provider.getCallHistory()[0].systemPrompt).toBe(prompt);
+  });
+
+  it('无 systemPrompt → provider.callModel options.systemPrompt 为 undefined', async () => {
+    const provider = new MockLLMProvider();
+    provider.addSimpleTextResponse('hello');
+
+    const ctx = createTestCtx();
+    const phase = new CallModelPhase(provider);
+    await consumeAll(phase.execute(ctx, emptyNext));
+
+    expect(provider.getCallHistory()[0].systemPrompt).toBeUndefined();
   });
 });
