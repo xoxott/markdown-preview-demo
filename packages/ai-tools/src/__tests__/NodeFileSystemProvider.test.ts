@@ -122,7 +122,7 @@ describe('NodeFileSystemProvider — editFile', () => {
     fs.writeFileSync(filePath, 'aaa bbb aaa');
     const result = await provider.editFile(filePath, 'aaa', 'xxx');
     expect(result.applied).toBe(false);
-    expect(result.error).toContain('not unique');
+    expect(result.error).toContain('appears 2 times');
   });
 });
 

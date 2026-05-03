@@ -151,6 +151,10 @@ export {
 } from './tools/bash-security';
 export type { BashSecurityAssessment } from './tools/bash-security';
 
+// P64: FileEdit 核心查找逻辑导出
+export { findActualString } from './tools/find-actual-string';
+export type { FindActualStringResult } from './tools/find-actual-string';
+
 // Provider 实现
 export { NodeFileSystemProvider } from './provider/NodeFileSystemProvider';
 export { YoloPermissionClassifier } from './provider/YoloPermissionClassifier';

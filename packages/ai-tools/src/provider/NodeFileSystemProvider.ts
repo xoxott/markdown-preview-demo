@@ -8,6 +8,7 @@ import * as fs from 'node:fs';
 import { execFile } from 'node:child_process';
 import path from 'node:path';
 import { glob } from 'glob';
+import { findActualString } from '../tools/find-actual-string';
 import type {
   CommandResult,
   EditResult,
@@ -124,32 +125,23 @@ export class NodeFileSystemProvider implements FileSystemProvider {
   ): Promise<EditResult> {
     const content = await fs.promises.readFile(filePath, 'utf-8');
 
-    if (replaceAll) {
-      const count = content.split(oldString).length - 1;
-      if (count === 0) {
-        return { applied: false, replacementCount: 0, error: 'oldString not found in file' };
-      }
-      const newContent = content.replaceAll(oldString, newString);
+    // 使用 findActualString 进行智能查找（精确匹配 + 引号规范化 + 多匹配检测）
+    const found = findActualString(content, oldString, replaceAll);
+
+    if (!found.found) {
+      return { applied: false, replacementCount: 0, error: found.error ?? 'oldString not found in file' };
+    }
+
+    // 使用 actualOldString 替换（保留文件原有引号风格）
+    const actualOldString = found.actualOldString;
+
+    if (replaceAll || found.matchCount > 1) {
+      const newContent = content.replaceAll(actualOldString, newString);
       await fs.promises.writeFile(filePath, newContent, 'utf-8');
-      return { applied: true, replacementCount: count, newContent };
+      return { applied: true, replacementCount: found.matchCount, newContent };
     }
 
-    // 单次替换 — 检查唯一性
-    const firstIdx = content.indexOf(oldString);
-    if (firstIdx === -1) {
-      return { applied: false, replacementCount: 0, error: 'oldString not found in file' };
-    }
-
-    const secondIdx = content.indexOf(oldString, firstIdx + 1);
-    if (secondIdx !== -1) {
-      return {
-        applied: false,
-        replacementCount: 0,
-        error: 'oldString is not unique in file (found 2+ occurrences)'
-      };
-    }
-
-    const newContent = content.replace(oldString, newString);
+    const newContent = content.replace(actualOldString, newString);
     await fs.promises.writeFile(filePath, newContent, 'utf-8');
     return { applied: true, replacementCount: 1, newContent };
   }

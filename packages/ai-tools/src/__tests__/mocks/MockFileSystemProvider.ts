@@ -1,5 +1,6 @@
 /** MockFileSystemProvider — 内存模拟文件系统，用于测试 */
 
+import { findActualString } from '../../tools/find-actual-string';
 import type {
   CommandResult,
   EditResult,
@@ -110,28 +111,22 @@ export class MockFileSystemProvider implements FileSystemProvider {
       return { applied: false, replacementCount: 0, error: `File not found: ${path}` };
     }
 
-    if (!entry.content.includes(oldString)) {
-      return { applied: false, replacementCount: 0, error: 'oldString not found in file' };
+    // 使用 findActualString 进行智能查找（精确匹配 + 引号规范化 + 多匹配检测）
+    const found = findActualString(entry.content, oldString, replaceAll);
+    if (!found.found) {
+      return { applied: false, replacementCount: 0, error: found.error ?? 'oldString not found in file' };
     }
 
-    const occurrences = countOccurrences(entry.content, oldString);
-    if (occurrences > 1 && !replaceAll) {
-      return {
-        applied: false,
-        replacementCount: 0,
-        error: `oldString is not unique (found ${occurrences} occurrences). Use replaceAll: true to replace all.`
-      };
-    }
-
-    const newContent = replaceAll
-      ? entry.content.split(oldString).join(newString)
-      : entry.content.replace(oldString, newString);
+    const actualOldString = found.actualOldString;
+    const newContent = replaceAll || found.matchCount > 1
+      ? entry.content.split(actualOldString).join(newString)
+      : entry.content.replace(actualOldString, newString);
 
     this.files.set(path, { content: newContent, mtimeMs: Date.now() });
 
     return {
       applied: true,
-      replacementCount: replaceAll ? occurrences : 1,
+      replacementCount: found.matchCount,
       newContent
     };
   }
