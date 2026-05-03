@@ -77,6 +77,7 @@ export interface AnthropicMessage {
 export type AnthropicContentBlock =
   | AnthropicTextBlock
   | AnthropicToolUseBlock
+  | AnthropicToolReferenceBlock
   | AnthropicToolResultBlock;
 
 /** 文本内容块 */
@@ -89,6 +90,14 @@ export interface AnthropicTextBlock {
 export interface AnthropicToolUseBlock {
   readonly type: 'tool_use';
   readonly id: string;
+  readonly name: string;
+  readonly input: Record<string, unknown>;
+}
+
+/** 工具引用内容块 — ToolSearch 发现工具时 API 返回的块 */
+export interface AnthropicToolReferenceBlock {
+  readonly type: 'tool_reference';
+  readonly tool_use_id: string;
   readonly name: string;
   readonly input: Record<string, unknown>;
 }

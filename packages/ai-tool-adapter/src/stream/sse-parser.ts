@@ -1,11 +1,12 @@
 /** Anthropic SSE 事件流解析器 — 将 SSE stream 解析为 LLMStreamChunk */
 
-import type { LLMStreamChunk, ToolUseBlock } from '@suga/ai-agent-loop';
+import type { LLMStreamChunk, ToolReferenceBlock, ToolUseBlock } from '@suga/ai-agent-loop';
 import type {
   AnthropicContentBlock,
   AnthropicContentDelta,
   AnthropicMessageStartUsage,
   AnthropicSSEEventData,
+  AnthropicToolReferenceBlock,
   AnthropicToolUseBlock
 } from '../types/anthropic';
 import { createAbortError } from '../error/error-mapper';
@@ -13,6 +14,11 @@ import { createAbortError } from '../error/error-mapper';
 /** 类型守卫：判断 AnthropicContentBlock 是否为 tool_use */
 function isToolUseBlock(block: AnthropicContentBlock): block is AnthropicToolUseBlock {
   return block.type === 'tool_use';
+}
+
+/** 类型守卫：判断 AnthropicContentBlock 是否为 tool_reference (P12) */
+function isToolReferenceBlock(block: AnthropicContentBlock): block is AnthropicToolReferenceBlock {
+  return block.type === 'tool_reference';
 }
 
 /** SSE 事件行前缀 */
@@ -54,6 +60,8 @@ export async function* parseAnthropicSSEStream(
 ): AsyncGenerator<LLMStreamChunk> {
   // 工具调用累积状态：index → { id, name, jsonBuffer }
   const toolUseAccumulator = new Map<number, { id: string; name: string; jsonBuffer: string }>();
+  // 工具引用累积状态：index → { tool_use_id, name, jsonBuffer } (P12)
+  const toolReferenceAccumulator = new Map<number, { tool_use_id: string; name: string; jsonBuffer: string }>();
   // 当前 content_block_start 记录：index → content_block
   const contentBlockStarts = new Map<number, { type: string; id?: string; name?: string }>();
 
@@ -96,7 +104,7 @@ export async function* parseAnthropicSSEStream(
 
           try {
             const data: AnthropicSSEEventData = JSON.parse(dataStr);
-            yield* handleSSEEvent(data, currentEvent, toolUseAccumulator, contentBlockStarts);
+            yield* handleSSEEvent(data, currentEvent, toolUseAccumulator, toolReferenceAccumulator, contentBlockStarts);
           } catch {
             // 解析失败时跳过（可能是 SSE 心跳或格式异常）
           }
@@ -114,6 +122,7 @@ async function* handleSSEEvent(
   data: AnthropicSSEEventData,
   _eventType: string,
   toolUseAccumulator: Map<number, { id: string; name: string; jsonBuffer: string }>,
+  toolReferenceAccumulator: Map<number, { tool_use_id: string; name: string; jsonBuffer: string }>,
   contentBlockStarts: Map<number, { type: string; id?: string; name?: string }>
 ): AsyncGenerator<LLMStreamChunk> {
   switch (data.type) {
@@ -123,13 +132,23 @@ async function* handleSSEEvent(
         const block = data.content_block;
         contentBlockStarts.set(data.index, {
           type: block.type,
-          ...(isToolUseBlock(block) ? { id: block.id, name: block.name } : {})
+          ...(isToolUseBlock(block) ? { id: block.id, name: block.name } : {}),
+          ...(isToolReferenceBlock(block) ? { id: block.tool_use_id, name: block.name } : {})
         });
 
         // 如果是 tool_use block，初始化累积器
         if (isToolUseBlock(block)) {
           toolUseAccumulator.set(data.index, {
             id: block.id ?? '',
+            name: block.name ?? '',
+            jsonBuffer: ''
+          });
+        }
+
+        // 如果是 tool_reference block，初始化累积器 (P12)
+        if (isToolReferenceBlock(block)) {
+          toolReferenceAccumulator.set(data.index, {
+            tool_use_id: block.tool_use_id ?? '',
             name: block.name ?? '',
             jsonBuffer: ''
           });
@@ -143,7 +162,8 @@ async function* handleSSEEvent(
         yield* handleContentDelta(
           data.delta as AnthropicContentDelta,
           data.index,
-          toolUseAccumulator
+          toolUseAccumulator,
+          toolReferenceAccumulator
         );
       }
       break;
@@ -172,6 +192,29 @@ async function* handleSSEEvent(
           yield { toolUse, done: false };
           toolUseAccumulator.delete(data.index);
         }
+
+        // tool_reference block 结束 → 组装完整 ToolReferenceBlock (P12)
+        const refAccumulated = toolReferenceAccumulator.get(data.index);
+        if (refAccumulated) {
+          let parsedInput: Record<string, unknown> = {};
+          try {
+            if (refAccumulated.jsonBuffer) {
+              parsedInput = JSON.parse(refAccumulated.jsonBuffer);
+            }
+          } catch {
+            // JSON 解析失败时使用空对象
+          }
+
+          const toolReference: ToolReferenceBlock = {
+            toolUseId: refAccumulated.tool_use_id,
+            name: refAccumulated.name,
+            input: parsedInput
+          };
+
+          yield { toolReference, done: false };
+          toolReferenceAccumulator.delete(data.index);
+        }
+
         contentBlockStarts.delete(data.index);
       }
       break;
@@ -228,7 +271,8 @@ async function* handleSSEEvent(
 async function* handleContentDelta(
   delta: AnthropicContentDelta,
   index: number,
-  toolUseAccumulator: Map<number, { id: string; name: string; jsonBuffer: string }>
+  toolUseAccumulator: Map<number, { id: string; name: string; jsonBuffer: string }>,
+  toolReferenceAccumulator: Map<number, { tool_use_id: string; name: string; jsonBuffer: string }>
 ): AsyncGenerator<LLMStreamChunk> {
   switch (delta.type) {
     case 'text_delta': {
@@ -242,10 +286,13 @@ async function* handleContentDelta(
     }
 
     case 'input_json_delta': {
-      // 累积分片 JSON，不产出 chunk
-      const accumulated = toolUseAccumulator.get(index);
-      if (accumulated) {
-        accumulated.jsonBuffer += delta.partial_json;
+      // 累积分片 JSON，不产出 chunk — 检查 toolUse 或 toolReference 累积器
+      const toolUseAcc = toolUseAccumulator.get(index);
+      const toolRefAcc = toolReferenceAccumulator.get(index);
+      if (toolUseAcc) {
+        toolUseAcc.jsonBuffer += delta.partial_json;
+      } else if (toolRefAcc) {
+        toolRefAcc.jsonBuffer += delta.partial_json;
       }
       break;
     }

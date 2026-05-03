@@ -11,6 +11,7 @@ export type {
   AnthropicContentBlock,
   AnthropicTextBlock,
   AnthropicToolUseBlock,
+  AnthropicToolReferenceBlock,
   AnthropicToolResultBlock,
   AnthropicToolDef,
   AnthropicSSEEventType,

@@ -154,3 +154,104 @@ describe('mapSSEEventsToChunks', () => {
     expect(chunks[0].done).toBe(false);
   });
 });
+
+// ============================================================
+// P12: tool_reference 块处理测试
+// ============================================================
+
+describe('mapSSEEventsToChunks — tool_reference (P12)', () => {
+  it('tool_reference → 累积 JSON + 产出 toolReference', () => {
+    const events: AnthropicSSEEventData[] = [
+      { type: 'message_start' },
+      { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
+      { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: '搜索工具' } },
+      { type: 'content_block_stop', index: 0 },
+      {
+        type: 'content_block_start',
+        index: 1,
+        content_block: { type: 'tool_reference', tool_use_id: 'toolu_ref1', name: 'mcp__slack__send_message', input: {} }
+      },
+      {
+        type: 'content_block_delta',
+        index: 1,
+        delta: { type: 'input_json_delta', partial_json: '{"query":"' }
+      },
+      {
+        type: 'content_block_delta',
+        index: 1,
+        delta: { type: 'input_json_delta', partial_json: 'slack"}' }
+      },
+      { type: 'content_block_stop', index: 1 },
+      { type: 'message_stop' }
+    ];
+
+    const chunks = mapSSEEventsToChunks(events);
+
+    expect(chunks.some(c => c.textDelta === '搜索工具')).toBe(true);
+    const refChunk = chunks.find(c => c.toolReference !== undefined);
+    expect(refChunk).toBeDefined();
+    expect(refChunk!.toolReference!.toolUseId).toBe('toolu_ref1');
+    expect(refChunk!.toolReference!.name).toBe('mcp__slack__send_message');
+    expect(refChunk!.toolReference!.input).toEqual({ query: 'slack' });
+    expect(chunks.some(c => c.done === true)).toBe(true);
+  });
+
+  it('tool_use + tool_reference 混合流 → 独立累积', () => {
+    const events: AnthropicSSEEventData[] = [
+      { type: 'message_start' },
+      {
+        type: 'content_block_start',
+        index: 0,
+        content_block: { type: 'tool_use', id: 'toolu_1', name: 'bash', input: {} }
+      },
+      {
+        type: 'content_block_delta',
+        index: 0,
+        delta: { type: 'input_json_delta', partial_json: '{"command":"ls"}' }
+      },
+      { type: 'content_block_stop', index: 0 },
+      {
+        type: 'content_block_start',
+        index: 1,
+        content_block: { type: 'tool_reference', tool_use_id: 'toolu_ref1', name: 'mcp__db__query', input: {} }
+      },
+      {
+        type: 'content_block_delta',
+        index: 1,
+        delta: { type: 'input_json_delta', partial_json: '{"sql":"SELECT 1"}' }
+      },
+      { type: 'content_block_stop', index: 1 },
+      { type: 'message_stop' }
+    ];
+
+    const chunks = mapSSEEventsToChunks(events);
+
+    const toolUseChunk = chunks.find(c => c.toolUse !== undefined);
+    expect(toolUseChunk).toBeDefined();
+    expect(toolUseChunk!.toolUse!.name).toBe('bash');
+    expect(toolUseChunk!.toolUse!.input).toEqual({ command: 'ls' });
+
+    const refChunk = chunks.find(c => c.toolReference !== undefined);
+    expect(refChunk).toBeDefined();
+    expect(refChunk!.toolReference!.name).toBe('mcp__db__query');
+    expect(refChunk!.toolReference!.input).toEqual({ sql: 'SELECT 1' });
+  });
+
+  it('tool_reference 空 JSON → input为空对象', () => {
+    const events: AnthropicSSEEventData[] = [
+      {
+        type: 'content_block_start',
+        index: 0,
+        content_block: { type: 'tool_reference', tool_use_id: 'toolu_ref1', name: 'search', input: {} }
+      },
+      { type: 'content_block_stop', index: 0 },
+      { type: 'message_stop' }
+    ];
+
+    const chunks = mapSSEEventsToChunks(events);
+
+    const refChunk = chunks.find(c => c.toolReference !== undefined);
+    expect(refChunk).toBeDefined();
+    expect(refChunk!.toolReference!.input).toEqual({});
+  });
+});

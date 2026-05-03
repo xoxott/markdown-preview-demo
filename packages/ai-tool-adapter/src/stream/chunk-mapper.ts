@@ -6,12 +6,18 @@ import type {
   AnthropicContentDelta,
   AnthropicMessageStartUsage,
   AnthropicSSEEventData,
+  AnthropicToolReferenceBlock,
   AnthropicToolUseBlock
 } from '../types/anthropic';
 
 /** 类型守卫：判断 AnthropicContentBlock 是否为 tool_use */
 function isToolUseBlock(block: AnthropicContentBlock): block is AnthropicToolUseBlock {
   return block.type === 'tool_use';
+}
+
+/** 类型守卫：判断 AnthropicContentBlock 是否为 tool_reference (P12) */
+function isToolReferenceBlock(block: AnthropicContentBlock): block is AnthropicToolReferenceBlock {
+  return block.type === 'tool_reference';
 }
 
 /** 将 Anthropic message_start usage 映射为 LLMStreamChunk.usage */
@@ -40,6 +46,8 @@ export function mapSSEEventsToChunks(events: readonly AnthropicSSEEventData[]): 
   const chunks: LLMStreamChunk[] = [];
   // 工具调用累积：index → { id, name, jsonBuffer }
   const toolUseAccumulator = new Map<number, { id: string; name: string; jsonBuffer: string }>();
+  // 工具引用累积：index → { tool_use_id, name, jsonBuffer } (P12)
+  const toolReferenceAccumulator = new Map<number, { tool_use_id: string; name: string; jsonBuffer: string }>();
   // content_block_start 记录
   const contentBlockStarts = new Map<number, { type: string; id?: string; name?: string }>();
 
@@ -50,12 +58,22 @@ export function mapSSEEventsToChunks(events: readonly AnthropicSSEEventData[]): 
           const block = event.content_block;
           contentBlockStarts.set(event.index, {
             type: block.type,
-            ...(isToolUseBlock(block) ? { id: block.id, name: block.name } : {})
+            ...(isToolUseBlock(block) ? { id: block.id, name: block.name } : {}),
+            ...(isToolReferenceBlock(block) ? { id: block.tool_use_id, name: block.name } : {})
           });
 
           if (isToolUseBlock(block)) {
             toolUseAccumulator.set(event.index, {
               id: block.id ?? '',
+              name: block.name ?? '',
+              jsonBuffer: ''
+            });
+          }
+
+          // P12: tool_reference block 初始化累积器
+          if (isToolReferenceBlock(block)) {
+            toolReferenceAccumulator.set(event.index, {
+              tool_use_id: block.tool_use_id ?? '',
               name: block.name ?? '',
               jsonBuffer: ''
             });
@@ -70,6 +88,7 @@ export function mapSSEEventsToChunks(events: readonly AnthropicSSEEventData[]): 
             event.delta as AnthropicContentDelta,
             event.index,
             toolUseAccumulator,
+            toolReferenceAccumulator,
             chunks
           );
         }
@@ -99,6 +118,30 @@ export function mapSSEEventsToChunks(events: readonly AnthropicSSEEventData[]): 
             });
             toolUseAccumulator.delete(event.index);
           }
+
+          // P12: tool_reference block 结束 → 组装完整 ToolReferenceBlock
+          const refAccumulated = toolReferenceAccumulator.get(event.index);
+          if (refAccumulated) {
+            let parsedInput: Record<string, unknown> = {};
+            try {
+              if (refAccumulated.jsonBuffer) {
+                parsedInput = JSON.parse(refAccumulated.jsonBuffer);
+              }
+            } catch {
+              // JSON 解析失败时使用空对象
+            }
+
+            chunks.push({
+              toolReference: {
+                toolUseId: refAccumulated.tool_use_id,
+                name: refAccumulated.name,
+                input: parsedInput
+              },
+              done: false
+            });
+            toolReferenceAccumulator.delete(event.index);
+          }
+
           contentBlockStarts.delete(event.index);
         }
         break;
@@ -151,6 +194,7 @@ function mapContentDelta(
   delta: AnthropicContentDelta,
   index: number,
   toolUseAccumulator: Map<number, { id: string; name: string; jsonBuffer: string }>,
+  toolReferenceAccumulator: Map<number, { tool_use_id: string; name: string; jsonBuffer: string }>,
   chunks: LLMStreamChunk[]
 ): void {
   switch (delta.type) {
@@ -163,9 +207,13 @@ function mapContentDelta(
       break;
 
     case 'input_json_delta': {
-      const accumulated = toolUseAccumulator.get(index);
-      if (accumulated) {
-        accumulated.jsonBuffer += delta.partial_json;
+      // P12: 检查 toolUse 或 toolReference 累积器
+      const toolUseAcc = toolUseAccumulator.get(index);
+      const toolRefAcc = toolReferenceAccumulator.get(index);
+      if (toolUseAcc) {
+        toolUseAcc.jsonBuffer += delta.partial_json;
+      } else if (toolRefAcc) {
+        toolRefAcc.jsonBuffer += delta.partial_json;
       }
       break;
     }

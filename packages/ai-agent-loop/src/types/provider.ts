@@ -1,7 +1,7 @@
 /** LLM Provider 接口定义（LLM Provider Types） 抽象 Anthropic/OpenAI 等 SDK 的流式调用接口 */
 
 import type { AnyBuiltTool } from '@suga/ai-tool-core';
-import type { AgentMessage, ToolUseBlock } from './messages';
+import type { AgentMessage, ToolReferenceBlock, ToolUseBlock } from './messages';
 
 /** LLM 流式产出块 */
 export interface LLMStreamChunk {
@@ -11,6 +11,8 @@ export interface LLMStreamChunk {
   readonly thinkingDelta?: string;
   /** 完整的 tool_use block */
   readonly toolUse?: ToolUseBlock;
+  /** 完整的 tool_reference block (P12) */
+  readonly toolReference?: ToolReferenceBlock;
   /** 是否流结束 */
   readonly done: boolean;
   /** 用量信息（message_start 或 message_delta 事件中的 usage） */

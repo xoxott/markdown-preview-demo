@@ -5,6 +5,7 @@ export type {
   BaseMessage,
   UserMessage,
   ToolUseBlock,
+  ToolReferenceBlock,
   AssistantMessage,
   ToolResultMessage,
   AgentMessage

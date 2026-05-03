@@ -32,6 +32,16 @@ export interface ToolUseBlock {
   readonly input: Record<string, unknown>;
 }
 
+/** 工具引用块（ToolSearch 发现的延迟工具引用） */
+export interface ToolReferenceBlock {
+  /** 对应的 tool_use ID */
+  readonly toolUseId: string;
+  /** 被发现/引用的工具名称 */
+  readonly name: string;
+  /** 引用输入（通常包含搜索 query） */
+  readonly input: Record<string, unknown>;
+}
+
 /** 助手消息 */
 export interface AssistantMessage extends BaseMessage {
   readonly role: 'assistant';
@@ -39,6 +49,8 @@ export interface AssistantMessage extends BaseMessage {
   readonly content: string;
   /** 工具调用列表（可能为空） */
   readonly toolUses: readonly ToolUseBlock[];
+  /** 工具引用列表（ToolSearch 发现的延迟工具，可选） */
+  readonly toolReferences?: readonly ToolReferenceBlock[];
 }
 
 /** 工具结果消息 */
