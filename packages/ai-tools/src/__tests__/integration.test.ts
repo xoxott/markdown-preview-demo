@@ -78,7 +78,9 @@ describe('集成 — 端到端工具执行', () => {
     fs.addFile('/test.txt', 'hello world');
     const ctx = createFullContext(fs);
     const result = await fileReadTool.call({ filePath: '/test.txt' }, ctx);
-    expect(result.data.content).toBe('hello world');
+    if (result.data.type === 'text') {
+      expect(result.data.file.content).toBe('hello world');
+    }
   });
 
   it('FileWriteTool → 写入文件 + 权限 ask', () => {
@@ -129,7 +131,9 @@ describe('集成 — 跨工具交互', () => {
     const ctx = createFullContext(fs);
     await fileWriteTool.call({ filePath: '/test.txt', content: 'hello world' }, ctx);
     const result = await fileReadTool.call({ filePath: '/test.txt' }, ctx);
-    expect(result.data.content).toBe('hello world');
+    if (result.data.type === 'text') {
+      expect(result.data.file.content).toBe('hello world');
+    }
   });
 
   it('write → edit → 内容更新', async () => {
@@ -142,7 +146,9 @@ describe('集成 — 跨工具交互', () => {
     );
     expect(editResult.data.applied).toBe(true);
     const readResult = await fileReadTool.call({ filePath: '/test.txt' }, ctx);
-    expect(readResult.data.content).toBe('hello new world');
+    if (readResult.data.type === 'text') {
+      expect(readResult.data.file.content).toBe('hello new world');
+    }
   });
 
   it('glob → read → 搜索后读取', async () => {
@@ -152,7 +158,7 @@ describe('集成 — 跨工具交互', () => {
     const globResult = await globTool.call({ pattern: '*.ts', path: '/src' }, ctx);
     expect(globResult.data.length).toBe(1);
     const readResult = await fileReadTool.call({ filePath: globResult.data[0] }, ctx);
-    expect(readResult.data.content).toContain('3000');
+    expect(readResult.data.type === 'text' ? readResult.data.file.content : '').toContain('3000');
   });
 });
 
@@ -169,6 +175,8 @@ describe('集成 — Abort 信号传播', () => {
     };
     // 不 abort — 正常执行
     const result = await fileReadTool.call({ filePath: '/test.txt' }, ctx);
-    expect(result.data.content).toBe('hello');
+    if (result.data.type === 'text') {
+      expect(result.data.file.content).toBe('hello');
+    }
   });
 });

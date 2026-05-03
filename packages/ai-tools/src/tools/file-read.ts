@@ -13,6 +13,7 @@ import type { FileReadOutput } from '../types/tool-outputs';
 import { FileReadInputSchema } from '../types/tool-inputs';
 import { truncateOutput } from '../utils/output-truncate';
 import { validateFileReadSecurity } from './file-read-security';
+import { FILE_UNCHANGED_STUB } from '../utils/file-read-state-cache';
 
 /**
  * FileReadTool — 读取文件内容
@@ -95,21 +96,56 @@ export const fileReadTool = buildTool<FileReadInput, FileReadOutput>({
     input: FileReadInput,
     context: ExtendedToolUseContext
   ): Promise<ToolResult<FileReadOutput>> => {
+    // === 去重检查 ===
+    // 如果缓存中有记录 + offset/limit匹配 + mtime一致 → 返回file_unchanged stub
+    if (context.readFileState) {
+      const stat = await context.fsProvider.stat(input.filePath);
+      const dedupResult = context.readFileState.checkDedup(
+        input.filePath,
+        input.offset,
+        input.limit,
+        stat.mtimeMs
+      );
+
+      if (dedupResult.dedupHit) {
+        return {
+          data: {
+            type: 'file_unchanged',
+            file: { filePath: input.filePath }
+          },
+          metadata: { dedup: true, stubMessage: FILE_UNCHANGED_STUB }
+        };
+      }
+    }
+
+    // === 正常读取 ===
     const content = await context.fsProvider.readFile(input.filePath, {
       offset: input.offset,
       limit: input.limit
     });
 
+    // 记录读取状态到缓存(供后续去重判断)
+    if (context.readFileState) {
+      const stat = await context.fsProvider.stat(input.filePath);
+      context.readFileState.set(input.filePath, {
+        content: content.content,
+        timestamp: Math.floor(stat.mtimeMs),
+        offset: input.offset ?? 0,
+        limit: input.limit,
+        isPartialView: false
+      });
+    }
+
     const maxSize = 100_000;
     if (content.content.length > maxSize) {
       const truncated = truncateOutput(content.content, maxSize);
       return {
-        data: { ...content, content: truncated.content },
+        data: { type: 'text', file: { ...content, content: truncated.content } },
         metadata: { truncated: true, originalSize: truncated.originalSize }
       };
     }
 
-    return { data: content };
+    return { data: { type: 'text', file: content } };
   },
 
   toAutoClassifierInput: (input: FileReadInput) => ({

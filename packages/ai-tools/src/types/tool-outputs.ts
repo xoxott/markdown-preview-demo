@@ -50,7 +50,10 @@ export type GlobOutput = string[];
 export type GrepOutput = GrepResult;
 
 // === FileReadTool ===
-export type FileReadOutput = FileContent;
+/** FileRead输出 — 带去重分支 */
+export type FileReadOutput =
+  | { type: 'text'; file: FileContent }
+  | { type: 'file_unchanged'; file: { filePath: string } };
 
 // === FileWriteTool ===
 export interface FileWriteOutput {

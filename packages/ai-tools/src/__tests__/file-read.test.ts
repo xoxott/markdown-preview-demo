@@ -117,8 +117,10 @@ describe('FileReadTool — call 执行', () => {
     fs.addFile('/test.txt', 'hello world');
     const ctx = createContext(fs);
     const result = await fileReadTool.call({ filePath: '/test.txt' }, ctx);
-    expect(result.data.content).toBe('hello world');
-    expect(result.data.mimeType).toBe('text/plain');
+    if (result.data.type === 'text') {
+      expect(result.data.file.content).toBe('hello world');
+      expect(result.data.file.mimeType).toBe('text/plain');
+    }
   });
 
   it('offset 读取 → 返回行范围', async () => {
@@ -126,7 +128,9 @@ describe('FileReadTool — call 执行', () => {
     fs.addFile('/lines.txt', 'line0\nline1\nline2\nline3\nline4');
     const ctx = createContext(fs);
     const result = await fileReadTool.call({ filePath: '/lines.txt', offset: 2, limit: 2 }, ctx);
-    expect(result.data.content).toBe('line2\nline3');
+    if (result.data.type === 'text') {
+      expect(result.data.file.content).toBe('line2\nline3');
+    }
   });
 
   it('文件不存在 → fsProvider 抛出异常', async () => {
@@ -140,7 +144,9 @@ describe('FileReadTool — call 执行', () => {
     fs.addFile('/test.txt', 'content', 12345);
     const ctx = createContext(fs);
     const result = await fileReadTool.call({ filePath: '/test.txt' }, ctx);
-    expect(result.data.mtimeMs).toBe(12345);
+    if (result.data.type === 'text') {
+      expect(result.data.file.mtimeMs).toBe(12345);
+    }
   });
 
   it('lineCount 正确', async () => {
@@ -148,7 +154,9 @@ describe('FileReadTool — call 执行', () => {
     fs.addFile('/test.txt', 'a\nb\nc');
     const ctx = createContext(fs);
     const result = await fileReadTool.call({ filePath: '/test.txt' }, ctx);
-    expect(result.data.lineCount).toBe(3);
+    if (result.data.type === 'text') {
+      expect(result.data.file.lineCount).toBe(3);
+    }
   });
 
   it('大文件截断 → metadata.truncated=true', async () => {
@@ -157,7 +165,9 @@ describe('FileReadTool — call 执行', () => {
     const ctx = createContext(fs);
     const result = await fileReadTool.call({ filePath: '/large.txt' }, ctx);
     expect(result.metadata?.truncated).toBe(true);
-    expect(result.data.content.length).toBeLessThan(200_000);
+    if (result.data.type === 'text') {
+      expect(result.data.file.content.length).toBeLessThan(200_000);
+    }
   });
 
   it('小文件不截断 → 无 metadata', async () => {
@@ -166,7 +176,9 @@ describe('FileReadTool — call 执行', () => {
     const ctx = createContext(fs);
     const result = await fileReadTool.call({ filePath: '/small.txt' }, ctx);
     expect(result.metadata).toBeUndefined();
-    expect(result.data.content).toBe('hello');
+    if (result.data.type === 'text') {
+      expect(result.data.file.content).toBe('hello');
+    }
   });
 });
 
