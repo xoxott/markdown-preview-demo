@@ -106,6 +106,8 @@ export interface AuthProviderConfig {
   readonly skipBrowserOpen?: boolean;
   /** 预配置的OAuth clientId（部分服务器需要） */
   readonly clientId?: string;
+  /** HTTP fetch函数（用于token刷新等网络请求，默认使用全局fetch） */
+  readonly fetchFn?: FetchLike;
 }
 
 // ─── Step-up Auth ───

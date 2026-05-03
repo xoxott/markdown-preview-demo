@@ -299,10 +299,14 @@ export class AuthProvider implements OAuthClientProvider {
   }
 
   /** 刷新authorization — 用refresh_token换新token */
-  async refreshAuthorization(_refreshToken: string): Promise<OAuthTokens | undefined> {
-    // stub — 真实刷新逻辑在Phase 3的OAuthFlow中实现
-    // 这里只返回undefined，宿主注入的refreshFn完成实际HTTP请求
-    return undefined;
+  async refreshAuthorization(refreshToken: string): Promise<OAuthTokens | undefined> {
+    try {
+      const { performTokenRefresh } = await import('../flow/OAuthFlow');
+      return performTokenRefresh(this, refreshToken, this.config, 3, this.config.fetchFn);
+    } catch {
+      // performTokenRefresh 失败 → 返回 undefined（宿主可重试）
+      return undefined;
+    }
   }
 
   // ─── 公开辅助方法 ───

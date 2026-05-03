@@ -57,7 +57,7 @@ export const notebookEditTool = buildTool<NotebookEditInput, NotebookEditOutput>
   isReadOnly: () => false,
   isConcurrencySafe: () => false,
   safetyLabel: () => 'destructive' as SafetyLabel,
-  isDestructive: () => false,
+  isDestructive: () => true,
 
   validateInput: (input: NotebookEditInput): ValidationResult => {
     if (input.edit_mode === 'insert' && !input.cell_type) {

@@ -3,7 +3,7 @@
 import type { HookRegistry } from '../registry/HookRegistry';
 import type { HookRunnerDeps } from '../types/runner';
 import type { SessionHookStore } from '../types/session';
-import type { LLMQueryService } from '../types/llmQuery';
+import type { LLMProvider } from '@suga/ai-agent-loop';
 import { HookExecutor } from '../executor/HookExecutor';
 import { RunnerRegistryImpl } from './RunnerRegistry';
 import { CallbackRunner } from './CallbackRunner';
@@ -11,6 +11,7 @@ import { CommandRunner } from './CommandRunner';
 import { HttpRunner } from './HttpRunner';
 import { PromptRunner } from './PromptRunner';
 import { AgentRunner } from './AgentRunner';
+import { LLMQueryAdapter } from './LLMQueryAdapter';
 
 /**
  * createDefaultHookExecutor — 仅注册 CallbackRunner
@@ -53,14 +54,16 @@ export function createFullHookExecutor(
     runnerRegistry.register(new HttpRunner(deps.httpClient, deps.ssrfGuard, deps.envProvider));
   }
 
-  // PromptRunner — 需要 LLMProvider
+  // PromptRunner — 需要 LLMProvider → LLMQueryAdapter 适配
   if (deps.llmProvider !== undefined) {
-    runnerRegistry.register(new PromptRunner(deps.llmProvider as LLMQueryService));
+    const queryService = new LLMQueryAdapter(deps.llmProvider as LLMProvider);
+    runnerRegistry.register(new PromptRunner(queryService));
   }
 
-  // AgentRunner — 需要 LLMProvider
+  // AgentRunner — 需要 LLMProvider → LLMQueryAdapter 适配
   if (deps.llmProvider !== undefined) {
-    runnerRegistry.register(new AgentRunner(deps.llmProvider as LLMQueryService));
+    const queryService = new LLMQueryAdapter(deps.llmProvider as LLMProvider);
+    runnerRegistry.register(new AgentRunner(queryService));
   }
 
   const executor = new HookExecutor(registry, runnerRegistry, sessionStore);

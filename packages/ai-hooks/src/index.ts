@@ -31,6 +31,7 @@ export { PromptRunner } from './runner/PromptRunner';
 export { AgentRunner } from './runner/AgentRunner';
 export { NodeShellExecutor } from './runner/NodeShellExecutor';
 export { NodeHttpClient } from './runner/NodeHttpClient';
+export { LLMQueryAdapter } from './runner/LLMQueryAdapter';
 export { adaptFunctionHook } from './runner/adaptFunctionHook';
 export {
   createDefaultHookExecutor,
