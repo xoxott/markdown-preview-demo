@@ -202,6 +202,25 @@ export type {
   FileReadSecurityResult
 } from './tools/file-read-security';
 
+// P72: FileRead多模态导出
+export {
+  readImageFile,
+  parsePdfPageRange,
+  readPdfFile,
+  parseNotebook
+} from './tools/file-read-multimodal';
+export type {
+  ImageReadResult,
+  ImageResizeOptions,
+  ImageResizeProvider,
+  PdfReadResult,
+  PdfPage,
+  PdfTextProvider,
+  NotebookReadResult,
+  NotebookCell,
+  NotebookCellOutput
+} from './tools/file-read-multimodal';
+
 // Provider 实现
 export { NodeFileSystemProvider } from './provider/NodeFileSystemProvider';
 export { YoloPermissionClassifier } from './provider/YoloPermissionClassifier';
