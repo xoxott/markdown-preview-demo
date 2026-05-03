@@ -118,7 +118,10 @@ export {
 
 // Settings 加载编排
 export { loadSettingsFromDisk } from './settings/SettingsLoader';
-export type { LoadSettingsFromDiskOptions, LoadSettingsFromDiskResult } from './settings/SettingsLoader';
+export type {
+  LoadSettingsFromDiskOptions,
+  LoadSettingsFromDiskResult
+} from './settings/SettingsLoader';
 export { SettingsCacheManager } from './settings/SettingsCacheManager';
 
 // Permission Prompt 用户确认循环

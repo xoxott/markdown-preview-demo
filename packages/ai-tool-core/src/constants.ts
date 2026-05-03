@@ -6,8 +6,8 @@ export const DEFAULT_MAX_RESULT_SIZE = 100_000;
 /** 默认会话 ID（当未提供会话 ID 时使用） */
 export const DEFAULT_SESSION_ID = '__default__';
 
-/** 工具名称正则模式（允许的字符：小写字母、数字、连字符，必须以小写字母开头） */
-export const TOOL_NAME_PATTERN = /^[a-z][a-z0-9-]*$/;
+/** 工具名称正则模式（允许小写字母、数字、连字符、下划线，必须以小写字母开头，支持 MCP 格式 mcp__server__tool） */
+export const TOOL_NAME_PATTERN = /^[a-z][a-z0-9-_]*$/;
 
 /** 工具别名正则模式 */
 export const TOOL_ALIAS_PATTERN = /^[a-z][a-z0-9-]*$/;

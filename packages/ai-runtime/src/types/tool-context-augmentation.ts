@@ -17,15 +17,11 @@ import type {
 } from '@suga/ai-tool-core';
 import type { HookRegistry } from '@suga/ai-hooks';
 import type { CompressConfig, CompressDependencies } from '@suga/ai-context';
-import type {
-  CoordinatorRegistry,
-  Mailbox,
-  SpawnProvider
-} from '@suga/ai-coordinator';
+import type { CoordinatorRegistry, Mailbox, SpawnProvider } from '@suga/ai-coordinator';
 import type { SubagentRegistry, SubagentSpawner } from '@suga/ai-subagent';
 import type { MemoryPathConfig, MemoryPromptConfig, MemoryStorageProvider } from '@suga/ai-memory';
 import type { SandboxSettings } from '@suga/ai-sdk';
-import type { UsageTracker, TokenBudget, CostConfig } from '@suga/ai-tool-adapter';
+import type { CostConfig, TokenBudget, UsageTracker } from '@suga/ai-tool-adapter';
 import type {
   ConfigProvider,
   FileSystemProvider,

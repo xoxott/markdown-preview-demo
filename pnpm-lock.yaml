@@ -357,6 +357,9 @@ importers:
       '@suga/ai-skill':
         specifier: workspace:*
         version: link:../ai-skill
+      '@suga/ai-tool-adapter':
+        specifier: workspace:*
+        version: link:../ai-tool-adapter
       '@suga/ai-tools':
         specifier: workspace:*
         version: link:../ai-tools

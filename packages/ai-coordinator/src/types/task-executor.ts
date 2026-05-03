@@ -21,8 +21,8 @@ export interface SpawnCallOptions {
   /**
    * Swarm Worker Mailbox 操作 — Worker 权限转发
    *
-   * InProcessTeammate 将 mailboxOps 注入到子 Agent 的权限上下文，
-   * 使 canUseToolV3 Path 5 (swarm worker) 能够通过 mailbox 转发权限请求到 Leader。
+   * InProcessTeammate 将 mailboxOps 注入到子 Agent 的权限上下文， 使 canUseToolV3 Path 5 (swarm worker) 能够通过
+   * mailbox 转发权限请求到 Leader。
    */
   readonly swarmWorkerMailboxOps?: import('@suga/ai-tool-core').SwarmWorkerMailboxOps;
   /** Swarm Worker ID（标识当前 worker） */
@@ -91,10 +91,8 @@ export interface TaskExecutionContext {
   /**
    * Swarm Worker Mailbox 操作 — 由宿主注入
    *
-   * ai-coordinator 不依赖 ai-tool-core，所以通过 meta 传递
-   * 已构建好的 SwarmWorkerMailboxOps 实例。
-   * InProcessTeammate 将其转发到 SpawnCallOptions，
-   * 使子 Agent 的权限管线能使用 canUseToolV3 Path 5。
+   * ai-coordinator 不依赖 ai-tool-core，所以通过 meta 传递 已构建好的 SwarmWorkerMailboxOps 实例。 InProcessTeammate
+   * 将其转发到 SpawnCallOptions， 使子 Agent 的权限管线能使用 canUseToolV3 Path 5。
    */
   readonly swarmWorkerMailboxOps?: import('@suga/ai-tool-core').SwarmWorkerMailboxOps;
   /** Swarm Worker ID */

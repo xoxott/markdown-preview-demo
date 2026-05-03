@@ -1,8 +1,7 @@
 /**
  * NodeSettingsChangeListener — chokidar 文件监控实现
  *
- * 实现 SettingsChangeListener 接口，使用 chokidar.watch 监控设置文件变更。
- * 支持 debounce（默认 100ms）防止短时间内多次触发。
+ * 实现 SettingsChangeListener 接口，使用 chokidar.watch 监控设置文件变更。 支持 debounce（默认 100ms）防止短时间内多次触发。
  */
 
 import type { SettingsChangeListener } from '@suga/ai-tool-core';
@@ -38,20 +37,16 @@ export class NodeSettingsChangeListener implements SettingsChangeListener {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const chokidar = require('chokidar');
       this.watcher = chokidar.watch(this.paths, { ignoreInitial: true });
-      (this.watcher as { on: (event: string, handler: () => void) => unknown }).on(
-        'change',
-        () => {
-          this.handleChange();
-        }
-      );
-      (this.watcher as { on: (event: string, handler: () => void) => unknown }).on(
-        'add',
-        () => {
-          this.handleChange();
-        }
-      );
+      (this.watcher as { on: (event: string, handler: () => void) => unknown }).on('change', () => {
+        this.handleChange();
+      });
+      (this.watcher as { on: (event: string, handler: () => void) => unknown }).on('add', () => {
+        this.handleChange();
+      });
     } catch {
-      throw new Error('chokidar is required for NodeSettingsChangeListener. Install it: npm install chokidar');
+      throw new Error(
+        'chokidar is required for NodeSettingsChangeListener. Install it: npm install chokidar'
+      );
     }
   }
 

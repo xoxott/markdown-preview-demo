@@ -73,7 +73,7 @@ class MockLLMProvider {
   async *callModel(
     _messages: readonly unknown[],
     _tools?: readonly unknown[],
-    signal?: AbortSignal
+    options?: { signal?: AbortSignal }
   ): AsyncGenerator<{ textDelta?: string; toolUse?: ToolUseBlock; done: boolean }> {
     this.callCount++;
     if (this.shouldFail) throw this.failError;
@@ -82,7 +82,7 @@ class MockLLMProvider {
     if (!chunks) throw new Error(`MockLLMProvider: 第 ${this.callCount} 轮无预设响应`);
 
     for (const chunk of chunks) {
-      if (signal?.aborted) throw new DOMException('Mock LLM aborted', 'AbortError');
+      if (options?.signal?.aborted) throw new DOMException('Mock LLM aborted', 'AbortError');
       yield chunk;
     }
   }

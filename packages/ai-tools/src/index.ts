@@ -46,7 +46,10 @@ export {
   EnterPlanModeInputSchema,
   ExitPlanModeInputSchema,
   SleepInputSchema,
-  StructuredOutputInputSchema
+  StructuredOutputInputSchema,
+  ToolSearchInputSchema,
+  EnterWorktreeInputSchema,
+  ExitWorktreeInputSchema
 } from './types/tool-inputs';
 
 // 纯函数工具导出
@@ -96,6 +99,19 @@ export { enterPlanModeTool } from './tools/enter-plan-mode';
 export { exitPlanModeTool } from './tools/exit-plan-mode';
 export { sleepTool } from './tools/sleep';
 export { structuredOutputTool } from './tools/structured-output';
+export { toolSearchTool } from './tools/tool-search';
+// P54: ToolSearch 搜索算法导出
+export {
+  parseToolName,
+  parseQuery,
+  scoreTool,
+  isDeferredTool,
+  searchToolsWithKeywords
+} from './tools/tool-search';
+export type { ParsedQuery } from './tools/tool-search';
+export { enterWorktreeTool } from './tools/enter-worktree';
+export type { WorktreeSession } from './tools/enter-worktree';
+export { exitWorktreeTool } from './tools/exit-worktree';
 
 // Provider 实现
 export { NodeFileSystemProvider } from './provider/NodeFileSystemProvider';
@@ -127,5 +143,12 @@ export { NodeSettingsChangeListener } from './provider/NodeSettingsChangeListene
 export type { NodeSettingsChangeListenerConfig } from './provider/NodeSettingsChangeListener';
 export { SandboxFileSystemProvider, SandboxDenyError } from './provider/SandboxFileSystemProvider';
 export type { SandboxFileSystemProviderConfig } from './provider/SandboxFileSystemProvider';
-export { SandboxHttpProvider, SandboxSearchProvider, SandboxNetworkDenyError } from './provider/SandboxHttpProvider';
-export type { SandboxHttpProviderConfig, SandboxSearchProviderConfig } from './provider/SandboxHttpProvider';
+export {
+  SandboxHttpProvider,
+  SandboxSearchProvider,
+  SandboxNetworkDenyError
+} from './provider/SandboxHttpProvider';
+export type {
+  SandboxHttpProviderConfig,
+  SandboxSearchProviderConfig
+} from './provider/SandboxHttpProvider';

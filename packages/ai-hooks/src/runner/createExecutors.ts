@@ -1,9 +1,9 @@
 /** HookExecutor 工厂函数 — 简化 Runner 组装 */
 
+import type { LLMProvider } from '@suga/ai-agent-loop';
 import type { HookRegistry } from '../registry/HookRegistry';
 import type { HookRunnerDeps } from '../types/runner';
 import type { SessionHookStore } from '../types/session';
-import type { LLMProvider } from '@suga/ai-agent-loop';
 import { HookExecutor } from '../executor/HookExecutor';
 import { RunnerRegistryImpl } from './RunnerRegistry';
 import { CallbackRunner } from './CallbackRunner';

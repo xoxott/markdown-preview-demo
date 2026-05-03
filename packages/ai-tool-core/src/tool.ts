@@ -36,7 +36,10 @@ export const TOOL_DEFAULTS = {
     isReadOnly: false,
     isDestructive: false
   }),
-  requiresUserInteraction: () => false as boolean
+  requiresUserInteraction: () => false as boolean,
+  shouldDefer: false as boolean,
+  searchHint: '' as string,
+  alwaysLoad: false as boolean
 };
 
 /**
@@ -95,6 +98,9 @@ export function buildTool<Input, Output>(def: ToolDef<Input, Output>): BuiltTool
     toAutoClassifierInput: (def.toAutoClassifierInput ?? TOOL_DEFAULTS.toAutoClassifierInput) as (
       input: unknown
     ) => ToolClassifierInput,
-    requiresUserInteraction: def.requiresUserInteraction ?? TOOL_DEFAULTS.requiresUserInteraction
+    requiresUserInteraction: def.requiresUserInteraction ?? TOOL_DEFAULTS.requiresUserInteraction,
+    shouldDefer: def.shouldDefer ?? TOOL_DEFAULTS.shouldDefer,
+    searchHint: def.searchHint ?? TOOL_DEFAULTS.searchHint,
+    alwaysLoad: def.alwaysLoad ?? TOOL_DEFAULTS.alwaysLoad
   };
 }

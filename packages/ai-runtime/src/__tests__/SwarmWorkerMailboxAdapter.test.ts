@@ -1,11 +1,19 @@
 /** P49 测试 — SwarmWorkerMailboxAdapter 映射 + InProcessTeammate 注入 */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { SwarmWorkerMailboxAdapter } from '../swarm/SwarmWorkerMailboxAdapter';
 import type { SwarmPermissionRequest, SwarmWorkerMailboxOps } from '@suga/ai-tool-core';
-import type { Mailbox, MailboxMessage, StructuredMessage, PermissionBubbleRequest, PermissionBubbleResponse } from '@suga/ai-coordinator';
+import type {
+  Mailbox,
+  MailboxMessage,
+  PermissionBubbleRequest,
+  PermissionBubbleResponse,
+  SpawnProvider,
+  StructuredMessage,
+  TaskDefinition,
+  TaskExecutionContext
+} from '@suga/ai-coordinator';
 import { InProcessTeammate } from '@suga/ai-coordinator';
-import type { TaskDefinition, TaskExecutionContext, SpawnProvider } from '@suga/ai-coordinator';
+import { SwarmWorkerMailboxAdapter } from '../swarm/SwarmWorkerMailboxAdapter';
 
 // ============================================================
 // Mock Mailbox
@@ -25,22 +33,26 @@ function createMockMailbox(): Mailbox {
       inbox.set(name, []);
       return msgs;
     }),
-    broadcast: vi.fn().mockImplementation(async (from: string, content: string | StructuredMessage, summary?: string) => {
-      for (const [name] of inbox) {
-        if (name !== from) {
-          const recipientInbox = inbox.get(name) ?? [];
-          recipientInbox.push({
-            messageId: `broadcast_${Date.now()}`,
-            from,
-            to: name,
-            content,
-            timestamp: Date.now(),
-            summary
-          });
-          inbox.set(name, recipientInbox);
+    broadcast: vi
+      .fn()
+      .mockImplementation(
+        async (from: string, content: string | StructuredMessage, summary?: string) => {
+          for (const [name] of inbox) {
+            if (name !== from) {
+              const recipientInbox = inbox.get(name) ?? [];
+              recipientInbox.push({
+                messageId: `broadcast_${Date.now()}`,
+                from,
+                to: name,
+                content,
+                timestamp: Date.now(),
+                summary
+              });
+              inbox.set(name, recipientInbox);
+            }
+          }
         }
-      }
-    }),
+      ),
     hasPending: vi.fn().mockImplementation(async (name: string) => {
       return (inbox.get(name)?.length ?? 0) > 0;
     }),
@@ -269,16 +281,28 @@ describe('InProcessTeammate swarmWorkerMailboxOps 注入', () => {
       pollResponse: vi.fn().mockResolvedValue(null)
     };
 
-    const capturedOptions: { swarmWorkerMailboxOps?: SwarmWorkerMailboxOps; swarmWorkerId?: string; swarmWorkerName?: string; swarmLeaderName?: string } = {};
+    const capturedOptions: {
+      swarmWorkerMailboxOps?: SwarmWorkerMailboxOps;
+      swarmWorkerId?: string;
+      swarmWorkerName?: string;
+      swarmLeaderName?: string;
+    } = {};
 
     const mockSpawnProvider: SpawnProvider = {
       callModel: vi.fn().mockResolvedValue('result'),
       spawnAgent: vi.fn().mockImplementation(async (def, task, options) => {
-        capturedOptions.swarmWorkerMailboxOps = options?.swarmWorkerMailboxOps as SwarmWorkerMailboxOps | undefined;
+        capturedOptions.swarmWorkerMailboxOps = options?.swarmWorkerMailboxOps as
+          | SwarmWorkerMailboxOps
+          | undefined;
         capturedOptions.swarmWorkerId = options?.swarmWorkerId;
         capturedOptions.swarmWorkerName = options?.swarmWorkerName;
         capturedOptions.swarmLeaderName = options?.swarmLeaderName;
-        return { output: 'done', toolCalls: 0, tokensUsed: { input: 10, output: 5 }, success: true };
+        return {
+          output: 'done',
+          toolCalls: 0,
+          tokensUsed: { input: 10, output: 5 },
+          success: true
+        };
       })
     };
 
@@ -318,7 +342,12 @@ describe('InProcessTeammate swarmWorkerMailboxOps 注入', () => {
         if (options) {
           Object.assign(capturedOptions, options);
         }
-        return { output: 'done', toolCalls: 0, tokensUsed: { input: 10, output: 5 }, success: true };
+        return {
+          output: 'done',
+          toolCalls: 0,
+          tokensUsed: { input: 10, output: 5 },
+          success: true
+        };
       })
     };
 

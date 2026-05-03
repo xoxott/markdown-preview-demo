@@ -1,10 +1,9 @@
 /**
  * swarm-worker-mailbox.ts — Swarm Worker Mailbox 解耦接口
  *
- * ai-tool-core 不依赖 ai-coordinator（避免循环依赖），
- * 所以定义独立的 SwarmWorkerMailboxOps 接口。
- * 宿主（ai-tools/ai-runtime）负责将 ai-coordinator 的 PermissionBubbleHandler
- * 适配为 SwarmWorkerMailboxOps 接口。
+ * ai-tool-core 不依赖 ai-coordinator（避免循环依赖）， 所以定义独立的 SwarmWorkerMailboxOps 接口。
+ * 宿主（ai-tools/ai-runtime）负责将 ai-coordinator 的 PermissionBubbleHandler 适配为 SwarmWorkerMailboxOps
+ * 接口。
  */
 
 /** Swarm 权限请求 — Worker 发送到 Leader */
@@ -49,6 +48,7 @@ export interface SwarmPermissionRule {
  * SwarmWorkerMailboxOps — Worker 端 Mailbox 操作接口
  *
  * 两个方法:
+ *
  * - sendRequest: 发送权限请求到 Leader → 返回 requestId
  * - pollResponse: 轮询 Leader 响应 → 返回 SwarmPermissionResponse 或 null（超时）
  *

@@ -1,16 +1,14 @@
 /**
  * SettingsLoader — 从磁盘加载并合并配置的编排函数
  *
- * 接收 SettingsLayerReader（宿主注入）作为参数，
- * 逐层读取 → 过滤 → 合并 → 返回完整结果。
+ * 接收 SettingsLayerReader（宿主注入）作为参数， 逐层读取 → 过滤 → 合并 → 返回完整结果。
  *
  * ai-tool-core 不依赖平台模块（fs/chokidar），编排逻辑通过参数注入。
  */
 
 import type { SettingLayer } from '../types/settings-layer';
 import { SETTING_LAYERS } from '../types/settings-layer';
-import type { SettingSource } from '../types/settings-source';
-import type { SettingsLayerReader } from '../types/settings-source';
+import type { SettingSource, SettingsLayerReader } from '../types/settings-source';
 import type { MergedSettings } from '../types/settings-schema';
 import { mergeSettingsLayers } from '../types/settings-merge';
 import type { SettingsCache } from '../types/settings-cache';
@@ -42,6 +40,7 @@ export interface LoadSettingsFromDiskResult {
  * loadSettingsFromDisk — 从磁盘加载并合并配置
  *
  * 编排流程:
+ *
  * 1. 逐层调用 reader.readLayer(layer) → 过滤 null
  * 2. 构建 perSourceCache（缓存每层原始结果）
  * 3. 调用 mergeSettingsLayers(sources) → 获取 MergedSettings

@@ -1,33 +1,33 @@
 /**
  * SandboxFileSystemProvider — 装饰器模式，在 FileSystemProvider 之上加入 allow/deny 过滤
  *
- * 包裹底层 FileSystemProvider（如 NodeFileSystemProvider），在每个 I/O 操作前
- * 检查 SandboxSettings 的 filesystem allow/deny 规则：
+ * 包裹底层 FileSystemProvider（如 NodeFileSystemProvider），在每个 I/O 操作前 检查 SandboxSettings 的 filesystem
+ * allow/deny 规则：
  *
  * - deny 规则优先：路径匹配 deny 列表 → 直接拒绝访问
  * - allow 规则白名单：如果 allow 列表存在，路径不在 allow 列表 → 拒绝访问
  * - 两者都不存在 → 允许所有（等同于无沙箱）
  *
  * runCommand 特殊处理：
+ *
  * - 命令本身不做过滤（命令内容无法可靠匹配路径规则）
  * - 但 cwd 受 filesystem 规则约束
  *
- * 网络规则暂不在此装饰器中实现 — 网络拦截需要底层 transport 层支持，
- * 当前仅在类型层面预留 network 配置。
+ * 网络规则暂不在此装饰器中实现 — 网络拦截需要底层 transport 层支持， 当前仅在类型层面预留 network 配置。
  */
 
+import type { SandboxSettings } from '@suga/ai-sdk';
 import type {
-  FileSystemProvider,
-  FileStat,
-  FileContent,
+  CommandResult,
   EditResult,
+  FileContent,
   FileLsEntry,
+  FileStat,
+  FileSystemProvider,
   GrepOptions,
   GrepResult,
-  CommandResult,
   RunCommandOptions
 } from '../types/fs-provider';
-import type { SandboxSettings } from '@suga/ai-sdk';
 
 /** 沙箱拒绝错误 — 路径或命令被 deny 规则拦截 */
 export class SandboxDenyError extends Error {
@@ -55,14 +55,14 @@ function pathMatchesPattern(filePath: string, pattern: string): boolean {
   // 前缀匹配: pattern 以 /** 结尾 → 匹配所有子路径
   if (normalizedPattern.endsWith('/**')) {
     const prefix = normalizedPattern.slice(0, -3);
-    return normalizedPath === prefix || normalizedPath.startsWith(prefix + '/');
+    return normalizedPath === prefix || normalizedPath.startsWith(`${prefix}/`);
   }
 
   // 单层通配符: 替换 * 为 [^/]+ 的简单 glob
   if (normalizedPattern.includes('*') && !normalizedPattern.includes('**')) {
     const regexStr = normalizedPattern
-      .replace(/\//g, '\\/')        // 转义 /
-      .replace(/\*/g, '[^\\/]+');   // * → 匹配单层
+      .replace(/\//g, '\\/') // 转义 /
+      .replace(/\*/g, '[^\\/]+'); // * → 匹配单层
     const regex = new RegExp(`^${regexStr}$`);
     return regex.test(normalizedPath);
   }
@@ -70,9 +70,7 @@ function pathMatchesPattern(filePath: string, pattern: string): boolean {
   // 多层通配符: 替换 ** 为 .* 的 glob
   if (normalizedPattern.includes('**')) {
     const parts = normalizedPattern.split('**');
-    const regexParts = parts.map(p =>
-      p.replace(/\//g, '\\/').replace(/\*/g, '[^\\/]+')
-    );
+    const regexParts = parts.map(p => p.replace(/\//g, '\\/').replace(/\*/g, '[^\\/]+'));
     const regexStr = regexParts.join('.*');
     const regex = new RegExp(`^${regexStr}$`);
     return regex.test(normalizedPath);
@@ -85,13 +83,17 @@ function pathMatchesPattern(filePath: string, pattern: string): boolean {
  * isPathAllowed — 检查路径是否被沙箱规则允许
  *
  * 逻辑:
+ *
  * 1. deny 列表优先 — 路径匹配任何 deny 规则 → 拒绝
  * 2. allow 列表白名单 — 如果 allow 列表存在且路径不在其中 → 拒绝
  * 3. 两者都无规则 → 允许
  *
- * @returns { allowed: true } 或 { allowed: false, rule: string }
+ * @returns {allowed: true} 或 { allowed: false, rule: string }
  */
-function isPathAllowed(filePath: string, settings: SandboxSettings): { allowed: true } | { allowed: false; rule: string } {
+function isPathAllowed(
+  filePath: string,
+  settings: SandboxSettings
+): { allowed: true } | { allowed: false; rule: string } {
   const fsConfig = settings.filesystem;
   if (!fsConfig) return { allowed: true };
 
@@ -129,8 +131,7 @@ export interface SandboxFileSystemProviderConfig {
 /**
  * SandboxFileSystemProvider — 装饰器模式沙箱实现
  *
- * 包裹 inner FileSystemProvider，在每个 I/O 方法中加入路径过滤。
- * deny 规则触发 SandboxDenyError（工具可捕获并返回友好消息）。
+ * 包裹 inner FileSystemProvider，在每个 I/O 方法中加入路径过滤。 deny 规则触发 SandboxDenyError（工具可捕获并返回友好消息）。
  */
 export class SandboxFileSystemProvider implements FileSystemProvider {
   private readonly inner: FileSystemProvider;
@@ -146,7 +147,10 @@ export class SandboxFileSystemProvider implements FileSystemProvider {
     return this.inner.stat(path);
   }
 
-  async readFile(path: string, options?: { offset?: number; limit?: number }): Promise<FileContent> {
+  async readFile(
+    path: string,
+    options?: { offset?: number; limit?: number }
+  ): Promise<FileContent> {
     checkPath(path, this.sandbox);
     return this.inner.readFile(path, options);
   }
@@ -156,7 +160,12 @@ export class SandboxFileSystemProvider implements FileSystemProvider {
     return this.inner.writeFile(path, content);
   }
 
-  async editFile(path: string, oldString: string, newString: string, replaceAll?: boolean): Promise<EditResult> {
+  async editFile(
+    path: string,
+    oldString: string,
+    newString: string,
+    replaceAll?: boolean
+  ): Promise<EditResult> {
     checkPath(path, this.sandbox);
     return this.inner.editFile(path, oldString, newString, replaceAll);
   }
@@ -177,12 +186,20 @@ export class SandboxFileSystemProvider implements FileSystemProvider {
       return { ...result, filePaths: filteredPaths, totalMatches: filteredPaths.length };
     }
     if (result.matches) {
-      const filteredMatches = result.matches.filter(m => isPathAllowed(m.filePath, this.sandbox).allowed);
+      const filteredMatches = result.matches.filter(
+        m => isPathAllowed(m.filePath, this.sandbox).allowed
+      );
       return { ...result, matches: filteredMatches, totalMatches: filteredMatches.length };
     }
     if (result.counts) {
-      const filteredCounts = result.counts.filter(c => isPathAllowed(c.filePath, this.sandbox).allowed);
-      return { ...result, counts: filteredCounts, totalMatches: filteredCounts.reduce((sum, c) => sum + c.count, 0) };
+      const filteredCounts = result.counts.filter(
+        c => isPathAllowed(c.filePath, this.sandbox).allowed
+      );
+      return {
+        ...result,
+        counts: filteredCounts,
+        totalMatches: filteredCounts.reduce((sum, c) => sum + c.count, 0)
+      };
     }
     return result;
   }

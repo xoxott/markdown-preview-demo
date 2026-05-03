@@ -155,8 +155,14 @@ export async function performOAuthFlow(
     });
 
     if (!response.ok) {
-      const errorBody = await response.json().catch(() => ({ error: 'unknown' })) as Record<string, unknown>;
-      throw new OAuthError(String(errorBody.error ?? 'token_exchange_failed'), errorBody.error_description as string | undefined);
+      const errorBody = (await response.json().catch(() => ({ error: 'unknown' }))) as Record<
+        string,
+        unknown
+      >;
+      throw new OAuthError(
+        String(errorBody.error ?? 'token_exchange_failed'),
+        errorBody.error_description as string | undefined
+      );
     }
 
     const tokenResponse = (await response.json()) as OAuthTokenExchangeResponse;
@@ -211,7 +217,10 @@ export async function performTokenRefresh(
       });
 
       if (!response.ok) {
-        const errorBody = await response.json().catch(() => ({ error: 'unknown' })) as Record<string, unknown>;
+        const errorBody = (await response.json().catch(() => ({ error: 'unknown' }))) as Record<
+          string,
+          unknown
+        >;
 
         if (errorBody.error === 'invalid_grant') {
           throw new InvalidGrantError(
@@ -223,7 +232,10 @@ export async function performTokenRefresh(
           throw new ServerError(errorBody.error_description as string | undefined);
         }
 
-        throw new OAuthError(String(errorBody.error), errorBody.error_description as string | undefined);
+        throw new OAuthError(
+          String(errorBody.error),
+          errorBody.error_description as string | undefined
+        );
       }
 
       const tokenResponse = (await response.json()) as OAuthTokenExchangeResponse;

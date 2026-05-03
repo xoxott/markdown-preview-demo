@@ -7,7 +7,7 @@ import type {
   SwarmPermissionResponse,
   SwarmWorkerMailboxOps
 } from '../types/swarm-worker-mailbox';
-import type { PermissionResult, PermissionAllow, PermissionDeny } from '../types/permission';
+import type { PermissionAllow, PermissionDeny, PermissionResult } from '../types/permission';
 import type { PermissionContextMethods } from '../types/permission-racing';
 
 // ============================================================
@@ -276,13 +276,7 @@ describe('handleSwarmWorkerPermission', () => {
     });
     mailbox.pollResponse = vi.fn().mockResolvedValue({ approved: true });
 
-    await handleSwarmWorkerPermission(
-      ctx,
-      createAskResult(),
-      mailbox,
-      'worker_42',
-      'my-worker'
-    );
+    await handleSwarmWorkerPermission(ctx, createAskResult(), mailbox, 'worker_42', 'my-worker');
   });
 });
 

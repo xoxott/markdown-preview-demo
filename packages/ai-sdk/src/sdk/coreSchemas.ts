@@ -30,7 +30,8 @@ export {
   FileReadInputSchema,
   FileWriteInputSchema,
   FileEditInputSchema,
-  BashInputSchema
+  BashInputSchema,
+  ToolSearchInputSchema
 } from '@suga/ai-tools';
 
 // Settings/权限schema — 从@Suga/ai-tool-core导出

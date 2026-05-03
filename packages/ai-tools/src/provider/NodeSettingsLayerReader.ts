@@ -1,15 +1,14 @@
 /**
  * NodeSettingsLayerReader — Node.js 平台的 Settings 文件读取实现
  *
- * 实现 SettingsLayerReader 接口，使用 fs.readFile + JSON.parse + SettingsSchema.safeParse。
- * 6层路径映射逻辑参考 Claude Code 的 getSettingsFilePath。
+ * 实现 SettingsLayerReader 接口，使用 fs.readFile + JSON.parse + SettingsSchema.safeParse。 6层路径映射逻辑参考
+ * Claude Code 的 getSettingsFilePath。
  */
 
-import { readFileSync, existsSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import type { SettingLayer } from '@suga/ai-tool-core';
-import type { SettingSource, SettingsLayerReader } from '@suga/ai-tool-core';
+import type { SettingLayer, SettingSource, SettingsLayerReader } from '@suga/ai-tool-core';
 import { SettingsSchema } from '@suga/ai-tool-core';
 
 /** NodeSettingsLayerReader 配置 */
@@ -24,9 +23,7 @@ export interface NodeSettingsLayerReaderConfig {
   readonly policyDir?: string;
 }
 
-/**
- * NodeSettingsLayerReader — 6层路径映射 + fs.readFile 实现
- */
+/** NodeSettingsLayerReader — 6层路径映射 + fs.readFile 实现 */
 export class NodeSettingsLayerReader implements SettingsLayerReader {
   private readonly userHomeDir: string;
   private readonly projectDir: string;

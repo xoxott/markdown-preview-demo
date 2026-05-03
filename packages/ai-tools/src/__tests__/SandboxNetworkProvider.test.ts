@@ -1,25 +1,21 @@
 /** P53 测试 — SandboxHttpProvider + SandboxSearchProvider + CostCalculator + network 拦截 */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  SandboxHttpProvider,
-  SandboxSearchProvider,
-  SandboxNetworkDenyError,
-  extractDomain,
-  domainMatchesPattern,
-  isDomainAllowed
-} from '../provider/SandboxHttpProvider';
-import type { SandboxHttpProviderConfig, SandboxSearchProviderConfig } from '../provider/SandboxHttpProvider';
 import type { SandboxSettings } from '@suga/ai-sdk';
-import type { HttpProvider } from '../types/http-provider';
-import type { SearchProvider, SearchResult, SearchResultItem } from '../types/search-provider';
-import { CostCalculator, DEFAULT_PRICE_TABLE } from '@suga/ai-tool-adapter';
+import { CostCalculator } from '@suga/ai-tool-adapter';
 import type { LLMUsageSummary } from '@suga/ai-tool-adapter';
 import { buildProviderMap } from '@suga/ai-runtime';
 import type { RuntimeConfig } from '@suga/ai-runtime';
-import { SandboxFileSystemProvider } from '@suga/ai-tools';
-import { SandboxHttpProvider } from '@suga/ai-tools';
-import { SandboxSearchProvider } from '@suga/ai-tools';
+import type { SearchProvider, SearchResult, SearchResultItem } from '../types/search-provider';
+import type { HttpProvider } from '../types/http-provider';
+import {
+  SandboxHttpProvider,
+  SandboxNetworkDenyError,
+  SandboxSearchProvider,
+  domainMatchesPattern,
+  extractDomain,
+  isDomainAllowed
+} from '../provider/SandboxHttpProvider';
 
 // ============================================================
 // extractDomain tests
@@ -187,10 +183,13 @@ describe('SandboxSearchProvider', () => {
   it('search — sandbox 规则合入 options', async () => {
     await provider.search('test query');
 
-    expect(inner.search).toHaveBeenCalledWith('test query', expect.objectContaining({
-      allowedDomains: expect.arrayContaining(['api.openai.com']),
-      blockedDomains: expect.arrayContaining(['*.evil.com'])
-    }));
+    expect(inner.search).toHaveBeenCalledWith(
+      'test query',
+      expect.objectContaining({
+        allowedDomains: expect.arrayContaining(['api.openai.com']),
+        blockedDomains: expect.arrayContaining(['*.evil.com'])
+      })
+    );
   });
 
   it('search — 结果二次过滤（deny 域名被去除）', async () => {
@@ -320,9 +319,13 @@ describe('buildProviderMap sandbox network 贅通', () => {
       writeFile: vi.fn().mockResolvedValue(undefined),
       editFile: vi.fn().mockResolvedValue({ applied: true }),
       glob: vi.fn().mockResolvedValue([]),
-      grep: vi.fn().mockResolvedValue({ mode: 'files-with-matches', filePaths: [], totalMatches: 0 }),
+      grep: vi
+        .fn()
+        .mockResolvedValue({ mode: 'files-with-matches', filePaths: [], totalMatches: 0 }),
       ls: vi.fn().mockResolvedValue([]),
-      runCommand: vi.fn().mockResolvedValue({ exitCode: 0, stdout: '', stderr: '', timedOut: false })
+      runCommand: vi
+        .fn()
+        .mockResolvedValue({ exitCode: 0, stdout: '', stderr: '', timedOut: false })
     };
     const mockHttp = {
       fetch: vi.fn().mockResolvedValue(new Response('ok')),
@@ -359,9 +362,13 @@ describe('buildProviderMap sandbox network 贅通', () => {
       writeFile: vi.fn().mockResolvedValue(undefined),
       editFile: vi.fn().mockResolvedValue({ applied: true }),
       glob: vi.fn().mockResolvedValue([]),
-      grep: vi.fn().mockResolvedValue({ mode: 'files-with-matches', filePaths: [], totalMatches: 0 }),
+      grep: vi
+        .fn()
+        .mockResolvedValue({ mode: 'files-with-matches', filePaths: [], totalMatches: 0 }),
       ls: vi.fn().mockResolvedValue([]),
-      runCommand: vi.fn().mockResolvedValue({ exitCode: 0, stdout: '', stderr: '', timedOut: false })
+      runCommand: vi
+        .fn()
+        .mockResolvedValue({ exitCode: 0, stdout: '', stderr: '', timedOut: false })
     };
     const mockHttp = {
       fetch: vi.fn().mockResolvedValue(new Response('ok')),

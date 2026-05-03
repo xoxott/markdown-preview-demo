@@ -60,7 +60,10 @@ describe('loadSettingsFromDisk', () => {
   it('policy 层 → first-source-wins 合并', async () => {
     const reader = createMockReader({
       user: makeSource('user', { permissions: { deny: ['Bash(rm -rf *)'] } }),
-      policy: makeSource('policy', { permissions: { deny: ['Bash(rm *)'] }, env: { NODE_ENV: 'production' } })
+      policy: makeSource('policy', {
+        permissions: { deny: ['Bash(rm *)'] },
+        env: { NODE_ENV: 'production' }
+      })
     });
 
     const result = await loadSettingsFromDisk({ reader });

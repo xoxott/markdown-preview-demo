@@ -13,8 +13,8 @@ import {
   unstable_v2_createSession,
   unstable_v2_resumeSession
 } from '../api/session';
-import type { SDKSession, SDKSessionInfo, SDKSessionOptions } from '../sdk/runtimeTypes';
-import type { SDKMessage } from '../sdk/sdkMessages';
+import type { SDKSession } from '../sdk/runtimeTypes';
+import type { SDKMessage, SDKSessionInfo } from '../sdk/sdkMessages';
 
 // ============================================================
 // Mock SessionEngine
@@ -23,8 +23,15 @@ import type { SDKMessage } from '../sdk/sdkMessages';
 function createMockEngine(): SessionEngineLike {
   const mockSession: SDKSession = {
     sessionId: 'mock_session_1',
-    prompt: vi.fn().mockImplementation(async function* (): AsyncIterable<SDKMessage> {
-      yield { type: 'result', subtype: 'success', result: 'mock', duration_ms: 100, num_turns: 1 };
+    prompt: vi.fn().mockImplementation(async function* mockPrompt(): AsyncIterable<SDKMessage> {
+      yield {
+        type: 'result',
+        subtype: 'success',
+        result: 'mock',
+        duration_ms: 100,
+        is_error: false,
+        num_turns: 1
+      };
     }),
     abort: vi.fn().mockResolvedValue(undefined),
     close: vi.fn().mockResolvedValue(undefined)

@@ -7,12 +7,17 @@
  * - allow 规则白名单：如果 allow 列表存在，域名不在其中 → 返回模拟 403 Response
  * - 两者都不存在 → 允许所有（等同于无网络沙箱）
  *
- * htmlToMarkdown 不做拦截（不涉及网络请求）。
- * isPreapprovedUrl 与 sandbox allow 规则对齐。
+ * htmlToMarkdown 不做拦截（不涉及网络请求）。 isPreapprovedUrl 与 sandbox allow 规则对齐。
  */
 
+import type { SandboxNetworkConfig, SandboxSettings } from '@suga/ai-sdk';
 import type { HttpProvider } from '../types/http-provider';
-import type { SandboxSettings, SandboxNetworkConfig } from '@suga/ai-sdk';
+
+// ============================================================
+// SandboxSearchProvider
+// ============================================================
+
+import type { SearchOptions, SearchProvider, SearchResult } from '../types/search-provider';
 
 /** 沙箱网络拒绝错误 */
 export class SandboxNetworkDenyError extends Error {
@@ -31,6 +36,7 @@ export class SandboxNetworkDenyError extends Error {
  * 从 URL 中提取域名
  *
  * 示例:
+ *
  * - https://api.openai.com/v1/chat → api.openai.com
  * - http://localhost:3000/test → localhost
  * - https://evil.com → evil.com
@@ -49,6 +55,7 @@ function extractDomain(url: string): string {
  * domainMatchesPattern — 检查域名是否匹配 pattern
  *
  * 支持精确匹配和通配符:
+ *
  * - '*.evil.com' → 匹配 sub.evil.com, 但不匹配 evil.com
  * - 'evil.com' → 精确匹配
  */
@@ -59,7 +66,7 @@ function domainMatchesPattern(domain: string, pattern: string): boolean {
   // 通配符子域名: *.evil.com → 匹配 xxx.evil.com
   if (pattern.startsWith('*.')) {
     const base = pattern.slice(2);
-    return domain === base || domain.endsWith('.' + base);
+    return domain === base || domain.endsWith(`.${base}`);
   }
 
   return false;
@@ -69,11 +76,15 @@ function domainMatchesPattern(domain: string, pattern: string): boolean {
  * isDomainAllowed — 检查域名是否被网络沙箱规则允许
  *
  * 逻辑:
+ *
  * 1. deny 列表优先 — 域名匹配任何 deny 规则 → 拒绝
  * 2. allow 列表白名单 — 如果 allow 列表存在且域名不在其中 → 拒绝
  * 3. 两者都无规则 → 允许
  */
-function isDomainAllowed(domain: string, networkConfig: SandboxNetworkConfig): { allowed: true } | { allowed: false; rule: string } {
+function isDomainAllowed(
+  domain: string,
+  networkConfig: SandboxNetworkConfig
+): { allowed: true } | { allowed: false; rule: string } {
   // 1. deny 优先
   if (networkConfig.deny) {
     for (const pattern of networkConfig.deny) {
@@ -105,8 +116,7 @@ export interface SandboxHttpProviderConfig {
 /**
  * SandboxHttpProvider — 罅饰器模式网络沙箱
  *
- * 包裹 inner HttpProvider，在 fetch() 中拦截域名。
- * deny 规则触发 403 Response（工具可捕获并返回友好消息）。
+ * 包裹 inner HttpProvider，在 fetch() 中拦截域名。 deny 规则触发 403 Response（工具可捕获并返回友好消息）。
  */
 export class SandboxHttpProvider implements HttpProvider {
   private readonly inner: HttpProvider;
@@ -149,12 +159,6 @@ export class SandboxHttpProvider implements HttpProvider {
   }
 }
 
-// ============================================================
-// SandboxSearchProvider
-// ============================================================
-
-import type { SearchProvider, SearchOptions, SearchResult } from '../types/search-provider';
-
 /** SandboxSearchProvider 配置 */
 export interface SandboxSearchProviderConfig {
   readonly inner: SearchProvider;
@@ -165,6 +169,7 @@ export interface SandboxSearchProviderConfig {
  * SandboxSearchProvider — 腔饰器模式搜索沙箱
  *
  * 两种拦截方式:
+ *
  * 1. 将 sandbox deny 合入 options.blockedDomains, allow 合入 options.allowedDomains
  * 2. 对返回结果中的 url 做二次过滤（去除不符合规则的域名）
  * 3. deny 列表阻止搜索后端域名 → isEnabled() 返回 false

@@ -1,11 +1,9 @@
 /**
  * CostCalculator — Token 成本计算器
  *
- * 将 LLMUsageSummary × 价格表 → CostInfo（美元成本）。
- * 价格表按模型名定义每种 token 的单价（$/MTok）。
+ * 将 LLMUsageSummary × 价格表 → CostInfo（美元成本）。 价格表按模型名定义每种 token 的单价（$/MTok）。
  *
- * 默认价格表对齐 Anthropic Claude 模型定价（2025年8月）。
- * 宿主可通过 costConfig.priceTable 注入自定义价格。
+ * 默认价格表对齐 Anthropic Claude 模型定价（2025年8月）。 宿主可通过 costConfig.priceTable 注入自定义价格。
  */
 
 import type { LLMUsageSummary } from '../types/usage';
@@ -58,10 +56,10 @@ export const DEFAULT_PRICE_TABLE: PriceTable = {
     inputPricePerMTok: 3,
     outputPricePerMTok: 15,
     cacheWritePricePerMTok: 3.75,
-    cacheReadPricePerMTok: 0.30
+    cacheReadPricePerMTok: 0.3
   },
   'claude-haiku-4-5': {
-    inputPricePerMTok: 0.80,
+    inputPricePerMTok: 0.8,
     outputPricePerMTok: 4,
     cacheWritePricePerMTok: 1,
     cacheReadPricePerMTok: 0.08
@@ -75,8 +73,7 @@ export const DEFAULT_PRICE_TABLE: PriceTable = {
 /**
  * CostCalculator — 成本计算器
  *
- * 从 UsageSummary + 价格表 计算 CostInfo。
- * 提供静态方法（纯函数）和实例方法（带配置）。
+ * 从 UsageSummary + 价格表 计算 CostInfo。 提供静态方法（纯函数）和实例方法（带配置）。
  */
 export class CostCalculator {
   private readonly priceTable: PriceTable;
@@ -108,7 +105,7 @@ export class CostCalculator {
     return {
       totalCost: totalInputCost + outputCost,
       inputCost: totalInputCost,
-      outputCost: outputCost
+      outputCost
     };
   }
 

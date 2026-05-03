@@ -3,7 +3,12 @@
 export { NodeFileSystemProvider } from './NodeFileSystemProvider';
 export { YoloPermissionClassifier } from './YoloPermissionClassifier';
 export { LLMPermissionClassifier } from './LLMPermissionClassifier';
-export type { CallModelFn, ClassifierModelRequest, ClassifierModelResponse, LLMClassifierConfig } from './LLMPermissionClassifier';
+export type {
+  CallModelFn,
+  ClassifierModelRequest,
+  ClassifierModelResponse,
+  LLMClassifierConfig
+} from './LLMPermissionClassifier';
 export { classifyBashCommand } from './BashCommandClassifier';
 export type { BashClassifyResult, BashCommandDecision } from './BashCommandClassifier';
 export { TerminalPermissionPromptHandler } from './TerminalPermissionPromptHandler';

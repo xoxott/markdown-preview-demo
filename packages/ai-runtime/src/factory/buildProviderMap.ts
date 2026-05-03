@@ -1,6 +1,11 @@
 /** buildProviderMap — 从 RuntimeConfig 提取 provider 字段，应用默认值 */
 
-import { DefaultHttpProvider, SandboxFileSystemProvider, SandboxHttpProvider, SandboxSearchProvider } from '@suga/ai-tools';
+import {
+  DefaultHttpProvider,
+  SandboxFileSystemProvider,
+  SandboxHttpProvider,
+  SandboxSearchProvider
+} from '@suga/ai-tools';
 import { DEFAULT_DENIAL_TRACKING } from '@suga/ai-tool-core';
 import type { RuntimeConfig } from '../types/config';
 
@@ -22,13 +27,15 @@ export function buildProviderMap(config: RuntimeConfig): Record<string, unknown>
     ? new SandboxFileSystemProvider({ inner: config.fsProvider, sandbox: config.sandbox })
     : config.fsProvider;
 
-  const effectiveHttpProvider = config.sandbox?.network && config.httpProvider
-    ? new SandboxHttpProvider({ inner: config.httpProvider, sandbox: config.sandbox })
-    : config.httpProvider ?? new DefaultHttpProvider();
+  const effectiveHttpProvider =
+    config.sandbox?.network && config.httpProvider
+      ? new SandboxHttpProvider({ inner: config.httpProvider, sandbox: config.sandbox })
+      : (config.httpProvider ?? new DefaultHttpProvider());
 
-  const effectiveSearchProvider = config.sandbox?.network && config.searchProvider
-    ? new SandboxSearchProvider({ inner: config.searchProvider, sandbox: config.sandbox })
-    : config.searchProvider;
+  const effectiveSearchProvider =
+    config.sandbox?.network && config.searchProvider
+      ? new SandboxSearchProvider({ inner: config.searchProvider, sandbox: config.sandbox })
+      : config.searchProvider;
 
   return {
     fsProvider: effectiveFsProvider,

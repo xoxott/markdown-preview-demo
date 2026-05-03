@@ -3,8 +3,7 @@
  *
  * 参考 Claude Code 的 handleSwarmWorkerPermission:
  *
- * swarm worker 尝试 classifier 自动批准，
- * 失败后通过 mailbox 转发权限请求到 leader agent。
+ * swarm worker 尝试 classifier 自动批准， 失败后通过 mailbox 转发权限请求到 leader agent。
  *
  * 流程:
  *
@@ -17,12 +16,9 @@
  * **关键**: swarm worker path 不 fall through 到 interactive（worker 无 UI）
  */
 
-import type { PermissionResult, PermissionDeny, PermissionAllow } from '../types/permission';
+import type { PermissionAllow, PermissionDeny, PermissionResult } from '../types/permission';
 import type { PermissionContextMethods } from '../types/permission-racing';
-import type {
-  SwarmPermissionRequest,
-  SwarmWorkerMailboxOps
-} from '../types/swarm-worker-mailbox';
+import type { SwarmPermissionRequest, SwarmWorkerMailboxOps } from '../types/swarm-worker-mailbox';
 
 /** 默认 Leader 响应超时（30秒） */
 const SWARM_WORKER_TIMEOUT_MS = 30000;
@@ -54,7 +50,7 @@ export async function handleSwarmWorkerPermission(
   // === Step 2: Classifier ask or unavailable → 转发到 Leader ===
   const classifierConfidence =
     classifierDecision && classifierDecision.behavior === 'ask'
-      ? (classifierDecision as PermissionResult & { confidence?: string }).confidence ?? 'medium'
+      ? ((classifierDecision as PermissionResult & { confidence?: string }).confidence ?? 'medium')
       : undefined;
 
   const request: SwarmPermissionRequest = {

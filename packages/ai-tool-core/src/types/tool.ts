@@ -88,6 +88,27 @@ export interface ToolDef<Input = unknown, Output = unknown> {
   toAutoClassifierInput?(input: Input): ToolClassifierInput;
   /** P41: 是否要求用户交互（bypass-immune — 即使 bypass/auto 模式也必须用户交互） */
   requiresUserInteraction?(input: Input): boolean;
+
+  // === ToolSearch 元数据（P54 — 工具搜索发现引擎） ===
+
+  /**
+   * 是否延迟加载（默认 false — 工具默认不延迟）
+   *
+   * 延迟加载的工具不在初始化时发送给 LLM，而是通过 ToolSearch 按需发现。 MCP 工具默认延迟，alwaysLoad=true 的工具从不延迟。
+   */
+  shouldDefer?: boolean;
+  /**
+   * 搜索提示词（可选 — 用于 ToolSearch 关键词匹配）
+   *
+   * 当工具名称不够直观时，提供额外的搜索关键词。 例如: 'notebook jupyter cell' 用于 NotebookEditTool
+   */
+  searchHint?: string;
+  /**
+   * 是否始终加载（默认 false — 延迟工具在搜索发现后才加载）
+   *
+   * alwaysLoad=true 的工具即使 shouldDefer=true 也不会被延迟。 核心工具（如 Bash, FileRead, Edit）应设为 alwaysLoad=true。
+   */
+  alwaysLoad?: boolean;
 }
 
 /**
@@ -128,4 +149,10 @@ export interface BuiltTool<Input = unknown, Output = unknown> {
   readonly toAutoClassifierInput: (input: unknown) => ToolClassifierInput;
   /** P41: 是否要求用户交互（已填充默认值: () => false） */
   readonly requiresUserInteraction: (input: Input) => boolean;
+  /** P54: 是否延迟加载（已填充默认值: false） */
+  readonly shouldDefer: boolean;
+  /** P54: 搜索提示词（已填充默认值: ''） */
+  readonly searchHint: string;
+  /** P54: 是否始终加载（已填充默认值: false） */
+  readonly alwaysLoad: boolean;
 }

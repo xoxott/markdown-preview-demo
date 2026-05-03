@@ -7,6 +7,10 @@
 // === Git Provider ===
 
 /** Git 文件变更 */
+/** Token 使用信息 */
+/** Token 使用信息 — P53 统一从 @suga/ai-tool-adapter re-export */
+import type { CostInfo, TokenUsageInfo } from '@suga/ai-tool-adapter';
+
 export interface GitFileChange {
   readonly path: string;
   readonly status: 'added' | 'modified' | 'deleted' | 'renamed';
@@ -86,10 +90,6 @@ export interface SessionStatus {
   readonly turnCount: number;
   readonly status: 'active' | 'paused' | 'completed';
 }
-
-/** Token 使用信息 */
-/** Token 使用信息 — P53 统一从 @suga/ai-tool-adapter re-export */
-import type { CostInfo, TokenUsageInfo } from '@suga/ai-tool-adapter';
 export type { CostInfo, TokenUsageInfo };
 
 /** 会话信息 provider — /status 需要 */

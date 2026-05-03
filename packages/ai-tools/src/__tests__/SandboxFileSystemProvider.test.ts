@@ -1,22 +1,25 @@
-/** P50 测试 — SandboxFileSystemProvider 装饰器 + pathMatchesPattern + isPathAllowed + buildProviderMap sandbox 贯通 */
+/**
+ * P50 测试 — SandboxFileSystemProvider 装饰器 + pathMatchesPattern + isPathAllowed + buildProviderMap
+ * sandbox 贯通
+ */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  SandboxFileSystemProvider,
-  SandboxDenyError,
-  pathMatchesPattern,
-  isPathAllowed
-} from '../provider/SandboxFileSystemProvider';
 import type { SandboxSettings } from '@suga/ai-sdk';
-import type {
-  FileSystemProvider,
-  FileLsEntry,
-  GrepResult,
-  CommandResult
-} from '../types/fs-provider';
 import { buildProviderMap } from '@suga/ai-runtime';
 import type { RuntimeConfig } from '@suga/ai-runtime';
-import { SandboxSettingsSchema, SandboxIgnoreViolationsSchema } from '@suga/ai-sdk';
+import { SandboxIgnoreViolationsSchema, SandboxSettingsSchema } from '@suga/ai-sdk';
+import type {
+  CommandResult,
+  FileLsEntry,
+  FileSystemProvider,
+  GrepResult
+} from '../types/fs-provider';
+import {
+  SandboxDenyError,
+  SandboxFileSystemProvider,
+  isPathAllowed,
+  pathMatchesPattern
+} from '../provider/SandboxFileSystemProvider';
 
 // ============================================================
 // Mock FileSystemProvider
@@ -24,8 +27,19 @@ import { SandboxSettingsSchema, SandboxIgnoreViolationsSchema } from '@suga/ai-s
 
 function createMockFsProvider(): FileSystemProvider {
   return {
-    stat: vi.fn().mockResolvedValue({ exists: true, isFile: true, isDirectory: false, size: 100, mtimeMs: Date.now() }),
-    readFile: vi.fn().mockResolvedValue({ content: 'hello', mimeType: 'text/plain', lineCount: 1, mtimeMs: Date.now() }),
+    stat: vi.fn().mockResolvedValue({
+      exists: true,
+      isFile: true,
+      isDirectory: false,
+      size: 100,
+      mtimeMs: Date.now()
+    }),
+    readFile: vi.fn().mockResolvedValue({
+      content: 'hello',
+      mimeType: 'text/plain',
+      lineCount: 1,
+      mtimeMs: Date.now()
+    }),
     writeFile: vi.fn().mockResolvedValue(undefined),
     editFile: vi.fn().mockResolvedValue({ applied: true, replacementCount: 1 }),
     glob: vi.fn().mockResolvedValue(['/tmp/a.ts', '/tmp/b.ts', '/etc/passwd']),
@@ -34,10 +48,17 @@ function createMockFsProvider(): FileSystemProvider {
       filePaths: ['/tmp/a.ts', '/tmp/b.ts', '/etc/shadow'],
       totalMatches: 3
     } as GrepResult),
-    ls: vi.fn().mockResolvedValue([
-      { name: 'a.ts', type: 'file', size: 100, mtimeMs: Date.now() } as FileLsEntry
-    ]),
-    runCommand: vi.fn().mockResolvedValue({ exitCode: 0, stdout: 'ok', stderr: '', timedOut: false } as CommandResult)
+    ls: vi
+      .fn()
+      .mockResolvedValue([
+        { name: 'a.ts', type: 'file', size: 100, mtimeMs: Date.now() } as FileLsEntry
+      ]),
+    runCommand: vi.fn().mockResolvedValue({
+      exitCode: 0,
+      stdout: 'ok',
+      stderr: '',
+      timedOut: false
+    } as CommandResult)
   };
 }
 

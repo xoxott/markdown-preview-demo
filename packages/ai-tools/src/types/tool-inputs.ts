@@ -381,3 +381,50 @@ export const StructuredOutputInputSchema = z.strictObject({
 });
 
 export type StructuredOutputInput = z.infer<typeof StructuredOutputInputSchema>;
+
+// === ToolSearchTool ===
+
+export const ToolSearchInputSchema = z.strictObject({
+  query: z
+    .string()
+    .describe(
+      'Tool search query — supports 3 modes: select:Read,Edit; keyword search; +prefix required terms'
+    ),
+  max_results: z
+    .number()
+    .int()
+    .min(1)
+    .max(20)
+    .optional()
+    .default(5)
+    .describe('Maximum number of results to return')
+});
+
+export type ToolSearchInput = z.infer<typeof ToolSearchInputSchema>;
+
+// === EnterWorktreeTool ===
+
+export const EnterWorktreeInputSchema = z.strictObject({
+  name: z
+    .string()
+    .regex(/^[a-zA-Z0-9._-]+$/, {
+      message: 'Worktree name must only contain letters, digits, dots, underscores, and dashes'
+    })
+    .max(64, { message: 'Worktree name must be at most 64 characters' })
+    .optional()
+    .describe('Optional name for the worktree')
+});
+
+export type EnterWorktreeInput = z.infer<typeof EnterWorktreeInputSchema>;
+
+// === ExitWorktreeTool ===
+
+export const ExitWorktreeInputSchema = z.strictObject({
+  action: z.enum(['keep', 'remove']).describe('"keep" leaves the worktree; "remove" deletes it'),
+  discard_changes: z
+    .boolean()
+    .optional()
+    .describe('Required true when action is "remove" and the worktree has uncommitted changes')
+});
+
+export type ExitWorktreeInput = z.infer<typeof ExitWorktreeInputSchema>;

@@ -153,3 +153,32 @@ export interface StructuredOutputOutput {
   readonly data: Record<string, unknown>;
   readonly errors?: string[];
 }
+
+// === ToolSearchTool ===
+
+export interface ToolSearchOutput {
+  readonly matches: string[];
+  readonly query: string;
+  readonly totalDeferredTools: number;
+  readonly pendingMcpServers?: string[];
+}
+
+// === EnterWorktreeTool ===
+
+export interface EnterWorktreeOutput {
+  readonly worktreePath: string;
+  readonly worktreeBranch: string;
+  readonly message: string;
+}
+
+// === ExitWorktreeTool ===
+
+export interface ExitWorktreeOutput {
+  readonly action: 'keep' | 'remove';
+  readonly originalCwd: string;
+  readonly worktreePath: string;
+  readonly worktreeBranch?: string;
+  readonly discardedFiles?: number;
+  readonly discardedCommits?: number;
+  readonly message: string;
+}

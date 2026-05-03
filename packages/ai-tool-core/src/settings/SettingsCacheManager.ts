@@ -1,8 +1,8 @@
 /**
  * SettingsCacheManager — 缓存读写编排
  *
- * 封装 loadSettingsFromDisk + 缓存生命周期管理。
- * 提供 loadFromDisk / invalidateAndReload / invalidateFile / getMerged 等方法。
+ * 封装 loadSettingsFromDisk + 缓存生命周期管理。 提供 loadFromDisk / invalidateAndReload / invalidateFile /
+ * getMerged 等方法。
  */
 
 import type { SettingLayer } from '../types/settings-layer';
@@ -11,23 +11,22 @@ import type { SettingsCache } from '../types/settings-cache';
 import {
   createEmptySettingsCache,
   invalidateSettingsCache,
-  invalidateSettingsSourceCache,
-  invalidateSettingsParseCache
+  invalidateSettingsParseCache,
+  invalidateSettingsSourceCache
 } from '../types/settings-cache';
 import { buildPermissionContextFromSettings } from '../types/settings-bridge';
 import type { ToolPermissionContext } from '../types/permission-context';
 import { DEFAULT_TOOL_PERMISSION_CONTEXT } from '../types/permission-context';
 import {
-  loadSettingsFromDisk,
   type LoadSettingsFromDiskOptions,
-  type LoadSettingsFromDiskResult
+  type LoadSettingsFromDiskResult,
+  loadSettingsFromDisk
 } from './SettingsLoader';
 
 /**
  * SettingsCacheManager — 缓存编排器
  *
- * 管理 Settings 的加载、缓存失效和权限桥接。
- * 调用 loadFromDisk 时自动桥接到 buildPermissionContextFromSettings。
+ * 管理 Settings 的加载、缓存失效和权限桥接。 调用 loadFromDisk 时自动桥接到 buildPermissionContextFromSettings。
  */
 export class SettingsCacheManager {
   private cache: SettingsCache;
