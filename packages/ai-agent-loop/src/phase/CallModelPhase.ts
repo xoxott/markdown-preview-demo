@@ -62,6 +62,12 @@ export class CallModelPhase implements LoopPhase {
           yield { type: 'tool_use_start', toolUse: chunk.toolUse };
         }
 
+        // tool_reference block (P12)
+        if (chunk.toolReference) {
+          ctx.pushToolReference(chunk.toolReference);
+          yield { type: 'tool_reference_start', toolReference: chunk.toolReference };
+        }
+
         // stopReason → ctx.meta（RecoveryPhase 检测 max_output_tokens）
         if (chunk.stopReason) {
           ctx.meta.stopReason = chunk.stopReason;

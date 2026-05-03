@@ -92,6 +92,12 @@ export class StreamingCallModelPhase implements LoopPhase {
           yield { type: 'tool_use_start', toolUse: chunk.toolUse };
         }
 
+        // tool_reference block (P12)
+        if (chunk.toolReference) {
+          ctx.pushToolReference(chunk.toolReference);
+          yield { type: 'tool_reference_start', toolReference: chunk.toolReference };
+        }
+
         // ★ 流式核心: 轮询已完成工具结果，交错 yield
         for (const completedResult of this.scheduler.getCompletedResults()) {
           allResults.push(completedResult);

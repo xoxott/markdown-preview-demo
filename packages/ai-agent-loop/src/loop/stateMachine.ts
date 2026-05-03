@@ -46,6 +46,7 @@ export function advanceState(
     role: 'assistant',
     content: ctx.accumulatedText,
     toolUses: [...ctx.toolUses],
+    ...(ctx.toolReferences.length > 0 ? { toolReferences: [...ctx.toolReferences] } : {}),
     timestamp: Date.now()
   };
 

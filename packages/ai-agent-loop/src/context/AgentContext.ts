@@ -1,7 +1,7 @@
 /** Agent 上下文（Agent Context） 单轮循环的唯一事实来源 */
 
 import type { AgentState } from '../types/state';
-import type { ToolUseBlock } from '../types/messages';
+import type { ToolReferenceBlock, ToolUseBlock } from '../types/messages';
 
 /**
  * Agent 上下文（只读视图 — 对外暴露）
@@ -17,6 +17,8 @@ export interface AgentContext {
   readonly accumulatedThinking: string;
   /** 当前轮检测到的 tool_use blocks */
   readonly toolUses: readonly ToolUseBlock[];
+  /** 当前轮检测到的 tool_reference blocks (P12) */
+  readonly toolReferences: readonly ToolReferenceBlock[];
   /** 是否需要工具执行 */
   readonly needsToolExecution: boolean;
   /** 错误 */
@@ -37,6 +39,8 @@ export interface MutableAgentContext extends AgentContext {
   appendThinking(delta: string): void;
   /** 追加 tool_use block */
   pushToolUse(toolUse: ToolUseBlock): void;
+  /** 追加 tool_reference block (P12) */
+  pushToolReference(toolReference: ToolReferenceBlock): void;
   /** 设置需要工具执行标记 */
   setNeedsToolExecution(value: boolean): void;
   /** 设置错误 */
@@ -53,6 +57,7 @@ export function createMutableAgentContext(state: AgentState): MutableAgentContex
   let accumulatedText = '';
   let accumulatedThinking = '';
   const toolUses: ToolUseBlock[] = [];
+  const toolReferences: ToolReferenceBlock[] = [];
   let needsToolExecution = false;
   let error: unknown | undefined;
   const meta: Record<string, unknown> = {};
@@ -70,6 +75,9 @@ export function createMutableAgentContext(state: AgentState): MutableAgentContex
     get toolUses() {
       return toolUses;
     },
+    get toolReferences() {
+      return toolReferences;
+    },
     get needsToolExecution() {
       return needsToolExecution;
     },
@@ -85,6 +93,9 @@ export function createMutableAgentContext(state: AgentState): MutableAgentContex
     },
     pushToolUse(toolUse: ToolUseBlock) {
       toolUses.push(toolUse);
+    },
+    pushToolReference(toolReference: ToolReferenceBlock) {
+      toolReferences.push(toolReference);
     },
     setNeedsToolExecution(value: boolean) {
       needsToolExecution = value;
