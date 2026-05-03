@@ -9,6 +9,7 @@
  * 4. pending event缓冲 — 异步消费者未连接时的事件暂存
  *
  * 使用场景:
+ *
  * - CLI 进度条更新（Hook执行中显示 "Running hook: xxx"）
  * - IDE 扩展实时显示Hook执行状态
  * - 日志系统捕获Hook执行事件
@@ -17,7 +18,6 @@
  */
 
 import type { HookEvent, HookOutcome } from '../types/hooks';
-import type { HookInput } from '../types/input';
 
 // ============================================================
 // 广播事件类型
@@ -72,6 +72,7 @@ export type HookBroadcastListener = (event: HookBroadcastEvent) => void;
  * HookBroadcaster — Hook执行事件广播器
  *
  * 特性:
+ *
  * - 多监听器订阅 — 多个消费者可同时监听
  * - pending缓冲 — 消费者未连接时暂存事件，连接后一次性推送
  * - unsubscribe — 监听器可随时取消订阅
@@ -225,13 +226,12 @@ export class HookBroadcaster {
  * HookExecutionTracker — 为单个Hook执行提供便捷的进度跟踪
  *
  * 使用方式:
- * ```
- * const tracker = broadcaster.trackExecution('myHook', 'PreToolUse');
- * tracker.started();
- * tracker.progress('stdout line 1');
- * tracker.progress('stderr warning', 'stderr');
- * tracker.completed('success', 150);
- * ```
+ *
+ *     const tracker = broadcaster.trackExecution('myHook', 'PreToolUse');
+ *     tracker.started();
+ *     tracker.progress('stdout line 1');
+ *     tracker.progress('stderr warning', 'stderr');
+ *     tracker.completed('success', 150);
  */
 export class HookExecutionTracker {
   private readonly broadcaster: HookBroadcaster;

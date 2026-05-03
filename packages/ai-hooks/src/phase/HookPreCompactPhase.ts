@@ -17,10 +17,12 @@ import { CallbackRunner } from '../runner/CallbackRunner';
  * 1. 从 ctx.meta 读取 token 预算信息
  * 2. 执行 PreCompact hooks
  * 3. 聚合结果写入 ctx.meta:
+ *
  *    - hookPreCompactPrevent → 阻止本次压缩
  *    - hookPreCompactStrategyOverride → 覆盖压缩策略选择
  *
  * PreCompact hooks 在 context 压缩前触发，用于：
+ *
  * - 拦截/延迟压缩（如正在执行关键操作）
  * - 选择压缩策略
  * - 保存压缩前的关键信息

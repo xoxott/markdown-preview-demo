@@ -32,7 +32,9 @@ interface MockState {
   transition: { type: string };
 }
 
-function createMockCtx(overrides?: Partial<{ meta: Record<string, unknown>; state: Partial<MockState> }>) {
+function createMockCtx(
+  overrides?: Partial<{ meta: Record<string, unknown>; state: Partial<MockState> }>
+) {
   const messages: { role: string; content: string }[] = [
     { role: 'user', content: 'test message' },
     { role: 'assistant', content: 'response text' }
@@ -52,9 +54,15 @@ function createMockCtx(overrides?: Partial<{ meta: Record<string, unknown>; stat
     meta: overrides?.meta ?? {},
     state,
     toolUses: [],
-    setError: (_err: Error) => { /* mock */ },
-    appendText: (_text: string) => { /* mock */ },
-    setNeedsToolExecution: (_v: boolean) => { /* mock */ }
+    setError: (_err: Error) => {
+      /* mock */
+    },
+    appendText: (_text: string) => {
+      /* mock */
+    },
+    setNeedsToolExecution: (_v: boolean) => {
+      /* mock */
+    }
   };
 
   return ctx;
@@ -94,7 +102,8 @@ describe('HookSessionStartPhase', () => {
     const ctx = createMockCtx();
 
     const gen = phase.execute(ctx as any, mockNext);
-    for await (const _ of gen) {}
+    for await (const _ of gen) {
+    }
     expect(ctx.meta.hookSessionStartContexts).toEqual(['initialized']);
   });
 
@@ -118,7 +127,8 @@ describe('HookSessionStartPhase', () => {
     };
 
     const gen = phase.execute(ctx as any, mockNext);
-    for await (const _ of gen) {}
+    for await (const _ of gen) {
+    }
     expect(errorSet).toBe(true);
   });
 });
@@ -134,14 +144,18 @@ describe('HookSessionEndPhase', () => {
     registry.register({
       name: 'cleanup',
       event: 'SessionEnd',
-      handler: async () => { hookCalled = true; return { outcome: 'success' }; }
+      handler: async () => {
+        hookCalled = true;
+        return { outcome: 'success' };
+      }
     });
 
     const phase = new HookSessionEndPhase(registry);
     const ctx = createMockCtx({ state: { transition: { type: 'next_turn' } } });
 
     const gen = phase.execute(ctx as any, mockNext);
-    for await (const _ of gen) {}
+    for await (const _ of gen) {
+    }
     expect(hookCalled).toBe(false);
   });
 
@@ -161,7 +175,8 @@ describe('HookSessionEndPhase', () => {
     const ctx = createMockCtx({ state: { transition: { type: 'completed' } } });
 
     const gen = phase.execute(ctx as any, mockNext);
-    for await (const _ of gen) {}
+    for await (const _ of gen) {
+    }
     expect(capturedInput).not.toBeNull();
     expect(capturedInput!.hookEventName).toBe('SessionEnd');
     expect(capturedInput!.transitionType).toBe('completed');
@@ -201,7 +216,8 @@ describe('HookUserPromptPhase', () => {
     const ctx = createMockCtx();
 
     const gen = phase.execute(ctx as any, mockNext);
-    for await (const _ of gen) {}
+    for await (const _ of gen) {
+    }
     expect(ctx.meta.hookUserPromptModifiedMessage).toBe('rewritten prompt');
   });
 
@@ -225,7 +241,8 @@ describe('HookUserPromptPhase', () => {
     };
 
     const gen = phase.execute(ctx as any, mockNext);
-    for await (const _ of gen) {}
+    for await (const _ of gen) {
+    }
     expect(errorSet).toBe(true);
     expect(ctx.meta.hookUserPromptPrevent).toBe(true);
   });
@@ -242,14 +259,18 @@ describe('HookNotificationPhase', () => {
     registry.register({
       name: 'notify',
       event: 'Notification',
-      handler: async () => { hookCalled = true; return { outcome: 'success' }; }
+      handler: async () => {
+        hookCalled = true;
+        return { outcome: 'success' };
+      }
     });
 
     const phase = new HookNotificationPhase(registry);
     const ctx = createMockCtx();
 
     const gen = phase.execute(ctx as any, mockNext);
-    for await (const _ of gen) {}
+    for await (const _ of gen) {
+    }
     expect(hookCalled).toBe(false);
   });
 
@@ -266,10 +287,13 @@ describe('HookNotificationPhase', () => {
     });
 
     const phase = new HookNotificationPhase(registry);
-    const ctx = createMockCtx({ meta: { notificationMessage: 'deploy complete', notificationToolName: 'Bash' } });
+    const ctx = createMockCtx({
+      meta: { notificationMessage: 'deploy complete', notificationToolName: 'Bash' }
+    });
 
     const gen = phase.execute(ctx as any, mockNext);
-    for await (const _ of gen) {}
+    for await (const _ of gen) {
+    }
     expect(capturedInput).not.toBeNull();
     expect(capturedInput!.hookEventName).toBe('Notification');
     expect(capturedInput!.message).toBe('deploy complete');
@@ -288,14 +312,18 @@ describe('HookPreCompactPhase', () => {
     registry.register({
       name: 'compact-guard',
       event: 'PreCompact',
-      handler: async () => { hookCalled = true; return { outcome: 'success' }; }
+      handler: async () => {
+        hookCalled = true;
+        return { outcome: 'success' };
+      }
     });
 
     const phase = new HookPreCompactPhase(registry);
     const ctx = createMockCtx();
 
     const gen = phase.execute(ctx as any, mockNext);
-    for await (const _ of gen) {}
+    for await (const _ of gen) {
+    }
     expect(hookCalled).toBe(false);
   });
 
@@ -315,7 +343,8 @@ describe('HookPreCompactPhase', () => {
     const ctx = createMockCtx({ meta: { estimatedTokens: 150000, contextWindow: 200000 } });
 
     const gen = phase.execute(ctx as any, mockNext);
-    for await (const _ of gen) {}
+    for await (const _ of gen) {
+    }
     expect(capturedInput).not.toBeNull();
     expect(capturedInput!.estimatedTokens).toBe(150000);
     expect(capturedInput!.contextWindow).toBe(200000);
@@ -336,7 +365,8 @@ describe('HookPreCompactPhase', () => {
     const ctx = createMockCtx({ meta: { estimatedTokens: 150000, contextWindow: 200000 } });
 
     const gen = phase.execute(ctx as any, mockNext);
-    for await (const _ of gen) {}
+    for await (const _ of gen) {
+    }
     expect(ctx.meta.hookPreCompactPrevent).toBe(true);
   });
 });
@@ -352,14 +382,18 @@ describe('HookPostCompactPhase', () => {
     registry.register({
       name: 'compact-log',
       event: 'PostCompact',
-      handler: async () => { hookCalled = true; return { outcome: 'success' }; }
+      handler: async () => {
+        hookCalled = true;
+        return { outcome: 'success' };
+      }
     });
 
     const phase = new HookPostCompactPhase(registry);
     const ctx = createMockCtx();
 
     const gen = phase.execute(ctx as any, mockNext);
-    for await (const _ of gen) {}
+    for await (const _ of gen) {
+    }
     expect(hookCalled).toBe(false);
   });
 
@@ -376,10 +410,17 @@ describe('HookPostCompactPhase', () => {
     });
 
     const phase = new HookPostCompactPhase(registry);
-    const ctx = createMockCtx({ meta: { originalTokenCount: 180000, compressedTokenCount: 50000, compressionMethod: 'collapse' } });
+    const ctx = createMockCtx({
+      meta: {
+        originalTokenCount: 180000,
+        compressedTokenCount: 50000,
+        compressionMethod: 'collapse'
+      }
+    });
 
     const gen = phase.execute(ctx as any, mockNext);
-    for await (const _ of gen) {}
+    for await (const _ of gen) {
+    }
     expect(capturedInput).not.toBeNull();
     expect(capturedInput!.originalTokenCount).toBe(180000);
     expect(capturedInput!.compressedTokenCount).toBe(50000);
@@ -399,10 +440,13 @@ describe('HookPostCompactPhase', () => {
     });
 
     const phase = new HookPostCompactPhase(registry);
-    const ctx = createMockCtx({ meta: { originalTokenCount: 180000, compressedTokenCount: 50000 } });
+    const ctx = createMockCtx({
+      meta: { originalTokenCount: 180000, compressedTokenCount: 50000 }
+    });
 
     const gen = phase.execute(ctx as any, mockNext);
-    for await (const _ of gen) {}
+    for await (const _ of gen) {
+    }
     expect(capturedInput!.compressionMethod).toBe('unknown');
   });
 });

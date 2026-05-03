@@ -11,8 +11,8 @@ import type { ExtendedToolUseContext } from '../context-merge';
 import type { FileReadInput } from '../types/tool-inputs';
 import type { FileReadOutput } from '../types/tool-outputs';
 import { FileReadInputSchema } from '../types/tool-inputs';
-import { validateFileReadSecurity } from './file-read-security';
 import { truncateOutput } from '../utils/output-truncate';
+import { validateFileReadSecurity } from './file-read-security';
 
 /**
  * FileReadTool — 读取文件内容

@@ -129,7 +129,11 @@ export class NodeFileSystemProvider implements FileSystemProvider {
     const found = findActualString(content, oldString, replaceAll);
 
     if (!found.found) {
-      return { applied: false, replacementCount: 0, error: found.error ?? 'oldString not found in file' };
+      return {
+        applied: false,
+        replacementCount: 0,
+        error: found.error ?? 'oldString not found in file'
+      };
     }
 
     // 使用 actualOldString 替换（保留文件原有引号风格）

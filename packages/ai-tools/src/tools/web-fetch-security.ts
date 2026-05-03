@@ -19,6 +19,7 @@
  * 被阻止的域名列表 — 不允许 WebFetch 访问这些域名
  *
  * 参考 Claude Code checkDomainBlocklist:
+ *
  * - api.anthropic.com — 内部API端点，可能泄露认证信息
  * - 其他认证/内部服务端点
  */
@@ -39,8 +40,7 @@ const DOMAIN_BLOCKLIST: readonly string[] = [
 /**
  * 被阻止的域名后缀 — 匹配这些后缀的域名也被阻止
  *
- * 如 api.anthropic.com → 任何 *.anthropic.com 子域
- * 实际实现中精确匹配优先，后缀匹配是补充
+ * 如 api.anthropic.com → 任何 *.anthropic.com 子域 实际实现中精确匹配优先，后缀匹配是补充
  */
 const DOMAIN_BLOCKLIST_SUFFIXES: readonly string[] = [
   '.anthropic.com',
@@ -59,7 +59,11 @@ export interface WebFetchSecurityResult {
   /** 规范化后的URL（HTTP→HTTPS升级等） */
   readonly normalizedUrl: string;
   /** 安全警告列表 */
-  readonly warnings: readonly { issue: string; description: string; severity: 'critical' | 'high' | 'medium' }[];
+  readonly warnings: readonly {
+    issue: string;
+    description: string;
+    severity: 'critical' | 'high' | 'medium';
+  }[];
   /** 错误信息（阻止访问时） */
   readonly error?: string;
 }
@@ -68,6 +72,7 @@ export interface WebFetchSecurityResult {
  * validateWebFetchUrl — 验证URL安全性
  *
  * 检查:
+ *
  * 1. URL格式有效性
  * 2. URL长度限制
  * 3. 协议检查（HTTP→HTTPS自动升级）
@@ -78,7 +83,11 @@ export interface WebFetchSecurityResult {
  * @returns 安全验证结果
  */
 export function validateWebFetchUrl(url: string): WebFetchSecurityResult {
-  const warnings: { issue: string; description: string; severity: 'critical' | 'high' | 'medium' }[] = [];
+  const warnings: {
+    issue: string;
+    description: string;
+    severity: 'critical' | 'high' | 'medium';
+  }[] = [];
   let normalizedUrl = url;
 
   // === Step 1: URL长度检查 ===
@@ -141,7 +150,7 @@ export function validateWebFetchUrl(url: string): WebFetchSecurityResult {
     if (hostname === blocked) {
       return {
         safe: false,
-        normalizedUrl: normalizedUrl,
+        normalizedUrl,
         warnings: [],
         error: `Blocked domain: ${hostname} (internal/auth endpoint)`
       };
@@ -153,7 +162,7 @@ export function validateWebFetchUrl(url: string): WebFetchSecurityResult {
     if (hostname.endsWith(suffix) && hostname !== suffix.slice(1)) {
       return {
         safe: false,
-        normalizedUrl: normalizedUrl,
+        normalizedUrl,
         warnings: [],
         error: `Blocked domain suffix: ${hostname} matches ${suffix}`
       };
@@ -164,7 +173,7 @@ export function validateWebFetchUrl(url: string): WebFetchSecurityResult {
   if (isPrivateIp(hostname)) {
     return {
       safe: false,
-      normalizedUrl: normalizedUrl,
+      normalizedUrl,
       warnings: [],
       error: `Blocked: private/internal IP address ${hostname}`
     };
@@ -173,7 +182,7 @@ export function validateWebFetchUrl(url: string): WebFetchSecurityResult {
   // 全部通过 → 安全
   return {
     safe: true,
-    normalizedUrl: normalizedUrl,
+    normalizedUrl,
     warnings
   };
 }
@@ -182,6 +191,7 @@ export function validateWebFetchUrl(url: string): WebFetchSecurityResult {
  * isPermittedRedirect — 检查跨域重定向是否被允许
  *
  * 参考 Claude Code isPermittedRedirect:
+ *
  * - 同域重定向 → 允许（如 example.com/page1 → example.com/page2）
  * - 跨域重定向 → 需检查目标域名是否在黑名单
  * - 认证端点重定向 → 拒绝

@@ -12,10 +12,10 @@ import type { ExtendedToolUseContext } from '../context-merge';
 import type { BashInput } from '../types/tool-inputs';
 import type { BashOutput } from '../types/tool-outputs';
 import { BashInputSchema } from '../types/tool-inputs';
-import { assessBashCommandSecurity } from './bash-security';
-import { matchBashPermissionRule, DEFAULT_BASH_PERMISSION_RULES } from './bash-permission-rules';
-import type { BashPermissionRule } from './bash-permission-rules';
 import { truncateOutput } from '../utils/output-truncate';
+import { assessBashCommandSecurity } from './bash-security';
+import { DEFAULT_BASH_PERMISSION_RULES, matchBashPermissionRule } from './bash-permission-rules';
+import type { BashPermissionRule } from './bash-permission-rules';
 
 /** 最大超时时间（10 分钟） */
 const MAX_TIMEOUT_MS = 600_000;
@@ -78,7 +78,9 @@ export const bashTool = buildTool<BashInput, BashOutput>({
   checkPermissions: (input: BashInput, context: ToolUseContext): PermissionResult => {
     // Step 1: 规则引擎匹配（deny > ask > allow优先级）
     // 从context中获取自定义规则，或使用默认规则
-    const customRules = (context as unknown as Record<string, unknown>)?.bashPermissionRules as readonly BashPermissionRule[] | undefined;
+    const customRules = (context as unknown as Record<string, unknown>)?.bashPermissionRules as
+      | readonly BashPermissionRule[]
+      | undefined;
     const rules = customRules ?? DEFAULT_BASH_PERMISSION_RULES;
     const ruleMatch = matchBashPermissionRule(input.command, rules);
 
@@ -173,7 +175,12 @@ export const bashTool = buildTool<BashInput, BashOutput>({
     return {
       toolName: 'bash',
       input,
-      safetyLabel: assessment.safetyLevel === 'safe' ? 'readonly' : assessment.safetyLevel === 'dangerous' ? 'destructive' : 'system',
+      safetyLabel:
+        assessment.safetyLevel === 'safe'
+          ? 'readonly'
+          : assessment.safetyLevel === 'dangerous'
+            ? 'destructive'
+            : 'system',
       isReadOnly: assessment.isReadOnly,
       isDestructive: assessment.hasDestructive
     };

@@ -2,7 +2,10 @@
 
 import { describe, expect, it } from 'vitest';
 import { InMemoryMailbox } from '../mailbox/InMemoryMailbox';
-import { PermissionSyncBroadcaster, PermissionSyncReceiver } from '../permission/PermissionSyncBroadcaster';
+import {
+  PermissionSyncBroadcaster,
+  PermissionSyncReceiver
+} from '../permission/PermissionSyncBroadcaster';
 import type { PermissionUpdateMessage, SettingsUpdateMessage } from '../types/permission-sync';
 
 // ============================================================
@@ -31,7 +34,9 @@ describe('PermissionSyncBroadcaster', () => {
 
     expect(worker1Msgs.length).toBe(1);
     expect(worker2Msgs.length).toBe(1);
-    expect((worker1Msgs[0].content as { payload: PermissionUpdateMessage }).payload.updateType).toBe('addRules');
+    expect(
+      (worker1Msgs[0].content as { payload: PermissionUpdateMessage }).payload.updateType
+    ).toBe('addRules');
   });
 
   it('广播 SettingsUpdateMessage → 所有Worker收到', async () => {
@@ -65,7 +70,10 @@ describe('PermissionSyncBroadcaster', () => {
     const update: PermissionUpdateMessage = {
       type: 'permission_update',
       updateType: 'addRules',
-      rules: [{ behavior: 'allow', ruleValue: 'Bash(ls)' }, { behavior: 'deny', ruleValue: 'Bash(rm)' }]
+      rules: [
+        { behavior: 'allow', ruleValue: 'Bash(ls)' },
+        { behavior: 'deny', ruleValue: 'Bash(rm)' }
+      ]
     };
 
     await broadcaster.broadcastPermissionUpdate(update);

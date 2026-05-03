@@ -2,10 +2,10 @@
 
 import { describe, expect, it } from 'vitest';
 import {
+  checkFileSize,
   hasBinaryExtension,
   isBlockedDevicePath,
   isUncPath,
-  checkFileSize,
   validateFileReadSecurity
 } from '../tools/file-read-security';
 

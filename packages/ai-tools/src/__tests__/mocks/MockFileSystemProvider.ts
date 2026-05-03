@@ -114,13 +114,18 @@ export class MockFileSystemProvider implements FileSystemProvider {
     // 使用 findActualString 进行智能查找（精确匹配 + 引号规范化 + 多匹配检测）
     const found = findActualString(entry.content, oldString, replaceAll);
     if (!found.found) {
-      return { applied: false, replacementCount: 0, error: found.error ?? 'oldString not found in file' };
+      return {
+        applied: false,
+        replacementCount: 0,
+        error: found.error ?? 'oldString not found in file'
+      };
     }
 
     const actualOldString = found.actualOldString;
-    const newContent = replaceAll || found.matchCount > 1
-      ? entry.content.split(actualOldString).join(newString)
-      : entry.content.replace(actualOldString, newString);
+    const newContent =
+      replaceAll || found.matchCount > 1
+        ? entry.content.split(actualOldString).join(newString)
+        : entry.content.replace(actualOldString, newString);
 
     this.files.set(path, { content: newContent, mtimeMs: Date.now() });
 
@@ -236,18 +241,6 @@ function guessMimeType(path: string): string {
   if (path.endsWith('.jpg') || path.endsWith('.jpeg')) return 'image/jpeg';
   if (path.endsWith('.pdf')) return 'application/pdf';
   return 'text/plain';
-}
-
-function countOccurrences(content: string, substring: string): number {
-  let count = 0;
-  let pos = 0;
-  while (true) {
-    pos = content.indexOf(substring, pos);
-    if (pos === -1) break;
-    count++;
-    pos += substring.length;
-  }
-  return count;
 }
 
 function buildGrepResult(

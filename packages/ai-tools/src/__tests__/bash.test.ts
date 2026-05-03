@@ -281,7 +281,9 @@ describe('BashTool — 安全声明（动态评估）', () => {
   });
 
   it('safetyLabel → destructive（rm -rf破坏性）', () => {
-    expect(bashTool.safetyLabel({ command: 'rm -rf /', runInBackground: false })).toBe('destructive');
+    expect(bashTool.safetyLabel({ command: 'rm -rf /', runInBackground: false })).toBe(
+      'destructive'
+    );
   });
 
   it('safetyLabel → system（npm install需审核）', () => {

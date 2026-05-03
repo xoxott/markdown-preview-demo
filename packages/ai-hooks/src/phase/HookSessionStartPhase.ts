@@ -19,6 +19,7 @@ import { CallbackRunner } from '../runner/CallbackRunner';
  * 3. 聚合结果写入 ctx.meta
  *
  * SessionStart hooks 在对话循环启动时触发，用于：
+ *
  * - 初始化环境变量/配置
  * - 记录会话元数据
  * - 设置监控/审计

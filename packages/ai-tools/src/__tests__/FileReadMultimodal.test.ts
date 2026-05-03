@@ -2,10 +2,10 @@
 
 import { describe, expect, it } from 'vitest';
 import {
-  readImageFile,
+  parseNotebook,
   parsePdfPageRange,
-  readPdfFile,
-  parseNotebook
+  readImageFile,
+  readPdfFile
 } from '../tools/file-read-multimodal';
 
 // ============================================================
@@ -14,7 +14,7 @@ import {
 
 describe('readImageFile — 基本读取', () => {
   it('读取PNG → base64+mimeType', () => {
-    const buffer = Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A]); // PNG header bytes
+    const buffer = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a]); // PNG header bytes
     const result = readImageFile('/test.png', buffer, 'image/png');
     expect(result.mimeType).toBe('image/png');
     expect(result.base64.length).toBeGreaterThan(0);
@@ -129,12 +129,14 @@ describe('parseNotebook', () => {
 
   it('单code cell → 解析正确', () => {
     const nb = JSON.stringify({
-      cells: [{
-        cell_type: 'code',
-        source: ['print("hello")\n'],
-        execution_count: 1,
-        outputs: []
-      }],
+      cells: [
+        {
+          cell_type: 'code',
+          source: ['print("hello")\n'],
+          execution_count: 1,
+          outputs: []
+        }
+      ],
       metadata: { kernelspec: { name: 'python3', language: 'python' } }
     });
     const result = parseNotebook(nb);
@@ -147,10 +149,12 @@ describe('parseNotebook', () => {
 
   it('markdown cell → 无outputs', () => {
     const nb = JSON.stringify({
-      cells: [{
-        cell_type: 'markdown',
-        source: '# Title\n\nSome text'
-      }]
+      cells: [
+        {
+          cell_type: 'markdown',
+          source: '# Title\n\nSome text'
+        }
+      ]
     });
     const result = parseNotebook(nb);
     expect(result.cells[0].cellType).toBe('markdown');
@@ -159,16 +163,20 @@ describe('parseNotebook', () => {
 
   it('code cell + stream output → text提取', () => {
     const nb = JSON.stringify({
-      cells: [{
-        cell_type: 'code',
-        source: 'print("hi")',
-        execution_count: 2,
-        outputs: [{
-          output_type: 'stream',
-          name: 'stdout',
-          text: 'hi\n'
-        }]
-      }]
+      cells: [
+        {
+          cell_type: 'code',
+          source: 'print("hi")',
+          execution_count: 2,
+          outputs: [
+            {
+              output_type: 'stream',
+              name: 'stdout',
+              text: 'hi\n'
+            }
+          ]
+        }
+      ]
     });
     const result = parseNotebook(nb);
     const output = result.cells[0].outputs?.[0];
@@ -178,17 +186,21 @@ describe('parseNotebook', () => {
 
   it('code cell + error output → traceback', () => {
     const nb = JSON.stringify({
-      cells: [{
-        cell_type: 'code',
-        source: 'raise ValueError("bad")',
-        execution_count: 3,
-        outputs: [{
-          output_type: 'error',
-          ename: 'ValueError',
-          evalue: 'bad',
-          traceback: ['Traceback...', 'ValueError: bad']
-        }]
-      }]
+      cells: [
+        {
+          cell_type: 'code',
+          source: 'raise ValueError("bad")',
+          execution_count: 3,
+          outputs: [
+            {
+              output_type: 'error',
+              ename: 'ValueError',
+              evalue: 'bad',
+              traceback: ['Traceback...', 'ValueError: bad']
+            }
+          ]
+        }
+      ]
     });
     const result = parseNotebook(nb);
     const output = result.cells[0].outputs?.[0];
@@ -200,17 +212,21 @@ describe('parseNotebook', () => {
 
   it('code cell + display_data + image → imageData', () => {
     const nb = JSON.stringify({
-      cells: [{
-        cell_type: 'code',
-        source: 'plot()',
-        outputs: [{
-          output_type: 'display_data',
-          data: {
-            'text/plain': '<Figure>',
-            'image/png': 'base64_png_data'
-          }
-        }]
-      }]
+      cells: [
+        {
+          cell_type: 'code',
+          source: 'plot()',
+          outputs: [
+            {
+              output_type: 'display_data',
+              data: {
+                'text/plain': '<Figure>',
+                'image/png': 'base64_png_data'
+              }
+            }
+          ]
+        }
+      ]
     });
     const result = parseNotebook(nb);
     const output = result.cells[0].outputs?.[0];

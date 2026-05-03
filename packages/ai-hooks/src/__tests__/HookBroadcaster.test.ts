@@ -1,8 +1,13 @@
 /** P71 测试 — HookBroadcaster(事件广播+pending缓冲+subscribe+HookExecutionTracker) */
 
 import { describe, expect, it } from 'vitest';
-import { HookBroadcaster, HookExecutionTracker } from '../executor/HookBroadcaster';
-import type { HookBroadcastEvent, HookStartedEvent, HookProgressEvent, HookCompletedEvent } from '../executor/HookBroadcaster';
+import { HookBroadcaster } from '../executor/HookBroadcaster';
+import type {
+  HookBroadcastEvent,
+  HookCompletedEvent,
+  HookProgressEvent,
+  HookStartedEvent
+} from '../executor/HookBroadcaster';
 
 // ============================================================
 // HookBroadcaster — 事件广播
@@ -48,7 +53,9 @@ describe('HookBroadcaster — subscribe + broadcast', () => {
   it('监听器异常不影响广播', () => {
     const broadcaster = new HookBroadcaster();
     const events: HookBroadcastEvent[] = [];
-    broadcaster.subscribe(() => { throw new Error('listener error'); });
+    broadcaster.subscribe(() => {
+      throw new Error('listener error');
+    });
     broadcaster.subscribe(event => events.push(event));
 
     broadcaster.emitHookStarted('hook1', 'PreToolUse');

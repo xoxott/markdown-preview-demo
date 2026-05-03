@@ -1,7 +1,7 @@
 /** P65 测试 — WebFetch安全验证(URL验证+域名黑名单+跨域重定向+内网IP) */
 
 import { describe, expect, it } from 'vitest';
-import { validateWebFetchUrl, isPermittedRedirect } from '../tools/web-fetch-security';
+import { isPermittedRedirect, validateWebFetchUrl } from '../tools/web-fetch-security';
 
 // ============================================================
 // validateWebFetchUrl — URL验证
@@ -21,7 +21,7 @@ describe('validateWebFetchUrl — URL格式验证', () => {
   });
 
   it('超长URL → safe=false', () => {
-    const longUrl = 'https://example.com/' + 'a'.repeat(2000);
+    const longUrl = `https://example.com/${'a'.repeat(2000)}`;
     const result = validateWebFetchUrl(longUrl);
     expect(result.safe).toBe(false);
     expect(result.error).toContain('maximum length');
@@ -137,12 +137,18 @@ describe('isPermittedRedirect — 跨域重定向', () => {
   });
 
   it('跨域→黑名单域名 → permitted=false', () => {
-    const result = isPermittedRedirect('https://example.com/redirect', 'https://api.anthropic.com/v1');
+    const result = isPermittedRedirect(
+      'https://example.com/redirect',
+      'https://api.anthropic.com/v1'
+    );
     expect(result.permitted).toBe(false);
   });
 
   it('跨域→内网IP → permitted=false', () => {
-    const result = isPermittedRedirect('https://example.com/redirect', 'https://192.168.1.1/internal');
+    const result = isPermittedRedirect(
+      'https://example.com/redirect',
+      'https://192.168.1.1/internal'
+    );
     expect(result.permitted).toBe(false);
   });
 

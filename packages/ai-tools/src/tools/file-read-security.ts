@@ -5,7 +5,7 @@
  *
  * 1. BLOCKED_DEVICE_PATHS — 不允许读取设备文件(/dev/zero等)
  * 2. hasBinaryExtension — 检测二进制文件扩展名，拒绝读取
- * 3. UNC路径安全 — 拒绝Windows UNC路径(\\server\path)
+ * 3. UNC路径安全 — 拒绝Windows UNC路径(\server\path)
  * 4. 文件大小预检 — 超大文件警告或拒绝
  *
  * 参考 Claude Code src/utils/fs/blockedPaths.ts + binaryExtensions.ts
@@ -21,6 +21,7 @@ import { BLOCKED_DEVICE_PATHS } from './bash-security';
  * 二进制文件扩展名列表 — 这些文件不应该用FileRead读取（内容不可读）
  *
  * 参考 Claude Code BINARY_EXTENSIONS:
+ *
  * - 图片: jpg/png/gif/bmp/svg等
  * - 音频: mp3/wav/flac等
  * - 视频: mp4/avi/mov等
@@ -31,28 +32,103 @@ import { BLOCKED_DEVICE_PATHS } from './bash-security';
  */
 const BINARY_EXTENSIONS: readonly string[] = [
   // 图片
-  '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.ico', '.tif', '.tiff', '.webp', '.heic', '.heif', '.raw',
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.gif',
+  '.bmp',
+  '.ico',
+  '.tif',
+  '.tiff',
+  '.webp',
+  '.heic',
+  '.heif',
+  '.raw',
   // 音频
-  '.mp3', '.wav', '.flac', '.ogg', '.aac', '.m4a', '.wma', '.opus',
+  '.mp3',
+  '.wav',
+  '.flac',
+  '.ogg',
+  '.aac',
+  '.m4a',
+  '.wma',
+  '.opus',
   // 视频
-  '.mp4', '.avi', '.mov', '.mkv', '.wmv', '.flv', '.webm', '.m4v',
+  '.mp4',
+  '.avi',
+  '.mov',
+  '.mkv',
+  '.wmv',
+  '.flv',
+  '.webm',
+  '.m4v',
   // 压缩/归档
-  '.zip', '.tar', '.gz', '.bz2', '.xz', '.rar', '.7z', '.lz', '.lzma', '.zst',
+  '.zip',
+  '.tar',
+  '.gz',
+  '.bz2',
+  '.xz',
+  '.rar',
+  '.7z',
+  '.lz',
+  '.lzma',
+  '.zst',
   // 可执行/库
-  '.exe', '.dll', '.so', '.dylib', '.bin', '.o', '.obj', '.a', '.lib',
-  '.msi', '.dmg', '.iso', '.img',
+  '.exe',
+  '.dll',
+  '.so',
+  '.dylib',
+  '.bin',
+  '.o',
+  '.obj',
+  '.a',
+  '.lib',
+  '.msi',
+  '.dmg',
+  '.iso',
+  '.img',
   // 数据库
-  '.db', '.sqlite', '.sqlite3', '.mdb',
+  '.db',
+  '.sqlite',
+  '.sqlite3',
+  '.mdb',
   // 文档（二进制格式）
-  '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.odt', '.ods', '.odp',
+  '.pdf',
+  '.doc',
+  '.docx',
+  '.xls',
+  '.xlsx',
+  '.ppt',
+  '.pptx',
+  '.odt',
+  '.ods',
+  '.odp',
   // 字体
-  '.ttf', '.otf', '.woff', '.woff2', '.eot',
+  '.ttf',
+  '.otf',
+  '.woff',
+  '.woff2',
+  '.eot',
   // Java/编译
-  '.class', '.jar', '.war', '.pyc', '.pyd', '.nib',
+  '.class',
+  '.jar',
+  '.war',
+  '.pyc',
+  '.pyd',
+  '.nib',
   // 其他二进制
-  '.swf', '.app', '.deb', '.rpm', '.crx',
+  '.swf',
+  '.app',
+  '.deb',
+  '.rpm',
+  '.crx',
   // 编码文件
-  '.p12', '.pfx', '.der', '.crt', '.key', '.pem'
+  '.p12',
+  '.pfx',
+  '.der',
+  '.crt',
+  '.key',
+  '.pem'
 ];
 
 /**
@@ -89,7 +165,7 @@ export function hasBinaryExtension(filePath: string): boolean {
  */
 export function isBlockedDevicePath(filePath: string): boolean {
   for (const blocked of BLOCKED_DEVICE_PATHS) {
-    if (filePath === blocked || filePath.startsWith(blocked + '/')) {
+    if (filePath === blocked || filePath.startsWith(`${blocked}/`)) {
       return true;
     }
   }
@@ -103,8 +179,7 @@ export function isBlockedDevicePath(filePath: string): boolean {
 /**
  * isUncPath — 检测是否为Windows UNC路径
  *
- * UNC路径(\\server\share\path)可能指向网络共享资源，
- * 在安全环境中不应允许读取。
+ * UNC路径(\server\share\path)可能指向网络共享资源， 在安全环境中不应允许读取。
  *
  * @param filePath 文件路径
  * @returns true if 路径是UNC路径
@@ -199,6 +274,7 @@ export interface FileReadSecurityResult {
  * validateFileReadSecurity — 综合FileRead安全验证
  *
  * 4步检查:
+ *
  * 1. 设备文件路径保护（/dev/zero等）
  * 2. 二进制文件扩展名拒绝
  * 3. UNC路径安全

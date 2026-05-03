@@ -2,12 +2,12 @@
 
 import { describe, expect, it } from 'vitest';
 import {
+  DEFAULT_BASH_PERMISSION_RULES,
   SAFE_ENV_VARS,
-  isSafeEnvVar,
-  hasUnsafeEnvVars,
   containsUnquotedExpansion,
-  matchBashPermissionRule,
-  DEFAULT_BASH_PERMISSION_RULES
+  hasUnsafeEnvVars,
+  isSafeEnvVar,
+  matchBashPermissionRule
 } from '../tools/bash-permission-rules';
 import type { BashPermissionRule } from '../tools/bash-permission-rules';
 
@@ -104,7 +104,7 @@ describe('containsUnquotedExpansion — 变量展开', () => {
 
 describe('containsUnquotedExpansion — 引号状态', () => {
   it('单引号内$VAR → 无展开', () => {
-    const result = containsUnquotedExpansion('echo \'$HOME\'');
+    const result = containsUnquotedExpansion("echo '$HOME'");
     expect(result.hasExpansion).toBe(false);
   });
 
@@ -133,7 +133,7 @@ describe('containsUnquotedExpansion — 引号状态', () => {
 
   it('混合引号 → 正确跟踪', () => {
     // echo 'literal' "$VAR" *.txt
-    const result = containsUnquotedExpansion("echo 'literal' \"$VAR\" *.txt");
+    const result = containsUnquotedExpansion('echo \'literal\' "$VAR" *.txt');
     expect(result.hasExpansion).toBe(true);
     // $VAR in double quotes → expansion, *.txt → glob
     expect(result.expansions.length).toBe(2);
@@ -161,9 +161,19 @@ describe('containsUnquotedExpansion — 花括号展开', () => {
 describe('matchBashPermissionRule', () => {
   const rules: BashPermissionRule[] = [
     { pattern: 'rm -rf', patternType: 'prefix', behavior: 'deny', description: 'deny rm -rf' },
-    { pattern: 'git push --force', patternType: 'prefix', behavior: 'ask', description: 'ask git push --force' },
+    {
+      pattern: 'git push --force',
+      patternType: 'prefix',
+      behavior: 'ask',
+      description: 'ask git push --force'
+    },
     { pattern: 'ls', patternType: 'exact', behavior: 'allow', description: 'allow ls' },
-    { pattern: 'npm install', patternType: 'prefix', behavior: 'ask', description: 'ask npm install' },
+    {
+      pattern: 'npm install',
+      patternType: 'prefix',
+      behavior: 'ask',
+      description: 'ask npm install'
+    }
   ];
 
   it('rm -rf / → deny优先级最高', () => {
@@ -192,7 +202,12 @@ describe('matchBashPermissionRule', () => {
   it('deny > ask > allow优先级', () => {
     const conflictingRules: BashPermissionRule[] = [
       { pattern: 'git', patternType: 'prefix', behavior: 'allow', description: 'allow git' },
-      { pattern: 'git push --force', patternType: 'prefix', behavior: 'ask', description: 'ask force push' },
+      {
+        pattern: 'git push --force',
+        patternType: 'prefix',
+        behavior: 'ask',
+        description: 'ask force push'
+      }
     ];
     // git push --force匹配两条规则：allow(git prefix) 和 ask(force push prefix)
     // ask > allow → 最终ask
@@ -203,20 +218,22 @@ describe('matchBashPermissionRule', () => {
   it('exact > prefix 同行为优先级', () => {
     const sameBehaviorRules: BashPermissionRule[] = [
       { pattern: 'ls', patternType: 'prefix', behavior: 'allow', description: 'allow ls prefix' },
-      { pattern: 'ls', patternType: 'exact', behavior: 'allow', description: 'allow ls exact' },
+      { pattern: 'ls', patternType: 'exact', behavior: 'allow', description: 'allow ls exact' }
     ];
     const result = matchBashPermissionRule('ls', sameBehaviorRules);
     expect(result.matchedRule?.patternType).toBe('exact');
   });
 
   it('wildcard匹配', () => {
-    const wildcardRules: BashPermissionRule[] = [
-      { pattern: 'rm *:force', patternType: 'wildcard', behavior: 'deny', description: 'deny rm with force' },
-    ];
     // 不直接测试wildcard，因为*:force不是标准glob
     // 用标准glob测试
     const standardWildcard: BashPermissionRule[] = [
-      { pattern: '*.sh', patternType: 'wildcard', behavior: 'deny', description: 'deny .sh scripts' },
+      {
+        pattern: '*.sh',
+        patternType: 'wildcard',
+        behavior: 'deny',
+        description: 'deny .sh scripts'
+      }
     ];
     const result = matchBashPermissionRule('script.sh', standardWildcard);
     expect(result.behavior).toBe('deny');

@@ -19,6 +19,7 @@ import { CallbackRunner } from '../runner/CallbackRunner';
  * 3. 聚合结果写入 ctx.meta
  *
  * SessionEnd hooks 在对话循环终止时触发，用于：
+ *
  * - 清理资源/连接
  * - 生成会话摘要/报告
  * - 归档审计日志

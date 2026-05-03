@@ -2,12 +2,12 @@
 
 import { describe, expect, it } from 'vitest';
 import {
+  FileWriteStateTracker,
+  checkMtimeConsistency,
   detectFileEncoding,
   detectLineEnding,
-  preserveLineEnding,
   encodeContentForWrite,
-  checkMtimeConsistency,
-  FileWriteStateTracker
+  preserveLineEnding
 } from '../tools/file-write-state';
 import type { FileEncodingInfo } from '../tools/file-write-state';
 
@@ -53,15 +53,15 @@ describe('detectFileEncoding — 字符串输入', () => {
 
 describe('detectFileEncoding — Buffer输入', () => {
   it('UTF-16LE BOM → utf-16le', () => {
-    const buf = Buffer.from([0xFF, 0xFE, 0x48, 0x00, 0x69, 0x00]); // "Hi" in UTF-16LE
+    const buf = Buffer.from([0xff, 0xfe, 0x48, 0x00, 0x69, 0x00]); // "Hi" in UTF-16LE
     const result = detectFileEncoding(buf);
     expect(result.encoding).toBe('utf-16le');
     expect(result.hasBOM).toBe(true);
-    expect(result.bomBytes).toEqual([0xFF, 0xFE]);
+    expect(result.bomBytes).toEqual([0xff, 0xfe]);
   });
 
   it('UTF-16BE BOM → utf-16be', () => {
-    const buf = Buffer.from([0xFE, 0xFF, 0x00, 0x48, 0x00, 0x69]); // "Hi" in UTF-16BE
+    const buf = Buffer.from([0xfe, 0xff, 0x00, 0x48, 0x00, 0x69]); // "Hi" in UTF-16BE
     const result = detectFileEncoding(buf);
     expect(result.encoding).toBe('utf-16be');
     expect(result.hasBOM).toBe(true);
@@ -73,7 +73,7 @@ describe('detectFileEncoding — Buffer输入', () => {
     const result = detectFileEncoding(buf);
     expect(result.encoding).toBe('utf-8');
     expect(result.hasBOM).toBe(true);
-    expect(result.bomBytes).toEqual([0xEF, 0xBB, 0xBF]);
+    expect(result.bomBytes).toEqual([0xef, 0xbb, 0xbf]);
   });
 
   it('无BOM Buffer → utf-8', () => {
@@ -128,28 +128,46 @@ describe('preserveLineEnding', () => {
 
 describe('encodeContentForWrite', () => {
   it('UTF-8无BOM → 直接返回字符串', () => {
-    const info: FileEncodingInfo = { encoding: 'utf-8', hasBOM: false, bomBytes: [], lineEnding: 'lf', crlfRatio: 0 };
+    const info: FileEncodingInfo = {
+      encoding: 'utf-8',
+      hasBOM: false,
+      bomBytes: [],
+      lineEnding: 'lf',
+      crlfRatio: 0
+    };
     const result = encodeContentForWrite('hello', info);
     expect(result).toBe('hello');
   });
 
   it('UTF-8有BOM → Buffer含BOM前缀', () => {
-    const info: FileEncodingInfo = { encoding: 'utf-8', hasBOM: true, bomBytes: [0xEF, 0xBB, 0xBF], lineEnding: 'lf', crlfRatio: 0 };
+    const info: FileEncodingInfo = {
+      encoding: 'utf-8',
+      hasBOM: true,
+      bomBytes: [0xef, 0xbb, 0xbf],
+      lineEnding: 'lf',
+      crlfRatio: 0
+    };
     const result = encodeContentForWrite('hello', info);
     expect(result).toBeInstanceOf(Buffer);
     const buf = result as Buffer;
-    expect(buf[0]).toBe(0xEF);
-    expect(buf[1]).toBe(0xBB);
-    expect(buf[2]).toBe(0xBF);
+    expect(buf[0]).toBe(0xef);
+    expect(buf[1]).toBe(0xbb);
+    expect(buf[2]).toBe(0xbf);
   });
 
   it('UTF-16LE → Buffer含BOM', () => {
-    const info: FileEncodingInfo = { encoding: 'utf-16le', hasBOM: true, bomBytes: [0xFF, 0xFE], lineEnding: 'lf', crlfRatio: 0 };
+    const info: FileEncodingInfo = {
+      encoding: 'utf-16le',
+      hasBOM: true,
+      bomBytes: [0xff, 0xfe],
+      lineEnding: 'lf',
+      crlfRatio: 0
+    };
     const result = encodeContentForWrite('Hi', info);
     expect(result).toBeInstanceOf(Buffer);
     const buf = result as Buffer;
-    expect(buf[0]).toBe(0xFF);
-    expect(buf[1]).toBe(0xFE);
+    expect(buf[0]).toBe(0xff);
+    expect(buf[1]).toBe(0xfe);
   });
 });
 

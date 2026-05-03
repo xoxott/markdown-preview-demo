@@ -32,6 +32,7 @@ export interface FileEncodingInfo {
  * detectFileEncoding — 检测文件编码和BOM标记
  *
  * 检测逻辑:
+ *
  * 1. UTF-16LE BOM: 0xFF 0xFE
  * 2. UTF-16BE BOM: 0xFE 0xFF
  * 3. UTF-8 BOM: 0xEF 0xBB 0xBF
@@ -57,34 +58,34 @@ export function detectFileEncoding(content: string | Buffer): FileEncodingInfo {
     const byte1 = content[1];
 
     // UTF-16LE BOM: FF FE
-    if (byte0 === 0xFF && byte1 === 0xFE) {
+    if (byte0 === 0xff && byte1 === 0xfe) {
       return {
         encoding: 'utf-16le',
         hasBOM: true,
-        bomBytes: [0xFF, 0xFE],
+        bomBytes: [0xff, 0xfe],
         lineEnding: 'lf', // UTF-16LE内部使用LF或CRLF（转换为字符串后检测）
         crlfRatio: 0
       };
     }
 
     // UTF-16BE BOM: FE FF
-    if (byte0 === 0xFE && byte1 === 0xFF) {
+    if (byte0 === 0xfe && byte1 === 0xff) {
       return {
         encoding: 'utf-16be',
         hasBOM: true,
-        bomBytes: [0xFE, 0xFF],
+        bomBytes: [0xfe, 0xff],
         lineEnding: 'lf',
         crlfRatio: 0
       };
     }
 
     // UTF-8 BOM: EF BB BF
-    if (content.length >= 3 && byte0 === 0xEF && byte1 === 0xBB && content[2] === 0xBF) {
+    if (content.length >= 3 && byte0 === 0xef && byte1 === 0xbb && content[2] === 0xbf) {
       const text = content.toString('utf-8');
       return {
         encoding: 'utf-8',
         hasBOM: true,
-        bomBytes: [0xEF, 0xBB, 0xBF],
+        bomBytes: [0xef, 0xbb, 0xbf],
         lineEnding: detectLineEnding(text),
         crlfRatio: computeCrlfRatio(text)
       };
@@ -119,9 +120,7 @@ export function detectLineEnding(content: string): 'lf' | 'crlf' | 'mixed' {
   return 'lf'; // 无换行符 → 默认lf
 }
 
-/**
- * computeCrlfRatio — 计算CRLF占比
- */
+/** computeCrlfRatio — 计算CRLF占比 */
 function computeCrlfRatio(content: string): number {
   const totalNewlines = (content.match(/\n/g) ?? []).length;
   if (totalNewlines === 0) return 0;
@@ -133,6 +132,7 @@ function computeCrlfRatio(content: string): number {
  * preserveLineEnding — 保持原有行尾风格
  *
  * 将内容写入文件时，根据原文件的行尾风格转换:
+ *
  * - 原文件CRLF → 将LF转换为CRLF
  * - 原文件LF → 保持LF
  * - 混合 → 保持LF（统一风格）
@@ -162,14 +162,14 @@ export function encodeContentForWrite(
 ): Buffer | string {
   if (encodingInfo.encoding === 'utf-16le') {
     // UTF-16LE → 写回为Buffer（含BOM）
-    const bom = Buffer.from([0xFF, 0xFE]);
+    const bom = Buffer.from([0xff, 0xfe]);
     const contentBuf = Buffer.from(content, 'utf-16le');
     return Buffer.concat([bom, contentBuf]);
   }
 
   if (encodingInfo.encoding === 'utf-16be') {
     // Node.js Buffer不支持utf-16be编码 → 使用ucs2(utf-16le)然后字节交换
-    const bom = Buffer.from([0xFE, 0xFF]);
+    const bom = Buffer.from([0xfe, 0xff]);
     const leBuf = Buffer.from(content, 'ucs2');
     // 字节交换: 每对字节 [lo, hi] → [hi, lo]
     for (let i = 0; i < leBuf.length; i += 2) {
@@ -223,8 +223,7 @@ export interface MtimeCheckResult {
 /**
  * checkMtimeConsistency — 检查文件mtime是否与Read时一致
  *
- * 如果文件在Read后被外部修改（mtime变化），Edit/Write操作应拒绝，
- * 防止覆盖外部修改。
+ * 如果文件在Read后被外部修改（mtime变化），Edit/Write操作应拒绝， 防止覆盖外部修改。
  *
  * @param readState Read时记录的状态
  * @param currentMtimeMs 当前文件的mtime
@@ -292,7 +291,10 @@ export class FileWriteStateTracker {
   }
 
   /** 验证Write操作 — 文件必须先被Read */
-  validateWriteRequirement(filePath: string, isNewFile: boolean): { allowed: boolean; reason?: string } {
+  validateWriteRequirement(
+    filePath: string,
+    isNewFile: boolean
+  ): { allowed: boolean; reason?: string } {
     if (isNewFile) {
       // 新文件 → 不需要先Read
       return { allowed: true };

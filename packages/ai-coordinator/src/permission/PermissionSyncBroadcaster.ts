@@ -6,15 +6,16 @@ import type { PermissionUpdateMessage, SettingsUpdateMessage } from '../types/pe
 /**
  * PermissionSyncBroadcaster — Leader 端广播器
  *
- * 当 Leader 的权限上下文变更时（用户批准新规则、settings 文件变更等），
- * 通过 Mailbox 向所有 Worker 广播更新消息。
+ * 当 Leader 的权限上下文变更时（用户批准新规则、settings 文件变更等）， 通过 Mailbox 向所有 Worker 广播更新消息。
  *
  * 广播流程:
+ *
  * 1. Leader 权限变更 → broadcastPermissionUpdate / broadcastSettingsUpdate
  * 2. Mailbox.broadcast(from, content) → 投递到所有 Worker inbox
  * 3. Worker 端 pollPermissionUpdates 接收并应用
  *
  * 参考 Claude Code 的 TeamPermissionSyncBroadcaster:
+ *
  * - 权限规则变更（addRules/removeRules/setMode 等）→ PermissionUpdateMessage
  * - Settings 文件变更 → SettingsUpdateMessage
  * - 都通过 Mailbox 广播，Worker 端异步 poll
@@ -78,6 +79,7 @@ export class PermissionSyncBroadcaster {
  * PermissionSyncReceiver — Worker 端权限同步接收器
  *
  * Worker 通过 poll 模式从 Mailbox 接收 Leader 的广播消息:
+ *
  * 1. 定期 pollPermissionUpdates → 从 Mailbox 接收广播消息
  * 2. 过滤 PermissionUpdateMessage 和 SettingsUpdateMessage
  * 3. 返回给宿主应用层进行本地权限/Settings 应用

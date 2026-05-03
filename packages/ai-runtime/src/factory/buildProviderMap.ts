@@ -73,8 +73,9 @@ export function buildProviderMap(config: RuntimeConfig): Record<string, unknown>
     tokenBudget: config.tokenBudget,
     costConfig: config.costConfig,
     // P47: Settings文件系统注入
-    settingsLayerReader: config.settingsLayerReader ?? config.settingsLayerReaderConfig
-      ? new NodeSettingsLayerReader(config.settingsLayerReaderConfig!)
-      : undefined
+    settingsLayerReader:
+      (config.settingsLayerReader ?? config.settingsLayerReaderConfig)
+        ? new NodeSettingsLayerReader(config.settingsLayerReaderConfig!)
+        : undefined
   };
 }

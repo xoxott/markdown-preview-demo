@@ -8,6 +8,7 @@
  * 3. 成功后 preserveQuoteStyle — 保持文件原有引号风格
  *
  * 多匹配检测:
+ *
  * - replace_all=false 且 oldString 出现多次 → 拒绝，要求更多上下文
  *
  * 参考 Claude Code src/utils/fs/findActualString.ts
@@ -33,6 +34,7 @@ export interface FindActualStringResult {
  * findActualString — 在文件内容中查找 oldString
  *
  * 策略:
+ *
  * 1. 精确匹配 → 如果唯一匹配，直接返回
  * 2. 精确匹配失败 → normalizeQuotes（弯→直）再试
  * 3. 规范化匹配成功 → preserveQuoteStyle 保持文件原风格
@@ -98,10 +100,6 @@ export function findActualString(
     };
   }
 
-  // 如果规范化后oldString与原文相同但内容不同 → 文件有弯引号，oldString是直引号
-  // 规范化内容后变成直引号 → 在规范化内容中搜索oldString
-  const needsNormalization = normalizedOld !== oldString || normalizedContent !== content;
-
   // 在规范化后的内容中查找（使用规范化后的oldString）
   const normalizedCount = countOccurrences(normalizedContent, normalizedOld);
 
@@ -129,7 +127,12 @@ export function findActualString(
 
   // === Step 3: preserveQuoteStyle ===
   // 找到规范化匹配 → 从原内容中提取实际匹配的字符串（保留原引号风格）
-  const actualOldString = extractOriginalMatch(content, normalizedContent, normalizedOld, normalizedCount);
+  const actualOldString = extractOriginalMatch(
+    content,
+    normalizedContent,
+    normalizedOld,
+    normalizedCount
+  );
 
   if (!actualOldString) {
     return {
@@ -152,8 +155,7 @@ export function findActualString(
 /**
  * preserveQuoteStyle — 从原内容中提取实际匹配的字符串
  *
- * 在规范化内容中定位匹配位置，然后在原内容中提取相同位置的字符串，
- * 从而保持文件原有的引号风格。
+ * 在规范化内容中定位匹配位置，然后在原内容中提取相同位置的字符串， 从而保持文件原有的引号风格。
  *
  * 替换时使用 actualOldString 而非 oldString，确保替换的是文件中的实际文本。
  */

@@ -136,7 +136,12 @@ export interface PermissionDeniedInput {
 /** Elicitation 输入 — 向用户提问 */
 export interface ElicitationInput {
   readonly hookEventName: 'Elicitation';
-  readonly questions: readonly { question: string; header?: string; options?: readonly { label: string; description?: string }[]; multiSelect?: boolean }[];
+  readonly questions: readonly {
+    question: string;
+    header?: string;
+    options?: readonly { label: string; description?: string }[];
+    multiSelect?: boolean;
+  }[];
   readonly toolUseId: string;
 }
 

@@ -2,12 +2,11 @@
 
 import { describe, expect, it } from 'vitest';
 import {
-  isReadOnlyCommand,
-  detectDestructiveCommand,
-  detectCommandInjection,
-  validateCommandPaths,
   assessBashCommandSecurity,
-  BLOCKED_DEVICE_PATHS
+  detectCommandInjection,
+  detectDestructiveCommand,
+  isReadOnlyCommand,
+  validateCommandPaths
 } from '../tools/bash-security';
 
 // ============================================================
@@ -211,12 +210,16 @@ describe('validateCommandPaths', () => {
 
   it('rm -rf / → 危险路径警告[critical]', () => {
     const result = validateCommandPaths('rm -rf /', '/home/user');
-    expect(result.some(w => w.issue === 'dangerous_removal_path' && w.severity === 'critical')).toBe(true);
+    expect(
+      result.some(w => w.issue === 'dangerous_removal_path' && w.severity === 'critical')
+    ).toBe(true);
   });
 
   it('cat /dev/zero → 设备文件警告[critical]', () => {
     const result = validateCommandPaths('cat /dev/zero', '/home/user');
-    expect(result.some(w => w.issue === 'device_file_access' && w.severity === 'critical')).toBe(true);
+    expect(result.some(w => w.issue === 'device_file_access' && w.severity === 'critical')).toBe(
+      true
+    );
   });
 
   it('echo "data" > /etc/config → 系统重定向警告[high]', () => {

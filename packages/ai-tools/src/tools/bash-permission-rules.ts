@@ -19,6 +19,7 @@
  * 安全环境变量白名单 — 这些变量可以在命令前缀中安全设置
  *
  * 参考 Claude Code SAFE_ENV_VARS:
+ *
  * - PATH/HOME/USER 等标准 POSIX 变量
  * - LANG/LC_* 等locale变量
  * - TERM/DISPLAY 等终端变量
@@ -27,55 +28,148 @@
  */
 export const SAFE_ENV_VARS: readonly string[] = [
   // POSIX标准变量
-  'PATH', 'HOME', 'USER', 'LOGNAME', 'SHELL', 'PWD', 'OLDPWD',
-  'HOSTNAME', 'TERM', 'LANG', 'LC_ALL', 'LC_CTYPE', 'LC_COLLATE',
-  'LC_MESSAGES', 'LC_TIME', 'LC_NUMERIC', 'LC_MONETARY',
-  'TZ', 'MAIL', 'MAILCHECK', 'MAILPATH',
-  'PAGER', 'EDITOR', 'VISUAL', 'TERM_PROGRAM', 'TERM_PROGRAM_VERSION',
-  'DISPLAY', 'DBUS_SESSION_BUS_ADDRESS', 'XDG_RUNTIME_DIR',
-  'XDG_SESSION_ID', 'XDG_SESSION_TYPE', 'XDG_SESSION_DESKTOP',
-  'XDG_CONFIG_HOME', 'XDG_DATA_HOME', 'XDG_CACHE_HOME',
-  'XDG_STATE_HOME', 'XDG_BIN_HOME', 'XDG_DOCUMENTS_DIR',
-  'XDG_DOWNLOAD_DIR', 'XDG_MUSIC_DIR', 'XDG_PICTURES_DIR',
+  'PATH',
+  'HOME',
+  'USER',
+  'LOGNAME',
+  'SHELL',
+  'PWD',
+  'OLDPWD',
+  'HOSTNAME',
+  'TERM',
+  'LANG',
+  'LC_ALL',
+  'LC_CTYPE',
+  'LC_COLLATE',
+  'LC_MESSAGES',
+  'LC_TIME',
+  'LC_NUMERIC',
+  'LC_MONETARY',
+  'TZ',
+  'MAIL',
+  'MAILCHECK',
+  'MAILPATH',
+  'PAGER',
+  'EDITOR',
+  'VISUAL',
+  'TERM_PROGRAM',
+  'TERM_PROGRAM_VERSION',
+  'DISPLAY',
+  'DBUS_SESSION_BUS_ADDRESS',
+  'XDG_RUNTIME_DIR',
+  'XDG_SESSION_ID',
+  'XDG_SESSION_TYPE',
+  'XDG_SESSION_DESKTOP',
+  'XDG_CONFIG_HOME',
+  'XDG_DATA_HOME',
+  'XDG_CACHE_HOME',
+  'XDG_STATE_HOME',
+  'XDG_BIN_HOME',
+  'XDG_DOCUMENTS_DIR',
+  'XDG_DOWNLOAD_DIR',
+  'XDG_MUSIC_DIR',
+  'XDG_PICTURES_DIR',
   'XDG_VIDEOS_DIR',
 
   // 语言特定变量
-  'NODE_PATH', 'NODE_OPTIONS', 'NODE_ENV', 'NPM_CONFIG_PREFIX',
-  'NPM_CONFIG_REGISTRY', 'NPM_CONFIG_CACHE', 'NPM_CONFIG_LOGLEVEL',
-  'PYTHONPATH', 'PYTHONHOME', 'PYTHONIOENCODING', 'PYTHONUNBUFFERED',
-  'PIP_INDEX_URL', 'PIP_CACHE_DIR', 'VIRTUAL_ENV',
-  'RUBYLIB', 'GEM_HOME', 'GEM_PATH', 'BUNDLE_GEMFILE',
-  'GOPATH', 'GOBIN', 'GOROOT', 'GOFLAGS', 'GONOSUMCHECK',
-  'JAVA_HOME', 'JAVAPATH', 'CLASSPATH',
-  'RUSTUP_HOME', 'CARGO_HOME',
+  'NODE_PATH',
+  'NODE_OPTIONS',
+  'NODE_ENV',
+  'NPM_CONFIG_PREFIX',
+  'NPM_CONFIG_REGISTRY',
+  'NPM_CONFIG_CACHE',
+  'NPM_CONFIG_LOGLEVEL',
+  'PYTHONPATH',
+  'PYTHONHOME',
+  'PYTHONIOENCODING',
+  'PYTHONUNBUFFERED',
+  'PIP_INDEX_URL',
+  'PIP_CACHE_DIR',
+  'VIRTUAL_ENV',
+  'RUBYLIB',
+  'GEM_HOME',
+  'GEM_PATH',
+  'BUNDLE_GEMFILE',
+  'GOPATH',
+  'GOBIN',
+  'GOROOT',
+  'GOFLAGS',
+  'GONOSUMCHECK',
+  'JAVA_HOME',
+  'JAVAPATH',
+  'CLASSPATH',
+  'RUSTUP_HOME',
+  'CARGO_HOME',
 
   // 构建工具变量
-  'BAZEL_HOME', 'GRADLE_HOME', 'MAVEN_HOME', 'ANT_HOME',
-  'MAKEFLAGS', 'CMAKE_BUILD_TYPE', 'CMAKE_PREFIX_PATH',
-  'CC', 'CXX', 'LD_LIBRARY_PATH', 'PKG_CONFIG_PATH',
+  'BAZEL_HOME',
+  'GRADLE_HOME',
+  'MAVEN_HOME',
+  'ANT_HOME',
+  'MAKEFLAGS',
+  'CMAKE_BUILD_TYPE',
+  'CMAKE_PREFIX_PATH',
+  'CC',
+  'CXX',
+  'LD_LIBRARY_PATH',
+  'PKG_CONFIG_PATH',
 
   // CI/CD变量
-  'CI', 'CI_COMMIT_SHA', 'CI_COMMIT_REF_NAME', 'CI_JOB_ID',
-  'CI_PIPELINE_ID', 'CI_PROJECT_DIR', 'CI_REPO_URL',
-  'GITHUB_ACTIONS', 'GITHUB_REPOSITORY', 'GITHUB_REF',
-  'GITHUB_SHA', 'GITHUB_WORKSPACE',
-  'GITLAB_CI', 'JENKINS_HOME', 'TRAVIS', 'BUILDKITE',
+  'CI',
+  'CI_COMMIT_SHA',
+  'CI_COMMIT_REF_NAME',
+  'CI_JOB_ID',
+  'CI_PIPELINE_ID',
+  'CI_PROJECT_DIR',
+  'CI_REPO_URL',
+  'GITHUB_ACTIONS',
+  'GITHUB_REPOSITORY',
+  'GITHUB_REF',
+  'GITHUB_SHA',
+  'GITHUB_WORKSPACE',
+  'GITLAB_CI',
+  'JENKINS_HOME',
+  'TRAVIS',
+  'BUILDKITE',
 
   // 其他安全变量
-  'DOCKER_HOST', 'DOCKER_TLS_VERIFY', 'DOCKER_CERT_PATH',
-  'KUBECONFIG', 'AWS_PROFILE', 'AWS_REGION', 'AWS_DEFAULT_REGION',
-  'HOMEBREW_PREFIX', 'HOMEBREW_CELLAR', 'HOMEBREW_REPOSITORY',
-  'COLUMNS', 'LINES', 'BASH_VERSION', 'ZSH_VERSION',
-  'SHLVL', 'PS1', 'PS2', 'PROMPT_COMMAND',
-  'HISTFILE', 'HISTSIZE', 'HISTFILESIZE', 'HISTCONTROL',
-  'LESS', 'MORE', 'MANPATH', 'INFOPATH',
-  'TMPDIR', 'TEMP', 'TMP', 'TEMPDIR'
+  'DOCKER_HOST',
+  'DOCKER_TLS_VERIFY',
+  'DOCKER_CERT_PATH',
+  'KUBECONFIG',
+  'AWS_PROFILE',
+  'AWS_REGION',
+  'AWS_DEFAULT_REGION',
+  'HOMEBREW_PREFIX',
+  'HOMEBREW_CELLAR',
+  'HOMEBREW_REPOSITORY',
+  'COLUMNS',
+  'LINES',
+  'BASH_VERSION',
+  'ZSH_VERSION',
+  'SHLVL',
+  'PS1',
+  'PS2',
+  'PROMPT_COMMAND',
+  'HISTFILE',
+  'HISTSIZE',
+  'HISTFILESIZE',
+  'HISTCONTROL',
+  'LESS',
+  'MORE',
+  'MANPATH',
+  'INFOPATH',
+  'TMPDIR',
+  'TEMP',
+  'TMP',
+  'TEMPDIR'
 ];
 
 /**
  * isSafeEnvVar — 判定环境变量是否在安全白名单中
  *
  * 安全变量可在命令前缀中设置而不影响权限判定:
+ *
  * - FOO=bar ls → ls (FOO在白名单) → 只读判定时去除
  * - SECRET_KEY=abc curl → curl (SECRET_KEY不在白名单) → 需审核
  */
@@ -86,8 +180,7 @@ export function isSafeEnvVar(varName: string): boolean {
 /**
  * hasUnsafeEnvVars — 检查命令中是否有不安全的环境变量设置
  *
- * "PATH=/usr/bin ls" → false (PATH is safe)
- * "SECRET=abc curl" → true (SECRET is not safe)
+ * "PATH=/usr/bin ls" → false (PATH is safe) "SECRET=abc curl" → true (SECRET is not safe)
  */
 export function hasUnsafeEnvVars(command: string): boolean {
   const envPattern = /^([A-Za-z_][A-Za-z0-9_]*)=\S+\s+/;
@@ -120,14 +213,14 @@ export function hasUnsafeEnvVars(command: string): boolean {
 /**
  * containsUnquotedExpansion — 检测命令中的未引用变量展开和glob
  *
- * 参考 Claude Code readOnlyValidation.ts containsUnquotedExpansion:
- * 逐字符遍历命令字符串，跟踪单引号/双引号状态:
+ * 参考 Claude Code readOnlyValidation.ts containsUnquotedExpansion: 逐字符遍历命令字符串，跟踪单引号/双引号状态:
  *
  * - 单引号内: 所有字符为literal
  * - 双引号内: $仍展开但glob为literal，反斜杠转义
  * - 无引号: $和glob字符均展开
  *
  * 检测:
+ *
  * - $VAR, $_, $@, $*, $#, $?, $!, $$, $0-$9 等变量展开
  * - ? * [ ] glob字符
  * - {} 花括号展开
@@ -149,7 +242,7 @@ export function containsUnquotedExpansion(command: string): ExpansionCheckResult
     const ch = command[i];
 
     // 引号状态切换
-    if (ch === '\'' && !inDoubleQuote) {
+    if (ch === "'" && !inDoubleQuote) {
       inSingleQuote = !inSingleQuote;
       i++;
       continue;
@@ -273,13 +366,12 @@ export function containsUnquotedExpansion(command: string): ExpansionCheckResult
  * Bash权限规则 — 每条规则定义命令模式匹配和权限行为
  *
  * 参考 Claude Code bashPermissions 规则格式:
+ *
  * - pattern: 命令匹配模式（prefix/exact/wildcard/regex）
  * - behavior: 权限行为（deny/ask/allow）
  * - severity: 规则严重性（影响优先级排序）
  *
- * 优先级规则（与 Claude Code 一致）:
- * deny > ask > allow
- * 同行为中: 更精确的匹配(exact>prefix>wildcard)优先
+ * 优先级规则（与 Claude Code 一致）: deny > ask > allow 同行为中: 更精确的匹配(exact>prefix>wildcard)优先
  */
 export interface BashPermissionRule {
   /** 规则ID（用于日志和去重） */
@@ -312,6 +404,7 @@ export interface BashPermissionMatchResult {
  * matchBashPermissionRule — 匹配Bash权限规则
  *
  * 按优先级排序规则并返回最高优先级匹配:
+ *
  * 1. deny规则 > ask规则 > allow规则
  * 2. 同行为中: exact > prefix > wildcard > regex
  * 3. 无匹配 → 默认ask（需要用户确认）
@@ -358,7 +451,9 @@ export function matchBashPermissionRule(
     matchedRule: topRule,
     allMatches: matches,
     behavior: topRule.behavior,
-    reason: topRule.description ?? `Rule '${topRule.pattern}' (${topRule.patternType}/${topRule.behavior})`
+    reason:
+      topRule.description ??
+      `Rule '${topRule.pattern}' (${topRule.patternType}/${topRule.behavior})`
   };
 }
 
@@ -399,26 +494,111 @@ function wildcardMatch(pattern: string, str: string): boolean {
  * 默认Bash权限规则 — 提供基础安全防护
  *
  * 参考 Claude Code 默认权限规则:
+ *
  * - 破坏性命令 → deny
  * - 读写命令 → ask
  * - 只读命令 → allow（通过readOnlyValidation判定）
  */
 export const DEFAULT_BASH_PERMISSION_RULES: readonly BashPermissionRule[] = [
   // === Deny规则 ===
-  { ruleId: 'deny_rm_rf', pattern: 'rm -rf', patternType: 'prefix', behavior: 'deny', source: 'default', description: '拒绝: 递归强制删除' },
-  { ruleId: 'deny_rm_root', pattern: 'rm * /', patternType: 'regex', behavior: 'deny', source: 'default', description: '拒绝: 删除根目录路径' },
-  { ruleId: 'deny_mkfs', pattern: 'mkfs', patternType: 'prefix', behavior: 'deny', source: 'default', description: '拒绝: 格式化磁盘' },
-  { ruleId: 'deny_dd_device', pattern: 'dd * of=/dev/', patternType: 'regex', behavior: 'deny', source: 'default', description: '拒绝: dd写入设备文件' },
-  { ruleId: 'deny_drop_table', pattern: 'DROP TABLE', patternType: 'prefix', behavior: 'deny', source: 'default', description: '拒绝: 删除数据库表' },
-  { ruleId: 'deny_terraform_destroy', pattern: 'terraform destroy', patternType: 'exact', behavior: 'deny', source: 'default', description: '拒绝: 销毁基础设施' },
+  {
+    ruleId: 'deny_rm_rf',
+    pattern: 'rm -rf',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: 递归强制删除'
+  },
+  {
+    ruleId: 'deny_rm_root',
+    pattern: 'rm * /',
+    patternType: 'regex',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: 删除根目录路径'
+  },
+  {
+    ruleId: 'deny_mkfs',
+    pattern: 'mkfs',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: 格式化磁盘'
+  },
+  {
+    ruleId: 'deny_dd_device',
+    pattern: 'dd * of=/dev/',
+    patternType: 'regex',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: dd写入设备文件'
+  },
+  {
+    ruleId: 'deny_drop_table',
+    pattern: 'DROP TABLE',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: 删除数据库表'
+  },
+  {
+    ruleId: 'deny_terraform_destroy',
+    pattern: 'terraform destroy',
+    patternType: 'exact',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: 销毁基础设施'
+  },
 
   // === Ask规则（需要用户确认） ===
-  { ruleId: 'ask_git_push_force', pattern: 'git push --force', patternType: 'prefix', behavior: 'ask', source: 'default', description: '审核: 强制推送(git push --force)' },
-  { ruleId: 'ask_git_reset_hard', pattern: 'git reset --hard', patternType: 'prefix', behavior: 'ask', source: 'default', description: '审核: 硬重置(git reset --hard)' },
-  { ruleId: 'ask_npm_install', pattern: 'npm install', patternType: 'prefix', behavior: 'ask', source: 'default', description: '审核: 安装包(npm install)' },
-  { ruleId: 'ask_sudo', pattern: 'sudo', patternType: 'prefix', behavior: 'ask', source: 'default', description: '审核: sudo命令' },
-  { ruleId: 'ask_docker_rm', pattern: 'docker rm', patternType: 'prefix', behavior: 'ask', source: 'default', description: '审核: 删除Docker容器' },
-  { ruleId: 'ask_kubectl_delete', pattern: 'kubectl delete', patternType: 'prefix', behavior: 'ask', source: 'default', description: '审核: 删除K8s资源' },
+  {
+    ruleId: 'ask_git_push_force',
+    pattern: 'git push --force',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: 强制推送(git push --force)'
+  },
+  {
+    ruleId: 'ask_git_reset_hard',
+    pattern: 'git reset --hard',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: 硬重置(git reset --hard)'
+  },
+  {
+    ruleId: 'ask_npm_install',
+    pattern: 'npm install',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: 安装包(npm install)'
+  },
+  {
+    ruleId: 'ask_sudo',
+    pattern: 'sudo',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: sudo命令'
+  },
+  {
+    ruleId: 'ask_docker_rm',
+    pattern: 'docker rm',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: 删除Docker容器'
+  },
+  {
+    ruleId: 'ask_kubectl_delete',
+    pattern: 'kubectl delete',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: 删除K8s资源'
+  }
 
   // === Allow规则（只读命令自动允许） ===
   // 注: allow规则不在此处定义，由bash-security.ts isReadOnlyCommand判定

@@ -19,6 +19,7 @@ import { CallbackRunner } from '../runner/CallbackRunner';
  * 3. 执行 PostCompact hooks
  *
  * PostCompact hooks 在 context 压缩完成后触发，用于：
+ *
  * - 记录压缩指标/日志
  * - 通知外部系统压缩完成
  * - 执行压缩后的状态恢复

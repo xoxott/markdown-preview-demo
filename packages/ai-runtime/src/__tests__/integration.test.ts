@@ -9,8 +9,7 @@ import {
   HookRegistry,
   HookSessionEndPhase,
   HookSessionStartPhase,
-  HookStopPhase,
-  HookUserPromptPhase
+  HookStopPhase
 } from '@suga/ai-hooks';
 import { CompressPhase } from '@suga/ai-context';
 import { CoordinatorDispatchPhase, CoordinatorRegistry } from '@suga/ai-coordinator';

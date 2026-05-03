@@ -17,10 +17,12 @@ import { CallbackRunner } from '../runner/CallbackRunner';
  * 1. 提取用户消息文本
  * 2. 执行 UserPromptSubmit hooks
  * 3. 聚合结果写入 ctx.meta:
+ *
  *    - hookUserPromptPrevent → 阻止消息提交（拦截/修改）
  *    - hookUserPromptModifiedMessage → 修改后的消息文本
  *
  * UserPromptSubmit hooks 在用户消息提交前触发，用于：
+ *
  * - 拦截不当内容
  * - 注入系统提示/上下文
  * - 修改用户消息格式

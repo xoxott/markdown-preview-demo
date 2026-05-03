@@ -7,8 +7,7 @@
  * 2. PDF页提取 — 按页范围读取PDF内容
  * 3. Notebook(.ipynb)解析 — 提取cell内容+输出
  *
- * 注: 图片resize依赖宿主提供的sharp库（可选），
- *     PDF依赖poppler-utils（可选），不依赖时返回原始base64/文本。
+ * 注: 图片resize依赖宿主提供的sharp库（可选）， PDF依赖poppler-utils（可选），不依赖时返回原始base64/文本。
  *
  * 参考 Claude Code src/utils/fs/image.ts + pdf.ts + notebook.ts
  */
@@ -52,8 +51,7 @@ export interface ImageResizeOptions {
 /**
  * readImageFile — 读取图片文件并返回base64编码
  *
- * 支持格式: jpg/jpeg/png/gif/bmp/webp/ico/tiff/svg
- * resize逻辑: 如果图片超过maxWidth/maxHeight，自动缩放
+ * 支持格式: jpg/jpeg/png/gif/bmp/webp/ico/tiff/svg resize逻辑: 如果图片超过maxWidth/maxHeight，自动缩放
  *
  * 注: resize依赖宿主注入的resizeProvider，不提供时返回原始base64
  *
@@ -149,12 +147,15 @@ export interface PdfPage {
 export function parsePdfPageRange(pagesStr: string, totalPages: number): number[] {
   const pages: Set<number> = new Set();
 
-  const parts = pagesStr.split(',').map(s => s.trim()).filter(s => s.length > 0);
+  const parts = pagesStr
+    .split(',')
+    .map(s => s.trim())
+    .filter(s => s.length > 0);
 
   for (const part of parts) {
     // 单页: "3"
     if (/^\d+$/.test(part)) {
-      const num = parseInt(part, 10);
+      const num = Number.parseInt(part, 10);
       if (num >= 1 && num <= totalPages) {
         pages.add(num);
       }
@@ -164,8 +165,8 @@ export function parsePdfPageRange(pagesStr: string, totalPages: number): number[
     // 范围: "1-5"
     const rangeMatch = /^(\d+)-(\d+)$/.exec(part);
     if (rangeMatch) {
-      const start = Math.max(1, parseInt(rangeMatch[1], 10));
-      const end = Math.min(totalPages, parseInt(rangeMatch[2], 10));
+      const start = Math.max(1, Number.parseInt(rangeMatch[1], 10));
+      const end = Math.min(totalPages, Number.parseInt(rangeMatch[2], 10));
       for (let i = start; i <= end; i++) {
         pages.add(i);
       }
@@ -179,8 +180,7 @@ export function parsePdfPageRange(pagesStr: string, totalPages: number): number[
 /**
  * readPdfFile — 读取PDF文件内容
  *
- * 注: PDF文本提取依赖宿主注入的pdfProvider（如pdftotext），
- *     不提供时返回页面元数据（页数等）但text为空。
+ * 注: PDF文本提取依赖宿主注入的pdfProvider（如pdftotext）， 不提供时返回页面元数据（页数等）但text为空。
  *
  * @param buffer PDF文件Buffer
  * @param pageRange 页范围字符串（如 "1-5"）
@@ -290,14 +290,17 @@ export function parseNotebook(content: string): NotebookReadResult {
   const metadata = (nb.metadata as Record<string, unknown> | undefined) ?? {};
   const kernelspec = metadata.kernelspec as Record<string, unknown> | undefined;
   const kernelInfo = kernelspec
-    ? { name: kernelspec.name as string | undefined, language: kernelspec.language as string | undefined }
+    ? {
+        name: kernelspec.name as string | undefined,
+        language: kernelspec.language as string | undefined
+      }
     : undefined;
 
   const cells: NotebookCell[] = rawCells.map((cell, index) => {
-    const cellType = (cell.cell_type as string ?? 'code') as 'markdown' | 'code' | 'raw';
+    const cellType = ((cell.cell_type as string) ?? 'code') as 'markdown' | 'code' | 'raw';
     const source = Array.isArray(cell.source)
       ? (cell.source as readonly string[]).join('')
-      : (cell.source as string ?? '');
+      : ((cell.source as string) ?? '');
 
     let outputs: NotebookCellOutput[] | undefined;
     let executionCount: number | null | undefined;
@@ -327,14 +330,14 @@ export function parseNotebook(content: string): NotebookReadResult {
 
 /** 解析单个cell输出 */
 function parseCellOutput(raw: Record<string, unknown>): NotebookCellOutput {
-  const outputType = (raw.output_type as string ?? 'stream') as NotebookCellOutput['outputType'];
+  const outputType = ((raw.output_type as string) ?? 'stream') as NotebookCellOutput['outputType'];
 
   // stream输出
   if (outputType === 'stream') {
     const text = raw.text;
     const textStr = Array.isArray(text)
       ? (text as readonly string[]).join('')
-      : (text as string ?? '');
+      : ((text as string) ?? '');
     return { outputType, text: textStr };
   }
 
@@ -348,7 +351,12 @@ function parseCellOutput(raw: Record<string, unknown>): NotebookCellOutput {
     if (data) {
       if (data['text/plain']) {
         const tp = data['text/plain'];
-        text = typeof tp === 'string' ? tp : Array.isArray(tp) ? (tp as readonly string[]).join('') : String(tp);
+        text =
+          typeof tp === 'string'
+            ? tp
+            : Array.isArray(tp)
+              ? (tp as readonly string[]).join('')
+              : String(tp);
       }
       if (data['image/png']) {
         imageData = data['image/png'] as string;
@@ -365,8 +373,8 @@ function parseCellOutput(raw: Record<string, unknown>): NotebookCellOutput {
   if (outputType === 'error') {
     return {
       outputType,
-      errorName: raw.ename as string ?? '',
-      errorValue: raw.evalue as string ?? '',
+      errorName: (raw.ename as string) ?? '',
+      errorValue: (raw.evalue as string) ?? '',
       traceback: (raw.traceback as readonly string[] | undefined) ?? []
     };
   }

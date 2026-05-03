@@ -12,7 +12,7 @@ import type { WebFetchInput } from '../types/tool-inputs';
 import type { WebFetchOutput } from '../types/tool-outputs';
 import { WebFetchInputSchema } from '../types/tool-inputs';
 import { DefaultHttpProvider } from '../types/http-provider';
-import { validateWebFetchUrl, isPermittedRedirect } from './web-fetch-security';
+import { isPermittedRedirect, validateWebFetchUrl } from './web-fetch-security';
 
 /**
  * WebFetchTool — URL抓取工具

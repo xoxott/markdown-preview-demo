@@ -60,6 +60,18 @@ export {
 } from './utils/path-normalize';
 export { truncateOutput } from './utils/output-truncate';
 export type { TruncateResult } from './utils/output-truncate';
+// P73: Bash输出截断升级导出
+export {
+  truncateOutputWithTail,
+  persistLargeOutput,
+  foldSearchOutput
+} from './utils/output-truncate-end';
+export type {
+  EndTruncateResult,
+  PersistResult,
+  PersistentRef,
+  SearchFoldResult
+} from './utils/output-truncate-end';
 export { isStale } from './utils/staleness-check';
 
 // 工具实现导出
@@ -183,11 +195,7 @@ export {
   checkMtimeConsistency,
   FileWriteStateTracker
 } from './tools/file-write-state';
-export type {
-  FileEncodingInfo,
-  FileReadState,
-  MtimeCheckResult
-} from './tools/file-write-state';
+export type { FileEncodingInfo, FileReadState, MtimeCheckResult } from './tools/file-write-state';
 
 // P68: FileRead安全验证导出
 export {
@@ -197,10 +205,7 @@ export {
   checkFileSize,
   validateFileReadSecurity
 } from './tools/file-read-security';
-export type {
-  FileSizeCheckResult,
-  FileReadSecurityResult
-} from './tools/file-read-security';
+export type { FileSizeCheckResult, FileReadSecurityResult } from './tools/file-read-security';
 
 // P72: FileRead多模态导出
 export {

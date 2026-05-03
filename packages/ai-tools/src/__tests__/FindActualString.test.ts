@@ -54,7 +54,7 @@ describe('findActualString — 精确匹配', () => {
 describe('findActualString — 引号规范化', () => {
   it('弯引号匹配直引号 → found=true, normalizedQuotes=true, actualOldString保留原风格', () => {
     // 内容中有直引号，但oldString用了弯引号
-    const content = "const name = \"hello\";\nconsole.log(name);";
+    const content = 'const name = "hello";\nconsole.log(name);';
     const result = findActualString(content, 'name = \u201Chello\u201D');
     expect(result.found).toBe(true);
     expect(result.normalizedQuotes).toBe(true);
@@ -64,23 +64,23 @@ describe('findActualString — 引号规范化', () => {
 
   it('弯单引号匹配直单引号 → found=true', () => {
     const content = "const msg = 'hello';";
-    const result = findActualString(content, "msg = \u2018hello\u2019");
+    const result = findActualString(content, 'msg = \u2018hello\u2019');
     expect(result.found).toBe(true);
     expect(result.normalizedQuotes).toBe(true);
     expect(result.actualOldString).toBe("msg = 'hello'");
   });
 
   it('混合弯引号 → found=true', () => {
-    const content = "const name = \"hello\"; // it's great";
-    const result = findActualString(content, "name = \u201Chello\u201D; // it\u2019s great");
+    const content = 'const name = "hello"; // it\'s great';
+    const result = findActualString(content, 'name = \u201Chello\u201D; // it\u2019s great');
     expect(result.found).toBe(true);
     expect(result.normalizedQuotes).toBe(true);
     expect(result.actualOldString).toBe('name = "hello"; // it\'s great');
   });
 
   it('规范化后仍然不匹配 → found=false', () => {
-    const content = "const name = \"hello\";";
-    const result = findActualString(content, "name = \u201Cworld\u201D");
+    const content = 'const name = "hello";';
+    const result = findActualString(content, 'name = \u201Cworld\u201D');
     expect(result.found).toBe(false);
     expect(result.error).toContain('not found');
   });
