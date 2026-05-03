@@ -82,6 +82,9 @@ export {
 export { PermissionBubbleQueue } from './permission/PermissionBubbleQueue';
 export type { PendingPermissionBubble } from './permission/PermissionBubbleQueue';
 
+// Permission Sync
+export { PermissionSyncBroadcaster, PermissionSyncReceiver } from './permission/PermissionSyncBroadcaster';
+
 // Task
 export { TaskManager } from './task/TaskManager';
 export { TaskExecutor } from './task/TaskExecutor';
