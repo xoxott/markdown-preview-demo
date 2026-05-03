@@ -171,6 +171,21 @@ export interface ProviderMap {
   readonly canUseToolFn?: CanUseToolFn;
   readonly denialTracking?: DenialTrackingState;
   readonly isHeadlessAgent?: boolean;
+  // P52: 新增 — memory/compress/coordinator/subagent/sandbox
+  readonly memoryConfig?: Partial<MemoryPromptConfig>;
+  readonly memoryProvider?: MemoryStorageProvider;
+  readonly memoryPathConfig?: MemoryPathConfig;
+  readonly compressConfig?: CompressConfig;
+  readonly compressDeps?: CompressDependencies;
+  readonly hookRegistry?: HookRegistry;
+  readonly toolRegistry?: ToolRegistry;
+  readonly coordinatorRegistry?: CoordinatorRegistry;
+  readonly coordinatorMailbox?: Mailbox;
+  readonly spawnProvider?: SpawnProvider;
+  readonly subagentRegistry?: SubagentRegistry;
+  readonly subagentSpawner?: SubagentSpawner;
+  readonly classifierConfig?: LLMClassifierConfig;
+  readonly sandbox?: SandboxSettings;
 }
 
 /** RuntimeSession 状态 — P7 Store 管理 */

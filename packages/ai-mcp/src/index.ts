@@ -62,6 +62,7 @@ export { UnifiedTransportFactory } from './transport/UnifiedTransportFactory';
 // 连接管理
 export { InMemoryMcpConnectionManager } from './connection/McpConnectionManager';
 export type { McpConnectionManager } from './connection/McpConnectionManager';
+export { DefaultMcpElicitationHandler } from './connection/DefaultMcpElicitationHandler';
 
 // 配置加载
 export {

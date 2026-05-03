@@ -120,6 +120,7 @@ export type DaemonLifecycleEvent =
   | { type: 'session_destroyed'; sessionId: string }
   | { type: 'idle_timeout'; sessionId: string }
   | { type: 'shutdown'; reason: string }
+  | { type: 'shutdown_complete'; reason: string }
   | { type: 'error'; error: string; sessionId?: string };
 
 /** Daemon生命周期监听器 */
@@ -133,6 +134,8 @@ export interface GracefulShutdownOptions {
   readonly waitForSessions?: boolean;
   /** 关闭原因 */
   readonly reason?: string;
+  /** 活跃session计数函数（waitForSessions=true时轮询此函数） */
+  readonly getActiveSessionCount?: () => number | Promise<number>;
 }
 
 // === Server API ===

@@ -37,6 +37,21 @@ export function buildProviderMap(config: RuntimeConfig): Record<string, unknown>
     promptHandler: config.promptHandler,
     canUseToolFn: config.canUseToolFn,
     denialTracking: config.denialTracking ?? DEFAULT_DENIAL_TRACKING,
-    isHeadlessAgent: config.isHeadlessAgent
+    isHeadlessAgent: config.isHeadlessAgent,
+    // P52: 补全 — memory/compress/coordinator/subagent/sandbox
+    memoryConfig: config.memoryConfig,
+    memoryProvider: config.memoryProvider,
+    memoryPathConfig: config.memoryPathConfig,
+    compressConfig: config.compressConfig,
+    compressDeps: config.compressDeps,
+    hookRegistry: config.hookRegistry,
+    toolRegistry: config.toolRegistry,
+    coordinatorRegistry: config.coordinatorRegistry,
+    coordinatorMailbox: config.coordinatorMailbox,
+    spawnProvider: config.spawnProvider,
+    subagentRegistry: config.subagentRegistry,
+    subagentSpawner: config.subagentSpawner,
+    classifierConfig: config.classifierConfig,
+    sandbox: config.sandbox
   };
 }

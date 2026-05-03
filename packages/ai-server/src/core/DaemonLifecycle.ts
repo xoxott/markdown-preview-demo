@@ -95,9 +95,20 @@ export class DaemonLifecycle {
     // 不阻止进程退出
     forceExitTimer.unref();
 
-    if (waitForSessions) {
-      // 等待外部关闭session（由DaemonSessionManager处理）
-      // 这里只是等待超时，实际session关闭在manager层
+    if (waitForSessions && options?.getActiveSessionCount) {
+      // 轮询等待所有 session 关闭
+      const startTime = Date.now();
+      while (Date.now() - startTime < timeoutMs) {
+        const count = await options.getActiveSessionCount();
+        if (count === 0) {
+          clearTimeout(forceExitTimer);
+          this.emit({ type: 'shutdown_complete', reason });
+          return;
+        }
+        // 等待200ms再检查
+        await new Promise<void>(resolve => setTimeout(resolve, 200));
+      }
+      // 超时 — 由 forceExitTimer 处理强制退出
     }
   }
 

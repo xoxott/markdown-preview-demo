@@ -5,17 +5,31 @@
  * context 自动包含这些字段。
  *
  * P39: 添加 promptHandler/canUseToolFn/denialTracking 权限交互字段。
+ *
+ * P52: 补全 memory/compress/coordinator/subagent/sandbox 等字段。
  */
 
 import type {
   CanUseToolFn,
   DenialTrackingState,
-  PermissionPromptHandler
+  PermissionPromptHandler,
+  ToolRegistry
 } from '@suga/ai-tool-core';
+import type { HookRegistry } from '@suga/ai-hooks';
+import type { CompressConfig, CompressDependencies } from '@suga/ai-context';
+import type {
+  CoordinatorRegistry,
+  Mailbox,
+  SpawnProvider
+} from '@suga/ai-coordinator';
+import type { SubagentRegistry, SubagentSpawner } from '@suga/ai-subagent';
+import type { MemoryPathConfig, MemoryPromptConfig, MemoryStorageProvider } from '@suga/ai-memory';
+import type { SandboxSettings } from '@suga/ai-sdk';
 import type {
   ConfigProvider,
   FileSystemProvider,
   HttpProvider,
+  LLMClassifierConfig,
   MailboxProvider,
   McpResourceProvider,
   PlanModeProvider,
@@ -60,6 +74,43 @@ declare module '@suga/ai-tool-core' {
     readonly requiresUserInteraction?: boolean;
     /** P41: 是否为 headless agent（可选 — 自动 deny ask） */
     readonly isHeadlessAgent?: boolean;
+
+    // === P52: 补全 RuntimeConfig → ToolUseContext 字段 ===
+
+    /** P35: Memory配置（可选 — system prompt注入memory段落） */
+    readonly memoryConfig?: Partial<MemoryPromptConfig>;
+    /** P35: Memory存储提供者（可选 — 读取MEMORY.md） */
+    readonly memoryProvider?: MemoryStorageProvider;
+    /** P35: Memory路径配置（可选 — 计算MEMORY.md路径） */
+    readonly memoryPathConfig?: MemoryPathConfig;
+
+    /** P8: 压缩配置（可选 — CompressPhase使用） */
+    readonly compressConfig?: CompressConfig;
+    /** P8: 压缩依赖注入（可选 — callModelForSummary等） */
+    readonly compressDeps?: CompressDependencies;
+
+    /** P4: Hook注册表（可选 — 工具层可查询hook状态） */
+    readonly hookRegistry?: HookRegistry;
+    /** P0: 工具注册表（可选 — 工具层可查询可用工具） */
+    readonly toolRegistry?: ToolRegistry;
+
+    /** P9: Coordinator注册表（可选 — team/spawn工具可查询worker定义） */
+    readonly coordinatorRegistry?: CoordinatorRegistry;
+    /** P9: Coordinator Mailbox（可选 — 直接发送消息到coordinator） */
+    readonly coordinatorMailbox?: Mailbox;
+    /** P9: SpawnProvider（可选 — team工具创建真实Agent会话） */
+    readonly spawnProvider?: SpawnProvider;
+
+    /** P10: Subagent注册表（可选 — 子代理查询） */
+    readonly subagentRegistry?: SubagentRegistry;
+    /** P10: SubagentSpawner（可选 — 子代理创建） */
+    readonly subagentSpawner?: SubagentSpawner;
+
+    /** P37: LLM分类器配置（可选 — 权限管线感知当前分类器） */
+    readonly classifierConfig?: LLMClassifierConfig;
+
+    /** P50: Sandbox配置（可选 — 工具层感知沙箱规则） */
+    readonly sandbox?: SandboxSettings;
   }
 }
 
