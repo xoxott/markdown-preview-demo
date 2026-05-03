@@ -8,7 +8,17 @@ import {
   PostProcessPhase,
   PreProcessPhase
 } from '@suga/ai-agent-loop';
-import { HookAfterToolPhase, HookBeforeToolPhase, HookStopPhase } from '@suga/ai-hooks';
+import {
+  HookAfterToolPhase,
+  HookBeforeToolPhase,
+  HookNotificationPhase,
+  HookPostCompactPhase,
+  HookPreCompactPhase,
+  HookSessionEndPhase,
+  HookSessionStartPhase,
+  HookStopPhase,
+  HookUserPromptPhase
+} from '@suga/ai-hooks';
 import { StreamingToolScheduler } from '@suga/ai-stream-executor';
 import { BlockingLimitPhase, CompressPhase, CompressPipeline } from '@suga/ai-context';
 import { RecoveryPhase } from '@suga/ai-recovery';
@@ -67,10 +77,22 @@ export function buildRuntimePhases(
 
   const phases: LoopPhase[] = [];
 
+  // --- Phase 0: 生命周期 Hook (可选) ---
+  if (config.hookRegistry) {
+    phases.push(new HookSessionStartPhase(config.hookRegistry));
+    phases.push(new HookUserPromptPhase(config.hookRegistry));
+  }
+
   // --- Phase 1: 前处理 ---
   // P8 CompressPhase 替换 PreProcessPhase（如果提供压缩配置）
+  if (config.hookRegistry) {
+    phases.push(new HookPreCompactPhase(config.hookRegistry));
+  }
   if (pipeline) {
     phases.push(new CompressPhase(pipeline));
+    if (config.hookRegistry) {
+      phases.push(new HookPostCompactPhase(config.hookRegistry));
+    }
   } else {
     phases.push(new PreProcessPhase());
   }
@@ -140,9 +162,11 @@ export function buildRuntimePhases(
   // --- Phase 11: PostProcessPhase (P1, 增强版含恢复尊重) ---
   phases.push(new PostProcessPhase(maxTurns));
 
-  // --- Phase 12: P4 HookStop (可选) ---
+  // --- Phase 12: P4 HookStop + Notification + SessionEnd (可选) ---
   if (config.hookRegistry) {
     phases.push(new HookStopPhase(config.hookRegistry));
+    phases.push(new HookNotificationPhase(config.hookRegistry));
+    phases.push(new HookSessionEndPhase(config.hookRegistry));
   }
 
   return phases;

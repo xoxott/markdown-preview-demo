@@ -3,8 +3,14 @@ import { ToolRegistry } from '@suga/ai-tool-core';
 import {
   HookAfterToolPhase,
   HookBeforeToolPhase,
+  HookNotificationPhase,
+  HookPostCompactPhase,
+  HookPreCompactPhase,
   HookRegistry,
-  HookStopPhase
+  HookSessionEndPhase,
+  HookSessionStartPhase,
+  HookStopPhase,
+  HookUserPromptPhase
 } from '@suga/ai-hooks';
 import { SkillRegistry } from '@suga/ai-skill';
 import { BlockingLimitPhase, CompressPhase } from '@suga/ai-context';
@@ -61,7 +67,7 @@ describe('buildRuntimePhases', () => {
     expect(phases[3]).toBeInstanceOf(PostProcessPhase);
   });
 
-  it('带 hookRegistry → 插入 HookBeforeTool+HookAfterTool+HookStop', () => {
+  it('带 hookRegistry → 插入 SessionStart+UserPrompt+BeforeTool+AfterTool+Stop+Notification+SessionEnd', () => {
     const config: RuntimeConfig = {
       provider: new MockLLMProvider(),
       fsProvider: mockFsProvider,
@@ -70,12 +76,18 @@ describe('buildRuntimePhases', () => {
 
     const phases = buildRuntimePhases(config);
 
-    // PreProcess, CallModel, CheckInterrupt, HookBeforeTool, HookAfterTool, PostProcess, HookStop (无toolRegistry)
-    expect(phases.length).toBe(7);
-    expect(phases[3]).toBeInstanceOf(HookBeforeToolPhase);
-    expect(phases[4]).toBeInstanceOf(HookAfterToolPhase);
-    expect(phases[5]).toBeInstanceOf(PostProcessPhase);
-    expect(phases[6]).toBeInstanceOf(HookStopPhase);
+    // HookSessionStart, HookUserPrompt, HookPreCompact, PreProcess, CallModel, CheckInterrupt, HookBeforeTool, HookAfterTool, PostProcess, HookStop, HookNotification, HookSessionEnd
+    expect(phases.length).toBe(12);
+    expect(phases[0]).toBeInstanceOf(HookSessionStartPhase);
+    expect(phases[1]).toBeInstanceOf(HookUserPromptPhase);
+    expect(phases[2]).toBeInstanceOf(HookPreCompactPhase);
+    expect(phases[3]).toBeInstanceOf(PreProcessPhase);
+    expect(phases[6]).toBeInstanceOf(HookBeforeToolPhase);
+    expect(phases[7]).toBeInstanceOf(HookAfterToolPhase);
+    expect(phases[8]).toBeInstanceOf(PostProcessPhase);
+    expect(phases[9]).toBeInstanceOf(HookStopPhase);
+    expect(phases[10]).toBeInstanceOf(HookNotificationPhase);
+    expect(phases[11]).toBeInstanceOf(HookSessionEndPhase);
   });
 
   it('带 toolRegistry → 插入 ExecuteToolsPhase', () => {
@@ -148,18 +160,24 @@ describe('buildRuntimePhases', () => {
 
     const phases = buildRuntimePhases(config);
 
-    // Compress, CallModel, CheckInterrupt, Recovery, Coordinator, HookBeforeTool, ExecuteTools, HookAfterTool, PostProcess, HookStop
-    expect(phases.length).toBe(10);
-    expect(phases[0]).toBeInstanceOf(CompressPhase);
-    expect(phases[1]).toBeInstanceOf(CallModelPhase);
-    expect(phases[2]).toBeInstanceOf(CheckInterruptPhase);
-    expect(phases[3]).toBeInstanceOf(RecoveryPhase);
-    expect(phases[4]).toBeInstanceOf(CoordinatorDispatchPhase);
-    expect(phases[5]).toBeInstanceOf(HookBeforeToolPhase);
-    expect(phases[6]).toBeInstanceOf(ExecuteToolsPhase);
-    expect(phases[7]).toBeInstanceOf(HookAfterToolPhase);
-    expect(phases[8]).toBeInstanceOf(PostProcessPhase);
-    expect(phases[9]).toBeInstanceOf(HookStopPhase);
+    // HookSessionStart, HookUserPrompt, HookPreCompact, Compress, HookPostCompact, CallModel, CheckInterrupt, Recovery, Coordinator, HookBeforeTool, ExecuteTools, HookAfterTool, PostProcess, HookStop, HookNotification, HookSessionEnd
+    expect(phases.length).toBe(16);
+    expect(phases[0]).toBeInstanceOf(HookSessionStartPhase);
+    expect(phases[1]).toBeInstanceOf(HookUserPromptPhase);
+    expect(phases[2]).toBeInstanceOf(HookPreCompactPhase);
+    expect(phases[3]).toBeInstanceOf(CompressPhase);
+    expect(phases[4]).toBeInstanceOf(HookPostCompactPhase);
+    expect(phases[5]).toBeInstanceOf(CallModelPhase);
+    expect(phases[6]).toBeInstanceOf(CheckInterruptPhase);
+    expect(phases[7]).toBeInstanceOf(RecoveryPhase);
+    expect(phases[8]).toBeInstanceOf(CoordinatorDispatchPhase);
+    expect(phases[9]).toBeInstanceOf(HookBeforeToolPhase);
+    expect(phases[10]).toBeInstanceOf(ExecuteToolsPhase);
+    expect(phases[11]).toBeInstanceOf(HookAfterToolPhase);
+    expect(phases[12]).toBeInstanceOf(PostProcessPhase);
+    expect(phases[13]).toBeInstanceOf(HookStopPhase);
+    expect(phases[14]).toBeInstanceOf(HookNotificationPhase);
+    expect(phases[15]).toBeInstanceOf(HookSessionEndPhase);
   });
 
   it('coordinatorRegistry 但无 mailbox → 自动创建 InMemoryMailbox', () => {

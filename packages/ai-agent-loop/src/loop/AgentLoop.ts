@@ -1,7 +1,15 @@
 /** Agent 循环引擎（Agent Loop） 核心 AsyncGenerator while(true) 循环 */
 
 import { ToolExecutor, ToolRegistry } from '@suga/ai-tool-core';
-import { HookAfterToolPhase, HookBeforeToolPhase, HookStopPhase } from '@suga/ai-hooks';
+import {
+  HookAfterToolPhase,
+  HookBeforeToolPhase,
+  HookNotificationPhase,
+  HookSessionEndPhase,
+  HookSessionStartPhase,
+  HookStopPhase,
+  HookUserPromptPhase
+} from '@suga/ai-hooks';
 import { StreamingToolScheduler } from '@suga/ai-stream-executor';
 import type {
   AgentConfig,
@@ -77,7 +85,15 @@ export class AgentLoop {
     }[]
   ): LoopPhase[] {
     const hookRegistry = this.config.hookRegistry;
-    const phases: LoopPhase[] = [new PreProcessPhase()];
+    const phases: LoopPhase[] = [];
+
+    // 有 hook 注册表 → 在 PreProcess 前插入 SessionStart + UserPrompt
+    if (hookRegistry) {
+      phases.push(new HookSessionStartPhase(hookRegistry));
+      phases.push(new HookUserPromptPhase(hookRegistry));
+    }
+
+    phases.push(new PreProcessPhase());
 
     // ★ P42: 判断 scheduler 是否支持交错流式模式
     if (this.config.toolRegistry && isInterleavedScheduler(this.config.scheduler)) {
@@ -121,9 +137,11 @@ export class AgentLoop {
 
     phases.push(new PostProcessPhase(maxTurns));
 
-    // 有 hook 注册表 → 在 PostProcess 后插入 HookStop
+    // 有 hook 注册表 → 在 PostProcess 后插入 HookStop + Notification + SessionEnd
     if (hookRegistry) {
       phases.push(new HookStopPhase(hookRegistry));
+      phases.push(new HookNotificationPhase(hookRegistry));
+      phases.push(new HookSessionEndPhase(hookRegistry));
     }
 
     return phases;

@@ -3,8 +3,14 @@ import type { AgentEvent } from '@suga/ai-agent-loop';
 import {
   HookAfterToolPhase,
   HookBeforeToolPhase,
+  HookNotificationPhase,
+  HookPostCompactPhase,
+  HookPreCompactPhase,
   HookRegistry,
-  HookStopPhase
+  HookSessionEndPhase,
+  HookSessionStartPhase,
+  HookStopPhase,
+  HookUserPromptPhase
 } from '@suga/ai-hooks';
 import { CompressPhase } from '@suga/ai-context';
 import { CoordinatorDispatchPhase, CoordinatorRegistry } from '@suga/ai-coordinator';
@@ -27,7 +33,7 @@ async function consumeAllEvents(generator: AsyncGenerator<AgentEvent>): Promise<
 }
 
 describe('集成测试', () => {
-  it('Compress + Hooks → Phase 铱包含 CompressPhase + HookPhase', () => {
+  it('Compress + Hooks → Phase链包含 CompressPhase + HookPhase', () => {
     const provider = new MockLLMProvider();
     const hookRegistry = new HookRegistry();
 
@@ -44,11 +50,16 @@ describe('集成测试', () => {
 
     const phases = buildRuntimePhases(config);
 
-    // Compress, CallModel, CheckInterrupt, HookBeforeTool, HookAfterTool, PostProcess, HookStop
-    expect(phases[0]).toBeInstanceOf(CompressPhase);
-    expect(phases[3]).toBeInstanceOf(HookBeforeToolPhase);
-    expect(phases[4]).toBeInstanceOf(HookAfterToolPhase);
-    expect(phases[6]).toBeInstanceOf(HookStopPhase);
+    // HookSessionStart, HookUserPrompt, HookPreCompact, Compress, HookPostCompact, CallModel, CheckInterrupt, HookBeforeTool, HookAfterTool, PostProcess, HookStop, HookNotification, HookSessionEnd
+    expect(phases[0]).toBeInstanceOf(HookSessionStartPhase);
+    expect(phases[2]).toBeInstanceOf(HookPreCompactPhase);
+    expect(phases[3]).toBeInstanceOf(CompressPhase);
+    expect(phases[4]).toBeInstanceOf(HookPostCompactPhase);
+    expect(phases[7]).toBeInstanceOf(HookBeforeToolPhase);
+    expect(phases[8]).toBeInstanceOf(HookAfterToolPhase);
+    expect(phases[10]).toBeInstanceOf(HookStopPhase);
+    expect(phases[11]).toBeInstanceOf(HookNotificationPhase);
+    expect(phases[12]).toBeInstanceOf(HookSessionEndPhase);
   });
 
   it('Coordinator + Hooks → CoordinatorDispatchPhase + HookPhase 共存', () => {
@@ -66,9 +77,9 @@ describe('集成测试', () => {
 
     const phases = buildRuntimePhases(config);
 
-    // PreProcess, CallModel, CheckInterrupt, Coordinator, HookBeforeTool, PostProcess, HookStop
-    expect(phases[3]).toBeInstanceOf(CoordinatorDispatchPhase);
-    expect(phases[4]).toBeInstanceOf(HookBeforeToolPhase);
+    // HookSessionStart, HookUserPrompt, HookPreCompact, PreProcess, CallModel, CheckInterrupt, Coordinator, HookBeforeTool, HookAfterTool, PostProcess, HookStop, HookNotification, HookSessionEnd
+    expect(phases[6]).toBeInstanceOf(CoordinatorDispatchPhase);
+    expect(phases[7]).toBeInstanceOf(HookBeforeToolPhase);
   });
 
   it('全配置 RuntimeSession → sendMessage 产出完整事件流', async () => {
