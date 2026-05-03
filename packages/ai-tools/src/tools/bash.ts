@@ -5,6 +5,7 @@ import type {
   PermissionResult,
   SafetyLabel,
   ToolResult,
+  ToolUseContext,
   ValidationResult
 } from '@suga/ai-tool-core';
 import type { ExtendedToolUseContext } from '../context-merge';
@@ -12,6 +13,8 @@ import type { BashInput } from '../types/tool-inputs';
 import type { BashOutput } from '../types/tool-outputs';
 import { BashInputSchema } from '../types/tool-inputs';
 import { assessBashCommandSecurity } from './bash-security';
+import { matchBashPermissionRule, DEFAULT_BASH_PERMISSION_RULES } from './bash-permission-rules';
+import type { BashPermissionRule } from './bash-permission-rules';
 import { truncateOutput } from '../utils/output-truncate';
 
 /** 最大超时时间（10 分钟） */
@@ -72,11 +75,41 @@ export const bashTool = buildTool<BashInput, BashOutput>({
     return { behavior: 'allow' };
   },
 
-  checkPermissions: (input: BashInput): PermissionResult => {
+  checkPermissions: (input: BashInput, context: ToolUseContext): PermissionResult => {
+    // Step 1: 规则引擎匹配（deny > ask > allow优先级）
+    // 从context中获取自定义规则，或使用默认规则
+    const customRules = (context as unknown as Record<string, unknown>)?.bashPermissionRules as readonly BashPermissionRule[] | undefined;
+    const rules = customRules ?? DEFAULT_BASH_PERMISSION_RULES;
+    const ruleMatch = matchBashPermissionRule(input.command, rules);
+
+    if (ruleMatch.behavior === 'deny') {
+      return {
+        behavior: 'deny',
+        message: ruleMatch.reason
+      };
+    }
+
+    if (ruleMatch.behavior === 'allow' && ruleMatch.matchedRule) {
+      // 规则引擎allow → 还需检查安全评估（allow规则不能覆盖安全约束）
+      const assessment = assessBashCommandSecurity(input.command);
+      if (assessment.safetyLevel === 'dangerous') {
+        // 规则allow但安全评估dangerous → deny（安全优先）
+        return {
+          behavior: 'deny',
+          message: assessment.recommendation
+        };
+      }
+      return {
+        behavior: 'allow',
+        decisionReason: ruleMatch.reason
+      };
+    }
+
+    // Step 2: 安全评估（无规则匹配或ask规则）
     const assessment = assessBashCommandSecurity(input.command);
     // 安全级别映射:
     // - safe → allow（只读命令可自动允许）
-    // - dangerous → deny（破坏性命令自动拒绝，宿主可override）
+    // - dangerous → deny（破坏性命令自动拒绝）
     // - caution → ask（需权限确认）
     if (assessment.safetyLevel === 'safe') {
       return {

@@ -159,6 +159,21 @@ export type { FindActualStringResult } from './tools/find-actual-string';
 export { validateWebFetchUrl, isPermittedRedirect } from './tools/web-fetch-security';
 export type { WebFetchSecurityResult } from './tools/web-fetch-security';
 
+// P66: Bash权限规则引擎导出
+export {
+  SAFE_ENV_VARS,
+  isSafeEnvVar,
+  hasUnsafeEnvVars,
+  containsUnquotedExpansion,
+  matchBashPermissionRule,
+  DEFAULT_BASH_PERMISSION_RULES
+} from './tools/bash-permission-rules';
+export type {
+  BashPermissionRule,
+  BashPermissionMatchResult,
+  ExpansionCheckResult
+} from './tools/bash-permission-rules';
+
 // Provider 实现
 export { NodeFileSystemProvider } from './provider/NodeFileSystemProvider';
 export { YoloPermissionClassifier } from './provider/YoloPermissionClassifier';
