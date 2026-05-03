@@ -33,7 +33,10 @@ export type PermissionDecisionReason =
   | 'safety_check_block' // P41: bypass-immune 安全检查阻止
   | 'requires_user_interaction_block' // P41: requiresUserInteraction bypass-immune
   | 'denial_limit_fallback' // P41: denial limits 强制回退到 prompting
-  | 'headless_agent_deny'; // P41: headless agent 自动 deny
+  | 'headless_agent_deny' // P41: headless agent 自动 deny
+  | 'swarm_worker_timeout_deny' // P48: swarm worker 权限超时 deny
+  | 'swarm_worker_leader_approved' // P48: swarm worker Leader 批准
+  | 'swarm_worker_leader_denied'; // P48: swarm worker Leader 拒绝
 
 /**
  * 拒绝追踪状态 — 记录连续和总拒绝计数

@@ -24,3 +24,4 @@ export type * from './settings-cache';
 export type * from './permission-prompt';
 export type * from './safety-check';
 export type * from './permission-racing';
+export type * from './swarm-worker-mailbox';

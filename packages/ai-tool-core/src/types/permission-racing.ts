@@ -406,4 +406,12 @@ export interface CanUseToolFnV3Options {
   denialTracking?: DenialTrackingState;
   /** 是否在显示对话框前先运行自动检查 */
   awaitAutomatedChecksBeforeDialog?: boolean;
+  /** Swarm Worker Mailbox 操作（可选，swarm 模式注入） */
+  swarmWorkerMailbox?: import('./swarm-worker-mailbox').SwarmWorkerMailboxOps;
+  /** Swarm Worker ID（可选，标识当前 worker） */
+  swarmWorkerId?: string;
+  /** Swarm Worker 名称（可选） */
+  swarmWorkerName?: string;
+  /** Swarm Leader 名称（可选，标识目标 leader） */
+  swarmLeaderName?: string;
 }

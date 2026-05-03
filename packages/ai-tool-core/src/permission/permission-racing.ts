@@ -39,6 +39,7 @@ import {
   consumeSpeculativeClassifierCheck,
   peekSpeculativeClassifierCheck
 } from './SpeculativeClassifierCheck';
+import { handleSwarmWorkerPermission } from './handleSwarmWorkerPermission';
 
 /** Speculative classifier 竞速窗口 — 2 秒超时 */
 const SPECULATIVE_CLASSIFIER_TIMEOUT_MS = 2000;
@@ -157,6 +158,19 @@ async function runPipelineAndEnterRacing(params: PipelineRacingParams): Promise<
         }
         // coordinator 无决策 → fall through to interactive
       });
+    }
+
+    // === Path 5: swarm worker → classifier + mailbox转发 ===
+    if (opts?.swarmWorkerMailbox && opts?.swarmWorkerId && opts?.swarmLeaderName) {
+      const swarmDecision = await handleSwarmWorkerPermission(
+        ctx,
+        askResult,
+        opts.swarmWorkerMailbox,
+        opts.swarmWorkerId,
+        opts.swarmWorkerName ?? opts.swarmWorkerId
+      );
+      resolve(swarmDecision);
+      return; // swarm worker path 不 fall through 到 interactive（worker 无 UI）
     }
 
     // === Path 6: speculative classifier (2秒竞速窗口) ===
