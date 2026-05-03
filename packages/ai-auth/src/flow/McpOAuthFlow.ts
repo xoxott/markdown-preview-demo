@@ -121,10 +121,10 @@ async function performDynamicClientRegistration(
   });
 
   if (!response.ok) {
-    const errorBody = await response.json().catch(() => ({ error: 'unknown' }));
+    const errorBody = await response.json().catch(() => ({ error: 'unknown' })) as Record<string, unknown>;
     throw new OAuthError(
-      errorBody.error ?? 'dcr_failed',
-      errorBody.error_description ?? `DCR registration failed: HTTP ${response.status}`
+      String(errorBody.error ?? 'dcr_failed'),
+      String(errorBody.error_description ?? `DCR registration failed: HTTP ${response.status}`)
     );
   }
 
