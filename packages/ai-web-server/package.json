@@ -1,0 +1,51 @@
+{
+  "name": "@suga/ai-web-server",
+  "version": "0.1.0",
+  "description": "Web Session Server — HTTP API + WebSocket 桥接，让浏览器连接 agent session 并消费 SDKMessage 流",
+  "author": {
+    "name": "yangtao",
+    "email": "212920320@qq.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/xoxott/suga-tools/tree/main/packages/ai-web-server",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xoxott/suga-tools.git",
+    "directory": "packages/ai-web-server"
+  },
+  "bugs": {
+    "url": "https://github.com/xoxott/suga-tools/issues"
+  },
+  "keywords": [
+    "ai",
+    "web",
+    "server",
+    "websocket",
+    "http",
+    "session",
+    "agent",
+    "sdk"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "ws": "^8.18.0",
+    "@suga/ai-runtime": "workspace:*",
+    "@suga/ai-sdk": "workspace:*",
+    "@suga/ai-server": "workspace:*",
+    "@suga/ai-agent-loop": "workspace:*",
+    "@suga/ai-tool-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.14",
+    "typescript": "^5.6.3",
+    "vitest": "^4.0.8"
+  }
+}
