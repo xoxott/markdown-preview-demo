@@ -174,6 +174,21 @@ export type {
   ExpansionCheckResult
 } from './tools/bash-permission-rules';
 
+// P67: FileWriteState 文件读写状态+编码检测导出
+export {
+  detectFileEncoding,
+  detectLineEnding,
+  preserveLineEnding,
+  encodeContentForWrite,
+  checkMtimeConsistency,
+  FileWriteStateTracker
+} from './tools/file-write-state';
+export type {
+  FileEncodingInfo,
+  FileReadState,
+  MtimeCheckResult
+} from './tools/file-write-state';
+
 // Provider 实现
 export { NodeFileSystemProvider } from './provider/NodeFileSystemProvider';
 export { YoloPermissionClassifier } from './provider/YoloPermissionClassifier';
