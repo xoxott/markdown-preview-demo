@@ -155,6 +155,10 @@ export type { BashSecurityAssessment } from './tools/bash-security';
 export { findActualString } from './tools/find-actual-string';
 export type { FindActualStringResult } from './tools/find-actual-string';
 
+// P65: WebFetch 安全验证导出
+export { validateWebFetchUrl, isPermittedRedirect } from './tools/web-fetch-security';
+export type { WebFetchSecurityResult } from './tools/web-fetch-security';
+
 // Provider 实现
 export { NodeFileSystemProvider } from './provider/NodeFileSystemProvider';
 export { YoloPermissionClassifier } from './provider/YoloPermissionClassifier';

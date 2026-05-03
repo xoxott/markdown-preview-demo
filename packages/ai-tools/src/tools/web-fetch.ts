@@ -12,6 +12,7 @@ import type { WebFetchInput } from '../types/tool-inputs';
 import type { WebFetchOutput } from '../types/tool-outputs';
 import { WebFetchInputSchema } from '../types/tool-inputs';
 import { DefaultHttpProvider } from '../types/http-provider';
+import { validateWebFetchUrl, isPermittedRedirect } from './web-fetch-security';
 
 /**
  * WebFetchTool — URL抓取工具
@@ -34,16 +35,28 @@ export const webFetchTool = buildTool<WebFetchInput, WebFetchOutput>({
   isDestructive: () => false,
 
   validateInput: (input: WebFetchInput): ValidationResult => {
-    try {
-      new URL(input.url);
-      return { behavior: 'allow' };
-    } catch {
+    const securityResult = validateWebFetchUrl(input.url);
+
+    if (!securityResult.safe) {
       return {
         behavior: 'deny',
-        message: 'Invalid URL format',
-        reason: 'invalid_url'
+        message: securityResult.error ?? 'URL security check failed',
+        reason: 'url_security_blocked'
       };
     }
+
+    // 通过安全检查 → 可能需要更新URL（HTTP→HTTPS升级）
+    if (securityResult.normalizedUrl !== input.url) {
+      return {
+        behavior: 'allow',
+        updatedInput: {
+          ...input,
+          url: securityResult.normalizedUrl
+        }
+      };
+    }
+
+    return { behavior: 'allow' };
   },
 
   checkPermissions: (): PermissionResult => {
@@ -60,6 +73,24 @@ export const webFetchTool = buildTool<WebFetchInput, WebFetchOutput>({
       headers: { Accept: 'text/html,application/json,text/plain,*/*' },
       signal: AbortSignal.timeout(30000)
     });
+
+    // 检查跨域重定向安全
+    const responseUrl = response.url || input.url;
+    if (responseUrl !== input.url) {
+      const redirectCheck = isPermittedRedirect(input.url, responseUrl);
+      if (!redirectCheck.permitted) {
+        return {
+          data: {
+            content: `Redirect blocked: ${redirectCheck.reason ?? 'target domain not permitted'}`,
+            mimeType: 'text/plain',
+            statusCode: response.status,
+            bytes: 0,
+            url: input.url
+          },
+          error: `Redirect blocked: ${redirectCheck.reason}`
+        };
+      }
+    }
 
     if (!response.ok) {
       return {
