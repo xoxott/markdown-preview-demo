@@ -69,6 +69,18 @@ export function convertToAnthropicMessages(messages: readonly AgentMessage[]): A
           });
         }
 
+        // P12: tool_reference 内容块（可选字段）
+        if (assistantMsg.toolReferences) {
+          for (const ref of assistantMsg.toolReferences) {
+            blocks.push({
+              type: 'tool_reference',
+              tool_use_id: ref.toolUseId,
+              name: ref.name,
+              input: ref.input
+            });
+          }
+        }
+
         result.push({
           role: 'assistant',
           content: blocks.length > 0 ? blocks : ''

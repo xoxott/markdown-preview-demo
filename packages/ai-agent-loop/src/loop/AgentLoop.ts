@@ -19,8 +19,8 @@ import type {
 } from '../types/state';
 import type { AgentEvent } from '../types/events';
 import type { LoopResult } from '../types/result';
-import type { AgentMessage } from '../types/messages';
-import type { LLMStreamChunk } from '../types/provider';
+import type { AgentMessage, AssistantMessage } from '../types/messages';
+import type { LLMStreamChunk, ToolDefinition } from '../types/provider';
 import type { LoopPhase } from '../phase/LoopPhase';
 import { composePhases } from '../phase/LoopPhase';
 import { PreProcessPhase } from '../phase/PreProcessPhase';
@@ -203,8 +203,16 @@ export class AgentLoop {
 
     // while(true) 无限循环
     while (true) {
+      // P12: 根据消息历史中的 toolReferences 动态计算工具定义
+      const dynamicToolDefs = this.computeToolDefs(state.messages);
+
       // 创建本轮可变上下文
       const ctx = createMutableAgentContext(state);
+
+      // P12: 注入动态工具定义到 ctx.meta（供 CallModelPhase/StreamingCallModelPhase 优先使用）
+      if (dynamicToolDefs) {
+        ctx.meta.dynamicToolDefs = dynamicToolDefs;
+      }
 
       // 执行阶段链，流式产出事件
       yield* composed(ctx);
@@ -284,5 +292,51 @@ export class AgentLoop {
       messages: state.messages,
       usage
     };
+  }
+
+  /**
+   * computeToolDefs — P12: 根据消息历史中的 toolReferences 动态计算工具定义列表
+   *
+   * 策略: alwaysLoad 工具（非延迟）始终包含 + 已发现的延迟工具动态加入 这样下一轮 API 请求会包含被发现的延迟工具的完整定义
+   */
+  private computeToolDefs(messages: readonly AgentMessage[]): ToolDefinition[] | undefined {
+    const registry = this.config.toolRegistry;
+    if (!registry) return undefined;
+
+    // 从消息历史扫描已发现的工具名 (P12: 从 toolReferences)
+    const discoveredNames = new Set<string>();
+    for (const msg of messages) {
+      if (msg.role === 'assistant') {
+        const refs = (msg as AssistantMessage).toolReferences;
+        if (refs) {
+          for (const ref of refs) {
+            discoveredNames.add(ref.name);
+          }
+        }
+      }
+    }
+
+    // alwaysLoad 工具（非延迟）+ 已发现的延迟工具
+    const allTools = registry.getAll();
+    const alwaysLoad = allTools.filter(t => !this.isDeferredToolLocal(t));
+    const discovered = [...discoveredNames]
+      .map(n => registry.getByName(n))
+      .filter((t): t is NonNullable<typeof t> => t !== undefined);
+
+    const effective = [...alwaysLoad, ...discovered];
+    return effective.map(t => this.config.provider.formatToolDefinition(t));
+  }
+
+  /** 内联延迟判定 — 避免循环依赖 ai-tools (P12) */
+  private isDeferredToolLocal(tool: {
+    name: string;
+    shouldDefer?: boolean;
+    alwaysLoad?: boolean;
+  }): boolean {
+    if (tool.alwaysLoad) return false;
+    if (tool.name === 'tool-search') return false;
+    if (tool.shouldDefer) return true;
+    if (tool.name.startsWith('mcp__')) return true;
+    return false;
   }
 }

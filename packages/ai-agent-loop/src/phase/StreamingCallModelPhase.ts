@@ -61,7 +61,11 @@ export class StreamingCallModelPhase implements LoopPhase {
       const messages: readonly AgentMessage[] =
         (ctx.meta.compressedMessages as readonly AgentMessage[] | undefined) ?? ctx.state.messages;
 
-      const stream = this.provider.callModel(messages, this.tools, {
+      // P12: 优先使用动态工具定义
+      const effectiveTools =
+        (ctx.meta.dynamicToolDefs as readonly ToolDefinition[] | undefined) ?? this.tools;
+
+      const stream = this.provider.callModel(messages, effectiveTools, {
         signal: ctx.state.toolUseContext.abortController.signal,
         systemPrompt: this.systemPrompt
       });

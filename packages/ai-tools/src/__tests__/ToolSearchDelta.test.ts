@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { describe, expect, it } from 'vitest';
 import { buildTool } from '@suga/ai-tool-core';
 import type { AnyBuiltTool } from '@suga/ai-tool-core';
+import type { AgentMessage } from '@suga/ai-agent-loop';
 import {
   buildDeferredToolsSystemReminder,
   checkAutoThreshold,
@@ -191,17 +192,13 @@ describe('getDeferredToolsDelta', () => {
 
   it('已有通知 → 新延迟工具仅为 added', () => {
     const tools = [bashTool, mcpSlackTool, mcpGithubTool];
-    const messages: any[] = [
+    // P12: 使用 AssistantMessage.toolReferences 代替旧的 metadata 伪实现
+    const messages: AgentMessage[] = [
       {
-        role: 'user',
+        role: 'assistant',
         content: '',
-        metadata: {
-          deferredToolsDelta: {
-            type: 'deferred_tools_delta',
-            addedNames: ['mcp__slack__send_message'],
-            removedNames: []
-          }
-        }
+        toolUses: [],
+        toolReferences: [{ toolUseId: 'ref_1', name: 'mcp__slack__send_message', input: {} }]
       }
     ];
 
@@ -222,17 +219,13 @@ describe('getDeferredToolsDelta', () => {
     });
 
     const tools = [bashTool, slackNowLoaded];
-    const messages: any[] = [
+    // P12: 使用 AssistantMessage.toolReferences 代替旧的 metadata 伪实现
+    const messages: AgentMessage[] = [
       {
-        role: 'user',
+        role: 'assistant',
         content: '',
-        metadata: {
-          deferredToolsDelta: {
-            type: 'deferred_tools_delta',
-            addedNames: ['mcp__slack__send_message'],
-            removedNames: []
-          }
-        }
+        toolUses: [],
+        toolReferences: [{ toolUseId: 'ref_1', name: 'mcp__slack__send_message', input: {} }]
       }
     ];
 
@@ -243,17 +236,13 @@ describe('getDeferredToolsDelta', () => {
 
   it('工具完全不在池中 → 报告为 removed', () => {
     const tools = [bashTool]; // 没有 slack/github
-    const messages: any[] = [
+    // P12: 使用 AssistantMessage.toolReferences 代替旧的 metadata 伪实现
+    const messages: AgentMessage[] = [
       {
-        role: 'user',
+        role: 'assistant',
         content: '',
-        metadata: {
-          deferredToolsDelta: {
-            type: 'deferred_tools_delta',
-            addedNames: ['mcp__slack__send_message'],
-            removedNames: []
-          }
-        }
+        toolUses: [],
+        toolReferences: [{ toolUseId: 'ref_1', name: 'mcp__slack__send_message', input: {} }]
       }
     ];
 

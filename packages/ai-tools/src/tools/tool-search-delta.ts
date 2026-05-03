@@ -12,7 +12,7 @@
  */
 
 import type { AnyBuiltTool } from '@suga/ai-tool-core';
-import type { AgentMessage } from '@suga/ai-agent-loop';
+import type { AgentMessage, AssistantMessage } from '@suga/ai-agent-loop';
 import { isDeferredTool } from './tool-search';
 
 // ============================================================
@@ -158,20 +158,19 @@ export function checkAutoThreshold(
 /**
  * 从消息历史中扫描 tool_reference 块提取已发现工具名
  *
- * ToolSearchTool 返回 tool_reference 块，API 将其展开为完整工具定义。 此函数扫描历史以收集所有已发现的工具名，供后续 API 请求仅包含这些工具。
+ * P12: 改为从 AssistantMessage.toolReferences 真实扫描， 而非之前从 (msg as any).metadata.discoveredTools 伪实现。
  */
 export function extractDiscoveredToolNames(messages: readonly AgentMessage[]): Set<string> {
   const discoveredTools = new Set<string>();
 
   for (const msg of messages) {
-    // @suga AgentMessage 的 content 是 string
-    // ToolSearchTool 返回的结果中包含 tool_reference 信息
-    // 通过 metadata 传递
     if (msg.role === 'assistant') {
-      const metadata = (msg as any).metadata as Record<string, unknown> | undefined;
-      if (metadata?.discoveredTools) {
-        const _names = metadata.discoveredTools as string[];
-        _names.forEach(n => discoveredTools.add(n));
+      // P12: 从 AssistantMessage.toolReferences 真实扫描
+      const refs = (msg as AssistantMessage).toolReferences;
+      if (refs) {
+        for (const ref of refs) {
+          discoveredTools.add(ref.name);
+        }
       }
     }
   }
@@ -186,30 +185,16 @@ export function extractDiscoveredToolNames(messages: readonly AgentMessage[]): S
 /**
  * 计算当前延迟工具池与已通知工具的增量差异
  *
- * 逻辑:
- *
- * 1. 扫描消息历史中的 deferred_tools_delta attachment，收集已通知的工具名
- * 2. 过滤出当前延迟但尚未通知的工具 → addedNames
- * 3. 过滤出已通知但不再延迟也不再在工具池的工具 → removedNames
- * 4. 无变化 → 返回 null
+ * P12: 使用 extractDiscoveredToolNames (从 AssistantMessage.toolReferences 真实扫描) 替代之前从 (msg as
+ * any).metadata.deferredToolsDelta 的伪实现。
  */
 export function getDeferredToolsDelta(
   tools: readonly AnyBuiltTool[],
   messages: readonly AgentMessage[],
   _scanContext?: DeferredToolsDeltaScanContext
 ): DeferredToolsDelta | null {
-  // 1. 扫描已通知的工具名
-  const announced = new Set<string>();
-
-  for (const msg of messages) {
-    // 检查 metadata 中的 deferred_tools_delta 附件
-    const metadata = (msg as any).metadata as Record<string, unknown> | undefined;
-    if (metadata?.deferredToolsDelta) {
-      const delta = metadata.deferredToolsDelta as DeferredToolsDeltaAttachment;
-      for (const n of delta.addedNames) announced.add(n);
-      for (const n of delta.removedNames) announced.delete(n);
-    }
-  }
+  // 1. 从 toolReferences 扫描已发现/已通知的工具名
+  const announced = extractDiscoveredToolNames(messages);
 
   // 2. 当前延迟工具名
   const deferredTools = tools.filter(isDeferredTool);
@@ -231,7 +216,7 @@ export function getDeferredToolsDelta(
 
   return {
     addedNames: added.map(t => t.name).sort(),
-    addedLines: added.map(t => t.name).sort(), // 简化: 直接用 name（对齐 CC formatDeferredToolLine）
+    addedLines: added.map(t => t.name).sort(),
     removedNames: removed.sort()
   };
 }
