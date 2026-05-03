@@ -20,6 +20,7 @@
 
 import type { PermissionResult } from '../types/permission';
 import type { PermissionPipelineInput } from '../types/permission-decision';
+import type { ClassifierResult } from '../types/permission-classifier';
 import type {
   BridgePermissionCallbacks,
   CanUseToolFnV3Options,
@@ -34,6 +35,13 @@ import { hasPermissionsToUseTool } from '../permission-pipeline';
 import { generatePromptRequestId } from '../types/permission-prompt';
 import { createResolveOnce } from './createResolveOnce';
 import { createPermissionContext } from './PermissionContextFactory';
+import {
+  consumeSpeculativeClassifierCheck,
+  peekSpeculativeClassifierCheck
+} from './SpeculativeClassifierCheck';
+
+/** Speculative classifier 竞速窗口 — 2 秒超时 */
+const SPECULATIVE_CLASSIFIER_TIMEOUT_MS = 2000;
 
 /** canUseToolV3 入口参数 — 将6个独立参数合并为结构化对象，避免 max-params */
 export interface CanUseToolV3Params {
@@ -100,7 +108,7 @@ export function canUseToolV3(params: CanUseToolV3Params): Promise<PermissionResu
     };
 
     // eslint-disable-next-line no-void
-    void runPipelineAndEnterRacing({ pipelineInput, ctx, tool, opts, resolve });
+    void runPipelineAndEnterRacing({ pipelineInput, ctx, tool, input, opts, resolve });
   });
 }
 
@@ -109,13 +117,14 @@ interface PipelineRacingParams {
   readonly pipelineInput: PermissionPipelineInput;
   readonly ctx: PermissionContextMethods;
   readonly tool: AnyBuiltTool;
+  readonly input: Record<string, unknown>;
   readonly opts: CanUseToolFnV3Options | undefined;
   readonly resolve: (decision: PermissionResult) => void;
 }
 
 /** 内部: 运行 pipeline + 进入竞争层 */
 async function runPipelineAndEnterRacing(params: PipelineRacingParams): Promise<void> {
-  const { pipelineInput, ctx, tool, opts, resolve } = params;
+  const { pipelineInput, ctx, tool, input, opts, resolve } = params;
   try {
     const pipelineResult = await hasPermissionsToUseTool(pipelineInput);
 
@@ -148,6 +157,30 @@ async function runPipelineAndEnterRacing(params: PipelineRacingParams): Promise<
         }
         // coordinator 无决策 → fall through to interactive
       });
+    }
+
+    // === Path 6: speculative classifier (2秒竞速窗口) ===
+    // 仅对 bash 工具，在有 pendingClassifierCheck 且不在 coordinator 模式时
+    if (tool.name === 'bash' && !opts?.awaitAutomatedChecksBeforeDialog) {
+      const command = (input as Record<string, unknown>).command;
+      if (typeof command === 'string') {
+        const speculativePromise = peekSpeculativeClassifierCheck(command);
+        if (speculativePromise) {
+          const speculativeResult = await runSpeculativeClassifierRace(speculativePromise);
+          if (speculativeResult && ctx.resolveIfAborted(resolve)) {
+            // abort 已触发 → 不使用 speculative 结果
+          } else if (speculativeResult?.approved) {
+            consumeSpeculativeClassifierCheck(command);
+            resolve(
+              ctx.buildAllow(input, {
+                decisionReason: 'classifier_allow'
+              })
+            );
+            return;
+          }
+          // speculative 未赢 → fall through to interactive
+        }
+      }
     }
 
     // === Path 7: interactive 5-racer ===
@@ -370,6 +403,43 @@ export function handleInteractivePermission(
       resolveOnce,
       bridgeRequestId
     });
+  }
+}
+
+/** 内部: speculative classifier 竞速结果 */
+interface SpeculativeRaceResult {
+  readonly approved: boolean;
+  readonly classifierResult: ClassifierResult;
+}
+
+/** 内部: 运行 speculative classifier 竞速 — 2秒超时 */
+async function runSpeculativeClassifierRace(
+  speculativePromise: Promise<ClassifierResult>
+): Promise<SpeculativeRaceResult | null> {
+  try {
+    const raceResult = await Promise.race([
+      speculativePromise.then((result: ClassifierResult) => ({ type: 'result', result })),
+      new Promise<{ type: 'timeout' }>(resolve => {
+        setTimeout(() => resolve({ type: 'timeout' }), SPECULATIVE_CLASSIFIER_TIMEOUT_MS);
+      })
+    ]);
+
+    if (raceResult.type === 'result') {
+      const { result } = raceResult;
+      // classifier 在 2s 内返回且高置信度 allow → auto-approve
+      if (result.behavior === 'allow' && result.confidence === 'high') {
+        return { approved: true, classifierResult: result };
+      }
+      // classifier 在 2s 内返回 deny → 不 auto-deny（让用户选择）
+      // classifier ask 或低置信度 → 不 auto-approve
+      return { approved: false, classifierResult: result };
+    }
+
+    // timeout → classifier 未在 2s 内返回，fall through to interactive
+    return null;
+  } catch {
+    // classifier 错误 → graceful degradation
+    return null;
   }
 }
 

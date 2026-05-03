@@ -151,3 +151,11 @@ export {
   handleCoordinatorPermission
 } from './permission/permission-racing';
 export type { CanUseToolV3Params } from './permission/permission-racing';
+export {
+  startSpeculativeClassifierCheck,
+  peekSpeculativeClassifierCheck,
+  consumeSpeculativeClassifierCheck,
+  clearSpeculativeChecks,
+  ClassifierResultCache,
+  getClassifierCache
+} from './permission/SpeculativeClassifierCheck';

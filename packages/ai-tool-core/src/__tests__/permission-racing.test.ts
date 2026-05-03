@@ -29,7 +29,7 @@ describe('createResolveOnce', () => {
   it('claim() 第一次调用返回 true（原子抢占成功）', () => {
     const resolved: PermissionResult[] = [];
     const guard: ResolveOnce<PermissionResult> = createResolveOnce(value => {
-      resolved.push(value);
+      resolved.push(value as PermissionResult);
     });
 
     expect(guard.claim()).toBe(true);
@@ -39,7 +39,7 @@ describe('createResolveOnce', () => {
   it('claim() 第二次调用返回 false（已被其他 racer 抢占）', () => {
     const resolved: PermissionResult[] = [];
     const guard = createResolveOnce(value => {
-      resolved.push(value);
+      resolved.push(value as PermissionResult);
     });
 
     expect(guard.claim()).toBe(true);
@@ -49,7 +49,7 @@ describe('createResolveOnce', () => {
   it('resolve() 仅第一次生效（delivered 标志防止双重 resolve）', () => {
     const resolved: PermissionResult[] = [];
     const guard = createResolveOnce(value => {
-      resolved.push(value);
+      resolved.push(value as PermissionResult);
     });
 
     const allowDecision: PermissionResult = {
@@ -76,7 +76,7 @@ describe('createResolveOnce', () => {
   it('isResolved() 是只读检查（不改变状态）', () => {
     const resolved: PermissionResult[] = [];
     const guard = createResolveOnce(value => {
-      resolved.push(value);
+      resolved.push(value as PermissionResult);
     });
 
     expect(guard.isResolved()).toBe(false); // 尚未抢占
@@ -87,7 +87,7 @@ describe('createResolveOnce', () => {
   it('并发竞争 — 多个 racer 只有 1 个赢', () => {
     const resolved: PermissionResult[] = [];
     const guard = createResolveOnce(value => {
-      resolved.push(value);
+      resolved.push(value as PermissionResult);
     });
 
     // 模拟 5 个 racer 竞争
@@ -103,7 +103,7 @@ describe('createResolveOnce', () => {
   it('claim() + resolve() 组合 — claim 赢后安全交付', () => {
     const resolved: PermissionResult[] = [];
     const guard = createResolveOnce(value => {
-      resolved.push(value);
+      resolved.push(value as PermissionResult);
     });
 
     // racer A: claim 成功 + resolve
@@ -165,7 +165,7 @@ describe('createPermissionContext', () => {
 
     const resolved: PermissionResult[] = [];
     const result = ctx.resolveIfAborted(value => {
-      resolved.push(value);
+      resolved.push(value as PermissionResult);
     });
     expect(result).toBe(false);
     expect(resolved.length).toBe(0);
@@ -185,7 +185,7 @@ describe('createPermissionContext', () => {
 
     const resolved: PermissionResult[] = [];
     const result = ctx.resolveIfAborted(value => {
-      resolved.push(value);
+      resolved.push(value as PermissionResult);
     });
     expect(result).toBe(true);
     expect(resolved.length).toBe(1);
@@ -202,8 +202,8 @@ describe('createPermissionContext', () => {
 
     const result = ctx.cancelAndAbort('test feedback', true);
     expect(result.behavior).toBe('deny');
-    expect(result.message).toContain('中断');
-    expect(result.feedback).toBe('test feedback');
+    expect((result as any).message).toContain('中断');
+    expect((result as any).feedback).toBe('test feedback');
   });
 
   it('buildAllow — 构建 allow 决策', () => {
@@ -216,7 +216,7 @@ describe('createPermissionContext', () => {
 
     const result = ctx.buildAllow({ command: 'ls -la' });
     expect(result.behavior).toBe('allow');
-    expect(result.updatedInput).toEqual({ command: 'ls -la' });
+    expect((result as any).updatedInput).toEqual({ command: 'ls -la' });
   });
 
   it('buildDeny — 构建 deny 决策', () => {
@@ -251,7 +251,7 @@ describe('createPermissionContext', () => {
 
     const result = ctx.handleUserAllow({ command: 'ls -la' }, undefined, 'ok');
     expect(result.behavior).toBe('allow');
-    expect(result.feedback).toBe('ok');
+    expect((result as any).feedback).toBe('ok');
     expect(logged.length).toBe(1);
   });
 
@@ -446,7 +446,6 @@ describe('handleInteractivePermission', () => {
   }
 
   it('Racer 1 onAllow — claim 赢 + resolve allow', async () => {
-    const _ctx = createTestCtx('racer_allow_1');
     const queueOps = new InMemoryPermissionQueueOps();
 
     const resultPromise = new Promise<PermissionResult>(resolve => {
@@ -492,7 +491,7 @@ describe('handleInteractivePermission', () => {
 
     const result = await resultPromise;
     expect(result.behavior).toBe('deny');
-    expect(result.feedback).toBe('user feedback');
+    expect((result as any).feedback).toBe('user feedback');
   });
 
   it('Racer 1 onAbort — claim 赢 + resolve cancel+abort', async () => {
@@ -516,7 +515,7 @@ describe('handleInteractivePermission', () => {
 
     const result = await resultPromise;
     expect(result.behavior).toBe('deny');
-    expect(result.message).toContain('中断');
+    expect((result as any).message).toContain('中断');
   });
 
   it('Bridge racer + local racer 竞争 — local 先 claim 赢', async () => {
