@@ -24,6 +24,10 @@ export { createCallModelFnFromProvider } from './factory/createCallModelFnFromPr
 // Session 层
 export { RuntimeSession } from './session/RuntimeSession';
 export { createRuntimeSession } from './session/createRuntimeSession';
+export { SDKSessionAdapter } from './session/SDKSessionAdapter';
+export { SessionEngineImpl, createSessionEngine } from './session/SessionEngineImpl';
+export { SessionMetadataStore } from './session/SessionMetadataStore';
+export type { SessionMetadata, MetadataPersister } from './session/SessionMetadataStore';
 
 // SDK 层 — QueryEngine + AgentEvent→SDKMessage 映射 + system prompt 组装
 export { QueryEngine } from './sdk/QueryEngine';

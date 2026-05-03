@@ -128,6 +128,8 @@ export { TerminalPermissionPromptHandler } from '@suga/ai-tools';
 export type { TerminalPermissionPromptConfig } from '@suga/ai-tools';
 export { query, unstable_v2_prompt, setQueryEngine } from './api/query';
 export type { QueryEngineLike } from './api/query';
+export { setSessionEngine, getSessionEngine } from './api/sessionEngine';
+export type { SessionEngineLike } from './api/sessionEngine';
 export {
   unstable_v2_createSession,
   unstable_v2_resumeSession,

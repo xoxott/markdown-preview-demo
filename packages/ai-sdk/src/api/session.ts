@@ -1,10 +1,13 @@
 /**
  * session.ts — SDK会话管理API
  *
- * createSession/resumeSession/listSessions等 — stub模式。 对齐Claude Code agentSdkTypes.ts的throw模式。
+ * 从 stub 模式升级为管线模式（与 query.ts 对齐）。 每个函数检查 sessionEngine 是否注入：
+ *
+ * - 已注入 → 委托调用 sessionEngine 对应方法
+ * - 未注入 → throw 描述性错误
  */
 
-import type { SDKSessionInfo } from '../sdk/sdkMessages';
+import type { SDKMessage, SDKSessionInfo } from '../sdk/sdkMessages';
 import type {
   ForkSessionOptions,
   ForkSessionResult,
@@ -13,99 +16,148 @@ import type {
   SDKSession,
   SDKSessionOptions
 } from '../sdk/runtimeTypes';
+import { getSessionEngine } from './sessionEngine';
 
 /**
- * unstable_v2_createSession() — 创建持久多轮会话（alpha, stub）
+ * unstable_v2_createSession() — 创建持久多轮会话
  *
  * @param options 会话配置
  * @returns SDKSession对象
- * @throws Error — 'not implemented' stub
+ * @throws Error — 如果未注入 SessionEngine
  */
-export function unstable_v2_createSession(_options?: SDKSessionOptions): Promise<SDKSession> {
-  throw new Error('not implemented: unstable_v2_createSession() must be injected by host runtime');
+export function unstable_v2_createSession(options?: SDKSessionOptions): Promise<SDKSession> {
+  const engine = getSessionEngine();
+  if (!engine) {
+    throw new Error(
+      'not implemented: call setSessionEngine() first to inject a SessionEngine instance'
+    );
+  }
+  return engine.createSession(options);
 }
 
 /**
- * unstable_v2_resumeSession() — 恢复已有会话（alpha, stub）
+ * unstable_v2_resumeSession() — 恢复已有会话
  *
  * @param sessionId 会话ID
  * @returns SDKSession对象
- * @throws Error — 'not implemented' stub
+ * @throws Error — 如果未注入 SessionEngine
  */
-export function unstable_v2_resumeSession(_sessionId: string): Promise<SDKSession> {
-  throw new Error('not implemented: unstable_v2_resumeSession() must be injected by host runtime');
+export function unstable_v2_resumeSession(sessionId: string): Promise<SDKSession> {
+  const engine = getSessionEngine();
+  if (!engine) {
+    throw new Error(
+      'not implemented: call setSessionEngine() first to inject a SessionEngine instance'
+    );
+  }
+  return engine.resumeSession(sessionId);
 }
 
 /**
- * getSessionMessages() — 读取会话消息记录（stub）
+ * getSessionMessages() — 读取会话消息记录
  *
  * @param sessionId 会话ID
  * @param options 读取选项
  * @returns 消息列表
- * @throws Error — 'not implemented' stub
+ * @throws Error — 如果未注入 SessionEngine
  */
 export function getSessionMessages(
-  _sessionId: string,
-  _options?: GetSessionMessagesOptions
-): Promise<never> {
-  throw new Error('not implemented: getSessionMessages() must be injected by host runtime');
+  sessionId: string,
+  options?: GetSessionMessagesOptions
+): Promise<readonly SDKMessage[]> {
+  const engine = getSessionEngine();
+  if (!engine) {
+    throw new Error(
+      'not implemented: call setSessionEngine() first to inject a SessionEngine instance'
+    );
+  }
+  return engine.getSessionMessages(sessionId, options);
 }
 
 /**
- * listSessions() — 列出会话元数据（stub）
+ * listSessions() — 列出会话元数据
  *
  * @param options 过滤/分页选项
  * @returns 会话信息列表
- * @throws Error — 'not implemented' stub
+ * @throws Error — 如果未注入 SessionEngine
  */
-export function listSessions(_options?: ListSessionsOptions): Promise<SDKSessionInfo[]> {
-  throw new Error('not implemented: listSessions() must be injected by host runtime');
+export function listSessions(options?: ListSessionsOptions): Promise<readonly SDKSessionInfo[]> {
+  const engine = getSessionEngine();
+  if (!engine) {
+    throw new Error(
+      'not implemented: call setSessionEngine() first to inject a SessionEngine instance'
+    );
+  }
+  return engine.listSessions(options);
 }
 
 /**
- * getSessionInfo() — 获取单个会话信息（stub）
+ * getSessionInfo() — 获取单个会话信息
  *
  * @param sessionId 会话ID
  * @returns 会话信息
- * @throws Error — 'not implemented' stub
+ * @throws Error — 如果未注入 SessionEngine
  */
-export function getSessionInfo(_sessionId: string): Promise<SDKSessionInfo> {
-  throw new Error('not implemented: getSessionInfo() must be injected by host runtime');
+export function getSessionInfo(sessionId: string): Promise<SDKSessionInfo> {
+  const engine = getSessionEngine();
+  if (!engine) {
+    throw new Error(
+      'not implemented: call setSessionEngine() first to inject a SessionEngine instance'
+    );
+  }
+  return engine.getSessionInfo(sessionId);
 }
 
 /**
- * renameSession() — 重命名会话（stub）
+ * renameSession() — 重命名会话
  *
  * @param sessionId 会话ID
  * @param title 新标题
- * @throws Error — 'not implemented' stub
+ * @throws Error — 如果未注入 SessionEngine
  */
-export function renameSession(_sessionId: string, _title: string): Promise<void> {
-  throw new Error('not implemented: renameSession() must be injected by host runtime');
+export function renameSession(sessionId: string, title: string): Promise<void> {
+  const engine = getSessionEngine();
+  if (!engine) {
+    throw new Error(
+      'not implemented: call setSessionEngine() first to inject a SessionEngine instance'
+    );
+  }
+  return engine.renameSession(sessionId, title);
 }
 
 /**
- * tagSession() — 为会话打标签（stub）
+ * tagSession() — 为会话打标签
  *
  * @param sessionId 会话ID
  * @param tag 标签（null清除标签）
- * @throws Error — 'not implemented' stub
+ * @throws Error — 如果未注入 SessionEngine
  */
-export function tagSession(_sessionId: string, _tag: string | null): Promise<void> {
-  throw new Error('not implemented: tagSession() must be injected by host runtime');
+export function tagSession(sessionId: string, tag: string | null): Promise<void> {
+  const engine = getSessionEngine();
+  if (!engine) {
+    throw new Error(
+      'not implemented: call setSessionEngine() first to inject a SessionEngine instance'
+    );
+  }
+  return engine.tagSession(sessionId, tag);
 }
 
 /**
- * forkSession() — 从某消息点分叉会话（stub）
+ * forkSession() — 从某消息点分叉会话
  *
  * @param sessionId 原始会话ID
  * @param options 分叉选项
  * @returns 分叉结果
- * @throws Error — 'not implemented' stub
+ * @throws Error — 如果未注入 SessionEngine
  */
 export function forkSession(
-  _sessionId: string,
-  _options?: ForkSessionOptions
+  sessionId: string,
+  options?: ForkSessionOptions
 ): Promise<ForkSessionResult> {
-  throw new Error('not implemented: forkSession() must be injected by host runtime');
+  const engine = getSessionEngine();
+  if (!engine) {
+    throw new Error(
+      'not implemented: call setSessionEngine() first to inject a SessionEngine instance'
+    );
+  }
+  return engine.forkSession(sessionId, options);
 }
