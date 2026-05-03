@@ -21,6 +21,7 @@ export { InMemorySessionHookStore } from './registry/SessionHookStore';
 
 // ——— 执行器导出 ———
 export { HookExecutor } from './executor/HookExecutor';
+export { HookBroadcaster, HookExecutionTracker } from './executor/HookBroadcaster';
 
 // ——— Runner 导出 ———
 export { RunnerRegistryImpl } from './runner/RunnerRegistry';
