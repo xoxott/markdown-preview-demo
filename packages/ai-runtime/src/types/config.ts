@@ -5,6 +5,7 @@ import type {
   CanUseToolFn,
   DenialTrackingState,
   PermissionPromptHandler,
+  SettingsLayerReader,
   ToolRegistry
 } from '@suga/ai-tool-core';
 import type { HookRegistry } from '@suga/ai-hooks';
@@ -27,6 +28,8 @@ import type {
   LLMClassifierConfig,
   MailboxProvider,
   McpResourceProvider,
+  NodeSettingsChangeListenerConfig,
+  NodeSettingsLayerReaderConfig,
   PlanModeProvider,
   SearchProvider,
   SkillProvider,
@@ -134,6 +137,14 @@ export interface RuntimeConfig {
   /** 计划模式提供者（可选，无默认） */
   readonly planModeProvider?: PlanModeProvider;
 
+  // === P47 Settings 文件系统 (可选) ===
+  /** SettingsLayerReader 实例（可选，提供时 SettingsLoader 可从磁盘读取配置） */
+  readonly settingsLayerReader?: SettingsLayerReader;
+  /** NodeSettingsLayerReader 配置（可选，提供时自动创建 NodeSettingsLayerReader） */
+  readonly settingsLayerReaderConfig?: NodeSettingsLayerReaderConfig;
+  /** NodeSettingsChangeListener 配置（可选，提供时自动创建 NodeSettingsChangeListener） */
+  readonly settingsChangeListenerConfig?: NodeSettingsChangeListenerConfig;
+
   // === P37 LLM Classifier (可选) ===
   /** LLM分类器配置（auto模式使用，无默认则使用YoloPermissionClassifier stub） */
   readonly classifierConfig?: LLMClassifierConfig;
@@ -176,6 +187,7 @@ export interface ProviderMap {
   readonly configProvider?: ConfigProvider;
   readonly mcpResourceProvider?: McpResourceProvider;
   readonly planModeProvider?: PlanModeProvider;
+  readonly settingsLayerReader?: SettingsLayerReader;
   readonly promptHandler?: PermissionPromptHandler;
   readonly canUseToolFn?: CanUseToolFn;
   readonly denialTracking?: DenialTrackingState;
