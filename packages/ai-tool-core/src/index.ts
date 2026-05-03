@@ -116,6 +116,11 @@ export {
   isInternalWriteProtection
 } from './types/settings-cache';
 
+// Settings 加载编排
+export { loadSettingsFromDisk } from './settings/SettingsLoader';
+export type { LoadSettingsFromDiskOptions, LoadSettingsFromDiskResult } from './settings/SettingsLoader';
+export { SettingsCacheManager } from './settings/SettingsCacheManager';
+
 // Permission Prompt 用户确认循环
 export {
   resolvePermissionPrompt,
@@ -151,6 +156,7 @@ export {
   handleCoordinatorPermission
 } from './permission/permission-racing';
 export type { CanUseToolV3Params } from './permission/permission-racing';
+export { handleSwarmWorkerPermission } from './permission/handleSwarmWorkerPermission';
 export {
   startSpeculativeClassifierCheck,
   peekSpeculativeClassifierCheck,

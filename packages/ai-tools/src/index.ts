@@ -121,3 +121,7 @@ export { InMemoryMcpResourceProvider } from './provider/InMemoryMcpResourceProvi
 export { InMemoryPlanModeProvider } from './provider/InMemoryPlanModeProvider';
 export { TerminalPermissionPromptHandler } from './provider/TerminalPermissionPromptHandler';
 export type { TerminalPermissionPromptConfig } from './provider/TerminalPermissionPromptHandler';
+export { NodeSettingsLayerReader } from './provider/NodeSettingsLayerReader';
+export type { NodeSettingsLayerReaderConfig } from './provider/NodeSettingsLayerReader';
+export { NodeSettingsChangeListener } from './provider/NodeSettingsChangeListener';
+export type { NodeSettingsChangeListenerConfig } from './provider/NodeSettingsChangeListener';
