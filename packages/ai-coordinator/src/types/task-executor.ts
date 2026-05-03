@@ -18,6 +18,19 @@ export interface SpawnCallOptions {
   readonly allowedTools?: readonly string[];
   /** 中断信号 */
   readonly abortSignal?: AbortSignal;
+  /**
+   * Swarm Worker Mailbox 操作 — Worker 权限转发
+   *
+   * InProcessTeammate 将 mailboxOps 注入到子 Agent 的权限上下文，
+   * 使 canUseToolV3 Path 5 (swarm worker) 能够通过 mailbox 转发权限请求到 Leader。
+   */
+  readonly swarmWorkerMailboxOps?: import('@suga/ai-tool-core').SwarmWorkerMailboxOps;
+  /** Swarm Worker ID（标识当前 worker） */
+  readonly swarmWorkerId?: string;
+  /** Swarm Worker 名称（可选，默认等于 workerId） */
+  readonly swarmWorkerName?: string;
+  /** Swarm Leader 名称（标识目标 leader） */
+  readonly swarmLeaderName?: string;
 }
 
 /** Agent会话句柄 — 用于追踪正在执行的Agent */
@@ -75,6 +88,21 @@ export interface TaskExecutionContext {
   readonly agentRegistry?: import('../registry/CoordinatorRegistry').CoordinatorRegistry;
   readonly abortSignal?: AbortSignal;
   readonly meta: Record<string, unknown>;
+  /**
+   * Swarm Worker Mailbox 操作 — 由宿主注入
+   *
+   * ai-coordinator 不依赖 ai-tool-core，所以通过 meta 传递
+   * 已构建好的 SwarmWorkerMailboxOps 实例。
+   * InProcessTeammate 将其转发到 SpawnCallOptions，
+   * 使子 Agent 的权限管线能使用 canUseToolV3 Path 5。
+   */
+  readonly swarmWorkerMailboxOps?: import('@suga/ai-tool-core').SwarmWorkerMailboxOps;
+  /** Swarm Worker ID */
+  readonly swarmWorkerId?: string;
+  /** Swarm Worker 名称 */
+  readonly swarmWorkerName?: string;
+  /** Swarm Leader 名称 */
+  readonly swarmLeaderName?: string;
 }
 
 /** Task执行结果 */

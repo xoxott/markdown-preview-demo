@@ -29,6 +29,10 @@ export { SessionEngineImpl, createSessionEngine } from './session/SessionEngineI
 export { SessionMetadataStore } from './session/SessionMetadataStore';
 export type { SessionMetadata, MetadataPersister } from './session/SessionMetadataStore';
 
+// Swarm 层 — Worker Mailbox 适配器
+export { SwarmWorkerMailboxAdapter } from './swarm/SwarmWorkerMailboxAdapter';
+export type { SwarmWorkerMailboxAdapterConfig } from './swarm/SwarmWorkerMailboxAdapter';
+
 // SDK 层 — QueryEngine + AgentEvent→SDKMessage 映射 + system prompt 组装
 export { QueryEngine } from './sdk/QueryEngine';
 export { createQueryEngine } from './sdk/createQueryEngine';

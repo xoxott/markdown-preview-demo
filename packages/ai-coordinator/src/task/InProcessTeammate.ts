@@ -37,7 +37,12 @@ export class InProcessTeammate implements TaskType {
       const result = await context.spawnProvider.spawnAgent(agentDef, task.subject, {
         systemPrompt: contextDirective,
         allowedTools: (task.metadata?.allowedTools as string[]) ?? undefined,
-        abortSignal: context.abortSignal
+        abortSignal: context.abortSignal,
+        // Swarm Worker 权限转发 — 将 mailboxOps 注入到子 Agent 权限管线
+        swarmWorkerMailboxOps: context.swarmWorkerMailboxOps,
+        swarmWorkerId: context.swarmWorkerId,
+        swarmWorkerName: context.swarmWorkerName ?? context.swarmWorkerId,
+        swarmLeaderName: context.swarmLeaderName
       });
 
       return {
