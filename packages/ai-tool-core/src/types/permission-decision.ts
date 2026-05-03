@@ -6,9 +6,10 @@ import type { ToolUseContext } from './context';
 import type { AnyBuiltTool } from './registry';
 
 /**
- * 结构化决策原因 — 16种权限决策的精确标记
+ * 结构化决策原因 — 20种权限决策的精确标记
  *
- * 参考 Claude Code 的 PermissionDecisionReason: 每种原因对应管线中的特定步骤，便于审计日志和调试。 P16B 新增 5 种 classifier 相关原因。
+ * 参考 Claude Code 的 PermissionDecisionReason: 每种原因对应管线中的特定步骤，便于审计日志和调试。 P16B 新增 5 种 classifier
+ * 相关原因。P41 新增 4 种安全检查原因。
  */
 export type PermissionDecisionReason =
   | 'deny_rule_match' // 拒绝规则匹配
@@ -18,6 +19,8 @@ export type PermissionDecisionReason =
   | 'mode_accept_edits_disallowed' // 接受编辑模式拒绝不允许的工具
   | 'mode_auto_approve_readonly' // 自动模式批准只读
   | 'mode_bypass' // 绕过模式
+  | 'mode_dont_ask_converted_deny' // P41: dontAsk 模式将 ask 转为 deny
+  | 'mode_dont_ask' // P41: dontAsk 模式标识
   | 'tool_check_permissions' // 工具自定义 checkPermissions
   | 'hook_deny' // PreToolUse hook deny
   | 'hook_allow' // PreToolUse hook allow
@@ -26,7 +29,11 @@ export type PermissionDecisionReason =
   | 'classifier_deny' // P16B: 分类器拒绝
   | 'classifier_ask' // P16B: 分类器建议用户确认
   | 'classifier_unavailable_deny' // P16B: 分类器不可用 + Iron Gate fail-closed
-  | 'classifier_unavailable_fallback'; // P16B: 分类器不可用 + Iron Gate fail-open
+  | 'classifier_unavailable_fallback' // P16B: 分类器不可用 + Iron Gate fail-open
+  | 'safety_check_block' // P41: bypass-immune 安全检查阻止
+  | 'requires_user_interaction_block' // P41: requiresUserInteraction bypass-immune
+  | 'denial_limit_fallback' // P41: denial limits 强制回退到 prompting
+  | 'headless_agent_deny'; // P41: headless agent 自动 deny
 
 /**
  * 拒绝追踪状态 — 记录连续和总拒绝计数
@@ -147,4 +154,8 @@ export interface PermissionPipelineInput {
   readonly promptHandler?: import('./permission-prompt').PermissionPromptHandler;
   /** 拒绝追踪状态（可选） */
   readonly denialTracking?: DenialTrackingState;
+  /** P41: 工具是否标记 requiresUserInteraction（bypass-immune） */
+  readonly requiresUserInteraction?: boolean;
+  /** P41: 是否为 headless agent（自动 deny ask） */
+  readonly isHeadlessAgent?: boolean;
 }

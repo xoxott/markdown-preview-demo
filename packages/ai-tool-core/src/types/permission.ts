@@ -83,6 +83,8 @@ export interface PermissionAsk {
   decisionReason?: string;
   /** 结构化决策原因（精确标记，用于新管线） */
   structuredReason?: PermissionDecisionReason;
+  /** P41: bypass-immune 标记 — 即使在 bypass/auto 模式下也必须用户交互 */
+  requiresUserInteraction?: boolean;
 }
 
 /**

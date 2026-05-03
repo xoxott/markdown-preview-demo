@@ -143,6 +143,10 @@ export interface RuntimeConfig {
   readonly canUseToolFn?: CanUseToolFn;
   /** 拒绝追踪初始状态（默认DEFAULT_DENIAL_TRACKING） */
   readonly denialTracking?: DenialTrackingState;
+
+  // === P41 headless-agent + requiresUserInteraction ===
+  /** 是否为 headless agent（自动 deny ask） */
+  readonly isHeadlessAgent?: boolean;
 }
 
 /** Provider Map — 从 RuntimeConfig 提取的 provider 字段集合 */
@@ -161,6 +165,7 @@ export interface ProviderMap {
   readonly promptHandler?: PermissionPromptHandler;
   readonly canUseToolFn?: CanUseToolFn;
   readonly denialTracking?: DenialTrackingState;
+  readonly isHeadlessAgent?: boolean;
 }
 
 /** RuntimeSession 状态 — P7 Store 管理 */

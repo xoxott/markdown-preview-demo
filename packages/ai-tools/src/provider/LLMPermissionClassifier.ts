@@ -223,7 +223,7 @@ export class LLMPermissionClassifier implements PermissionClassifier {
           return {
             behavior: bashResult.decision === 'allow' ? 'allow' : 'deny',
             reason: bashResult.reason,
-            confidence: bashResult.confidence,
+            confidence: bashResult.confidence
           };
         }
         // ask → 继续走LLM两阶段分类（与当前逻辑相同）

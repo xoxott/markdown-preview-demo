@@ -18,9 +18,12 @@ import {
   isAcceptEditsDeniedTool,
   isAcceptEditsFastPathTool,
   isClassifierSafeTool,
-  isPlanModeAllowedTool
+  isPlanModeAllowedTool,
+  isSilentDenyMode,
+  shouldAvoidPermissionPrompts
 } from './types/permission-mode';
 import { matchPermissionRuleValue } from './types/permission-rule';
+import { isDangerousToolInput } from './types/safety-check';
 
 /**
  * 内部辅助：统一处理 Step 3/5/6 的用户确认逻辑
@@ -126,11 +129,14 @@ async function resolvePromptDecision(
  *
  * 参考 Claude Code 的权限检查流程（permissions.ts hasPermissionsToUseTool）:
  *
- * Step 1: bypassPermissions 快速路径 → allow Step 2: DenyRule 匹配 → deny Step 3: AskRule 匹配 → ask/P16F
- * promptHandler 桥接 Step 4: ModeOverride (restricted/plan/acceptEdits/auto) → deny/allow Step 4.5:
- * acceptEdits 快速路径白名单 → allow Step 4.7: CLASSIFIER_SAFE_ALLOWLIST → allow Step 5:
- * PermissionClassifier → AI分类器评估 Step 5.5: Iron Gate → 分类器不可用时的安全策略 Step 6: checkPermissions →
- * 工具自定义 Step 7: promptHandler/canUseToolFn → 用户交互确认（嵌入在 Step 3/5/6 中）
+ * Step 1: bypassPermissions 快速路径 → allow Step 1.5: bypass-immune 安全检查 → ask（即使 bypass 模式也不 allow
+ * 危险文件/目录） Step 1.6: requiresUserInteraction → ask（bypass-immune，必须用户交互） Step 2: DenyRule 匹配 → deny
+ * Step 3: AskRule 匹配 → ask/P16F promptHandler 桥接 Step 4: ModeOverride
+ * (restricted/plan/acceptEdits/auto/dontAsk) → deny/allow Step 4.5: acceptEdits 快速路径白名单 → allow
+ * Step 4.7: CLASSIFIER_SAFE_ALLOWLIST → allow Step 4.8: dontAsk 模式 → ask转为deny Step 4.9:
+ * headless-agent → ask转为deny Step 5: PermissionClassifier → AI分类器评估 Step 5.5: Iron Gate →
+ * 分类器不可用时的安全策略 Step 5.7: denial limits → 强制回退到 prompting Step 6: checkPermissions → 工具自定义 Step 7:
+ * promptHandler/canUseToolFn → 用户交互确认（嵌入在 Step 3/5/6 中）
  *
  * @param input 管线输入
  * @returns 权限决策结果
@@ -138,10 +144,29 @@ async function resolvePromptDecision(
 export async function hasPermissionsToUseTool(
   input: PermissionPipelineInput
 ): Promise<PermissionResult> {
-  const { tool, args, context, permCtx } = input;
+  const { tool, args, context, permCtx, requiresUserInteraction, isHeadlessAgent } = input;
 
   // === Step 1: bypassPermissions 快速路径 ===
   if (permCtx.bypassPermissions) {
+    // Step 1.5: bypass-immune 安全检查 — 即使 bypass 模式也不 allow 危险文件/目录
+    const safetyResult = isDangerousToolInput(tool.name, args);
+    if (safetyResult.isDangerous) {
+      return resolvePromptDecision(
+        input,
+        'safety_check_block',
+        `安全检查: ${safetyResult.reason ?? '涉及 bypass-immune 文件/目录'}`
+      );
+    }
+
+    // Step 1.6: requiresUserInteraction — bypass-immune，必须用户交互
+    if (requiresUserInteraction) {
+      return resolvePromptDecision(
+        input,
+        'requires_user_interaction_block',
+        `工具 "${tool.name}" 要求用户交互（bypass-immune）`
+      );
+    }
+
     return {
       behavior: 'allow',
       decisionSource: 'flag',
@@ -239,6 +264,28 @@ export async function hasPermissionsToUseTool(
     };
   }
 
+  // === Step 4.8: dontAsk 模式 — 将所有 ask 转为 deny ===
+  if (isSilentDenyMode(permCtx.mode)) {
+    return {
+      behavior: 'deny',
+      message: `dontAsk 模式下不允许执行 "${tool.name}"`,
+      reason: 'dont_ask_converted_deny',
+      decisionSource: 'mode',
+      structuredReason: 'mode_dont_ask_converted_deny'
+    };
+  }
+
+  // === Step 4.9: headless-agent — 自动 deny（先跑 hooks 后仍 deny） ===
+  if (isHeadlessAgent && shouldAvoidPermissionPrompts(permCtx.mode)) {
+    return {
+      behavior: 'deny',
+      message: `headless agent 自动拒绝 "${tool.name}" 的执行`,
+      reason: 'headless_agent_deny',
+      decisionSource: 'flag',
+      structuredReason: 'headless_agent_deny'
+    };
+  }
+
   // === Step 5: PermissionClassifier ===
   if (category === 'autoapprove' && !tool.isReadOnly(args) && permCtx.classifierFn) {
     const classifierInput = tool.toAutoClassifierInput(args);
@@ -280,6 +327,17 @@ export async function hasPermissionsToUseTool(
       }
 
       if (classifierResult.behavior === 'ask') {
+        // Step 5.7: denial limits — 连续拒绝达到阈值时强制回退到 prompting
+        const currentDenialTracking = input.denialTracking ?? DEFAULT_DENIAL_TRACKING;
+        if (currentDenialTracking.shouldFallbackToPrompting) {
+          return resolvePromptDecision(
+            input,
+            'denial_limit_fallback',
+            `多次拒绝后强制交互确认 "${tool.name}" 的执行: ${classifierResult.reason}`,
+            classifierResult
+          );
+        }
+
         // P16F: 分类器建议用户确认 → promptHandler/canUseToolFn 桥接
         return resolvePromptDecision(
           input,

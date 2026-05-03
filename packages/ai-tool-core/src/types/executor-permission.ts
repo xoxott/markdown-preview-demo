@@ -25,6 +25,10 @@ declare module './context' {
     readonly promptHandler?: PermissionPromptHandler;
     /** 拒绝追踪状态（可选） */
     readonly denialTracking?: DenialTrackingState;
+    /** P41: 工具是否标记 requiresUserInteraction（bypass-immune） */
+    readonly requiresUserInteraction?: boolean;
+    /** P41: 是否为 headless agent（自动 deny ask） */
+    readonly isHeadlessAgent?: boolean;
     /** 元数据（可选，P4 HookPhase 桥接协议） */
     meta?: Record<string, unknown>;
     /** P16C: 合并后的 settings 配置（可选） */

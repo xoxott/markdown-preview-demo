@@ -272,6 +272,11 @@ export class ToolExecutor {
 
     // 有 permCtx → 使用新管线
     if (permCtx) {
+      // P41: requiresUserInteraction — 优先使用工具自身标记，否则使用 context 传入的值
+      const toolRequiresInteraction = tool.requiresUserInteraction(args);
+      const requiresUserInteraction =
+        toolRequiresInteraction || (context.requiresUserInteraction ?? false);
+
       const pipelineInput: PermissionPipelineInput = {
         tool: tool as BuiltTool<unknown, unknown>,
         args,
@@ -279,7 +284,9 @@ export class ToolExecutor {
         permCtx,
         canUseToolFn: context.canUseToolFn,
         promptHandler: context.promptHandler,
-        denialTracking: context.denialTracking
+        denialTracking: context.denialTracking,
+        requiresUserInteraction,
+        isHeadlessAgent: context.isHeadlessAgent
       };
 
       return hasPermissionsToUseTool(pipelineInput);

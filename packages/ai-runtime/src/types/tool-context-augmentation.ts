@@ -56,6 +56,10 @@ declare module '@suga/ai-tool-core' {
     readonly canUseToolFn?: CanUseToolFn;
     /** P39: 拒绝追踪状态（可选 — 默认DEFAULT_DENIAL_TRACKING） */
     readonly denialTracking?: DenialTrackingState;
+    /** P41: 工具是否标记 requiresUserInteraction（可选 — executor 传递到管线） */
+    readonly requiresUserInteraction?: boolean;
+    /** P41: 是否为 headless agent（可选 — 自动 deny ask） */
+    readonly isHeadlessAgent?: boolean;
   }
 }
 

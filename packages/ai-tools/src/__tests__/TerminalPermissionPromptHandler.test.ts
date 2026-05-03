@@ -3,6 +3,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { PermissionPromptRequest } from '@suga/ai-tool-core';
 import type {
+  NodeReadlineInterface,
   ReadlineFactory
 } from '../provider/TerminalPermissionPromptHandler';
 import {

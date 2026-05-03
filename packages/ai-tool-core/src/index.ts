@@ -24,6 +24,8 @@ export {
   isAutoApproveReadonlyMode,
   isRestrictedMode,
   isBypassMode,
+  isSilentDenyMode,
+  shouldAvoidPermissionPrompts,
   isPlanModeAllowedTool,
   isAcceptEditsDeniedTool,
   isAcceptEditsFastPathTool,
@@ -120,3 +122,32 @@ export {
   bridgeCanUseToolFnResponse,
   generatePromptRequestId
 } from './types/permission-prompt';
+
+// P41: bypass-immune 安全检查
+export {
+  DANGEROUS_FILES,
+  DANGEROUS_DIRECTORIES,
+  isDangerousFilePath,
+  isDangerousDirectoryPath,
+  isDangerousToolInput
+} from './types/safety-check';
+
+// P44: 原子竞争权限架构
+export { createResolveOnce } from './permission/createResolveOnce';
+export { createPermissionContext } from './permission/PermissionContextFactory';
+export type {
+  HookRunner,
+  PersistPermissionFn,
+  LogPermissionFn,
+  CreatePermissionContextParams
+} from './permission/PermissionContextFactory';
+export {
+  createPermissionQueueOps,
+  InMemoryPermissionQueueOps
+} from './permission/PermissionQueueOpsFactory';
+export {
+  canUseToolV3,
+  handleInteractivePermission,
+  handleCoordinatorPermission
+} from './permission/permission-racing';
+export type { CanUseToolV3Params } from './permission/permission-racing';

@@ -31,6 +31,7 @@ export function buildProviderMap(config: RuntimeConfig): Record<string, unknown>
     planModeProvider: config.planModeProvider,
     promptHandler: config.promptHandler,
     canUseToolFn: config.canUseToolFn,
-    denialTracking: config.denialTracking ?? DEFAULT_DENIAL_TRACKING
+    denialTracking: config.denialTracking ?? DEFAULT_DENIAL_TRACKING,
+    isHeadlessAgent: config.isHeadlessAgent
   };
 }

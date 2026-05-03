@@ -86,6 +86,8 @@ export interface ToolDef<Input = unknown, Output = unknown> {
   interruptBehavior?(): 'cancel' | 'block';
   /** 分类器投影（可选，P16-B 前置 — 从工具投影出分类器所需的信息） */
   toAutoClassifierInput?(input: Input): ToolClassifierInput;
+  /** P41: 是否要求用户交互（bypass-immune — 即使 bypass/auto 模式也必须用户交互） */
+  requiresUserInteraction?(input: Input): boolean;
 }
 
 /**
@@ -124,4 +126,6 @@ export interface BuiltTool<Input = unknown, Output = unknown> {
   readonly interruptBehavior: () => 'cancel' | 'block';
   /** 分类器投影（已填充默认值，P16-B 前置接口） */
   readonly toAutoClassifierInput: (input: unknown) => ToolClassifierInput;
+  /** P41: 是否要求用户交互（已填充默认值: () => false） */
+  readonly requiresUserInteraction: (input: Input) => boolean;
 }

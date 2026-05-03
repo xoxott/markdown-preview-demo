@@ -9,6 +9,7 @@
  * - bypassPermissions: 绕过所有权限检查（危险，仅用于内部测试）
  * - auto: 自动模式，只读工具自动允许
  * - restricted: 受限模式，只允许只读工具
+ * - dontAsk: 静默拒绝模式，将所有 ask 转为 deny（参考 Claude Code 的 dontAsk）
  */
 export type PermissionMode =
   | 'default'
@@ -16,17 +17,24 @@ export type PermissionMode =
   | 'acceptEdits'
   | 'bypassPermissions'
   | 'auto'
-  | 'restricted';
+  | 'restricted'
+  | 'dontAsk';
 
 /**
- * 权限模式分类 — 将 6 种模式归入 4 类，用于决策逻辑
+ * 权限模式分类 — 将 7 种模式归入 5 类，用于决策逻辑
  *
  * - interactive: 需要用户交互确认（default, plan, acceptEdits）
  * - autoapprove: 自动批准部分操作（auto）
  * - restricted: 严格限制（restricted）
  * - bypass: 绕过所有权限（bypassPermissions）
+ * - silentDeny: 静默拒绝所有询问（dontAsk）
  */
-export type PermissionModeCategory = 'interactive' | 'autoapprove' | 'restricted' | 'bypass';
+export type PermissionModeCategory =
+  | 'interactive'
+  | 'autoapprove'
+  | 'restricted'
+  | 'bypass'
+  | 'silentDeny';
 
 /** 所有合法权限模式值 */
 export const PERMISSION_MODES: readonly PermissionMode[] = [
@@ -35,7 +43,8 @@ export const PERMISSION_MODES: readonly PermissionMode[] = [
   'acceptEdits',
   'bypassPermissions',
   'auto',
-  'restricted'
+  'restricted',
+  'dontAsk'
 ];
 
 /** 计划模式允许的工具白名单 */
@@ -122,6 +131,8 @@ export function classifyPermissionMode(mode: PermissionMode): PermissionModeCate
       return 'restricted';
     case 'bypassPermissions':
       return 'bypass';
+    case 'dontAsk':
+      return 'silentDeny';
     default:
       return 'interactive';
   }
@@ -153,6 +164,16 @@ export function isRestrictedMode(mode: PermissionMode): boolean {
 /** 是否绕过所有权限检查 */
 export function isBypassMode(mode: PermissionMode): boolean {
   return mode === 'bypassPermissions';
+}
+
+/** 是否静默拒绝模式 — dontAsk 将所有 ask 转为 deny */
+export function isSilentDenyMode(mode: PermissionMode): boolean {
+  return mode === 'dontAsk';
+}
+
+/** 是否应避免权限提示 — headless agent 或 dontAsk 模式 */
+export function shouldAvoidPermissionPrompts(mode: PermissionMode): boolean {
+  return mode === 'dontAsk' || classifyPermissionMode(mode) === 'silentDeny';
 }
 
 /**

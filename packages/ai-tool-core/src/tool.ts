@@ -35,7 +35,8 @@ export const TOOL_DEFAULTS = {
     safetyLabel: 'system',
     isReadOnly: false,
     isDestructive: false
-  })
+  }),
+  requiresUserInteraction: () => false as boolean
 };
 
 /**
@@ -93,6 +94,7 @@ export function buildTool<Input, Output>(def: ToolDef<Input, Output>): BuiltTool
     interruptBehavior: def.interruptBehavior ?? TOOL_DEFAULTS.interruptBehavior,
     toAutoClassifierInput: (def.toAutoClassifierInput ?? TOOL_DEFAULTS.toAutoClassifierInput) as (
       input: unknown
-    ) => ToolClassifierInput
+    ) => ToolClassifierInput,
+    requiresUserInteraction: def.requiresUserInteraction ?? TOOL_DEFAULTS.requiresUserInteraction
   };
 }

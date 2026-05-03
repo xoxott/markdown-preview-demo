@@ -22,3 +22,5 @@ export type * from './settings-bridge';
 export type * from './settings-dropin';
 export type * from './settings-cache';
 export type * from './permission-prompt';
+export type * from './safety-check';
+export type * from './permission-racing';

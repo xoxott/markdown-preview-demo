@@ -8,20 +8,23 @@ import {
   isAcceptEditsDeniedTool,
   isAutoApproveReadonlyMode,
   isInteractiveMode,
-  isPlanModeAllowedTool
+  isPlanModeAllowedTool,
+  isSilentDenyMode,
+  shouldAvoidPermissionPrompts
 } from '../types/permission-mode';
 
 describe('PermissionMode', () => {
-  it('应有6种模式', () => {
+  it('应有7种模式', () => {
     expect(PERMISSION_MODES).toEqual([
       'default',
       'plan',
       'acceptEdits',
       'bypassPermissions',
       'auto',
-      'restricted'
+      'restricted',
+      'dontAsk'
     ]);
-    expect(PERMISSION_MODES.length).toBe(6);
+    expect(PERMISSION_MODES.length).toBe(7);
   });
 
   it('旧3种模式值仍有效', () => {
@@ -56,6 +59,10 @@ describe('classifyPermissionMode', () => {
   it('bypassPermissions → bypass', () => {
     expect(classifyPermissionMode('bypassPermissions')).toBe('bypass');
   });
+
+  it('dontAsk → silentDeny', () => {
+    expect(classifyPermissionMode('dontAsk')).toBe('silentDeny');
+  });
 });
 
 describe('isInteractiveMode', () => {
@@ -65,10 +72,11 @@ describe('isInteractiveMode', () => {
     expect(isInteractiveMode('acceptEdits')).toBe(true);
   });
 
-  it('auto/restricted/bypass → false', () => {
+  it('auto/restricted/bypass/dontAsk → false', () => {
     expect(isInteractiveMode('auto')).toBe(false);
     expect(isInteractiveMode('restricted')).toBe(false);
     expect(isInteractiveMode('bypassPermissions')).toBe(false);
+    expect(isInteractiveMode('dontAsk')).toBe(false);
   });
 });
 
@@ -104,5 +112,30 @@ describe('isAcceptEditsDeniedTool', () => {
   it('非黑名单工具 → false', () => {
     expect(isAcceptEditsDeniedTool('Write')).toBe(false);
     expect(isAcceptEditsDeniedTool('Read')).toBe(false);
+  });
+});
+
+describe('isSilentDenyMode', () => {
+  it('dontAsk → true', () => {
+    expect(isSilentDenyMode('dontAsk')).toBe(true);
+  });
+
+  it('其他模式 → false', () => {
+    expect(isSilentDenyMode('default')).toBe(false);
+    expect(isSilentDenyMode('auto')).toBe(false);
+    expect(isSilentDenyMode('bypassPermissions')).toBe(false);
+    expect(isSilentDenyMode('restricted')).toBe(false);
+  });
+});
+
+describe('shouldAvoidPermissionPrompts', () => {
+  it('dontAsk → true', () => {
+    expect(shouldAvoidPermissionPrompts('dontAsk')).toBe(true);
+  });
+
+  it('其他模式 → false', () => {
+    expect(shouldAvoidPermissionPrompts('default')).toBe(false);
+    expect(shouldAvoidPermissionPrompts('auto')).toBe(false);
+    expect(shouldAvoidPermissionPrompts('bypassPermissions')).toBe(false);
   });
 });

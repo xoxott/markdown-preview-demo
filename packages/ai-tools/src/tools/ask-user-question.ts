@@ -108,5 +108,8 @@ export const askUserQuestionTool = buildTool<AskUserQuestionInput, AskUserQuesti
     isDestructive: false
   }),
 
+  /** P41: bypass-immune — 即使 bypass/auto 模式也必须用户交互 */
+  requiresUserInteraction: () => true,
+
   maxResultSizeChars: 10_000
 });
