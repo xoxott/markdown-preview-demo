@@ -26,7 +26,22 @@ export type {
   NotificationInput,
   PreCompactInput,
   PostCompactInput,
-  HookInput
+  HookInput,
+  // P69: 15种新增 HookEvent Input 类型
+  PermissionRequestInput,
+  PermissionDeniedInput,
+  ElicitationInput,
+  ElicitationResultInput,
+  SetupInput,
+  ConfigChangeInput,
+  TaskCreatedInput,
+  TaskCompletedInput,
+  TeammateIdleInput,
+  InstructionsLoadedInput,
+  CwdChangedInput,
+  FileChangedInput,
+  WorktreeCreateInput,
+  WorktreeRemoveInput
 } from './input';
 
 export type { HooksPolicy, HooksTrustLevel, HooksCustomizationSurface, HookSource } from './policy';

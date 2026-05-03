@@ -1,6 +1,6 @@
 /** Hook 生命周期核心类型定义 */
 
-/** Hook 事件类型 — 工具执行 + 生命周期 + 用户交互 + 通知 + 对话压缩 */
+/** Hook 事件类型 — 工具执行 + 生命周期 + 用户交互 + 通知 + 对话压缩 + 权限 + 任务 + 配置 + 文件 */
 export type HookEvent =
   // 工具执行
   | 'PreToolUse' // 工具执行前
@@ -13,11 +13,29 @@ export type HookEvent =
   | 'SessionEnd' // 循环结束（正常+异常）
   // 用户交互
   | 'UserPromptSubmit' // 用户消息提交前
+  | 'Elicitation' // 向用户提问（AskUserQuestion工具触发）
+  | 'ElicitationResult' // 用户回答结果
   // 通知
   | 'Notification' // 模型通知输出
   // 对话压缩
   | 'PreCompact' // 压缩前拦截
-  | 'PostCompact'; // 压缩后通知
+  | 'PostCompact' // 压缩后通知
+  // 权限
+  | 'PermissionRequest' // 权限请求（canUseTool判定时触发）
+  | 'PermissionDenied' // 权限被拒绝
+  // 任务/团队
+  | 'TaskCreated' // 任务创建
+  | 'TaskCompleted' // 任务完成
+  | 'TeammateIdle' // 子代理空闲通知
+  // 配置/环境
+  | 'Setup' // 初始化设置（启动时触发）
+  | 'ConfigChange' // 配置文件变更
+  | 'InstructionsLoaded' // 系统指令加载完成
+  | 'CwdChanged' // 工作目录变更
+  // 文件/工作树
+  | 'FileChanged' // 文件内容变更通知
+  | 'WorktreeCreate' // 工作树创建
+  | 'WorktreeRemove'; // 工作树移除
 
 /** Hook 执行方式类型 */
 export type HookType = 'command' | 'prompt' | 'http' | 'agent';

@@ -94,4 +94,136 @@ export type HookInput =
   | UserPromptSubmitInput
   | NotificationInput
   | PreCompactInput
-  | PostCompactInput;
+  | PostCompactInput
+  // P69: 新增 15种 HookEvent Input
+  | PermissionRequestInput
+  | PermissionDeniedInput
+  | ElicitationInput
+  | ElicitationResultInput
+  | SetupInput
+  | ConfigChangeInput
+  | TaskCreatedInput
+  | TaskCompletedInput
+  | TeammateIdleInput
+  | InstructionsLoadedInput
+  | CwdChangedInput
+  | FileChangedInput
+  | WorktreeCreateInput
+  | WorktreeRemoveInput;
+
+// ============================================================
+// P69: 15种新增 HookEvent Input/Output 类型
+// ============================================================
+
+/** PermissionRequest 输入 — 权限请求 */
+export interface PermissionRequestInput {
+  readonly hookEventName: 'PermissionRequest';
+  readonly toolName: string;
+  readonly toolInput: Record<string, unknown>;
+  readonly decisionSource: 'rules' | 'classifier' | 'interactive';
+  readonly suggestedBehavior: 'allow' | 'deny' | 'ask';
+}
+
+/** PermissionDenied 输入 — 权限被拒绝 */
+export interface PermissionDeniedInput {
+  readonly hookEventName: 'PermissionDenied';
+  readonly toolName: string;
+  readonly toolInput: Record<string, unknown>;
+  readonly reason: string;
+  readonly denialCount: number;
+}
+
+/** Elicitation 输入 — 向用户提问 */
+export interface ElicitationInput {
+  readonly hookEventName: 'Elicitation';
+  readonly questions: readonly { question: string; header?: string; options?: readonly { label: string; description?: string }[]; multiSelect?: boolean }[];
+  readonly toolUseId: string;
+}
+
+/** ElicitationResult 输入 — 用户回答结果 */
+export interface ElicitationResultInput {
+  readonly hookEventName: 'ElicitationResult';
+  readonly toolUseId: string;
+  readonly answers: Record<string, string>;
+  readonly annotations?: Record<string, { notes?: string; preview?: string }>;
+}
+
+/** Setup 输入 — 初始化设置 */
+export interface SetupInput {
+  readonly hookEventName: 'Setup';
+  readonly sessionId: string;
+  readonly projectPath?: string;
+  readonly model?: string;
+}
+
+/** ConfigChange 输入 — 配置文件变更 */
+export interface ConfigChangeInput {
+  readonly hookEventName: 'ConfigChange';
+  readonly changedFields: readonly string[];
+  readonly sourceLayer?: string;
+  readonly filePath?: string;
+}
+
+/** TaskCreated 输入 — 任务创建 */
+export interface TaskCreatedInput {
+  readonly hookEventName: 'TaskCreated';
+  readonly taskId: string;
+  readonly subject: string;
+  readonly description?: string;
+  readonly owner?: string;
+}
+
+/** TaskCompleted 输入 — 任务完成 */
+export interface TaskCompletedInput {
+  readonly hookEventName: 'TaskCompleted';
+  readonly taskId: string;
+  readonly subject: string;
+  readonly owner?: string;
+}
+
+/** TeammateIdle 输入 — 子代理空闲通知 */
+export interface TeammateIdleInput {
+  readonly hookEventName: 'TeammateIdle';
+  readonly teammateName: string;
+  readonly teammateType?: string;
+  readonly lastMessage?: string;
+}
+
+/** InstructionsLoaded 输入 — 系统指令加载完成 */
+export interface InstructionsLoadedInput {
+  readonly hookEventName: 'InstructionsLoaded';
+  readonly sessionId: string;
+  readonly systemPrompt?: string;
+  readonly memoryContent?: string;
+}
+
+/** CwdChanged 输入 — 工作目录变更 */
+export interface CwdChangedInput {
+  readonly hookEventName: 'CwdChanged';
+  readonly previousPath: string;
+  readonly newPath: string;
+}
+
+/** FileChanged 输入 — 文件内容变更通知 */
+export interface FileChangedInput {
+  readonly hookEventName: 'FileChanged';
+  readonly filePath: string;
+  readonly changeType: 'created' | 'modified' | 'deleted';
+  readonly mtimeMs?: number;
+}
+
+/** WorktreeCreate 输入 — 工作树创建 */
+export interface WorktreeCreateInput {
+  readonly hookEventName: 'WorktreeCreate';
+  readonly worktreeName: string;
+  readonly worktreePath: string;
+  readonly branchName: string;
+}
+
+/** WorktreeRemove 输入 — 工作树移除 */
+export interface WorktreeRemoveInput {
+  readonly hookEventName: 'WorktreeRemove';
+  readonly worktreeName: string;
+  readonly worktreePath: string;
+  readonly branchName?: string;
+}
