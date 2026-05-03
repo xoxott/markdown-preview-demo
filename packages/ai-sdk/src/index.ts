@@ -162,11 +162,19 @@ export {
   MigrationRunner,
   Sonnet45ToSonnet46Migration,
   OpusLegacyMigration,
-  InMemoryMigrationStore
+  FennecToOpusMigration,
+  Sonnet1mToSonnet45Migration,
+  AutoUpdatesMigration,
+  BypassPermissionsMigration,
+  EnableAllProjectMcpMigration,
+  InMemoryMigrationStore,
+  JsonFileMigrationStore
 } from './migration/types';
 export type {
   Migration,
   MigrationResult,
   MigrationRecord,
-  MigrationStore
+  MigrationStore,
+  SettingsAccessor,
+  JsonFileStoreIO
 } from './migration/types';
