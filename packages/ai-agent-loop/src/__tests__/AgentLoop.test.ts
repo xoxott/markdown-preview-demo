@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ToolRegistry, buildTool } from '@suga/ai-tool-core';
+import { StreamingToolScheduler } from '@suga/ai-stream-executor';
 import { AgentLoop } from '../loop/AgentLoop';
 import { createAgentToolUseContext } from '../context/ToolUseContext';
 import type { AgentEvent } from '../types/events';
@@ -304,5 +305,127 @@ describe('AgentLoop', () => {
       expect(result).toBeDefined();
       expect(result!.type).toBe('aborted');
     });
+  });
+});
+
+describe('AgentLoop P42 — 流式模式路由', () => {
+  let p42Provider: MockLLMProvider;
+
+  beforeEach(() => {
+    p42Provider = new MockLLMProvider();
+  });
+
+  it('scheduler=StreamingToolScheduler → 流式模式完整流程', async () => {
+    const toolUse: ToolUseBlock = {
+      id: 'call_stream_1',
+      name: 'calc',
+      input: { a: 1, b: 2 }
+    };
+
+    // 第一轮：LLM 调用工具
+    p42Provider.addToolUseResponse('计算中', [toolUse]);
+    // 第二轮：LLM 回复结果
+    p42Provider.addSimpleTextResponse('1+2=3');
+
+    const calcTool = buildTool({
+      name: 'calc',
+      inputSchema: z.object({ a: z.number(), b: z.number() }),
+      call: async args => ({ data: args.a + args.b }),
+      description: async input => `加法: ${input.a}+${input.b}`
+    });
+
+    const registry = new ToolRegistry();
+    registry.register(calcTool);
+
+    const scheduler = new StreamingToolScheduler();
+
+    const loop = new AgentLoop({
+      provider: p42Provider,
+      maxTurns: 5,
+      toolRegistry: registry,
+      scheduler
+    });
+    const events = await consumeAllEvents(loop.queryLoop([createUserMessage('计算1+2')]));
+
+    const result = getLoopEnd(events);
+    expect(result).toBeDefined();
+    expect(result!.type).toBe('completed');
+
+    // 事件流应包含 tool_use_start + tool_result
+    expect(events.some(e => e.type === 'tool_use_start')).toBe(true);
+    expect(events.some(e => e.type === 'tool_result')).toBe(true);
+  });
+
+  it('scheduler=MockToolScheduler(batch) → batch模式不变', async () => {
+    const toolUse: ToolUseBlock = {
+      id: 'call_batch_1',
+      name: 'calc',
+      input: { a: 1, b: 2 }
+    };
+
+    p42Provider.addToolUseResponse('', [toolUse]);
+    p42Provider.addSimpleTextResponse('done');
+
+    const registry = new ToolRegistry();
+    registry.register(
+      buildTool({
+        name: 'calc',
+        inputSchema: z.object({ a: z.number(), b: z.number() }),
+        call: async args => ({ data: args.a + args.b }),
+        description: async input => `加法: ${input.a}+${input.b}`
+      })
+    );
+
+    const scheduler = new MockToolScheduler();
+    scheduler.setPresetResult('call_batch_1', {
+      id: 'result_batch',
+      role: 'tool_result',
+      toolUseId: 'call_batch_1',
+      toolName: 'calc',
+      result: 3,
+      isSuccess: true,
+      timestamp: Date.now()
+    });
+
+    const loop = new AgentLoop({
+      provider: p42Provider,
+      maxTurns: 5,
+      toolRegistry: registry,
+      scheduler
+    });
+    const events = await consumeAllEvents(loop.queryLoop([createUserMessage('计算')]));
+
+    const result = getLoopEnd(events);
+    expect(result).toBeDefined();
+    expect(result!.type).toBe('completed');
+  });
+
+  it('scheduler=undefined → 默认流式模式', async () => {
+    const toolUse: ToolUseBlock = {
+      id: 'call_default_1',
+      name: 'calc',
+      input: { a: 1 }
+    };
+
+    p42Provider.addToolUseResponse('', [toolUse]);
+    p42Provider.addSimpleTextResponse('result');
+
+    const registry = new ToolRegistry();
+    registry.register(
+      buildTool({
+        name: 'calc',
+        inputSchema: z.object({ a: z.number() }),
+        call: async args => ({ data: args.a }),
+        description: async () => 'calc'
+      })
+    );
+
+    // 不传 scheduler → 默认 StreamingToolScheduler → 流式模式
+    const loop = new AgentLoop({ provider: p42Provider, maxTurns: 5, toolRegistry: registry });
+    const events = await consumeAllEvents(loop.queryLoop([createUserMessage('计算')]));
+
+    const result = getLoopEnd(events);
+    expect(result).toBeDefined();
+    expect(result!.type).toBe('completed');
   });
 });

@@ -1,7 +1,11 @@
 /** StreamingToolScheduler — 流式工具并行调度器 */
 
 import type { ToolExecutor, ToolRegistry, ToolUseContext } from '@suga/ai-tool-core';
-import type { ToolResultMessage, ToolScheduler, ToolUseBlock } from '@suga/ai-agent-loop';
+import type {
+  InterleavedToolScheduler,
+  ToolResultMessage,
+  ToolUseBlock
+} from '@suga/ai-agent-loop';
 import type { StreamingSchedulerConfig, TrackedTool } from '../types/scheduler';
 import { DEFAULT_MAX_CONCURRENCY } from '../constants';
 import { executeSingle } from './executeSingle';
@@ -30,7 +34,7 @@ function generateTrackingId(): string {
  * - yield 顺序与 addTool 顺序一致
  * - safe 工具先完成也必须等前面的 unsafe 工具完成后按序 yield
  */
-export class StreamingToolScheduler implements ToolScheduler {
+export class StreamingToolScheduler implements InterleavedToolScheduler {
   private readonly tools: TrackedTool[] = [];
   private readonly maxConcurrency: number;
   /** 存储每个工具的执行 Promise，用于等待完成 */

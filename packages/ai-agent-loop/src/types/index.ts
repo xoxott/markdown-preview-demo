@@ -33,4 +33,5 @@ export type {
 } from './provider';
 export { createSystemPrompt } from './provider';
 
-export type { ToolScheduler } from './scheduler';
+export type { ToolScheduler, InterleavedToolScheduler } from './scheduler';
+export { isInterleavedScheduler } from './scheduler';

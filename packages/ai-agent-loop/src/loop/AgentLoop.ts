@@ -19,7 +19,10 @@ import { PreProcessPhase } from '../phase/PreProcessPhase';
 import { CallModelPhase } from '../phase/CallModelPhase';
 import { CheckInterruptPhase } from '../phase/CheckInterruptPhase';
 import { ExecuteToolsPhase } from '../phase/ExecuteToolsPhase';
+import { StreamingCallModelPhase } from '../phase/StreamingCallModelPhase';
 import { PostProcessPhase } from '../phase/PostProcessPhase';
+import { isInterleavedScheduler } from '../types/scheduler';
+import type { InterleavedToolScheduler } from '../types/scheduler';
 import { createMutableAgentContext } from '../context/AgentContext';
 import { createAgentToolUseContext } from '../context/ToolUseContext';
 import { isTerminal } from '../types/state';
@@ -74,19 +77,37 @@ export class AgentLoop {
     }[]
   ): LoopPhase[] {
     const hookRegistry = this.config.hookRegistry;
-    const phases: LoopPhase[] = [
-      new PreProcessPhase(),
-      new CallModelPhase(this.config.provider, toolDefs, this.config.systemPrompt),
-      new CheckInterruptPhase()
-    ];
+    const phases: LoopPhase[] = [new PreProcessPhase()];
+
+    // ★ P42: 判断 scheduler 是否支持交错流式模式
+    if (this.config.toolRegistry && isInterleavedScheduler(this.config.scheduler)) {
+      // 流式模式: StreamingCallModelPhase（合并 CallModel + ExecuteTools）
+      phases.push(
+        new StreamingCallModelPhase(
+          this.config.provider,
+          this.config.scheduler as InterleavedToolScheduler,
+          new ToolExecutor(),
+          this.config.toolRegistry,
+          toolTimeout,
+          toolDefs,
+          this.config.systemPrompt
+        )
+      );
+      phases.push(new CheckInterruptPhase());
+    } else {
+      // batch 模式: CallModelPhase + ExecuteToolsPhase（不变）
+      phases.push(new CallModelPhase(this.config.provider, toolDefs, this.config.systemPrompt));
+      phases.push(new CheckInterruptPhase());
+    }
 
     // 有 hook 注册表 → 在 ExecuteTools 前插入 HookBeforeTool
     if (hookRegistry) {
       phases.push(new HookBeforeToolPhase(hookRegistry));
     }
 
-    // 有工具注册表时添加执行阶段
-    if (this.config.toolRegistry) {
+    // batch 模式下，有工具注册表时添加执行阶段
+    // 流式模式下工具执行已在 StreamingCallModelPhase 内完成，无需独立 ExecuteToolsPhase
+    if (!isInterleavedScheduler(this.config.scheduler) && this.config.toolRegistry) {
       const scheduler = this.config.scheduler ?? new StreamingToolScheduler();
       phases.push(
         new ExecuteToolsPhase(scheduler, new ToolExecutor(), this.config.toolRegistry, toolTimeout)

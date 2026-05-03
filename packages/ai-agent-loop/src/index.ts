@@ -22,6 +22,7 @@ export type { LoopPhase } from './phase/LoopPhase';
 export { composePhases } from './phase/LoopPhase';
 export { PreProcessPhase } from './phase/PreProcessPhase';
 export { CallModelPhase } from './phase/CallModelPhase';
+export { StreamingCallModelPhase } from './phase/StreamingCallModelPhase';
 export { CheckInterruptPhase } from './phase/CheckInterruptPhase';
 export { ExecuteToolsPhase } from './phase/ExecuteToolsPhase';
 export { PostProcessPhase } from './phase/PostProcessPhase';
