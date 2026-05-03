@@ -11,6 +11,7 @@ import type { ExtendedToolUseContext } from '../context-merge';
 import type { FileReadInput } from '../types/tool-inputs';
 import type { FileReadOutput } from '../types/tool-outputs';
 import { FileReadInputSchema } from '../types/tool-inputs';
+import { validateFileReadSecurity } from './file-read-security';
 import { truncateOutput } from '../utils/output-truncate';
 
 /**
@@ -45,6 +46,22 @@ export const fileReadTool = buildTool<FileReadInput, FileReadOutput>({
   validateInput: (input: FileReadInput): ValidationResult => {
     if (input.filePath === '') {
       return { behavior: 'deny', message: 'File path must not be empty', reason: 'empty_path' };
+    }
+
+    // FileRead安全验证 — 设备保护+二进制拒绝+UNC路径
+    // 注: 当pages参数存在时，PDF等文件允许读取（FileRead有PDF读取能力）
+    const securityResult = validateFileReadSecurity(input.filePath);
+    if (!securityResult.safe) {
+      // 如果是二进制文件但有pages参数（如PDF）→ 允许
+      if (securityResult.blockedReason?.includes('binary') && input.pages) {
+        // PDF有pages参数 → 允许读取（通过pages参数指定页面）
+      } else {
+        return {
+          behavior: 'deny',
+          message: securityResult.blockedReason ?? 'File read blocked by security check',
+          reason: 'file_read_security_blocked'
+        };
+      }
     }
 
     if (!input.filePath.startsWith('/')) {

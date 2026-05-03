@@ -189,6 +189,19 @@ export type {
   MtimeCheckResult
 } from './tools/file-write-state';
 
+// P68: FileRead安全验证导出
+export {
+  hasBinaryExtension,
+  isBlockedDevicePath,
+  isUncPath,
+  checkFileSize,
+  validateFileReadSecurity
+} from './tools/file-read-security';
+export type {
+  FileSizeCheckResult,
+  FileReadSecurityResult
+} from './tools/file-read-security';
+
 // Provider 实现
 export { NodeFileSystemProvider } from './provider/NodeFileSystemProvider';
 export { YoloPermissionClassifier } from './provider/YoloPermissionClassifier';
