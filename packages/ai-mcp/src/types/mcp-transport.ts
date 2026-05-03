@@ -28,6 +28,12 @@ export interface McpTransportFactory {
   createTransport(serverName: string, config: McpServerConfig): Promise<McpTransport>;
 }
 
+/** P40: 远程传输选项 — SSE/HTTP传输的自定义配置 */
+export interface RemoteTransportOptions {
+  /** 自定义fetch实现（可选，宿主注入用于代理/超时/Auth） */
+  readonly fetchOverride?: (url: string | URL, init?: RequestInit) => Promise<Response>;
+}
+
 /** SDK 控制传输回调类型 — CLI进程↔SDK进程间通信 */
 export type SdkControlMessageCallback = (serverName: string, message: unknown) => Promise<unknown>;
 

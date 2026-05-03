@@ -55,6 +55,9 @@ export { createLinkedTransportPair, InProcessTransport } from './transport/InPro
 export { StdioTransport } from './transport/StdioTransport';
 export type { StdioTransportOptions } from './transport/StdioTransport';
 export { StdioTransportFactory } from './transport/StdioTransportFactory';
+export { SSETransportAdapter } from './transport/SSETransportAdapter';
+export { StreamableHTTPTransportAdapter } from './transport/StreamableHTTPTransportAdapter';
+export { UnifiedTransportFactory } from './transport/UnifiedTransportFactory';
 
 // 连接管理
 export { InMemoryMcpConnectionManager } from './connection/McpConnectionManager';
