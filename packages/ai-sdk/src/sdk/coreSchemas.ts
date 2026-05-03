@@ -204,10 +204,17 @@ export const SandboxFilesystemConfigSchema = z.object({
   deny: z.array(z.string()).optional()
 });
 
+/** Sandbox违规忽略配置schema */
+export const SandboxIgnoreViolationsSchema = z.object({
+  network: z.array(z.string()).optional(),
+  filesystem: z.array(z.string()).optional()
+});
+
 /** Sandbox设置schema */
 export const SandboxSettingsSchema = z.object({
   network: SandboxNetworkConfigSchema.optional(),
-  filesystem: SandboxFilesystemConfigSchema.optional()
+  filesystem: SandboxFilesystemConfigSchema.optional(),
+  ignoreViolations: SandboxIgnoreViolationsSchema.optional()
 });
 
 /** 输出格式schema */

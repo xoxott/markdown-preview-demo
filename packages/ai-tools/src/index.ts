@@ -125,3 +125,5 @@ export { NodeSettingsLayerReader } from './provider/NodeSettingsLayerReader';
 export type { NodeSettingsLayerReaderConfig } from './provider/NodeSettingsLayerReader';
 export { NodeSettingsChangeListener } from './provider/NodeSettingsChangeListener';
 export type { NodeSettingsChangeListenerConfig } from './provider/NodeSettingsChangeListener';
+export { SandboxFileSystemProvider, SandboxDenyError } from './provider/SandboxFileSystemProvider';
+export type { SandboxFileSystemProviderConfig } from './provider/SandboxFileSystemProvider';

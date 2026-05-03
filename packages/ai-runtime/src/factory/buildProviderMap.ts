@@ -1,13 +1,13 @@
 /** buildProviderMap — 从 RuntimeConfig 提取 provider 字段，应用默认值 */
 
-import { DefaultHttpProvider } from '@suga/ai-tools';
+import { DefaultHttpProvider, SandboxFileSystemProvider } from '@suga/ai-tools';
 import { DEFAULT_DENIAL_TRACKING } from '@suga/ai-tool-core';
 import type { RuntimeConfig } from '../types/config';
 
 /**
  * 从 RuntimeConfig 构建 ProviderMap
  *
- * - fsProvider: 必填，直接取值
+ * - fsProvider: 必填，如果 config.sandbox 存在则用 SandboxFileSystemProvider 装饰
  * - httpProvider: 可选，默认 DefaultHttpProvider（使用全局 fetch + regex html→md）
  * - promptHandler: 可选，宿主注入权限确认交互接口
  * - canUseToolFn: 可选，宿主注入用户确认函数（向后兼容）
@@ -17,8 +17,13 @@ import type { RuntimeConfig } from '../types/config';
  * 返回的对象兼容 Record<string, unknown>（可 spread 到 ToolUseContext）
  */
 export function buildProviderMap(config: RuntimeConfig): Record<string, unknown> {
+  // P50: sandbox 配置存在时，装饰 fsProvider
+  const effectiveFsProvider = config.sandbox
+    ? new SandboxFileSystemProvider({ inner: config.fsProvider, sandbox: config.sandbox })
+    : config.fsProvider;
+
   return {
-    fsProvider: config.fsProvider,
+    fsProvider: effectiveFsProvider,
     httpProvider: config.httpProvider ?? new DefaultHttpProvider(),
     searchProvider: config.searchProvider,
     taskStoreProvider: config.taskStoreProvider,

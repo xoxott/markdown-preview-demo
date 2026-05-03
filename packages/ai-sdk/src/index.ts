@@ -80,6 +80,7 @@ export {
   SDKKeepAliveMessageSchema,
   SandboxNetworkConfigSchema,
   SandboxFilesystemConfigSchema,
+  SandboxIgnoreViolationsSchema,
   SandboxSettingsSchema,
   OutputFormatSchema,
   ThinkingConfigSchema,

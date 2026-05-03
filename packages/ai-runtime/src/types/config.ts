@@ -34,6 +34,7 @@ import type {
   TeamProvider,
   UserInteractionProvider
 } from '@suga/ai-tools';
+import type { SandboxSettings } from '@suga/ai-sdk';
 
 export type { LLMClassifierConfig };
 
@@ -147,6 +148,10 @@ export interface RuntimeConfig {
   // === P41 headless-agent + requiresUserInteraction ===
   /** 是否为 headless agent（自动 deny ask） */
   readonly isHeadlessAgent?: boolean;
+
+  // === P50 Sandbox (可选) ===
+  /** Sandbox配置（提供时 fsProvider 被 SandboxFileSystemProvider 装饰） */
+  readonly sandbox?: SandboxSettings;
 }
 
 /** Provider Map — 从 RuntimeConfig 提取的 provider 字段集合 */
