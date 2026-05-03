@@ -88,18 +88,9 @@ export interface SessionStatus {
 }
 
 /** Token 使用信息 */
-export interface TokenUsageInfo {
-  readonly inputTokens: number;
-  readonly outputTokens: number;
-  readonly totalTokens: number;
-}
-
-/** 成本信息 */
-export interface CostInfo {
-  readonly totalCost: number;
-  readonly inputCost: number;
-  readonly outputCost: number;
-}
+/** Token 使用信息 — P53 统一从 @suga/ai-tool-adapter re-export */
+import type { CostInfo, TokenUsageInfo } from '@suga/ai-tool-adapter';
+export type { CostInfo, TokenUsageInfo };
 
 /** 会话信息 provider — /status 需要 */
 export interface SessionInfoProvider {

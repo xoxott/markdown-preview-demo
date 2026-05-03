@@ -25,6 +25,7 @@ import type {
 import type { SubagentRegistry, SubagentSpawner } from '@suga/ai-subagent';
 import type { MemoryPathConfig, MemoryPromptConfig, MemoryStorageProvider } from '@suga/ai-memory';
 import type { SandboxSettings } from '@suga/ai-sdk';
+import type { UsageTracker, TokenBudget, CostConfig } from '@suga/ai-tool-adapter';
 import type {
   ConfigProvider,
   FileSystemProvider,
@@ -111,6 +112,13 @@ declare module '@suga/ai-tool-core' {
 
     /** P50: Sandbox配置（可选 — 工具层感知沙箱规则） */
     readonly sandbox?: SandboxSettings;
+
+    /** P53: UsageTracker实例（可选 — 追踪token用量） */
+    readonly usageTracker?: UsageTracker;
+    /** P53: Token预算（可选 — AgentLoop每轮检查是否超限） */
+    readonly tokenBudget?: TokenBudget;
+    /** P53: 成本计算配置（可选 — RuntimeSession查询CostInfo） */
+    readonly costConfig?: CostConfig;
   }
 }
 

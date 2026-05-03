@@ -1,6 +1,6 @@
 /** buildProviderMap — 从 RuntimeConfig 提取 provider 字段，应用默认值 */
 
-import { DefaultHttpProvider, SandboxFileSystemProvider } from '@suga/ai-tools';
+import { DefaultHttpProvider, SandboxFileSystemProvider, SandboxHttpProvider, SandboxSearchProvider } from '@suga/ai-tools';
 import { DEFAULT_DENIAL_TRACKING } from '@suga/ai-tool-core';
 import type { RuntimeConfig } from '../types/config';
 
@@ -17,15 +17,23 @@ import type { RuntimeConfig } from '../types/config';
  * 返回的对象兼容 Record<string, unknown>（可 spread 到 ToolUseContext）
  */
 export function buildProviderMap(config: RuntimeConfig): Record<string, unknown> {
-  // P50: sandbox 配置存在时，装饰 fsProvider
+  // P50+P53: sandbox 配置存在时，装饰 fsProvider + httpProvider + searchProvider
   const effectiveFsProvider = config.sandbox
     ? new SandboxFileSystemProvider({ inner: config.fsProvider, sandbox: config.sandbox })
     : config.fsProvider;
 
+  const effectiveHttpProvider = config.sandbox?.network && config.httpProvider
+    ? new SandboxHttpProvider({ inner: config.httpProvider, sandbox: config.sandbox })
+    : config.httpProvider ?? new DefaultHttpProvider();
+
+  const effectiveSearchProvider = config.sandbox?.network && config.searchProvider
+    ? new SandboxSearchProvider({ inner: config.searchProvider, sandbox: config.sandbox })
+    : config.searchProvider;
+
   return {
     fsProvider: effectiveFsProvider,
-    httpProvider: config.httpProvider ?? new DefaultHttpProvider(),
-    searchProvider: config.searchProvider,
+    httpProvider: effectiveHttpProvider,
+    searchProvider: effectiveSearchProvider,
     taskStoreProvider: config.taskStoreProvider,
     teamProvider: config.teamProvider,
     mailboxProvider: config.mailboxProvider,
@@ -52,6 +60,9 @@ export function buildProviderMap(config: RuntimeConfig): Record<string, unknown>
     subagentRegistry: config.subagentRegistry,
     subagentSpawner: config.subagentSpawner,
     classifierConfig: config.classifierConfig,
-    sandbox: config.sandbox
+    sandbox: config.sandbox,
+    usageTracker: config.usageTracker,
+    tokenBudget: config.tokenBudget,
+    costConfig: config.costConfig
   };
 }

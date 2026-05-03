@@ -35,6 +35,10 @@ export {
   emptyUsageSummary
 } from './lifecycle/UsageTrackerImpl';
 
+// 成本计算（P53 新增）
+export { CostCalculator, DEFAULT_PRICE_TABLE } from './lifecycle/CostCalculator';
+export type { CostConfig, ModelPriceEntry, PriceTable } from './lifecycle/CostCalculator';
+
 // 重试策略（P18 新增, P32 增强）
 export {
   classifyLLMError,

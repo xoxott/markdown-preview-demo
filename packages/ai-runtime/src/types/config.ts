@@ -35,6 +35,8 @@ import type {
   UserInteractionProvider
 } from '@suga/ai-tools';
 import type { SandboxSettings } from '@suga/ai-sdk';
+import type { UsageTracker, TokenBudget } from '@suga/ai-tool-adapter';
+import type { CostConfig } from '@suga/ai-tool-adapter';
 
 export type { LLMClassifierConfig };
 
@@ -152,6 +154,14 @@ export interface RuntimeConfig {
   // === P50 Sandbox (可选) ===
   /** Sandbox配置（提供时 fsProvider 被 SandboxFileSystemProvider 装饰） */
   readonly sandbox?: SandboxSettings;
+
+  // === P53 Cost tracking/budget (可选) ===
+  /** UsageTracker实例（提供时追踪每轮LLM调用token用量） */
+  readonly usageTracker?: UsageTracker;
+  /** Token预算（提供时AgentLoop每轮检查是否超限，超限自动停止） */
+  readonly tokenBudget?: TokenBudget;
+  /** 成本计算配置（提供时RuntimeSession可查询CostInfo） */
+  readonly costConfig?: CostConfig;
 }
 
 /** Provider Map — 从 RuntimeConfig 提取的 provider 字段集合 */
@@ -186,7 +196,12 @@ export interface ProviderMap {
   readonly subagentSpawner?: SubagentSpawner;
   readonly classifierConfig?: LLMClassifierConfig;
   readonly sandbox?: SandboxSettings;
+  readonly usageTracker?: UsageTracker;
+  readonly tokenBudget?: TokenBudget;
+  readonly costConfig?: CostConfig;
 }
+
+export type { CostConfig };
 
 /** RuntimeSession 状态 — P7 Store 管理 */
 export interface RuntimeSessionState {

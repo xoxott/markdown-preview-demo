@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@suga/ai-skill": "workspace:*",
+    "@suga/ai-tool-adapter": "workspace:*",
     "@suga/ai-tools": "workspace:*",
     "zod": "^4.2.1"
   },

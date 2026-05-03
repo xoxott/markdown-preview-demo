@@ -89,3 +89,5 @@ export {
 export { DEFAULT_MODEL_CONFIG } from './model-config';
 
 export { DEFAULT_OPENAI_TIMEOUT, DEFAULT_OPENAI_MAX_TOKENS } from './openai';
+
+export type { CostInfo, TokenUsageInfo } from './cost';
