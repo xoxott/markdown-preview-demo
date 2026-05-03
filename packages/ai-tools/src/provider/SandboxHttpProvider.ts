@@ -12,11 +12,6 @@
 
 import type { SandboxNetworkConfig, SandboxSettings } from '@suga/ai-sdk';
 import type { HttpProvider } from '../types/http-provider';
-
-// ============================================================
-// SandboxSearchProvider
-// ============================================================
-
 import type { SearchOptions, SearchProvider, SearchResult } from '../types/search-provider';
 
 /** 沙箱网络拒绝错误 */

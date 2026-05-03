@@ -141,3 +141,17 @@ export {
   tagSession,
   forkSession
 } from './api/session';
+
+// === Migrations ===
+export {
+  MigrationRunner,
+  Sonnet45ToSonnet46Migration,
+  OpusLegacyMigration,
+  InMemoryMigrationStore
+} from './migration/types';
+export type {
+  Migration,
+  MigrationResult,
+  MigrationRecord,
+  MigrationStore
+} from './migration/types';

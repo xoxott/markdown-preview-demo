@@ -36,4 +36,6 @@ export interface SandboxSettings {
   readonly filesystem?: SandboxFilesystemConfig;
   /** 违规忽略规则 */
   readonly ignoreViolations?: SandboxIgnoreViolations;
+  /** 排除沙箱的命令列表（便利功能，非安全边界） */
+  readonly excludedCommands?: readonly string[];
 }

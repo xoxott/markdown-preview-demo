@@ -109,9 +109,36 @@ export {
   searchToolsWithKeywords
 } from './tools/tool-search';
 export type { ParsedQuery } from './tools/tool-search';
+export {
+  getToolSearchMode,
+  isToolSearchEnabled,
+  isToolSearchEnabledOptimistic,
+  isModelSupportToolReference,
+  checkAutoThreshold,
+  extractDiscoveredToolNames,
+  getDeferredToolsDelta,
+  buildDeferredToolsSystemReminder
+} from './tools/tool-search-delta';
+export type {
+  ToolSearchMode,
+  DeferredToolsDelta,
+  DeferredToolsDeltaScanContext,
+  DeferredToolsDeltaAttachment
+} from './tools/tool-search-delta';
 export { enterWorktreeTool } from './tools/enter-worktree';
 export type { WorktreeSession } from './tools/enter-worktree';
 export { exitWorktreeTool } from './tools/exit-worktree';
+export {
+  shouldUseSandbox,
+  containsExcludedCommand,
+  splitSubcommands,
+  stripEnvVars,
+  stripSafeWrappers,
+  parseExcludedRule,
+  matchExcludedRule,
+  matchWildcardPattern
+} from './tools/should-use-sandbox';
+export type { ShouldUseSandboxInput } from './tools/should-use-sandbox';
 
 // Provider 实现
 export { NodeFileSystemProvider } from './provider/NodeFileSystemProvider';

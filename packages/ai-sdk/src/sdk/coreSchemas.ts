@@ -215,7 +215,9 @@ export const SandboxIgnoreViolationsSchema = z.object({
 export const SandboxSettingsSchema = z.object({
   network: SandboxNetworkConfigSchema.optional(),
   filesystem: SandboxFilesystemConfigSchema.optional(),
-  ignoreViolations: SandboxIgnoreViolationsSchema.optional()
+  ignoreViolations: SandboxIgnoreViolationsSchema.optional(),
+  /** 排除沙箱的命令列表（便利功能，非安全边界） */
+  excludedCommands: z.array(z.string()).optional()
 });
 
 /** 输出格式schema */
