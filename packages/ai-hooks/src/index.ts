@@ -43,6 +43,12 @@ export {
 export { HookBeforeToolPhase } from './phase/HookBeforeToolPhase';
 export { HookAfterToolPhase } from './phase/HookAfterToolPhase';
 export { HookStopPhase } from './phase/HookStopPhase';
+export { HookSessionStartPhase } from './phase/HookSessionStartPhase';
+export { HookSessionEndPhase } from './phase/HookSessionEndPhase';
+export { HookUserPromptPhase } from './phase/HookUserPromptPhase';
+export { HookNotificationPhase } from './phase/HookNotificationPhase';
+export { HookPreCompactPhase } from './phase/HookPreCompactPhase';
+export { HookPostCompactPhase } from './phase/HookPostCompactPhase';
 
 // ——— 工具函数导出 ———
 export { aggregateHookResults } from './utils/aggregate';
