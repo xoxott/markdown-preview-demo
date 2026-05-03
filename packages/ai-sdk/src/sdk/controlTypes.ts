@@ -103,7 +103,102 @@ export interface SDKControlRewindFilesRequest {
   readonly dry_run?: boolean;
 }
 
-/** 控制请求内部联合 — 所有subtype */
+// === P70: 17种新增 control_request subtype ===
+
+/** 设置最大思考token数 */
+export interface SDKControlSetMaxThinkingTokensRequest {
+  readonly subtype: 'set_max_thinking_tokens';
+  readonly max_thinking_tokens: number;
+}
+
+/** Hook回调 — Hook执行完成后的回调通知 */
+export interface SDKControlHookCallbackRequest {
+  readonly subtype: 'hook_callback';
+  readonly callback_id: string;
+  readonly hook_event: string;
+  readonly hook_result?: unknown;
+}
+
+/** MCP消息 — MCP服务器交互消息 */
+export interface SDKControlMcpMessageRequest {
+  readonly subtype: 'mcp_message';
+  readonly mcp_server_name: string;
+  readonly method: string;
+  readonly params?: unknown;
+}
+
+/** 取消异步消息 — 取消正在等待的异步请求 */
+export interface SDKControlCancelAsyncMessageRequest {
+  readonly subtype: 'cancel_async_message';
+  readonly request_id: string;
+}
+
+/** 种子读取状态 — 读取当前会话的种子状态 */
+export interface SDKControlSeedReadStateRequest {
+  readonly subtype: 'seed_read_state';
+  readonly key?: string;
+}
+
+/** 应用标志设置 — 应用CLI标志配置 */
+export interface SDKControlApplyFlagSettingsRequest {
+  readonly subtype: 'apply_flag_settings';
+  readonly flags: Record<string, unknown>;
+}
+
+/** 获取设置 — 读取当前设置 */
+export interface SDKControlGetSettingsRequest {
+  readonly subtype: 'get_settings';
+  readonly layer?: 'user' | 'project' | 'local' | 'policy';
+}
+
+/** 启用通道 — 启用/禁用通信通道 */
+export interface SDKControlChannelEnableRequest {
+  readonly subtype: 'channel_enable';
+  readonly channel: string;
+  readonly enabled: boolean;
+}
+
+/** MCP认证 — MCP服务器认证请求(4种场景) */
+export interface SDKControlMcpAuthenticateRequest {
+  readonly subtype: 'mcp_authenticate';
+  readonly mcp_server_name: string;
+  readonly auth_type: 'oauth' | 'api_key' | 'basic' | 'token';
+  readonly auth_data?: unknown;
+}
+
+/** MCP清除认证 — 清除MCP服务器认证信息 */
+export interface SDKControlMcpClearAuthRequest {
+  readonly subtype: 'mcp_clear_auth';
+  readonly mcp_server_name: string;
+}
+
+/** Claude认证(3种场景) — Claude API认证 */
+export interface SDKControlClaudeAuthenticateRequest {
+  readonly subtype: 'claude_authenticate';
+  readonly auth_type: 'api_key' | 'oauth' | 'session_token';
+  readonly auth_data?: unknown;
+}
+
+/** 生成会话标题 — 请求为当前会话生成标题 */
+export interface SDKControlGenerateSessionTitleRequest {
+  readonly subtype: 'generate_session_title';
+}
+
+/** 侧问题 — 旁路问题（不影响主对话） */
+export interface SDKControlSideQuestionRequest {
+  readonly subtype: 'side_question';
+  readonly question: string;
+  readonly context?: string;
+}
+
+/** 远程控制 — 外部远程控制指令 */
+export interface SDKControlRemoteControlRequest {
+  readonly subtype: 'remote_control';
+  readonly action: string;
+  readonly params?: unknown;
+}
+
+/** 控制请求内部联合 — 所有subtype（13原有 + 17新增 = 30种） */
 export type SDKControlRequestInner =
   | SDKControlInitializeRequest
   | SDKControlPermissionRequest
@@ -117,7 +212,22 @@ export type SDKControlRequestInner =
   | SDKControlEndSessionRequest
   | SDKControlReloadPluginsRequest
   | SDKControlStopTaskRequest
-  | SDKControlRewindFilesRequest;
+  | SDKControlRewindFilesRequest
+  // P70: 17种新增
+  | SDKControlSetMaxThinkingTokensRequest
+  | SDKControlHookCallbackRequest
+  | SDKControlMcpMessageRequest
+  | SDKControlCancelAsyncMessageRequest
+  | SDKControlSeedReadStateRequest
+  | SDKControlApplyFlagSettingsRequest
+  | SDKControlGetSettingsRequest
+  | SDKControlChannelEnableRequest
+  | SDKControlMcpAuthenticateRequest
+  | SDKControlMcpClearAuthRequest
+  | SDKControlClaudeAuthenticateRequest
+  | SDKControlGenerateSessionTitleRequest
+  | SDKControlSideQuestionRequest
+  | SDKControlRemoteControlRequest;
 
 // === 控制请求/响应信封 ===
 

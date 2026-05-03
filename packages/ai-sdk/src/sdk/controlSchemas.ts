@@ -135,6 +135,101 @@ export const SDKControlRewindFilesRequestSchema = z.object({
   dry_run: z.boolean().optional()
 });
 
+// === P70: 17种新增 control_request subtype schema ===
+
+/** 设置最大思考token数 schema */
+export const SDKControlSetMaxThinkingTokensRequestSchema = z.object({
+  subtype: z.literal('set_max_thinking_tokens'),
+  max_thinking_tokens: z.number()
+});
+
+/** Hook回调 schema */
+export const SDKControlHookCallbackRequestSchema = z.object({
+  subtype: z.literal('hook_callback'),
+  callback_id: z.string(),
+  hook_event: z.string(),
+  hook_result: z.unknown().optional()
+});
+
+/** MCP消息 schema */
+export const SDKControlMcpMessageRequestSchema = z.object({
+  subtype: z.literal('mcp_message'),
+  mcp_server_name: z.string(),
+  method: z.string(),
+  params: z.unknown().optional()
+});
+
+/** 取消异步消息 schema */
+export const SDKControlCancelAsyncMessageRequestSchema = z.object({
+  subtype: z.literal('cancel_async_message'),
+  request_id: z.string()
+});
+
+/** 种子读取状态 schema */
+export const SDKControlSeedReadStateRequestSchema = z.object({
+  subtype: z.literal('seed_read_state'),
+  key: z.string().optional()
+});
+
+/** 应用标志设置 schema */
+export const SDKControlApplyFlagSettingsRequestSchema = z.object({
+  subtype: z.literal('apply_flag_settings'),
+  flags: z.record(z.string(), z.unknown())
+});
+
+/** 获取设置 schema */
+export const SDKControlGetSettingsRequestSchema = z.object({
+  subtype: z.literal('get_settings'),
+  layer: z.enum(['user', 'project', 'local', 'policy']).optional()
+});
+
+/** 启用通道 schema */
+export const SDKControlChannelEnableRequestSchema = z.object({
+  subtype: z.literal('channel_enable'),
+  channel: z.string(),
+  enabled: z.boolean()
+});
+
+/** MCP认证 schema */
+export const SDKControlMcpAuthenticateRequestSchema = z.object({
+  subtype: z.literal('mcp_authenticate'),
+  mcp_server_name: z.string(),
+  auth_type: z.enum(['oauth', 'api_key', 'basic', 'token']),
+  auth_data: z.unknown().optional()
+});
+
+/** MCP清除认证 schema */
+export const SDKControlMcpClearAuthRequestSchema = z.object({
+  subtype: z.literal('mcp_clear_auth'),
+  mcp_server_name: z.string()
+});
+
+/** Claude认证 schema */
+export const SDKControlClaudeAuthenticateRequestSchema = z.object({
+  subtype: z.literal('claude_authenticate'),
+  auth_type: z.enum(['api_key', 'oauth', 'session_token']),
+  auth_data: z.unknown().optional()
+});
+
+/** 生成会话标题 schema */
+export const SDKControlGenerateSessionTitleRequestSchema = z.object({
+  subtype: z.literal('generate_session_title')
+});
+
+/** 侧问题 schema */
+export const SDKControlSideQuestionRequestSchema = z.object({
+  subtype: z.literal('side_question'),
+  question: z.string(),
+  context: z.string().optional()
+});
+
+/** 远程控制 schema */
+export const SDKControlRemoteControlRequestSchema = z.object({
+  subtype: z.literal('remote_control'),
+  action: z.string(),
+  params: z.unknown().optional()
+});
+
 // === 控制请求内部联合 ===
 
 /** 控制请求内部联合schema */
@@ -153,7 +248,22 @@ export const SDKControlRequestInnerSchema = z.discriminatedUnion('subtype', [
   SDKControlEndSessionRequestSchema,
   SDKControlReloadPluginsRequestSchema,
   SDKControlStopTaskRequestSchema,
-  SDKControlRewindFilesRequestSchema
+  SDKControlRewindFilesRequestSchema,
+  // P70: 17种新增
+  SDKControlSetMaxThinkingTokensRequestSchema,
+  SDKControlHookCallbackRequestSchema,
+  SDKControlMcpMessageRequestSchema,
+  SDKControlCancelAsyncMessageRequestSchema,
+  SDKControlSeedReadStateRequestSchema,
+  SDKControlApplyFlagSettingsRequestSchema,
+  SDKControlGetSettingsRequestSchema,
+  SDKControlChannelEnableRequestSchema,
+  SDKControlMcpAuthenticateRequestSchema,
+  SDKControlMcpClearAuthRequestSchema,
+  SDKControlClaudeAuthenticateRequestSchema,
+  SDKControlGenerateSessionTitleRequestSchema,
+  SDKControlSideQuestionRequestSchema,
+  SDKControlRemoteControlRequestSchema
 ]);
 
 // === 信封schema ===
