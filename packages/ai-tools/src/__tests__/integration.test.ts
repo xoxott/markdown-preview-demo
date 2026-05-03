@@ -97,9 +97,26 @@ describe('集成 — 端到端工具执行', () => {
     expect(result.behavior).toBe('ask');
   });
 
-  it('BashTool → 执行命令 + 权限 ask', () => {
+  it('BashTool → 只读命令权限 allow', () => {
     const result = bashTool.checkPermissions(
       { command: 'ls', runInBackground: false },
+      createFullContext(new MockFileSystemProvider())
+    );
+    // ls 是只读命令 → assessBashCommandSecurity → safe → allow
+    expect(result.behavior).toBe('allow');
+  });
+
+  it('BashTool → 破坏性命令权限 deny', () => {
+    const result = bashTool.checkPermissions(
+      { command: 'rm -rf /', runInBackground: false },
+      createFullContext(new MockFileSystemProvider())
+    );
+    expect(result.behavior).toBe('deny');
+  });
+
+  it('BashTool → 非只读非破坏性命令权限 ask', () => {
+    const result = bashTool.checkPermissions(
+      { command: 'npm install', runInBackground: false },
       createFullContext(new MockFileSystemProvider())
     );
     expect(result.behavior).toBe('ask');

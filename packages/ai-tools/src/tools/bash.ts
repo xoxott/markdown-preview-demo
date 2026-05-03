@@ -11,6 +11,7 @@ import type { ExtendedToolUseContext } from '../context-merge';
 import type { BashInput } from '../types/tool-inputs';
 import type { BashOutput } from '../types/tool-outputs';
 import { BashInputSchema } from '../types/tool-inputs';
+import { assessBashCommandSecurity } from './bash-security';
 import { truncateOutput } from '../utils/output-truncate';
 
 /** 最大超时时间（10 分钟） */
@@ -39,10 +40,21 @@ export const bashTool = buildTool<BashInput, BashOutput>({
     return `Execute command: ${desc}`;
   },
 
-  isReadOnly: () => false,
+  isReadOnly: (input: BashInput) => {
+    const assessment = assessBashCommandSecurity(input.command);
+    return assessment.isReadOnly;
+  },
   isConcurrencySafe: () => false,
-  safetyLabel: () => 'system' as SafetyLabel,
-  isDestructive: () => false,
+  safetyLabel: (input: BashInput) => {
+    const assessment = assessBashCommandSecurity(input.command);
+    if (assessment.safetyLevel === 'safe') return 'readonly' as SafetyLabel;
+    if (assessment.safetyLevel === 'dangerous') return 'destructive' as SafetyLabel;
+    return 'system' as SafetyLabel;
+  },
+  isDestructive: (input: BashInput) => {
+    const assessment = assessBashCommandSecurity(input.command);
+    return assessment.hasDestructive;
+  },
 
   validateInput: (input: BashInput): ValidationResult => {
     if (input.command === '') {
@@ -61,15 +73,28 @@ export const bashTool = buildTool<BashInput, BashOutput>({
   },
 
   checkPermissions: (input: BashInput): PermissionResult => {
-    // 所有命令需要权限确认 — 安全完全委托宿主
-    // 宿主的权限管线处理：
-    // - 规则匹配: allowRules/denyRules for Bash patterns
-    // - 模式决策: restricted denies, auto requires classifier
-    // - 分类器评估: BashCommandClassifier（宿主注入）
-    // - 用户确认: promptHandler/canUseToolFn
+    const assessment = assessBashCommandSecurity(input.command);
+    // 安全级别映射:
+    // - safe → allow（只读命令可自动允许）
+    // - dangerous → deny（破坏性命令自动拒绝，宿主可override）
+    // - caution → ask（需权限确认）
+    if (assessment.safetyLevel === 'safe') {
+      return {
+        behavior: 'allow',
+        decisionReason: assessment.recommendation
+      };
+    }
+    if (assessment.safetyLevel === 'dangerous') {
+      return {
+        behavior: 'deny',
+        message: assessment.recommendation
+      };
+    }
+    // caution — 需权限确认，附带安全评估信息
     return {
       behavior: 'ask',
-      message: input.description ?? `Execute command: "${input.command}"`
+      message: input.description ?? `Execute command: "${input.command}"`,
+      decisionReason: assessment.recommendation
     };
   },
 
@@ -110,13 +135,16 @@ export const bashTool = buildTool<BashInput, BashOutput>({
     };
   },
 
-  toAutoClassifierInput: (input: BashInput) => ({
-    toolName: 'bash',
-    input,
-    safetyLabel: 'system',
-    isReadOnly: false,
-    isDestructive: false
-  }),
+  toAutoClassifierInput: (input: BashInput) => {
+    const assessment = assessBashCommandSecurity(input.command);
+    return {
+      toolName: 'bash',
+      input,
+      safetyLabel: assessment.safetyLevel === 'safe' ? 'readonly' : assessment.safetyLevel === 'dangerous' ? 'destructive' : 'system',
+      isReadOnly: assessment.isReadOnly,
+      isDestructive: assessment.hasDestructive
+    };
+  },
 
   maxResultSizeChars: 100_000
 });

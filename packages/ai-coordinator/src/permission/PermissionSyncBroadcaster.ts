@@ -1,6 +1,6 @@
 /** PermissionSyncBroadcaster — Leader→Worker 权限/Settings广播 */
 
-import type { Mailbox } from '../types/mailbox';
+import type { Mailbox, StructuredMessage } from '../types/mailbox';
 import type { PermissionUpdateMessage, SettingsUpdateMessage } from '../types/permission-sync';
 
 /**
@@ -30,12 +30,14 @@ export class PermissionSyncBroadcaster {
 
   /** 广播权限更新 — Leader 权限规则变更时调用 */
   async broadcastPermissionUpdate(message: PermissionUpdateMessage): Promise<void> {
-    await this.mailbox.broadcast(this.leaderName, message, this.buildSummary(message));
+    const structured: StructuredMessage = { type: 'permission_update', payload: message };
+    await this.mailbox.broadcast(this.leaderName, structured, this.buildSummary(message));
   }
 
   /** 广播 Settings 更新 — Settings 文件变更时调用 */
   async broadcastSettingsUpdate(message: SettingsUpdateMessage): Promise<void> {
-    await this.mailbox.broadcast(this.leaderName, message, this.buildSettingsSummary(message));
+    const structured: StructuredMessage = { type: 'settings_update', payload: message };
+    await this.mailbox.broadcast(this.leaderName, structured, this.buildSettingsSummary(message));
   }
 
   /** 构建权限更新摘要 */
@@ -96,11 +98,13 @@ export class PermissionSyncReceiver {
 
     for (const msg of messages) {
       const content = msg.content;
-      if (typeof content === 'object' && content !== null) {
-        if ((content as Record<string, unknown>).type === 'permission_update') {
-          updates.push(content as PermissionUpdateMessage);
-        } else if ((content as Record<string, unknown>).type === 'settings_update') {
-          updates.push(content as SettingsUpdateMessage);
+      if (typeof content === 'object' && content !== null && 'type' in content) {
+        // StructuredMessage: { type: 'permission_sync'|'settings_sync', payload: ... }
+        const structured = content as StructuredMessage;
+        if (structured.type === 'permission_update') {
+          updates.push(structured.payload as PermissionUpdateMessage);
+        } else if (structured.type === 'settings_update') {
+          updates.push(structured.payload as SettingsUpdateMessage);
         }
       }
     }

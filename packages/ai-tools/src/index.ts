@@ -140,6 +140,17 @@ export {
 } from './tools/should-use-sandbox';
 export type { ShouldUseSandboxInput } from './tools/should-use-sandbox';
 
+// P63: Bash命令安全验证导出
+export {
+  isReadOnlyCommand,
+  detectDestructiveCommand,
+  detectCommandInjection,
+  validateCommandPaths,
+  assessBashCommandSecurity,
+  BLOCKED_DEVICE_PATHS
+} from './tools/bash-security';
+export type { BashSecurityAssessment } from './tools/bash-security';
+
 // Provider 实现
 export { NodeFileSystemProvider } from './provider/NodeFileSystemProvider';
 export { YoloPermissionClassifier } from './provider/YoloPermissionClassifier';

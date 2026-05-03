@@ -31,7 +31,7 @@ describe('PermissionSyncBroadcaster', () => {
 
     expect(worker1Msgs.length).toBe(1);
     expect(worker2Msgs.length).toBe(1);
-    expect((worker1Msgs[0].content as PermissionUpdateMessage).updateType).toBe('addRules');
+    expect((worker1Msgs[0].content as { payload: PermissionUpdateMessage }).payload.updateType).toBe('addRules');
   });
 
   it('广播 SettingsUpdateMessage → 所有Worker收到', async () => {
@@ -51,9 +51,9 @@ describe('PermissionSyncBroadcaster', () => {
 
     const msgs = await mailbox.receive('worker-1');
     expect(msgs.length).toBe(1);
-    const content = msgs[0].content as SettingsUpdateMessage;
-    expect(content.type).toBe('settings_update');
-    expect(content.sourceLayer).toBe('project');
+    const content = msgs[0].content as { payload: SettingsUpdateMessage };
+    expect(content.payload.type).toBe('settings_update');
+    expect(content.payload.sourceLayer).toBe('project');
   });
 
   it('摘要正确 — addRules', async () => {
@@ -215,12 +215,12 @@ describe('PermissionSyncReceiver', () => {
     mailbox.registerRecipient('leader');
     mailbox.registerRecipient('worker-1');
 
-    // 手动发送一条非权限消息
+    // 手动发送一条非权限文本消息（非 StructuredMessage）
     await mailbox.send({
       messageId: 'msg_1',
       from: 'leader',
       to: 'worker-1',
-      content: { type: 'task_assignment', task: 'research' },
+      content: 'plain text message',
       timestamp: Date.now()
     });
 

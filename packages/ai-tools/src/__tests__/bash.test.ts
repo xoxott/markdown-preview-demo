@@ -105,29 +105,45 @@ describe('BashTool — validateInput', () => {
   });
 });
 
-describe('BashTool — checkPermissions', () => {
-  it('总是 ask', () => {
+describe('BashTool — checkPermissions（动态安全评估）', () => {
+  it('只读命令 → allow', () => {
     const result = bashTool.checkPermissions(
       { command: 'ls', runInBackground: false },
+      createContext(new MockFileSystemProvider())
+    );
+    expect(result.behavior).toBe('allow');
+  });
+
+  it('破坏性命令 → deny', () => {
+    const result = bashTool.checkPermissions(
+      { command: 'rm -rf /', runInBackground: false },
+      createContext(new MockFileSystemProvider())
+    );
+    expect(result.behavior).toBe('deny');
+  });
+
+  it('非只读非破坏性 → ask', () => {
+    const result = bashTool.checkPermissions(
+      { command: 'npm test', runInBackground: false },
       createContext(new MockFileSystemProvider())
     );
     expect(result.behavior).toBe('ask');
   });
 
-  it('有 description → message 含 description', () => {
+  it('有 description → ask 消息含 description', () => {
     const result = bashTool.checkPermissions(
-      { command: 'ls', description: 'List files', runInBackground: false },
+      { command: 'npm test', description: 'Run tests', runInBackground: false },
       createContext(new MockFileSystemProvider())
     );
-    if (result.behavior === 'ask') expect(result.message).toBe('List files');
+    if (result.behavior === 'ask') expect(result.message).toBe('Run tests');
   });
 
-  it('无 description → message 含命令', () => {
+  it('无 description → ask 消息含命令', () => {
     const result = bashTool.checkPermissions(
-      { command: 'ls -la', runInBackground: false },
+      { command: 'npm test', runInBackground: false },
       createContext(new MockFileSystemProvider())
     );
-    if (result.behavior === 'ask') expect(result.message).toContain('ls -la');
+    if (result.behavior === 'ask') expect(result.message).toContain('npm test');
   });
 
   it('message 格式正确', () => {
@@ -247,30 +263,57 @@ describe('BashTool — call 执行', () => {
   });
 });
 
-describe('BashTool — 安全声明', () => {
-  it('isReadOnly → false', () => {
-    expect(bashTool.isReadOnly({ command: 'ls', runInBackground: false })).toBe(false);
+describe('BashTool — 安全声明（动态评估）', () => {
+  it('isReadOnly → true（ls只读）', () => {
+    expect(bashTool.isReadOnly({ command: 'ls', runInBackground: false })).toBe(true);
+  });
+
+  it('isReadOnly → false（npm install非只读）', () => {
+    expect(bashTool.isReadOnly({ command: 'npm install', runInBackground: false })).toBe(false);
   });
 
   it('isConcurrencySafe → false', () => {
     expect(bashTool.isConcurrencySafe({ command: 'ls', runInBackground: false })).toBe(false);
   });
 
-  it('safetyLabel → system（最保守）', () => {
-    expect(bashTool.safetyLabel({ command: 'ls', runInBackground: false })).toBe('system');
+  it('safetyLabel → readonly（ls只读安全）', () => {
+    expect(bashTool.safetyLabel({ command: 'ls', runInBackground: false })).toBe('readonly');
   });
 
-  it('isDestructive → false', () => {
+  it('safetyLabel → destructive（rm -rf破坏性）', () => {
+    expect(bashTool.safetyLabel({ command: 'rm -rf /', runInBackground: false })).toBe('destructive');
+  });
+
+  it('safetyLabel → system（npm install需审核）', () => {
+    expect(bashTool.safetyLabel({ command: 'npm install', runInBackground: false })).toBe('system');
+  });
+
+  it('isDestructive → false（ls非破坏性）', () => {
     expect(bashTool.isDestructive({ command: 'ls', runInBackground: false })).toBe(false);
   });
 
-  it('toAutoClassifierInput → safetyLabel=system', () => {
+  it('isDestructive → true（rm -rf破坏性）', () => {
+    expect(bashTool.isDestructive({ command: 'rm -rf /', runInBackground: false })).toBe(true);
+  });
+
+  it('toAutoClassifierInput → ls=readonly+isReadOnly', () => {
     const classifierInput = bashTool.toAutoClassifierInput({
       command: 'ls',
       runInBackground: false
     });
-    expect(classifierInput.safetyLabel).toBe('system');
+    expect(classifierInput.safetyLabel).toBe('readonly');
+    expect(classifierInput.isReadOnly).toBe(true);
+    expect(classifierInput.isDestructive).toBe(false);
+  });
+
+  it('toAutoClassifierInput → rm -rf=destructive+isDestructive', () => {
+    const classifierInput = bashTool.toAutoClassifierInput({
+      command: 'rm -rf /',
+      runInBackground: false
+    });
+    expect(classifierInput.safetyLabel).toBe('destructive');
     expect(classifierInput.isReadOnly).toBe(false);
+    expect(classifierInput.isDestructive).toBe(true);
   });
 
   it('maxResultSizeChars → 100000', () => {
