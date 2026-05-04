@@ -52,8 +52,19 @@ export function estimateTokensPrecise(messages: readonly AgentMessage[]): number
   for (const msg of messages) {
     if (msg.role === 'user') {
       // 检测 JSON 内容: 更密集的 token 化
-      const ratio = looksLikeJson(msg.content) ? jsonRatio : textRatio;
-      totalTokens += Math.ceil(msg.content.length / ratio);
+      // 多模态消息（content 为数组）仅估算文本部分
+      if (typeof msg.content === 'string') {
+        const ratio = looksLikeJson(msg.content) ? jsonRatio : textRatio;
+        totalTokens += Math.ceil(msg.content.length / ratio);
+      } else {
+        for (const part of msg.content) {
+          if (part.type === 'text') {
+            const ratio = looksLikeJson(part.text) ? jsonRatio : textRatio;
+            totalTokens += Math.ceil(part.text.length / ratio);
+          }
+          // 图片部分按估算常量计入
+        }
+      }
     } else if (msg.role === 'assistant') {
       // 文本内容
       totalTokens += Math.ceil(msg.content.length / textRatio);

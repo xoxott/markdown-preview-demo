@@ -10,7 +10,10 @@ import { CollapseCommitLogImpl } from './CollapseCommitLog';
 /** 从AgentMessage提取文本内容 — UserMessage/AssistantMessage有content, ToolResultMessage用error/result */
 function getMessageContent(msg: AgentMessage | undefined): string | undefined {
   if (!msg) return undefined;
-  if (msg.role === 'user' || msg.role === 'assistant') return msg.content;
+  if (msg.role === 'user') {
+    return typeof msg.content === 'string' ? msg.content : undefined;
+  }
+  if (msg.role === 'assistant') return msg.content;
   if (msg.role === 'tool_result') return msg.error ?? String(msg.result ?? '');
   return undefined;
 }

@@ -111,6 +111,34 @@ export interface HeadlessIOOptions {
   readonly outputFormat?: 'stream-json' | 'json' | 'text';
 }
 
+// === 健康检查 ===
+
+/** Daemon健康检查结果 */
+export interface DaemonHealthCheck {
+  /** daemon状态 */
+  readonly status: 'healthy' | 'degraded' | 'shutting_down' | 'not_booted';
+  /** 启动时间戳（ms） */
+  readonly bootedAt: number | null;
+  /** 运行时长（ms） */
+  readonly uptimeMs: number;
+  /** 活跃会话数 */
+  readonly activeSessionCount: number;
+  /** 总会话数 */
+  readonly totalSessionCount: number;
+  /** 内存使用（bytes） */
+  readonly memoryUsage: NodeJS.MemoryUsage;
+  /** 上次心跳时间戳（ms） */
+  readonly lastHeartbeatAt: number | null;
+}
+
+/** 心跳配置 */
+export interface HeartbeatConfig {
+  /** 心跳间隔（ms，默认30000） */
+  readonly intervalMs?: number;
+  /** 是否启用心跳（默认true） */
+  readonly enabled?: boolean;
+}
+
 // === 生命周期 ===
 
 /** Daemon生命周期事件 */
@@ -121,6 +149,7 @@ export type DaemonLifecycleEvent =
   | { type: 'idle_timeout'; sessionId: string }
   | { type: 'shutdown'; reason: string }
   | { type: 'shutdown_complete'; reason: string }
+  | { type: 'health'; health: DaemonHealthCheck }
   | { type: 'error'; error: string; sessionId?: string };
 
 /** Daemon生命周期监听器 */

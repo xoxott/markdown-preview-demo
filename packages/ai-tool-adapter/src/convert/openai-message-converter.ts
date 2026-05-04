@@ -5,10 +5,12 @@ import type {
   AssistantMessage,
   SystemPrompt,
   ToolResultMessage,
+  UserContentPart,
   UserMessage
 } from '@suga/ai-agent-loop';
 import type {
   OpenAIAssistantMessage,
+  OpenAIContentPart,
   OpenAIMessage,
   OpenAISystemMessage,
   OpenAIToolMessage,
@@ -53,7 +55,7 @@ export function convertToOpenAIMessages(
         const userMsg = msg as UserMessage;
         result.push({
           role: 'user',
-          content: userMsg.content
+          content: convertUserContentToOpenAI(userMsg.content)
         } satisfies OpenAIUserMessage);
         break;
       }
@@ -101,4 +103,54 @@ export function convertToOpenAIMessages(
   }
 
   return result;
+}
+
+/**
+ * 将 UserMessage.content 转换为 OpenAI API 的 content 格式
+ *
+ * - string → 直接返回字符串
+ * - UserContentPart[] → 转换为 OpenAIContentPart[]（text → text部分, image → image_url部分）
+ */
+function convertUserContentToOpenAI(
+  content: string | readonly UserContentPart[]
+): string | readonly OpenAIContentPart[] {
+  if (typeof content === 'string') {
+    return content;
+  }
+
+  // 多模态内容数组 → OpenAI content parts
+  const parts: OpenAIContentPart[] = [];
+  for (const part of content) {
+    switch (part.type) {
+      case 'text':
+        parts.push({ type: 'text', text: part.text });
+        break;
+      case 'image':
+        parts.push(convertImagePartToOpenAI(part));
+        break;
+    }
+  }
+  return parts;
+}
+
+/**
+ * 将 UserImagePart 转换为 OpenAI image_url content part
+ *
+ * OpenAI API 要求：
+ *
+ * - { type: 'image_url', image_url: { url } }
+ * - url 可以是：完整 HTTP URL 或 data:image/<type>;base64,<data> 格式
+ *
+ * UserImagePart.source 如果是 URL → 直接使用 否则（base64 数据）→ 组装为 data URI 格式
+ */
+function convertImagePartToOpenAI(
+  part: import('@suga/ai-agent-loop').UserImagePart
+): import('../types/openai').OpenAIImagePart {
+  const isUrl = part.source.startsWith('http://') || part.source.startsWith('https://');
+  const url = isUrl ? part.source : `data:${part.mediaType ?? 'image/png'};base64,${part.source}`;
+
+  return {
+    type: 'image_url',
+    image_url: { url }
+  };
 }

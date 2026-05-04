@@ -6,7 +6,7 @@ import { TokenBudgetTracker } from '../core/TokenBudgetTracker';
 
 /** 辅助：获取消息文本内容 */
 function getContent(msg: AgentMessage): string {
-  if (msg.role === 'user') return msg.content;
+  if (msg.role === 'user') return typeof msg.content === 'string' ? msg.content : '';
   if (msg.role === 'assistant') return msg.content;
   return '';
 }

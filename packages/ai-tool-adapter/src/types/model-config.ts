@@ -34,3 +34,108 @@ export const DEFAULT_MODEL_CONFIG: ModelConfig = {
   temperature: 0.0,
   maxTokens: 4096
 };
+
+/** 模型能力描述 — 不同模型的能力差异 */
+export interface ModelCapability {
+  /** 是否支持 extended thinking（Anthropic 特有） */
+  readonly supportsThinking: boolean;
+  /** 是否支持多模态图片输入 */
+  readonly supportsMultimodal: boolean;
+  /** 是否支持 tool_use（函数调用） */
+  readonly supportsToolUse: boolean;
+  /** 是否支持 streaming */
+  readonly supportsStreaming: boolean;
+  /** 是否支持 prompt caching */
+  readonly supportsPromptCaching: boolean;
+  /** 是否支持 JSON mode / structured output */
+  readonly supportsStructuredOutput: boolean;
+  /** 是否支持 reasoning_effort（OpenAI o1/o3 特有） */
+  readonly supportsReasoningEffort: boolean;
+  /** 最大 context window token 数 */
+  readonly maxContextTokens: number;
+  /** 最大输出 token 数 */
+  readonly maxOutputTokens: number;
+}
+
+/** Anthropic Claude 系列默认能力 */
+export const CLAUDE_MODEL_CAPABILITY: ModelCapability = {
+  supportsThinking: true,
+  supportsMultimodal: true,
+  supportsToolUse: true,
+  supportsStreaming: true,
+  supportsPromptCaching: true,
+  supportsStructuredOutput: false,
+  supportsReasoningEffort: false,
+  maxContextTokens: 200_000,
+  maxOutputTokens: 8192
+};
+
+/** OpenAI GPT 系列默认能力 */
+export const GPT_MODEL_CAPABILITY: ModelCapability = {
+  supportsThinking: false,
+  supportsMultimodal: true,
+  supportsToolUse: true,
+  supportsStreaming: true,
+  supportsPromptCaching: false,
+  supportsStructuredOutput: true,
+  supportsReasoningEffort: false,
+  maxContextTokens: 128_000,
+  maxOutputTokens: 16_384
+};
+
+/** OpenAI o1/o3 系列能力 */
+export const OPENAI_REASONING_MODEL_CAPABILITY: ModelCapability = {
+  supportsThinking: false,
+  supportsMultimodal: false,
+  supportsToolUse: true,
+  supportsStreaming: true,
+  supportsPromptCaching: false,
+  supportsStructuredOutput: true,
+  supportsReasoningEffort: true,
+  maxContextTokens: 200_000,
+  maxOutputTokens: 100_000
+};
+
+/** 根据模型名称推断能力 */
+export function inferModelCapability(modelName: string): ModelCapability {
+  const lower = modelName.toLowerCase();
+
+  // OpenAI o1/o3 系列
+  if (lower.startsWith('o1') || lower.startsWith('o3')) {
+    return OPENAI_REASONING_MODEL_CAPABILITY;
+  }
+
+  // OpenAI GPT 系列
+  if (lower.startsWith('gpt')) {
+    // GPT-4o 多模态能力更强
+    if (lower.includes('4o') || lower.includes('4-turbo')) {
+      return { ...GPT_MODEL_CAPABILITY, maxContextTokens: 128_000, maxOutputTokens: 16_384 };
+    }
+    return GPT_MODEL_CAPABILITY;
+  }
+
+  // Anthropic Claude 系列（默认）
+  if (lower.startsWith('claude')) {
+    // Claude 3 Opus 有更大的 context
+    if (lower.includes('opus')) {
+      return { ...CLAUDE_MODEL_CAPABILITY, maxContextTokens: 200_000 };
+    }
+    if (lower.includes('haiku')) {
+      return { ...CLAUDE_MODEL_CAPABILITY, maxContextTokens: 200_000, maxOutputTokens: 4096 };
+    }
+    return CLAUDE_MODEL_CAPABILITY;
+  }
+
+  // 默认：最小能力集（安全 fallback）
+  return {
+    supportsThinking: false,
+    supportsMultimodal: false,
+    supportsToolUse: true,
+    supportsStreaming: true,
+    supportsPromptCaching: false,
+    supportsStructuredOutput: false,
+    supportsReasoningEffort: false,
+    maxContextTokens: 32_000,
+    maxOutputTokens: 4096
+  };
+}

@@ -10,7 +10,7 @@ import type { AgentMessage } from '../types/messages';
 
 /** 辅助：获取 AgentMessage 的文本内容（ToolResultMessage 无 content） */
 function getContent(msg: AgentMessage): string {
-  if (msg.role === 'user') return msg.content;
+  if (msg.role === 'user') return typeof msg.content === 'string' ? msg.content : '';
   if (msg.role === 'assistant') return msg.content;
   return '';
 }

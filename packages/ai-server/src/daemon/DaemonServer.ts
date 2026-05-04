@@ -33,7 +33,10 @@ export class DaemonServer implements ServerApi {
   private _started = false;
 
   constructor(config: DaemonConfig) {
-    this.lifecycle = new DaemonLifecycle(config);
+    this.lifecycle = new DaemonLifecycle(config, {
+      getActiveSessionCount: () => this.sessionManager.activeCount(),
+      getTotalSessionCount: () => this.sessionManager.totalCount()
+    });
     this.sessionManager = new DaemonSessionManager(config, this.lifecycle);
     this.headlessIO = new NodeHeadlessIO();
 
@@ -99,5 +102,10 @@ export class DaemonServer implements ServerApi {
 
   async stopAllSessions(): Promise<void> {
     await this.sessionManager.stopAllSessions();
+  }
+
+  /** 健康检查 */
+  healthCheck(): import('../types/server').DaemonHealthCheck {
+    return this.lifecycle.healthCheck();
   }
 }

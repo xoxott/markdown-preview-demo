@@ -13,11 +13,29 @@ export interface BaseMessage {
   readonly timestamp: number;
 }
 
+/** 用户内容部分联合类型 — 支持文本 + 图片多模态 */
+export type UserContentPart = UserTextPart | UserImagePart;
+
+/** 用户文本内容部分 */
+export interface UserTextPart {
+  readonly type: 'text';
+  readonly text: string;
+}
+
+/** 用户图片内容部分 — base64 编码或 URL */
+export interface UserImagePart {
+  readonly type: 'image';
+  /** 图片数据：base64 编码字符串或 URL */
+  readonly source: string;
+  /** 图片媒体类型（如 image/png、image/jpeg），URL 模式可省略 */
+  readonly mediaType?: string;
+}
+
 /** 用户消息 */
 export interface UserMessage extends BaseMessage {
   readonly role: 'user';
-  /** 用户输入文本 */
-  readonly content: string;
+  /** 用户输入：纯文本字符串或多模态内容数组（文本 + 图片） */
+  readonly content: string | readonly UserContentPart[];
   /** 是否为系统注入的 meta 消息（不计入对话质量评估） */
   readonly isMeta?: boolean;
 }

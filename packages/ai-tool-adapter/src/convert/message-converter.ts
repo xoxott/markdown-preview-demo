@@ -4,10 +4,12 @@ import type {
   AgentMessage,
   AssistantMessage,
   ToolResultMessage,
+  UserContentPart,
   UserMessage
 } from '@suga/ai-agent-loop';
 import type {
   AnthropicContentBlock,
+  AnthropicImageBlock,
   AnthropicMessage,
   AnthropicToolResultBlock
 } from '../types/anthropic';
@@ -17,7 +19,7 @@ import type {
  *
  * 关键转换规则：
  *
- * 1. UserMessage → user role 消息（文本内容块）
+ * 1. UserMessage → user role 消息（文本内容块，或多模态 text+image 内容块数组）
  * 2. AssistantMessage → assistant role 消息（文本 + tool_use 内容块）
  * 3. ToolResultMessage → user role 消息（tool_result 内容块） 注意：Anthropic 要求 tool_result 放在 user role 内 连续多个
  *    ToolResultMessage 合并到同一个 user 消息
@@ -45,7 +47,7 @@ export function convertToAnthropicMessages(messages: readonly AgentMessage[]): A
         const userMsg = msg as UserMessage;
         result.push({
           role: 'user',
-          content: userMsg.content
+          content: convertUserContentToAnthropic(userMsg.content)
         });
         break;
       }
@@ -117,4 +119,55 @@ export function convertToAnthropicMessages(messages: readonly AgentMessage[]): A
   }
 
   return result;
+}
+
+/**
+ * 将 UserMessage.content 转换为 Anthropic API 的 content 格式
+ *
+ * - string → 直接返回字符串
+ * - UserContentPart[] → 转换为 AnthropicContentBlock[]（text → text块, image → image块）
+ */
+function convertUserContentToAnthropic(
+  content: string | readonly UserContentPart[]
+): string | readonly AnthropicContentBlock[] {
+  if (typeof content === 'string') {
+    return content;
+  }
+
+  // 多模态内容数组 → Anthropic content blocks
+  const blocks: AnthropicContentBlock[] = [];
+  for (const part of content) {
+    switch (part.type) {
+      case 'text':
+        blocks.push({ type: 'text', text: part.text });
+        break;
+      case 'image':
+        blocks.push(convertImagePartToAnthropic(part));
+        break;
+    }
+  }
+  return blocks;
+}
+
+/**
+ * 将 UserImagePart 转换为 AnthropicImageBlock
+ *
+ * Anthropic API 要求：
+ *
+ * - base64 模式：source.type='base64', source.media_type, source.data
+ * - URL 模式：source.type='url', source.url
+ *
+ * UserImagePart.source 如果是 URL（以 http:// 或 https:// 开头），使用 url 模式 否则视为 base64 编码数据
+ */
+function convertImagePartToAnthropic(
+  part: import('@suga/ai-agent-loop').UserImagePart
+): AnthropicImageBlock {
+  const isUrl = part.source.startsWith('http://') || part.source.startsWith('https://');
+
+  return {
+    type: 'image',
+    source: isUrl
+      ? { type: 'url', media_type: part.mediaType ?? 'image/png', url: part.source }
+      : { type: 'base64', media_type: part.mediaType ?? 'image/png', data: part.source }
+  };
 }

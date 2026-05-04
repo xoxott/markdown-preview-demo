@@ -27,6 +27,7 @@ import type {
   PermissionClassifier,
   ToolClassifierInput
 } from '@suga/ai-tool-core';
+import { inferModelCapability } from '@suga/ai-tool-adapter';
 import { classifyBashCommand } from './BashCommandClassifier';
 
 // ========== 类型定义 ==========
@@ -206,7 +207,9 @@ export class LLMPermissionClassifier implements PermissionClassifier {
   constructor(config: LLMClassifierConfig) {
     this.callModel = config.callModel;
     this.model = config.model ?? DEFAULT_CLASSIFIER_MODEL;
-    this.enableThinking = config.enableThinking ?? true;
+    // 模型能力感知：不支持 thinking 的模型自动禁用 Stage 2
+    const capability = inferModelCapability(this.model);
+    this.enableThinking = config.enableThinking ?? capability.supportsThinking;
     this.ironGate = config.ironGate ?? { failClosed: false };
   }
 

@@ -15,8 +15,7 @@ const OPENAI_RATE_LIMIT_HEADERS = {
 /**
  * 从 Response headers 提取 OpenAI rate limit 状态
  *
- * OpenAI API 在部分响应中返回 `x-ratelimit-*` 系列 header（非所有模型/端点都有）。
- * 此函数与 Anthropic 版逻辑一致，但使用不同的 header 名称。
+ * OpenAI API 在部分响应中返回 `x-ratelimit-*` 系列 header（非所有模型/端点都有）。 此函数与 Anthropic 版逻辑一致，但使用不同的 header 名称。
  *
  * @param headers fetch Response 的 headers 对象
  * @returns RateLimitStatus（有至少1个header时），undefined（无任何rate limit header时）

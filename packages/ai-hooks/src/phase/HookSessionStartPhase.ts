@@ -80,12 +80,12 @@ export class HookSessionStartPhase implements LoopPhase {
     };
   }
 
-  /** 提取第一条用户消息 */
+  /** 提取第一条用户消息（仅提取文本内容） */
   private extractUserMessage(ctx: MutableAgentContext): string {
     const messages = ctx.state.messages;
     for (const msg of messages) {
       if (msg.role === 'user') {
-        return msg.content;
+        return typeof msg.content === 'string' ? msg.content : '';
       }
     }
     return '';

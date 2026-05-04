@@ -191,7 +191,10 @@ describe('CollapseCommitLogImpl', () => {
 
       // 整个 0-4 范围只输出 1 个占位符
       const collapsedCount = view.filter(
-        m => (m.role === 'user' || m.role === 'assistant') && m.content.includes('<collapsed')
+        m =>
+          (m.role === 'user' || m.role === 'assistant') &&
+          typeof m.content === 'string' &&
+          m.content.includes('<collapsed')
       ).length;
       expect(collapsedCount).toBe(1);
     });

@@ -14,6 +14,14 @@ export { BaseLLMAdapter } from './adapter/BaseLLMAdapter';
 export { AnthropicAdapter } from './adapter/AnthropicAdapter';
 export { OpenAIAdapter } from './adapter/OpenAIAdapter';
 
+// 模型能力（P85 新增）
+export {
+  CLAUDE_MODEL_CAPABILITY,
+  GPT_MODEL_CAPABILITY,
+  OPENAI_REASONING_MODEL_CAPABILITY,
+  inferModelCapability
+} from './types/model-config';
+
 // 转换工具
 export { zodToJsonSchema } from './convert/zod-to-json-schema';
 export {
@@ -117,3 +125,11 @@ export type {
   SessionIngressFilter,
   SessionIngressEventType
 } from './types/session-ingress';
+
+// Tokenizer（P83 新增 — 精确 token 计数）
+export {
+  EstimateTokenizer,
+  TokenizerRegistryImpl,
+  createTokenEstimatorFromTokenizer
+} from './tokenizer';
+export type { TokenizerProvider, TokenizerRegistry } from './tokenizer';

@@ -98,4 +98,21 @@ describe('DaemonServer', () => {
     expect(daemon.sessionManager.totalCount()).toBe(1);
     expect(daemon.sessionManager.activeCount()).toBe(1);
   });
+
+  // P84: Health Check
+  it('healthCheck → 包含session计数', async () => {
+    const daemon = new DaemonServer(testConfig);
+    daemon.start();
+
+    await daemon.createSession();
+    await daemon.createSession();
+
+    const health = daemon.healthCheck();
+    expect(health.status).toBe('healthy');
+    expect(health.activeSessionCount).toBe(2);
+    expect(health.totalSessionCount).toBe(2);
+    expect(health.bootedAt).toBeTypeOf('number');
+    expect(health.uptimeMs).toBeGreaterThanOrEqual(0);
+    expect(health.memoryUsage.heapUsed).toBeGreaterThan(0);
+  });
 });

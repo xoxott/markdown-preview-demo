@@ -24,7 +24,7 @@ import type {
 
 interface MockState {
   sessionId: string;
-  messages: { role: string; content: string }[];
+  messages: { role: string; content: string | readonly unknown[] }[];
   toolUseContext: {
     abortController: AbortController;
     tools: unknown;
@@ -35,7 +35,7 @@ interface MockState {
 function createMockCtx(
   overrides?: Partial<{ meta: Record<string, unknown>; state: Partial<MockState> }>
 ) {
-  const messages: { role: string; content: string }[] = [
+  const messages: { role: string; content: string | readonly unknown[] }[] = [
     { role: 'user', content: 'test message' },
     { role: 'assistant', content: 'response text' }
   ];

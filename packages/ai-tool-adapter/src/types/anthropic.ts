@@ -76,9 +76,21 @@ export interface AnthropicMessage {
 /** Anthropic 内容块 */
 export type AnthropicContentBlock =
   | AnthropicTextBlock
+  | AnthropicImageBlock
   | AnthropicToolUseBlock
   | AnthropicToolReferenceBlock
   | AnthropicToolResultBlock;
+
+/** 图片内容块 — Anthropic API 支持的 image 格式 */
+export interface AnthropicImageBlock {
+  readonly type: 'image';
+  readonly source: {
+    readonly type: 'base64' | 'url';
+    readonly media_type: string;
+    readonly data?: string;
+    readonly url?: string;
+  };
+}
 
 /** 文本内容块 */
 export interface AnthropicTextBlock {

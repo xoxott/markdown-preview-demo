@@ -10,6 +10,7 @@ export type {
   AnthropicMessage,
   AnthropicContentBlock,
   AnthropicTextBlock,
+  AnthropicImageBlock,
   AnthropicToolUseBlock,
   AnthropicToolReferenceBlock,
   AnthropicToolResultBlock,
@@ -22,7 +23,7 @@ export type {
   AnthropicSystemField
 } from './anthropic';
 
-export type { ModelConfig, ThinkingConfig, ModelIdentifier } from './model-config';
+export type { ModelConfig, ThinkingConfig, ModelIdentifier, ModelCapability } from './model-config';
 
 export type {
   LLMUsageInfo,
@@ -90,6 +91,12 @@ export {
 } from './anthropic';
 
 export { DEFAULT_MODEL_CONFIG } from './model-config';
+export {
+  CLAUDE_MODEL_CAPABILITY,
+  GPT_MODEL_CAPABILITY,
+  OPENAI_REASONING_MODEL_CAPABILITY,
+  inferModelCapability
+} from './model-config';
 
 export { DEFAULT_OPENAI_TIMEOUT, DEFAULT_OPENAI_MAX_TOKENS } from './openai';
 

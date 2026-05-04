@@ -6,9 +6,11 @@
 
 import type {
   DaemonConfig,
+  DaemonHealthCheck,
   DaemonLifecycleEvent,
   DaemonLifecycleListener,
-  GracefulShutdownOptions
+  GracefulShutdownOptions,
+  HeartbeatConfig
 } from '../types/server';
 
 /** 进程信号常量 */
@@ -29,8 +31,26 @@ export class DaemonLifecycle {
   private readonly signalHandlers: Map<string, () => void> = new Map();
   private _isShuttingDown = false;
   private _isBooted = false;
+  private _bootedAt: number | null = null;
+  private _lastHeartbeatAt: number | null = null;
+  private heartbeatTimer?: ReturnType<typeof setTimeout>;
+  private readonly heartbeatConfig: HeartbeatConfig;
+  /** 外部注入的活跃会话计数函数 */
+  private getActiveSessionCount?: () => number;
+  private getTotalSessionCount?: () => number;
 
-  constructor(readonly config: DaemonConfig) {}
+  constructor(
+    readonly config: DaemonConfig,
+    options?: {
+      heartbeat?: HeartbeatConfig;
+      getActiveSessionCount?: () => number;
+      getTotalSessionCount?: () => number;
+    }
+  ) {
+    this.heartbeatConfig = options?.heartbeat ?? { enabled: true, intervalMs: 30_000 };
+    this.getActiveSessionCount = options?.getActiveSessionCount;
+    this.getTotalSessionCount = options?.getTotalSessionCount;
+  }
 
   /** 是否已启动 */
   readonly isBooted = (): boolean => this._isBooted;
@@ -42,6 +62,7 @@ export class DaemonLifecycle {
   boot(): void {
     if (this._isBooted) return;
     this._isBooted = true;
+    this._bootedAt = Date.now();
 
     // 注册信号处理器
     for (const signal of SHUTDOWN_SIGNALS) {
@@ -56,6 +77,11 @@ export class DaemonLifecycle {
         this.emit({ type: 'shutdown', reason: 'process.exit called unexpectedly' });
       }
     });
+
+    // 启动心跳定时器
+    if (this.heartbeatConfig.enabled !== false) {
+      this.startHeartbeat();
+    }
 
     this.emit({ type: 'boot', config: this.config });
   }
@@ -116,6 +142,7 @@ export class DaemonLifecycle {
 
   /** 销毁 — 清理所有注册 */
   destroy(): void {
+    this.stopHeartbeat();
     for (const [signal, handler] of this.signalHandlers) {
       process.removeListener(signal, handler);
     }
@@ -123,6 +150,49 @@ export class DaemonLifecycle {
     this.listeners.length = 0;
     this._isBooted = false;
     this._isShuttingDown = false;
+    this._bootedAt = null;
+    this._lastHeartbeatAt = null;
+  }
+
+  /** 获取健康检查结果 */
+  healthCheck(): DaemonHealthCheck {
+    const status: DaemonHealthCheck['status'] = !this._isBooted
+      ? 'not_booted'
+      : this._isShuttingDown
+        ? 'shutting_down'
+        : 'healthy';
+
+    const uptimeMs = this._bootedAt ? Date.now() - this._bootedAt : 0;
+    const activeSessions = this.getActiveSessionCount?.() ?? 0;
+    const totalSessions = this.getTotalSessionCount?.() ?? 0;
+
+    return {
+      status,
+      bootedAt: this._bootedAt,
+      uptimeMs,
+      activeSessionCount: activeSessions,
+      totalSessionCount: totalSessions,
+      memoryUsage: process.memoryUsage(),
+      lastHeartbeatAt: this._lastHeartbeatAt
+    };
+  }
+
+  /** 启动心跳定时器 — 定期 emit health 事件 */
+  private startHeartbeat(): void {
+    const intervalMs = this.heartbeatConfig.intervalMs ?? 30_000;
+    this.heartbeatTimer = setInterval(() => {
+      this._lastHeartbeatAt = Date.now();
+      this.emit({ type: 'health', health: this.healthCheck() });
+    }, intervalMs);
+    this.heartbeatTimer.unref();
+  }
+
+  /** 停止心跳定时器 */
+  private stopHeartbeat(): void {
+    if (this.heartbeatTimer) {
+      clearInterval(this.heartbeatTimer);
+      this.heartbeatTimer = undefined;
+    }
   }
 
   /** 发出生命周期事件（公开 — DaemonSessionManager需要调用） */
