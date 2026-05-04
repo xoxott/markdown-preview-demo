@@ -4,6 +4,7 @@ import type { AgentEvent, LLMProvider, SystemPrompt, ToolScheduler } from '@suga
 import type {
   CanUseToolFn,
   DenialTrackingState,
+  PermissionMode,
   PermissionPromptHandler,
   SettingsLayerReader,
   ToolRegistry
@@ -157,6 +158,12 @@ export interface RuntimeConfig {
   /** 拒绝追踪初始状态（默认DEFAULT_DENIAL_TRACKING） */
   readonly denialTracking?: DenialTrackingState;
 
+  // === P75 权限模式配置 ===
+  /** 权限模式（默认 'default'） */
+  readonly permissionMode?: PermissionMode;
+  /** 是否绕过所有权限检查（默认 false，危险） */
+  readonly bypassPermissions?: boolean;
+
   // === P41 headless-agent + requiresUserInteraction ===
   /** 是否为 headless agent（自动 deny ask） */
   readonly isHeadlessAgent?: boolean;
@@ -192,6 +199,8 @@ export interface ProviderMap {
   readonly canUseToolFn?: CanUseToolFn;
   readonly denialTracking?: DenialTrackingState;
   readonly isHeadlessAgent?: boolean;
+  readonly permissionMode?: PermissionMode;
+  readonly bypassPermissions?: boolean;
   // P52: 新增 — memory/compress/coordinator/subagent/sandbox
   readonly memoryConfig?: Partial<MemoryPromptConfig>;
   readonly memoryProvider?: MemoryStorageProvider;

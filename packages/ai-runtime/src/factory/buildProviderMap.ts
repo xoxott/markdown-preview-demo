@@ -54,6 +54,8 @@ export function buildProviderMap(config: RuntimeConfig): Record<string, unknown>
     canUseToolFn: config.canUseToolFn,
     denialTracking: config.denialTracking ?? DEFAULT_DENIAL_TRACKING,
     isHeadlessAgent: config.isHeadlessAgent,
+    permissionMode: config.permissionMode,
+    bypassPermissions: config.bypassPermissions,
     // P52: 补全 — memory/compress/coordinator/subagent/sandbox
     memoryConfig: config.memoryConfig,
     memoryProvider: config.memoryProvider,

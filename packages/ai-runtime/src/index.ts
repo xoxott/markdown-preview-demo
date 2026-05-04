@@ -29,6 +29,10 @@ export { SessionEngineImpl, createSessionEngine } from './session/SessionEngineI
 export { SessionMetadataStore } from './session/SessionMetadataStore';
 export type { SessionMetadata, MetadataPersister } from './session/SessionMetadataStore';
 
+// Permission 层 — RuntimePermissionEngine + buildPermissionContext
+export { RuntimePermissionEngine, buildPermissionContext } from './permission/RuntimePermissionEngine';
+export type { RuntimePermissionEngineConfig } from './permission/RuntimePermissionEngine';
+
 // Swarm 层 — Worker Mailbox 适配器
 export { SwarmWorkerMailboxAdapter } from './swarm/SwarmWorkerMailboxAdapter';
 export type { SwarmWorkerMailboxAdapterConfig } from './swarm/SwarmWorkerMailboxAdapter';
