@@ -542,14 +542,109 @@ const COMMAND_SAFE_FLAGS: ReadonlyMap<string, readonly string[]> = new Map([
 ]);
 
 /**
+ * isSafeCompoundCommand — 判断管道(|)和链式(; &&)命令是否全部只读
+ *
+ * 逻辑: 分解管道(|)，逐段检查每段是否只读
+ *
+ * - 所有段只读 → 整体只读
+ * - 任一段非只读 → 整体非只读
+ *
+ * 注意: 后台(&)命令不安全，不受此函数处理
+ */
+function isSafeCompoundCommand(command: string): { isReadOnly: boolean; reason?: string } {
+  // 分解管道(|) — 但不分解 ||（逻辑OR）
+  // 先替换 || 为占位符，再分割管道
+  const placeholder = '__DOUBLE_PIPE__';
+  const replaced = command.replace(/\|\|/g, placeholder);
+  const segments = replaced
+    .split('|')
+    .map(s => s.replace(new RegExp(placeholder, 'g'), '||').trim());
+
+  // 逐段检查只读
+  for (const segment of segments) {
+    // 检查 || 和 && 链式命令
+    if (segment.includes('||') || segment.includes('&&')) {
+      // 链式命令分解检查
+      const chainParts = segment
+        .split(/\|\||&&/)
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+      for (const part of chainParts) {
+        const result = isSingleCommandReadOnly(part);
+        if (!result.isReadOnly) {
+          return { isReadOnly: false, reason: `non_readonly_segment: ${part}` };
+        }
+      }
+      continue;
+    }
+
+    // 单段命令检查
+    const result = isSingleCommandReadOnly(segment);
+    if (!result.isReadOnly) {
+      return { isReadOnly: false, reason: `non_readonly_segment: ${segment}` };
+    }
+  }
+
+  return { isReadOnly: true, reason: 'all_segments_readonly' };
+}
+
+/** isSingleCommandReadOnly — 判断单个命令是否只读（不含管道/链式） */
+function isSingleCommandReadOnly(command: string): { isReadOnly: boolean; reason?: string } {
+  const trimmed = command.trim();
+  if (trimmed === '') return { isReadOnly: true, reason: 'empty_command' };
+
+  const stripped = stripEnvVarsForReadOnly(trimmed);
+  const unwrapped = stripWrappersForReadOnly(stripped);
+
+  // 检查flags白名单
+  const parts = unwrapped.split(/\s+/);
+  const cmdName = parts[0];
+  const safeFlags = COMMAND_SAFE_FLAGS.get(cmdName);
+
+  if (safeFlags !== undefined) {
+    const flags = parts.slice(1).filter(p => p.startsWith('-'));
+    for (const flag of flags) {
+      if (flag.startsWith('--')) {
+        const normalized = normalizeLongFlag(flag);
+        if (!safeFlags.includes(normalized)) {
+          return { isReadOnly: false, reason: `unsafe_flag_${flag}` };
+        }
+      } else if (flag.length > 1) {
+        if (safeFlags.includes(flag)) {
+          // 整体flag安全
+        } else {
+          const flagChars = flag.slice(1).split('');
+          for (const ch of flagChars) {
+            if (!safeFlags.includes(`-${ch}`)) {
+              return { isReadOnly: false, reason: `unsafe_flag_-${ch}` };
+            }
+          }
+        }
+      }
+    }
+    return { isReadOnly: true, reason: 'safe_flags_match' };
+  }
+
+  // 检查简单只读正则
+  for (const regex of READONLY_COMMAND_REGEXES) {
+    if (regex.test(unwrapped)) {
+      return { isReadOnly: true, reason: 'readonly_regex_match' };
+    }
+  }
+
+  return { isReadOnly: false, reason: 'not_in_allowlist' };
+}
+
+/**
  * isReadOnlyCommand — 判定bash命令是否为只读
  *
  * 判定逻辑:
  *
  * 1. 去除环境变量和安全包装
- * 2. 提取基础命令名
- * 3. 检查 READONLY_COMMAND_REGEXES（简单正则匹配）
- * 4. 检查 COMMAND_SAFE_FLAGS（flags白名单验证）
+ * 2. 含管道(|) → 调用 isSafeCompoundCommand 逐段检查
+ * 3. 含后台(&) → 非只读
+ * 4. 含链式(; && ||) → 逐段检查
+ * 5. 单命令 → 检查 flags白名单 + READONLY_COMMAND_REGEXES
  *
  * @returns {isReadOnly: boolean, reason?: string}
  */
@@ -564,56 +659,26 @@ export function isReadOnlyCommand(command: string): { isReadOnly: boolean; reaso
   // 去除安全包装
   const unwrapped = stripWrappersForReadOnly(stripped);
 
-  // 复合命令（含 && / ; / | / ||）→ 不只读（不能保证所有子命令只读）
-  if (/[&|;]/.test(unwrapped) && !/^echo\s/.test(unwrapped)) {
-    return { isReadOnly: false, reason: 'compound_command' };
+  // 后台命令(&) → 非只读（不安全）
+  // 匹配末尾 & 或空格后的 &（但不匹配 &&）
+  if (/\s&\s*$/.test(unwrapped) || /[;&]$/.test(unwrapped.replace(/&&/g, ''))) {
+    return { isReadOnly: false, reason: 'background_command' };
   }
 
-  // 检查flags白名单（优先于简单正则，因为flags白名单更精确）
-  const parts = unwrapped.split(/\s+/);
-  const cmdName = parts[0];
-  const safeFlags = COMMAND_SAFE_FLAGS.get(cmdName);
-
-  if (safeFlags !== undefined) {
-    // 命令在白名单中 → 验证所有flags是否安全
-    const flags = parts.slice(1).filter(p => p.startsWith('-'));
-    for (const flag of flags) {
-      // 检查flag是否在安全列表中
-      // 支持 -abc 组合flags（拆分为 -a, -b, -c）
-      if (flag.startsWith('--')) {
-        // 长flag → 直接检查
-        const normalized = normalizeLongFlag(flag);
-        if (!safeFlags.includes(normalized)) {
-          return { isReadOnly: false, reason: `unsafe_flag_${flag}` };
-        }
-      } else if (flag.length > 1) {
-        // 先检查是否为单词型flag（如 -name, -type, -path）→ 整体匹配
-        if (safeFlags.includes(flag)) {
-          // 整体flag安全 → 继续
-        } else {
-          // 否则尝试拆分为组合短flag（如 -la → -l, -a）
-          const flagChars = flag.slice(1).split('');
-          for (const ch of flagChars) {
-            if (!safeFlags.includes(`-${ch}`)) {
-              return { isReadOnly: false, reason: `unsafe_flag_-${ch}` };
-            }
-          }
-        }
-      }
-    }
-    // 所有flags安全 → 只读
-    return { isReadOnly: true, reason: 'safe_flags_match' };
+  // 含管道(|) → 逐段检查
+  // 注意: || 是逻辑OR，不是管道
+  const pipeCheck = unwrapped.replace(/\|\|/g, '');
+  if (pipeCheck.includes('|')) {
+    return isSafeCompoundCommand(unwrapped);
   }
 
-  // 检查简单只读正则（对不在flags白名单中的命令）
-  for (const regex of READONLY_COMMAND_REGEXES) {
-    if (regex.test(unwrapped)) {
-      return { isReadOnly: true, reason: 'readonly_regex_match' };
-    }
+  // 含链式(; && ||) → 逐段检查
+  if (/[;&]/.test(unwrapped) || unwrapped.includes('||')) {
+    return isSafeCompoundCommand(unwrapped);
   }
 
-  // 不在任何白名单中 → 默认不只读
-  return { isReadOnly: false, reason: 'not_in_allowlist' };
+  // 单命令 → 调用 isSingleCommandReadOnly
+  return isSingleCommandReadOnly(unwrapped);
 }
 
 // ============================================================

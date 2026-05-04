@@ -66,8 +66,24 @@ describe('isReadOnlyCommand', () => {
     expect(isReadOnlyCommand('npm install').isReadOnly).toBe(false);
   });
 
-  it('ls && cat file → 不只读（复合命令）', () => {
-    expect(isReadOnlyCommand('ls && cat file').isReadOnly).toBe(false);
+  it('ls && cat file → 只读（复合命令全部只读段）', () => {
+    expect(isReadOnlyCommand('ls && cat file').isReadOnly).toBe(true);
+  });
+
+  it('ls && rm file → 不只读（复合命令含非只读段）', () => {
+    expect(isReadOnlyCommand('ls && rm file').isReadOnly).toBe(false);
+  });
+
+  it('ls | grep foo → 只读（管道全部只读段）', () => {
+    expect(isReadOnlyCommand('ls | grep foo').isReadOnly).toBe(true);
+  });
+
+  it('cat file | tee output → 不只读（tee写入）', () => {
+    expect(isReadOnlyCommand('cat file | tee output').isReadOnly).toBe(false);
+  });
+
+  it('sleep 5 & → 不只读（后台命令）', () => {
+    expect(isReadOnlyCommand('sleep 5 &').isReadOnly).toBe(false);
   });
 
   it('FOO=bar ls → 只读（环境变量包装）', () => {
