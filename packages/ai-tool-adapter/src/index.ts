@@ -90,8 +90,9 @@ export type {
   LLMRequestLifecycleHook
 } from './lifecycle/request-lifecycle';
 
-// Rate Limit（P31 新增）
+// Rate Limit（P31 新增, P80 OpenAI扩展）
 export { extractRateLimitStatus, parseResetTimestamp } from './rate-limit/extract-rate-limit';
+export { extractOpenAIRateLimitStatus } from './rate-limit/extract-openai-rate-limit';
 export { InMemoryRateLimitProvider } from './rate-limit/InMemoryRateLimitProvider';
 export type { RateLimitStatus, RateLimitProvider } from './types/rate-limit';
 

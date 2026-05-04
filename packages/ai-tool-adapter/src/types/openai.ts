@@ -16,6 +16,28 @@ export interface OpenAIAdapterConfig {
   readonly maxTokens?: number;
   /** 自定义请求头 */
   readonly customHeaders?: Record<string, string>;
+  /** 采样温度（0-2，越高越随机） */
+  readonly temperature?: number;
+  /** 顶部 P 采样（0-1，替代 temperature 的核采样方法） */
+  readonly topP?: number;
+  /** 频率惩罚（-2到2，降低重复词频） */
+  readonly frequencyPenalty?: number;
+  /** 存在惩罚（-2到2，鼓励新话题） */
+  readonly presencePenalty?: number;
+  /** 推理努力程度（o1/o3系列：low/medium/high） */
+  readonly reasoningEffort?: 'low' | 'medium' | 'high';
+  /** 响应格式（JSON mode 或 structured output） */
+  readonly responseFormat?: OpenAIResponseFormat;
+}
+
+/** OpenAI 响应格式 */
+export interface OpenAIResponseFormat {
+  readonly type: 'text' | 'json_object' | 'json_schema';
+  readonly json_schema?: {
+    readonly name: string;
+    readonly strict?: boolean;
+    readonly schema: Record<string, unknown>;
+  };
 }
 
 /** OpenAI Chat Completion 请求体 */
@@ -38,6 +60,14 @@ export interface OpenAIRequestBody {
   readonly stop?: readonly string[];
   /** 流式选项（include_usage=true 才在流式响应中返回用量） */
   readonly stream_options?: OpenAIStreamOptions;
+  /** 频率惩罚 */
+  readonly frequency_penalty?: number;
+  /** 存在惩罚 */
+  readonly presence_penalty?: number;
+  /** 推理努力程度（o1/o3系列） */
+  readonly reasoning_effort?: 'low' | 'medium' | 'high';
+  /** 响应格式 */
+  readonly response_format?: OpenAIResponseFormat;
 }
 
 /** OpenAI 流式选项 */

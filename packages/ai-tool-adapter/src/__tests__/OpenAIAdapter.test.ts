@@ -6,7 +6,7 @@ import { buildTool } from '@suga/ai-tool-core';
 import type { AgentMessage, LLMStreamChunk } from '@suga/ai-agent-loop';
 import { createSystemPrompt } from '@suga/ai-agent-loop';
 import { OpenAIAdapter } from '../adapter/OpenAIAdapter';
-import type { OpenAIAdapterConfig } from '../types/openai';
+import type { OpenAIAdapterConfig, OpenAIResponseFormat } from '../types/openai';
 
 /** 创建测试配置 */
 function createTestConfig(): OpenAIAdapterConfig {
@@ -304,6 +304,126 @@ describe('OpenAIAdapter', () => {
 
       const body = JSON.parse(mockFetch.mock.calls[0][1].body as string);
       expect(body.max_tokens).toBe(2048);
+    });
+  });
+
+  describe('P80 采样参数接入', () => {
+    it('temperature + topP → 正确传入请求体', async () => {
+      const config: OpenAIAdapterConfig = {
+        ...createTestConfig(),
+        temperature: 0.7,
+        topP: 0.9
+      };
+
+      mockFetch.mockResolvedValue(
+        createOpenAISSEResponse([
+          'data: {"choices":[{"delta":{"content":"Hi"}}]}',
+          '',
+          'data: [DONE]',
+          ''
+        ])
+      );
+
+      const adapter = new OpenAIAdapter(config);
+      await consumeAll(adapter.callModel([createUserMsg('hi')]));
+
+      const body = JSON.parse(mockFetch.mock.calls[0][1].body as string);
+      expect(body.temperature).toBe(0.7);
+      expect(body.top_p).toBe(0.9);
+    });
+
+    it('frequency_penalty + presence_penalty → 正确传入请求体', async () => {
+      const config: OpenAIAdapterConfig = {
+        ...createTestConfig(),
+        frequencyPenalty: 1.5,
+        presencePenalty: 0.8
+      };
+
+      mockFetch.mockResolvedValue(
+        createOpenAISSEResponse([
+          'data: {"choices":[{"delta":{"content":"Hi"}}]}',
+          '',
+          'data: [DONE]',
+          ''
+        ])
+      );
+
+      const adapter = new OpenAIAdapter(config);
+      await consumeAll(adapter.callModel([createUserMsg('hi')]));
+
+      const body = JSON.parse(mockFetch.mock.calls[0][1].body as string);
+      expect(body.frequency_penalty).toBe(1.5);
+      expect(body.presence_penalty).toBe(0.8);
+    });
+
+    it('reasoning_effort → 正确传入请求体', async () => {
+      const config: OpenAIAdapterConfig = {
+        ...createTestConfig(),
+        reasoningEffort: 'high'
+      };
+
+      mockFetch.mockResolvedValue(
+        createOpenAISSEResponse([
+          'data: {"choices":[{"delta":{"content":"Hi"}}]}',
+          '',
+          'data: [DONE]',
+          ''
+        ])
+      );
+
+      const adapter = new OpenAIAdapter(config);
+      await consumeAll(adapter.callModel([createUserMsg('hi')]));
+
+      const body = JSON.parse(mockFetch.mock.calls[0][1].body as string);
+      expect(body.reasoning_effort).toBe('high');
+    });
+
+    it('response_format → 正确传入请求体', async () => {
+      const responseFormat: OpenAIResponseFormat = {
+        type: 'json_object'
+      };
+
+      const config: OpenAIAdapterConfig = {
+        ...createTestConfig(),
+        responseFormat
+      };
+
+      mockFetch.mockResolvedValue(
+        createOpenAISSEResponse([
+          'data: {"choices":[{"delta":{"content":"Hi"}}]}',
+          '',
+          'data: [DONE]',
+          ''
+        ])
+      );
+
+      const adapter = new OpenAIAdapter(config);
+      await consumeAll(adapter.callModel([createUserMsg('hi')]));
+
+      const body = JSON.parse(mockFetch.mock.calls[0][1].body as string);
+      expect(body.response_format.type).toBe('json_object');
+    });
+
+    it('无采样参数 → 请求体不含对应字段', async () => {
+      mockFetch.mockResolvedValue(
+        createOpenAISSEResponse([
+          'data: {"choices":[{"delta":{"content":"Hi"}}]}',
+          '',
+          'data: [DONE]',
+          ''
+        ])
+      );
+
+      const adapter = new OpenAIAdapter(createTestConfig());
+      await consumeAll(adapter.callModel([createUserMsg('hi')]));
+
+      const body = JSON.parse(mockFetch.mock.calls[0][1].body as string);
+      expect(body.temperature).toBeUndefined();
+      expect(body.top_p).toBeUndefined();
+      expect(body.frequency_penalty).toBeUndefined();
+      expect(body.presence_penalty).toBeUndefined();
+      expect(body.reasoning_effort).toBeUndefined();
+      expect(body.response_format).toBeUndefined();
     });
   });
 });

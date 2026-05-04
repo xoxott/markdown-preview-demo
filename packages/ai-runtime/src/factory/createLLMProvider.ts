@@ -1,10 +1,8 @@
 /** createLLMProvider — LLM Provider 工厂函数，根据配置自动创建适配器实例 */
 
 import type { LLMProvider } from '@suga/ai-agent-loop';
-import { AnthropicAdapter } from '@suga/ai-tool-adapter';
-import type { AnthropicAdapterConfig } from '@suga/ai-tool-adapter';
-import { OpenAIAdapter } from '@suga/ai-tool-adapter';
-import type { OpenAIAdapterConfig } from '@suga/ai-tool-adapter';
+import { AnthropicAdapter, OpenAIAdapter } from '@suga/ai-tool-adapter';
+import type { AnthropicAdapterConfig, OpenAIAdapterConfig } from '@suga/ai-tool-adapter';
 
 /** LLM Provider 类型标识 */
 export type LLMProviderType = 'anthropic' | 'openai';
@@ -38,6 +36,8 @@ export interface OpenAIProviderInput {
   readonly topP?: number;
   readonly frequencyPenalty?: number;
   readonly presencePenalty?: number;
+  readonly reasoningEffort?: 'low' | 'medium' | 'high';
+  readonly responseFormat?: import('@suga/ai-tool-adapter').OpenAIResponseFormat;
 }
 
 /** LLM Provider 输入联合类型 */
@@ -91,7 +91,13 @@ export function createLLMProvider(input: LLMProviderInput): LLMProvider {
         organization: input.organization,
         timeout: input.timeout,
         maxTokens: input.maxTokens,
-        customHeaders: input.customHeaders
+        customHeaders: input.customHeaders,
+        temperature: input.temperature,
+        topP: input.topP,
+        frequencyPenalty: input.frequencyPenalty,
+        presencePenalty: input.presencePenalty,
+        reasoningEffort: input.reasoningEffort,
+        responseFormat: input.responseFormat
       };
       return new OpenAIAdapter(config);
     }

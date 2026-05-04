@@ -38,9 +38,12 @@ describe('parseOpenAISSEText', () => {
   });
 
   it('无效 JSON → 跳过', () => {
-    const sseText = ['data: {invalid}', '', 'data: {"choices":[{"delta":{"content":"OK"}}]}', ''].join(
-      '\n'
-    );
+    const sseText = [
+      'data: {invalid}',
+      '',
+      'data: {"choices":[{"delta":{"content":"OK"}}]}',
+      ''
+    ].join('\n');
 
     const events = parseOpenAISSEText(sseText);
     expect(events).toHaveLength(1);
@@ -110,7 +113,12 @@ describe('OpenAI SSE 事件数据解析', () => {
               role: 'assistant',
               content: '',
               tool_calls: [
-                { index: 0, id: 'call-1', type: 'function', function: { name: 'calc', arguments: '' } }
+                {
+                  index: 0,
+                  id: 'call-1',
+                  type: 'function',
+                  function: { name: 'calc', arguments: '' }
+                }
               ]
             }
           }

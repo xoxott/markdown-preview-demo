@@ -77,7 +77,8 @@ export type {
   OpenAIToolCallDelta,
   OpenAIUsageInfo,
   OpenAIErrorResponse,
-  OpenAIStreamOptions
+  OpenAIStreamOptions,
+  OpenAIResponseFormat
 } from './openai';
 
 export { DEFAULT_ADAPTER_TIMEOUT, DEFAULT_ADAPTER_MAX_TOKENS } from './adapter';

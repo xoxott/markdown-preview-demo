@@ -13,6 +13,7 @@ import { convertToOpenAIMessages } from '../convert/openai-message-converter';
 import { formatOpenAIToolDefinition } from '../convert/openai-tool-definition';
 import { parseOpenAISSEStream } from '../stream/openai-sse-parser';
 import { mapOpenAIError } from '../error/openai-error-mapper';
+import { extractOpenAIRateLimitStatus } from '../rate-limit/extract-openai-rate-limit';
 import { withLLMRetry } from '../retry/retry-strategy';
 import { BaseLLMAdapter } from './BaseLLMAdapter';
 
@@ -26,8 +27,10 @@ import { BaseLLMAdapter } from './BaseLLMAdapter';
  * - OpenAI SSE 流式响应解析（data: 行格式 + [DONE] 结束标记）
  * - 工具调用（tool_calls）按 index 增量累积
  * - stream_options: { include_usage: true } 支持用量信息
+ * - x-ratelimit-* header 提取 → RateLimitProvider
  * - SSE usage 提取 → UsageTracker
  * - withLLMRetry 包裹 HTTP 请求部分（流式消费不重试）
+ * - 支持 temperature/top_p/frequency_penalty/presence_penalty/reasoning_effort/response_format
  */
 export class OpenAIAdapter extends BaseLLMAdapter {
   private readonly openaiConfig: OpenAIAdapterConfig;
@@ -58,7 +61,7 @@ export class OpenAIAdapter extends BaseLLMAdapter {
     // 1. 转换消息格式（含 system prompt）
     const apiMessages = convertToOpenAIMessages(messages, options?.systemPrompt);
 
-    // 2. 构建请求体（含 stream + stream_options + max_tokens）
+    // 2. 构建请求体（含 stream + stream_options + max_tokens + 采样参数）
     const requestBody = this.buildRequestBody(apiMessages, tools);
 
     // 3. 发送 HTTP 请求（可重试部分）
@@ -96,7 +99,16 @@ export class OpenAIAdapter extends BaseLLMAdapter {
       throw mapOpenAIError(response.status, errorBody);
     }
 
-    // 5. 解析 SSE 流 → LLMStreamChunk + 提取 usage → UsageTracker
+    // 5. 提取 Rate Limit headers → RateLimitProvider
+    const rateLimitStatus = extractOpenAIRateLimitStatus(response.headers);
+    if (rateLimitStatus) {
+      const provider = this.getRateLimitProvider();
+      if (provider) {
+        provider.onRateLimitUpdate(rateLimitStatus);
+      }
+    }
+
+    // 6. 解析 SSE 流 → LLMStreamChunk + 提取 usage → UsageTracker
     const tracker = this.getUsageTracker();
 
     for await (const chunk of parseOpenAISSEStream(response, signal)) {
@@ -155,7 +167,16 @@ export class OpenAIAdapter extends BaseLLMAdapter {
       stream: true,
       stream_options: { include_usage: true },
       messages: [...messages],
-      tools: openaiTools
+      tools: openaiTools,
+      // 采样参数（从配置传入）
+      temperature: this.openaiConfig.temperature,
+      top_p: this.openaiConfig.topP,
+      frequency_penalty: this.openaiConfig.frequencyPenalty,
+      presence_penalty: this.openaiConfig.presencePenalty,
+      // o1/o3 系列推理努力
+      reasoning_effort: this.openaiConfig.reasoningEffort,
+      // JSON mode / structured output
+      response_format: this.openaiConfig.responseFormat
     };
   }
 }
