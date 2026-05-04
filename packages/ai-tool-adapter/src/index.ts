@@ -12,6 +12,7 @@ export { ANTHROPIC_PROMPT_CACHE_BETA, ANTHROPIC_TOKEN_BATCHING_BETA } from './ty
 // 适配器
 export { BaseLLMAdapter } from './adapter/BaseLLMAdapter';
 export { AnthropicAdapter } from './adapter/AnthropicAdapter';
+export { OpenAIAdapter } from './adapter/OpenAIAdapter';
 
 // 转换工具
 export { zodToJsonSchema } from './convert/zod-to-json-schema';
@@ -20,13 +21,21 @@ export {
   formatAnthropicApiToolDef
 } from './convert/tool-definition';
 export { convertToAnthropicMessages } from './convert/message-converter';
+export { convertToOpenAIMessages } from './convert/openai-message-converter';
+export {
+  formatOpenAIToolDefinition,
+  formatOpenAIApiToolDef
+} from './convert/openai-tool-definition';
 
 // SSE 解析
 export { parseAnthropicSSEStream, parseSSEText } from './stream/sse-parser';
 export { mapSSEEventsToChunks } from './stream/chunk-mapper';
+export { parseOpenAISSEStream, parseOpenAISSEText } from './stream/openai-sse-parser';
+export { mapOpenAIChunksToChunks } from './stream/openai-chunk-mapper';
 
 // 错误映射
 export { mapAnthropicError, createAbortError } from './error/error-mapper';
+export { mapOpenAIError } from './error/openai-error-mapper';
 
 // 用量追踪（P18 新增）
 export {

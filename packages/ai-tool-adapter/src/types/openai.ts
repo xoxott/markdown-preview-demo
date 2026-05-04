@@ -36,6 +36,14 @@ export interface OpenAIRequestBody {
   readonly max_tokens?: number;
   /** 停止序列 */
   readonly stop?: readonly string[];
+  /** 流式选项（include_usage=true 才在流式响应中返回用量） */
+  readonly stream_options?: OpenAIStreamOptions;
+}
+
+/** OpenAI 流式选项 */
+export interface OpenAIStreamOptions {
+  /** 是否在流式响应中包含用量信息 */
+  readonly include_usage: boolean;
 }
 
 /** OpenAI 消息格式联合类型 */
