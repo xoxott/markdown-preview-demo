@@ -493,14 +493,20 @@ function wildcardMatch(pattern: string, str: string): boolean {
 /**
  * 默认Bash权限规则 — 提供基础安全防护
  *
- * 参考 Claude Code 默认权限规则:
+ * 参考 Claude Code bashPermissions.ts 2600行规则库:
  *
- * - 破坏性命令 → deny
- * - 读写命令 → ask
- * - 只读命令 → allow（通过readOnlyValidation判定）
+ * - 破坏性命令 → deny（绝对禁止）
+ * - 读写/修改命令 → ask（需用户确认）
+ * - 只读命令 → allow（自动允许，但仍需安全评估）
+ *
+ * 规则按域分组: system/package/git/docker/k8s/database/network/file/misc
  */
 export const DEFAULT_BASH_PERMISSION_RULES: readonly BashPermissionRule[] = [
-  // === Deny规则 ===
+  // ============================================================
+  // Deny规则 — 绝对禁止（可能导致不可逆损害）
+  // ============================================================
+
+  // --- 系统级破坏 ---
   {
     ruleId: 'deny_rm_rf',
     pattern: 'rm -rf',
@@ -511,7 +517,7 @@ export const DEFAULT_BASH_PERMISSION_RULES: readonly BashPermissionRule[] = [
   },
   {
     ruleId: 'deny_rm_root',
-    pattern: 'rm * /',
+    pattern: '^rm\\s.*\\s/\\s*$',
     patternType: 'regex',
     behavior: 'deny',
     source: 'default',
@@ -527,12 +533,120 @@ export const DEFAULT_BASH_PERMISSION_RULES: readonly BashPermissionRule[] = [
   },
   {
     ruleId: 'deny_dd_device',
-    pattern: 'dd * of=/dev/',
+    pattern: '^dd\\s.*of=/dev/',
     patternType: 'regex',
     behavior: 'deny',
     source: 'default',
     description: '拒绝: dd写入设备文件'
   },
+  {
+    ruleId: 'deny_shutdown',
+    pattern: 'shutdown',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: 关闭系统'
+  },
+  {
+    ruleId: 'deny_reboot',
+    pattern: 'reboot',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: 重启系统'
+  },
+  {
+    ruleId: 'deny_halt',
+    pattern: 'halt',
+    patternType: 'exact',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: 停机'
+  },
+  {
+    ruleId: 'deny_poweroff',
+    pattern: 'poweroff',
+    patternType: 'exact',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: 关机'
+  },
+  {
+    ruleId: 'deny_init_level',
+    pattern: '^init\\s[06]',
+    patternType: 'regex',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: 切换运行级别到关机/重启'
+  },
+  {
+    ruleId: 'deny_iptables',
+    pattern: 'iptables',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: 修改防火墙规则'
+  },
+  {
+    ruleId: 'deny_kill_init',
+    pattern: '^kill\\s+-9\\s+1$',
+    patternType: 'regex',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: kill init进程'
+  },
+  {
+    ruleId: 'deny_chmod_777',
+    pattern: 'chmod 777',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: 全权限开放(777)'
+  },
+  {
+    ruleId: 'deny_chown_root',
+    pattern: '^chown\\s.*root',
+    patternType: 'regex',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: 改为root所有'
+  },
+  {
+    ruleId: 'deny_systemctl_stop',
+    pattern: '^systemctl\\s+(stop|restart|disable)',
+    patternType: 'regex',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: 停止/重启/禁用系统服务'
+  },
+  {
+    ruleId: 'deny_launchctl_unload',
+    pattern: 'launchctl unload',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: 卸载macOS服务'
+  },
+
+  // --- 网络写入 ---
+  {
+    ruleId: 'deny_curl_write',
+    pattern: '^curl\\s.*>\\s',
+    patternType: 'regex',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: curl下载写入文件'
+  },
+  {
+    ruleId: 'deny_wget_write',
+    pattern: '^wget\\s.*-O\\s',
+    patternType: 'regex',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: wget写入文件'
+  },
+
+  // --- 数据库破坏 ---
   {
     ruleId: 'deny_drop_table',
     pattern: 'DROP TABLE',
@@ -542,6 +656,60 @@ export const DEFAULT_BASH_PERMISSION_RULES: readonly BashPermissionRule[] = [
     description: '拒绝: 删除数据库表'
   },
   {
+    ruleId: 'deny_redis_shutdown',
+    pattern: 'redis-cli shutdown',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: Redis关机'
+  },
+  {
+    ruleId: 'deny_crontab_remove',
+    pattern: 'crontab -r',
+    patternType: 'exact',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: 删除crontab'
+  },
+
+  // --- 包发布 ---
+  {
+    ruleId: 'deny_npm_publish',
+    pattern: 'npm publish',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: npm发布包'
+  },
+  {
+    ruleId: 'deny_yarn_publish',
+    pattern: 'yarn publish',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: yarn发布包'
+  },
+
+  // --- Docker破坏 ---
+  {
+    ruleId: 'deny_docker_prune_system',
+    pattern: 'docker system prune',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: Docker全清理'
+  },
+  {
+    ruleId: 'deny_docker_prune_volume',
+    pattern: 'docker volume prune',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: Docker卷清理'
+  },
+
+  // --- 基础设施 ---
+  {
     ruleId: 'deny_terraform_destroy',
     pattern: 'terraform destroy',
     patternType: 'exact',
@@ -549,8 +717,20 @@ export const DEFAULT_BASH_PERMISSION_RULES: readonly BashPermissionRule[] = [
     source: 'default',
     description: '拒绝: 销毁基础设施'
   },
+  {
+    ruleId: 'deny_find_delete',
+    pattern: '^find\\s.*-delete',
+    patternType: 'regex',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: find -delete删除文件'
+  },
 
-  // === Ask规则（需要用户确认） ===
+  // ============================================================
+  // Ask规则 — 需用户确认（可能产生修改但可控）
+  // ============================================================
+
+  // --- git 操作 ---
   {
     ruleId: 'ask_git_push_force',
     pattern: 'git push --force',
@@ -558,6 +738,14 @@ export const DEFAULT_BASH_PERMISSION_RULES: readonly BashPermissionRule[] = [
     behavior: 'ask',
     source: 'default',
     description: '审核: 强制推送(git push --force)'
+  },
+  {
+    ruleId: 'ask_git_push',
+    pattern: 'git push',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: git push'
   },
   {
     ruleId: 'ask_git_reset_hard',
@@ -568,13 +756,55 @@ export const DEFAULT_BASH_PERMISSION_RULES: readonly BashPermissionRule[] = [
     description: '审核: 硬重置(git reset --hard)'
   },
   {
-    ruleId: 'ask_npm_install',
-    pattern: 'npm install',
+    ruleId: 'ask_git_checkout',
+    pattern: 'git checkout',
     patternType: 'prefix',
     behavior: 'ask',
     source: 'default',
-    description: '审核: 安装包(npm install)'
+    description: '审核: git checkout切换分支'
   },
+  {
+    ruleId: 'ask_git_merge',
+    pattern: 'git merge',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: git merge合并分支'
+  },
+  {
+    ruleId: 'ask_git_rebase',
+    pattern: 'git rebase',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: git rebase变基'
+  },
+  {
+    ruleId: 'ask_git_stash',
+    pattern: 'git stash',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: git stash保存/恢复工作区'
+  },
+  {
+    ruleId: 'ask_git_branch_delete',
+    pattern: '^git\\s+branch\\s+-[dD]',
+    patternType: 'regex',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: 删除git分支'
+  },
+  {
+    ruleId: 'ask_git_tag_delete',
+    pattern: '^git\\s+tag\\s+-d',
+    patternType: 'regex',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: 删除git标签'
+  },
+
+  // --- 包安装/管理 ---
   {
     ruleId: 'ask_sudo',
     pattern: 'sudo',
@@ -584,6 +814,122 @@ export const DEFAULT_BASH_PERMISSION_RULES: readonly BashPermissionRule[] = [
     description: '审核: sudo命令'
   },
   {
+    ruleId: 'ask_npm_install',
+    pattern: 'npm install',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: 安装包(npm install)'
+  },
+  {
+    ruleId: 'ask_npm_uninstall',
+    pattern: 'npm uninstall',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: 卸载包(npm uninstall)'
+  },
+  {
+    ruleId: 'ask_npm_run',
+    pattern: 'npm run',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: 运行npm脚本'
+  },
+  {
+    ruleId: 'ask_yarn_install',
+    pattern: 'yarn install',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: yarn安装包'
+  },
+  {
+    ruleId: 'ask_pnpm_install',
+    pattern: 'pnpm install',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: pnpm安装包'
+  },
+  {
+    ruleId: 'ask_pip_install',
+    pattern: 'pip install',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: pip安装包'
+  },
+  {
+    ruleId: 'ask_pip_uninstall',
+    pattern: 'pip uninstall',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: pip卸载包'
+  },
+  {
+    ruleId: 'ask_brew_install',
+    pattern: 'brew install',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: Homebrew安装'
+  },
+  {
+    ruleId: 'ask_brew_uninstall',
+    pattern: 'brew uninstall',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: Homebrew卸载'
+  },
+  {
+    ruleId: 'ask_apt_install',
+    pattern: 'apt install',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: apt安装系统包'
+  },
+  {
+    ruleId: 'ask_apt_get_install',
+    pattern: 'apt-get install',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: apt-get安装系统包'
+  },
+
+  // --- 构建命令 ---
+  {
+    ruleId: 'ask_make',
+    pattern: 'make',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: make构建'
+  },
+  {
+    ruleId: 'ask_cargo_build',
+    pattern: 'cargo build',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: Rust构建'
+  },
+  {
+    ruleId: 'ask_go_build',
+    pattern: 'go build',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: Go构建'
+  },
+
+  // --- Docker操作 ---
+  {
     ruleId: 'ask_docker_rm',
     pattern: 'docker rm',
     patternType: 'prefix',
@@ -592,15 +938,329 @@ export const DEFAULT_BASH_PERMISSION_RULES: readonly BashPermissionRule[] = [
     description: '审核: 删除Docker容器'
   },
   {
+    ruleId: 'ask_docker_run',
+    pattern: 'docker run',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: 运行Docker容器'
+  },
+  {
+    ruleId: 'ask_docker_build',
+    pattern: 'docker build',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: 构建Docker镜像'
+  },
+  {
+    ruleId: 'ask_docker_exec',
+    pattern: 'docker exec',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: 在容器内执行命令'
+  },
+  {
+    ruleId: 'ask_docker_stop',
+    pattern: 'docker stop',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: 停止Docker容器'
+  },
+
+  // --- K8s操作 ---
+  {
     ruleId: 'ask_kubectl_delete',
     pattern: 'kubectl delete',
     patternType: 'prefix',
     behavior: 'ask',
     source: 'default',
     description: '审核: 删除K8s资源'
-  }
+  },
+  {
+    ruleId: 'ask_kubectl_apply',
+    pattern: 'kubectl apply',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: 应用K8s配置'
+  },
+  {
+    ruleId: 'ask_kubectl_create',
+    pattern: 'kubectl create',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: 创建K8s资源'
+  },
+  {
+    ruleId: 'ask_kubectl_rollout',
+    pattern: 'kubectl rollout',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: K8s滚动更新'
+  },
 
-  // === Allow规则（只读命令自动允许） ===
-  // 注: allow规则不在此处定义，由bash-security.ts isReadOnlyCommand判定
-  // 实际优先级: deny > ask > allow(只读判定)，只读判定通过matchBashPermissionRule + isReadOnlyCommand组合实现
+  // --- 服务管理 ---
+  {
+    ruleId: 'ask_systemctl_start',
+    pattern: 'systemctl start',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: 启动系统服务'
+  },
+  {
+    ruleId: 'ask_launchctl_load',
+    pattern: 'launchctl load',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: 加载macOS服务'
+  },
+
+  // --- 文件修改命令 ---
+  {
+    ruleId: 'ask_sed_inplace',
+    pattern: '^sed\\s.*-i',
+    patternType: 'regex',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: sed原地修改文件'
+  },
+  {
+    ruleId: 'ask_find_exec',
+    pattern: '^find\\s.*-exec',
+    patternType: 'regex',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: find -exec执行命令'
+  },
+  {
+    ruleId: 'ask_crontab',
+    pattern: 'crontab',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: 修改crontab'
+  },
+  {
+    ruleId: 'ask_tar_extract',
+    pattern: '^tar\\s.*-[xX]',
+    patternType: 'regex',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: tar解压(可能覆盖文件)'
+  },
+  {
+    ruleId: 'ask_unzip',
+    pattern: 'unzip',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: unzip解压'
+  },
+
+  // --- 数据库操作 ---
+  {
+    ruleId: 'ask_psql_command',
+    pattern: '^psql\\s.*-c\\s',
+    patternType: 'regex',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: PostgreSQL执行命令'
+  },
+  {
+    ruleId: 'ask_mysql_command',
+    pattern: '^mysql\\s.*-e\\s',
+    patternType: 'regex',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: MySQL执行命令'
+  },
+  {
+    ruleId: 'ask_pg_ctl_stop',
+    pattern: 'pg_ctl stop',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: PostgreSQL停止'
+  },
+
+  // ============================================================
+  // Allow规则 — 自动允许（已知安全命令，但仍需安全评估兜底）
+  // ============================================================
+
+  // --- git 只读 ---
+  {
+    ruleId: 'allow_git_log',
+    pattern: 'git log',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: git log查看历史'
+  },
+  {
+    ruleId: 'allow_git_status',
+    pattern: 'git status',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: git status查看状态'
+  },
+  {
+    ruleId: 'allow_git_diff',
+    pattern: 'git diff',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: git diff查看差异'
+  },
+  {
+    ruleId: 'allow_git_show',
+    pattern: 'git show',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: git show查看提交'
+  },
+  {
+    ruleId: 'allow_git_rev_parse',
+    pattern: 'git rev-parse',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: git rev-parse'
+  },
+  {
+    ruleId: 'allow_git_ls_files',
+    pattern: 'git ls-files',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: git ls-files列出文件'
+  },
+  {
+    ruleId: 'allow_git_ls_tree',
+    pattern: 'git ls-tree',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: git ls-tree列出树'
+  },
+
+  // --- Docker只读 ---
+  {
+    ruleId: 'allow_docker_ps',
+    pattern: 'docker ps',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: docker ps查看容器'
+  },
+  {
+    ruleId: 'allow_docker_images',
+    pattern: 'docker images',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: docker images查看镜像'
+  },
+  {
+    ruleId: 'allow_docker_version',
+    pattern: 'docker version',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: docker version查看版本'
+  },
+
+  // --- K8s只读 ---
+  {
+    ruleId: 'allow_kubectl_get',
+    pattern: 'kubectl get',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: kubectl get查看资源'
+  },
+
+  // --- 版本查询 ---
+  {
+    ruleId: 'allow_node_version',
+    pattern: 'node --version',
+    patternType: 'exact',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: node版本查询'
+  },
+  {
+    ruleId: 'allow_npm_version',
+    pattern: 'npm --version',
+    patternType: 'exact',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: npm版本查询'
+  },
+  {
+    ruleId: 'allow_python_version',
+    pattern: 'python --version',
+    patternType: 'exact',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: python版本查询'
+  },
+  {
+    ruleId: 'allow_python3_version',
+    pattern: 'python3 --version',
+    patternType: 'exact',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: python3版本查询'
+  },
+  {
+    ruleId: 'allow_go_version',
+    pattern: 'go version',
+    patternType: 'exact',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: go版本查询'
+  },
+  {
+    ruleId: 'allow_rustc_version',
+    pattern: 'rustc --version',
+    patternType: 'exact',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: rust版本查询'
+  },
+  {
+    ruleId: 'allow_cargo_version',
+    pattern: 'cargo --version',
+    patternType: 'exact',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: cargo版本查询'
+  },
+
+  // --- 版本查询补充 ---
+  {
+    ruleId: 'allow_python3_version',
+    pattern: 'python3 --version',
+    patternType: 'exact',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: python3版本查询'
+  },
+  {
+    ruleId: 'allow_git_ls_remote',
+    pattern: 'git ls-remote',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: git ls-remote查看远程引用'
+  }
 ];

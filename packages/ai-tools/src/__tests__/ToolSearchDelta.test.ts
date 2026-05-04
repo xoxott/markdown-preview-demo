@@ -195,8 +195,10 @@ describe('getDeferredToolsDelta', () => {
     // P12: 使用 AssistantMessage.toolReferences 代替旧的 metadata 伪实现
     const messages: AgentMessage[] = [
       {
+        id: '1',
         role: 'assistant',
         content: '',
+        timestamp: 0,
         toolUses: [],
         toolReferences: [{ toolUseId: 'ref_1', name: 'mcp__slack__send_message', input: {} }]
       }
@@ -222,8 +224,10 @@ describe('getDeferredToolsDelta', () => {
     // P12: 使用 AssistantMessage.toolReferences 代替旧的 metadata 伪实现
     const messages: AgentMessage[] = [
       {
+        id: '1',
         role: 'assistant',
         content: '',
+        timestamp: 0,
         toolUses: [],
         toolReferences: [{ toolUseId: 'ref_1', name: 'mcp__slack__send_message', input: {} }]
       }
@@ -239,8 +243,10 @@ describe('getDeferredToolsDelta', () => {
     // P12: 使用 AssistantMessage.toolReferences 代替旧的 metadata 伪实现
     const messages: AgentMessage[] = [
       {
+        id: '1',
         role: 'assistant',
         content: '',
+        timestamp: 0,
         toolUses: [],
         toolReferences: [{ toolUseId: 'ref_1', name: 'mcp__slack__send_message', input: {} }]
       }

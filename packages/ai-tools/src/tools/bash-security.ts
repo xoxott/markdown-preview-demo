@@ -414,6 +414,130 @@ const COMMAND_SAFE_FLAGS: ReadonlyMap<string, readonly string[]> = new Map([
       '--unified',
       '--width'
     ]
+  ],
+  ['awk', ['-F', '-v', '--version']],
+  ['sed', ['-n', '-e', '-f', '--version']],
+  ['cut', ['-d', '-f', '-c', '-b', '-s', '--version', '--delimiter', '--fields', '--characters']],
+  [
+    'tr',
+    ['-d', '-s', '-c', '-C', '-t', '--version', '--delete', '--squeeze-repeats', '--complement']
+  ],
+  [
+    'xargs',
+    [
+      '-d',
+      '-n',
+      '-I',
+      '-L',
+      '-P',
+      '-r',
+      '-t',
+      '--version',
+      '--delimiter',
+      '--max-args',
+      '--replace',
+      '--max-lines',
+      '--no-run-if-empty',
+      '--verbose'
+    ]
+  ],
+  ['wget', ['--spider', '-q', '--version', '-S', '--server-response']],
+  [
+    'jq',
+    [
+      '-r',
+      '-e',
+      '-n',
+      '-S',
+      '-j',
+      '-C',
+      '-M',
+      '-R',
+      '--version',
+      '--raw-output',
+      '--exit-status',
+      '--null-input',
+      '--sort-keys',
+      '--join-output',
+      '--compact-output',
+      '--monochrome-output',
+      '--raw-input'
+    ]
+  ],
+  ['hexdump', ['-C', '-c', '-d', '-o', '-x', '-v', '-e', '-n', '-s', '--version']],
+  ['od', ['-A', '-t', '-N', '-v', '-j', '-w', '--version']],
+  ['base64', ['-d', '--decode', '--version', '-w', '--wrap']],
+  ['md5sum', ['--version', '-c', '--check', '--status']],
+  ['sha256sum', ['--version', '-c', '--check', '--status']],
+  ['sha1sum', ['--version', '-c', '--check', '--status']],
+  [
+    'tree',
+    [
+      '-a',
+      '-d',
+      '-f',
+      '-i',
+      '-l',
+      '-L',
+      '-p',
+      '-P',
+      '-q',
+      '-s',
+      '-t',
+      '-u',
+      '-g',
+      '-D',
+      '-F',
+      '-h',
+      '-v',
+      '--version'
+    ]
+  ],
+  ['stat', ['-c', '-f', '-L', '-q', '--version', '--format', '--file-system', '--dereference']],
+  [
+    'file',
+    [
+      '-b',
+      '-i',
+      '-L',
+      '-h',
+      '-z',
+      '-s',
+      '--version',
+      '--brief',
+      '--mime-type',
+      '--dereference',
+      '--no-dereference',
+      '--uncompress',
+      '--special-files'
+    ]
+  ],
+  [
+    'du',
+    [
+      '-a',
+      '-b',
+      '-c',
+      '-h',
+      '-H',
+      '-k',
+      '-m',
+      '-L',
+      '-l',
+      '-s',
+      '-S',
+      '-x',
+      '-X',
+      '--version',
+      '--apparent-size',
+      '--block-size',
+      '--summarize',
+      '--total',
+      '--one-file-system',
+      '--exclude',
+      '--human-readable',
+      '--max-depth'
+    ]
   ]
 ]);
 

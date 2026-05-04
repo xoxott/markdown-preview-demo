@@ -14,7 +14,11 @@ import type { BashOutput } from '../types/tool-outputs';
 import { BashInputSchema } from '../types/tool-inputs';
 import { truncateOutput } from '../utils/output-truncate';
 import { assessBashCommandSecurity } from './bash-security';
-import { DEFAULT_BASH_PERMISSION_RULES, matchBashPermissionRule } from './bash-permission-rules';
+import {
+  DEFAULT_BASH_PERMISSION_RULES,
+  hasUnsafeEnvVars,
+  matchBashPermissionRule
+} from './bash-permission-rules';
 import type { BashPermissionRule } from './bash-permission-rules';
 
 /** 最大超时时间（10 分钟） */
@@ -109,6 +113,19 @@ export const bashTool = buildTool<BashInput, BashOutput>({
 
     // Step 2: 安全评估（无规则匹配或ask规则）
     const assessment = assessBashCommandSecurity(input.command);
+
+    // Step 2a: 环境变量安全检查
+    // 有不安全的环境变量设置 → caution → ask
+    const unsafeEnvResult = hasUnsafeEnvVars(input.command);
+    if (unsafeEnvResult && assessment.safetyLevel === 'safe') {
+      // 只读命令但有不安全环境变量 → 需审核
+      return {
+        behavior: 'ask',
+        message: input.description ?? `Execute command: "${input.command}"`,
+        decisionReason: '命令包含不安全的环境变量设置'
+      };
+    }
+
     // 安全级别映射:
     // - safe → allow（只读命令可自动允许）
     // - dangerous → deny（破坏性命令自动拒绝）
