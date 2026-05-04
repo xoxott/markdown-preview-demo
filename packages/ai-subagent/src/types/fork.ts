@@ -2,9 +2,7 @@
 
 import type { OutputFileOptions } from './output';
 
-/**
- * ForkSpawner 配置选项
- */
+/** ForkSpawner 配置选项 */
 export interface ForkSpawnerOptions {
   /** 输出文件配置（大输出持久化，可选） */
   readonly outputOptions?: OutputFileOptions;

@@ -2,18 +2,18 @@
 
 import { describe, expect, it } from 'vitest';
 import {
-  InMemoryMigrationStore,
-  MigrationRunner,
-  OpusLegacyMigration,
-  Sonnet45ToSonnet46Migration,
-  FennecToOpusMigration,
-  Sonnet1mToSonnet45Migration,
   AutoUpdatesMigration,
   BypassPermissionsMigration,
   EnableAllProjectMcpMigration,
-  JsonFileMigrationStore
+  FennecToOpusMigration,
+  InMemoryMigrationStore,
+  JsonFileMigrationStore,
+  MigrationRunner,
+  OpusLegacyMigration,
+  Sonnet1mToSonnet45Migration,
+  Sonnet45ToSonnet46Migration
 } from '../../src/migration/types';
-import type { Migration, SettingsAccessor, JsonFileStoreIO } from '../../src/migration/types';
+import type { JsonFileStoreIO, Migration, SettingsAccessor } from '../../src/migration/types';
 
 // ============================================================
 // MigrationRunner 测试
@@ -308,7 +308,7 @@ describe('AutoUpdatesMigration', () => {
 
   it('settings.autoUpdates已存在 → 不迁移', () => {
     const accessor = new MockSettingsAccessor();
-    accessor.init({ autoUpdates: true, 'settings.autoUpdates': true });
+    accessor.init({ 'autoUpdates': true, 'settings.autoUpdates': true });
     const migration = new AutoUpdatesMigration(accessor);
     const result = migration.run();
     expect(result.applied).toBe(false);
@@ -337,7 +337,7 @@ describe('BypassPermissionsMigration', () => {
 
   it('已存在 → 不迁移', () => {
     const accessor = new MockSettingsAccessor();
-    accessor.init({ bypassPermissions: true, 'settings.permissions.bypassPermissions': true });
+    accessor.init({ 'bypassPermissions': true, 'settings.permissions.bypassPermissions': true });
     const migration = new BypassPermissionsMigration(accessor);
     const result = migration.run();
     expect(result.applied).toBe(false);
@@ -368,7 +368,9 @@ describe('FennecToOpusMigration', () => {
     let model = 'fennec';
     const migration = new FennecToOpusMigration(
       () => model,
-      v => { model = v; }
+      v => {
+        model = v;
+      }
     );
     const result = migration.run();
     expect(result.applied).toBe(true);
@@ -379,7 +381,9 @@ describe('FennecToOpusMigration', () => {
     let model = 'claude-opus-4-6';
     const migration = new FennecToOpusMigration(
       () => model,
-      v => { model = v; }
+      v => {
+        model = v;
+      }
     );
     const result = migration.run();
     expect(result.applied).toBe(false);
@@ -400,7 +404,9 @@ describe('Sonnet1mToSonnet45Migration', () => {
     let model = 'sonnet-1m';
     const migration = new Sonnet1mToSonnet45Migration(
       () => model,
-      v => { model = v; }
+      v => {
+        model = v;
+      }
     );
     const result = migration.run();
     expect(result.applied).toBe(true);
@@ -411,7 +417,9 @@ describe('Sonnet1mToSonnet45Migration', () => {
     let model = 'claude-sonnet-1m';
     const migration = new Sonnet1mToSonnet45Migration(
       () => model,
-      v => { model = v; }
+      v => {
+        model = v;
+      }
     );
     const result = migration.run();
     expect(result.applied).toBe(true);
@@ -422,7 +430,9 @@ describe('Sonnet1mToSonnet45Migration', () => {
     let model = 'claude-sonnet-4-6';
     const migration = new Sonnet1mToSonnet45Migration(
       () => model,
-      v => { model = v; }
+      v => {
+        model = v;
+      }
     );
     const result = migration.run();
     expect(result.applied).toBe(false);
@@ -432,10 +442,23 @@ describe('Sonnet1mToSonnet45Migration', () => {
     let model = 'sonnet-1m';
     const store = new InMemoryMigrationStore();
 
-    const runner = new MigrationRunner([
-      new Sonnet1mToSonnet45Migration(() => model, v => { model = v; }),
-      new Sonnet45ToSonnet46Migration(() => model, v => { model = v; })
-    ], store);
+    const runner = new MigrationRunner(
+      [
+        new Sonnet1mToSonnet45Migration(
+          () => model,
+          v => {
+            model = v;
+          }
+        ),
+        new Sonnet45ToSonnet46Migration(
+          () => model,
+          v => {
+            model = v;
+          }
+        )
+      ],
+      store
+    );
 
     const results = await runner.runAll();
     expect(results[0].applied).toBe(true);
@@ -505,9 +528,10 @@ describe('JsonFileMigrationStore', () => {
 
   it('已有文件 → 正确读取', async () => {
     const io = new MockJsonFileIO();
-    await io.writeFile('/migrations.json', JSON.stringify([
-      { id: 'existing-1', executedAt: 500, success: true }
-    ]));
+    await io.writeFile(
+      '/migrations.json',
+      JSON.stringify([{ id: 'existing-1', executedAt: 500, success: true }])
+    );
 
     const store = new JsonFileMigrationStore('/migrations.json', io);
     expect(await store.hasRun('existing-1')).toBe(true);

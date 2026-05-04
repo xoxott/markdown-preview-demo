@@ -255,12 +255,18 @@ export const MODE_TRANSITION_MATRIX: Record<PermissionMode, readonly PermissionM
   auto: ['auto', 'default'],
   restricted: ['restricted', 'default'],
   dontAsk: ['dontAsk', 'default'],
-  bypassPermissions: ['default', 'plan', 'acceptEdits', 'auto', 'restricted', 'dontAsk', 'bypassPermissions']
+  bypassPermissions: [
+    'default',
+    'plan',
+    'acceptEdits',
+    'auto',
+    'restricted',
+    'dontAsk',
+    'bypassPermissions'
+  ]
 };
 
-/**
- * 模式切换结果 — 包含合法性判定和额外操作提示
- */
+/** 模式切换结果 — 包含合法性判定和额外操作提示 */
 export interface ModeTransitionResult {
   /** 切换是否合法 */
   readonly valid: boolean;

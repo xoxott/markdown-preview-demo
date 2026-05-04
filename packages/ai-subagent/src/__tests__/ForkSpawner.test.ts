@@ -1,14 +1,14 @@
 /** P76 C1 测试 — ForkGuard + ForkSpawner */
 
-import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
-import { buildTool, ToolRegistry } from '@suga/ai-tool-core';
+import { describe, expect, it } from 'vitest';
+import { ToolRegistry, buildTool } from '@suga/ai-tool-core';
 import {
   FORK_BOILERPLATE,
-  isInForkChild,
+  ForkSpawner,
   getForkDepth,
   injectForkBoilerplate,
-  ForkSpawner
+  isInForkChild
 } from '../index';
 import { MockLLMProvider } from './mocks/MockLLMProvider';
 
@@ -20,31 +20,49 @@ describe('ForkGuard', () => {
   describe('isInForkChild', () => {
     it('无 fork 标签 → false', () => {
       const messages = [
-        { id: '1', role: 'user', content: 'hello', timestamp: 0 },
-        { id: '2', role: 'assistant', content: 'response', timestamp: 0, toolUses: [] }
+        { id: '1', role: 'user' as const, content: 'hello', timestamp: 0 },
+        { id: '2', role: 'assistant' as const, content: 'response', timestamp: 0, toolUses: [] }
       ];
       expect(isInForkChild(messages)).toBe(false);
     });
 
     it('assistant 消息含 fork 标签 → true', () => {
       const messages = [
-        { id: '1', role: 'assistant', content: `${FORK_BOILERPLATE}\n\nFork response`, timestamp: 0, toolUses: [] }
+        {
+          id: '1',
+          role: 'assistant' as const,
+          content: `${FORK_BOILERPLATE}\n\nFork response`,
+          timestamp: 0,
+          toolUses: []
+        }
       ];
       expect(isInForkChild(messages)).toBe(true);
     });
 
     it('多条消息中有一条含 fork 标签 → true', () => {
       const messages = [
-        { id: '1', role: 'user', content: 'hello', timestamp: 0 },
-        { id: '2', role: 'assistant', content: 'normal response', timestamp: 0, toolUses: [] },
-        { id: '3', role: 'assistant', content: `${FORK_BOILERPLATE} fork child`, timestamp: 0, toolUses: [] }
+        { id: '1', role: 'user' as const, content: 'hello', timestamp: 0 },
+        {
+          id: '2',
+          role: 'assistant' as const,
+          content: 'normal response',
+          timestamp: 0,
+          toolUses: []
+        },
+        {
+          id: '3',
+          role: 'assistant' as const,
+          content: `${FORK_BOILERPLATE} fork child`,
+          timestamp: 0,
+          toolUses: []
+        }
       ];
       expect(isInForkChild(messages)).toBe(true);
     });
 
     it('user 消息含 fork 标签 → false（只检查 assistant）', () => {
       const messages = [
-        { id: '1', role: 'user', content: `${FORK_BOILERPLATE} some text`, timestamp: 0 }
+        { id: '1', role: 'user' as const, content: `${FORK_BOILERPLATE} some text`, timestamp: 0 }
       ];
       expect(isInForkChild(messages)).toBe(false);
     });
@@ -53,22 +71,40 @@ describe('ForkGuard', () => {
   describe('getForkDepth', () => {
     it('无 fork 标签 → depth 0', () => {
       const messages = [
-        { id: '1', role: 'assistant', content: 'normal', timestamp: 0, toolUses: [] }
+        { id: '1', role: 'assistant' as const, content: 'normal', timestamp: 0, toolUses: [] }
       ];
       expect(getForkDepth(messages)).toBe(0);
     });
 
     it('1条 assistant 含 fork 标签 → depth 1', () => {
       const messages = [
-        { id: '1', role: 'assistant', content: `${FORK_BOILERPLATE} child`, timestamp: 0, toolUses: [] }
+        {
+          id: '1',
+          role: 'assistant' as const,
+          content: `${FORK_BOILERPLATE} child`,
+          timestamp: 0,
+          toolUses: []
+        }
       ];
       expect(getForkDepth(messages)).toBe(1);
     });
 
     it('2条 assistant 含 fork 标签 → depth 2（嵌套 fork）', () => {
       const messages = [
-        { id: '1', role: 'assistant', content: `${FORK_BOILERPLATE} first fork`, timestamp: 0, toolUses: [] },
-        { id: '2', role: 'assistant', content: `${FORK_BOILERPLATE} nested fork`, timestamp: 0, toolUses: [] }
+        {
+          id: '1',
+          role: 'assistant' as const,
+          content: `${FORK_BOILERPLATE} first fork`,
+          timestamp: 0,
+          toolUses: []
+        },
+        {
+          id: '2',
+          role: 'assistant' as const,
+          content: `${FORK_BOILERPLATE} nested fork`,
+          timestamp: 0,
+          toolUses: []
+        }
       ];
       expect(getForkDepth(messages)).toBe(2);
     });

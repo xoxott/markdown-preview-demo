@@ -128,9 +128,8 @@ export interface SettingsAccessor {
 /**
  * AutoUpdatesMigration — autoUpdates flag迁移到settings.autoUpdates
  *
- * Claude Code早期版本将 autoUpdates 作为独立flag，
- * 新版本合并到 settings.json 的 permissions 区域。
- * 迁移策略: 读取旧flag值 → 写入settings → 删除旧flag
+ * Claude Code早期版本将 autoUpdates 作为独立flag， 新版本合并到 settings.json 的 permissions 区域。 迁移策略: 读取旧flag值 →
+ * 写入settings → 删除旧flag
  */
 export class AutoUpdatesMigration implements Migration {
   readonly id = 'auto-updates-to-settings';
@@ -158,15 +157,18 @@ export class AutoUpdatesMigration implements Migration {
     this.accessor.setSetting('settings.autoUpdates', autoUpdates);
     this.accessor.deleteSetting('autoUpdates');
 
-    return { applied: true, details: `Migrated autoUpdates=${autoUpdates} to settings.autoUpdates` };
+    return {
+      applied: true,
+      details: `Migrated autoUpdates=${autoUpdates} to settings.autoUpdates`
+    };
   }
 }
 
 /**
  * BypassPermissionsMigration — bypassPermissions flag迁移到settings
  *
- * bypassPermissions 旧flag → settings.permissions.bypassPermissions
- * 或 settings.permissionMode = 'bypassPermissions'
+ * bypassPermissions 旧flag → settings.permissions.bypassPermissions 或 settings.permissionMode =
+ * 'bypassPermissions'
  */
 export class BypassPermissionsMigration implements Migration {
   readonly id = 'bypass-permissions-to-settings';
@@ -242,8 +244,7 @@ export class EnableAllProjectMcpMigration implements Migration {
 /**
  * FennecToOpusMigration — fennec旧代号迁移到opus-4-6
  *
- * Claude Code早期内部代号 "fennec" 对应 opus 模型线。
- * fennec → claude-opus-4-6
+ * Claude Code早期内部代号 "fennec" 对应 opus 模型线。 fennec → claude-opus-4-6
  */
 export class FennecToOpusMigration implements Migration {
   readonly id = 'fennec-to-opus';
@@ -275,8 +276,8 @@ export class FennecToOpusMigration implements Migration {
 /**
  * Sonnet1mToSonnet45Migration — sonnet-1m迁移到claude-sonnet-4-5
  *
- * sonnet-1m → claude-sonnet-4-5 (再由 P57 Sonnet45→46 迁移链完成)
- * 注: 这是一个链式迁移，执行顺序需排在 Sonnet45ToSonnet46 之前。
+ * sonnet-1m → claude-sonnet-4-5 (再由 P57 Sonnet45→46 迁移链完成) 注: 这是一个链式迁移，执行顺序需排在 Sonnet45ToSonnet46
+ * 之前。
  */
 export class Sonnet1mToSonnet45Migration implements Migration {
   readonly id = 'sonnet-1m-to-sonnet-45';
@@ -424,6 +425,7 @@ export interface JsonFileStoreIO {
  * JsonFileMigrationStore — 基于JSON文件的持久化迁移记录存储
  *
  * 对齐 Claude Code 的文件级持久化:
+ *
  * - 迁移记录保存在 ~/.claude/migration_records.json
  * - 避免每次启动都重新执行已完成的迁移
  * - 通过 JsonFileStoreIO 注入解耦文件系统依赖

@@ -169,7 +169,12 @@ describe('mapSSEEventsToChunks — tool_reference (P12)', () => {
       {
         type: 'content_block_start',
         index: 1,
-        content_block: { type: 'tool_reference', tool_use_id: 'toolu_ref1', name: 'mcp__slack__send_message', input: {} }
+        content_block: {
+          type: 'tool_reference',
+          tool_use_id: 'toolu_ref1',
+          name: 'mcp__slack__send_message',
+          input: {}
+        }
       },
       {
         type: 'content_block_delta',
@@ -213,7 +218,12 @@ describe('mapSSEEventsToChunks — tool_reference (P12)', () => {
       {
         type: 'content_block_start',
         index: 1,
-        content_block: { type: 'tool_reference', tool_use_id: 'toolu_ref1', name: 'mcp__db__query', input: {} }
+        content_block: {
+          type: 'tool_reference',
+          tool_use_id: 'toolu_ref1',
+          name: 'mcp__db__query',
+          input: {}
+        }
       },
       {
         type: 'content_block_delta',
@@ -242,7 +252,12 @@ describe('mapSSEEventsToChunks — tool_reference (P12)', () => {
       {
         type: 'content_block_start',
         index: 0,
-        content_block: { type: 'tool_reference', tool_use_id: 'toolu_ref1', name: 'search', input: {} }
+        content_block: {
+          type: 'tool_reference',
+          tool_use_id: 'toolu_ref1',
+          name: 'search',
+          input: {}
+        }
       },
       { type: 'content_block_stop', index: 0 },
       { type: 'message_stop' }

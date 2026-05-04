@@ -106,7 +106,7 @@ export class DaemonLifecycle {
           return;
         }
         // 等待200ms再检查
-        await new Promise<void>(resolve => setTimeout(resolve, 200));
+        await new Promise<void>(resolve => { setTimeout(resolve, 200); });
       }
       // 超时 — 由 forceExitTimer 处理强制退出
     }

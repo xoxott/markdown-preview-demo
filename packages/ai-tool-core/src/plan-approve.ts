@@ -17,11 +17,14 @@ import type { PermissionEvent } from './types/permission-events';
  * - executing: 已批准，正在执行（permCtx.mode = 'acceptEdits'）
  * - completed: 执行完成
  */
-export type PlanApproveState = 'idle' | 'planning' | 'awaiting_approval' | 'executing' | 'completed';
+export type PlanApproveState =
+  | 'idle'
+  | 'planning'
+  | 'awaiting_approval'
+  | 'executing'
+  | 'completed';
 
-/**
- * 计划步骤 — 描述一个待执行的操作
- */
+/** 计划步骤 — 描述一个待执行的操作 */
 export interface PlanStep {
   /** 工具名称 */
   readonly toolName: string;
@@ -33,9 +36,7 @@ export interface PlanStep {
   readonly riskLevel: 'low' | 'medium' | 'high';
 }
 
-/**
- * 计划内容 — 描述完整计划
- */
+/** 计划内容 — 描述完整计划 */
 export interface PlanContent {
   /** 计划描述 */
   readonly description: string;
@@ -45,9 +46,7 @@ export interface PlanContent {
   readonly estimatedImpact: string;
 }
 
-/**
- * 计划提交结果
- */
+/** 计划提交结果 */
 export interface PlanSubmitResult {
   /** 是否成功提交 */
   readonly submitted: boolean;
@@ -57,9 +56,7 @@ export interface PlanSubmitResult {
   readonly reason?: string;
 }
 
-/**
- * 计划批准结果
- */
+/** 计划批准结果 */
 export interface PlanApproveResult {
   /** 是否成功批准 */
   readonly approved: boolean;
@@ -69,9 +66,7 @@ export interface PlanApproveResult {
   readonly reason?: string;
 }
 
-/**
- * PlanApproveFlow 构造选项
- */
+/** PlanApproveFlow 构造选项 */
 export interface PlanApproveFlowOptions {
   /** 状态变更回调（可选，用于 UI 更新） */
   readonly onStateChange?: (state: PlanApproveState, prevState: PlanApproveState) => void;
@@ -95,22 +90,18 @@ export interface PlanApproveFlowOptions {
  *
  * 状态转换图:
  *
- * idle → planning (startPlanning)
- * planning → awaiting_approval (submitPlan)
- * awaiting_approval → executing (approvePlan)
- * awaiting_approval → planning (rejectPlan)
- * executing → completed (completeExecution)
- * planning/awaiting_approval/executing → idle (abort)
- * completed → idle (reset)
+ * idle → planning (startPlanning) planning → awaiting_approval (submitPlan) awaiting_approval →
+ * executing (approvePlan) awaiting_approval → planning (rejectPlan) executing → completed
+ * (completeExecution) planning/awaiting_approval/executing → idle (abort) completed → idle (reset)
  *
  * 使用示例:
  *
  * ```ts
  * const flow = new PlanApproveFlow(permCtx, { eventEmitter: emitter });
- * flow.startPlanning();                    // → planning (permCtx.mode = plan)
- * flow.submitPlan(planContent);            // → awaiting_approval
- * const result = flow.approvePlan();       // → executing (permCtx.mode = acceptEdits)
- * flow.completeExecution();                // → completed (permCtx.mode = default)
+ * flow.startPlanning(); // → planning (permCtx.mode = plan)
+ * flow.submitPlan(planContent); // → awaiting_approval
+ * const result = flow.approvePlan(); // → executing (permCtx.mode = acceptEdits)
+ * flow.completeExecution(); // → completed (permCtx.mode = default)
  * ```
  */
 export class PlanApproveFlow {
@@ -121,10 +112,7 @@ export class PlanApproveFlow {
   private readonly options: PlanApproveFlowOptions;
   private readonly eventHandlers: ((event: PermissionEvent) => void)[] = [];
 
-  constructor(
-    initialPermCtx: ToolPermissionContext,
-    options: PlanApproveFlowOptions = {}
-  ) {
+  constructor(initialPermCtx: ToolPermissionContext, options: PlanApproveFlowOptions = {}) {
     this.permCtx = initialPermCtx;
     this.options = options;
   }
@@ -216,7 +204,7 @@ export class PlanApproveFlow {
    *
    * @param reason 拒绝原因（可选）
    */
-  rejectPlan(reason?: string): void {
+  rejectPlan(_reason?: string): void {
     this.validateStateTransition('rejectPlan', ['awaiting_approval']);
 
     const prevState = this.state;
@@ -276,9 +264,7 @@ export class PlanApproveFlow {
     this.notifyStateChange(prevState);
   }
 
-  /**
-   * 重置 — 从 completed 回到 idle（开始新一轮规划）
-   */
+  /** 重置 — 从 completed 回到 idle（开始新一轮规划） */
   reset(): void {
     this.validateStateTransition('reset', ['completed']);
 

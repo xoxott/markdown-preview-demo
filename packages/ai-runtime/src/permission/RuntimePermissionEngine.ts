@@ -1,30 +1,28 @@
 /** Runtime权限引擎 — 封装PermissionDecisionEngine + Settings联动 + 模式切换控制 */
 
 import {
+  DEFAULT_TOOL_PERMISSION_CONTEXT,
   PermissionDecisionEngine,
   buildPermissionContextFromSettings,
-  DEFAULT_TOOL_PERMISSION_CONTEXT,
   transitionPermissionMode
 } from '@suga/ai-tool-core';
 import type {
   AnyBuiltTool,
-  ToolUseContext,
-  ToolPermissionContext,
-  PermissionUpdate,
+  MergedSettings,
+  ModeTransitionResult,
+  PermissionDecisionLogEntry,
+  PermissionEvent,
   PermissionMode,
   PermissionResult,
-  ModeTransitionResult,
-  MergedSettings,
+  PermissionUpdate,
   SettingLayer,
-  PermissionDecisionLogEntry,
-  PermissionEvent
+  ToolPermissionContext,
+  ToolUseContext
 } from '@suga/ai-tool-core';
 import { LLMPermissionClassifier } from '@suga/ai-tools';
 import type { LLMClassifierConfig } from '@suga/ai-tools';
 
-/**
- * RuntimePermissionEngine 构造选项
- */
+/** RuntimePermissionEngine 构造选项 */
 export interface RuntimePermissionEngineConfig {
   /** 初始权限模式（默认 'default'） */
   readonly permissionMode?: PermissionMode;
@@ -51,7 +49,9 @@ export interface RuntimePermissionEngineConfig {
  * @param config RuntimePermissionEngine配置
  * @returns ToolPermissionContext
  */
-export function buildPermissionContext(config: RuntimePermissionEngineConfig): ToolPermissionContext {
+export function buildPermissionContext(
+  config: RuntimePermissionEngineConfig
+): ToolPermissionContext {
   const mode = config.permissionMode ?? 'default';
   const bypassPermissions = config.bypassPermissions ?? false;
 
@@ -115,9 +115,7 @@ export class RuntimePermissionEngine {
     this.engine = new PermissionDecisionEngine(permCtx);
   }
 
-  /**
-   * 权限决策
-   */
+  /** 权限决策 */
   async decidePermission(
     tool: AnyBuiltTool,
     args: unknown,
@@ -126,16 +124,12 @@ export class RuntimePermissionEngine {
     return this.engine.decide(tool, args, context);
   }
 
-  /**
-   * 切换权限模式 — 验证合法性 + strip/restore
-   */
+  /** 切换权限模式 — 验证合法性 + strip/restore */
   switchMode(newMode: PermissionMode): ModeTransitionResult {
     return this.engine.switchMode(newMode);
   }
 
-  /**
-   * Settings变更联动 — 重新提取规则并应用到 permCtx
-   */
+  /** Settings变更联动 — 重新提取规则并应用到 permCtx */
   onSettingsChange(mergedSettings: MergedSettings, settingsLayers: readonly SettingLayer[]): void {
     this.engine.applyUpdate({
       type: 'reloadFromSettings',
@@ -144,37 +138,27 @@ export class RuntimePermissionEngine {
     });
   }
 
-  /**
-   * 手动应用权限更新
-   */
+  /** 手动应用权限更新 */
   applyUpdate(update: PermissionUpdate): void {
     this.engine.applyUpdate(update);
   }
 
-  /**
-   * 注册权限事件处理器
-   */
+  /** 注册权限事件处理器 */
   onPermissionEvent(handler: (event: PermissionEvent) => void): void {
     this.engine.onPermissionEvent(handler);
   }
 
-  /**
-   * 获取当前权限上下文
-   */
+  /** 获取当前权限上下文 */
   getPermissionContext(): ToolPermissionContext {
     return this.engine.getPermissionContext();
   }
 
-  /**
-   * 获取决策审计日志
-   */
+  /** 获取决策审计日志 */
   getDecisionLog(): readonly PermissionDecisionLogEntry[] {
     return this.engine.getDecisionLog();
   }
 
-  /**
-   * 清空审计日志
-   */
+  /** 清空审计日志 */
   resetDecisionLog(): void {
     this.engine.resetDecisionLog();
   }

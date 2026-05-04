@@ -144,7 +144,10 @@ export {
 
 // 权限决策引擎
 export { PermissionDecisionEngine } from './permission-engine';
-export type { PermissionDecisionLogEntry, PermissionDecisionEngineOptions } from './permission-engine';
+export type {
+  PermissionDecisionLogEntry,
+  PermissionDecisionEngineOptions
+} from './permission-engine';
 
 // Plan批准流程
 export { PlanApproveFlow } from './plan-approve';

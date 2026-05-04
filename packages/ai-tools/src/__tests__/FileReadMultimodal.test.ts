@@ -1,3 +1,4 @@
+/* eslint-disable n/prefer-global/buffer */
 /** P72 测试 — FileRead多模态(图片+PDF页范围+notebook解析) */
 
 import { describe, expect, it } from 'vitest';

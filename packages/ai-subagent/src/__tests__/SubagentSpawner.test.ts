@@ -124,4 +124,73 @@ describe('SubagentSpawner', () => {
     expect(result.success).toBe(false);
     expect(result.loopResult.type).toBe('model_error');
   });
+
+  // ============================================================
+  // OutputFileBridge 整合
+  // ============================================================
+
+  it('构造器接受 outputOptions 创建 OutputFileBridge', () => {
+    const spawnerWithBridge = new SubagentSpawner(provider, {
+      maxInMemoryChars: 100,
+      outputDir: '/tmp/test-subagent-output'
+    });
+    expect(spawnerWithBridge).toBeDefined();
+  });
+
+  it('spawn — 无 OutputFileBridge 时结果无 outputPath', async () => {
+    const def = makeDef('no-bridge', { maxTurns: 1 });
+    const result = await spawner.spawn(def, '简单任务');
+
+    expect(result.outputPath).toBeUndefined();
+    // summary 是原始文本，不含 <persisted-output>
+    expect(result.summary).not.toContain('<persisted-output>');
+  });
+
+  it('spawn — OutputFileBridge 小输出保留在内存', async () => {
+    const smallProvider = new MockLLMProvider();
+    smallProvider.addSimpleTextResponse('小输出'); // 远低于阈值
+    const bridgeSpawner = new SubagentSpawner(smallProvider, {
+      maxInMemoryChars: 10000,
+      outputDir: '/tmp/test-small-output'
+    });
+
+    const def = makeDef('small-output', { maxTurns: 1 });
+    const result = await bridgeSpawner.spawn(def, '小任务');
+
+    expect(result.outputPath).toBeUndefined();
+    expect(result.summary).not.toContain('<persisted-output>');
+  });
+
+  it('spawn — OutputFileBridge 大输出持久化到磁盘', async () => {
+    // 直接测试 OutputFileBridge.processResult — 不依赖 MockLLMProvider 产出大 assistant 消息
+    const { OutputFileBridge } = await import('../output/OutputFileBridge');
+    type SubagentResult = import('../types/result').SubagentResult;
+
+    const bridge = new OutputFileBridge({
+      maxInMemoryChars: 100, // 低阈值确保触发持久化
+      outputDir: '/tmp/test-large-output'
+    });
+
+    const largeContent = '大输出内容'.repeat(200);
+    const mockResult: SubagentResult = {
+      agentType: 'large-output',
+      loopResult: {
+        type: 'completed',
+        reason: '测试完成',
+        messages: [
+          { id: '1', role: 'user' as const, content: 'task', timestamp: 0 },
+          { id: '2', role: 'assistant' as const, content: largeContent, timestamp: 0, toolUses: [] }
+        ]
+      },
+      summary: largeContent,
+      success: true,
+      durationMs: 100
+    };
+
+    const processed = bridge.processResult(mockResult);
+
+    // summary 被 OutputFileBridge 替换为 <persisted-output> 标签
+    expect(processed.summary).toContain('<persisted-output>');
+    expect(processed.outputPath).toBeDefined();
+  });
 });

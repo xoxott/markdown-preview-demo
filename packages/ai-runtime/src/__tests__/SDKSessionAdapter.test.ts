@@ -23,14 +23,14 @@ function createMockRuntimeSession(sessionId = 'test_session_1'): RuntimeSession 
     getSessionId: vi.fn().mockReturnValue(sessionId),
     getStatus: vi.fn().mockReturnValue('active'),
     getMessages: vi.fn().mockReturnValue([]),
-    sendMessage: vi.fn().mockImplementation(async function* () {
+    sendMessage: vi.fn().mockImplementation(async function* mockSendMessage() {
       for (const event of mockEvents) {
         yield event;
       }
     }),
     pause: vi.fn(),
     destroy: vi.fn().mockResolvedValue(undefined),
-    resume: vi.fn().mockImplementation(async function* () {
+    resume: vi.fn().mockImplementation(async function* mockResume() {
       yield { type: 'text_delta', content: 'resumed', timestamp: Date.now() };
     })
   } as unknown as RuntimeSession;
@@ -98,7 +98,7 @@ describe('SDKSessionAdapter', () => {
   it('prompt() — 空响应 → 无 SDKMessage', async () => {
     const mock = {
       getSessionId: vi.fn().mockReturnValue('empty_session'),
-      sendMessage: vi.fn().mockImplementation(async function* () {
+      sendMessage: vi.fn().mockImplementation(async function* mockEmptySendMessage() {
         // 无事件产出
       }),
       pause: vi.fn(),

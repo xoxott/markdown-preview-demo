@@ -59,8 +59,12 @@ export type PermissionEvent =
  * ```ts
  * // 简单回调实现
  * const emitter: PermissionEventEmitter = {
- *   onPermissionEvent(handler) { handlers.push(handler); },
- *   emitPermissionEvent(event) { handlers.forEach(h => h(event)); }
+ *   onPermissionEvent(handler) {
+ *     handlers.push(handler);
+ *   },
+ *   emitPermissionEvent(event) {
+ *     handlers.forEach(h => h(event));
+ *   }
  * };
  * ```
  */

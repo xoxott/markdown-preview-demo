@@ -1,27 +1,20 @@
 /** P75 测试 — PermissionDecisionEngine + 模式切换矩阵 + PlanApproveFlow + PermissionEvent */
 
-import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
+import { describe, expect, it } from 'vitest';
 import { buildTool } from '../tool';
 import { ToolRegistry } from '../registry';
-import { ToolExecutor } from '../executor';
 import {
+  MODE_TRANSITION_MATRIX,
   PermissionDecisionEngine,
   PlanApproveFlow,
-  MODE_TRANSITION_MATRIX,
-  validateModeTransition,
-  transitionPermissionMode,
-  stripDangerousPermissionsForAutoMode,
-  restoreDangerousPermissions
+  validateModeTransition
 } from '../index';
 import type {
-  PermissionMode,
-  ModeTransitionResult,
-  PermissionDecisionLogEntry,
   PermissionEvent,
-  ToolPermissionContext,
-  PermissionResult,
-  PlanApproveState
+  PermissionMode,
+  PlanApproveState,
+  ToolPermissionContext
 } from '../types';
 
 // ============================================================
@@ -58,7 +51,14 @@ function buildToolUseContext(permCtx?: ToolPermissionContext) {
     abortController,
     sessionId: 'test_session',
     toolUseId: 'test_tool_use',
-    permCtx: permCtx ?? { mode: 'default', allowRules: [], denyRules: [], askRules: [], workingDirectories: [], bypassPermissions: false }
+    permCtx: permCtx ?? {
+      mode: 'default',
+      allowRules: [],
+      denyRules: [],
+      askRules: [],
+      workingDirectories: [],
+      bypassPermissions: false
+    }
   };
 }
 
@@ -80,7 +80,15 @@ function buildPermCtx(mode: PermissionMode = 'default'): ToolPermissionContext {
 
 describe('validateModeTransition', () => {
   it('default → any 模式都合法', () => {
-    const modes: PermissionMode[] = ['default', 'plan', 'acceptEdits', 'auto', 'restricted', 'dontAsk', 'bypassPermissions'];
+    const modes: PermissionMode[] = [
+      'default',
+      'plan',
+      'acceptEdits',
+      'auto',
+      'restricted',
+      'dontAsk',
+      'bypassPermissions'
+    ];
     for (const to of modes) {
       const result = validateModeTransition('default', to);
       expect(result.valid).toBe(true);
@@ -88,7 +96,15 @@ describe('validateModeTransition', () => {
   });
 
   it('bypassPermissions → any 模式都合法', () => {
-    const modes: PermissionMode[] = ['default', 'plan', 'acceptEdits', 'auto', 'restricted', 'dontAsk', 'bypassPermissions'];
+    const modes: PermissionMode[] = [
+      'default',
+      'plan',
+      'acceptEdits',
+      'auto',
+      'restricted',
+      'dontAsk',
+      'bypassPermissions'
+    ];
     for (const to of modes) {
       const result = validateModeTransition('bypassPermissions', to);
       expect(result.valid).toBe(true);
@@ -143,14 +159,22 @@ describe('validateModeTransition', () => {
 
 describe('MODE_TRANSITION_MATRIX', () => {
   it('每种模式至少能切换到自己', () => {
-    const modes: PermissionMode[] = ['default', 'plan', 'acceptEdits', 'auto', 'restricted', 'dontAsk', 'bypassPermissions'];
+    const modes: PermissionMode[] = [
+      'default',
+      'plan',
+      'acceptEdits',
+      'auto',
+      'restricted',
+      'dontAsk',
+      'bypassPermissions'
+    ];
     for (const mode of modes) {
       expect(MODE_TRANSITION_MATRIX[mode]).toContain(mode);
     }
   });
 
   it('default 能切换到所有模式', () => {
-    expect(MODE_TRANSITION_MATRIX['default'].length).toBe(7);
+    expect(MODE_TRANSITION_MATRIX.default.length).toBe(7);
   });
 });
 

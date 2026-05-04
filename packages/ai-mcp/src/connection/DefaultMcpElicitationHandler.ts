@@ -18,7 +18,7 @@ import type {
  * 替换此默认行为。
  */
 export class DefaultMcpElicitationHandler implements McpElicitationHandler {
-  async handleElicitation(request: McpElicitationRequestEvent): Promise<McpElicitResult> {
+  async handleElicitation(_request: McpElicitationRequestEvent): Promise<McpElicitResult> {
     // 默认策略: decline — 无 UI 环境，拒绝服务器的信息请求
     return { action: 'decline' };
   }

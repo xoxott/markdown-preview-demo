@@ -61,7 +61,10 @@ export async function* parseAnthropicSSEStream(
   // 工具调用累积状态：index → { id, name, jsonBuffer }
   const toolUseAccumulator = new Map<number, { id: string; name: string; jsonBuffer: string }>();
   // 工具引用累积状态：index → { tool_use_id, name, jsonBuffer } (P12)
-  const toolReferenceAccumulator = new Map<number, { tool_use_id: string; name: string; jsonBuffer: string }>();
+  const toolReferenceAccumulator = new Map<
+    number,
+    { tool_use_id: string; name: string; jsonBuffer: string }
+  >();
   // 当前 content_block_start 记录：index → content_block
   const contentBlockStarts = new Map<number, { type: string; id?: string; name?: string }>();
 
@@ -104,7 +107,13 @@ export async function* parseAnthropicSSEStream(
 
           try {
             const data: AnthropicSSEEventData = JSON.parse(dataStr);
-            yield* handleSSEEvent(data, currentEvent, toolUseAccumulator, toolReferenceAccumulator, contentBlockStarts);
+            yield* handleSSEEvent(
+              data,
+              currentEvent,
+              toolUseAccumulator,
+              toolReferenceAccumulator,
+              contentBlockStarts
+            );
           } catch {
             // 解析失败时跳过（可能是 SSE 心跳或格式异常）
           }

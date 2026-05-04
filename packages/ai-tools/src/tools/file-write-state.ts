@@ -1,3 +1,4 @@
+/* eslint-disable n/prefer-global/buffer */
 /**
  * FileWriteState — 文件读写状态管理 + 编码检测
  *

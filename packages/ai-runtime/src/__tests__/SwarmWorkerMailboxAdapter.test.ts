@@ -290,7 +290,7 @@ describe('InProcessTeammate swarmWorkerMailboxOps 注入', () => {
 
     const mockSpawnProvider: SpawnProvider = {
       callModel: vi.fn().mockResolvedValue('result'),
-      spawnAgent: vi.fn().mockImplementation(async (def, task, options) => {
+      spawnAgent: vi.fn().mockImplementation(async (_def, _task, options) => {
         capturedOptions.swarmWorkerMailboxOps = options?.swarmWorkerMailboxOps as
           | SwarmWorkerMailboxOps
           | undefined;
@@ -338,7 +338,7 @@ describe('InProcessTeammate swarmWorkerMailboxOps 注入', () => {
 
     const mockSpawnProvider: SpawnProvider = {
       callModel: vi.fn().mockResolvedValue('result'),
-      spawnAgent: vi.fn().mockImplementation(async (def, task, options) => {
+      spawnAgent: vi.fn().mockImplementation(async (_def, _task, options) => {
         if (options) {
           Object.assign(capturedOptions, options);
         }

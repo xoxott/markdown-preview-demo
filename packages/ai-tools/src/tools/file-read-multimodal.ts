@@ -1,3 +1,4 @@
+/* eslint-disable n/prefer-global/buffer */
 /**
  * FileRead多模态 — 图片/PDF/notebook解析
  *
@@ -62,7 +63,7 @@ export interface ImageResizeOptions {
  * @param resizeProvider resize函数（可选，宿主注入）
  */
 export function readImageFile(
-  filePath: string,
+  _filePath: string,
   buffer: Buffer,
   mimeType: string,
   resizeOptions?: ImageResizeOptions,

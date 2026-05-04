@@ -6,12 +6,12 @@ import type { LLMProvider, LoopResult } from '@suga/ai-agent-loop';
 import type { SubagentDefinition } from '../types/subagent';
 import type { SubagentResult } from '../types/result';
 import type { ForkSpawnerOptions } from '../types/fork';
-import { DEFAULT_SUBAGENT_TIMEOUT, DEFAULT_MAX_FORK_DEPTH } from '../constants';
-import { Spawner } from './SubagentSpawner';
-import { SubagentSpawner } from './SubagentSpawner';
+import { DEFAULT_MAX_FORK_DEPTH, DEFAULT_SUBAGENT_TIMEOUT } from '../constants';
 import { OutputFileBridge } from '../output/OutputFileBridge';
 import { extractCacheSafeParams } from '../cache/PromptCacheBridge';
 import { detectBreak } from '../cache/CacheBreakDetector';
+import { SubagentSpawner } from './SubagentSpawner';
+import type { Spawner } from './SubagentSpawner';
 import { injectForkBoilerplate } from './ForkGuard';
 
 /**
@@ -19,12 +19,10 @@ import { injectForkBoilerplate } from './ForkGuard';
  *
  * Fork 与普通 Subagent 的核心差异:
  *
- * 1. **prompt cache 共享** — 子代理继承父的消息历史 + 使用 placeholder 工具结果
- *    保证消息前缀字节一致，最大化 Anthropic API 的 prompt cache hit
- * 2. **placeholder 工具结果** — 所有 fork 子代理使用同一占位文本
- *    只有 directive 文本块不同（per-child）
- * 3. **噪声隔离** — 大输出通过 OutputFileBridge 持久化到磁盘
- *    父只看 summary（截取前 maxPreviewChars 字符）
+ * 1. **prompt cache 共享** — 子代理继承父的消息历史 + 使用 placeholder 工具结果 保证消息前缀字节一致，最大化 Anthropic API 的 prompt
+ *    cache hit
+ * 2. **placeholder 工具结果** — 所有 fork 子代理使用同一占位文本 只有 directive 文本块不同（per-child）
+ * 3. **噪声隔离** — 大输出通过 OutputFileBridge 持久化到磁盘 父只看 summary（截取前 maxPreviewChars 字符）
  * 4. **递归防护** — `<fork-boilerplate>` 标签检测，防止 fork 嵌套
  * 5. **cache break 检测** — 比较父子 cache 安全参数，检测是否导致 cache break
  *
@@ -49,10 +47,7 @@ export class ForkSpawner implements Spawner {
   private readonly enableCacheBreakDetection: boolean;
   private readonly _maxForkDepth: number;
 
-  constructor(
-    parentProvider: LLMProvider,
-    options?: ForkSpawnerOptions
-  ) {
+  constructor(parentProvider: LLMProvider, options?: ForkSpawnerOptions) {
     this.parentProvider = parentProvider;
     this.spawner = new SubagentSpawner(parentProvider);
     this.outputBridge = options?.outputOptions
@@ -133,7 +128,9 @@ export class ForkSpawner implements Spawner {
     // Fork 消息构造模式:
     // [directive_message] — 仅 directive 文本（简化版，不需要父完整历史）
     // 完整版需要父历史 → 需要从外部传入，此处使用简化版
-    const directiveText = contextDirective ? `${task}\n\n---\n上下文指令:\n${contextDirective}` : task;
+    const directiveText = contextDirective
+      ? `${task}\n\n---\n上下文指令:\n${contextDirective}`
+      : task;
 
     // 注入 fork 标记到 system prompt
     const systemPromptPrefix = def.systemPromptPrefix

@@ -1,3 +1,4 @@
+/* eslint-disable n/prefer-global/buffer */
 /** P67 测试 — FileWriteState(编码检测+mtime一致性+读写状态强制) */
 
 import { describe, expect, it } from 'vitest';

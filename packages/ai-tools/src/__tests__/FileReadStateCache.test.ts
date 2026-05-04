@@ -1,10 +1,7 @@
 /** P14 测试 — FileReadStateCache(去重缓存+LRU淘汰+mtime一致性) */
 
 import { describe, expect, it } from 'vitest';
-import {
-  FileReadStateCache,
-  FILE_UNCHANGED_STUB
-} from '../utils/file-read-state-cache';
+import { FILE_UNCHANGED_STUB, FileReadStateCache } from '../utils/file-read-state-cache';
 import type { FileReadCacheEntry } from '../utils/file-read-state-cache';
 
 // ============================================================

@@ -74,14 +74,8 @@ export type {
 } from './utils/output-truncate-end';
 export { isStale } from './utils/staleness-check';
 // P14: FileRead去重优化导出
-export {
-  FileReadStateCache,
-  FILE_UNCHANGED_STUB
-} from './utils/file-read-state-cache';
-export type {
-  FileReadCacheEntry,
-  DedupCheckResult
-} from './utils/file-read-state-cache';
+export { FileReadStateCache, FILE_UNCHANGED_STUB } from './utils/file-read-state-cache';
+export type { FileReadCacheEntry, DedupCheckResult } from './utils/file-read-state-cache';
 
 // 工具实现导出
 export { globTool } from './tools/glob';

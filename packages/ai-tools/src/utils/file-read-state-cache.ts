@@ -3,13 +3,13 @@
  *
  * 对齐 Claude Code FileStateCache (fileStateCache.ts):
  *
- * 当 LLM 在同一会话内对同一文件发起重复 Read 调用
- * (相同 offset/limit 范围) 且文件 mtime 未变化,
- * 则返回 file_unchanged stub 而不重新发送完整文件内容。
+ * 当 LLM 在同一会话内对同一文件发起重复 Read 调用 (相同 offset/limit 范围) 且文件 mtime 未变化, 则返回 file_unchanged stub
+ * 而不重新发送完整文件内容。
  *
  * 这样可节省大量 cache_creation tokens (约 18% 的 Read 调用是重复)。
  *
  * 核心设计:
+ *
  * - LRU cache, 路径键经过 normalize, 最大 100 条目, 最大 25MB
  * - offset !== undefined 区分"来自Read"vs"来自Edit/Write"
  * - Edit/Write 写入时 offset=undefined, 阻止后续 Read 错误去重
@@ -48,6 +48,7 @@ export const FILE_UNCHANGED_STUB =
  * FileReadStateCache — LRU 缓存实现
  *
  * 使用简单 Map + 手动淘汰策略 (与 Claude Code 对齐):
+ *
  * - 最大 100 条目
  * - 最大 25MB 内容
  * - 超限时淘汰最早写入的条目
@@ -97,9 +98,7 @@ export class FileReadStateCache {
     return this;
   }
 
-  /**
-   * 删除文件读取状态
-   */
+  /** 删除文件读取状态 */
   delete(key: string): boolean {
     const existing = this.cache.get(key);
     if (existing) {
@@ -133,6 +132,7 @@ export class FileReadStateCache {
    * 去重检查 — 判断是否需要重新读取文件
    *
    * 条件:
+   *
    * 1. 缓存中有记录
    * 2. 非部分视图(isPartialView=false)
    * 3. offset由Read设置(offset !== undefined)
@@ -144,7 +144,12 @@ export class FileReadStateCache {
    * @param limit 读取的limit
    * @param currentMtimeMs 文件当前mtime(毫秒)
    */
-  checkDedup(filePath: string, offset: number | undefined, limit: number | undefined, currentMtimeMs: number): DedupCheckResult {
+  checkDedup(
+    filePath: string,
+    offset: number | undefined,
+    limit: number | undefined,
+    currentMtimeMs: number
+  ): DedupCheckResult {
     const state = this.get(filePath);
 
     if (!state) {

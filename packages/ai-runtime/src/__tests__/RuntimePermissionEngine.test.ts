@@ -1,13 +1,13 @@
 /** P75 C2 测试 — RuntimePermissionEngine + buildPermissionContext */
 
-import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
-import { buildTool, ToolRegistry } from '@suga/ai-tool-core';
+import { describe, expect, it } from 'vitest';
+import { ToolRegistry, buildTool } from '@suga/ai-tool-core';
+import type { PermissionEvent, ToolPermissionContext } from '@suga/ai-tool-core';
 import {
   RuntimePermissionEngine,
   buildPermissionContext
 } from '../permission/RuntimePermissionEngine';
-import type { ToolPermissionContext, PermissionEvent } from '@suga/ai-tool-core';
 
 /** 构建只读测试工具 */
 function buildReadOnlyTool(name: string) {
@@ -191,10 +191,9 @@ describe('RuntimePermissionEngine', () => {
     expect(engine.getPermissionContext().allowRules.length).toBe(0);
 
     // Settings 变更 → 重新加载规则
-    engine.onSettingsChange(
-      { permissions: { allow: ['Read', 'Glob'], deny: [], ask: [] } },
-      ['project']
-    );
+    engine.onSettingsChange({ permissions: { allow: ['Read', 'Glob'], deny: [], ask: [] } }, [
+      'project'
+    ]);
 
     expect(engine.getPermissionContext().allowRules.length).toBe(2);
   });

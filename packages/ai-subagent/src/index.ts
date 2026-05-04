@@ -47,3 +47,10 @@ export { OutputFileBridge } from './output/OutputFileBridge';
 
 // P9 集成
 export { SubagentDispatchPhase } from './integration/SubagentDispatchPhase';
+
+// 内置代理定义
+export {
+  BUILTIN_AGENT_DEFINITIONS,
+  createBuiltinSubagentRegistry
+} from './builtin/BuiltinAgentDefinitions';
+export { getSystemPromptForAgentType } from './builtin/SystemPrompts';

@@ -1,22 +1,23 @@
 /** 权限决策引擎（Permission Decision Engine） 封装权限管线+审计日志+事件发射+模式切换 */
 
-import type { PermissionResult, PermissionAllow } from './types/permission';
-import type { PermissionPipelineInput } from './types/permission-decision';
-import type { ToolPermissionContext, PermissionUpdate } from './types/permission-context';
-import type { PermissionMode, ModeTransitionResult } from './types/permission-mode';
+import type { PermissionAllow, PermissionResult } from './types/permission';
+import type {
+  CanUseToolFn,
+  DenialTrackingState,
+  PermissionPipelineInput
+} from './types/permission-decision';
+import type { PermissionUpdate, ToolPermissionContext } from './types/permission-context';
+import type { ModeTransitionResult, PermissionMode } from './types/permission-mode';
 import type { PermissionEvent } from './types/permission-events';
 import { validateModeTransition } from './types/permission-mode';
 import { hasPermissionsToUseTool } from './permission-pipeline';
 import { applyPermissionUpdate } from './types/permission-context';
 import { transitionPermissionMode } from './types/permission-strip';
-import type { CanUseToolFn, DenialTrackingState } from './types/permission-decision';
 import type { PermissionPromptHandler } from './types/permission-prompt';
-import type { PermissionClassifier, IronGate } from './types/permission-classifier';
+import type { IronGate, PermissionClassifier } from './types/permission-classifier';
 import type { AnyBuiltTool, ToolUseContext } from './types';
 
-/**
- * 决策审计日志条目 — 记录每次权限决策的完整信息
- */
+/** 决策审计日志条目 — 记录每次权限决策的完整信息 */
 export interface PermissionDecisionLogEntry {
   /** 决策时间戳 */
   readonly timestamp: number;
@@ -30,9 +31,7 @@ export interface PermissionDecisionLogEntry {
   readonly durationMs: number;
 }
 
-/**
- * 权限决策引擎构造选项
- */
+/** 权限决策引擎构造选项 */
 export interface PermissionDecisionEngineOptions {
   /** AI 分类器（可选，auto 模式使用） */
   readonly classifierFn?: PermissionClassifier;
@@ -111,7 +110,8 @@ export class PermissionDecisionEngine {
       canUseToolFn: this.options.canUseToolFn,
       promptHandler: this.options.promptHandler,
       denialTracking: this.options.denialTracking,
-      requiresUserInteraction: tool.requiresUserInteraction(args) || (context.requiresUserInteraction ?? false),
+      requiresUserInteraction:
+        tool.requiresUserInteraction(args) || (context.requiresUserInteraction ?? false),
       isHeadlessAgent: this.options.isHeadlessAgent ?? context.isHeadlessAgent
     };
 
@@ -166,9 +166,7 @@ export class PermissionDecisionEngine {
     });
   }
 
-  /**
-   * 获取当前权限上下文
-   */
+  /** 获取当前权限上下文 */
   getPermissionContext(): ToolPermissionContext {
     return this.permCtx;
   }
@@ -206,32 +204,24 @@ export class PermissionDecisionEngine {
 
   // === 审计日志 ===
 
-  /**
-   * 获取决策审计日志
-   */
+  /** 获取决策审计日志 */
   getDecisionLog(): readonly PermissionDecisionLogEntry[] {
     return this.decisionLog;
   }
 
-  /**
-   * 清空审计日志
-   */
+  /** 清空审计日志 */
   resetDecisionLog(): void {
     this.decisionLog.length = 0;
   }
 
   // === 事件发射 ===
 
-  /**
-   * 注册权限事件处理器
-   */
+  /** 注册权限事件处理器 */
   onPermissionEvent(handler: (event: PermissionEvent) => void): void {
     this.eventHandlers.push(handler);
   }
 
-  /**
-   * 发射权限事件 — 通知所有注册的处理器
-   */
+  /** 发射权限事件 — 通知所有注册的处理器 */
   private emitEvent(event: PermissionEvent): void {
     for (const handler of this.eventHandlers) {
       try {

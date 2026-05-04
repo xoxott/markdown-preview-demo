@@ -740,7 +740,7 @@ export const BLOCKED_DEVICE_PATHS: readonly string[] = [
  */
 export function validateCommandPaths(
   command: string,
-  cwd: string
+  _cwd: string
 ): readonly { path: string; issue: string; severity: 'critical' | 'high' | 'medium' }[] {
   const warnings: { path: string; issue: string; severity: 'critical' | 'high' | 'medium' }[] = [];
   const trimmed = command.trim();

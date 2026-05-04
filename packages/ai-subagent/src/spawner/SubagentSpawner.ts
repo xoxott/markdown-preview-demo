@@ -5,6 +5,8 @@ import { ToolRegistry } from '@suga/ai-tool-core';
 import type { LLMProvider, LoopResult } from '@suga/ai-agent-loop';
 import type { SubagentDefinition } from '../types/subagent';
 import type { SubagentResult } from '../types/result';
+import { OutputFileBridge } from '../output/OutputFileBridge';
+import type { OutputFileOptions } from '../types/output';
 import { DEFAULT_SUBAGENT_TIMEOUT } from '../constants';
 
 /**
@@ -39,9 +41,13 @@ export interface Spawner {
  */
 export class SubagentSpawner implements Spawner {
   private readonly parentProvider: LLMProvider;
+  private readonly outputBridge?: OutputFileBridge;
 
-  constructor(parentProvider: LLMProvider) {
+  constructor(parentProvider: LLMProvider, outputOptions?: OutputFileOptions) {
     this.parentProvider = parentProvider;
+    if (outputOptions) {
+      this.outputBridge = new OutputFileBridge(outputOptions);
+    }
   }
 
   /**
@@ -163,25 +169,34 @@ export class SubagentSpawner implements Spawner {
 
     // 生成 summary
     const success = loopResult.type === 'completed';
-    const summary = this.generateSummary(loopResult);
+    const rawSummary = this.generateRawSummary(loopResult);
 
-    return {
+    const result: SubagentResult = {
       agentType: def.agentType,
       loopResult,
-      summary,
+      summary: rawSummary,
       success,
       durationMs: Date.now() - startTime
     };
+
+    // OutputFileBridge 整合 — 大输出持久化后再截取 summary
+    if (this.outputBridge) {
+      return this.outputBridge.processResult(result);
+    }
+
+    // 无 OutputFileBridge → 手动截取 summary
+    return {
+      ...result,
+      summary: rawSummary.length > 500 ? `${rawSummary.slice(0, 500)}...` : rawSummary
+    };
   }
 
-  /** 生成结果摘要 */
-  private generateSummary(loopResult: LoopResult): string {
+  /** 生成原始摘要（不截取，由 OutputFileBridge 或后续处理决定截取） */
+  private generateRawSummary(loopResult: LoopResult): string {
     const lastMsg = loopResult.messages[loopResult.messages.length - 1];
 
     if (lastMsg && lastMsg.role === 'assistant') {
-      const content = lastMsg.content;
-      // 截取前 500 字符作为摘要
-      return content.length > 500 ? `${content.slice(0, 500)}...` : content;
+      return lastMsg.content;
     }
 
     return `子代理完成，类型: ${loopResult.type}, 原因: ${loopResult.reason}`;

@@ -47,7 +47,10 @@ export function mapSSEEventsToChunks(events: readonly AnthropicSSEEventData[]): 
   // 工具调用累积：index → { id, name, jsonBuffer }
   const toolUseAccumulator = new Map<number, { id: string; name: string; jsonBuffer: string }>();
   // 工具引用累积：index → { tool_use_id, name, jsonBuffer } (P12)
-  const toolReferenceAccumulator = new Map<number, { tool_use_id: string; name: string; jsonBuffer: string }>();
+  const toolReferenceAccumulator = new Map<
+    number,
+    { tool_use_id: string; name: string; jsonBuffer: string }
+  >();
   // content_block_start 记录
   const contentBlockStarts = new Map<number, { type: string; id?: string; name?: string }>();
 
