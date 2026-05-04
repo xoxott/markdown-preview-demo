@@ -1248,19 +1248,781 @@ export const DEFAULT_BASH_PERMISSION_RULES: readonly BashPermissionRule[] = [
 
   // --- 版本查询补充 ---
   {
-    ruleId: 'allow_python3_version',
-    pattern: 'python3 --version',
-    patternType: 'exact',
-    behavior: 'allow',
-    source: 'default',
-    description: '允许: python3版本查询'
-  },
-  {
     ruleId: 'allow_git_ls_remote',
     pattern: 'git ls-remote',
     patternType: 'prefix',
     behavior: 'allow',
     source: 'default',
     description: '允许: git ls-remote查看远程引用'
+  },
+
+  // ============================================================
+  // P81 新增规则 — 扩充覆盖(78→150+条)
+  // ============================================================
+
+  // --- Deny规则扩充(新增约10条) ---
+  {
+    ruleId: 'deny_npm_publish_force',
+    pattern: 'npm publish --force',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: npm强制发布'
+  },
+  {
+    ruleId: 'deny_pnpm_publish',
+    pattern: 'pnpm publish',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: pnpm发布包'
+  },
+  {
+    ruleId: 'deny_docker_image_prune',
+    pattern: 'docker image prune',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: Docker镜像清理'
+  },
+  {
+    ruleId: 'deny_docker_container_prune',
+    pattern: 'docker container prune',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: Docker容器清理'
+  },
+  {
+    ruleId: 'deny_docker_network_prune',
+    pattern: 'docker network prune',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: Docker网络清理'
+  },
+  {
+    ruleId: 'deny_kubectl_delete_force',
+    pattern: 'kubectl delete --force',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: kubectl强制删除'
+  },
+  {
+    ruleId: 'deny_github_cli_delete',
+    pattern: '^gh\\s+.*delete',
+    patternType: 'regex',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: GitHub CLI删除操作'
+  },
+  {
+    ruleId: 'deny_drop_database',
+    pattern: 'DROP DATABASE',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: 删除数据库'
+  },
+  {
+    ruleId: 'deny_truncate_table',
+    pattern: 'TRUNCATE TABLE',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: 清空数据库表'
+  },
+  {
+    ruleId: 'deny_pip_install_user',
+    pattern: 'pip install --user',
+    patternType: 'prefix',
+    behavior: 'deny',
+    source: 'default',
+    description: '拒绝: pip --user安装(不安全标志)'
+  },
+
+  // --- Ask规则扩充(新增约35条) ---
+
+  // git 扩展
+  {
+    ruleId: 'ask_git_clean',
+    pattern: 'git clean',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: git clean清除未追踪文件'
+  },
+  {
+    ruleId: 'ask_git cherry_pick',
+    pattern: 'git cherry-pick',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: git cherry-pick拣选提交'
+  },
+  {
+    ruleId: 'ask_git_commit_amend',
+    pattern: '^git\\s+commit\\s+.*--amend',
+    patternType: 'regex',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: git commit --amend修改提交'
+  },
+  {
+    ruleId: 'ask_git_remote_add',
+    pattern: 'git remote add',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: git remote add添加远程'
+  },
+  {
+    ruleId: 'ask_git_remote_remove',
+    pattern: 'git remote remove',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: git remote remove删除远程'
+  },
+  {
+    ruleId: 'ask_git_fetch',
+    pattern: 'git fetch',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: git fetch拉取远程'
+  },
+  {
+    ruleId: 'ask_git_pull',
+    pattern: 'git pull',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: git pull拉取合并'
+  },
+  {
+    ruleId: 'ask_git_submodule',
+    pattern: 'git submodule',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: git submodule操作'
+  },
+  {
+    ruleId: 'ask_git_worktree',
+    pattern: 'git worktree',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: git worktree工作树'
+  },
+
+  // npm/yarn/pnpm 扩展
+  {
+    ruleId: 'ask_npm_ci',
+    pattern: 'npm ci',
+    patternType: 'exact',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: npm ci干净安装'
+  },
+  {
+    ruleId: 'ask_npm_publish',
+    pattern: 'npm publish',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: npm发布(非force)'
+  },
+  {
+    ruleId: 'ask_yarn_add',
+    pattern: 'yarn add',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: yarn添加依赖'
+  },
+  {
+    ruleId: 'ask_yarn_remove',
+    pattern: 'yarn remove',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: yarn移除依赖'
+  },
+  {
+    ruleId: 'ask_pnpm_add',
+    pattern: 'pnpm add',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: pnpm添加依赖'
+  },
+  {
+    ruleId: 'ask_pnpm_remove',
+    pattern: 'pnpm remove',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: pnpm移除依赖'
+  },
+  {
+    ruleId: 'ask_npm_start',
+    pattern: 'npm start',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: npm start启动应用'
+  },
+  {
+    ruleId: 'ask_npm_test',
+    pattern: 'npm test',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: npm test运行测试'
+  },
+  {
+    ruleId: 'ask_yarn_start',
+    pattern: 'yarn start',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: yarn start启动应用'
+  },
+  {
+    ruleId: 'ask_yarn_test',
+    pattern: 'yarn test',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: yarn test运行测试'
+  },
+
+  // pip/conda 扩展
+  {
+    ruleId: 'ask_conda_install',
+    pattern: 'conda install',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: conda安装包'
+  },
+  {
+    ruleId: 'ask_conda_create',
+    pattern: 'conda create',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: conda创建环境'
+  },
+  {
+    ruleId: 'ask_conda_remove',
+    pattern: 'conda remove',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: conda移除包/环境'
+  },
+  {
+    ruleId: 'ask_pip3_install',
+    pattern: 'pip3 install',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: pip3安装包'
+  },
+
+  // docker-compose 扩展
+  {
+    ruleId: 'ask_docker_compose_up',
+    pattern: 'docker-compose up',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: docker-compose启动服务'
+  },
+  {
+    ruleId: 'ask_docker_compose_down',
+    pattern: 'docker-compose down',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: docker-compose停止服务'
+  },
+  {
+    ruleId: 'ask_docker_compose_build',
+    pattern: 'docker-compose build',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: docker-compose构建镜像'
+  },
+  {
+    ruleId: 'ask_docker_compose_restart',
+    pattern: 'docker-compose restart',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: docker-compose重启服务'
+  },
+  {
+    ruleId: 'ask_docker_pull',
+    pattern: 'docker pull',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: docker拉取镜像'
+  },
+  {
+    ruleId: 'ask_docker_push',
+    pattern: 'docker push',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: docker推送镜像'
+  },
+  {
+    ruleId: 'ask_docker_compose_exec',
+    pattern: 'docker-compose exec',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: docker-compose容器内执行'
+  },
+  {
+    ruleId: 'ask_docker_rmi',
+    pattern: 'docker rmi',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: docker删除镜像'
+  },
+  {
+    ruleId: 'ask_docker_kill',
+    pattern: 'docker kill',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: docker强制停止容器'
+  },
+
+  // 云操作扩展
+  {
+    ruleId: 'ask_aws_cli',
+    pattern: '^aws\\s+(s3\\s+rm|s3\\s+cp|ec2\\s+terminate|ec2\\s+stop|rds\\s+delete|iam\\s+delete)',
+    patternType: 'regex',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: AWS危险操作(s3删除/EC2终止/RDS删除/IAM删除)'
+  },
+  {
+    ruleId: 'ask_gcloud_cli',
+    pattern: '^gcloud\\s+.*delete',
+    patternType: 'regex',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: gcloud删除操作'
+  },
+  {
+    ruleId: 'ask_az_cli_delete',
+    pattern: '^az\\s+.*delete',
+    patternType: 'regex',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: Azure删除操作'
+  },
+
+  // 网络工具扩展
+  {
+    ruleId: 'ask_ssh',
+    pattern: 'ssh',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: SSH远程连接'
+  },
+  {
+    ruleId: 'ask_scp',
+    pattern: 'scp',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: SCP文件传输'
+  },
+  {
+    ruleId: 'ask_rsync',
+    pattern: 'rsync',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: rsync文件同步'
+  },
+  {
+    ruleId: 'ask_curl_download',
+    pattern: '^curl\\s.*-o\\s',
+    patternType: 'regex',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: curl下载文件(-o)'
+  },
+  {
+    ruleId: 'ask_wget',
+    pattern: 'wget',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: wget下载文件'
+  },
+
+  // 构建工具扩展
+  {
+    ruleId: 'ask_gradle_build',
+    pattern: 'gradle build',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: Gradle构建'
+  },
+  {
+    ruleId: 'ask_mvn_build',
+    pattern: 'mvn build',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: Maven构建'
+  },
+  {
+    ruleId: 'ask_mvn_install',
+    pattern: 'mvn install',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: Maven install'
+  },
+  {
+    ruleId: 'ask_cargo_run',
+    pattern: 'cargo run',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: cargo run运行Rust程序'
+  },
+  {
+    ruleId: 'ask_go_run',
+    pattern: 'go run',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: go run运行Go程序'
+  },
+  {
+    ruleId: 'ask_go_test',
+    pattern: 'go test',
+    patternType: 'prefix',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: go test运行测试'
+  },
+  {
+    ruleId: 'ask_go_mod_tidy',
+    pattern: 'go mod tidy',
+    patternType: 'exact',
+    behavior: 'ask',
+    source: 'default',
+    description: '审核: go mod tidy整理依赖'
+  },
+
+  // --- Allow规则扩充(新增约25条) ---
+
+  // git 只读补充
+  {
+    ruleId: 'allow_git_branch_list',
+    pattern: 'git branch',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: git branch查看分支(不含-d/-D)'
+  },
+  {
+    ruleId: 'allow_git_tag_list',
+    pattern: 'git tag -l',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: git tag -l列出标签'
+  },
+  {
+    ruleId: 'allow_git_remote_verbose',
+    pattern: 'git remote -v',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: git remote -v查看远程'
+  },
+  {
+    ruleId: 'allow_git_blame',
+    pattern: 'git blame',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: git blame查看行归属'
+  },
+  {
+    ruleId: 'allow_git_shortlog',
+    pattern: 'git shortlog',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: git shortlog简短日志'
+  },
+  {
+    ruleId: 'allow_git_reflog',
+    pattern: 'git reflog',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: git reflog引用日志'
+  },
+  {
+    ruleId: 'allow_git_name_rev',
+    pattern: 'git name-rev',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: git name-rev命名引用'
+  },
+
+  // Docker只读补充
+  {
+    ruleId: 'allow_docker_inspect',
+    pattern: 'docker inspect',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: docker inspect查看详情'
+  },
+  {
+    ruleId: 'allow_docker_logs',
+    pattern: 'docker logs',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: docker logs查看日志'
+  },
+  {
+    ruleId: 'allow_docker_top',
+    pattern: 'docker top',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: docker top查看容器进程'
+  },
+  {
+    ruleId: 'allow_docker_stats',
+    pattern: 'docker stats',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: docker stats查看容器资源'
+  },
+  {
+    ruleId: 'allow_docker_search',
+    pattern: 'docker search',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: docker search搜索镜像'
+  },
+
+  // K8s只读补充
+  {
+    ruleId: 'allow_kubectl_describe',
+    pattern: 'kubectl describe',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: kubectl describe查看详情'
+  },
+  {
+    ruleId: 'allow_kubectl_logs',
+    pattern: 'kubectl logs',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: kubectl logs查看日志'
+  },
+  {
+    ruleId: 'allow_kubectl_top',
+    pattern: 'kubectl top',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: kubectl top查看资源'
+  },
+  {
+    ruleId: 'allow_kubectl_version',
+    pattern: 'kubectl version',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: kubectl version查看版本'
+  },
+  {
+    ruleId: 'allow_kubectl_api_resources',
+    pattern: 'kubectl api-resources',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: kubectl api-resources查看API资源'
+  },
+  {
+    ruleId: 'allow_kubectl_config_view',
+    pattern: 'kubectl config view',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: kubectl config view查看配置'
+  },
+
+  // 版本查询补充
+  {
+    ruleId: 'allow_java_version',
+    pattern: 'java --version',
+    patternType: 'exact',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: java版本查询'
+  },
+  {
+    ruleId: 'allow_javac_version',
+    pattern: 'javac --version',
+    patternType: 'exact',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: javac版本查询'
+  },
+  {
+    ruleId: 'allow_ruby_version',
+    pattern: 'ruby --version',
+    patternType: 'exact',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: ruby版本查询'
+  },
+  {
+    ruleId: 'allow_php_version',
+    pattern: 'php --version',
+    patternType: 'exact',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: php版本查询'
+  },
+  {
+    ruleId: 'allow_docker_compose_version',
+    pattern: 'docker-compose --version',
+    patternType: 'exact',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: docker-compose版本查询'
+  },
+  {
+    ruleId: 'allow_gh_version',
+    pattern: 'gh --version',
+    patternType: 'exact',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: GitHub CLI版本查询'
+  },
+
+  // 系统信息只读
+  {
+    ruleId: 'allow_uname',
+    pattern: 'uname',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: uname查看系统信息'
+  },
+  {
+    ruleId: 'allow_hostname',
+    pattern: 'hostname',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: hostname查看主机名'
+  },
+  {
+    ruleId: 'allow_whoami',
+    pattern: 'whoami',
+    patternType: 'exact',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: whoami查看当前用户'
+  },
+  {
+    ruleId: 'allow_id',
+    pattern: 'id',
+    patternType: 'exact',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: id查看用户信息'
+  },
+  {
+    ruleId: 'allow_df',
+    pattern: 'df',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: df查看磁盘使用'
+  },
+  {
+    ruleId: 'allow_free',
+    pattern: 'free',
+    patternType: 'exact',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: free查看内存使用'
+  },
+  {
+    ruleId: 'allow_uptime',
+    pattern: 'uptime',
+    patternType: 'exact',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: uptime查看运行时间'
+  },
+  {
+    ruleId: 'allow_env',
+    pattern: 'env',
+    patternType: 'exact',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: env查看环境变量'
+  },
+  {
+    ruleId: 'allow_printenv',
+    pattern: 'printenv',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: printenv查看环境变量'
+  },
+  {
+    ruleId: 'allow_which',
+    pattern: 'which',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: which查找命令路径'
+  },
+  {
+    ruleId: 'allow_type_command',
+    pattern: 'type',
+    patternType: 'prefix',
+    behavior: 'allow',
+    source: 'default',
+    description: '允许: type查看命令类型'
   }
 ];
