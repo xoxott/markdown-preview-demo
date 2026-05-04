@@ -34,7 +34,9 @@ export {
   PLAN_MODE_ALLOWED_TOOLS,
   ACCEPT_EDITS_DENIED_TOOLS,
   ACCEPT_EDITS_FAST_PATH_TOOLS,
-  CLASSIFIER_SAFE_ALLOWLIST
+  CLASSIFIER_SAFE_ALLOWLIST,
+  MODE_TRANSITION_MATRIX,
+  validateModeTransition
 } from './types/permission-mode';
 
 // 权限规则函数
@@ -139,6 +141,27 @@ export {
   isDangerousDirectoryPath,
   isDangerousToolInput
 } from './types/safety-check';
+
+// 权限决策引擎
+export { PermissionDecisionEngine } from './permission-engine';
+export type { PermissionDecisionLogEntry, PermissionDecisionEngineOptions } from './permission-engine';
+
+// Plan批准流程
+export { PlanApproveFlow } from './plan-approve';
+export type {
+  PlanApproveState,
+  PlanStep,
+  PlanContent,
+  PlanSubmitResult,
+  PlanApproveResult,
+  PlanApproveFlowOptions
+} from './plan-approve';
+
+// 权限事件
+export type { PermissionEvent, PermissionEventEmitter } from './types/permission-events';
+
+// 模式切换结果
+export type { ModeTransitionResult } from './types/permission-mode';
 
 // P44: 原子竞争权限架构
 export { createResolveOnce } from './permission/createResolveOnce';

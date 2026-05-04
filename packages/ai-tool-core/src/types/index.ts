@@ -22,6 +22,7 @@ export type * from './settings-bridge';
 export type * from './settings-dropin';
 export type * from './settings-cache';
 export type * from './permission-prompt';
+export type * from './permission-events';
 export type * from './safety-check';
 export type * from './permission-racing';
 export type * from './swarm-worker-mailbox';

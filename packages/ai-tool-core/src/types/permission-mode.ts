@@ -227,3 +227,84 @@ export function isClassifierSafeTool(toolName: string): boolean {
     return regex.test(toolName);
   });
 }
+
+// ============================================================
+// 模式切换合法性矩阵
+// ============================================================
+
+/**
+ * 模式切换合法性矩阵
+ *
+ * 参考 Claude Code 的 mode transition 规则:
+ *
+ * - default → any: 自由切换（启动任何模式）
+ * - plan → acceptEdits/default: 计划被批准后切换到执行模式，或回退
+ * - acceptEdits → default: 执行完成后回退
+ * - auto → default: 回退到交互模式
+ * - restricted → default: 回退到交互模式
+ * - dontAsk → default: 回退到交互模式
+ * - bypassPermissions → any: 自由切换（管理员权限）
+ * - 其他组合: 非法（不允许跳级，必须经过 default 中转）
+ *
+ * 每种模式可以合法切换到的目标模式列表:
+ */
+export const MODE_TRANSITION_MATRIX: Record<PermissionMode, readonly PermissionMode[]> = {
+  default: ['default', 'plan', 'acceptEdits', 'auto', 'restricted', 'dontAsk', 'bypassPermissions'],
+  plan: ['plan', 'acceptEdits', 'default'],
+  acceptEdits: ['acceptEdits', 'default'],
+  auto: ['auto', 'default'],
+  restricted: ['restricted', 'default'],
+  dontAsk: ['dontAsk', 'default'],
+  bypassPermissions: ['default', 'plan', 'acceptEdits', 'auto', 'restricted', 'dontAsk', 'bypassPermissions']
+};
+
+/**
+ * 模式切换结果 — 包含合法性判定和额外操作提示
+ */
+export interface ModeTransitionResult {
+  /** 切换是否合法 */
+  readonly valid: boolean;
+  /** 非法原因（valid=false时） */
+  readonly reason?: string;
+  /** 是否需要恢复 strippedDangerousRules（auto→非auto 切换时） */
+  readonly needsRestoreStrippedRules?: boolean;
+  /** 是否需要剥离危险规则（非auto→auto 切换时） */
+  readonly needsStripDangerousRules?: boolean;
+}
+
+/**
+ * 验证模式切换合法性
+ *
+ * @param from 当前模式
+ * @param to 目标模式
+ * @returns 切换结果（合法性+原因+额外操作提示）
+ */
+export function validateModeTransition(
+  from: PermissionMode,
+  to: PermissionMode
+): ModeTransitionResult {
+  // 同模式 → 合法（无操作）
+  if (from === to) {
+    return { valid: true };
+  }
+
+  const allowedTargets = MODE_TRANSITION_MATRIX[from];
+
+  if (!allowedTargets.includes(to)) {
+    return {
+      valid: false,
+      reason: `不允许从 ${from} 直接切换到 ${to}，必须先切换回 default`
+    };
+  }
+
+  // auto → 非 auto → 需要恢复 strippedDangerousRules
+  const needsRestore = from === 'auto' && to !== 'auto';
+  // 非 auto → auto → 需要剥离危险规则
+  const needsStrip = from !== 'auto' && to === 'auto';
+
+  return {
+    valid: true,
+    needsRestoreStrippedRules: needsRestore,
+    needsStripDangerousRules: needsStrip
+  };
+}
