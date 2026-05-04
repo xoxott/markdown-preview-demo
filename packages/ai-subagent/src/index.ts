@@ -10,7 +10,8 @@ export type * from './types';
 export {
   AGENT_TOOL_NAME,
   DEFAULT_SUBAGENT_TIMEOUT,
-  DEFAULT_MAX_IN_MEMORY_CHARS
+  DEFAULT_MAX_IN_MEMORY_CHARS,
+  DEFAULT_MAX_FORK_DEPTH
 } from './constants';
 
 // 注册表
@@ -19,6 +20,15 @@ export { SubagentRegistry } from './registry/SubagentRegistry';
 // 创建器
 export { SubagentSpawner } from './spawner/SubagentSpawner';
 export type { Spawner } from './spawner/SubagentSpawner';
+export { ForkSpawner } from './spawner/ForkSpawner';
+
+// Fork 递归防护
+export {
+  FORK_BOILERPLATE,
+  isInForkChild,
+  getForkDepth,
+  injectForkBoilerplate
+} from './spawner/ForkGuard';
 
 // 工具
 export { createAgentTool } from './tool/AgentTool';

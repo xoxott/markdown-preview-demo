@@ -8,3 +8,6 @@ export const DEFAULT_SUBAGENT_TIMEOUT = 120_000;
 
 /** 默认内存中最大字符数（超出此值持久化到磁盘） */
 export const DEFAULT_MAX_IN_MEMORY_CHARS = 50_000;
+
+/** Fork 默认最大嵌套深度（超过此值拒绝 spawn） */
+export const DEFAULT_MAX_FORK_DEPTH = 2;

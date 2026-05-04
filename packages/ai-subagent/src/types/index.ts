@@ -12,3 +12,5 @@ export type { SubagentResult, SubagentToolResult } from './result';
 export type { CacheSafeParams, PlaceholderResult, CacheBreakInfo } from './cache';
 
 export type { OutputFileOptions, OutputSummary } from './output';
+
+export type { ForkSpawnerOptions } from './fork';
