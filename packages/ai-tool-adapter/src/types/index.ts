@@ -20,7 +20,9 @@ export type {
   AnthropicContentDelta,
   AnthropicErrorResponse,
   AnthropicSystemTextBlock,
-  AnthropicSystemField
+  AnthropicSystemField,
+  AnthropicNonStreamResponse,
+  AnthropicNonStreamContentBlock
 } from './anthropic';
 
 export type { ModelConfig, ThinkingConfig, ModelIdentifier, ModelCapability } from './model-config';
@@ -79,7 +81,9 @@ export type {
   OpenAIUsageInfo,
   OpenAIErrorResponse,
   OpenAIStreamOptions,
-  OpenAIResponseFormat
+  OpenAIResponseFormat,
+  OpenAINonStreamResponse,
+  OpenAINonStreamChoice
 } from './openai';
 
 export { DEFAULT_ADAPTER_TIMEOUT, DEFAULT_ADAPTER_MAX_TOKENS } from './adapter';
@@ -101,3 +105,31 @@ export {
 export { DEFAULT_OPENAI_TIMEOUT, DEFAULT_OPENAI_MAX_TOKENS } from './openai';
 
 export type { CostInfo, TokenUsageInfo } from './cost';
+
+export type {
+  GeminiAdapterConfig,
+  GeminiRequestBody,
+  GeminiContent,
+  GeminiPart,
+  GeminiTextPart,
+  GeminiFunctionCallPart,
+  GeminiFunctionResponsePart,
+  GeminiFunctionCall,
+  GeminiFunctionResponse,
+  GeminiTool,
+  GeminiFunctionDeclaration,
+  GeminiStreamResponse,
+  GeminiCandidate,
+  GeminiSafetyRating,
+  GeminiUsageMetadata,
+  GeminiNonStreamResponse,
+  GeminiErrorResponse,
+  GeminiGenerationConfig,
+  GeminiSystemInstruction
+} from './gemini';
+
+export {
+  DEFAULT_GEMINI_API_VERSION,
+  DEFAULT_GEMINI_BASE_URL,
+  DEFAULT_GEMINI_MAX_TOKENS
+} from './gemini';

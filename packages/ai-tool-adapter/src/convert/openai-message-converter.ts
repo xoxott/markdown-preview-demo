@@ -128,6 +128,9 @@ function convertUserContentToOpenAI(
       case 'image':
         parts.push(convertImagePartToOpenAI(part));
         break;
+
+      default:
+        break;
     }
   }
   return parts;

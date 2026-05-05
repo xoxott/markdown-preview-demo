@@ -13,6 +13,19 @@ export { ANTHROPIC_PROMPT_CACHE_BETA, ANTHROPIC_TOKEN_BATCHING_BETA } from './ty
 export { BaseLLMAdapter } from './adapter/BaseLLMAdapter';
 export { AnthropicAdapter } from './adapter/AnthropicAdapter';
 export { OpenAIAdapter } from './adapter/OpenAIAdapter';
+export { AzureOpenAIAdapter } from './adapter/AzureOpenAIAdapter';
+export type { AzureOpenAIAdapterConfig } from './adapter/AzureOpenAIAdapter';
+export { DEFAULT_AZURE_API_VERSION } from './adapter/AzureOpenAIAdapter';
+export { OllamaAdapter } from './adapter/OllamaAdapter';
+export type { OllamaAdapterConfig } from './adapter/OllamaAdapter';
+export { DEFAULT_OLLAMA_BASE_URL, DEFAULT_OLLAMA_TIMEOUT } from './adapter/OllamaAdapter';
+export { GeminiAdapter } from './adapter/GeminiAdapter';
+export type { GeminiAdapterConfig } from './types/gemini';
+export {
+  DEFAULT_GEMINI_API_VERSION,
+  DEFAULT_GEMINI_BASE_URL,
+  DEFAULT_GEMINI_MAX_TOKENS
+} from './types/gemini';
 
 // 模型能力（P85 新增）
 export {
@@ -30,20 +43,28 @@ export {
 } from './convert/tool-definition';
 export { convertToAnthropicMessages } from './convert/message-converter';
 export { convertToOpenAIMessages } from './convert/openai-message-converter';
+export { convertToGeminiContents } from './convert/gemini-message-converter';
 export {
   formatOpenAIToolDefinition,
   formatOpenAIApiToolDef
 } from './convert/openai-tool-definition';
+export {
+  formatGeminiToolDefinition,
+  formatGeminiApiToolDef,
+  formatGeminiToolDefs
+} from './convert/gemini-tool-definition';
 
 // SSE 解析
 export { parseAnthropicSSEStream, parseSSEText } from './stream/sse-parser';
 export { mapSSEEventsToChunks } from './stream/chunk-mapper';
 export { parseOpenAISSEStream, parseOpenAISSEText } from './stream/openai-sse-parser';
 export { mapOpenAIChunksToChunks } from './stream/openai-chunk-mapper';
+export { parseGeminiSSEStream, parseGeminiSSEText } from './stream/gemini-sse-parser';
 
 // 错误映射
 export { mapAnthropicError, createAbortError } from './error/error-mapper';
 export { mapOpenAIError } from './error/openai-error-mapper';
+export { mapGeminiError } from './error/gemini-error-mapper';
 
 // 用量追踪（P18 新增）
 export {

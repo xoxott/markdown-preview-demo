@@ -3,6 +3,7 @@
 import type {
   AgentMessage,
   CallModelOptions,
+  LLMResponse,
   LLMStreamChunk,
   SystemPrompt,
   ToolDefinition
@@ -11,6 +12,7 @@ import type { AnyBuiltTool } from '@suga/ai-tool-core';
 import type {
   AnthropicAdapterConfig,
   AnthropicMessage,
+  AnthropicNonStreamResponse,
   AnthropicRequestBody,
   AnthropicSystemField,
   AnthropicSystemTextBlock
@@ -137,7 +139,134 @@ export class AnthropicAdapter extends BaseLLMAdapter {
     }
   }
 
-  /** 构建 Anthropic API 请求头 */
+  /**
+   * P87: 非流式调用 — Anthropic Messages API stream:false 模式
+   *
+   * 直接获取完整响应，不经过 SSE 流式解析。适用于 cost estimate、token 预估等场景。
+   */
+  async callModelOnce(
+    messages: readonly AgentMessage[],
+    tools?: readonly ToolDefinition[],
+    options?: CallModelOptions
+  ): Promise<LLMResponse> {
+    // 1. 转换消息格式
+    const apiMessages = convertToAnthropicMessages(messages);
+
+    // 2. 构建非流式请求体（stream: false）
+    const requestBody = this.buildRequestBody(apiMessages, tools, options?.systemPrompt);
+    requestBody.stream = false;
+
+    // 3. 发送 HTTP 请求
+    const url = `${this.config.baseURL}/v1/messages`;
+    const headers = this.buildHeaders();
+    const signal = options?.signal;
+
+    const response = await withLLMRetry(
+      () => this.fetchWithAbort(url, requestBody, signal, headers),
+      this.getRetryConfig(),
+      (attempt, error, delayMs) => {
+        const hook = this.getLifecycleHook();
+        if (hook?.onRetry) {
+          hook.onRetry(
+            {
+              model: this.config.model,
+              messageCount: messages.length,
+              toolCount: tools?.length ?? 0,
+              startTime: Date.now()
+            },
+            attempt,
+            error,
+            delayMs
+          );
+        }
+      },
+      this.getRetryContext(),
+      this.getAuthRefreshProvider()
+    );
+
+    // 4. 检查错误响应
+    if (!response.ok) {
+      const errorBody = await response.text();
+      throw mapAnthropicError(response.status, errorBody);
+    }
+
+    // 5. 提取 Rate Limit headers
+    const rateLimitStatus = extractRateLimitStatus(response.headers);
+    if (rateLimitStatus) {
+      const provider = this.getRateLimitProvider();
+      if (provider) provider.onRateLimitUpdate(rateLimitStatus);
+    }
+
+    // 6. 解析非流式 JSON 响应
+    const body = (await response.json()) as AnthropicNonStreamResponse;
+    const tracker = this.getUsageTracker();
+
+    // 提取 usage → UsageTracker
+    if (body.usage && tracker) {
+      tracker.trackUsage({
+        inputTokens: body.usage.input_tokens,
+        outputTokens: body.usage.output_tokens,
+        cacheCreationInputTokens: body.usage.cache_creation_input_tokens,
+        cacheReadInputTokens: body.usage.cache_read_input_tokens
+      });
+    }
+
+    // 组装 LLMResponse
+    return this.parseNonStreamResponse(body);
+  }
+
+  /** 解析 Anthropic 非流式 JSON 响应 → LLMResponse */
+  private parseNonStreamResponse(body: AnthropicNonStreamResponse): LLMResponse {
+    let content = '';
+    let thinking: string | undefined;
+    const toolUses: import('@suga/ai-agent-loop').ToolUseBlock[] = [];
+    const toolReferences: import('@suga/ai-agent-loop').ToolReferenceBlock[] = [];
+
+    for (const block of body.content) {
+      switch (block.type) {
+        case 'text':
+          content += block.text;
+          break;
+        case 'thinking':
+          thinking = (thinking ?? '') + block.thinking;
+          break;
+        case 'tool_use':
+          toolUses.push({
+            id: block.id,
+            name: block.name,
+            input: block.input as Record<string, unknown>
+          });
+          break;
+        case 'tool_reference':
+          toolReferences.push({
+            toolUseId: block.id,
+            name: block.name,
+            input: block.input ?? {}
+          });
+          break;
+
+        default:
+          // 未知 content block 类型忽略
+          break;
+      }
+    }
+
+    return {
+      content,
+      thinking,
+      toolUses: toolUses.length > 0 ? toolUses : undefined,
+      toolReferences: toolReferences.length > 0 ? toolReferences : undefined,
+      usage: body.usage
+        ? {
+            inputTokens: body.usage.input_tokens,
+            outputTokens: body.usage.output_tokens,
+            cacheCreationInputTokens: body.usage.cache_creation_input_tokens,
+            cacheReadInputTokens: body.usage.cache_read_input_tokens
+          }
+        : undefined,
+      stopReason: body.stop_reason
+    };
+  }
   private buildHeaders(): Record<string, string> {
     const apiVersion = this.anthropicConfig.apiVersion ?? DEFAULT_ANTHROPIC_API_VERSION;
 

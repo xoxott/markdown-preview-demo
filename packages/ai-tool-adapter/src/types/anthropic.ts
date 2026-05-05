@@ -53,8 +53,8 @@ export interface AnthropicRequestBody {
   readonly model: string;
   /** 最大输出 token 数 */
   readonly max_tokens: number;
-  /** 是否流式响应 */
-  readonly stream: true;
+  /** 是否流式响应（P87: callModelOnce 使用 stream: false） */
+  stream: boolean;
   /** 系统提示（顶层字段 — string 或 TextBlockParam[]） */
   readonly system?: AnthropicSystemField;
   /** 消息列表 */
@@ -64,6 +64,40 @@ export interface AnthropicRequestBody {
   /** 思考模式配置 */
   readonly thinking?: AnthropicThinkingConfig;
 }
+
+/** P87: Anthropic 非流式响应 JSON 结构 */
+export interface AnthropicNonStreamResponse {
+  readonly id: string;
+  readonly type: 'message';
+  readonly role: 'assistant';
+  readonly content: readonly AnthropicNonStreamContentBlock[];
+  readonly model: string;
+  readonly stop_reason?: string;
+  readonly stop_sequence?: string | null;
+  readonly usage: {
+    readonly input_tokens: number;
+    readonly output_tokens: number;
+    readonly cache_creation_input_tokens?: number;
+    readonly cache_read_input_tokens?: number;
+  };
+}
+
+/** Anthropic 非流式响应内容块 */
+export type AnthropicNonStreamContentBlock =
+  | { readonly type: 'text'; readonly text: string }
+  | { readonly type: 'thinking'; readonly thinking: string }
+  | {
+      readonly type: 'tool_use';
+      readonly id: string;
+      readonly name: string;
+      readonly input: Record<string, unknown>;
+    }
+  | {
+      readonly type: 'tool_reference';
+      readonly id: string;
+      readonly name: string;
+      readonly input?: Record<string, unknown>;
+    };
 
 /** Anthropic 消息格式 */
 export interface AnthropicMessage {

@@ -144,6 +144,9 @@ function convertUserContentToAnthropic(
       case 'image':
         blocks.push(convertImagePartToAnthropic(part));
         break;
+
+      default:
+        break;
     }
   }
   return blocks;

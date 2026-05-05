@@ -1,12 +1,7 @@
 /** 模型配置抽象类型测试 */
 
 import { describe, expect, it } from 'vitest';
-import type {
-  ModelCapability,
-  ModelConfig,
-  ModelIdentifier,
-  ThinkingConfig
-} from '../types/model-config';
+import type { ModelConfig, ModelIdentifier, ThinkingConfig } from '../types/model-config';
 import {
   CLAUDE_MODEL_CAPABILITY,
   DEFAULT_MODEL_CONFIG,

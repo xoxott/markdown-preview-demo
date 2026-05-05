@@ -2,7 +2,9 @@
 
 import type {
   AgentMessage,
+  CallModelOptions,
   LLMProvider,
+  LLMResponse,
   LLMStreamChunk,
   ToolDefinition
 } from '@suga/ai-agent-loop';
@@ -125,6 +127,43 @@ export abstract class BaseLLMAdapter implements LLMProvider {
   ): AsyncGenerator<LLMStreamChunk>;
 
   abstract formatToolDefinition(tool: AnyBuiltTool): ToolDefinition;
+
+  /**
+   * P87: 非流式调用 — 默认实现消费 callModel 流式输出并组装 LLMResponse
+   *
+   * 子类可以覆写此方法提供更高效的非流式路径（例如直接调用非流式 API endpoint）， 但大多数场景下默认实现已足够。
+   */
+  async callModelOnce(
+    messages: readonly AgentMessage[],
+    tools?: readonly ToolDefinition[],
+    options?: CallModelOptions
+  ): Promise<LLMResponse> {
+    let content = '';
+    let thinking: string | undefined;
+    const toolUses: import('@suga/ai-agent-loop').ToolUseBlock[] = [];
+    const toolReferences: import('@suga/ai-agent-loop').ToolReferenceBlock[] = [];
+    let usage: LLMStreamChunk['usage'] | undefined;
+    let stopReason: string | undefined;
+
+    const stream = this.callModel(messages, tools, options);
+    for await (const chunk of stream) {
+      if (chunk.textDelta) content += chunk.textDelta;
+      if (chunk.thinkingDelta) thinking = (thinking ?? '') + chunk.thinkingDelta;
+      if (chunk.toolUse) toolUses.push(chunk.toolUse);
+      if (chunk.toolReference) toolReferences.push(chunk.toolReference);
+      if (chunk.usage) usage = chunk.usage;
+      if (chunk.stopReason) stopReason = chunk.stopReason;
+    }
+
+    return {
+      content,
+      thinking,
+      toolUses: toolUses.length > 0 ? toolUses : undefined,
+      toolReferences: toolReferences.length > 0 ? toolReferences : undefined,
+      usage,
+      stopReason
+    };
+  }
 
   /**
    * 发送 HTTP 请求（级联超时 + 外部中断信号）

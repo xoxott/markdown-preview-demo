@@ -194,3 +194,24 @@ export const DEFAULT_OPENAI_TIMEOUT = 60_000;
 
 /** 默认 OpenAI 最大输出 token 数 */
 export const DEFAULT_OPENAI_MAX_TOKENS = 4096;
+
+/** P87: OpenAI 非流式 Chat Completion 响应 */
+export interface OpenAINonStreamResponse {
+  readonly id: string;
+  readonly object: 'chat.completion';
+  readonly created: number;
+  readonly model: string;
+  readonly choices: readonly OpenAINonStreamChoice[];
+  readonly usage: OpenAIUsageInfo;
+}
+
+/** OpenAI 非流式响应选择项 */
+export interface OpenAINonStreamChoice {
+  readonly index: number;
+  readonly message: {
+    readonly role: 'assistant';
+    readonly content?: string | null;
+    readonly tool_calls?: readonly OpenAIToolCall[];
+  };
+  readonly finish_reason: string | null;
+}
