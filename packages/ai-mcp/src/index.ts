@@ -1,6 +1,6 @@
 /**
  * @suga/ai-mcp
- * MCP 协议抽象层 — 配置类型、传输接口、连接管理、名称规范化
+ * MCP 协议抽象层 — 配置类型、传输接口、连接管理、名称规范化 + Server 端
  */
 
 // 类型导出
@@ -76,3 +76,32 @@ export {
   mergeScopedConfigs
 } from './connection/McpConfigLoader';
 export type { McpConfigLoader } from './connection/McpConfigLoader';
+
+// Server 端（P93 新增）
+export {
+  McpServerHost,
+  McpServerBuilder,
+  createStdioServerTransport,
+  createSseServerTransport,
+  createStreamableHttpServerTransport,
+  handleSsePostMessage,
+  handleStreamableHttpRequest,
+  getSseSessionId,
+  getStreamableHttpSessionId,
+  connectStdioServer
+} from './server';
+export type {
+  McpServerHostConfig,
+  McpToolConfig,
+  McpToolCallback,
+  McpResourceConfig,
+  McpResourceReadCallback,
+  McpPromptConfig,
+  McpPromptCallback,
+  RegisteredTool,
+  RegisteredResource,
+  RegisteredPrompt,
+  McpStdioServerTransportOptions,
+  McpSseServerTransportOptions,
+  McpStreamableHttpServerTransportOptions
+} from './server';
