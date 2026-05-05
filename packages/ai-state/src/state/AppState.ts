@@ -105,7 +105,35 @@ export interface UIStateDomain {
   readonly spinnerTip?: string;
 }
 
-/** AppState 核心接口 — 5个核心域 + 可通过 interface merging 扩展 */
+/** P89: 对话状态域 — 会话级消息/提示/轮次追踪 */
+export interface ConversationStateDomain {
+  /** 消息历史（AgentMessage[]） */
+  readonly messages: readonly unknown[];
+  /** 当前用户输入提示 */
+  readonly currentPrompt?: string;
+  /** 当前轮次计数 */
+  readonly turnCount: number;
+  /** 最近一次模型响应文本 */
+  readonly lastModelResponse?: string;
+  /** 会话创建时间戳 */
+  readonly sessionCreatedAt?: number;
+  /** 会话最后活跃时间戳 */
+  readonly sessionLastActiveAt?: number;
+}
+
+/** P89: 会话持久化接口 — 保存/恢复会话状态 */
+export interface SessionPersistenceProvider {
+  /** 保存会话状态到持久化存储 */
+  saveSession(sessionId: string, state: DeepImmutable<ConversationStateDomain>): Promise<void>;
+  /** 从持久化存储恢复会话状态 */
+  loadSession(sessionId: string): Promise<DeepImmutable<ConversationStateDomain> | undefined>;
+  /** 删除会话 */
+  deleteSession(sessionId: string): Promise<void>;
+  /** 列出所有会话 ID */
+  listSessions(): Promise<readonly string[]>;
+}
+
+/** AppState 核心接口 — 6个核心域（P89 新增 conversation）+ 可通过 interface merging 扩展 */
 export interface AppState {
   readonly permissions: PermissionStateDomain;
   readonly settings: SettingsStateDomain;
@@ -113,4 +141,6 @@ export interface AppState {
   readonly agents: AgentStateDomain;
   readonly team: TeamStateDomain;
   readonly ui: UIStateDomain;
+  /** P89: 对话状态域 */
+  readonly conversation: ConversationStateDomain;
 }

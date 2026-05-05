@@ -4,11 +4,12 @@ import type { AnyBuiltTool } from '@suga/ai-tool-core';
 import type {
   CallModelOptions,
   LLMProvider,
+  LLMResponse,
   LLMStreamChunk,
   SystemPrompt,
   ToolDefinition
 } from '../../types/provider';
-import type { AgentMessage, ToolUseBlock } from '../../types/messages';
+import type { AgentMessage, ToolReferenceBlock, ToolUseBlock } from '../../types/messages';
 
 /** Mock LLM Provider 配置 */
 export interface MockLLMProviderConfig {
@@ -138,5 +139,38 @@ export class MockLLMProvider implements LLMProvider {
 
       yield chunk;
     }
+  }
+
+  /** P87: 非流式调用 — 消费流式输出组装 LLMResponse */
+  async callModelOnce(
+    messages: readonly AgentMessage[],
+    tools?: readonly ToolDefinition[],
+    options?: CallModelOptions
+  ): Promise<LLMResponse> {
+    let content = '';
+    let thinking: string | undefined;
+    const toolUses: ToolUseBlock[] = [];
+    const toolReferences: ToolReferenceBlock[] = [];
+    let usage: LLMStreamChunk['usage'] | undefined;
+    let stopReason: string | undefined;
+
+    const stream = this.callModel(messages, tools, options);
+    for await (const chunk of stream) {
+      if (chunk.textDelta) content += chunk.textDelta;
+      if (chunk.thinkingDelta) thinking = (thinking ?? '') + chunk.thinkingDelta;
+      if (chunk.toolUse) toolUses.push(chunk.toolUse);
+      if (chunk.toolReference) toolReferences.push(chunk.toolReference);
+      if (chunk.usage) usage = chunk.usage;
+      if (chunk.stopReason) stopReason = chunk.stopReason;
+    }
+
+    return {
+      content,
+      thinking,
+      toolUses: toolUses.length > 0 ? toolUses : undefined,
+      toolReferences: toolReferences.length > 0 ? toolReferences : undefined,
+      usage,
+      stopReason
+    };
   }
 }

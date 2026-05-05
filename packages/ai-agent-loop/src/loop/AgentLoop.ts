@@ -34,7 +34,12 @@ import type { InterleavedToolScheduler } from '../types/scheduler';
 import { createMutableAgentContext } from '../context/AgentContext';
 import { createAgentToolUseContext } from '../context/ToolUseContext';
 import { isTerminal } from '../types/state';
-import { DEFAULT_MAX_TURNS, DEFAULT_SESSION_ID, DEFAULT_TOOL_TIMEOUT } from '../constants';
+import {
+  DEFAULT_MAX_TURNS,
+  DEFAULT_SESSION_ID,
+  DEFAULT_TOOL_TIMEOUT,
+  MAX_LOOP_ITERATIONS
+} from '../constants';
 import { advanceState } from './stateMachine';
 
 /**
@@ -160,7 +165,12 @@ export class AgentLoop {
   ): AsyncGenerator<AgentEvent> {
     const abortController = new AbortController();
     if (signal) {
-      signal.addEventListener('abort', () => abortController.abort(), { once: true });
+      // P88: 如果外部信号已 aborted → 立即级联
+      if (signal.aborted) {
+        abortController.abort();
+      } else {
+        signal.addEventListener('abort', () => abortController.abort(), { once: true });
+      }
     }
 
     const state = this.createInitialState(initialMessages, abortController);
@@ -179,7 +189,12 @@ export class AgentLoop {
   async *resumeLoop(state: AgentState, signal?: AbortSignal): AsyncGenerator<AgentEvent> {
     const abortController = new AbortController();
     if (signal) {
-      signal.addEventListener('abort', () => abortController.abort(), { once: true });
+      // P88: 如果外部信号已 aborted → 立即级联
+      if (signal.aborted) {
+        abortController.abort();
+      } else {
+        signal.addEventListener('abort', () => abortController.abort(), { once: true });
+      }
     }
 
     // 替换已失效的 AbortController
@@ -194,20 +209,47 @@ export class AgentLoop {
   /** 核心循环逻辑（queryLoop 和 resumeLoop 共用） */
   private async *runLoop(
     initialState: AgentState,
-    _abortController: AbortController
+    abortController: AbortController
   ): AsyncGenerator<AgentEvent> {
     let state = initialState;
     const composed = composePhases(this.phases);
     /** 累积最后一轮的 usage（CallModelPhase 写入 ctx.meta.usage） */
     let lastUsage: LLMStreamChunk['usage'] | undefined;
+    /** P88: 硬性循环计数 — 防止 while(true) 无限循环 */
+    let iterationCount = 0;
 
     // while(true) 无限循环
     while (true) {
+      iterationCount++;
+      // P88: 每轮开头检查 abort signal — Phase 层也可通过 ctx.signal 检查
+      if (abortController.signal.aborted) {
+        yield {
+          type: 'loop_end',
+          result: this.buildLoopResult(
+            { type: 'aborted', reason: 'Agent loop 被中断' },
+            state,
+            lastUsage
+          )
+        };
+        return;
+      }
+      // P88: 硬性循环上限保护 — 即使 PostProcessPhase 的 max_turns 检查被绕过，也不会无限循环
+      if (iterationCount > MAX_LOOP_ITERATIONS) {
+        yield {
+          type: 'loop_end',
+          result: this.buildLoopResult(
+            { type: 'max_turns', maxTurns: MAX_LOOP_ITERATIONS },
+            state,
+            lastUsage
+          )
+        };
+        return;
+      }
       // P12: 根据消息历史中的 toolReferences 动态计算工具定义
       const dynamicToolDefs = this.computeToolDefs(state.messages);
 
-      // 创建本轮可变上下文
-      const ctx = createMutableAgentContext(state);
+      // 创建本轮可变上下文（P88: 传递 abort signal 到 Phase 层）
+      const ctx = createMutableAgentContext(state, abortController.signal);
 
       // P12: 注入动态工具定义到 ctx.meta（供 CallModelPhase/StreamingCallModelPhase 优先使用）
       if (dynamicToolDefs) {

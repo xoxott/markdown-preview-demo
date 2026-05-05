@@ -9,7 +9,12 @@ export type * from './types';
 export { createSystemPrompt } from './types';
 
 // 常量
-export { DEFAULT_MAX_TURNS, DEFAULT_TOOL_TIMEOUT, DEFAULT_SESSION_ID } from './constants';
+export {
+  DEFAULT_MAX_TURNS,
+  DEFAULT_TOOL_TIMEOUT,
+  DEFAULT_SESSION_ID,
+  MAX_LOOP_ITERATIONS
+} from './constants';
 
 // 上下文
 export { createMutableAgentContext } from './context/AgentContext';

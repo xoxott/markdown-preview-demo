@@ -14,6 +14,9 @@ function createTestConfig(): RuntimeConfig {
   return {
     provider: {
       async *callModel() {},
+      async callModelOnce() {
+        return { content: '' };
+      },
       formatToolDefinition: () => ({ name: 'test', description: 'mock', inputSchema: {} })
     },
     fsProvider: mockFsProvider

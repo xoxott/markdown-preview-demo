@@ -32,6 +32,7 @@ export type {
   LLMStreamChunk,
   ToolDefinition,
   LLMProvider,
+  LLMResponse,
   SystemPrompt,
   CallModelOptions
 } from './provider';

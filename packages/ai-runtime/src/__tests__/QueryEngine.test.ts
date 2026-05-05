@@ -62,6 +62,9 @@ describe('QueryEngine', () => {
       // eslint-disable-next-line require-yield
       async *callModel() {
         throw new Error('API timeout');
+      },
+      async callModelOnce() {
+        throw new Error('API timeout');
       }
     };
 

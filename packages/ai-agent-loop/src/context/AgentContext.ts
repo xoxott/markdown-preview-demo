@@ -23,6 +23,8 @@ export interface AgentContext {
   readonly needsToolExecution: boolean;
   /** 错误 */
   readonly error?: unknown;
+  /** P88: 中断信号 — Phase 层可检查 abort 状态 */
+  readonly signal?: AbortSignal;
   /** 元数据（阶段间传递信息） */
   meta: Record<string, unknown>;
 }
@@ -51,9 +53,13 @@ export interface MutableAgentContext extends AgentContext {
  * 创建可变 Agent 上下文
  *
  * @param state 当前循环状态
+ * @param signal P88: 中断信号（Phase 层可检查 abort 状态）
  * @returns MutableAgentContext 实例
  */
-export function createMutableAgentContext(state: AgentState): MutableAgentContext {
+export function createMutableAgentContext(
+  state: AgentState,
+  signal?: AbortSignal
+): MutableAgentContext {
   let accumulatedText = '';
   let accumulatedThinking = '';
   const toolUses: ToolUseBlock[] = [];
@@ -64,6 +70,7 @@ export function createMutableAgentContext(state: AgentState): MutableAgentContex
 
   return {
     state,
+    signal,
     meta,
 
     get accumulatedText() {

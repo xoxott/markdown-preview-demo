@@ -28,6 +28,22 @@ export interface LLMStreamChunk {
   readonly stopReason?: string;
 }
 
+/** P87: 非流式 LLM 响应 — 一次性返回完整结果 */
+export interface LLMResponse {
+  /** 完整文本内容 */
+  readonly content: string;
+  /** 完整思考内容（仅支持 thinking 的模型） */
+  readonly thinking?: string;
+  /** 工具调用列表 */
+  readonly toolUses?: readonly ToolUseBlock[];
+  /** 工具引用列表 (P12) */
+  readonly toolReferences?: readonly ToolReferenceBlock[];
+  /** 用量信息 */
+  readonly usage?: LLMStreamChunk['usage'];
+  /** 停止原因 */
+  readonly stopReason?: string;
+}
+
 /** LLM 工具定义（Provider 适配后的格式） */
 export interface ToolDefinition {
   /** 工具名称 */
@@ -87,6 +103,22 @@ export interface LLMProvider {
     tools?: readonly ToolDefinition[],
     options?: CallModelOptions
   ): AsyncGenerator<LLMStreamChunk>;
+
+  /**
+   * P87: 非流式调用 LLM — 一次性返回完整响应
+   *
+   * 适用于 cost estimate、dry-run、token 计数预估等不需要流式输出的场景。 默认实现会消费 callModel 的流式输出并组装为 LLMResponse。
+   *
+   * @param messages 消息历史
+   * @param tools 可用工具定义（可选）
+   * @param options 调用选项（含 systemPrompt 和 signal，可选）
+   * @returns LLMResponse 完整响应
+   */
+  callModelOnce(
+    messages: readonly AgentMessage[],
+    tools?: readonly ToolDefinition[],
+    options?: CallModelOptions
+  ): Promise<LLMResponse>;
 
   /**
    * 将 BuiltTool 转换为 LLM 可理解的工具定义格式

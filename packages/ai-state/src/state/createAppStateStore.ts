@@ -32,6 +32,15 @@ export function getDefaultAppState(): DeepImmutable<AppState> {
       expandedView: 'none',
       statusLineText: undefined,
       spinnerTip: undefined
+    },
+    // P89: 对话状态域
+    conversation: {
+      messages: [],
+      currentPrompt: undefined,
+      turnCount: 0,
+      lastModelResponse: undefined,
+      sessionCreatedAt: undefined,
+      sessionLastActiveAt: undefined
     }
   } as DeepImmutable<AppState>;
 }

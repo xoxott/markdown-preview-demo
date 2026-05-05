@@ -3,9 +3,13 @@
 import type { AnyBuiltTool } from '@suga/ai-tool-core';
 import type {
   AgentMessage,
+  CallModelOptions,
   LLMProvider,
+  LLMResponse,
   LLMStreamChunk,
-  ToolDefinition
+  ToolDefinition,
+  ToolReferenceBlock,
+  ToolUseBlock
 } from '@suga/ai-agent-loop';
 
 /**
@@ -65,5 +69,37 @@ export class MockLLMProvider implements LLMProvider {
       }
       yield chunk;
     }
+  }
+
+  async callModelOnce(
+    messages: readonly AgentMessage[],
+    tools?: readonly ToolDefinition[],
+    options?: CallModelOptions
+  ): Promise<LLMResponse> {
+    let content = '';
+    let thinking: string | undefined;
+    const toolUses: ToolUseBlock[] = [];
+    const toolReferences: ToolReferenceBlock[] = [];
+    let usage: LLMStreamChunk['usage'] | undefined;
+    let stopReason: string | undefined;
+
+    const stream = this.callModel(messages, tools, options);
+    for await (const chunk of stream) {
+      if (chunk.textDelta) content += chunk.textDelta;
+      if (chunk.thinkingDelta) thinking = (thinking ?? '') + chunk.thinkingDelta;
+      if (chunk.toolUse) toolUses.push(chunk.toolUse);
+      if (chunk.toolReference) toolReferences.push(chunk.toolReference);
+      if (chunk.usage) usage = chunk.usage;
+      if (chunk.stopReason) stopReason = chunk.stopReason;
+    }
+
+    return {
+      content,
+      thinking,
+      toolUses: toolUses.length > 0 ? toolUses : undefined,
+      toolReferences: toolReferences.length > 0 ? toolReferences : undefined,
+      usage,
+      stopReason
+    };
   }
 }

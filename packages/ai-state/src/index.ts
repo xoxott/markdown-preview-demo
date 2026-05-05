@@ -13,7 +13,9 @@ export type {
   TeamStateDomain,
   WorkerState,
   InboxMessage,
-  UIStateDomain
+  UIStateDomain,
+  ConversationStateDomain,
+  SessionPersistenceProvider
 } from './state/AppState';
 
 export { createAppStateStore, getDefaultAppState } from './state/createAppStateStore';
@@ -30,3 +32,17 @@ export {
   updateSettings,
   invalidateSettingsCache
 } from './state/settingsState';
+
+// P89: ConversationState 域更新函数
+export {
+  getDefaultConversationState,
+  appendMessage,
+  setCurrentPrompt,
+  incrementTurnCount,
+  setLastModelResponse,
+  initSessionTimestamps,
+  resetConversation
+} from './state/conversationState';
+
+// P89: 会话持久化
+export { InMemorySessionPersistence } from './session/InMemorySessionPersistence';
