@@ -21,6 +21,10 @@ import type { ConfigValue } from './config-provider';
 import type { McpResourceContent, McpResourceEntry } from './mcp-resource-provider';
 // === PlanMode ===
 import type { PlanModeResult } from './plan-mode-provider';
+// === CronCreateTool ===
+import type { CronCreateResult, CronDeleteResult, CronEntry } from './cron-provider';
+// === RemoteTriggerTool ===
+import type { RemoteTriggerResult } from './remote-trigger-provider';
 
 export interface WebFetchOutput {
   readonly content: string;
@@ -185,3 +189,13 @@ export interface ExitWorktreeOutput {
   readonly discardedCommits?: number;
   readonly message: string;
 }
+
+export type CronCreateOutput = CronCreateResult;
+
+// === CronDeleteTool ===
+export type CronDeleteOutput = CronDeleteResult;
+
+// === CronListTool ===
+export type CronListOutput = readonly CronEntry[];
+
+export type RemoteTriggerOutput = RemoteTriggerResult;

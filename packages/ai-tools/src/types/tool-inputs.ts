@@ -428,3 +428,44 @@ export const ExitWorktreeInputSchema = z.strictObject({
 });
 
 export type ExitWorktreeInput = z.infer<typeof ExitWorktreeInputSchema>;
+
+// === CronCreateTool ===
+
+export const CronCreateInputSchema = z.strictObject({
+  cron: z.string().describe('Standard 5-field cron expression in local timezone (M H DoM Mon DoW)'),
+  prompt: z.string().describe('Prompt to enqueue at each fire time'),
+  recurring: z
+    .boolean()
+    .default(true)
+    .describe('true = fire repeatedly, false = fire once then auto-delete'),
+  durable: z
+    .boolean()
+    .default(false)
+    .describe('Persist across sessions (false = session-only, dies when session ends)')
+});
+
+export type CronCreateInput = z.infer<typeof CronCreateInputSchema>;
+
+// === CronDeleteTool ===
+
+export const CronDeleteInputSchema = z.strictObject({
+  id: z.string().describe('Job ID returned by CronCreate')
+});
+
+export type CronDeleteInput = z.infer<typeof CronDeleteInputSchema>;
+
+// === CronListTool ===
+
+export const CronListInputSchema = z.strictObject({});
+
+export type CronListInput = z.infer<typeof CronListInputSchema>;
+
+// === RemoteTriggerTool ===
+
+export const RemoteTriggerInputSchema = z.strictObject({
+  action: z.enum(['list', 'get', 'create', 'update', 'run']).describe('Action to perform'),
+  trigger_id: z.string().optional().describe('Trigger ID for get/update/run actions'),
+  body: z.record(z.string(), z.unknown()).optional().describe('JSON body for create/update actions')
+});
+
+export type RemoteTriggerInput = z.infer<typeof RemoteTriggerInputSchema>;

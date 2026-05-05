@@ -16,6 +16,8 @@ export type * from './types/skill-provider';
 export type * from './types/config-provider';
 export type * from './types/mcp-resource-provider';
 export type * from './types/plan-mode-provider';
+export type * from './types/cron-provider';
+export type * from './types/remote-trigger-provider';
 
 // 工具输入 Schema 导出（供宿主构建工具时使用）
 export {
@@ -49,7 +51,11 @@ export {
   StructuredOutputInputSchema,
   ToolSearchInputSchema,
   EnterWorktreeInputSchema,
-  ExitWorktreeInputSchema
+  ExitWorktreeInputSchema,
+  CronCreateInputSchema,
+  CronDeleteInputSchema,
+  CronListInputSchema,
+  RemoteTriggerInputSchema
 } from './types/tool-inputs';
 
 // 纯函数工具导出
@@ -143,6 +149,14 @@ export type {
 export { enterWorktreeTool } from './tools/enter-worktree';
 export type { WorktreeSession } from './tools/enter-worktree';
 export { exitWorktreeTool } from './tools/exit-worktree';
+
+// P94: Cron工具导出
+export { cronCreateTool } from './tools/cron-create';
+export { cronDeleteTool } from './tools/cron-delete';
+export { cronListTool } from './tools/cron-list';
+
+// P95: RemoteTrigger工具导出
+export { remoteTriggerTool } from './tools/remote-trigger';
 export {
   shouldUseSandbox,
   containsExcludedCommand,
@@ -251,6 +265,8 @@ export { InMemorySkillProvider } from './provider/InMemorySkillProvider';
 export { InMemoryConfigProvider } from './provider/InMemoryConfigProvider';
 export { InMemoryMcpResourceProvider } from './provider/InMemoryMcpResourceProvider';
 export { InMemoryPlanModeProvider } from './provider/InMemoryPlanModeProvider';
+export { InMemoryCronProvider } from './provider/InMemoryCronProvider';
+export { InMemoryRemoteTriggerProvider } from './provider/InMemoryRemoteTriggerProvider';
 export { TerminalPermissionPromptHandler } from './provider/TerminalPermissionPromptHandler';
 export type { TerminalPermissionPromptConfig } from './provider/TerminalPermissionPromptHandler';
 export { NodeSettingsLayerReader } from './provider/NodeSettingsLayerReader';

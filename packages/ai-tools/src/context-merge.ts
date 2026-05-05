@@ -26,6 +26,8 @@ import type { SkillProvider } from './types/skill-provider';
 import type { ConfigProvider } from './types/config-provider';
 import type { McpResourceProvider } from './types/mcp-resource-provider';
 import type { PlanModeProvider } from './types/plan-mode-provider';
+import type { CronProvider } from './types/cron-provider';
+import type { RemoteTriggerProvider } from './types/remote-trigger-provider';
 import type { FileReadStateCache } from './utils/file-read-state-cache';
 
 /** 扩展的 ToolUseContext — 包含所有宿主注入Provider */
@@ -52,6 +54,10 @@ export interface ExtendedToolUseContext extends ToolUseContext {
   mcpResourceProvider?: McpResourceProvider;
   /** 计划模式提供者 — 宿主注入实现（PlanMode Tools使用） */
   planModeProvider?: PlanModeProvider;
+  /** Cron定时任务提供者 — 宿主注入实现（Cron Tools使用） */
+  cronProvider?: CronProvider;
+  /** RemoteTrigger提供者 — 宿主注入实现（RemoteTriggerTool使用） */
+  remoteTriggerProvider?: RemoteTriggerProvider;
   /** 文件读取状态缓存 — 宿主注入实现（FileRead去重使用） */
   readFileState?: FileReadStateCache;
 }
