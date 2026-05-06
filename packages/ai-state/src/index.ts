@@ -46,3 +46,20 @@ export {
 
 // P89: 会话持久化
 export { InMemorySessionPersistence } from './session/InMemorySessionPersistence';
+
+// N3: CompletionBoundary + SpeculationState
+export type { CompletionBoundary, CompletionBoundaryType } from './types/completion-boundary';
+export type { SpeculationResult, SpeculationPhase } from './types/speculation';
+export { IDLE_SPECULATION_STATE } from './types/speculation';
+
+// N4: StateChangeEffect 桥接
+export type {
+  StateChangeEffect,
+  StateChangeCategory,
+  StateChangeBridge,
+  StateChangeEffectHandler
+} from './types/state-change-effect';
+export { createStateChangeBridge } from './types/state-change-effect';
+
+// N4: Selectors 派生状态
+export { getActiveAgentForInput, selectState } from './core/selectors';

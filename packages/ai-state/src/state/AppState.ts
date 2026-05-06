@@ -143,4 +143,8 @@ export interface AppState {
   readonly ui: UIStateDomain;
   /** P89: 对话状态域 */
   readonly conversation: ConversationStateDomain;
+  /** N3: 完成边界追踪 — turn完成/工具完成/权限拒绝 */
+  readonly completionBoundaries?: readonly import('../types/completion-boundary').CompletionBoundary[];
+  /** N3: 推测性执行状态 */
+  readonly speculation?: import('../types/speculation').SpeculationResult;
 }

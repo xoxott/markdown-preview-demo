@@ -15,6 +15,7 @@ export { DEFAULT_RUNTIME_MAX_TURNS, DEFAULT_RUNTIME_TOOL_TIMEOUT } from './const
 // Factory 层
 export { buildRuntimePhases } from './factory/buildRuntimePhases';
 export { buildEffectiveToolRegistry } from './factory/buildEffectiveToolRegistry';
+export type { ToolSearchRegistryResult } from './factory/buildEffectiveToolRegistry';
 export { createRuntimeAgentLoop } from './factory/createRuntimeAgentLoop';
 export { createCallModelForSummary } from './factory/createCallModelForSummary';
 export { buildProviderMap } from './factory/buildProviderMap';
@@ -30,6 +31,7 @@ export type {
 
 // Session 层
 export { RuntimeSession } from './session/RuntimeSession';
+export type { BudgetExceededEvent } from './session/RuntimeSession';
 export { createRuntimeSession } from './session/createRuntimeSession';
 export { SDKSessionAdapter } from './session/SDKSessionAdapter';
 export { SessionEngineImpl, createSessionEngine } from './session/SessionEngineImpl';
@@ -46,6 +48,15 @@ export type { RuntimePermissionEngineConfig } from './permission/RuntimePermissi
 // Swarm 层 — Worker Mailbox 适配器
 export { SwarmWorkerMailboxAdapter } from './swarm/SwarmWorkerMailboxAdapter';
 export type { SwarmWorkerMailboxAdapterConfig } from './swarm/SwarmWorkerMailboxAdapter';
+
+// N1: QueryEngine Turn 状态导出
+export {
+  createInitialQueryTurnState,
+  recordPermissionDenial,
+  addDiscoveredSkill,
+  addLoadedMemoryPath,
+  hasPermissionDenial
+} from './types/query-state';
 
 // SDK 层 — QueryEngine + AgentEvent→SDKMessage 映射 + system prompt 组装
 export { QueryEngine } from './sdk/QueryEngine';

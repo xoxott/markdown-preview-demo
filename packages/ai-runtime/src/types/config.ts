@@ -40,6 +40,7 @@ import type {
 } from '@suga/ai-tools';
 import type { SandboxSettings } from '@suga/ai-sdk';
 import type { CostConfig, TokenBudget, UsageTracker } from '@suga/ai-tool-adapter';
+import type { QueryTurnState } from './query-state';
 
 export type { LLMClassifierConfig };
 
@@ -179,6 +180,16 @@ export interface RuntimeConfig {
   readonly tokenBudget?: TokenBudget;
   /** 成本计算配置（提供时RuntimeSession可查询CostInfo） */
   readonly costConfig?: CostConfig;
+  /** G14: 最大美元预算上限（提供时每轮追踪累计成本，超限自动终止循环） */
+  readonly maxBudgetUsd?: number;
+
+  // === P99 Delta Tool Search (可选) ===
+  /** 启用工具搜索增量加载（'true'→tst模式, 'false'→standard, 'auto:N'→tst-auto） */
+  readonly enableToolSearch?: string;
+
+  // === N1 QueryEngine Turn 状态 (可选) ===
+  /** QueryEngine turn 间持久状态（跨 turn 累积权限拒绝/skill发现/记忆路径） */
+  readonly turnState?: QueryTurnState;
 }
 
 /** Provider Map — 从 RuntimeConfig 提取的 provider 字段集合 */
@@ -219,6 +230,8 @@ export interface ProviderMap {
   readonly usageTracker?: UsageTracker;
   readonly tokenBudget?: TokenBudget;
   readonly costConfig?: CostConfig;
+  readonly maxBudgetUsd?: number;
+  readonly enableToolSearch?: string;
 }
 
 export type { CostConfig };

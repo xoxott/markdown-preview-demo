@@ -3,7 +3,18 @@
 import type { AgentEvent, AgentMessage, SystemPrompt } from '@suga/ai-agent-loop';
 import { type Store, createStore } from '@suga/ai-state';
 import type { RuntimeConfig, RuntimeSessionState } from '../types/config';
+import type { QueryTurnState } from '../types/query-state';
+import { createInitialQueryTurnState } from '../types/query-state';
 import { createRuntimeAgentLoop } from '../factory/createRuntimeAgentLoop';
+
+/** G14: 预算超限终止事件 */
+export interface BudgetExceededEvent {
+  type: 'budget_exceeded';
+  /** 累计成本（USD） */
+  totalCostUsd: number;
+  /** 预算上限（USD） */
+  maxBudgetUsd: number;
+}
 
 /**
  * RuntimeSession — P10+P34 集成会话
@@ -11,14 +22,7 @@ import { createRuntimeAgentLoop } from '../factory/createRuntimeAgentLoop';
  * 连接 P1 AgentLoop + P7 Store<T> 状态管理 + 多轮消息历史：
  *
  * - sendMessage → createRuntimeAgentLoop → queryLoop → Store.setState
- *
- *   - 携带历史消息实现多轮对话
- *   - loop_end后更新messageHistory + status='active'（允许后续sendMessage）
- * - pause → abort + Store 状态='paused'
- * - resume → 从messageHistory恢复 → 新queryLoop
- * - destroy → Store 状态='destroyed'
- * - getStore → 返回 Store<RuntimeSessionState> 供 React useAppState 订阅
- * - getMessages → 返回完整消息历史
+ * - G14: maxBudgetUsd → 每轮追踪累计成本，超限自动终止
  */
 export class RuntimeSession {
   private readonly config: RuntimeConfig;
@@ -28,6 +32,10 @@ export class RuntimeSession {
   private currentAbortController: AbortController | undefined;
   /** 多轮对话消息历史 — 每次sendMessage后从loop_end.result.messages更新 */
   private messageHistory: AgentMessage[] = [];
+  /** G14: 累计成本追踪 */
+  private accumulatedCostUsd = 0;
+  /** N1: QueryEngine turn 间持久状态 */
+  private turnState: QueryTurnState = createInitialQueryTurnState();
 
   constructor(config: RuntimeConfig, systemPrompt?: SystemPrompt) {
     this.config = config;
@@ -64,8 +72,26 @@ export class RuntimeSession {
     return this.messageHistory;
   }
 
+  /** G14: 获取累计成本 */
+  getAccumulatedCostUsd(): number {
+    return this.accumulatedCostUsd;
+  }
+
+  /** N1: 获取 turn 间持久状态 */
+  getTurnState(): QueryTurnState {
+    return this.turnState;
+  }
+
+  /** N1: 更新 turn 间持久状态 */
+  setTurnState(state: QueryTurnState): void {
+    this.turnState = state;
+  }
+
   /** 发送消息（支持多轮对话） */
-  async *sendMessage(content: string, signal?: AbortSignal): AsyncGenerator<AgentEvent> {
+  async *sendMessage(
+    content: string,
+    signal?: AbortSignal
+  ): AsyncGenerator<AgentEvent | BudgetExceededEvent> {
     const currentStatus = this.store.getState().status;
     if (currentStatus === 'destroyed') {
       throw new Error(`RuntimeSession ${this.sessionId} 已销毁，无法发送消息`);
@@ -92,6 +118,31 @@ export class RuntimeSession {
     const allMessages: readonly AgentMessage[] = [...this.messageHistory, userMessage];
 
     for await (const event of loop.queryLoop(allMessages, this.currentAbortController.signal)) {
+      // G14: 预算追踪 — 每轮 usage 事件中计算成本
+      if (event.type === 'loop_end' && event.result.usage) {
+        const costInfo = this.calculateCost(event.result.usage);
+        this.accumulatedCostUsd += costInfo.totalCostUsd;
+
+        // 预算超限 → 产出 budget_exceeded 事件并终止
+        const maxBudget = this.config.maxBudgetUsd;
+        if (maxBudget !== undefined && this.accumulatedCostUsd >= maxBudget) {
+          yield {
+            type: 'budget_exceeded',
+            totalCostUsd: this.accumulatedCostUsd,
+            maxBudgetUsd: maxBudget
+          };
+          // 中断循环
+          this.currentAbortController.abort();
+          this.store.setState(prev => ({
+            ...prev,
+            lastEvent: event,
+            status: 'active',
+            messageCount: this.messageHistory.length
+          }));
+          return;
+        }
+      }
+
       this.store.setState(prev => ({
         ...prev,
         lastEvent: event
@@ -109,6 +160,32 @@ export class RuntimeSession {
         }));
       }
     }
+  }
+
+  /**
+   * G14: 计算单轮 LLM 调用成本
+   *
+   * 基于 usage token 数和 costConfig 的定价计算 USD 成本。 无 costConfig 时使用估算默认值。
+   */
+  private calculateCost(
+    usage: NonNullable<AgentEvent['result'] extends { usage: infer U } ? U : never>
+  ): {
+    totalCostUsd: number;
+    inputCostUsd: number;
+    outputCostUsd: number;
+  } {
+    const costConfig = this.config.costConfig;
+    const inputPricePer1M = costConfig?.inputTokenPricePer1M ?? 3.0; // 默认 $3/1M input tokens
+    const outputPricePer1M = costConfig?.outputTokenPricePer1M ?? 15.0; // 默认 $15/1M output tokens
+
+    const inputCostUsd = (usage.inputTokens / 1_000_000) * inputPricePer1M;
+    const outputCostUsd = (usage.outputTokens / 1_000_000) * outputPricePer1M;
+
+    return {
+      totalCostUsd: inputCostUsd + outputCostUsd,
+      inputCostUsd,
+      outputCostUsd
+    };
   }
 
   /** 暂停会话 */
