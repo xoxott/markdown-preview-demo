@@ -48,6 +48,6 @@ export interface SubagentDefinition extends AgentDefinition {
   readonly memoryScope?: AgentMemoryScope;
   /** G37: 子代理预加载的skill列表 */
   readonly skills?: readonly string[];
-  /** G37b: 子代理scoped hooks配置 — 只在该agent运行时生效 */
-  readonly hooks?: AgentScopedHooksConfig;
+  /** G37b: 子代理scoped hooks配置 — 只在该agent运行时生效 与父类 hooks(HooksSettings) 不同，scopedHooks 包含 scope 标记 */
+  readonly scopedHooks?: AgentScopedHooksConfig;
 }
