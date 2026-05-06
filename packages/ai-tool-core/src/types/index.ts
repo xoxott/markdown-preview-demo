@@ -26,3 +26,4 @@ export type * from './permission-events';
 export type * from './safety-check';
 export type * from './permission-racing';
 export type * from './swarm-worker-mailbox';
+export type * from './tool-use-context-options';
