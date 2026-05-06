@@ -1,10 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  createInitialQueryTurnState,
-  recordPermissionDenial,
   addDiscoveredSkill,
   addLoadedMemoryPath,
-  hasPermissionDenial
+  createInitialQueryTurnState,
+  hasPermissionDenial,
+  recordPermissionDenial
 } from '../types/query-state';
 
 describe('createInitialQueryTurnState', () => {
