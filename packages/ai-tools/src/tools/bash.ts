@@ -13,6 +13,7 @@ import type { BashInput } from '../types/tool-inputs';
 import type { BashOutput } from '../types/tool-outputs';
 import { BashInputSchema } from '../types/tool-inputs';
 import { truncateOutput } from '../utils/output-truncate';
+import { persistLargeOutput, truncateOutputWithTail } from '../utils/output-truncate-end';
 import { assessBashCommandSecurity } from './bash-security';
 import {
   DEFAULT_BASH_PERMISSION_RULES,
@@ -20,6 +21,17 @@ import {
   matchBashPermissionRule
 } from './bash-permission-rules';
 import type { BashPermissionRule } from './bash-permission-rules';
+import { applySedSubstitution, parseSedEditCommand } from './sedEditParser';
+import type { SedEditInfo } from './sedEditParser';
+import {
+  checkSedConstraints,
+  containsDangerousOperations,
+  sedCommandIsAllowedByAllowlist
+} from './sedValidation';
+import { shouldUseSandbox } from './should-use-sandbox';
+import { interpretCommandResult } from './bash-interpret';
+import type { CommandResultInterpretation } from './bash-interpret';
+import { detectSleepCommand } from './bash-sleep-detect';
 
 /** 最大超时时间（10 分钟） */
 const MAX_TIMEOUT_MS = 600_000;
@@ -80,6 +92,52 @@ export const bashTool = buildTool<BashInput, BashOutput>({
   },
 
   checkPermissions: (input: BashInput, context: ToolUseContext): PermissionResult => {
+    // G22: sleep检测重定向 — 检测纯sleep命令(N>=2)并建议后台/monitor替代
+    const sleepDetect = detectSleepCommand(input.command);
+    if (sleepDetect.isSleepCommand) {
+      return {
+        behavior: 'ask',
+        message: sleepDetect.suggestion ?? 'sleep命令较长，建议使用后台运行',
+        decisionReason: 'sleep_redirect_suggestion'
+      };
+    }
+
+    // G7: sed -i 拦截 — 检测是否为可拦截的 sed -i 命令
+    const sedInfo = parseSedEditCommand(input.command);
+    if (sedInfo) {
+      // sed 拦截路径: 安全验证 → ask（附带 sedEditInfo 供宿主展示 diff 预览）
+      const constraints = checkSedConstraints(sedInfo);
+      if (!constraints.allowed) {
+        return {
+          behavior: 'deny',
+          message: constraints.reason
+        };
+      }
+
+      const dangerous = containsDangerousOperations(input.command);
+      if (dangerous.hasDangerous) {
+        return {
+          behavior: 'deny',
+          message: `Dangerous sed operations detected: ${dangerous.reasons.join('; ')}`
+        };
+      }
+
+      if (!sedCommandIsAllowedByAllowlist(sedInfo)) {
+        return {
+          behavior: 'deny',
+          message: 'sed pattern too complex for safe interception'
+        };
+      }
+
+      // 可拦截的简单 sed -i → ask（宿主可在权限流程中注入 _simulatedSedEdit）
+      return {
+        behavior: 'ask',
+        message: input.description ?? `Edit file via sed -i: "${sedInfo.filePath}"`,
+        decisionReason: 'sed_in_place_intercept',
+        metadata: { sedEditInfo: sedInfo }
+      };
+    }
+
     // Step 1: 规则引擎匹配（deny > ask > allow优先级）
     // 从context中获取自定义规则，或使用默认规则
     const customRules = (context as unknown as Record<string, unknown>)?.bashPermissionRules as
@@ -154,22 +212,72 @@ export const bashTool = buildTool<BashInput, BashOutput>({
     input: BashInput,
     context: ExtendedToolUseContext
   ): Promise<ToolResult<BashOutput>> => {
+    // G7: sed -i 拦截 — 如果宿主注入了预计算结果，直接通过 fsProvider 写入
+    if (input._simulatedSedEdit) {
+      const { filePath, newContent } = input._simulatedSedEdit;
+      try {
+        await context.fsProvider.writeFile(filePath, newContent);
+        return {
+          data: {
+            exitCode: 0,
+            stdout: `sed edit simulated: ${filePath}`,
+            stderr: '',
+            timedOut: false
+          }
+        };
+      } catch (err) {
+        return {
+          data: {
+            exitCode: 1,
+            stdout: '',
+            stderr: `Failed to write ${filePath}: ${err instanceof Error ? err.message : String(err)}`,
+            timedOut: false
+          },
+          error: `sed simulation write failed: ${filePath}`
+        };
+      }
+    }
+
     const timeout = input.timeout ?? 120_000;
 
-    const result = await context.fsProvider.runCommand(input.command, {
+    // G20: 沙箱集成 — 判断是否需在沙箱中执行
+    const useSandbox = shouldUseSandbox({
+      command: input.command,
+      dangerouslyDisableSandbox: context.dangerouslyDisableSandbox,
+      sandbox: context.sandboxSettings,
+      isSandboxingEnabled: context.isSandboxingEnabled
+    });
+
+    // 选择 fsProvider: 沙箱命令 → sandboxFsProvider，否则 → 原始 fsProvider
+    const provider =
+      useSandbox && context.sandboxFsProvider ? context.sandboxFsProvider : context.fsProvider;
+
+    const result = await provider.runCommand(input.command, {
       timeout,
       runInBackground: input.runInBackground
     });
 
-    // 截断 stdout/stderr
+    // 截断 stdout/stderr — G23: 大输出持久化
     let stdout = result.stdout;
     let stderr = result.stderr;
     let truncated = false;
+    let persistedOutputPath: string | undefined;
+    let persistedOutputSize: number | undefined;
 
-    if (stdout.length > BASH_MAX_OUTPUT_CHARS) {
-      stdout = truncateOutput(stdout, BASH_MAX_OUTPUT_CHARS).content;
+    // G23: 大输出 → 持久化到文件+摘要
+    const stdoutPersist = persistLargeOutput(stdout);
+    if (stdoutPersist.persisted) {
+      stdout = stdoutPersist.content;
+      persistedOutputPath = stdoutPersist.filePath;
+      persistedOutputSize = stdoutPersist.originalSize;
+      truncated = true;
+    } else if (stdout.length > BASH_MAX_OUTPUT_CHARS) {
+      // 中等大小 → 双段截断（头部+尾部保留）
+      const tailResult = truncateOutputWithTail(stdout, BASH_MAX_OUTPUT_CHARS);
+      stdout = tailResult.content;
       truncated = true;
     }
+
     if (stderr.length > BASH_MAX_OUTPUT_CHARS) {
       stderr = truncateOutput(stderr, BASH_MAX_OUTPUT_CHARS).content;
       truncated = true;
@@ -183,7 +291,25 @@ export const bashTool = buildTool<BashInput, BashOutput>({
         timedOut: result.timedOut,
         cwd: result.cwd
       },
-      metadata: truncated ? { truncated: true } : undefined
+      metadata:
+        truncated || persistedOutputPath
+          ? {
+              ...(truncated ? { truncated: true } : {}),
+              ...(persistedOutputPath ? { persistedOutputPath, persistedOutputSize } : {})
+            }
+          : undefined,
+      // G25: 命令语义解释 — 非0退出码时添加人类可读描述
+      ...(result.exitCode !== 0
+        ? {
+            newMessages: [
+              {
+                role: 'assistant' as const,
+                content: interpretCommandResult(result.exitCode, result.stderr, result.timedOut)
+                  .description
+              }
+            ]
+          }
+        : {})
     };
   },
 

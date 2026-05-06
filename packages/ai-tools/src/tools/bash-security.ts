@@ -1065,6 +1065,147 @@ export function assessBashCommandSecurity(command: string, cwd?: string): BashSe
 }
 
 // ============================================================
+// 6. 复合命令逐段安全评估
+// ============================================================
+
+/** 管道/链式命令的逐段评估结果 */
+export interface CompoundSegmentAssessment {
+  readonly segment: string;
+  readonly separator: '|' | '&&' | ';' | '||';
+  readonly assessment: BashSecurityAssessment;
+}
+
+export interface CompoundCommandAssessment {
+  readonly segments: readonly CompoundSegmentAssessment[];
+  readonly overallSafetyLevel: 'safe' | 'caution' | 'dangerous';
+  readonly overallRecommendation: string;
+}
+
+/**
+ * splitCommandIntoSegments — 将复合命令拆分为段（含分隔符标记）
+ *
+ * 支持: | (管道), && (逻辑AND), ; (顺序), || (逻辑OR) 不拆引号内的分隔符
+ */
+export function splitCommandIntoSegments(
+  command: string
+): { segment: string; separator: '|' | '&&' | ';' | '||' }[] {
+  // 用简单方式：先处理引号内内容（替换为占位符），再按分隔符拆分
+  const placeholder = '__QUOTED__';
+  let working = command;
+  // 替换引号内内容
+  const quoted: string[] = [];
+  working = working.replace(/'[^']*'/g, m => {
+    quoted.push(m);
+    return placeholder;
+  });
+  working = working.replace(/"[^"]*"/g, m => {
+    quoted.push(m);
+    return placeholder;
+  });
+  working = working.replace(/`[^`]*`/g, m => {
+    quoted.push(m);
+    return placeholder;
+  });
+
+  // 先拆 ||（逻辑OR，优先级最高）
+  const orParts = working.split(/\|\|/);
+  const results: { segment: string; separator: '|' | '&&' | ';' | '||' }[] = [];
+
+  for (let i = 0; i < orParts.length; i++) {
+    const part = orParts[i];
+    // 再拆 &&（逻辑AND）
+    const andParts = part.split(/&&/);
+    for (let j = 0; j < andParts.length; j++) {
+      const sub = andParts[j];
+      // 再拆 ;（顺序执行）
+      const seqParts = sub.split(/;/);
+      for (let k = 0; k < seqParts.length; k++) {
+        const seg = seqParts[k];
+        // 最后拆 |（管道）
+        const pipeParts = seg.split(/\|/);
+        for (let l = 0; l < pipeParts.length; l++) {
+          const pipeSeg = pipeParts[l].trim();
+          if (!pipeSeg) continue;
+          // 恢复引号
+          let restored = pipeSeg;
+          while (restored.includes(placeholder)) {
+            restored = restored.replace(placeholder, quoted.shift() ?? '');
+          }
+          const separator: '|' | '&&' | ';' | '||' =
+            l > 0 ? '|' : k > 0 ? ';' : j > 0 ? '&&' : i > 0 ? '||' : ';';
+          results.push({ segment: restored.trim(), separator });
+        }
+      }
+    }
+  }
+
+  // 修正第一个段分隔符为 ';'
+  if (results.length > 0) results[0].separator = ';';
+
+  return results;
+}
+
+/**
+ * assessCompoundCommandSecurity — 逐段安全评估复合命令
+ *
+ * 对每个管道/链式段独立调用 assessBashCommandSecurity， 综合各段结果得出整体安全级别。
+ */
+export function assessCompoundCommandSecurity(
+  command: string,
+  cwd?: string
+): CompoundCommandAssessment {
+  const segments = splitCommandIntoSegments(command);
+
+  if (segments.length <= 1) {
+    // 单命令 → 直接用 assessBashCommandSecurity
+    const single = assessBashCommandSecurity(command, cwd);
+    return {
+      segments:
+        segments.length === 1
+          ? [{ segment: segments[0].segment, separator: ';', assessment: single }]
+          : [],
+      overallSafetyLevel: single.safetyLevel,
+      overallRecommendation: single.recommendation
+    };
+  }
+
+  const segmentAssessments: CompoundSegmentAssessment[] = [];
+  let worstLevel: 'safe' | 'caution' | 'dangerous' = 'safe';
+
+  for (const seg of segments) {
+    const assessment = assessBashCommandSecurity(seg.segment, cwd);
+    segmentAssessments.push({
+      segment: seg.segment,
+      separator: seg.separator,
+      assessment
+    });
+    // 升级worstLevel
+    if (assessment.safetyLevel === 'dangerous') worstLevel = 'dangerous';
+    else if (assessment.safetyLevel === 'caution' && worstLevel !== 'dangerous')
+      worstLevel = 'caution';
+  }
+
+  const recommendation =
+    worstLevel === 'dangerous'
+      ? `复合命令含破坏性段: ${segmentAssessments
+          .filter(s => s.assessment.safetyLevel === 'dangerous')
+          .map(s => s.segment)
+          .join('; ')}。需严格审核。`
+      : worstLevel === 'caution'
+        ? `复合命令需审核: ${segmentAssessments
+            .filter(s => s.assessment.safetyLevel === 'caution')
+            .map(s => `${s.segment}(${s.assessment.recommendation})`)
+            .join('; ')}`
+        : '所有段只读，可自动允许';
+
+  return {
+    segments: segmentAssessments,
+    overallSafetyLevel: worstLevel,
+    overallRecommendation: recommendation
+  };
+}
+
+// ============================================================
 // 辅助函数
 // ============================================================
 

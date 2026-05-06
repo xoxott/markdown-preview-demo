@@ -3,9 +3,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   assessBashCommandSecurity,
+  assessCompoundCommandSecurity,
   detectCommandInjection,
   detectDestructiveCommand,
   isReadOnlyCommand,
+  splitCommandIntoSegments,
   validateCommandPaths
 } from '../tools/bash-security';
 
@@ -313,5 +315,90 @@ describe('assessBashCommandSecurity', () => {
     const result = assessBashCommandSecurity('timeout 30 ls');
     expect(result.safetyLevel).toBe('safe');
     expect(result.isReadOnly).toBe(true);
+  });
+});
+
+// ============================================================
+// splitCommandIntoSegments
+// ============================================================
+
+describe('splitCommandIntoSegments', () => {
+  it('single command → one segment', () => {
+    const result = splitCommandIntoSegments('ls -la');
+    expect(result).toHaveLength(1);
+    expect(result[0].segment).toBe('ls -la');
+  });
+
+  it('pipe splits into segments', () => {
+    const result = splitCommandIntoSegments('cat file | grep foo | wc -l');
+    expect(result).toHaveLength(3);
+    expect(result[0].segment).toBe('cat file');
+    expect(result[1].separator).toBe('|');
+    expect(result[1].segment).toBe('grep foo');
+    expect(result[2].separator).toBe('|');
+    expect(result[2].segment).toBe('wc -l');
+  });
+
+  it('&& splits into segments', () => {
+    const result = splitCommandIntoSegments('mkdir dir && cd dir && ls');
+    expect(result).toHaveLength(3);
+    expect(result[1].separator).toBe('&&');
+    expect(result[2].separator).toBe('&&');
+  });
+
+  it('; splits into segments', () => {
+    const result = splitCommandIntoSegments('echo a; echo b');
+    expect(result).toHaveLength(2);
+    expect(result[1].separator).toBe(';');
+  });
+
+  it('|| splits into segments', () => {
+    const result = splitCommandIntoSegments('cmd1 || cmd2');
+    expect(result).toHaveLength(2);
+    expect(result[1].separator).toBe('||');
+  });
+
+  it('quoted pipes not split', () => {
+    const result = splitCommandIntoSegments("echo 'a|b' | grep c");
+    expect(result).toHaveLength(2);
+    expect(result[0].segment).toBe("echo 'a|b'");
+  });
+
+  it('empty segments filtered', () => {
+    const result = splitCommandIntoSegments('ls ; ; pwd');
+    expect(result.filter(s => s.segment === '')).toHaveLength(0);
+  });
+});
+
+// ============================================================
+// assessCompoundCommandSecurity
+// ============================================================
+
+describe('assessCompoundCommandSecurity', () => {
+  it('single command delegates to assessBashCommandSecurity', () => {
+    const result = assessCompoundCommandSecurity('ls -la');
+    expect(result.overallSafetyLevel).toBe('safe');
+    expect(result.segments).toHaveLength(1);
+  });
+
+  it('all-safe pipe → overall safe', () => {
+    const result = assessCompoundCommandSecurity('cat file | grep foo | wc -l');
+    expect(result.overallSafetyLevel).toBe('safe');
+    expect(result.segments).toHaveLength(3);
+  });
+
+  it('pipe with destructive → overall dangerous', () => {
+    const result = assessCompoundCommandSecurity('cat file | rm -rf /');
+    expect(result.overallSafetyLevel).toBe('dangerous');
+  });
+
+  it('pipe with caution → overall caution', () => {
+    const result = assessCompoundCommandSecurity('cat file | npm install');
+    expect(result.overallSafetyLevel).toBe('caution');
+  });
+
+  it('mixed && chain → worst level wins', () => {
+    const result = assessCompoundCommandSecurity('ls && rm -rf /');
+    expect(result.overallSafetyLevel).toBe('dangerous');
   });
 });

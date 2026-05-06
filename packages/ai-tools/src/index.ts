@@ -18,6 +18,10 @@ export type * from './types/mcp-resource-provider';
 export type * from './types/plan-mode-provider';
 export type * from './types/cron-provider';
 export type * from './types/remote-trigger-provider';
+export type * from './types/subagent-provider';
+export type * from './types/file-edit-log';
+export type * from './types/todo-provider';
+export type * from './types/lsp-provider';
 
 // 工具输入 Schema 导出（供宿主构建工具时使用）
 export {
@@ -55,7 +59,16 @@ export {
   CronCreateInputSchema,
   CronDeleteInputSchema,
   CronListInputSchema,
-  RemoteTriggerInputSchema
+  RemoteTriggerInputSchema,
+  AgentInputSchema,
+  UndoInputSchema,
+  TodoWriteInputSchema,
+  LspGoToDefinitionInputSchema,
+  LspFindReferencesInputSchema,
+  LspHoverInputSchema,
+  LspDocumentSymbolInputSchema,
+  LspDiagnosticsInputSchema,
+  LspCompletionInputSchema
 } from './types/tool-inputs';
 
 // 纯函数工具导出
@@ -157,6 +170,58 @@ export { cronListTool } from './tools/cron-list';
 
 // P95: RemoteTrigger工具导出
 export { remoteTriggerTool } from './tools/remote-trigger';
+
+// P96: Agent工具导出
+export { agentTool } from './tools/agent';
+
+// P100: Undo工具导出
+export { undoTool } from './tools/undo';
+
+// G1: TodoWrite工具导出
+export { todoWriteTool } from './tools/todo-write';
+
+// G2: LSP工具导出
+export { lspGoToDefinitionTool } from './tools/lsp-go-to-definition';
+export { lspFindReferencesTool } from './tools/lsp-find-references';
+export { lspHoverTool } from './tools/lsp-hover';
+export { lspDocumentSymbolTool } from './tools/lsp-document-symbol';
+export { lspDiagnosticsTool } from './tools/lsp-diagnostics';
+export { lspCompletionTool } from './tools/lsp-completion';
+
+// G2: LSP Provider导出
+export { InMemoryLspProvider } from './provider/InMemoryLspProvider';
+
+// G6: Git操作跟踪导出
+export {
+  detectGitOperation,
+  parseCommitSha,
+  parsePRInfo,
+  GitOperationTracker
+} from './tools/git-tracking';
+export type {
+  GitOperationType,
+  GitOperationDetection,
+  CommitShaParseResult,
+  PRParseResult,
+  GitOperationRecord
+} from './tools/git-tracking';
+
+// G5: Diff/Patch工具导出
+export {
+  structuredPatch,
+  getPatchForEdit,
+  getSnippet,
+  formatPatch,
+  applyPatch,
+  reversePatch
+} from './tools/diff-utils';
+export type {
+  DiffLineType,
+  DiffLine,
+  DiffHunk,
+  StructuredPatch,
+  DiffSnippet
+} from './tools/diff-utils';
 export {
   shouldUseSandbox,
   containsExcludedCommand,
@@ -176,9 +241,23 @@ export {
   detectCommandInjection,
   validateCommandPaths,
   assessBashCommandSecurity,
+  assessCompoundCommandSecurity,
+  splitCommandIntoSegments,
   BLOCKED_DEVICE_PATHS
 } from './tools/bash-security';
-export type { BashSecurityAssessment } from './tools/bash-security';
+export type {
+  BashSecurityAssessment,
+  CompoundSegmentAssessment,
+  CompoundCommandAssessment
+} from './tools/bash-security';
+
+// G25: Bash命令语义解释导出
+export { interpretCommandResult } from './tools/bash-interpret';
+export type { CommandResultInterpretation } from './tools/bash-interpret';
+
+// G22: Bash sleep检测重定向导出
+export { detectSleepCommand } from './tools/bash-sleep-detect';
+export type { SleepDetectResult } from './tools/bash-sleep-detect';
 
 // P64: FileEdit 核心查找逻辑导出
 export { findActualString } from './tools/find-actual-string';
@@ -202,6 +281,16 @@ export type {
   BashPermissionMatchResult,
   ExpansionCheckResult
 } from './tools/bash-permission-rules';
+
+// G7: sed -i 拦截导出
+export { isSedInPlaceEdit, parseSedEditCommand, applySedSubstitution } from './tools/sedEditParser';
+export type { SedEditInfo } from './tools/sedEditParser';
+export {
+  checkSedConstraints,
+  sedCommandIsAllowedByAllowlist,
+  containsDangerousOperations
+} from './tools/sedValidation';
+export type { SedConstraintResult, DangerousOperationsResult } from './tools/sedValidation';
 
 // P67: FileWriteState 文件读写状态+编码检测导出
 export {
@@ -267,6 +356,9 @@ export { InMemoryMcpResourceProvider } from './provider/InMemoryMcpResourceProvi
 export { InMemoryPlanModeProvider } from './provider/InMemoryPlanModeProvider';
 export { InMemoryCronProvider } from './provider/InMemoryCronProvider';
 export { InMemoryRemoteTriggerProvider } from './provider/InMemoryRemoteTriggerProvider';
+export { InMemorySubagentProvider } from './provider/InMemorySubagentProvider';
+export { InMemoryFileEditLog, generateEditId } from './provider/InMemoryFileEditLog';
+export { InMemoryTodoWriteProvider } from './provider/InMemoryTodoWriteProvider';
 export { TerminalPermissionPromptHandler } from './provider/TerminalPermissionPromptHandler';
 export type { TerminalPermissionPromptConfig } from './provider/TerminalPermissionPromptHandler';
 export { NodeSettingsLayerReader } from './provider/NodeSettingsLayerReader';
