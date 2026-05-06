@@ -251,6 +251,20 @@ export type {
   CompoundCommandAssessment
 } from './tools/bash-security';
 
+// G24: Bash图像输出检测导出
+export {
+  detectSixelImages,
+  detectIterm2Images,
+  detectImageOutput,
+  cleanImageSequences,
+  hasImageProtocolSupport
+} from './tools/bash-image-output';
+export type {
+  TerminalImageProtocol,
+  DetectedImageOutput,
+  ImageDetectionResult
+} from './tools/bash-image-output';
+
 // G25: Bash命令语义解释导出
 export { interpretCommandResult } from './tools/bash-interpret';
 export type { CommandResultInterpretation } from './tools/bash-interpret';
@@ -291,6 +305,10 @@ export {
   containsDangerousOperations
 } from './tools/sedValidation';
 export type { SedConstraintResult, DangerousOperationsResult } from './tools/sedValidation';
+
+// G30+G31: FileEdit引号风格保留+desanitize导出
+export { preserveQuoteStyle } from './tools/file-edit';
+export { desanitizeContent, containsSanitizedMarkers } from './tools/file-desanitize';
 
 // P67: FileWriteState 文件读写状态+编码检测导出
 export {

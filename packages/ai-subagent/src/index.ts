@@ -54,3 +54,17 @@ export {
   createBuiltinSubagentRegistry
 } from './builtin/BuiltinAgentDefinitions';
 export { getSystemPromptForAgentType } from './builtin/SystemPrompts';
+
+// G18: Agent MCP 服务器初始化
+export {
+  initializeAgentMcpServers,
+  ScopedMcpResourceProvider
+} from './core/initializeAgentMcpServers';
+export type { AgentMcpInitResult } from './core/initializeAgentMcpServers';
+
+// G35: Agent memory scope
+export { computeScopedMemoryPath } from './types/memory-scope';
+
+// G37: Agent skill预加载
+export type { SkillDescriptor, SkillResolver } from './core/resolveAgentSkills';
+export { resolveAgentSkills, buildSkillSystemPrompt } from './core/resolveAgentSkills';

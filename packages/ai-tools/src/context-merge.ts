@@ -16,6 +16,7 @@
  */
 
 import type { ToolUseContext } from '@suga/ai-tool-core';
+import type { SandboxSettings } from '@suga/ai-sdk';
 import type { FileSystemProvider } from './types/fs-provider';
 import type { HttpProvider } from './types/http-provider';
 import type { TaskStoreProvider } from './types/task-provider';
@@ -28,7 +29,12 @@ import type { McpResourceProvider } from './types/mcp-resource-provider';
 import type { PlanModeProvider } from './types/plan-mode-provider';
 import type { CronProvider } from './types/cron-provider';
 import type { RemoteTriggerProvider } from './types/remote-trigger-provider';
+import type { SubagentProvider } from './types/subagent-provider';
 import type { FileReadStateCache } from './utils/file-read-state-cache';
+import type { FileEditLogProvider } from './types/file-edit-log';
+import type { FileWriteStateTracker } from './tools/file-write-state';
+import type { TodoWriteProvider } from './types/todo-provider';
+import type { LspProvider } from './types/lsp-provider';
 
 /** 扩展的 ToolUseContext — 包含所有宿主注入Provider */
 export interface ExtendedToolUseContext extends ToolUseContext {
@@ -58,8 +64,28 @@ export interface ExtendedToolUseContext extends ToolUseContext {
   cronProvider?: CronProvider;
   /** RemoteTrigger提供者 — 宿主注入实现（RemoteTriggerTool使用） */
   remoteTriggerProvider?: RemoteTriggerProvider;
+  /** Subagent提供者 — 宿主注入实现（AgentTool使用） */
+  subagentProvider?: SubagentProvider;
+  /** 文件编辑历史提供者 — 宿主注入实现（UndoTool + FileEdit记录使用） */
+  fileEditLogProvider?: FileEditLogProvider;
   /** 文件读取状态缓存 — 宿主注入实现（FileRead去重使用） */
   readFileState?: FileReadStateCache;
+  /** G3+G4: 文件读写状态跟踪器 — mtime一致性检查+read-before-edit强制 */
+  fileWriteStateTracker?: FileWriteStateTracker;
+  /** G1: TodoWrite提供者 — session级待办清单 */
+  todoWriteProvider?: TodoWriteProvider;
+  /** G2: LSP提供者 — 语言服务器协议操作（goToDefinition/findReferences/hover等） */
+  lspProvider?: LspProvider;
+  /** G20: 沙箱设置 — Bash命令沙箱判定 */
+  sandboxSettings?: SandboxSettings;
+  /** G20: 是否启用沙箱（默认由宿主决定） */
+  isSandboxingEnabled?: boolean;
+  /** G20: 是否显式禁用沙箱 */
+  dangerouslyDisableSandbox?: boolean;
+  /** G20: 沙箱fsProvider — 当命令需在沙箱中执行时使用 */
+  sandboxFsProvider?: FileSystemProvider;
+  /** G35: 记忆根路径 — 用于子代理 scoped memory 路径计算 */
+  memoryRoot?: string;
 }
 
 // Side-effect export 确保 augmentation 说明生效

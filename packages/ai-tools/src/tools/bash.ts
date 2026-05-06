@@ -21,8 +21,7 @@ import {
   matchBashPermissionRule
 } from './bash-permission-rules';
 import type { BashPermissionRule } from './bash-permission-rules';
-import { applySedSubstitution, parseSedEditCommand } from './sedEditParser';
-import type { SedEditInfo } from './sedEditParser';
+import { parseSedEditCommand } from './sedEditParser';
 import {
   checkSedConstraints,
   containsDangerousOperations,
@@ -30,7 +29,6 @@ import {
 } from './sedValidation';
 import { shouldUseSandbox } from './should-use-sandbox';
 import { interpretCommandResult } from './bash-interpret';
-import type { CommandResultInterpretation } from './bash-interpret';
 import { detectSleepCommand } from './bash-sleep-detect';
 
 /** 最大超时时间（10 分钟） */
