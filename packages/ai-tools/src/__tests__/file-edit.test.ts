@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from 'vitest';
 import type { ToolRegistry } from '@suga/ai-tool-core';
-import { fileEditTool } from '../tools/file-edit';
+import { fileEditTool, preserveQuoteStyle } from '../tools/file-edit';
 import { FileEditInputSchema } from '../types/tool-inputs';
 import type { ExtendedToolUseContext } from '../context-merge';
 import { MockFileSystemProvider } from './mocks/MockFileSystemProvider';
@@ -384,5 +384,38 @@ describe('FileEditTool — description', () => {
       replaceAll: true
     });
     expect(desc).toContain('all occurrences');
+  });
+});
+
+describe('preserveQuoteStyle', () => {
+  it('no curly quotes → unchanged', () => {
+    expect(preserveQuoteStyle("'old'", "'new'")).toBe("'new'");
+  });
+
+  it('left curly single → newString gets curly single', () => {
+    // oldString has ' (left curly single) → newString ' converts to '
+    expect(preserveQuoteStyle('\u2018old\u2019', "'new'")).toBe('\u2018new\u2019');
+  });
+
+  it('right curly single only → all straight quotes become right curly', () => {
+    expect(preserveQuoteStyle('old\u2019', "'new'")).toBe('\u2019new\u2019');
+  });
+
+  it('left curly double → newString gets curly double', () => {
+    expect(preserveQuoteStyle('\u201Cold\u201D', '"new"')).toBe('\u201Cnew\u201D');
+  });
+
+  it('right curly double only → all straight quotes become right curly', () => {
+    expect(preserveQuoteStyle('old\u201D', '"new"')).toBe('\u201Dnew\u201D');
+  });
+
+  it('mixed curly quotes → both types preserved', () => {
+    expect(preserveQuoteStyle('\u2018old\u2019 \u201Cword\u201D', '\'new\' "word"')).toBe(
+      '\u2018new\u2019 \u201Cword\u201D'
+    );
+  });
+
+  it('no straight quotes in newString → unchanged', () => {
+    expect(preserveQuoteStyle('\u2018old\u2019', '\u2018new\u2019')).toBe('\u2018new\u2019');
   });
 });
