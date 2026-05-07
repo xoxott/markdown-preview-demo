@@ -124,3 +124,54 @@ export type {
   AttachmentRebuildConfig,
   AttachmentRebuildResult
 } from './types/attachment';
+
+// Post-compact 清理钩子
+export {
+  PostCompactCleanupRegistry,
+  registerPostCompactCleanup,
+  runPostCompactCleanup,
+  isMainThreadCompact,
+  getGlobalPostCompactCleanupRegistry,
+  resetGlobalPostCompactCleanupRegistry
+} from './core/postCompactCleanup';
+export type { CleanupAction, QuerySource } from './core/postCompactCleanup';
+
+// Compact prompt 模板
+export {
+  buildCompactPrompt,
+  formatCompactSummary,
+  BASE_COMPACT_PROMPT,
+  PARTIAL_COMPACT_PROMPT,
+  NO_TOOLS_PREAMBLE
+} from './core/compactPrompt';
+export type { PartialCompactDirection, BuildCompactPromptOptions } from './core/compactPrompt';
+
+// Snip 压缩（marker-based 轻量级 compact）
+export {
+  snipCompactIfNeeded,
+  isSnipMarkerMessage,
+  shouldNudgeForSnips,
+  SNIP_NUDGE_TEXT,
+  DEFAULT_SNIP_MARKER_CONFIG
+} from './core/snipCompact';
+export type {
+  SnipCompactMessage,
+  SnipMarkerMessage,
+  SnipMarkerConfig,
+  SnipCompactResult
+} from './core/snipCompact';
+
+// Snip 视图投影
+export {
+  projectSnippedView,
+  unprojectSnippedView,
+  isCollapsedSnipGroup,
+  isSnipBoundaryMessage,
+  getProjectionStats
+} from './core/snipProjection';
+export type {
+  CollapsedSnipGroup,
+  ProjectedMessage,
+  SnipProjectionOptions,
+  SnipProjectionStats
+} from './core/snipProjection';
