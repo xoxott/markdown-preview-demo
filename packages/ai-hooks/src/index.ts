@@ -51,6 +51,23 @@ export { HookNotificationPhase } from './phase/HookNotificationPhase';
 export { HookPreCompactPhase } from './phase/HookPreCompactPhase';
 export { HookPostCompactPhase } from './phase/HookPostCompactPhase';
 
+// ——— G17: P69 Hook Phase 导出 ———
+export { HookPermissionRequestPhase } from './phase/HookPermissionRequestPhase';
+export { HookPermissionDeniedPhase } from './phase/HookPermissionDeniedPhase';
+export { HookElicitationPhase } from './phase/HookElicitationPhase';
+export { HookElicitationResultPhase } from './phase/HookElicitationResultPhase';
+export { HookSetupPhase } from './phase/HookSetupPhase';
+export { HookConfigChangePhase } from './phase/HookConfigChangePhase';
+export { HookTaskCreatedPhase } from './phase/HookTaskCreatedPhase';
+export { HookTaskCompletedPhase } from './phase/HookTaskCompletedPhase';
+export { HookTeammateIdlePhase } from './phase/HookTeammateIdlePhase';
+export { HookInstructionsLoadedPhase } from './phase/HookInstructionsLoadedPhase';
+export { HookCwdChangedPhase } from './phase/HookCwdChangedPhase';
+export { HookFileChangedPhase } from './phase/HookFileChangedPhase';
+export { HookWorktreeCreatePhase } from './phase/HookWorktreeCreatePhase';
+export { HookWorktreeRemovePhase } from './phase/HookWorktreeRemovePhase';
+export { HookStopFailurePhase } from './phase/HookStopFailurePhase';
+
 // ——— 工具函数导出 ———
 export { aggregateHookResults } from './utils/aggregate';
 export { matchesPattern } from './utils/match';

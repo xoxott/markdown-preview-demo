@@ -74,3 +74,11 @@ export type {
 
 // context.ts 含 declare module 扩展，需作为副作用导入以确保类型合并生效
 export {} from './context';
+
+// N40: Hooks prompt 协议 Zod schema
+export {
+  PromptRequestSchema,
+  PromptResponseSchema,
+  SyncHookResponseSchema
+} from './hooks-prompt-schema';
+export type { PromptRequest, PromptResponse, SyncHookResponse } from './hooks-prompt-schema';
