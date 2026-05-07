@@ -123,3 +123,42 @@ export {
   DEFAULT_SESSION_MEMORY_CONFIG
 } from './core/session-memory';
 export type { SessionMemoryConfig, SessionNote, SessionMemoryState } from './core/session-memory';
+
+// G57: Team Memory Sync — Secret 扫描
+export {
+  scanForSecrets,
+  hasAnySecret,
+  getSecretRuleCount,
+  ruleIdToLabel
+} from './core/secret-scanner';
+export type { SecretMatch } from './core/secret-scanner';
+
+// G58: Team Memory Sync — Secret Guard
+export { checkTeamMemSecrets, BasedirTeamMemPathChecker } from './core/team-mem-secret-guard';
+export type { TeamMemPathChecker, TeamMemSecretGuardOptions } from './core/team-mem-secret-guard';
+
+// G59: Team Memory Sync — Watcher
+export { TeamMemoryWatcher, isPermanentFailure } from './core/team-memory-watcher';
+export type {
+  WatcherDriver,
+  TeamMemoryPushResult,
+  TeamMemoryWatcherOptions
+} from './core/team-memory-watcher';
+
+// G60: Memory Shape Telemetry
+export {
+  setMemoryShapeTelemetrySink,
+  resetMemoryShapeTelemetrySink,
+  logMemoryRecallShape,
+  logMemoryWriteShape,
+  detectMemoryScope
+} from './core/memory-shape-telemetry';
+export type {
+  MemoryItem,
+  MemoryWriteTool,
+  MemoryWriteScope,
+  MemoryRecallShapeEvent,
+  MemoryWriteShapeEvent,
+  MemoryShapeEvent,
+  MemoryShapeTelemetrySink
+} from './core/memory-shape-telemetry';
