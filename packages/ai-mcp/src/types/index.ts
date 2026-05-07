@@ -7,3 +7,7 @@ export type * from './mcp-transport';
 export type * from './mcp-elicitation';
 export type * from './mcp-tools';
 export type * from './mcp-registry';
+export type * from './mcp-oauth-xaa';
+export type * from './mcp-claudeai-proxy';
+export type * from './mcp-auth-tool';
+export type * from './mcp-channel';

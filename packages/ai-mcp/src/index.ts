@@ -59,6 +59,51 @@ export { SSETransportAdapter } from './transport/SSETransportAdapter';
 export { StreamableHTTPTransportAdapter } from './transport/StreamableHTTPTransportAdapter';
 export { UnifiedTransportFactory } from './transport/UnifiedTransportFactory';
 
+// G41+G42: MCP ClaudeAI代理 导出
+export {
+  McpClaudeAIProxyConfigSchema,
+  isClaudeAIProxyConfig,
+  getClaudeAIProxyDisplayName
+} from './types/mcp-claudeai-proxy';
+
+// G43: MCP Auth工具 导出
+export { McpAuthActionSchema, McpAuthInputSchema } from './types/mcp-auth-tool';
+
+// N13: MCP OAuth 流程实现
+export { McpOAuthFlow } from './connection/McpOAuthFlow';
+export type { McpOAuthFlowPhase } from './connection/McpOAuthFlow';
+
+// N14: MCP Channel 通知系统
+export { isChannelAllowed } from './types/mcp-channel';
+
+// N37: MCP Headers Helper
+export { executeHeadersHelper, DEFAULT_HEADERS_HELPER_CONFIG } from './connection/headersHelper';
+export type { HeadersHelperConfig, HeadersHelperFn } from './connection/headersHelper';
+
+// N38: MCP VSCode SDK 桥接
+export {
+  createVSCodeSdkBridge,
+  DEFAULT_VSCODE_SDK_BRIDGE_CONFIG
+} from './connection/vscodeSdkBridge';
+export type {
+  VSCodeSdkBridgeConfig,
+  VSCodeSdkBridge,
+  VSCodeFileUpdatedNotification,
+  VSCodeLogEventNotification,
+  VSCodeSdkNotificationHandler
+} from './connection/vscodeSdkBridge';
+
+// N39: MCP Official Registry
+export {
+  isOfficialMcpServer,
+  DEFAULT_OFFICIAL_REGISTRY_CONFIG
+} from './connection/officialRegistry';
+export type {
+  OfficialRegistryConfig,
+  OfficialMcpEntry,
+  FetchRegistryFn
+} from './connection/officialRegistry';
+
 // 连接管理
 export { InMemoryMcpConnectionManager } from './connection/McpConnectionManager';
 export type { McpConnectionManager } from './connection/McpConnectionManager';
