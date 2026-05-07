@@ -94,3 +94,32 @@ export {
 // 存储提供者
 export { MockMemoryStorageProvider } from './core/memory-storage';
 export { NodeFileMemoryStorageProvider } from './core/NodeFileMemoryStorageProvider';
+
+// G40: 记忆搜索指导
+export {
+  buildSearchingPastContextSection,
+  detectMemorySearchTrigger
+} from './core/memory-search-guide';
+
+// G39: Memory daily-log 模式
+export {
+  buildDailyLogEntry,
+  serializeDailyLog,
+  parseDailyLog,
+  formatDailyLogForPrompt,
+  getDailyLogFilename,
+  isDailyLogFile,
+  DEFAULT_DAILY_LOG_CONFIG
+} from './core/memory-daily-log';
+export type { DailyLogEntry, DailyLogConfig } from './core/memory-daily-log';
+
+// N25: SessionMemory 服务
+export {
+  createInitialSessionMemoryState,
+  addSessionNote,
+  removeSessionNote,
+  formatSessionNotesForPrompt,
+  buildSessionMemoryAutoSavePrompt,
+  DEFAULT_SESSION_MEMORY_CONFIG
+} from './core/session-memory';
+export type { SessionMemoryConfig, SessionNote, SessionMemoryState } from './core/session-memory';

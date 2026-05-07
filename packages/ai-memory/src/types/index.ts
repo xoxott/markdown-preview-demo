@@ -31,3 +31,5 @@ export type { SaveDecision, SaveExclusion, SaveValidationResult } from './memory
 export { WHAT_NOT_TO_SAVE_PATTERNS } from './memory-save';
 
 export type { MemoryStorageProvider } from './memory-storage';
+
+export type { MemorySearchGuideConfig } from './memory-search-guide';
