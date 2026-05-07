@@ -70,13 +70,16 @@ export class AnthropicAdapter extends BaseLLMAdapter {
     tools?: readonly ToolDefinition[],
     options?: CallModelOptions
   ): AsyncGenerator<LLMStreamChunk> {
-    // 1. 转换消息格式
-    const apiMessages = convertToAnthropicMessages(messages);
+    // 1. 转换消息格式（注入 cache_control）
+    const cacheControlEnabled = !!this.anthropicConfig.betaFeatures?.promptCaching;
+    const apiMessages = convertToAnthropicMessages(messages, {
+      markSecondToLastUserMessage: cacheControlEnabled
+    });
 
-    // 2. 构建请求体（支持 systemPrompt + RetryContext.maxTokensOverride）
+    // 2. 构建请求体
     const requestBody = this.buildRequestBody(apiMessages, tools, options?.systemPrompt);
 
-    // 3. 发送 HTTP 请求（可重试部分）
+    // 3. 发送 HTTP 请求
     const url = `${this.config.baseURL}/v1/messages`;
     const headers = this.buildHeaders();
     const signal = options?.signal;
@@ -149,8 +152,11 @@ export class AnthropicAdapter extends BaseLLMAdapter {
     tools?: readonly ToolDefinition[],
     options?: CallModelOptions
   ): Promise<LLMResponse> {
-    // 1. 转换消息格式
-    const apiMessages = convertToAnthropicMessages(messages);
+    // 1. 转换消息格式（注入 cache_control）
+    const cacheControlEnabled = !!this.anthropicConfig.betaFeatures?.promptCaching;
+    const apiMessages = convertToAnthropicMessages(messages, {
+      markSecondToLastUserMessage: cacheControlEnabled
+    });
 
     // 2. 构建非流式请求体（stream: false）
     const requestBody = this.buildRequestBody(apiMessages, tools, options?.systemPrompt);
@@ -304,7 +310,9 @@ export class AnthropicAdapter extends BaseLLMAdapter {
     // system 字段：传入 systemPrompt 时用动态构建，否则 fallback 到构造时配置
     const systemField: AnthropicSystemField | undefined = systemPrompt
       ? this.buildSystemPromptBlocks(systemPrompt)
-      : this.anthropicConfig.system;
+      : this.anthropicConfig.system
+        ? this.wrapStringAsSystemBlock(this.anthropicConfig.system)
+        : undefined;
 
     const body: AnthropicRequestBody = {
       model: this.config.model,
@@ -314,10 +322,12 @@ export class AnthropicAdapter extends BaseLLMAdapter {
       system: systemField,
       tools:
         tools && tools.length > 0
-          ? tools.map(t => ({
+          ? tools.map((t, i) => ({
               name: t.name,
               description: t.description,
-              input_schema: t.inputSchema
+              input_schema: t.inputSchema,
+              // 最后一个 tool 定义标记 ephemeral — 缓存整个 tool list
+              cache_control: i === tools.length - 1 ? { type: 'ephemeral' } : undefined
             }))
           : undefined,
       thinking: this.anthropicConfig.thinking
@@ -326,23 +336,22 @@ export class AnthropicAdapter extends BaseLLMAdapter {
     return body;
   }
 
-  /** 将 SystemPrompt (branded string[]) 转为 Anthropic API system 字段 */
-  private buildSystemPromptBlocks(systemPrompt: SystemPrompt): AnthropicSystemField {
+  /** 将 SystemPrompt (branded string[]) 转为 Anthropic API system 字段 — 始终返回 TextBlock[] + ephemeral */
+  private buildSystemPromptBlocks(systemPrompt: SystemPrompt): AnthropicSystemTextBlock[] {
     // 过滤空段
     const filtered = systemPrompt.filter(s => s !== '');
-    if (filtered.length === 0) return undefined as unknown as AnthropicSystemField;
+    if (filtered.length === 0) return [];
 
-    // 单段 → 简化为 string（无需 TextBlockParam）
-    if (filtered.length === 1) return filtered[0];
+    // 始终返回 AnthropicSystemTextBlock[]（最后一段带 cache_control: ephemeral）
+    return filtered.map((text, i) => ({
+      type: 'text',
+      text,
+      cache_control: i === filtered.length - 1 ? { type: 'ephemeral' } : undefined
+    }));
+  }
 
-    // 多段 → AnthropicSystemTextBlock[]（最后一段带 cache_control）
-    return filtered.map((text, i) => {
-      const block: AnthropicSystemTextBlock = {
-        type: 'text',
-        text,
-        cache_control: i === filtered.length - 1 ? { type: 'ephemeral' } : undefined
-      };
-      return block;
-    });
+  /** 将 plain string 包装为 AnthropicSystemTextBlock[] + ephemeral */
+  private wrapStringAsSystemBlock(text: string): AnthropicSystemTextBlock[] {
+    return [{ type: 'text', text, cache_control: { type: 'ephemeral' } }];
   }
 }

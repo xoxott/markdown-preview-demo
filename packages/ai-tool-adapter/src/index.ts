@@ -42,6 +42,7 @@ export {
   formatAnthropicApiToolDef
 } from './convert/tool-definition';
 export { convertToAnthropicMessages } from './convert/message-converter';
+export type { AnthropicCacheControlConfig } from './convert/message-converter';
 export { convertToOpenAIMessages } from './convert/openai-message-converter';
 export { convertToGeminiContents } from './convert/gemini-message-converter';
 export {

@@ -8,11 +8,18 @@ import type {
   UserMessage
 } from '@suga/ai-agent-loop';
 import type {
+  AnthropicCacheControl,
   AnthropicContentBlock,
   AnthropicImageBlock,
   AnthropicMessage,
   AnthropicToolResultBlock
 } from '../types/anthropic';
+
+/** Cache control 注入配置 */
+export interface AnthropicCacheControlConfig {
+  /** 在倒数第二个 user 消息的最后一个 content block 注入 ephemeral */
+  readonly markSecondToLastUserMessage?: boolean;
+}
 
 /**
  * 将内部 AgentMessage[] 转换为 Anthropic API 的 messages 格式
@@ -25,9 +32,13 @@ import type {
  *    ToolResultMessage 合并到同一个 user 消息
  *
  * @param messages 内部消息列表
+ * @param cacheControlConfig 可选 cache_control 注入配置
  * @returns Anthropic API 格式的消息列表
  */
-export function convertToAnthropicMessages(messages: readonly AgentMessage[]): AnthropicMessage[] {
+export function convertToAnthropicMessages(
+  messages: readonly AgentMessage[],
+  cacheControlConfig?: AnthropicCacheControlConfig
+): AnthropicMessage[] {
   const result: AnthropicMessage[] = [];
   let pendingToolResults: AnthropicToolResultBlock[] = [];
 
@@ -116,6 +127,34 @@ export function convertToAnthropicMessages(messages: readonly AgentMessage[]): A
       role: 'user',
       content: pendingToolResults
     });
+  }
+
+  // Post-process: 注入 cache_control — 在倒数第二个 user 消息的最后一个 block 上标记 ephemeral
+  if (cacheControlConfig?.markSecondToLastUserMessage) {
+    const ephemeralMarker: AnthropicCacheControl = { type: 'ephemeral' };
+    const userMsgIndices = result.map((m, i) => (m.role === 'user' ? i : -1)).filter(i => i >= 0);
+
+    // 需要至少 2 个 user 消息才有 "倒数第二个"
+    if (userMsgIndices.length >= 2) {
+      const secondToLastIdx = userMsgIndices[userMsgIndices.length - 2];
+      const msg = result[secondToLastIdx];
+      const content = msg.content;
+
+      // content 是 block 数组 → 在最后一个 block 上注入 cache_control
+      if (Array.isArray(content) && content.length > 0) {
+        const lastBlock = content[content.length - 1];
+        if (lastBlock && typeof lastBlock === 'object') {
+          (lastBlock as Record<string, unknown>).cache_control = ephemeralMarker;
+        }
+      }
+      // content 是 string → 需要转为 [text block] 再注入
+      else if (typeof content === 'string') {
+        result[secondToLastIdx] = {
+          role: 'user',
+          content: [{ type: 'text', text: content, cache_control: ephemeralMarker }]
+        };
+      }
+    }
   }
 
   return result;

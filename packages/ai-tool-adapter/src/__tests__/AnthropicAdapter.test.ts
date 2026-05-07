@@ -226,7 +226,9 @@ describe('AnthropicAdapter', () => {
       await consumeAll(adapter.callModel([createUserMsg('hi')]));
 
       const body = JSON.parse(mockFetch.mock.calls[0][1].body as string);
-      expect(body.system).toBe('你是助手');
+      expect(body.system).toEqual([
+        { type: 'text', text: '你是助手', cache_control: { type: 'ephemeral' } }
+      ]);
     });
 
     it('自定义 baseURL → 发送到指定 URL', async () => {
@@ -276,7 +278,7 @@ describe('AnthropicAdapter', () => {
       expect(body.system[1].cache_control).toEqual({ type: 'ephemeral' });
     });
 
-    it('单段 systemPrompt → 简化为 string', async () => {
+    it('单段 systemPrompt → AnthropicSystemTextBlock[] + ephemeral', async () => {
       mockFetch.mockResolvedValue(
         createSSEResponse([
           { type: 'message_start', data: { type: 'message_start' } },
@@ -291,8 +293,10 @@ describe('AnthropicAdapter', () => {
       );
 
       const body = JSON.parse(mockFetch.mock.calls[0][1].body as string);
-      expect(typeof body.system).toBe('string');
-      expect(body.system).toBe('You are a helpful assistant.');
+      expect(Array.isArray(body.system)).toBe(true);
+      expect(body.system).toEqual([
+        { type: 'text', text: 'You are a helpful assistant.', cache_control: { type: 'ephemeral' } }
+      ]);
     });
 
     it('不传 systemPrompt → fallback 到 anthropicConfig.system', async () => {
@@ -312,7 +316,9 @@ describe('AnthropicAdapter', () => {
       await consumeAll(adapter.callModel([createUserMsg('hi')]));
 
       const body = JSON.parse(mockFetch.mock.calls[0][1].body as string);
-      expect(body.system).toBe('你是助手');
+      expect(body.system).toEqual([
+        { type: 'text', text: '你是助手', cache_control: { type: 'ephemeral' } }
+      ]);
     });
 
     it('传 systemPrompt → 覆盖 anthropicConfig.system', async () => {
@@ -335,8 +341,10 @@ describe('AnthropicAdapter', () => {
       );
 
       const body = JSON.parse(mockFetch.mock.calls[0][1].body as string);
-      expect(body.system).toBe('Override prompt');
-      expect(body.system).not.toBe('你是助手');
+      expect(body.system).toEqual([
+        { type: 'text', text: 'Override prompt', cache_control: { type: 'ephemeral' } }
+      ]);
+      expect(body.system[0].text).not.toBe('你是助手');
     });
   });
 

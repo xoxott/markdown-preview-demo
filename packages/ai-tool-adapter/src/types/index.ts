@@ -21,6 +21,7 @@ export type {
   AnthropicErrorResponse,
   AnthropicSystemTextBlock,
   AnthropicSystemField,
+  AnthropicCacheControl,
   AnthropicNonStreamResponse,
   AnthropicNonStreamContentBlock
 } from './anthropic';

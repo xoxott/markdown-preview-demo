@@ -126,10 +126,16 @@ export interface AnthropicImageBlock {
   };
 }
 
+/** Cache control 标记 — Prompt Caching 断点 */
+export interface AnthropicCacheControl {
+  readonly type: 'ephemeral';
+}
+
 /** 文本内容块 */
 export interface AnthropicTextBlock {
   readonly type: 'text';
   readonly text: string;
+  readonly cache_control?: AnthropicCacheControl;
 }
 
 /** 工具调用内容块 */
@@ -154,6 +160,7 @@ export interface AnthropicToolResultBlock {
   readonly tool_use_id: string;
   readonly content: string;
   readonly is_error?: boolean;
+  readonly cache_control?: AnthropicCacheControl;
 }
 
 /** Anthropic 工具定义格式 */
@@ -161,6 +168,7 @@ export interface AnthropicToolDef {
   readonly name: string;
   readonly description: string;
   readonly input_schema: Record<string, unknown>;
+  readonly cache_control?: AnthropicCacheControl;
 }
 
 /** Anthropic SSE 事件类型 */
