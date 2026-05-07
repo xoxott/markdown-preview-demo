@@ -18,6 +18,13 @@ export type TokenEstimator = (messages: readonly AgentMessage[]) => number;
 /** PTL 错误检测函数 — 判断摘要请求是否自身也 PTL */
 export type IsPTLError = (error: unknown) => boolean;
 
+/** G19: Fork 子代理摘要函数 — ForkCompact 层需要 fork 子代理生成摘要 */
+export type ForkSpawnerFn = (
+  messages: readonly AgentMessage[],
+  maxForkDepth?: number,
+  summarySections?: import('./messages').SummarySections
+) => Promise<string>;
+
 /** 压缩依赖注入集合 */
 export interface CompressDependencies {
   /** 持久化函数（ToolResultBudget 层需要） */
@@ -28,4 +35,6 @@ export interface CompressDependencies {
   readonly tokenEstimator?: TokenEstimator;
   /** PTL 错误检测函数（AutoCompact PTL Retry 需要） */
   readonly isPTLError?: IsPTLError;
+  /** G19: Fork 子代理摘要函数（ForkCompact 层需要） */
+  readonly forkSpawner?: ForkSpawnerFn;
 }

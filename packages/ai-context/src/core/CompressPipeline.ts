@@ -20,6 +20,7 @@ import { AutoCompactLayer } from './AutoCompact';
 import { ReactiveCompactLayer } from './ReactiveCompact';
 import { PTLRetryHandler } from './PTLRetryHandler';
 import { PartialCompactLayer } from './PartialCompactLayer';
+import { ForkCompactLayer } from './ForkCompactLayer';
 
 /** 创建初始 CompressState */
 function createInitialCompressState(config: CompressConfig): CompressState {
@@ -42,6 +43,7 @@ export class CompressPipeline {
   private readonly autoCompactLayer: AutoCompactLayer;
   private readonly partialCompactLayer: PartialCompactLayer;
   private readonly reactiveCompactLayer: ReactiveCompactLayer;
+  private readonly forkCompactLayer: ForkCompactLayer;
   private readonly deps: CompressDependencies;
   private state: CompressState;
   private frozen = false;
@@ -72,6 +74,9 @@ export class CompressPipeline {
     );
 
     this.partialCompactLayer = new PartialCompactLayer(config.partialCompact);
+
+    // G19: ForkCompact 层（AutoCompact 之后、PartialCompact 之前）
+    this.forkCompactLayer = new ForkCompactLayer(config.forkCompact, deps.forkSpawner);
 
     this.reactiveCompactLayer = new ReactiveCompactLayer(
       config.reactiveCompact,
@@ -124,6 +129,12 @@ export class CompressPipeline {
       if (autoResult.didCompress) anyCompressed = true;
       if (autoResult.stats) allStats.push(autoResult.stats);
     }
+
+    // Layer 4.5: ForkCompact（AutoCompact 之后 — fork 子代理摘要，与 AutoCompact 互补）
+    const forkResult = await this.forkCompactLayer.compress(currentMessages, this.state);
+    currentMessages = forkResult.messages;
+    if (forkResult.didCompress) anyCompressed = true;
+    if (forkResult.stats) allStats.push(forkResult.stats);
 
     // Layer 5: PartialCompact（AutoCompact 熔断时的保底 fallback）
     const partialResult = await this.partialCompactLayer.compress(currentMessages, this.state);

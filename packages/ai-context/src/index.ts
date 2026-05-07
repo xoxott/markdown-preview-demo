@@ -13,6 +13,32 @@ export { BlockingLimitPhase } from './integration/BlockingLimitPhase';
 export { PTLRetryHandler } from './core/PTLRetryHandler';
 export { AttachmentRebuilder } from './core/AttachmentRebuilder';
 export { PartialCompactLayer } from './core/PartialCompactLayer';
+export { ForkCompactLayer } from './core/ForkCompactLayer';
+
+// N30: Token Estimation 增强
+export {
+  estimateTokensCharRatio,
+  estimateTokensClaudeSpecific,
+  estimateTokens as estimateTokensEnhanced,
+  estimateMessageTokens,
+  DEFAULT_TOKEN_ESTIMATION_CONFIG
+} from './core/token-estimation';
+export type {
+  TokenEstimationStrategy,
+  TokenEstimationResult,
+  TokenEstimationConfig,
+  ExactTokenCountFn
+} from './core/token-estimation';
+
+// N45: Compact Warning 系统
+export {
+  shouldShowCompactWarning,
+  suppressCompactWarning,
+  unsuppressCompactWarning,
+  recordCompactOccurred,
+  DEFAULT_COMPACT_WARNING_CONFIG
+} from './core/CompactWarningSystem';
+export type { CompactWarningConfig, CompactWarningState } from './core/CompactWarningSystem';
 
 // 辅助工具
 export {
@@ -75,6 +101,7 @@ export type {
   SnipCompactConfig,
   MicroCompactConfig,
   AutoCompactConfig,
+  ForkCompactConfig,
   ReactiveCompactConfig,
   PartialCompactConfig,
   PTLRetryConfig,
@@ -86,7 +113,8 @@ export type {
   PersistToolResult,
   CallModelForSummary,
   TokenEstimator,
-  IsPTLError
+  IsPTLError,
+  ForkSpawnerFn
 } from './types/injection';
 
 export type {

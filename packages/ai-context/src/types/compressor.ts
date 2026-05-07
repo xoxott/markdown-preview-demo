@@ -57,6 +57,10 @@ export interface CompressStats {
   readonly partialCompactTrimmedRounds?: number;
   /** PartialCompact 裁剪的消息数 */
   readonly partialCompactTrimmedMessages?: number;
+  /** G19: ForkCompact 是否生成了摘要 */
+  readonly forkCompactSummary?: boolean;
+  /** G19: ForkCompact 执行耗时(ms) */
+  readonly forkCompactDurationMs?: number;
 }
 
 /** 管线整体结果 */

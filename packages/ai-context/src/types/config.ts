@@ -13,6 +13,8 @@ export interface CompressConfig {
   readonly microCompact?: MicroCompactConfig;
   /** AutoCompact 层配置 */
   readonly autoCompact?: AutoCompactConfig;
+  /** G19: ForkCompact 层配置（fork 子代理压缩） */
+  readonly forkCompact?: ForkCompactConfig;
   /** ReactiveCompact 层配置 */
   readonly reactiveCompact?: ReactiveCompactConfig;
   /** PTL Retry 配置（AutoCompact 摘要请求自身 PTL 时重试） */
@@ -91,4 +93,20 @@ export interface PartialCompactConfig {
   readonly truncateRatio?: number;
   /** 保底最大裁剪 groups 数（默认 3） */
   readonly maxTruncatedGroups?: number;
+}
+
+/** G19: ForkCompact 层配置 — fork 子代理压缩 */
+export interface ForkCompactConfig {
+  /** 是否启用 ForkCompact（默认 false — 需注入 forkSpawner 才激活） */
+  readonly enabled?: boolean;
+  /** 触发阈值比例（estimatedTokens >= contextWindow * thresholdRatio 时触发，默认 0.8） */
+  readonly thresholdRatio?: number;
+  /** 保留最近多少条消息不被摘要覆盖（默认 4） */
+  readonly messagesToKeep?: number;
+  /** 最大 fork 深度（默认 2，防止递归 fork） */
+  readonly maxForkDepth?: number;
+  /** 熔断器最大连续失败次数（默认 3） */
+  readonly maxFailures?: number;
+  /** fork 失败时回退到 AutoCompact（默认 false） */
+  readonly fallbackToAutoCompact?: boolean;
 }
