@@ -54,7 +54,10 @@ export {
   MAX_CONSECUTIVE_DENIALS,
   MAX_TOTAL_DENIALS,
   DEFAULT_DENIAL_TRACKING,
-  updateDenialTracking
+  updateDenialTracking,
+  toStructuredReason,
+  groupRulesBySource,
+  detectShadowedRules
 } from './types/permission-decision';
 
 // 权限剥离与恢复
@@ -165,6 +168,27 @@ export type { PermissionEvent, PermissionEventEmitter } from './types/permission
 
 // 模式切换结果
 export type { ModeTransitionResult } from './types/permission-mode';
+
+// N12: 工具注册编排器
+export { ToolRegistrationOrchestrator } from './core/tool-registration-orchestrator';
+export type {
+  ToolRegistrationCondition,
+  ToolRegistrationRule
+} from './core/tool-registration-orchestrator';
+
+// N17: 权限 Handler 三模式
+export {
+  InteractivePermissionHandler,
+  CoordinatorPermissionHandler,
+  SwarmWorkerPermissionHandler
+} from './core/permission-handlers';
+export type {
+  PermissionDecisionSource,
+  PermissionDecisionResult,
+  InteractiveHandlerConfig,
+  CoordinatorHandlerConfig,
+  SwarmWorkerHandlerConfig
+} from './core/permission-handlers';
 
 // P44: 原子竞争权限架构
 export { createResolveOnce } from './permission/createResolveOnce';

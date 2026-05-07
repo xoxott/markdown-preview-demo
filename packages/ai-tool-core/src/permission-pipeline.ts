@@ -245,7 +245,8 @@ export async function hasPermissionsToUseTool(
 
   // === Step 4.5: acceptEdits 快速路径白名单 ===
   if (permCtx.mode === 'acceptEdits' && isAcceptEditsFastPathTool(tool.name)) {
-    const fastPathResult = tool.checkPermissions(args, context);
+    const fastPathResultMaybePromise = tool.checkPermissions(args, context);
+    const fastPathResult = await fastPathResultMaybePromise;
     if (fastPathResult.behavior === 'allow') {
       return {
         behavior: 'allow',
@@ -350,7 +351,8 @@ export async function hasPermissionsToUseTool(
   }
 
   // === Step 6: checkPermissions 工具自定义权限 ===
-  const customResult = tool.checkPermissions(args, context);
+  const customResultMaybePromise = tool.checkPermissions(args, context);
+  const customResult = await customResultMaybePromise;
 
   // P16F: 工具返回 ask → promptHandler/canUseToolFn 桥接
   if (customResult.behavior === 'ask') {

@@ -6,6 +6,29 @@ import type { ValidationResult } from './validation';
 import type { ToolCallOptions, ToolUseContext } from './context';
 import type { ToolClassifierInput } from './permission-classifier';
 
+/**
+ * 工具注入的后续消息
+ *
+ * 允许工具在执行结果中携带需要追加到对话的消息， 例如 Bash 工具可以注入 "注意: 此命令需要用户确认" 的提醒消息。
+ */
+export interface ToolNewMessage {
+  /** 消息角色（通常为 'assistant'） */
+  role: 'assistant' | 'user' | 'system';
+  /** 消息内容 */
+  content: string;
+  /** 是否为元消息（不展示给 LLM，仅供系统内部使用） */
+  meta?: boolean;
+}
+
+/**
+ * 工具上下文修改器
+ *
+ * 允许工具修改后续调用的 ToolUseContext， 例如 Bash 工具在 cd 命令后可以修改 cwd， 或 Edit 工具可以注册 fileEditLog 记录。
+ *
+ * 修改器在 agent loop 的 post-processing 阶段应用， 确保不影响当前工具执行的上下文一致性。
+ */
+export type ToolContextModifier = (context: ToolUseContext) => ToolUseContext;
+
 /** 工具结果（工具执行后的返回值） */
 export interface ToolResult<T = unknown> {
   /** 工具返回的数据 */
@@ -14,6 +37,10 @@ export interface ToolResult<T = unknown> {
   error?: string;
   /** 元数据（可选，用于传递额外信息，如截断标记等） */
   metadata?: Record<string, unknown>;
+  /** G9: 注入后续消息到对话（可选，agent loop 会追加到消息列表） */
+  newMessages?: ToolNewMessage[];
+  /** G10: 修改后续调用的 ToolUseContext（可选，agent loop 会应用到下一轮） */
+  contextModifier?: ToolContextModifier;
 }
 
 /**
@@ -73,10 +100,16 @@ export interface ToolDef<Input = unknown, Output = unknown> {
 
   // === 验证和权限 ===
 
-  /** 自定义输入验证（在 Zod 验证之后执行，可做语义检查） 例如：检查文件路径是否存在、检查网络地址是否可达等 */
-  validateInput?(input: Input, context: ToolUseContext): ValidationResult;
-  /** 权限检查（由执行器在验证阶段之后调用） 默认返回 allow（执行器的权限模式规则优先于工具自定义检查） */
-  checkPermissions?(input: Input, context: ToolUseContext): PermissionResult;
+  /** 自定义输入验证（在 Zod 验证之后执行，可做语义检查） G11: 异步化，支持需要网络查询的验证（如 MCP 权限） */
+  validateInput?(
+    input: Input,
+    context: ToolUseContext
+  ): ValidationResult | Promise<ValidationResult>;
+  /** 权限检查（由执行器在验证阶段之后调用） G11: 异步化，支持需要网络查询的权限（如 MCP 权限验证） */
+  checkPermissions?(
+    input: Input,
+    context: ToolUseContext
+  ): PermissionResult | Promise<PermissionResult>;
 
   // === 其他 ===
 
@@ -137,10 +170,16 @@ export interface BuiltTool<Input = unknown, Output = unknown> {
   readonly isEnabled: () => boolean;
   /** 安全标签（已填充默认值: () => 'system'） */
   readonly safetyLabel: (input: Input) => SafetyLabel;
-  /** 自定义输入验证（已填充默认值: () => ({ behavior: 'allow' })） */
-  readonly validateInput: (input: Input, context: ToolUseContext) => ValidationResult;
-  /** 权限检查（已填充默认值: () => ({ behavior: 'allow' })） */
-  readonly checkPermissions: (input: Input, context: ToolUseContext) => PermissionResult;
+  /** 自定义输入验证（已填充默认值: G11 async — () => Promise.resolve({ behavior: 'allow' })） */
+  readonly validateInput: (
+    input: Input,
+    context: ToolUseContext
+  ) => ValidationResult | Promise<ValidationResult>;
+  /** 权限检查（已填充默认值: G11 async — () => Promise.resolve({ behavior: 'allow' })） */
+  readonly checkPermissions: (
+    input: Input,
+    context: ToolUseContext
+  ) => PermissionResult | Promise<PermissionResult>;
   /** 最大结果字符数限制（已填充默认值: 100,000） */
   readonly maxResultSizeChars: number;
   /** 中断行为（已填充默认值: () => 'cancel'） */

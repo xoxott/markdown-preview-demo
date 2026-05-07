@@ -196,8 +196,8 @@ export class ToolExecutor {
 
     const parsedInput = zodResult.data as Input;
 
-    // 自定义 validateInput（语义校验）
-    const customValidation = tool.validateInput(parsedInput, context);
+    // 自定义 validateInput（语义校验，G11: await 异步验证）
+    const customValidation = await tool.validateInput(parsedInput, context);
     if (customValidation.behavior === 'deny') {
       return {
         behavior: 'deny',
@@ -324,8 +324,8 @@ export class ToolExecutor {
       return { behavior: 'allow', decisionSource: 'mode' };
     }
 
-    // 调用工具自定义权限检查
-    return tool.checkPermissions(args, context);
+    // 调用工具自定义权限检查（G11: await 异步权限）
+    return await tool.checkPermissions(args, context);
   }
 
   /**

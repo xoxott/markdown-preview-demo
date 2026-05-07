@@ -4,12 +4,73 @@ import type { ToolPermissionContext } from './permission-context';
 import type { HookPermissionDecision, PermissionResult } from './permission';
 import type { ToolUseContext } from './context';
 import type { AnyBuiltTool } from './registry';
+import type {
+  PermissionAllowRule,
+  PermissionAskRule,
+  PermissionDenyRule,
+  PermissionRule,
+  PermissionRuleSource
+} from './permission-rule';
 
 /**
- * 结构化决策原因 — 20种权限决策的精确标记
+ * G15: 结构化决策原因 — discriminated union 包装器
+ *
+ * Claude Code 使用 { type, classifier, reason } 结构而非扁平字符串， 便于审计日志、调试和后续扩展。@suga 原有的
+ * PermissionDecisionReason 是扁平字符串枚举，G15 将其包装为 discriminated union。
+ *
+ * type: 决策的大类（rule/mode/hook/classifier/safety/headless/swarm） classifier: 产生决策的分类器或规则引擎标识 reason:
+ * 具体的决策原因（精确标记）
+ */
+export type StructuredDecisionReason =
+  | {
+      readonly type: 'rule';
+      readonly classifier?: string;
+      readonly reason: string;
+    }
+  | {
+      readonly type: 'mode';
+      readonly classifier?: 'mode_engine';
+      readonly reason: string;
+    }
+  | {
+      readonly type: 'hook';
+      readonly classifier?: string;
+      readonly reason: string;
+    }
+  | {
+      readonly type: 'classifier';
+      readonly classifier?: string;
+      readonly reason: string;
+    }
+  | {
+      readonly type: 'safety';
+      readonly classifier?: 'safety_check';
+      readonly reason:
+        | 'safety_check_block'
+        | 'requires_user_interaction_block'
+        | 'denial_limit_fallback';
+    }
+  | {
+      readonly type: 'headless';
+      readonly classifier?: 'headless_agent';
+      readonly reason: 'headless_agent_deny';
+    }
+  | {
+      readonly type: 'swarm';
+      readonly classifier?: string;
+      readonly reason: string;
+    }
+  | {
+      readonly type: 'tool';
+      readonly classifier?: string;
+      readonly reason: 'tool_check_permissions';
+    };
+
+/**
+ * 结构化决策原因 — 25种权限决策的精确标记（扁平字符串枚举，向后兼容）
  *
  * 参考 Claude Code 的 PermissionDecisionReason: 每种原因对应管线中的特定步骤，便于审计日志和调试。 P16B 新增 5 种 classifier
- * 相关原因。P41 新增 4 种安全检查原因。
+ * 相关原因。P41 新增 4 种安全检查原因。P48 新增 3 种 swarm 原因。
  */
 export type PermissionDecisionReason =
   | 'deny_rule_match' // 拒绝规则匹配
@@ -161,4 +222,207 @@ export interface PermissionPipelineInput {
   readonly requiresUserInteraction?: boolean;
   /** P41: 是否为 headless agent（自动 deny ask） */
   readonly isHeadlessAgent?: boolean;
+}
+
+// ============================================================
+// G15: 结构化决策原因辅助函数
+// ============================================================
+
+/**
+ * 从扁平 PermissionDecisionReason 创建 StructuredDecisionReason
+ *
+ * 根据 reason 字符串自动推断 type 大类，包装为 discriminated union。
+ */
+export function toStructuredReason(
+  reason: PermissionDecisionReason,
+  classifier?: string
+): StructuredDecisionReason {
+  if (reason.startsWith('deny_rule_match') || reason.startsWith('ask_rule_match')) {
+    return { type: 'rule', classifier, reason };
+  }
+  if (reason.startsWith('mode_')) {
+    return { type: 'mode', classifier: 'mode_engine', reason };
+  }
+  if (reason.startsWith('hook_')) {
+    return { type: 'hook', classifier, reason };
+  }
+  if (reason.startsWith('classifier_')) {
+    return { type: 'classifier', classifier, reason };
+  }
+  if (
+    reason === 'safety_check_block' ||
+    reason === 'requires_user_interaction_block' ||
+    reason === 'denial_limit_fallback'
+  ) {
+    return { type: 'safety', classifier: 'safety_check', reason };
+  }
+  if (reason === 'headless_agent_deny') {
+    return { type: 'headless', classifier: 'headless_agent', reason };
+  }
+  if (reason.startsWith('swarm_worker_')) {
+    return { type: 'swarm', classifier, reason };
+  }
+  if (reason === 'tool_check_permissions') {
+    return { type: 'tool', classifier, reason };
+  }
+  // fallback — 不应到达，但安全兜底
+  return { type: 'rule', classifier, reason };
+}
+
+/**
+ * G16: 权限规则按源分组 — 检测 shadowed 规则
+ *
+ * 参考 Claude Code 的 ToolPermissionRulesBySource:
+ *
+ * 当多个来源（user/project/policy）对同一工具定义了不同行为的规则时， 高优先级来源的规则会 shadow（遮盖）低优先级来源的规则。 这个分组结构让宿主可以检测并提示冲突规则。
+ *
+ * 优先级: policy > project > local > user > session > flag > cliArg > command
+ */
+export interface ToolPermissionRulesBySource {
+  /** 按来源分组的 allow 规则 */
+  readonly allow: Record<PermissionRuleSource, readonly PermissionAllowRule[]>;
+  /** 按来源分组的 deny 规则 */
+  readonly deny: Record<PermissionRuleSource, readonly PermissionDenyRule[]>;
+  /** 按来源分组的 ask 规则 */
+  readonly ask: Record<PermissionRuleSource, readonly PermissionAskRule[]>;
+}
+
+/** G16: Shadowed 规则信息 — 被高优先级来源遮盖的规则 */
+export interface ShadowedRuleInfo {
+  /** 被遮盖的规则 */
+  readonly shadowedRule: PermissionRule;
+  /** 遮盖它的规则（高优先级来源） */
+  readonly shadowingRule: PermissionRule;
+  /** 遮盖来源 */
+  readonly shadowingSource: PermissionRuleSource;
+  /** 被遮盖来源 */
+  readonly shadowedSource: PermissionRuleSource;
+}
+
+/** 规则来源优先级排序（高优先级在前） */
+const SOURCE_PRIORITY: readonly PermissionRuleSource[] = [
+  'policy',
+  'project',
+  'local',
+  'user',
+  'session',
+  'flag',
+  'cliArg',
+  'command'
+];
+
+/**
+ * G16: 将规则列表按来源分组
+ *
+ * @param rules 规则列表
+ * @returns 按来源分组的规则结构
+ */
+export function groupRulesBySource(rules: readonly PermissionRule[]): ToolPermissionRulesBySource {
+  const emptyAllow: Record<PermissionRuleSource, readonly PermissionAllowRule[]> = {
+    user: [],
+    project: [],
+    local: [],
+    policy: [],
+    flag: [],
+    cliArg: [],
+    command: [],
+    session: []
+  };
+  const emptyDeny: Record<PermissionRuleSource, readonly PermissionDenyRule[]> = {
+    user: [],
+    project: [],
+    local: [],
+    policy: [],
+    flag: [],
+    cliArg: [],
+    command: [],
+    session: []
+  };
+  const emptyAsk: Record<PermissionRuleSource, readonly PermissionAskRule[]> = {
+    user: [],
+    project: [],
+    local: [],
+    policy: [],
+    flag: [],
+    cliArg: [],
+    command: [],
+    session: []
+  };
+
+  const allow: Record<PermissionRuleSource, PermissionAllowRule[]> = { ...emptyAllow } as any;
+  const deny: Record<PermissionRuleSource, PermissionDenyRule[]> = { ...emptyDeny } as any;
+  const ask: Record<PermissionRuleSource, PermissionAskRule[]> = { ...emptyAsk } as any;
+
+  for (const rule of rules) {
+    switch (rule.behavior) {
+      case 'allow':
+        allow[rule.source] = [...(allow[rule.source] ?? []), rule];
+        break;
+      case 'deny':
+        deny[rule.source] = [...(deny[rule.source] ?? []), rule];
+        break;
+      case 'ask':
+        ask[rule.source] = [...(ask[rule.source] ?? []), rule];
+        break;
+      default:
+        break;
+    }
+  }
+
+  return { allow, deny, ask };
+}
+
+/**
+ * G16: 检测 shadowed 规则
+ *
+ * 找出被高优先级来源遮盖的规则。 规则被遮盖的条件：同一 ruleValue 被不同来源的不同 behavior 规则覆盖。
+ *
+ * @param rulesBySource 按来源分组的规则
+ * @returns shadowed 规则列表
+ */
+export function detectShadowedRules(
+  rulesBySource: ToolPermissionRulesBySource
+): ShadowedRuleInfo[] {
+  const allRules = [
+    ...Object.values(rulesBySource.allow).flat(),
+    ...Object.values(rulesBySource.deny).flat(),
+    ...Object.values(rulesBySource.ask).flat()
+  ];
+
+  const shadowed: ShadowedRuleInfo[] = [];
+
+  // 按 ruleValue 分组
+  const rulesByValue: Map<string, PermissionRule[]> = new Map();
+  for (const rule of allRules) {
+    const existing = rulesByValue.get(rule.ruleValue) ?? [];
+    existing.push(rule);
+    rulesByValue.set(rule.ruleValue, existing);
+  }
+
+  // 对每个 ruleValue，检查是否有不同来源的不同行为
+  for (const [, rules] of rulesByValue) {
+    if (rules.length <= 1) continue;
+
+    // 按来源优先级排序
+    const sorted = [...rules].sort((a, b) => {
+      const aPriority = SOURCE_PRIORITY.indexOf(a.source);
+      const bPriority = SOURCE_PRIORITY.indexOf(b.source);
+      return aPriority - bPriority; // 高优先级在前
+    });
+
+    // 第一个（最高优先级）遮盖后面的低优先级同值规则
+    for (let i = 1; i < sorted.length; i++) {
+      // 只有行为不同才算 shadowed
+      if (sorted[0].behavior !== sorted[i].behavior) {
+        shadowed.push({
+          shadowedRule: sorted[i],
+          shadowingRule: sorted[0],
+          shadowingSource: sorted[0].source,
+          shadowedSource: sorted[i].source
+        });
+      }
+    }
+  }
+
+  return shadowed;
 }

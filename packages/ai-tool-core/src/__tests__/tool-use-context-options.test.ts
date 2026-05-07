@@ -1,10 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type {
-  ThinkingConfig,
-  McpClientRef,
   AgentDefinitionRef,
   ElicitationRequest,
   ElicitationResponse,
+  McpClientRef,
+  ThinkingConfig,
   ToolUseContextOptions
 } from '../types/tool-use-context-options';
 
@@ -44,8 +44,8 @@ describe('ToolUseContextOptions', () => {
   it('can set callback functions', () => {
     const opts: ToolUseContextOptions = {
       refreshTools: () => {},
-      getAppState: <T>(key: string) => undefined as T | undefined,
-      setAppState: <T>(key: string, value: T) => {},
+      getAppState: <T>(_key: string) => undefined as T | undefined,
+      setAppState: <T>(_key: string, _value: T) => {},
       handleElicitation: async () => ({ answer: 'yes' })
     };
     expect(opts.refreshTools).toBeDefined();

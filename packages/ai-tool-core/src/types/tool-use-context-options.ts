@@ -3,8 +3,7 @@
  *
  * 对齐 CC Tool.ts options 定义，补全 @suga 缺少的字段。
  *
- * 设计原则：所有字段可选 — 宿主按需注入，库层不强制。
- * 下游包可通过 interface merging 将这些字段合并到 ToolUseContext。
+ * 设计原则：所有字段可选 — 宿主按需注入，库层不强制。 下游包可通过 interface merging 将这些字段合并到 ToolUseContext。
  */
 
 /** Thinking 模式配置 */
@@ -50,9 +49,11 @@ export type SetAppStateFn = <T>(key: string, value: T) => void;
 /** HandleElicitation 回调 */
 export type HandleElicitationFn = (request: ElicitationRequest) => Promise<ElicitationResponse>;
 
-/** ToolUseContext Options — 完整配置层
+/**
+ * ToolUseContext Options — 完整配置层
  *
  * CC Tool.ts 中 ToolUseContext 包含完整的 options 层，
+ *
  * @suga 的 ToolUseContext 当前只有最小字段（abortController, tools, sessionId, onProgress）。
  * 此类型定义了所有缺失的可选字段，宿主按需注入。
  *
