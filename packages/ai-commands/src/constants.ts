@@ -43,3 +43,18 @@ export const MODEL_TITLE = '## Model Selection';
 export const PERMISSIONS_TITLE = '## Permissions';
 export const VIM_TITLE = '## Vim Mode';
 export const TERMINAL_SETUP_TITLE = '## Terminal Setup';
+
+/** Tier 3 (会话/账号/IDE/统计) 标题 */
+export const SESSION_TITLE = '## Sessions';
+export const RESUME_TITLE = '## Resume Session';
+export const LOGIN_TITLE = '## Login';
+export const LOGOUT_TITLE = '## Logout';
+export const PLAN_TITLE = '## Plan Mode';
+export const THEME_TITLE = '## Theme';
+export const IDE_TITLE = '## IDE';
+export const SKILLS_TITLE = '## Skills';
+export const HOOKS_TITLE = '## Hooks';
+export const TASKS_TITLE = '## Scheduled Tasks';
+export const EXPORT_TITLE = '## Export Session';
+export const USAGE_TITLE = '## Usage';
+export const STATS_TITLE = '## Statistics';

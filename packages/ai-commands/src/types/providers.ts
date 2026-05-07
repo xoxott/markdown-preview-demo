@@ -275,3 +275,222 @@ export interface PermissionsProvider {
   /** 撤销权限（删除规则） */
   revoke(ruleId: string): Promise<boolean>;
 }
+
+// === Session / Resume Provider ===
+
+/** 已保存会话的元数据条目 */
+export interface SessionEntry {
+  readonly id: string;
+  readonly title?: string;
+  readonly cwd: string;
+  readonly startedAt: number;
+  readonly updatedAt: number;
+  readonly turnCount: number;
+  readonly preview?: string;
+}
+
+/** Session/Resume provider — /resume, /session, /rename 需要 */
+export interface SessionStoreProvider {
+  /** 列出已保存的会话（按更新时间倒序） */
+  list(limit?: number): Promise<SessionEntry[]>;
+  /** 加载会话 */
+  resume(sessionId: string): Promise<{ readonly success: boolean; readonly error?: string }>;
+  /** 重命名会话 */
+  rename(sessionId: string, title: string): Promise<boolean>;
+  /** 删除会话 */
+  delete(sessionId: string): Promise<boolean>;
+  /** 当前会话 ID */
+  getCurrentSessionId(): Promise<string | null>;
+}
+
+// === Auth Provider ===
+
+/** 用户身份 */
+export interface AuthIdentity {
+  readonly userId?: string;
+  readonly email?: string;
+  readonly tier?: string;
+  readonly orgId?: string;
+}
+
+/** 鉴权 provider — /login, /logout 需要（命令层别名，避免与 @suga/ai-auth.AuthProvider 冲突） */
+export interface CommandAuthProvider {
+  /** 是否已登录 */
+  isLoggedIn(): Promise<boolean>;
+  /** 当前身份信息 */
+  whoAmI(): Promise<AuthIdentity | null>;
+  /** 启动登录流程（OAuth）；返回 deviceCode/url 或最终凭证 */
+  login(provider?: string): Promise<{
+    readonly url?: string;
+    readonly userCode?: string;
+    readonly success: boolean;
+    readonly error?: string;
+  }>;
+  /** 退出登录 */
+  logout(): Promise<void>;
+}
+
+// === Plan Mode Provider ===
+
+/** Plan Mode 状态 */
+export interface PlanModeState {
+  readonly enabled: boolean;
+  readonly defaultEnabled?: boolean;
+}
+
+/** Plan Mode provider — /plan 需要 */
+export interface PlanModeProvider {
+  /** 当前是否启用 plan mode */
+  getState(): Promise<PlanModeState>;
+  /** 启用/禁用 */
+  setEnabled(enabled: boolean): Promise<PlanModeState>;
+}
+
+// === Theme Provider ===
+
+/** 主题信息 */
+export interface ThemeInfo {
+  readonly name: string;
+  readonly description?: string;
+  readonly isDark?: boolean;
+}
+
+/** 主题 provider — /theme 需要 */
+export interface ThemeProvider {
+  /** 当前主题 */
+  getCurrent(): Promise<ThemeInfo>;
+  /** 列出可用主题 */
+  list(): Promise<ThemeInfo[]>;
+  /** 切换主题 */
+  setTheme(name: string): Promise<ThemeInfo>;
+}
+
+// === IDE Provider ===
+
+/** 检测到的 IDE 实例 */
+export interface IDEInstance {
+  readonly id: string;
+  readonly name: string;
+  readonly workspace?: string;
+  readonly running?: boolean;
+}
+
+/** IDE provider — /ide 需要 */
+export interface IDEProvider {
+  /** 列出当前可见/正在运行的 IDE */
+  list(): Promise<IDEInstance[]>;
+  /** 连接到指定 IDE */
+  connect(id: string): Promise<{ readonly success: boolean; readonly error?: string }>;
+  /** 断开当前 IDE */
+  disconnect(): Promise<void>;
+  /** 当前已连接的 IDE id */
+  getConnectedId(): Promise<string | null>;
+}
+
+// === Skills Provider ===
+
+/** Skill 简略信息 */
+export interface SkillSummary {
+  readonly name: string;
+  readonly description: string;
+  readonly source: 'bundled' | 'project' | 'user' | 'mcp';
+  readonly enabled: boolean;
+}
+
+/** Skills provider — /skills 需要 */
+export interface SkillsProvider {
+  /** 列出已注册的 skill */
+  list(): Promise<SkillSummary[]>;
+  /** 启用 skill */
+  enable(name: string): Promise<boolean>;
+  /** 禁用 skill */
+  disable(name: string): Promise<boolean>;
+}
+
+// === Hooks Provider ===
+
+/** Hook 注册信息 */
+export interface HookEntry {
+  readonly id: string;
+  readonly event: string;
+  readonly command?: string;
+  readonly source: 'project' | 'user';
+  readonly enabled: boolean;
+}
+
+/** Hooks provider — /hooks 需要 */
+export interface HooksProvider {
+  /** 列出所有 hook */
+  list(): Promise<HookEntry[]>;
+  /** 启用/禁用 hook */
+  setEnabled(id: string, enabled: boolean): Promise<boolean>;
+  /** 重新加载 hook 配置 */
+  reload(): Promise<{ readonly loaded: number; readonly errors: readonly string[] }>;
+}
+
+// === Tasks Provider (Cron / Background Loops) ===
+
+/** 任务状态（命令层别名，避免与 @suga/ai-coordinator.TaskStatus 冲突） */
+export type CommandTaskStatus = 'scheduled' | 'running' | 'completed' | 'failed' | 'cancelled';
+
+/** 任务条目 */
+export interface TaskEntry {
+  readonly id: string;
+  readonly title: string;
+  readonly status: CommandTaskStatus;
+  readonly schedule?: string;
+  readonly nextRun?: number;
+  readonly lastRun?: number;
+}
+
+/** Tasks provider — /tasks 需要 */
+export interface TasksProvider {
+  /** 列出已调度的任务 */
+  list(): Promise<TaskEntry[]>;
+  /** 取消任务 */
+  cancel(id: string): Promise<boolean>;
+  /** 立即触发任务 */
+  trigger(id: string): Promise<boolean>;
+}
+
+// === Export Provider ===
+
+/** 导出格式 */
+export type ExportFormat = 'json' | 'markdown' | 'jsonl';
+
+/** Export 结果 */
+export interface ExportResult {
+  readonly format: ExportFormat;
+  readonly path?: string;
+  readonly bytes: number;
+  readonly success: boolean;
+  readonly error?: string;
+}
+
+/** Export provider — /export 需要 */
+export interface ExportProvider {
+  /** 导出当前会话到磁盘或返回内容 */
+  exportSession(format: ExportFormat, outputPath?: string): Promise<ExportResult>;
+}
+
+// === Usage / Stats Provider ===
+
+/** Usage 统计快照 */
+export interface UsageSnapshot {
+  readonly totalRequests: number;
+  readonly totalInputTokens: number;
+  readonly totalOutputTokens: number;
+  readonly totalCacheCreationTokens?: number;
+  readonly totalCacheReadTokens?: number;
+  readonly totalCostUsd: number;
+  readonly windowStart?: number;
+  readonly windowEnd?: number;
+}
+
+/** Stats provider — /usage, /stats 需要 */
+export interface StatsProvider {
+  /** 当前会话 token usage */
+  getSessionUsage(): Promise<UsageSnapshot>;
+  /** 跨会话累计（当日 / 当月） */
+  getAggregateUsage(scope: 'day' | 'week' | 'month' | 'all'): Promise<UsageSnapshot>;
+}

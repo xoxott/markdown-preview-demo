@@ -2,15 +2,25 @@
 
 import type { FileSystemProvider } from '@suga/ai-tools';
 import type {
+  CommandAuthProvider,
   ConfigProvider,
   DiagnosticProvider,
+  ExportProvider,
   GitProvider,
+  HooksProvider,
+  IDEProvider,
   McpCommandProvider,
   MemoryCommandProvider,
   ModelControlProvider,
   PermissionsProvider,
+  PlanModeProvider,
   SessionControlProvider,
-  SessionInfoProvider
+  SessionInfoProvider,
+  SessionStoreProvider,
+  SkillsProvider,
+  StatsProvider,
+  TasksProvider,
+  ThemeProvider
 } from './providers';
 
 /** 命令 tier 分类 */
@@ -36,4 +46,14 @@ export interface ProvidersMap {
   sessionControlProvider: SessionControlProvider;
   modelControlProvider: ModelControlProvider;
   permissionsProvider: PermissionsProvider;
+  sessionStoreProvider: SessionStoreProvider;
+  authProvider: CommandAuthProvider;
+  planModeProvider: PlanModeProvider;
+  themeProvider: ThemeProvider;
+  ideProvider: IDEProvider;
+  skillsProvider: SkillsProvider;
+  hooksProvider: HooksProvider;
+  tasksProvider: TasksProvider;
+  exportProvider: ExportProvider;
+  statsProvider: StatsProvider;
 }

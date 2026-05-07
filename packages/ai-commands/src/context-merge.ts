@@ -9,15 +9,25 @@
 import type { SkillExecutionContext } from '@suga/ai-skill';
 import type { FileSystemProvider } from '@suga/ai-tools';
 import type {
+  CommandAuthProvider,
   ConfigProvider,
   DiagnosticProvider,
+  ExportProvider,
   GitProvider,
+  HooksProvider,
+  IDEProvider,
   McpCommandProvider,
   MemoryCommandProvider,
   ModelControlProvider,
   PermissionsProvider,
+  PlanModeProvider,
   SessionControlProvider,
-  SessionInfoProvider
+  SessionInfoProvider,
+  SessionStoreProvider,
+  SkillsProvider,
+  StatsProvider,
+  TasksProvider,
+  ThemeProvider
 } from './types/providers';
 
 /** 扩展的 SkillExecutionContext — 包含所有命令 provider */
@@ -42,6 +52,26 @@ export interface ExtendedSkillExecutionContext extends SkillExecutionContext {
   readonly modelControlProvider?: ModelControlProvider;
   /** 权限管理 provider（/permissions 需要） */
   readonly permissionsProvider?: PermissionsProvider;
+  /** 会话存储 provider（/resume, /session, /rename 需要） */
+  readonly sessionStoreProvider?: SessionStoreProvider;
+  /** 鉴权 provider（/login, /logout 需要） */
+  readonly authProvider?: CommandAuthProvider;
+  /** Plan Mode provider（/plan 需要） */
+  readonly planModeProvider?: PlanModeProvider;
+  /** 主题 provider（/theme 需要） */
+  readonly themeProvider?: ThemeProvider;
+  /** IDE provider（/ide 需要） */
+  readonly ideProvider?: IDEProvider;
+  /** Skills provider（/skills 需要） */
+  readonly skillsProvider?: SkillsProvider;
+  /** Hooks provider（/hooks 需要） */
+  readonly hooksProvider?: HooksProvider;
+  /** Tasks provider（/tasks 需要） */
+  readonly tasksProvider?: TasksProvider;
+  /** Export provider（/export 需要） */
+  readonly exportProvider?: ExportProvider;
+  /** Stats provider（/usage, /stats 需要） */
+  readonly statsProvider?: StatsProvider;
 }
 
 /** Provider 缺失错误 — 统一报错格式 */
@@ -79,7 +109,17 @@ function providerName(key: keyof ExtendedSkillExecutionContext): string {
     fsProvider: 'FileSystemProvider',
     sessionControlProvider: 'SessionControlProvider',
     modelControlProvider: 'ModelControlProvider',
-    permissionsProvider: 'PermissionsProvider'
+    permissionsProvider: 'PermissionsProvider',
+    sessionStoreProvider: 'SessionStoreProvider',
+    authProvider: 'AuthProvider',
+    planModeProvider: 'PlanModeProvider',
+    themeProvider: 'ThemeProvider',
+    ideProvider: 'IDEProvider',
+    skillsProvider: 'SkillsProvider',
+    hooksProvider: 'HooksProvider',
+    tasksProvider: 'TasksProvider',
+    exportProvider: 'ExportProvider',
+    statsProvider: 'StatsProvider'
   };
   return names[key] ?? key;
 }

@@ -151,8 +151,8 @@ export interface BuildCompactPromptOptions {
   readonly forceTextOnly?: boolean;
 }
 
-/** 构造完整的 compact prompt */
-export function buildCompactPrompt(options: BuildCompactPromptOptions = {}): string {
+/** 构造完整的 compact prompt（context 层 — 区别于 ai-commands 的 /compact 命令 prompt） */
+export function buildContextCompactPrompt(options: BuildCompactPromptOptions = {}): string {
   const isPartial = options.direction !== undefined;
   const base = isPartial ? PARTIAL_COMPACT_PROMPT : BASE_COMPACT_PROMPT;
   const preamble = options.forceTextOnly === false ? '' : NO_TOOLS_PREAMBLE;

@@ -152,3 +152,98 @@ export const TerminalSetupArgsSchema = z.strictObject({
   shell: z.string().optional().describe('指定 shell（默认自动检测）')
 });
 export type TerminalSetupArgs = z.infer<typeof TerminalSetupArgsSchema>;
+
+// === Tier 3 (会话/账号/IDE/统计) ===
+
+/** /session 子命令 */
+export const SessionSubcommand = z.enum(['list', 'show', 'rename', 'delete']);
+export const SessionArgsSchema = z.strictObject({
+  subcommand: SessionSubcommand.optional().describe('会话操作类型（默认 list）'),
+  sessionId: z.string().optional().describe('会话 ID'),
+  title: z.string().optional().describe('新标题（用于 rename）'),
+  limit: z.number().int().positive().optional().describe('list 数量限制')
+});
+export type SessionArgs = z.infer<typeof SessionArgsSchema>;
+
+/** /resume 参数 */
+export const ResumeArgsSchema = z.strictObject({
+  sessionId: z.string().optional().describe('要恢复的会话 ID（缺省进入交互列表）')
+});
+export type ResumeArgs = z.infer<typeof ResumeArgsSchema>;
+
+/** /login 参数 */
+export const LoginArgsSchema = z.strictObject({
+  provider: z.string().optional().describe('登录提供方（默认 anthropic）')
+});
+export type LoginArgs = z.infer<typeof LoginArgsSchema>;
+
+/** /logout 参数 */
+export const LogoutArgsSchema = z.strictObject({});
+export type LogoutArgs = z.infer<typeof LogoutArgsSchema>;
+
+/** /plan 子命令 */
+export const PlanSubcommand = z.enum(['on', 'off', 'toggle', 'status']);
+export const PlanArgsSchema = z.strictObject({
+  subcommand: PlanSubcommand.optional().describe('Plan Mode 操作（默认 toggle）')
+});
+export type PlanArgs = z.infer<typeof PlanArgsSchema>;
+
+/** /theme 参数 */
+export const ThemeArgsSchema = z.strictObject({
+  name: z.string().optional().describe('主题名称（缺省显示当前与可选列表）')
+});
+export type ThemeArgs = z.infer<typeof ThemeArgsSchema>;
+
+/** /ide 子命令 */
+export const IdeSubcommand = z.enum(['list', 'connect', 'disconnect', 'status']);
+export const IdeArgsSchema = z.strictObject({
+  subcommand: IdeSubcommand.optional().describe('IDE 操作（默认 list）'),
+  id: z.string().optional().describe('IDE 实例 id')
+});
+export type IdeArgs = z.infer<typeof IdeArgsSchema>;
+
+/** /skills 子命令 */
+export const SkillsSubcommand = z.enum(['list', 'enable', 'disable']);
+export const SkillsArgsSchema = z.strictObject({
+  subcommand: SkillsSubcommand.optional().describe('Skill 操作（默认 list）'),
+  name: z.string().optional().describe('Skill 名称')
+});
+export type SkillsArgs = z.infer<typeof SkillsArgsSchema>;
+
+/** /hooks 子命令 */
+export const HooksSubcommand = z.enum(['list', 'enable', 'disable', 'reload']);
+export const HooksArgsSchema = z.strictObject({
+  subcommand: HooksSubcommand.optional().describe('Hook 操作（默认 list）'),
+  id: z.string().optional().describe('Hook id')
+});
+export type HooksArgs = z.infer<typeof HooksArgsSchema>;
+
+/** /tasks 子命令 */
+export const TasksSubcommand = z.enum(['list', 'cancel', 'trigger']);
+export const TasksArgsSchema = z.strictObject({
+  subcommand: TasksSubcommand.optional().describe('任务操作（默认 list）'),
+  id: z.string().optional().describe('任务 id')
+});
+export type TasksArgs = z.infer<typeof TasksArgsSchema>;
+
+/** /export 参数 */
+export const ExportFormatEnum = z.enum(['json', 'markdown', 'jsonl']);
+export const ExportArgsSchema = z.strictObject({
+  format: ExportFormatEnum.optional().describe('导出格式（默认 json）'),
+  output: z.string().optional().describe('输出文件路径')
+});
+export type ExportArgs = z.infer<typeof ExportArgsSchema>;
+
+/** /usage 参数 */
+export const UsageScope = z.enum(['session', 'day', 'week', 'month', 'all']);
+export const UsageArgsSchema = z.strictObject({
+  scope: UsageScope.optional().describe('统计范围（默认 session）')
+});
+export type UsageArgs = z.infer<typeof UsageArgsSchema>;
+
+/** /stats 参数 */
+export const StatsArgsSchema = z.strictObject({
+  scope: UsageScope.optional().describe('统计范围（默认 all）'),
+  detailed: z.boolean().optional().describe('显示详细数据')
+});
+export type StatsArgs = z.infer<typeof StatsArgsSchema>;

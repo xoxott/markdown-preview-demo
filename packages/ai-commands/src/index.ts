@@ -23,7 +23,20 @@ export {
   MODEL_TITLE,
   PERMISSIONS_TITLE,
   VIM_TITLE,
-  TERMINAL_SETUP_TITLE
+  TERMINAL_SETUP_TITLE,
+  SESSION_TITLE,
+  RESUME_TITLE,
+  LOGIN_TITLE,
+  LOGOUT_TITLE,
+  PLAN_TITLE,
+  THEME_TITLE,
+  IDE_TITLE,
+  SKILLS_TITLE,
+  HOOKS_TITLE,
+  TASKS_TITLE,
+  EXPORT_TITLE,
+  USAGE_TITLE,
+  STATS_TITLE
 } from './constants';
 
 // 上下文扩展
@@ -97,6 +110,23 @@ export {
 } from './commands/tier3/permissions';
 export { vimSkill, buildVimPrompt } from './commands/tier3/vim';
 export { terminalSetupSkill, buildTerminalSetupPrompt } from './commands/tier3/terminal-setup';
+export {
+  sessionSkill,
+  buildSessionListPrompt,
+  buildSessionMutatePrompt
+} from './commands/tier3/session';
+export { resumeSkill, buildResumePrompt } from './commands/tier3/resume';
+export { loginSkill, buildLoginPrompt } from './commands/tier3/login';
+export { logoutSkill, buildLogoutPrompt } from './commands/tier3/logout';
+export { planSkill, buildPlanPrompt } from './commands/tier3/plan';
+export { themeSkill, buildThemePrompt } from './commands/tier3/theme';
+export { ideSkill, buildIdePrompt } from './commands/tier3/ide';
+export { skillsSkill, buildSkillsPrompt } from './commands/tier3/skills';
+export { hooksSkill, buildHooksPrompt } from './commands/tier3/hooks';
+export { tasksSkill, buildTasksPrompt } from './commands/tier3/tasks';
+export { exportSkill, buildExportPrompt } from './commands/tier3/export';
+export { usageSkill, buildUsagePrompt } from './commands/tier3/usage';
+export { statsSkill, buildStatsPrompt } from './commands/tier3/stats';
 
 // Catalog 导出
 export {

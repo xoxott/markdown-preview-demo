@@ -20,6 +20,19 @@ import { modelSkill } from './commands/tier3/model';
 import { permissionsSkill } from './commands/tier3/permissions';
 import { vimSkill } from './commands/tier3/vim';
 import { terminalSetupSkill } from './commands/tier3/terminal-setup';
+import { sessionSkill } from './commands/tier3/session';
+import { resumeSkill } from './commands/tier3/resume';
+import { loginSkill } from './commands/tier3/login';
+import { logoutSkill } from './commands/tier3/logout';
+import { planSkill } from './commands/tier3/plan';
+import { themeSkill } from './commands/tier3/theme';
+import { ideSkill } from './commands/tier3/ide';
+import { skillsSkill } from './commands/tier3/skills';
+import { hooksSkill } from './commands/tier3/hooks';
+import { tasksSkill } from './commands/tier3/tasks';
+import { exportSkill } from './commands/tier3/export';
+import { usageSkill } from './commands/tier3/usage';
+import { statsSkill } from './commands/tier3/stats';
 
 /** 命令 catalog 数据 */
 export const COMMAND_CATALOG: readonly CommandCatalogEntry[] = [
@@ -63,7 +76,31 @@ export const COMMAND_CATALOG: readonly CommandCatalogEntry[] = [
     requiredProviders: ['permissionsProvider']
   },
   { name: 'vim', tier: 'tier3', category: 'config', requiredProviders: ['configProvider'] },
-  { name: 'terminal-setup', tier: 'tier3', category: 'config', requiredProviders: ['fsProvider'] }
+  { name: 'terminal-setup', tier: 'tier3', category: 'config', requiredProviders: ['fsProvider'] },
+  // Tier 3 — 会话/账号/IDE/统计
+  {
+    name: 'session',
+    tier: 'tier3',
+    category: 'session',
+    requiredProviders: ['sessionStoreProvider']
+  },
+  {
+    name: 'resume',
+    tier: 'tier3',
+    category: 'session',
+    requiredProviders: ['sessionStoreProvider']
+  },
+  { name: 'login', tier: 'tier3', category: 'auth', requiredProviders: ['authProvider'] },
+  { name: 'logout', tier: 'tier3', category: 'auth', requiredProviders: ['authProvider'] },
+  { name: 'plan', tier: 'tier3', category: 'mode', requiredProviders: ['planModeProvider'] },
+  { name: 'theme', tier: 'tier3', category: 'config', requiredProviders: ['themeProvider'] },
+  { name: 'ide', tier: 'tier3', category: 'integration', requiredProviders: ['ideProvider'] },
+  { name: 'skills', tier: 'tier3', category: 'config', requiredProviders: ['skillsProvider'] },
+  { name: 'hooks', tier: 'tier3', category: 'config', requiredProviders: ['hooksProvider'] },
+  { name: 'tasks', tier: 'tier3', category: 'tasks', requiredProviders: ['tasksProvider'] },
+  { name: 'export', tier: 'tier3', category: 'session', requiredProviders: ['exportProvider'] },
+  { name: 'usage', tier: 'tier3', category: 'stats', requiredProviders: ['statsProvider'] },
+  { name: 'stats', tier: 'tier3', category: 'stats', requiredProviders: ['statsProvider'] }
 ];
 
 /** 所有 Tier 1 命令 SkillDefinition */
@@ -93,7 +130,20 @@ export const TIER3_COMMANDS: readonly SkillDefinition[] = [
   modelSkill,
   permissionsSkill,
   vimSkill,
-  terminalSetupSkill
+  terminalSetupSkill,
+  sessionSkill,
+  resumeSkill,
+  loginSkill,
+  logoutSkill,
+  planSkill,
+  themeSkill,
+  ideSkill,
+  skillsSkill,
+  hooksSkill,
+  tasksSkill,
+  exportSkill,
+  usageSkill,
+  statsSkill
 ];
 
 /** 所有命令 SkillDefinition */

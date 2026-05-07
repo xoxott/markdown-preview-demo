@@ -1,18 +1,28 @@
 /** 命令结果类型 — prompt builder 的输入结构化类型 */
 
 import type {
+  AuthIdentity,
   ConfigSection,
   ConfigValue,
   CostInfo,
   DiagnosticReport,
+  ExportResult,
   GitLogEntry,
   GitStatusResult,
+  HookEntry,
+  IDEInstance,
   McpServerEntry,
   MemoryEntry,
+  PlanModeState,
   RefreshResult,
   SaveResult,
+  SessionEntry,
   SessionStatus,
-  TokenUsageInfo
+  SkillSummary,
+  TaskEntry,
+  ThemeInfo,
+  TokenUsageInfo,
+  UsageSnapshot
 } from './providers';
 
 // === Tier 1 prompt builder 输入 ===
@@ -209,4 +219,113 @@ export interface TerminalSetupPromptInput {
   readonly rcPath: string;
   readonly installed: boolean;
   readonly uninstall?: boolean;
+}
+
+// === Tier 3 (新增 — 会话/账号/IDE/统计) ===
+
+/** /session list */
+export interface SessionListPromptInput {
+  readonly entries: readonly SessionEntry[];
+  readonly currentSessionId?: string | null;
+}
+
+/** /session show / rename / delete */
+export interface SessionMutatePromptInput {
+  readonly action: 'rename' | 'delete' | 'show';
+  readonly sessionId: string;
+  readonly success: boolean;
+  readonly newTitle?: string;
+  readonly entry?: SessionEntry;
+  readonly error?: string;
+}
+
+/** /resume */
+export interface ResumePromptInput {
+  readonly sessionId?: string;
+  readonly success: boolean;
+  readonly entries?: readonly SessionEntry[];
+  readonly error?: string;
+}
+
+/** /login */
+export interface LoginPromptInput {
+  readonly provider?: string;
+  readonly url?: string;
+  readonly userCode?: string;
+  readonly success: boolean;
+  readonly error?: string;
+  readonly identity?: AuthIdentity | null;
+}
+
+/** /logout */
+export interface LogoutPromptInput {
+  readonly success: boolean;
+  readonly identity?: AuthIdentity | null;
+}
+
+/** /plan */
+export interface PlanPromptInput {
+  readonly action: 'on' | 'off' | 'toggle' | 'status';
+  readonly state: PlanModeState;
+  readonly previousEnabled?: boolean;
+}
+
+/** /theme */
+export interface ThemePromptInput {
+  readonly current: ThemeInfo;
+  readonly available?: readonly ThemeInfo[];
+  readonly switchedTo?: ThemeInfo;
+}
+
+/** /ide */
+export interface IdePromptInput {
+  readonly action: 'list' | 'connect' | 'disconnect' | 'status';
+  readonly instances?: readonly IDEInstance[];
+  readonly connectedId?: string | null;
+  readonly success?: boolean;
+  readonly error?: string;
+}
+
+/** /skills */
+export interface SkillsPromptInput {
+  readonly action: 'list' | 'enable' | 'disable';
+  readonly summaries?: readonly SkillSummary[];
+  readonly name?: string;
+  readonly success?: boolean;
+}
+
+/** /hooks */
+export interface HooksPromptInput {
+  readonly action: 'list' | 'enable' | 'disable' | 'reload';
+  readonly entries?: readonly HookEntry[];
+  readonly id?: string;
+  readonly success?: boolean;
+  readonly loaded?: number;
+  readonly errors?: readonly string[];
+}
+
+/** /tasks */
+export interface TasksPromptInput {
+  readonly action: 'list' | 'cancel' | 'trigger';
+  readonly entries?: readonly TaskEntry[];
+  readonly id?: string;
+  readonly success?: boolean;
+}
+
+/** /export */
+export interface ExportPromptInput {
+  readonly result: ExportResult;
+}
+
+/** /usage */
+export interface UsagePromptInput {
+  readonly snapshot: UsageSnapshot;
+  readonly scope: 'session' | 'day' | 'week' | 'month' | 'all';
+}
+
+/** /stats */
+export interface StatsPromptInput {
+  readonly snapshot: UsageSnapshot;
+  readonly scope: 'session' | 'day' | 'week' | 'month' | 'all';
+  readonly detailed?: boolean;
 }

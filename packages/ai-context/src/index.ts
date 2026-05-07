@@ -138,7 +138,7 @@ export type { CleanupAction, QuerySource } from './core/postCompactCleanup';
 
 // Compact prompt 模板
 export {
-  buildCompactPrompt,
+  buildContextCompactPrompt,
   formatCompactSummary,
   BASE_COMPACT_PROMPT,
   PARTIAL_COMPACT_PROMPT,
