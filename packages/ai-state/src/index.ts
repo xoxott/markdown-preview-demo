@@ -61,5 +61,11 @@ export type {
 } from './types/state-change-effect';
 export { createStateChangeBridge } from './types/state-change-effect';
 
+// N41: AttributionSnapshot
+export type { AttributionSnapshot } from './types/attribution-snapshot';
+
+// N44: FileHistorySnapshot
+export type { FileHistorySnapshot } from './types/file-history';
+
 // N4: Selectors 派生状态
 export { getActiveAgentForInput, selectState } from './core/selectors';

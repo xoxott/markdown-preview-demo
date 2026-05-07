@@ -228,6 +228,120 @@ export interface SDKFilesPersistedEvent extends SDKMessageBase {
   readonly files: readonly string[];
 }
 
+// === N7: 新增 system message 子类型 ===
+
+/** SDK Microcompact 边界消息 — API端增量压缩 */
+export interface SDKMicrocompactBoundaryMessage extends SDKMessageBase {
+  readonly type: 'microcompact_boundary';
+  readonly message: string;
+  readonly tokens_before: number;
+  readonly tokens_after: number;
+}
+
+/** SDK Stop Hook 消息 — hook停止命令执行后的摘要 */
+export interface SDKStopHookSummaryMessage extends SDKMessageBase {
+  readonly type: 'stop_hook_summary';
+  readonly hook_command: string;
+  readonly hook_prompt?: string;
+  readonly duration_ms: number;
+}
+
+/** SDK Away Summary 消息 — 用户返回时的"while you were away"摘要 */
+export interface SDKAwaySummaryMessage extends SDKMessageBase {
+  readonly type: 'away_summary';
+  readonly summary: string;
+  readonly duration_absent_ms: number;
+}
+
+/** SDK Memory Saved 消息 — 自动记忆保存通知 */
+export interface SDKMemorySavedMessage extends SDKMessageBase {
+  readonly type: 'memory_saved';
+  readonly memory_type: string;
+  readonly file_path?: string;
+  readonly reason?: string;
+}
+
+/** SDK Agents Killed 消息 — 子代理终止通知 */
+export interface SDKAgentsKilledMessage extends SDKMessageBase {
+  readonly type: 'agents_killed';
+  readonly agent_types: readonly string[];
+  readonly reason?: string;
+}
+
+/** SDK API Metrics 消息 — API调用统计 */
+export interface SDKAPIMetricsMessage extends SDKMessageBase {
+  readonly type: 'api_metrics';
+  readonly input_tokens: number;
+  readonly output_tokens: number;
+  readonly cache_creation_tokens: number;
+  readonly cache_read_tokens: number;
+  readonly cost_usd?: number;
+}
+
+/** SDK Thinking 消息 — thinking/extended thinking 输出 */
+export interface SDKThinkingMessage extends SDKMessageBase {
+  readonly type: 'thinking';
+  readonly thinking: string;
+  readonly budget_tokens?: number;
+}
+
+/** SDK Connector Text 消息 — streaming connector 原始文本 */
+export interface SDKConnectorTextMessage extends SDKMessageBase {
+  readonly type: 'connector_text';
+  readonly text: string;
+  readonly is_delta?: boolean;
+}
+
+/** SDK Cost 消息 — 费用追踪更新 */
+export interface SDKCostMessage extends SDKMessageBase {
+  readonly type: 'cost';
+  readonly total_cost_usd: number;
+  readonly session_cost_usd?: number;
+}
+
+// === N8: MessageOrigin 消息来源标记 ===
+
+/** 消息来源标记 — 区分消息的来源渠道 */
+export type MessageOrigin =
+  | 'human' // 人类用户直接输入
+  | 'channel' // 通过频道(Telegram/iMessage等)
+  | 'task_notification' // 任务完成通知
+  | 'coordinator' // 协调器分配
+  | 'synthetic' // 合成消息(系统注入)
+  | 'skill' // Skill触发的输入
+  | 'memory'; // 记忆系统注入的上下文
+
+// === N16: CompactProgressEvent ===
+
+/** Compact 进度事件 — 追踪压缩流程的进度 */
+export type CompactProgressEventType =
+  | 'hooks_start' // hooks 开始执行
+  | 'compact_start' // 压缩开始
+  | 'compact_end'; // 压缩完成
+
+export interface CompactProgressEvent {
+  readonly type: CompactProgressEventType;
+  readonly tokensBefore?: number;
+  readonly tokensAfter?: number;
+  readonly durationMs?: number;
+}
+
+// === N36: CompactMetadata ===
+
+/**
+ * CompactMetadata — 压缩操作元数据
+ *
+ * N36: 追踪压缩操作的触发原因和保留信息
+ */
+export interface CompactMetadata {
+  readonly trigger: 'auto' | 'manual' | 'micro' | 'api' | 'fork';
+  readonly preTokens: number;
+  readonly postTokens: number;
+  readonly preservedSegment?: string;
+  readonly strategy?: string;
+  readonly durationMs?: number;
+}
+
 // === 辅助类型 ===
 
 /** SDK使用量信息 */
@@ -278,4 +392,13 @@ export type SDKMessage =
   | SDKPostTurnSummaryMessage
   | SDKLocalCommandOutputMessage
   | SDKElicitationCompleteMessage
-  | SDKFilesPersistedEvent;
+  | SDKFilesPersistedEvent
+  | SDKMicrocompactBoundaryMessage
+  | SDKStopHookSummaryMessage
+  | SDKAwaySummaryMessage
+  | SDKMemorySavedMessage
+  | SDKAgentsKilledMessage
+  | SDKAPIMetricsMessage
+  | SDKThinkingMessage
+  | SDKConnectorTextMessage
+  | SDKCostMessage;

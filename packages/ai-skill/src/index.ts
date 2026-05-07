@@ -15,3 +15,15 @@ export { SkillExecutor } from './executor/SkillExecutor';
 // ——— SkillTool 导出 ———
 export { createSkillTool } from './tool/SkillTool';
 export type { SkillToolResult } from './tool/SkillTool';
+
+// N29: Skill Search 服务
+export {
+  searchSkillsLocal,
+  computeRelevance,
+  DEFAULT_SKILL_SEARCH_CONFIG
+} from './core/skill-search';
+export type {
+  SkillSearchConfig,
+  SkillSearchResult,
+  RemoteSkillLoaderFn
+} from './core/skill-search';

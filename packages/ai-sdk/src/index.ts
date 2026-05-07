@@ -5,6 +5,9 @@
  * SDK消费者只需 `import { ... } from '@suga/ai-sdk'` 获取完整类型体系。
  */
 
+// === Plugin 类型 ===
+export type * from './sdk/pluginTypes';
+
 // === 核心类型聚合 ===
 export type * from './sdk/coreTypes';
 
