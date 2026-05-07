@@ -104,6 +104,134 @@ export type {
   FetchRegistryFn
 } from './connection/officialRegistry';
 
+// G48: OAuth 重定向端口选择
+export { buildRedirectUri, findAvailablePort, parseConfiguredPort } from './connection/oauthPort';
+export type { OAuthPortOptions } from './connection/oauthPort';
+
+// G49: Channel 白名单
+export {
+  ChannelAllowlistEntrySchema,
+  ChannelAllowlistSchema,
+  InMemoryChannelAllowlistProvider,
+  parsePluginIdentifier,
+  isChannelAllowlisted,
+  validateChannelAllowlist
+} from './connection/channelAllowlist';
+export type {
+  ChannelAllowlistEntry,
+  ChannelAllowlistProvider
+} from './connection/channelAllowlist';
+
+// G50: Channel 通知
+export {
+  CHANNEL_NOTIFICATION_METHOD,
+  CHANNEL_PERMISSION_METHOD,
+  CHANNEL_PERMISSION_REQUEST_METHOD,
+  CHANNEL_TAG,
+  ChannelMessageNotificationSchema,
+  ChannelPermissionNotificationSchema,
+  ChannelNotificationDispatcher,
+  isSafeMetaKey,
+  escapeXmlAttr,
+  renderChannelMessage
+} from './connection/channelNotification';
+export type {
+  ChannelMessageNotification,
+  ChannelPermissionNotification,
+  ChannelPermissionRequestParams,
+  ChannelMessageSink,
+  ChannelPermissionResponse,
+  ChannelPermissionCallbacks,
+  ChannelNotificationDispatcherOptions
+} from './connection/channelNotification';
+
+// G51: Channel 权限转发
+export {
+  PermissionRaceCoordinator,
+  requestChannelPermission,
+  buildInputPreview
+} from './connection/channelPermissions';
+export type {
+  PermissionDecisionSource,
+  PermissionDecisionResult,
+  ChannelPermissionRequestSender,
+  ActiveChannelsProvider,
+  RequestChannelPermissionOptions
+} from './connection/channelPermissions';
+
+// G52: XAA (RFC 8693 + 7523)
+export {
+  TOKEN_EXCHANGE_GRANT,
+  JWT_BEARER_GRANT,
+  ID_JAG_TOKEN_TYPE,
+  ID_TOKEN_TYPE,
+  TokenExchangeResponseSchema,
+  JwtBearerResponseSchema,
+  XaaTokenExchangeError,
+  XaaJwtBearerError,
+  redactTokens,
+  normalizeUrl,
+  makeXaaFetch,
+  requestIdJagFromIdp,
+  requestAccessTokenWithJwtBearer,
+  acquireXaaAccessToken
+} from './connection/xaa';
+export type {
+  TokenExchangeResponse,
+  JwtBearerResponse,
+  FetchLike,
+  IdpTokenExchangeRequest,
+  AsJwtBearerRequest,
+  XaaTokenAcquisitionRequest,
+  XaaTokenResult
+} from './connection/xaa';
+
+// G53: XAA IdP Login
+export {
+  IdpDiscoveryDocumentSchema,
+  IdpTokenResponseSchema,
+  generatePkceVerifier,
+  generatePkcePair,
+  discoverIdpEndpoints,
+  buildIdpAuthorizationUrl,
+  exchangeIdpAuthorizationCode,
+  validateOAuthState
+} from './connection/xaaIdpLogin';
+export type {
+  IdpDiscoveryDocument,
+  IdpTokenResponse,
+  PKCEPair,
+  BuildIdpAuthUrlOptions,
+  ExchangeIdpCodeRequest
+} from './connection/xaaIdpLogin';
+
+// G54: ClaudeAI MCP 代理
+export {
+  ClaudeAIMcpServerSchema,
+  ClaudeAIMcpServersResponseSchema,
+  fetchClaudeAIMcpServers,
+  ClaudeAIMcpFetcherWithCache
+} from './connection/claudeai';
+export type {
+  ClaudeAIMcpServer,
+  ClaudeAIMcpServersResponse,
+  ClaudeAIMcpEligibilityState,
+  ClaudeAIFetchProvider,
+  ClaudeAIMcpFetcherOptions,
+  ClaudeAIMcpFetchResult
+} from './connection/claudeai';
+
+// G55: MCP utils
+export {
+  filterToolsByServer,
+  commandBelongsToServer,
+  hashMcpServerConfig,
+  parseMcpResourceUri,
+  buildMcpResourceUri,
+  mergeServersByScope
+} from './connection/utils';
+export type { ParsedMcpResourceUri } from './connection/utils';
+
 // 连接管理
 export { InMemoryMcpConnectionManager } from './connection/McpConnectionManager';
 export type { McpConnectionManager } from './connection/McpConnectionManager';
