@@ -29,10 +29,14 @@ import {
   TaskManager
 } from '@suga/ai-coordinator';
 import { SubagentDispatchPhase } from '@suga/ai-subagent';
+import type { ToolRegistry } from '@suga/ai-tool-core';
 import { ToolExecutor } from '@suga/ai-tool-core';
 import type { RuntimeConfig } from '../types/config';
 import { DEFAULT_RUNTIME_MAX_TURNS, DEFAULT_RUNTIME_TOOL_TIMEOUT } from '../constants';
-import { buildEffectiveToolRegistry } from './buildEffectiveToolRegistry';
+import {
+  type ToolSearchRegistryResult,
+  buildEffectiveToolRegistry
+} from './buildEffectiveToolRegistry';
 import { createCallModelForSummary } from './createCallModelForSummary';
 
 /**
@@ -57,8 +61,20 @@ export function buildRuntimePhases(
   const maxTurns = config.maxTurns ?? DEFAULT_RUNTIME_MAX_TURNS;
   const toolTimeout = config.toolTimeout ?? DEFAULT_RUNTIME_TOOL_TIMEOUT;
 
-  // 构建有效 ToolRegistry（合并 SkillTool）
-  const effectiveRegistry = buildEffectiveToolRegistry(config);
+  // 构建有效 ToolRegistry（合并 SkillTool + P99 Delta ToolSearch 分离）
+  const effectiveResult = buildEffectiveToolRegistry(config);
+
+  // P99: 从 ToolSearchRegistryResult 中提取 active registry
+  let effectiveRegistry: ToolRegistry | undefined;
+
+  if (effectiveResult && 'deferredTools' in effectiveResult) {
+    // ToolSearchRegistryResult — delta 模式，取其中的 active registry
+    const tsResult = effectiveResult as ToolSearchRegistryResult;
+    effectiveRegistry = tsResult.registry;
+  } else if (effectiveResult) {
+    // 普通 ToolRegistry — standard 模式
+    effectiveRegistry = effectiveResult as ToolRegistry;
+  }
 
   // 计算工具定义
   const toolDefs = effectiveRegistry

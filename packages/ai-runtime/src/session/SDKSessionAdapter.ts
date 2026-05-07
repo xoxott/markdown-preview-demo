@@ -5,13 +5,20 @@
  * mapAgentEventToSDKMessages 管线完成一对一映射。
  */
 
-import type { SDKMessage, SDKSession } from '@suga/ai-sdk';
+import type { AgentEvent, SDKMessage, SDKSession } from '@suga/ai-sdk';
 import {
   createSDKMapContext,
   mapAgentEventToSDKMessages,
   updateSDKMapContext
 } from '../sdk/mapAgentEventToSDKMessages';
-import type { RuntimeSession } from './RuntimeSession';
+import type { BudgetExceededEvent, RuntimeSession } from './RuntimeSession';
+
+/** 类型窄化：区分 AgentEvent 和 BudgetExceededEvent */
+function isBudgetExceededEvent(
+  event: AgentEvent | BudgetExceededEvent
+): event is BudgetExceededEvent {
+  return event.type === 'budget_exceeded';
+}
 
 /**
  * SDKSessionAdapter — 将 RuntimeSession 适配为 SDKSession 接口
@@ -47,8 +54,11 @@ export class SDKSessionAdapter implements SDKSession {
     const mapCtx = createSDKMapContext();
 
     for await (const event of this.runtimeSession.sendMessage(message)) {
-      updateSDKMapContext(mapCtx, event);
+      if (isBudgetExceededEvent(event)) {
+        continue;
+      }
 
+      updateSDKMapContext(mapCtx, event);
       const sdkMessages = mapAgentEventToSDKMessages(event, mapCtx);
       for (const msg of sdkMessages) {
         yield msg;

@@ -1,6 +1,8 @@
 /** RuntimeSession — 集成会话，连接 P1 AgentLoop + P7 Store<T> 状态管理 + 多轮消息历史 */
 
 import type { AgentEvent, AgentMessage, SystemPrompt } from '@suga/ai-agent-loop';
+import { CostCalculator } from '@suga/ai-tool-adapter';
+import type { LLMUsageInfo } from '@suga/ai-tool-adapter';
 import { type Store, createStore } from '@suga/ai-state';
 import type { RuntimeConfig, RuntimeSessionState } from '../types/config';
 import type { QueryTurnState } from '../types/query-state';
@@ -34,14 +36,16 @@ export class RuntimeSession {
   private messageHistory: AgentMessage[] = [];
   /** G14: 累计成本追踪 */
   private accumulatedCostUsd = 0;
+  /** G14: CostCalculator 实例 */
+  private readonly costCalculator: CostCalculator;
   /** N1: QueryEngine turn 间持久状态 */
   private turnState: QueryTurnState = createInitialQueryTurnState();
 
   constructor(config: RuntimeConfig, systemPrompt?: SystemPrompt) {
     this.config = config;
     this.systemPrompt = systemPrompt;
-    this.config = config;
     this.sessionId = `runtime_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    this.costCalculator = new CostCalculator(config.costConfig);
 
     this.store = createStore<RuntimeSessionState>({
       sessionId: this.sessionId,
@@ -167,24 +171,27 @@ export class RuntimeSession {
    *
    * 基于 usage token 数和 costConfig 的定价计算 USD 成本。 无 costConfig 时使用估算默认值。
    */
-  private calculateCost(
-    usage: NonNullable<AgentEvent['result'] extends { usage: infer U } ? U : never>
-  ): {
+  private calculateCost(usage: LLMUsageInfo): {
     totalCostUsd: number;
     inputCostUsd: number;
     outputCostUsd: number;
   } {
-    const costConfig = this.config.costConfig;
-    const inputPricePer1M = costConfig?.inputTokenPricePer1M ?? 3.0; // 默认 $3/1M input tokens
-    const outputPricePer1M = costConfig?.outputTokenPricePer1M ?? 15.0; // 默认 $15/1M output tokens
-
-    const inputCostUsd = (usage.inputTokens / 1_000_000) * inputPricePer1M;
-    const outputCostUsd = (usage.outputTokens / 1_000_000) * outputPricePer1M;
+    const costInfo = this.costCalculator.calculate(
+      {
+        totalInputTokens: usage.inputTokens,
+        totalOutputTokens: usage.outputTokens,
+        totalCacheCreationTokens: usage.cacheCreationInputTokens ?? 0,
+        totalCacheReadTokens: usage.cacheReadInputTokens ?? 0,
+        totalCacheCreationEphemeralTokens: 0,
+        apiCallCount: 1
+      },
+      undefined
+    ); // CostCalculator 使用 defaultModel
 
     return {
-      totalCostUsd: inputCostUsd + outputCostUsd,
-      inputCostUsd,
-      outputCostUsd
+      totalCostUsd: costInfo.totalCost,
+      inputCostUsd: costInfo.inputCost,
+      outputCostUsd: costInfo.outputCost
     };
   }
 

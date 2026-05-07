@@ -49,6 +49,33 @@ export type { RuntimePermissionEngineConfig } from './permission/RuntimePermissi
 export { SwarmWorkerMailboxAdapter } from './swarm/SwarmWorkerMailboxAdapter';
 export type { SwarmWorkerMailboxAdapterConfig } from './swarm/SwarmWorkerMailboxAdapter';
 
+// N26: PolicyLimits 导出
+export {
+  InMemoryPolicyLimitsCache,
+  checkPolicyLimits,
+  DEFAULT_POLICY_LIMITS_CONFIG
+} from './services/policy-limits';
+export type {
+  PolicyLimitsConfig,
+  OrganizationPolicyLimits,
+  FetchPolicyLimitsFn
+} from './services/policy-limits';
+
+// N27: RemoteManagedSettings 导出
+export {
+  verifyChecksum,
+  DEFAULT_REMOTE_MANAGED_SETTINGS_CONFIG
+} from './services/remote-managed-settings';
+export type {
+  RemoteManagedSettingsConfig,
+  RemoteManagedSettingsData,
+  FetchRemoteSettingsFn
+} from './services/remote-managed-settings';
+
+// N28: SettingsSync 导出
+export { computeSettingsDelta, DEFAULT_SETTINGS_SYNC_CONFIG } from './services/settings-sync';
+export type { SettingsSyncConfig, SettingsSyncDelta } from './services/settings-sync';
+
 // N1: QueryEngine Turn 状态导出
 export {
   createInitialQueryTurnState,

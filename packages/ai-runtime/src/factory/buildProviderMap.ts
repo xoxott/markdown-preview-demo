@@ -74,6 +74,8 @@ export function buildProviderMap(config: RuntimeConfig): Record<string, unknown>
     usageTracker: config.usageTracker,
     tokenBudget: config.tokenBudget,
     costConfig: config.costConfig,
+    // P99: Delta Tool Search
+    enableToolSearch: config.enableToolSearch,
     // P47: Settings文件系统注入
     settingsLayerReader:
       (config.settingsLayerReader ?? config.settingsLayerReaderConfig)

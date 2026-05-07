@@ -133,8 +133,15 @@ describe('buildRuntimePhases', () => {
 
     expect(effectiveRegistry).toBeDefined();
     // 应包含 SkillTool（名称为 'skill'）
-    const allTools = effectiveRegistry!.getAll();
-    expect(allTools.some(t => t.name === 'skill')).toBe(true);
+    // P99: 返回值可能是 ToolRegistry 或 ToolSearchRegistryResult
+    const registry =
+      effectiveRegistry && 'deferredTools' in effectiveRegistry
+        ? (
+            effectiveRegistry as import('../factory/buildEffectiveToolRegistry').ToolSearchRegistryResult
+          ).registry
+        : (effectiveRegistry as import('@suga/ai-tool-core').ToolRegistry);
+    const allTools = registry.getAll();
+    expect(allTools.some((t: { name: string }) => t.name === 'skill')).toBe(true);
   });
 
   it('全配置组合 → 完整 Phase 链', () => {

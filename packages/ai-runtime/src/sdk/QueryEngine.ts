@@ -1,8 +1,9 @@
 /** QueryEngine — SDK query() 的底层编排实现 */
 
-import type { SDKMessage } from '@suga/ai-sdk';
+import type { AgentEvent, SDKMessage } from '@suga/ai-sdk';
 import type { RuntimeConfig } from '../types/config';
 import { RuntimeSession } from '../session/RuntimeSession';
+import type { BudgetExceededEvent } from '../session/RuntimeSession';
 import { createSDKSystemMessage } from './createSDKSystemMessage';
 import { applyQueryOptions } from './applyQueryOptions';
 import { fetchSystemPrompt } from './fetchSystemPrompt';
@@ -58,9 +59,13 @@ export class QueryEngine {
 
     // 4. 迭代 AgentEvent → 映射为 SDKMessage
     for await (const event of session.sendMessage(prompt, options?.abort_signal)) {
-      // updateSDKMapContext 会从 loop_end.result.usage harvest 累积 usage
-      updateSDKMapContext(mapCtx, event);
+      // budget_exceeded 不是 AgentEvent，需要单独处理
+      if (isBudgetExceededEvent(event)) {
+        // 映射 BudgetExceededEvent 为 SDKCostMessage（待宿主实现）
+        continue;
+      }
 
+      updateSDKMapContext(mapCtx, event);
       const sdkMessages = mapAgentEventToSDKMessages(event, mapCtx);
       for (const msg of sdkMessages) {
         yield msg;
@@ -84,12 +89,22 @@ export class QueryEngine {
     const mapCtx = createSDKMapContext();
 
     for await (const event of session.sendMessage(prompt, options?.abort_signal)) {
-      updateSDKMapContext(mapCtx, event);
+      if (isBudgetExceededEvent(event)) {
+        continue;
+      }
 
+      updateSDKMapContext(mapCtx, event);
       const sdkMessages = mapAgentEventToSDKMessages(event, mapCtx);
       for (const msg of sdkMessages) {
         yield msg;
       }
     }
   }
+}
+
+/** 类型窄化：区分 AgentEvent 和 BudgetExceededEvent */
+function isBudgetExceededEvent(
+  event: AgentEvent | BudgetExceededEvent
+): event is BudgetExceededEvent {
+  return event.type === 'budget_exceeded';
 }
