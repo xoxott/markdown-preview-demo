@@ -495,6 +495,37 @@ declare namespace App {
           };
           creativity: string;
         };
+        chat: {
+          heroTitle: string;
+          heroSubtitle: string;
+          tabPackages: string;
+          tabCommands: string;
+          tabMarkdown: string;
+          tabArgs: string;
+          notice: string;
+          packagesLead: string;
+          tierFilter: string;
+          tierAll: string;
+          tier1: string;
+          tier2: string;
+          tier3: string;
+          colName: string;
+          colTier: string;
+          colCategory: string;
+          colProviders: string;
+          commandsLead: string;
+          markdownLead: string;
+          argsLead: string;
+          argsPlaceholder: string;
+          argsRun: string;
+          argsParsed: string;
+          groupRender: string;
+          groupPipeline: string;
+          groupAgent: string;
+          groupInfra: string;
+          colorDemo: string;
+          colorHint: string;
+        };
         userManagement: {
           title: string;
           username: string;

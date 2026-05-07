@@ -20,6 +20,9 @@ importers:
       '@shikijs/monaco':
         specifier: ^3.4.2
         version: 3.15.0
+      '@suga/ai-commands':
+        specifier: workspace:*
+        version: link:packages/ai-commands
       '@suga/axios':
         specifier: workspace:*
         version: link:packages/axios

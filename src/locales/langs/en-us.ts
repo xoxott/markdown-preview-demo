@@ -166,7 +166,7 @@ const local: App.I18n.Schema = {
     500: 'Server Error',
     'iframe-page': 'Iframe',
     'home': 'Home',
-    'chat': 'Chat',
+    'chat': 'AI Stack',
     'markdownedit': 'MarkdownEdit',
     'upload': 'Upload',
     'utils': 'Utils',
@@ -263,6 +263,41 @@ const local: App.I18n.Schema = {
         desc5: 'Soybean just wrote some of the workbench pages casually, and it was enough to see!'
       },
       creativity: 'Creativity'
+    },
+    chat: {
+      heroTitle: 'AI Workspace Stack',
+      heroSubtitle:
+        'Browser-friendly index of monorepo packages: no local or remote LLM. Surfaces catalog, markdown rendering, and small runnable demos.',
+      tabPackages: 'Packages',
+      tabCommands: 'Commands',
+      tabMarkdown: 'Markdown',
+      tabArgs: 'Args parser',
+      notice:
+        'Agent loops, tools, and Runtime Session run in IDE/Node hosts. The web app showcases modules safe for the browser; wire full stacks via CLI or desktop.',
+      packagesLead:
+        'Workspace packages that matter for web integration, markdown, and protocol layers.',
+      tierFilter: 'Tier',
+      tierAll: 'All',
+      tier1: 'Tier 1',
+      tier2: 'Tier 2',
+      tier3: 'Tier 3',
+      colName: 'Command',
+      colTier: 'Tier',
+      colCategory: 'Category',
+      colProviders: 'Providers',
+      commandsLead: 'Catalog snapshot from @suga/ai-commands (same as CLI registration).',
+      markdownLead: 'Rendered with the @suga/markdown-it-render-vnode-vue stack used elsewhere.',
+      argsLead:
+        'parseCommandArgs supports JSON, key=value, and positional modes. Result updates live.',
+      argsPlaceholder: 'Try: subcommand=save name=demo or {"subcommand":"list"}',
+      argsRun: 'Parse',
+      argsParsed: 'Result',
+      groupRender: 'Docs & rendering',
+      groupPipeline: 'Context & compaction',
+      groupAgent: 'Agent & loop',
+      groupInfra: 'Infrastructure',
+      colorDemo: '@suga/color conversion',
+      colorHint: 'Enter any CSS color',
     },
     userManagement: {
       title: 'User Management',

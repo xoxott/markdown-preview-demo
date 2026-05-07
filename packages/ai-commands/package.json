@@ -32,7 +32,9 @@
     "registry": "https://registry.npmjs.org/"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./catalog-data": "./src/command-catalog-data.ts",
+    "./args-parser": "./src/utils/args-parser.ts"
   },
   "main": "./src/index.ts",
   "types": "./src/index.ts",

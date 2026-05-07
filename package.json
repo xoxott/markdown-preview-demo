@@ -62,6 +62,7 @@
     "@iconify/vue": "5.0.0",
     "@primer/css": "^22.0.0",
     "@shikijs/monaco": "^3.4.2",
+    "@suga/ai-commands": "workspace:*",
     "@suga/axios": "workspace:*",
     "@suga/color": "workspace:*",
     "@suga/hooks": "workspace:*",
