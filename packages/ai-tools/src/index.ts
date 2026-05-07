@@ -315,6 +315,69 @@ export type { SendUserFileInput, SendUserFileOutput } from './tools/send-user-fi
 export { interpretCommandResult } from './tools/bash-interpret';
 export type { CommandResultInterpretation } from './tools/bash-interpret';
 
+// G42: Bash 注释标签提取
+export { extractBashCommentLabel } from './tools/bash-comment-label';
+
+// G43: Bash 危险命令警告检测
+export {
+  getDestructiveCommandWarning,
+  getAllDestructiveWarnings
+} from './tools/bash-destructive-warning';
+
+// G44: Bash 权限模式验证
+export {
+  ACCEPT_EDITS_ALLOWED_COMMANDS,
+  isFilesystemCommand,
+  validateCommandForMode,
+  validateCompoundCommandForMode
+} from './tools/bash-mode-validation';
+export type {
+  PermissionMode,
+  FilesystemCommand,
+  BashModeValidationResult
+} from './tools/bash-mode-validation';
+
+// G45: REPL Tool 分类与过滤
+export {
+  REPL_TOOL_NAME,
+  REPL_ONLY_TOOLS,
+  isReplModeEnabled,
+  isReplOnlyTool,
+  filterReplOnlyTools
+} from './tools/repl-classification';
+
+// G46: BriefTool (SendUserMessage) 用户友好消息工具
+export {
+  briefTool,
+  BRIEF_TOOL_NAME,
+  LEGACY_BRIEF_TOOL_NAME,
+  BRIEF_TOOL_DESCRIPTION,
+  BRIEF_TOOL_PROMPT,
+  BriefInputSchema,
+  BriefAttachmentSchema
+} from './tools/brief-tool';
+export type {
+  BriefInput,
+  BriefAttachment,
+  BriefOutput,
+  BriefAttachmentResolver
+} from './tools/brief-tool';
+
+// G47: MultiAgent Spawner 多代理启动抽象
+export {
+  MultiAgentSpawner,
+  MultiAgentSpawnError,
+  resolveAgentModel,
+  sanitizeAgentName
+} from './tools/multi-agent-spawner';
+export type {
+  MultiAgentBackendType,
+  MultiAgentSpawnConfig,
+  MultiAgentSpawnResult,
+  MultiAgentBackend,
+  MultiAgentSpawnerOptions
+} from './tools/multi-agent-spawner';
+
 // G22: Bash sleep检测重定向导出
 export { detectSleepCommand } from './tools/bash-sleep-detect';
 export type { SleepDetectResult } from './tools/bash-sleep-detect';
