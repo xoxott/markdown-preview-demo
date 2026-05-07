@@ -7,7 +7,35 @@ export type { Worker, Team, TeamStatus } from './team';
 
 export type { MailboxMessageType, StructuredMessage, MailboxMessage, Mailbox } from './mailbox';
 
-export type { TaskDefinition, TaskStatus, TaskUpdateOp } from './task';
+export type {
+  TaskDefinition,
+  TaskStatus,
+  TaskUpdateOp,
+  BackgroundTaskState,
+  TaskContext,
+  TaskHandle
+} from './task';
+export { isTerminalTaskStatus, StopTaskError } from './task';
+
+export type {
+  SessionMode,
+  CoordinatorModeConfig,
+  CoordinatorUserContext
+} from './coordinator-mode';
+export {
+  isCoordinatorMode,
+  matchSessionMode,
+  getCoordinatorUserContext,
+  INTERNAL_WORKER_TOOLS,
+  ASYNC_AGENT_ALLOWED_TOOLS
+} from './coordinator-mode';
+
+// N11: Coordinator 模式恢复
+export type {
+  PersistedCoordinatorState,
+  CoordinatorStateStore
+} from '../core/coordinator-recovery';
+export { recoverCoordinatorMode, persistCoordinatorState } from '../core/coordinator-recovery';
 
 export type {
   OrchestrationPhase,
