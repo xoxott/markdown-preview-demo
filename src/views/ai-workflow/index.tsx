@@ -24,7 +24,6 @@ import type { WorkflowFormData } from '@/components/ai-workflow/dialogs/dialog';
 const {
   fetchWorkflowList,
   fetchCreateWorkflow,
-  _fetchUpdateWorkflow,
   fetchDeleteWorkflow,
   fetchBatchDeleteWorkflows,
   fetchCopyWorkflow,
@@ -190,7 +189,8 @@ export default defineComponent({
           ...searchForm
         },
         columns: () => createColumns() as any,
-        showTotal: true
+        showTotal: true,
+        immediate: true
       });
 
     // 新建工作流

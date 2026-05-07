@@ -325,7 +325,8 @@ export default defineComponent({
         ...searchForm
       },
       columns: () => createColumns() as any,
-      showTotal: true
+      showTotal: true,
+      immediate: true
     });
     getData = _getData;
 

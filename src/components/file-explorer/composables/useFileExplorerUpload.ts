@@ -63,7 +63,7 @@ export function useFileExplorerUpload(options?: UseFileExplorerUploadOptions) {
     return {
       total: stats.total,
       completed: stats.completed,
-      uploading: stats.uploading,
+      uploading: stats.active,
       failed: stats.failed,
       progress: upload.totalProgress.value,
       speed: upload.uploadSpeed.value

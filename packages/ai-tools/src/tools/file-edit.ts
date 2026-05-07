@@ -156,7 +156,7 @@ export const fileEditTool = buildTool<FileEditInput, FileEditOutput>({
         const similar = entries
           .filter(
             e =>
-              e.isFile &&
+              e.type === 'file' &&
               (e.name.startsWith(basename.substring(0, 3)) ||
                 (basename.includes('.') && e.name.endsWith(basename.split('.').pop()!)))
           )

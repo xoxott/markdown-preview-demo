@@ -1,6 +1,6 @@
 /** 外部文件拖拽覆盖层 — 检测外部文件拖入到 ViewContainer 并触发上传 */
 
-import { Transition, computed, defineComponent, onUnmounted, ref } from 'vue';
+import { type PropType, Transition, computed, defineComponent, onUnmounted, ref } from 'vue';
 import { NIcon } from 'naive-ui';
 import { CloudUploadOutline } from '@vicons/ionicons5';
 import DragDropProcessor from '@/components/custom-upload/DragDropProcessor';
@@ -23,7 +23,7 @@ export default defineComponent({
   name: 'UploadDropOverlay',
   props: {
     /** 外部文件拖入回调 */
-    onFilesDrop: { type: Function as () => (files: File[]) => void, required: true },
+    onFilesDrop: { type: Function as PropType<(files: File[]) => void>, required: true },
     /** 禁用拖拽上传（如非 server 模式） */
     disabled: { type: Boolean, default: false },
     /** 当前目录路径（提示文本用） */

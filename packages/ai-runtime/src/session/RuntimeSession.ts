@@ -9,15 +9,6 @@ import type { QueryTurnState } from '../types/query-state';
 import { createInitialQueryTurnState } from '../types/query-state';
 import { createRuntimeAgentLoop } from '../factory/createRuntimeAgentLoop';
 
-/** G14: 预算超限终止事件 */
-export interface BudgetExceededEvent {
-  type: 'budget_exceeded';
-  /** 累计成本（USD） */
-  totalCostUsd: number;
-  /** 预算上限（USD） */
-  maxBudgetUsd: number;
-}
-
 /**
  * RuntimeSession — P10+P34 集成会话
  *
@@ -92,10 +83,7 @@ export class RuntimeSession {
   }
 
   /** 发送消息（支持多轮对话） */
-  async *sendMessage(
-    content: string,
-    signal?: AbortSignal
-  ): AsyncGenerator<AgentEvent | BudgetExceededEvent> {
+  async *sendMessage(content: string, signal?: AbortSignal): AsyncGenerator<AgentEvent> {
     const currentStatus = this.store.getState().status;
     if (currentStatus === 'destroyed') {
       throw new Error(`RuntimeSession ${this.sessionId} 已销毁，无法发送消息`);

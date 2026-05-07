@@ -84,8 +84,7 @@ export const SvgRenderer = defineComponent({
 
     // ==================== Hooks ====================
     // 使用 SVG 工具（缩放、拖拽等）
-    const { downloadSVG, startDrag, _scale, zoom, _position, _isDragging, transformStyle } =
-      useSvgTools(containerRef, svgInfo);
+    const { downloadSVG, startDrag, zoom, transformStyle } = useSvgTools(containerRef, svgInfo);
 
     // ==================== 事件处理 ====================
     // 处理复制

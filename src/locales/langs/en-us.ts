@@ -554,6 +554,14 @@ const local: App.I18n.Schema = {
       clearLogsSuccess: 'Logs cleared successfully',
       getDetailFailed: 'Failed to get log details'
     },
+    aiWorkflow: {
+      name: 'Workflow name',
+      description: 'Description',
+      status: 'Status',
+      draft: 'Draft',
+      active: 'Published',
+      archived: 'Archived'
+    },
     versionLogManagement: {
       title: 'Version Log Management',
       version: 'Version',

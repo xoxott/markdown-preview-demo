@@ -183,6 +183,8 @@ export interface BackgroundTaskDetail {
   readonly startedAt: number;
   /** 完成时间戳（完成后） */
   readonly completedAt?: number;
+  /** 工作目录（可选 — 部分实现会带上） */
+  readonly cwd?: string;
   /** 输出文件路径（可选 — 大输出持久化到文件） */
   readonly outputFilePath?: string;
 }

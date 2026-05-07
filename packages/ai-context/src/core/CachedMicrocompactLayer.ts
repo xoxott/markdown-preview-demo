@@ -23,6 +23,18 @@ export const DEFAULT_CACHED_MICROCOMPACT_CONFIG: CachedMicrocompactConfig = {
   deltaUpdateResults: true
 };
 
+function toolResultText(msg: Extract<AgentMessage, { role: 'tool_result' }>): string {
+  if (typeof msg.result === 'string') return msg.result;
+  if (msg.result !== undefined) {
+    try {
+      return JSON.stringify(msg.result);
+    } catch {
+      return String(msg.result);
+    }
+  }
+  return msg.error ?? '';
+}
+
 export class CachedMicrocompactLayer implements CompressLayer {
   readonly name = 'CachedMicrocompact';
   private readonly editCache = new Map<string, string>();
@@ -44,38 +56,33 @@ export class CachedMicrocompactLayer implements CompressLayer {
     let replacedToolResults = 0;
 
     for (const msg of messages) {
-      let modified = false;
-
-      // Cache edit blocks
-      if (this.config.cacheEditBlocks && Array.isArray(msg.content)) {
-        for (const block of msg.content as any[]) {
-          if (block?.type === 'tool_use' && block?.name === 'file_edit' && block?.input?.filePath) {
-            const path = block.input.filePath;
-            if (this.editCache.has(path)) {
-              didCompress = true;
-            } else {
-              this.editCache.set(path, 'cached');
+      if (this.config.cacheEditBlocks && msg.role === 'assistant') {
+        for (const block of msg.toolUses) {
+          if (block.name === 'file_edit') {
+            const path = (block.input as { filePath?: string }).filePath;
+            if (path) {
+              if (this.editCache.has(path)) {
+                didCompress = true;
+              } else {
+                this.editCache.set(path, 'cached');
+              }
             }
           }
         }
       }
 
-      // Delta update long results
-      if (this.config.deltaUpdateResults && typeof msg.content === 'string') {
-        const content = msg.content;
-        if ((msg as any).role === 'tool' && content.length > 2000) {
-          const delta = content.slice(-500);
-          const newContent = `[...previous output collapsed]\n${delta}`;
-          result.push({ ...msg, content: newContent } as AgentMessage);
-          replacedToolResults++;
+      if (this.config.deltaUpdateResults && msg.role === 'tool_result') {
+        const text = toolResultText(msg);
+        if (text.length > 2000) {
+          const delta = text.slice(-500);
+          result.push({ ...msg, result: `[...previous output collapsed]\n${delta}` });
+          replacedToolResults += 1;
           didCompress = true;
-          modified = true;
+          continue;
         }
       }
 
-      if (!modified) {
-        result.push(msg);
-      }
+      result.push(msg);
     }
 
     return {

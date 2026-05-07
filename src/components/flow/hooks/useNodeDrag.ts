@@ -54,7 +54,7 @@ export interface UseNodeDragReturn {
  * @returns 节点拖拽相关的状态和方法
  */
 export function useNodeDrag(options: UseNodeDragOptions): UseNodeDragReturn {
-  const { config, viewport, _nodesMap, onNodePositionUpdate } = options;
+  const { config, viewport, onNodePositionUpdate } = options;
 
   /** 正在拖拽的节点 ID（用于 z-index 管理） */
   const draggingNodeId = ref<string | null>(null);

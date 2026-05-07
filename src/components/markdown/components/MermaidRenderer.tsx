@@ -94,19 +94,15 @@ export const MermaidRenderer = defineComponent({
     // ==================== Hooks ====================
     const { copyCode, copyFeedback } = useCodeTools();
 
-    const {
-      svgValue,
-      _svgAspectRatio,
-      initMermaid,
-      renderDiagram,
-      _containerStyle,
-      errorMessage,
-      isLoading,
-      hasError
-    } = useMermaid(content, darkMode);
+    const { svgValue, initMermaid, renderDiagram, errorMessage, isLoading, hasError } = useMermaid(
+      content,
+      darkMode
+    );
 
-    const { downloadSVG, startDrag, scale, zoom, position, _isDragging, transformStyle } =
-      useSvgTools(containerRef, svgValue);
+    const { downloadSVG, startDrag, zoom, scale, position, transformStyle } = useSvgTools(
+      containerRef,
+      svgValue
+    );
 
     // ==================== 防抖渲染 ====================
     const debouncedRender = debounce(async () => {

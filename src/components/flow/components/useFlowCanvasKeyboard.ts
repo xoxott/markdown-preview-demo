@@ -6,6 +6,8 @@
 
 import type { Ref } from 'vue';
 import type { FlowEdge, FlowNode } from '../types';
+import type { UseKeyboardReturn } from '../hooks/useKeyboard';
+import type { KeyHandler } from '../core/interaction/FlowKeyboardHandler';
 
 export interface FlowCanvasKeyboardDeps {
   /** 选择处理器 */
@@ -46,13 +48,7 @@ export interface FlowCanvasKeyboardDeps {
  * @returns 取消注册所有快捷键的函数
  */
 export function registerFlowCanvasShortcuts(
-  keyboard: {
-    register: (
-      binding: { key: string; ctrl?: boolean; shift?: boolean; meta?: boolean },
-      handler: () => void,
-      options?: { description?: string; priority?: number }
-    ) => () => void;
-  },
+  keyboard: Pick<UseKeyboardReturn, 'register'>,
   deps: FlowCanvasKeyboardDeps
 ): () => void {
   const {
@@ -69,7 +65,7 @@ export function registerFlowCanvasShortcuts(
   const unregisters: (() => void)[] = [];
 
   /** 删除选中的节点和连接线 */
-  const handleDelete = () => {
+  const handleDelete: KeyHandler = () => {
     const selectedNodes = selection.getSelectedNodes(nodes.value);
     const selectedEdges = selection.getSelectedEdges(edges.value);
 
@@ -79,6 +75,7 @@ export function registerFlowCanvasShortcuts(
     if (selectedNodes.length > 0 || selectedEdges.length > 0) {
       selection.deselectAll();
     }
+    return undefined;
   };
 
   /** 同步选择状态到 selection */
@@ -92,22 +89,25 @@ export function registerFlowCanvasShortcuts(
   };
 
   /** 撤销操作 */
-  const handleUndo = () => {
+  const handleUndo: KeyHandler = () => {
     if (historyOperations.undo()) {
       syncSelectionAfterUndoRedo();
     }
+    return undefined;
   };
 
   /** 重做操作 */
-  const handleRedo = () => {
+  const handleRedo: KeyHandler = () => {
     if (historyOperations.redo()) {
       syncSelectionAfterUndoRedo();
     }
+    return undefined;
   };
 
   /** 全选节点 */
-  const handleSelectAll = () => {
+  const handleSelectAll: KeyHandler = () => {
     selection.selectNodes(nodes.value.map(node => node.id));
+    return undefined;
   };
 
   // Delete/Backspace: 删除选中的节点和连接线
@@ -163,10 +163,17 @@ export function registerFlowCanvasShortcuts(
 
   // Escape: 取消选择
   unregisters.push(
-    keyboard.register({ key: 'Escape' }, () => selection.deselectAll(), {
-      description: '取消选择',
-      priority: 10
-    })
+    keyboard.register(
+      { key: 'Escape' },
+      () => {
+        selection.deselectAll();
+        return undefined;
+      },
+      {
+        description: '取消选择',
+        priority: 10
+      }
+    )
   );
 
   // 返回取消注册所有快捷键的函数

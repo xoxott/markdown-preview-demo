@@ -31,7 +31,7 @@ export type {
 
 // Session 层
 export { RuntimeSession } from './session/RuntimeSession';
-export type { BudgetExceededEvent } from './session/RuntimeSession';
+export type { BudgetExceededEvent } from '@suga/ai-agent-loop';
 export { createRuntimeSession } from './session/createRuntimeSession';
 export { SDKSessionAdapter } from './session/SDKSessionAdapter';
 export { SessionEngineImpl, createSessionEngine } from './session/SessionEngineImpl';

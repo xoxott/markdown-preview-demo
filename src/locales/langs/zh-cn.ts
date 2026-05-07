@@ -550,6 +550,14 @@ const local: App.I18n.Schema = {
       clearLogsSuccess: '清空日志成功',
       getDetailFailed: '获取日志详情失败'
     },
+    aiWorkflow: {
+      name: '工作流名称',
+      description: '描述',
+      status: '状态',
+      draft: '草稿',
+      active: '已发布',
+      archived: '已归档'
+    },
     versionLogManagement: {
       title: '版本日志管理',
       version: '版本号',

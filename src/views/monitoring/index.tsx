@@ -1,12 +1,7 @@
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { NAlert, NButton, NCard, NGi, NGrid, NProgress, NSpace, NSpin } from 'naive-ui';
 import { useMonitoringSSE } from '@/hooks/monitoring/useMonitoringSSE';
-import {
-  _formatTimestamp,
-  formatUptime,
-  getCpuUsageColor,
-  getMemoryUsageColor
-} from '@/utils/monitoring';
+import { formatUptime, getCpuUsageColor, getMemoryUsageColor } from '@/utils/monitoring';
 import {
   CPUUsageCard,
   HealthCheckDrawer,

@@ -6,17 +6,16 @@
  */
 
 import type { AgentEvent, SDKMessage, SDKSession } from '@suga/ai-sdk';
+import type { BudgetExceededEvent } from '@suga/ai-agent-loop';
 import {
   createSDKMapContext,
   mapAgentEventToSDKMessages,
   updateSDKMapContext
 } from '../sdk/mapAgentEventToSDKMessages';
-import type { BudgetExceededEvent, RuntimeSession } from './RuntimeSession';
+import type { RuntimeSession } from './RuntimeSession';
 
 /** 类型窄化：区分 AgentEvent 和 BudgetExceededEvent */
-function isBudgetExceededEvent(
-  event: AgentEvent | BudgetExceededEvent
-): event is BudgetExceededEvent {
+function isBudgetExceededEvent(event: AgentEvent): event is BudgetExceededEvent {
   return event.type === 'budget_exceeded';
 }
 

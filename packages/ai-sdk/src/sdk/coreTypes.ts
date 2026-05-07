@@ -97,6 +97,7 @@ export type {
   LoopResult,
   // 事件
   AgentEvent,
+  BudgetExceededEvent,
   LLMStreamChunk,
   // LLM
   LLMProvider,

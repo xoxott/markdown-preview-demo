@@ -85,6 +85,8 @@ export interface PermissionAsk {
   structuredReason?: PermissionDecisionReason;
   /** P41: bypass-immune 标记 — 即使在 bypass/auto 模式下也必须用户交互 */
   requiresUserInteraction?: boolean;
+  /** 宿主自定义元数据（如 sed 拦截时的 sedEditInfo） */
+  metadata?: Record<string, unknown>;
 }
 
 /**

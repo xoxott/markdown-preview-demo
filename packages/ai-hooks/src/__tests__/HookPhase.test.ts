@@ -4,7 +4,17 @@ import { z } from 'zod';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ToolRegistry, buildTool } from '@suga/ai-tool-core';
 import { AgentLoop } from '@suga/ai-agent-loop';
-import type { AgentEvent, ToolUseBlock, UserMessage } from '@suga/ai-agent-loop';
+import type {
+  AgentEvent,
+  AgentMessage,
+  CallModelOptions,
+  LLMResponse,
+  LLMStreamChunk,
+  ToolDefinition,
+  ToolReferenceBlock,
+  ToolUseBlock,
+  UserMessage
+} from '@suga/ai-agent-loop';
 import { HookRegistry } from '../registry/HookRegistry';
 import type { PostToolUseInput, PreToolUseInput, StopInput } from '../types';
 
@@ -85,6 +95,44 @@ class MockLLMProvider {
       if (options?.signal?.aborted) throw new DOMException('Mock LLM aborted', 'AbortError');
       yield chunk;
     }
+  }
+
+  async callModelOnce(
+    messages: readonly AgentMessage[],
+    tools?: readonly ToolDefinition[],
+    options?: CallModelOptions
+  ): Promise<LLMResponse> {
+    let content = '';
+    let thinking: string | undefined;
+    const toolUses: ToolUseBlock[] = [];
+    const toolReferences: ToolReferenceBlock[] = [];
+    let usage: LLMStreamChunk['usage'] | undefined;
+    let stopReason: string | undefined;
+
+    const stream = this.callModel(messages, tools, options);
+    for await (const chunk of stream) {
+      if (chunk.textDelta) content += chunk.textDelta;
+      if ('thinkingDelta' in chunk && chunk.thinkingDelta)
+        thinking = (thinking ?? '') + String((chunk as { thinkingDelta?: string }).thinkingDelta);
+      if (chunk.toolUse) toolUses.push(chunk.toolUse);
+      if (
+        'toolReference' in chunk &&
+        (chunk as { toolReference?: ToolReferenceBlock }).toolReference
+      )
+        toolReferences.push((chunk as { toolReference: ToolReferenceBlock }).toolReference);
+      if ('usage' in chunk && chunk.usage)
+        usage = chunk.usage as NonNullable<LLMStreamChunk['usage']>;
+      if ('stopReason' in chunk && chunk.stopReason) stopReason = String(chunk.stopReason);
+    }
+
+    return {
+      content,
+      thinking,
+      toolUses: toolUses.length ? toolUses : undefined,
+      toolReferences: toolReferences.length ? toolReferences : undefined,
+      usage,
+      stopReason
+    };
   }
 }
 

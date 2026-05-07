@@ -293,7 +293,8 @@ export default defineComponent({
         sortOrder: searchForm.sortOrder
       },
       columns: () => createColumns() as any,
-      showTotal: true
+      showTotal: true,
+      immediate: true
     });
     getData = _getData;
 

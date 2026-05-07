@@ -19,6 +19,8 @@ export interface CompressState {
   contentReplacement: ContentReplacementTracker;
   /** AutoCompact 熔断器连续失败计数 */
   autoCompactFailures: number;
+  /** G19: ForkCompact 熔断器连续失败计数（可选） */
+  forkCompactFailures?: number;
   /** 上一条 assistant 消息的时间戳 */
   lastAssistantTimestamp: number | null;
   /** 当前时间（用于 TimeBasedMicroCompact 计算 gap） */

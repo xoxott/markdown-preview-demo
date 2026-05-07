@@ -14,18 +14,6 @@ import {
   NText
 } from 'naive-ui';
 import type { AxiosProgressEvent } from 'axios';
-import {
-  _onRequestComplete,
-  _onRequestError,
-  _onRequestStart,
-  _onRequestSuccess
-} from '@suga/request-events';
-import {
-  _configureLogger,
-  _logErrorWithManager,
-  _logRequestWithManager,
-  _logResponseWithManager
-} from '@suga/request-logger';
 import { createRequestClient } from '@/utils/request/createRequestClient';
 
 // 创建请求客户端（仅配置 Axios 基础配置，步骤配置已写死在 createRequestClient 内部）

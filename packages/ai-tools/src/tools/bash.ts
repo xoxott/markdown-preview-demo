@@ -108,7 +108,7 @@ export const bashTool = buildTool<BashInput, BashOutput>({
       if (!constraints.allowed) {
         return {
           behavior: 'deny',
-          message: constraints.reason
+          message: constraints.reason ?? 'Sed validation failed'
         };
       }
 
@@ -259,14 +259,12 @@ export const bashTool = buildTool<BashInput, BashOutput>({
     let stdout = result.stdout;
     let stderr = result.stderr;
     let truncated = false;
-    let persistedOutputPath: string | undefined;
     let persistedOutputSize: number | undefined;
 
     // G23: 大输出 → 持久化到文件+摘要
     const stdoutPersist = persistLargeOutput(stdout);
     if (stdoutPersist.persisted) {
       stdout = stdoutPersist.content;
-      persistedOutputPath = stdoutPersist.filePath;
       persistedOutputSize = stdoutPersist.originalSize;
       truncated = true;
     } else if (stdout.length > BASH_MAX_OUTPUT_CHARS) {
@@ -290,10 +288,10 @@ export const bashTool = buildTool<BashInput, BashOutput>({
         cwd: result.cwd
       },
       metadata:
-        truncated || persistedOutputPath
+        truncated || persistedOutputSize !== undefined
           ? {
               ...(truncated ? { truncated: true } : {}),
-              ...(persistedOutputPath ? { persistedOutputPath, persistedOutputSize } : {})
+              ...(persistedOutputSize !== undefined ? { persistedOutputSize } : {})
             }
           : undefined,
       // G25: 命令语义解释 — 非0退出码时添加人类可读描述

@@ -57,15 +57,8 @@ export interface UseNodeStyleReturn {
  * @returns 节点样式相关功能
  */
 export function useNodeStyle(options: UseNodeStyleOptions): UseNodeStyleReturn {
-  const {
-    _nodes,
-    selectedNodeIds,
-    draggingNodeId,
-    elevatedNodeIds,
-    allocateZIndex,
-    removeZIndex,
-    config
-  } = options;
+  const { selectedNodeIds, draggingNodeId, elevatedNodeIds, allocateZIndex, removeZIndex, config } =
+    options;
 
   // 性能优化：使用缓存的 Set，避免每次计算都创建新 Set
   const selectedNodeIdsSet = useCachedSet(selectedNodeIds);

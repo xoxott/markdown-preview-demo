@@ -783,6 +783,14 @@ declare namespace App {
           clearLogsSuccess: string;
           getDetailFailed: string;
         };
+        aiWorkflow: {
+          name: string;
+          description: string;
+          status: string;
+          draft: string;
+          active: string;
+          archived: string;
+        };
         versionLogManagement: {
           title: string;
           version: string;

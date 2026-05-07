@@ -132,7 +132,16 @@ describe('PostProcessPhase G13 结构化输出强制', () => {
     const ctx = createTestCtx(0, { stopReason: 'end_turn' });
     await consume(phase.execute(ctx, emptyNext));
     if (ctx.state.transition.type === 'structured_output_retry') {
-      expect(ctx.state.transition.nudgeMessage.content).toContain('bash, file-edit');
+      const { nudgeMessage } = ctx.state.transition;
+      const text =
+        nudgeMessage.role === 'user'
+          ? typeof nudgeMessage.content === 'string'
+            ? nudgeMessage.content
+            : ''
+          : nudgeMessage.role === 'assistant'
+            ? nudgeMessage.content
+            : '';
+      expect(text).toContain('bash, file-edit');
     }
   });
 });

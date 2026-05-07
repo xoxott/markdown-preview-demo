@@ -63,7 +63,7 @@ export interface UseNodeStateReturn {
  * @returns 节点状态相关功能
  */
 export function useNodeState(options: UseNodeStateOptions): UseNodeStateReturn {
-  const { _nodes, selectedNodeIds, lockedNodeIds, draggingNodeId } = options;
+  const { selectedNodeIds, lockedNodeIds, draggingNodeId } = options;
 
   // 性能优化：使用缓存的 Set，避免每次计算都创建新 Set
   const selectedNodeIdsSet = useCachedSet(selectedNodeIds);

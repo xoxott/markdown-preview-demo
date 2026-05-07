@@ -49,7 +49,7 @@ export class ForkCompactLayer implements CompressLayer {
 
   async compress(messages: readonly AgentMessage[], state: CompressState): Promise<CompressResult> {
     // 熔断器检查
-    const forkFailures = (state as any).forkCompactFailures ?? 0;
+    const forkFailures = state.forkCompactFailures ?? 0;
     if (forkFailures >= this.maxFailures) {
       return { messages, didCompress: false };
     }
@@ -118,7 +118,6 @@ export class ForkCompactLayer implements CompressLayer {
 
   /** 递增 fork 熔断器计数 */
   private incrementForkFailures(state: CompressState): void {
-    const mutableState = state as unknown as Record<string, unknown>;
-    mutableState.forkCompactFailures = ((mutableState.forkCompactFailures as number) ?? 0) + 1;
+    state.forkCompactFailures = (state.forkCompactFailures ?? 0) + 1;
   }
 }

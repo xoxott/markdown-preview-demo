@@ -24,6 +24,7 @@ function createState(
 
 function makeMessages(count: number): AgentMessage[] {
   return Array.from({ length: count }, (_, i) => ({
+    id: `user_${i}_${Date.now()}`,
     role: 'user' as const,
     content: `Message ${i}: ${'x'.repeat(100)}`,
     timestamp: Date.now() - (count - i) * 60000
@@ -71,7 +72,7 @@ describe('ForkCompactLayer', () => {
     const state = createState();
     const result = await layer.compress(messages, state);
     expect(result.didCompress).toBe(false);
-    expect((state as any).forkCompactFailures).toBe(1);
+    expect(state.forkCompactFailures).toBe(1);
   });
 
   it('fork 抛错 → 不压缩 + 递增熔断器', async () => {
@@ -83,7 +84,7 @@ describe('ForkCompactLayer', () => {
     const state = createState();
     const result = await layer.compress(messages, state);
     expect(result.didCompress).toBe(false);
-    expect((state as any).forkCompactFailures).toBe(1);
+    expect(state.forkCompactFailures).toBe(1);
   });
 
   it('熔断器达上限 → 不压缩', async () => {
@@ -108,7 +109,7 @@ describe('ForkCompactLayer', () => {
     const result = await layer.compress(messages, state);
     expect(result.didCompress).toBe(false);
     // 熔断器仍然递增
-    expect((state as any).forkCompactFailures).toBe(1);
+    expect(state.forkCompactFailures).toBe(1);
   });
 
   it('消息数 <= messagesToKeep → 不压缩', async () => {

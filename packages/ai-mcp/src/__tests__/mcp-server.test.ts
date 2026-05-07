@@ -44,8 +44,10 @@ describe('McpServerHost', () => {
         description: 'Echo input back',
         inputSchema: { message: z.string().describe('The message to echo') }
       },
-      async args => ({
-        content: [{ type: 'text' as const, text: String(args.message ?? '') }]
+      async (extra: unknown) => ({
+        content: [
+          { type: 'text' as const, text: String((extra as { message?: unknown }).message ?? '') }
+        ]
       })
     );
 
@@ -89,11 +91,14 @@ describe('McpServerHost', () => {
         description: 'Greet someone',
         argsSchema: { name: z.string().describe('Person name') }
       },
-      async args => ({
+      async (extra: unknown) => ({
         messages: [
           {
             role: 'user' as const,
-            content: { type: 'text' as const, text: `Hello, ${args.name}!` }
+            content: {
+              type: 'text' as const,
+              text: `Hello, ${(extra as { name?: unknown }).name}!`
+            }
           }
         ]
       })
@@ -179,8 +184,10 @@ describe('McpServerBuilder', () => {
         description: 'Echo input',
         inputSchema: { message: z.string() }
       },
-      async args => ({
-        content: [{ type: 'text' as const, text: String(args.message ?? '') }]
+      async (extra: unknown) => ({
+        content: [
+          { type: 'text' as const, text: String((extra as { message?: unknown }).message ?? '') }
+        ]
       })
     );
 

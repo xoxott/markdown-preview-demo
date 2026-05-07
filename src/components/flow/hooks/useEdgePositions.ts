@@ -166,7 +166,6 @@ function calculateEdgePositions(
  */
 export function useEdgePositions(options: UseEdgePositionsOptions): UseEdgePositionsReturn {
   const {
-    _edges,
     nodes,
     viewport,
     maxCacheSize = PERFORMANCE_CONSTANTS.EDGE_POSITION_CACHE_MAX_SIZE,

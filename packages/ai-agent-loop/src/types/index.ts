@@ -26,7 +26,7 @@ export { isTerminal } from './state';
 
 export type { LoopResult } from './result';
 
-export type { AgentEvent } from './events';
+export type { AgentEvent, BudgetExceededEvent } from './events';
 
 export type {
   LLMStreamChunk,

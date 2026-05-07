@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  DEFAULT_TOKEN_ESTIMATION_CONFIG,
   estimateMessageTokens,
   estimateTokensCharRatio,
   estimateTokensClaudeSpecific

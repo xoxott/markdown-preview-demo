@@ -4,7 +4,7 @@
  * 负责使用 Canvas 渲染大量连接线，提供更好的性能
  */
 
-import { type PropType, defineComponent, onMounted, ref } from 'vue';
+import { type PropType, defineComponent, onMounted, ref, watch } from 'vue';
 import { useRafThrottle } from '../../hooks/useRafThrottle';
 import type { FlowEdge, FlowViewport } from '../../types';
 import type { EdgePositions } from '../../hooks/useEdgePositions';

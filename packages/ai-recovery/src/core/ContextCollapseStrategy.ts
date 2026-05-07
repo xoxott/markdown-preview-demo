@@ -23,9 +23,6 @@ function generateId(): string {
   return `collapse_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 }
 
-/** 默认摘要输出预留 */
-const DEFAULT_OUTPUT_RESERVE_TOKENS = 20_000;
-
 /** 默认最大 staged spans 数 */
 const DEFAULT_MAX_STAGED_SPANS = 5;
 
@@ -44,15 +41,12 @@ const DEFAULT_MAX_STAGED_SPANS = 5;
 export class ContextCollapseStrategy {
   private readonly drainThreshold: number;
   private readonly planThreshold: number;
-  // @ts-expect-error — 未来折叠逻辑使用
-  private readonly _outputReserveTokens: number;
   private readonly maxStagedSpans: number;
   readonly commitLog: CollapseCommitLog;
 
   constructor(config?: ContextCollapseConfig) {
     this.drainThreshold = config?.drainThreshold ?? 0.95;
     this.planThreshold = config?.planThreshold ?? 0.9;
-    this._outputReserveTokens = config?.outputReserveTokens ?? DEFAULT_OUTPUT_RESERVE_TOKENS;
     this.maxStagedSpans = config?.maxStagedSpans ?? DEFAULT_MAX_STAGED_SPANS;
     this.commitLog = new CollapseCommitLogImpl();
   }

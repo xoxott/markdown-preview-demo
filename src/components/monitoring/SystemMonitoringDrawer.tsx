@@ -10,8 +10,7 @@ import {
   NGi,
   NGrid,
   NSpace,
-  NSpin,
-  _NStatistic
+  NSpin
 } from 'naive-ui';
 import { fetchEnvironmentInfo } from '@/service/api/system';
 import { useMonitoringSSE } from '@/hooks/monitoring/useMonitoringSSE';

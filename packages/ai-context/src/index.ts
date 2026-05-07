@@ -134,7 +134,7 @@ export {
   getGlobalPostCompactCleanupRegistry,
   resetGlobalPostCompactCleanupRegistry
 } from './core/postCompactCleanup';
-export type { CleanupAction, QuerySource } from './core/postCompactCleanup';
+export type { CleanupAction, PostCompactQuerySource } from './core/postCompactCleanup';
 
 // Compact prompt 模板
 export {

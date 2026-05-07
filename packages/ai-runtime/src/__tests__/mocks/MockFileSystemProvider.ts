@@ -1,6 +1,8 @@
 /** MockFileSystemProvider — 测试用空实现，所有方法返回默认值 */
 
 import type {
+  BackgroundTaskDetail,
+  BackgroundTaskResult,
   CommandResult,
   EditResult,
   FileContent,
@@ -8,7 +10,8 @@ import type {
   FileStat,
   FileSystemProvider,
   GrepResult,
-  RunCommandOptions
+  RunCommandOptions,
+  SpawnBackgroundOptions
 } from '@suga/ai-tools';
 
 const EMPTY_STAT: FileStat = {
@@ -57,4 +60,29 @@ export class MockFileSystemProvider implements FileSystemProvider {
   async runCommand(_command: string, _options?: RunCommandOptions): Promise<CommandResult> {
     return EMPTY_COMMAND_RESULT;
   }
+
+  async spawnBackgroundCommand(
+    command: string,
+    _options?: SpawnBackgroundOptions
+  ): Promise<BackgroundTaskResult> {
+    return { taskId: 'mock-bg', status: 'running', command, startedAt: Date.now() };
+  }
+
+  async getBackgroundTask(_taskId: string): Promise<BackgroundTaskDetail | null> {
+    return null;
+  }
+
+  async stopBackgroundTask(_taskId: string): Promise<boolean> {
+    return false;
+  }
+
+  async listBackgroundTasks(): Promise<readonly BackgroundTaskDetail[]> {
+    return [];
+  }
+
+  registerForeground(_taskId: string): void {}
+
+  unregisterForeground(_taskId: string): void {}
+
+  markTaskNotified(_taskId: string): void {}
 }

@@ -1,7 +1,7 @@
 /** G14 预算追踪 per-turn 测试 */
 
 import { describe, expect, it } from 'vitest';
-import type { BudgetExceededEvent } from '../session/RuntimeSession';
+import type { BudgetExceededEvent } from '@suga/ai-agent-loop';
 
 describe('BudgetExceededEvent 类型', () => {
   it('应包含 totalCostUsd 和 maxBudgetUsd', () => {

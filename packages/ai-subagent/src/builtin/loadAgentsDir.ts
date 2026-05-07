@@ -6,7 +6,7 @@
  */
 
 import { z } from 'zod';
-import type { SubagentDefinition } from '../types/subagent';
+import type { SubagentDefinition, SubagentPermissionMode } from '../types/subagent';
 import type { AgentMemoryScope } from './AgentMemoryPaths';
 
 // ============================================================
@@ -34,6 +34,25 @@ export const AgentJsonSchema = z.object({
 });
 
 export type AgentJson = z.infer<typeof AgentJsonSchema>;
+
+/** JSON/CC frontmatter permission strings → SubagentPermissionMode */
+const LEGACY_PERMISSION_TO_SUBAGENT: Record<
+  NonNullable<AgentJson['permissionMode']>,
+  SubagentPermissionMode
+> = {
+  default: 'bubble',
+  plan: 'bubble',
+  acceptEdits: 'auto',
+  bypassPermissions: 'auto',
+  dontAsk: 'auto'
+};
+
+function normalizePermissionMode(raw: unknown): SubagentPermissionMode | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  if (raw === 'bubble' || raw === 'auto') return raw;
+  if (typeof raw !== 'string') return undefined;
+  return LEGACY_PERMISSION_TO_SUBAGENT[raw as NonNullable<AgentJson['permissionMode']>];
+}
 
 /** Agent Markdown 定义解析结果（frontmatter + body） */
 export interface ParsedAgentMarkdown {
@@ -144,10 +163,7 @@ export function parseSubagentFromMarkdown(fileEntry: AgentFileEntry): SubagentDe
     maxTurns: typeof frontmatter.maxTurns === 'number' ? frontmatter.maxTurns : undefined,
     model: typeof frontmatter.model === 'string' ? frontmatter.model : undefined,
     systemPromptPrefix: body.trim() || undefined,
-    permissionMode:
-      typeof frontmatter.permissionMode === 'string'
-        ? (frontmatter.permissionMode as SubagentDefinition['permissionMode'])
-        : undefined
+    permissionMode: normalizePermissionMode(frontmatter.permissionMode)
   };
 }
 
@@ -177,7 +193,7 @@ export function parseSubagentFromJson(fileEntry: AgentFileEntry): SubagentDefini
     maxTurns: data.maxTurns,
     model: data.model,
     systemPromptPrefix: data.prompt,
-    permissionMode: data.permissionMode
+    permissionMode: normalizePermissionMode(data.permissionMode)
   };
 }
 

@@ -8,11 +8,8 @@ import SystemLogo from '@/components/common/system-logo.vue';
 import ThemeSchemaSwitch from '@/components/common/theme-schema-switch.vue';
 import LangSwitch from '@/components/common/lang-switch.vue';
 import WaveBg from '@/components/custom/wave-bg.vue';
-// @ts-expect-error - TSX module resolution
 import PwdLogin from './modules/pwd-login';
-// @ts-expect-error - TSX module resolution
 import CodeLogin from './modules/code-login';
-// @ts-expect-error - TSX module resolution
 import Register from './modules/register';
 import ResetPwd from './modules/reset-pwd';
 

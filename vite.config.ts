@@ -42,7 +42,15 @@ export default defineConfig(configEnv => {
       host: '0.0.0.0',
       port: 9527,
       open: true,
-      proxy: createViteProxy(viteEnv, enableProxy)
+      proxy: {
+        /** 本地 Ollama 避免浏览器跨域；请求 /ollama/v1/... → http://localhost:11434/v1/... */
+        '/ollama': {
+          target: 'http://localhost:11434',
+          changeOrigin: true,
+          rewrite: p => p.replace(/^\/ollama/, '')
+        },
+        ...(createViteProxy(viteEnv, enableProxy) ?? {})
+      }
     },
     preview: {
       port: 9725

@@ -8,7 +8,7 @@
  * 3. 思考输出 → 保留首尾，折叠中间
  */
 
-import type { AgentMessage } from '@suga/ai-agent-loop';
+import type { AgentMessage, UserMessage } from '@suga/ai-agent-loop';
 import type { CompressLayer, CompressResult, CompressState } from '../types/compressor';
 
 /** ContextCollapseConfig */
@@ -23,6 +23,23 @@ export const DEFAULT_CONTEXT_COLLAPSE_CONFIG: ContextCollapseConfig = {
   collapseThreshold: 2000,
   maxPreservedSpans: 5
 };
+
+function messagePayloadString(msg: AgentMessage): string {
+  if (msg.role === 'tool_result') {
+    try {
+      if (typeof msg.result === 'string') return msg.result;
+      return JSON.stringify(msg.result ?? msg.error ?? '');
+    } catch {
+      return String(msg.result ?? msg.error ?? '');
+    }
+  }
+  if (msg.role === 'assistant') {
+    return msg.content;
+  }
+  const user = msg as UserMessage;
+  if (typeof user.content === 'string') return user.content;
+  return JSON.stringify(user.content);
+}
 
 export class ContextCollapseLayer implements CompressLayer {
   readonly name = 'ContextCollapse';
@@ -41,15 +58,23 @@ export class ContextCollapseLayer implements CompressLayer {
     let didCompress = false;
 
     for (const msg of messages) {
-      const contentStr =
-        typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content);
-
-      // 估算 token ≈ 字符/4
+      const contentStr = messagePayloadString(msg);
       const estimatedTokens = Math.floor(contentStr.length / 4);
 
       if (estimatedTokens > this.config.collapseThreshold) {
         const preserved = `${contentStr.slice(0, 200)}\n...[collapsed]...\n${contentStr.slice(-200)}`;
-        result.push({ ...msg, content: preserved } as AgentMessage);
+        if (msg.role === 'tool_result') {
+          result.push({ ...msg, result: preserved });
+        } else if (msg.role === 'assistant') {
+          result.push({ ...msg, content: preserved });
+        } else {
+          const user = msg as UserMessage;
+          if (typeof user.content === 'string') {
+            result.push({ ...user, content: preserved });
+          } else {
+            result.push({ ...user, content: [{ type: 'text', text: preserved }] });
+          }
+        }
         didCompress = true;
       } else {
         result.push(msg);
@@ -59,7 +84,7 @@ export class ContextCollapseLayer implements CompressLayer {
     return {
       messages: result,
       didCompress,
-      stats: didCompress ? { replacedToolResults: 0, generatedSummary: false } : undefined
+      stats: didCompress ? { generatedSummary: true } : undefined
     };
   }
 }

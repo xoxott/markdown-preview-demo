@@ -64,27 +64,24 @@ export default defineComponent({
         {{
           default: () => (
             <NForm ref={formRef} model={formModel}>
-              <NFormItem label={$t('page.logManagement.name')} path="name">
-                <NInput
-                  v-model:value={formModel.name}
-                  placeholder={$t('page.logManagement.name')}
-                />
+              <NFormItem label={$t('page.aiWorkflow.name')} path="name">
+                <NInput v-model:value={formModel.name} placeholder={$t('page.aiWorkflow.name')} />
               </NFormItem>
-              <NFormItem label={$t('page.logManagement.description')} path="description">
+              <NFormItem label={$t('page.aiWorkflow.description')} path="description">
                 <NInput
                   v-model:value={formModel.description}
-                  placeholder={$t('page.logManagement.description')}
+                  placeholder={$t('page.aiWorkflow.description')}
                 />
               </NFormItem>
-              <NFormItem label={$t('page.logManagement.status')} path="status">
+              <NFormItem label={$t('page.aiWorkflow.status')} path="status">
                 <NSelect
                   v-model:value={formModel.status}
                   options={[
-                    { label: $t('page.logManagement.draft'), value: 'draft' },
-                    { label: $t('page.logManagement.active'), value: 'active' },
-                    { label: $t('page.logManagement.archived'), value: 'archived' }
+                    { label: $t('page.aiWorkflow.draft'), value: 'draft' },
+                    { label: $t('page.aiWorkflow.active'), value: 'active' },
+                    { label: $t('page.aiWorkflow.archived'), value: 'archived' }
                   ]}
-                  placeholder={$t('page.logManagement.status')}
+                  placeholder={$t('page.aiWorkflow.status')}
                 />
               </NFormItem>
             </NForm>

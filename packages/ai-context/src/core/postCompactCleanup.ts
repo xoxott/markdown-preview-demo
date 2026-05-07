@@ -10,8 +10,12 @@
 // 类型
 // ============================================================
 
-/** Query 来源 — 决定是否为主线程 compact */
-export type QuerySource = 'repl_main_thread' | 'repl_main_thread_initial' | 'sdk' | string;
+/** Post-compact 清理的 query 来源（与 @suga/ai-tool-adapter.QuerySource 区分） */
+export type PostCompactQuerySource =
+  | 'repl_main_thread'
+  | 'repl_main_thread_initial'
+  | 'sdk'
+  | string;
 
 /** 一个可选的清理动作 */
 export interface CleanupAction {
@@ -32,7 +36,7 @@ export interface CleanupAction {
  *
  * 子代理 querySource 形如 `agent:explore` 等，与主线程的 `repl_main_thread*` / `sdk` 区分。
  */
-export function isMainThreadCompact(querySource?: QuerySource): boolean {
+export function isMainThreadCompact(querySource?: PostCompactQuerySource): boolean {
   if (querySource === undefined) return true;
   return querySource.startsWith('repl_main_thread') || querySource === 'sdk';
 }
@@ -65,7 +69,7 @@ export class PostCompactCleanupRegistry {
   }
 
   /** 运行所有 cleanup（按注册顺序） */
-  async run(querySource?: QuerySource): Promise<void> {
+  async run(querySource?: PostCompactQuerySource): Promise<void> {
     const isMain = isMainThreadCompact(querySource);
     for (const action of this.actions) {
       if (action.mainThreadOnly && !isMain) continue;
@@ -111,6 +115,6 @@ export function registerPostCompactCleanup(action: CleanupAction): void {
 }
 
 /** 运行 post-compact cleanup（接入 compact 服务的入口） */
-export async function runPostCompactCleanup(querySource?: QuerySource): Promise<void> {
+export async function runPostCompactCleanup(querySource?: PostCompactQuerySource): Promise<void> {
   await getGlobalPostCompactCleanupRegistry().run(querySource);
 }

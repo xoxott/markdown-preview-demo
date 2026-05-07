@@ -15,6 +15,7 @@ export interface WorkflowDialogOptions extends BaseDialogProps {
   isEdit: boolean;
   formData: WorkflowFormData;
   onConfirm: (data: WorkflowFormData) => Promise<void>;
+  onCancel?: () => void;
 }
 
 /** 执行详情对话框选项 */

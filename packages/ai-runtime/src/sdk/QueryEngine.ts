@@ -1,9 +1,8 @@
 /** QueryEngine — SDK query() 的底层编排实现 */
 
-import type { AgentEvent, SDKMessage } from '@suga/ai-sdk';
+import type { AgentEvent, BudgetExceededEvent, SDKMessage } from '@suga/ai-sdk';
 import type { RuntimeConfig } from '../types/config';
 import { RuntimeSession } from '../session/RuntimeSession';
-import type { BudgetExceededEvent } from '../session/RuntimeSession';
 import { createSDKSystemMessage } from './createSDKSystemMessage';
 import { applyQueryOptions } from './applyQueryOptions';
 import { fetchSystemPrompt } from './fetchSystemPrompt';
@@ -103,8 +102,6 @@ export class QueryEngine {
 }
 
 /** 类型窄化：区分 AgentEvent 和 BudgetExceededEvent */
-function isBudgetExceededEvent(
-  event: AgentEvent | BudgetExceededEvent
-): event is BudgetExceededEvent {
+function isBudgetExceededEvent(event: AgentEvent): event is BudgetExceededEvent {
   return event.type === 'budget_exceeded';
 }

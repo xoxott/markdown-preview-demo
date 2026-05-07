@@ -1,15 +1,6 @@
 /** Flow 流程图组件示例集合 统一管理所有 Flow 相关的示例展示 */
 import { defineComponent } from 'vue';
-import {
-  FlowPerformanceExample,
-  _FlowBasicExample,
-  _FlowBezierExample,
-  _FlowConfigExample,
-  _FlowEmptyExample,
-  _FlowFullFeatureExample,
-  _FlowStateExample,
-  _FlowThemeExample
-} from './index';
+import { FlowPerformanceExample } from './index';
 
 export const FlowExamples = defineComponent({
   name: 'FlowExamples',

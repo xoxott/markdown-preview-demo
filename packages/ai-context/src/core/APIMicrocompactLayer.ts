@@ -8,7 +8,7 @@
  * - clear_thinking: 清除 thinking 块
  */
 
-import type { AgentMessage } from '@suga/ai-agent-loop';
+import type { AgentMessage, UserMessage } from '@suga/ai-agent-loop';
 import type { CompressLayer, CompressResult, CompressState } from '../types/compressor';
 
 /** APIMicrocompactConfig */
@@ -39,43 +39,53 @@ export class APIMicrocompactLayer implements CompressLayer {
     let replacedToolResults = 0;
 
     for (const msg of messages) {
+      if (msg.role === 'tool_result') {
+        if (this.config.strategies.includes('clear_tool_results')) {
+          result.push({ ...msg, result: '[tool result collapsed]' });
+          replacedToolResults += 1;
+        } else {
+          result.push(msg);
+        }
+        continue;
+      }
+
+      if (msg.role === 'assistant') {
+        const stripUses =
+          this.config.strategies.includes('clear_tool_uses') && msg.toolUses.length > 0;
+        if (stripUses) {
+          result.push({ ...msg, toolUses: [] });
+        } else {
+          result.push(msg);
+        }
+        continue;
+      }
+
+      // user
+      const userMsg = msg as UserMessage;
+      if (typeof userMsg.content === 'string') {
+        result.push(userMsg);
+        continue;
+      }
+
+      const parts = [...userMsg.content];
       let modified = false;
-      let newContent: any = msg.content;
-
-      // 处理字符串内容
-      if (typeof msg.content === 'string') {
-        // clear_tool_results: tool role messages → collapse
-        if (this.config.strategies.includes('clear_tool_results') && (msg as any).role === 'tool') {
-          newContent = '[tool result collapsed]';
-          replacedToolResults++;
+      if (this.config.strategies.includes('clear_tool_uses')) {
+        const filtered = parts.filter(p => (p as { type?: string }).type !== 'tool_use');
+        if (filtered.length < parts.length) {
           modified = true;
+          parts.length = 0;
+          parts.push(...filtered);
         }
       }
-
-      // 处理数组内容（assistant messages with blocks）
-      if (Array.isArray(msg.content)) {
-        let blocks = [...(msg.content as any[])];
-
-        if (this.config.strategies.includes('clear_tool_uses')) {
-          const filtered = blocks.filter((b: any) => b.type !== 'tool_use');
-          if (filtered.length < blocks.length) {
-            blocks = filtered;
-            modified = true;
-          }
+      if (this.config.strategies.includes('clear_thinking')) {
+        const filtered = parts.filter(p => (p as { type?: string }).type !== 'thinking');
+        if (filtered.length < parts.length) {
+          modified = true;
+          parts.length = 0;
+          parts.push(...filtered);
         }
-
-        if (this.config.strategies.includes('clear_thinking')) {
-          const filtered = blocks.filter((b: any) => b.type !== 'thinking');
-          if (filtered.length < blocks.length) {
-            blocks = filtered;
-            modified = true;
-          }
-        }
-
-        if (modified) newContent = blocks;
       }
-
-      result.push(modified ? ({ ...msg, content: newContent } as AgentMessage) : msg);
+      result.push(modified ? ({ ...userMsg, content: parts } as AgentMessage) : userMsg);
     }
 
     const didCompress = replacedToolResults > 0 || result.some((m, i) => m !== messages[i]);

@@ -83,6 +83,10 @@ declare namespace Env {
      *   use "," to separate multiple codes
      */
     readonly VITE_SERVICE_EXPIRED_TOKEN_CODES: string;
+    /** Local Ollama API base (optional; dev defaults to same-origin `/ollama` proxy) */
+    readonly VITE_OLLAMA_BASE_URL?: string;
+    /** Ollama model name */
+    readonly VITE_OLLAMA_MODEL?: string;
     /** when the route mode is static, the defined super role */
     readonly VITE_STATIC_SUPER_ROLE: string;
     /**

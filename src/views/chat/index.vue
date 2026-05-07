@@ -1,160 +1,181 @@
 <script lang="ts" setup>
-import { nextTick, ref } from 'vue';
-import { NButton, NInput, NScrollbar, NSpin } from 'naive-ui';
-import { callOllamaStream } from '@/hooks/customer/useOllamaStrem';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { NAlert, NButton, NInput, NScrollbar, NSpace, NTag } from 'naive-ui';
+import {
+  type OllamaChatMessage,
+  resolveOllamaBaseUrl,
+  resolveOllamaModel,
+  streamOllamaChat
+} from '@/service/ai/ollamaChat';
 import Markdown from '@/components/markdown';
 
-interface Message {
-  role: 'user' | 'ai';
+interface ChatMessage {
+  role: 'user' | 'assistant' | 'system';
   content: string;
-  displayContent?: string;
 }
 
+const DEFAULT_MODEL = resolveOllamaModel();
+
+/** 发给 Ollama 的多轮历史（含 system） */
+const apiMessages = ref<OllamaChatMessage[]>([]);
+const messages = ref<ChatMessage[]>([]);
 const input = ref('');
-const messages = ref<Message[]>([]);
 const loading = ref(false);
-const typingSpeed = 20;
-const typingQueue = ref<{ index: number; token: string }[]>([]);
-const isTyping = ref(false);
+const errorText = ref<string | null>(null);
 const scrollbarRef = ref<InstanceType<typeof NScrollbar> | null>(null);
-const userScrollingUp = ref(false);
-const scrollPosition = ref(0);
+const modelInput = ref(DEFAULT_MODEL);
+const showMeta = ref(true);
 
-// 自动滚动控制
-const _scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
-  if (userScrollingUp.value) return;
+let sendAbort: AbortController | null = null;
 
-  nextTick(() => {
-    const scrollbarInstance = scrollbarRef.value;
-    if (scrollbarInstance) {
-      const contentEl = (scrollbarInstance as any).$refs?.scrollContentRef as
-        | HTMLElement
-        | undefined;
-      const scrollHeight = contentEl?.scrollHeight || 999999;
-      scrollbarInstance.scrollTo({
-        top: scrollHeight,
-        behavior
-      });
+const ollamaEndpointHint = computed(() => resolveOllamaBaseUrl());
+
+function rebindSession() {
+  apiMessages.value = [
+    {
+      role: 'system',
+      content: 'You are a helpful assistant. Answer clearly and concisely.'
     }
-  });
-};
-
-// 处理滚动事件
-const handleScroll = (e: Event) => {
-  const target = e.target as HTMLElement;
-  const currentScrollPos = target.scrollTop;
-  const scrollHeight = target.scrollHeight;
-  const clientHeight = target.clientHeight;
-
-  // 检测用户是否向上滚动
-  userScrollingUp.value = currentScrollPos < scrollPosition.value;
-
-  // 如果接近底部，恢复自动滚动
-  if (scrollHeight - (currentScrollPos + clientHeight) < 50) {
-    userScrollingUp.value = false;
-  }
-
-  scrollPosition.value = currentScrollPos;
-};
-
-// 逐字打印效果
-const typeWriter = () => {
-  if (typingQueue.value.length === 0 || isTyping.value) return;
-
-  isTyping.value = true;
-  const { index, token } = typingQueue.value.shift()!;
-
-  if (!messages.value[index].displayContent) {
-    messages.value[index].displayContent = '';
-  }
-
-  let charIndex = 0;
-  const typingInterval = setInterval(() => {
-    if (charIndex < token.length) {
-      messages.value[index].displayContent += token.charAt(charIndex);
-      charIndex++;
-      // scrollToBottom('auto')
-    } else {
-      clearInterval(typingInterval);
-      isTyping.value = false;
-
-      nextTick(() => {
-        if (typingQueue.value.length > 0) {
-          typeWriter();
-        }
-      });
-    }
-  }, typingSpeed);
-};
-
-// 发送消息
-const sendMessage = async () => {
-  const prompt = input.value.trim();
-  if (!prompt) return;
-
+  ];
+  messages.value = [];
+  errorText.value = null;
   messages.value.push({
-    role: 'user',
-    content: prompt,
-    displayContent: prompt
+    role: 'system',
+    content: `已连接 Ollama（${ollamaEndpointHint.value}），当前模型：${modelInput.value || DEFAULT_MODEL}。开发环境请求走同源 /ollama 代理到本机 11434 端口。`
   });
+}
+
+function scrollToBottom(behavior: ScrollBehavior = 'smooth') {
+  nextTick(() => {
+    const inst = scrollbarRef.value;
+    if (!inst) return;
+    const contentEl = (inst as unknown as { $refs?: { scrollContentRef?: HTMLElement } }).$refs
+      ?.scrollContentRef;
+    const top = contentEl?.scrollHeight ?? 999999;
+    inst.scrollTo({ top, behavior });
+  });
+}
+
+watch(
+  () => messages.value.length,
+  () => scrollToBottom(),
+  { deep: true }
+);
+
+function stopGeneration() {
+  sendAbort?.abort();
+  sendAbort = null;
+}
+
+async function sendMessage() {
+  const prompt = input.value.trim();
+  if (!prompt || loading.value) return;
+
+  errorText.value = null;
+  apiMessages.value.push({ role: 'user', content: prompt });
+  messages.value.push({ role: 'user', content: prompt });
+  messages.value.push({ role: 'assistant', content: '' });
+  const aiIndex = messages.value.length - 1;
   input.value = '';
   loading.value = true;
 
-  const aiMessage = {
-    role: 'ai' as const,
-    content: '',
-    displayContent: '▋'
-  };
-  messages.value.push(aiMessage);
-  const aiIndex = messages.value.length - 1;
-
-  // scrollToBottom()
+  sendAbort = new AbortController();
 
   try {
-    await callOllamaStream(prompt, (token: string) => {
-      typingQueue.value.push({
-        index: aiIndex,
-        token
-      });
-      messages.value[aiIndex].content += token;
-
-      if (!isTyping.value) {
-        typeWriter();
-      }
-    });
-  } catch (err) {
-    messages.value[aiIndex].displayContent = '⚠️ AI 响应失败';
-    console.error(err);
-  } finally {
-    if (messages.value[aiIndex].displayContent?.endsWith('▋')) {
-      messages.value[aiIndex].displayContent = messages.value[aiIndex].displayContent.slice(0, -1);
+    let full = '';
+    for await (const delta of streamOllamaChat(apiMessages.value, {
+      model: modelInput.value.trim() || DEFAULT_MODEL,
+      signal: sendAbort.signal
+    })) {
+      full += delta;
+      messages.value[aiIndex].content = full;
     }
+    apiMessages.value.push({ role: 'assistant', content: full });
+  } catch (e) {
+    const err = e as Error;
+    if (err?.name === 'AbortError') {
+      if (!messages.value[aiIndex].content.trim()) {
+        messages.value[aiIndex].content = '（已停止）';
+      }
+    } else {
+      errorText.value = err?.message ?? String(e);
+      if (!messages.value[aiIndex].content) {
+        messages.value[aiIndex].content = `⚠️ ${errorText.value}`;
+      }
+    }
+    const partial = messages.value[aiIndex].content;
+    if (
+      partial &&
+      !partial.startsWith('⚠️') &&
+      partial !== '（已停止）' &&
+      apiMessages.value[apiMessages.value.length - 1]?.role === 'user'
+    ) {
+      apiMessages.value.push({ role: 'assistant', content: partial });
+    }
+  } finally {
     loading.value = false;
+    sendAbort = null;
+    scrollToBottom();
   }
-};
+}
 
-// 初始化
-// onMounted(() => {
-//   scrollToBottom('auto')
-// })
+function handleKeydown(e: KeyboardEvent) {
+  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
 
-// 监听消息变化
-// watch(
-//   () => messages.value.length,
-//   () => scrollToBottom(),
-//   { deep: true }
-// )
+onMounted(() => {
+  rebindSession();
+});
 </script>
 
 <template>
   <div class="chat-page">
     <div class="chat-container">
-      <NScrollbar ref="scrollbarRef" class="chat-messages" trigger="none" @scroll="handleScroll">
-        <div v-for="(msg, index) in messages" :key="index" class="message" :class="[msg.role]">
-          <Markdown :content="msg.content" />
+      <div class="chat-header">
+        <div class="title-row">
+          <span class="title">AI 会话</span>
+          <NTag size="small" type="info" :bordered="false">Ollama · 多轮对话</NTag>
         </div>
-        <div v-if="loading" class="message ai loading">
-          <NSpin size="small" />
+        <NSpace size="small" align="center" wrap>
+          <NInput
+            v-model:value="modelInput"
+            size="small"
+            placeholder="模型名"
+            style="width: 160px"
+            :disabled="loading"
+          />
+          <NButton size="small" :disabled="loading" @click="rebindSession">新会话</NButton>
+          <NButton size="small" type="warning" :disabled="!loading" @click="stopGeneration">
+            停止
+          </NButton>
+          <NButton size="tiny" quaternary @click="showMeta = !showMeta">
+            {{ showMeta ? '隐藏说明' : '显示说明' }}
+          </NButton>
+        </NSpace>
+      </div>
+
+      <NAlert v-if="showMeta" type="default" class="meta-alert" closable @close="showMeta = false">
+        开发环境通过 Vite 将 <code>/ollama</code> 代理到本机
+        <code>localhost:11434</code>，避免浏览器跨域。生产部署请配置
+        <code>VITE_OLLAMA_BASE_URL</code>（通常为同源反向代理地址）。当前 base：<strong>{{
+          ollamaEndpointHint
+        }}</strong>
+      </NAlert>
+
+      <NAlert v-if="errorText" type="error" closable class="meta-alert" @close="errorText = null">
+        {{ errorText }}
+      </NAlert>
+
+      <NScrollbar ref="scrollbarRef" class="chat-messages" trigger="none">
+        <div v-for="(msg, index) in messages" :key="index" class="msg-row" :class="msg.role">
+          <div class="bubble">
+            <Markdown v-if="msg.role === 'assistant'" :content="msg.content" />
+            <div v-else-if="msg.role === 'user'" class="plain-text">{{ msg.content }}</div>
+            <div v-else class="plain-text sys-text">{{ msg.content }}</div>
+          </div>
         </div>
       </NScrollbar>
 
@@ -162,15 +183,14 @@ const sendMessage = async () => {
         <NInput
           v-model:value="input"
           type="textarea"
-          placeholder="请输入你的问题..."
+          placeholder="输入问题，Ctrl/⌘ + Enter 发送"
           :disabled="loading"
-          :autosize="{
-            minRows: 5,
-            maxRows: 5
-          }"
+          :autosize="{ minRows: 4, maxRows: 8 }"
+          @keydown="handleKeydown"
         />
         <NButton
           type="primary"
+          class="send-btn"
           :disabled="loading || !input.trim()"
           :loading="loading"
           @click="sendMessage"
@@ -186,75 +206,115 @@ const sendMessage = async () => {
 .chat-page {
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 2rem;
-  height: 100vh;
-  background-color: #f3f4f6;
+  align-items: stretch;
+  padding: 1rem;
+  min-height: calc(100vh - 120px);
   box-sizing: border-box;
+  background-color: #f3f4f6;
 }
 
 .chat-container {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 800px;
-  height: 100%;
-  max-height: 80vh;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  max-width: 880px;
+  min-height: 520px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
   overflow: hidden;
+}
+
+.chat-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fafafa;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.meta-alert {
+  margin: 0 16px 12px;
+}
+
+.meta-alert code {
+  font-size: 12px;
 }
 
 .chat-messages {
   flex: 1;
   padding: 16px;
   background: #fafafa;
+  min-height: 280px;
 }
 
-.message {
-  margin-bottom: 16px;
-  padding: 12px 16px;
-  border-radius: 8px;
-  max-width: 80%;
-  word-break: break-word;
-  line-height: 1.6;
-  opacity: 0;
-  animation: fadeIn 0.3s ease-out forwards;
-}
-
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-  }
-}
-
-.message.user {
-  align-self: flex-end;
-  background-color: var(--n-color-primary-light);
-  color: var(--n-text-color-primary);
-  animation-delay: 0.1s;
-}
-
-.message.ai {
-  align-self: flex-start;
-  background-color: #fef9c3;
-  color: #92400e;
-  animation-delay: 0.2s;
-}
-
-.message.loading {
-  background-color: #f3f4f6;
+.msg-row {
   display: flex;
+  margin-bottom: 12px;
+}
+
+.msg-row.user {
+  justify-content: flex-end;
+}
+
+.msg-row.assistant {
+  justify-content: flex-start;
+}
+
+.msg-row.system {
   justify-content: center;
+}
+
+.bubble {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.msg-row.user .bubble {
+  background: rgba(24, 144, 255, 0.12);
+  color: #1e3a5f;
+}
+
+.msg-row.assistant .bubble {
+  background: #fffbeb;
+  color: #78350f;
+  border: 1px solid #fde68a;
+}
+
+.msg-row.system .bubble {
+  max-width: 96%;
+  background: #f3f4f6;
+  color: #4b5563;
+  font-size: 13px;
+}
+
+.plain-text {
+  white-space: pre-wrap;
 }
 
 .chat-input {
   display: flex;
-  padding: 16px;
-  border-top: 1px solid var(--n-divider-color);
-  background-color: #fff;
   gap: 12px;
+  padding: 12px 16px 16px;
+  border-top: 1px solid #e5e7eb;
   align-items: flex-end;
 }
 
@@ -262,8 +322,7 @@ const sendMessage = async () => {
   flex: 1;
 }
 
-.chat-input :deep(.n-button) {
-  height: 40px;
-  margin-bottom: 4px;
+.send-btn {
+  flex-shrink: 0;
 }
 </style>
