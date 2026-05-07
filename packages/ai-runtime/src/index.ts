@@ -131,6 +131,37 @@ export {
 } from './services/internalLogging';
 export type { PermissionContextLogMoment, InternalLogEvent } from './services/internalLogging';
 
+// Claude AI Limits — 5h / 7d / overage 配额评估
+export {
+  DEFAULT_EARLY_WARNING_CONFIGS,
+  evaluateEarlyWarning,
+  evaluateQuota,
+  parseRateLimitHeaders,
+  getRateLimitErrorMessage,
+  getRateLimitWarning
+} from './services/claude-ai-limits';
+export type {
+  RateLimitType,
+  QuotaStatus,
+  EarlyWarningThreshold,
+  EarlyWarningConfig,
+  RateLimitSnapshot,
+  EarlyWarningResult,
+  QuotaEvaluation,
+  RateLimitHeaders
+} from './services/claude-ai-limits';
+
+// Notifier — 终端 / 系统通知派发
+export { sendNotification } from './services/notifier';
+export type {
+  NotificationChannel,
+  NotificationOptions,
+  TerminalNotificationAdapter,
+  TerminalEnvironment,
+  NotificationHook,
+  NotifierConfig
+} from './services/notifier';
+
 // Plugins — 后台 marketplace + plugin 安装管理
 export { performBackgroundPluginInstallations, diffMarketplaces } from './services/plugins';
 export type {
