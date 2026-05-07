@@ -31,6 +31,15 @@ export { StreamingCallModelPhase } from './phase/StreamingCallModelPhase';
 export { CheckInterruptPhase } from './phase/CheckInterruptPhase';
 export { ExecuteToolsPhase } from './phase/ExecuteToolsPhase';
 export { PostProcessPhase } from './phase/PostProcessPhase';
+export { registerStructuredOutputEnforcement } from './phase/PostProcessPhase';
+
+// N24: AgentSummary Phase 导出
+export { AgentSummaryPhase } from './phase/AgentSummaryPhase';
+export type {
+  AgentSummaryConfig,
+  AgentSummaryResult,
+  AgentSummaryFn
+} from './phase/AgentSummaryPhase';
 
 // 错误分类
 export { classifyLLMError } from './phase/classifyLLMError';
@@ -41,4 +50,9 @@ export { ParallelScheduler, SerialScheduler } from './scheduler/ToolScheduler';
 
 // 核心引擎
 export { AgentLoop } from './loop/AgentLoop';
+export type {
+  DeferredToolsDeltaFn,
+  CacheBreakDetectionFn,
+  CacheBreakResult
+} from './loop/AgentLoop';
 export { advanceState } from './loop/stateMachine';

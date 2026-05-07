@@ -4,6 +4,7 @@ import type { MutableAgentContext } from '../context/AgentContext';
 import type { AgentEvent } from '../types/events';
 import type { AgentMessage } from '../types/messages';
 import type { LLMProvider, SystemPrompt, ToolDefinition } from '../types/provider';
+import { createSystemPrompt } from '../types/provider';
 import type { LoopPhase } from './LoopPhase';
 import { classifyLLMError } from './classifyLLMError';
 
@@ -42,9 +43,16 @@ export class CallModelPhase implements LoopPhase {
       const effectiveTools =
         (ctx.meta.dynamicToolDefs as readonly ToolDefinition[] | undefined) ?? this.tools;
 
+      // P99: 如果有 delta 提醒，追加到 systemPrompt
+      const deltaReminder = ctx.meta.deferredToolsReminder as string | undefined;
+      const effectiveSystemPrompt =
+        deltaReminder && this.systemPrompt
+          ? createSystemPrompt([...this.systemPrompt, deltaReminder])
+          : this.systemPrompt;
+
       const stream = this.provider.callModel(messages, effectiveTools, {
         signal: ctx.state.toolUseContext.abortController.signal,
-        systemPrompt: this.systemPrompt
+        systemPrompt: effectiveSystemPrompt
       });
 
       for await (const chunk of stream) {

@@ -28,6 +28,18 @@ export interface AgentConfig {
   readonly systemPrompt?: import('./provider').SystemPrompt;
   /** Provider Map（P36 — 工具执行所需宿主环境注入，spread 到 ToolUseContext） */
   readonly providers?: Record<string, unknown>;
+  /** G13: 结构化输出强制配置（可选） */
+  readonly structuredOutputEnforcement?: StructuredOutputEnforcementConfig;
+}
+
+/** G13: 结构化输出强制配置 */
+export interface StructuredOutputEnforcementConfig {
+  /** 是否启用结构化输出强制（默认 false） */
+  readonly enabled: boolean;
+  /** 最大重试次数（默认 3） */
+  readonly maxRetries?: number;
+  /** 期望的工具名称列表（LLM 应调用这些工具而非返回纯文本） */
+  readonly expectedTools?: readonly string[];
 }
 
 /**
@@ -73,7 +85,8 @@ export type ContinueTransition =
   | { type: 'max_output_tokens_recovery'; recoveryMessage: AgentMessage }
   | { type: 'collapse_drain_retry'; foldedMessages: readonly AgentMessage[]; boundaryUuid: string }
   | { type: 'stop_hook_blocking'; blockingErrors: readonly HookBlockingError[] }
-  | { type: 'token_budget_continuation'; nudgeMessage: AgentMessage; budgetUsage: number };
+  | { type: 'token_budget_continuation'; nudgeMessage: AgentMessage; budgetUsage: number }
+  | { type: 'structured_output_retry'; retryCount: number; nudgeMessage: AgentMessage };
 
 /** 循环过渡类型（由 PostProcessPhase 设置，决定循环行为） */
 export type LoopTransition = TerminalTransition | ContinueTransition;
@@ -101,6 +114,7 @@ export function isTerminal(transition: LoopTransition): transition is TerminalTr
     transition.type !== 'max_output_tokens_recovery' &&
     transition.type !== 'collapse_drain_retry' &&
     transition.type !== 'stop_hook_blocking' &&
-    transition.type !== 'token_budget_continuation'
+    transition.type !== 'token_budget_continuation' &&
+    transition.type !== 'structured_output_retry'
   );
 }

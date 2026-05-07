@@ -1,6 +1,7 @@
 /** Agent 循环引擎（Agent Loop） 核心 AsyncGenerator while(true) 循环 */
 
 import { ToolExecutor, ToolRegistry } from '@suga/ai-tool-core';
+import type { AnyBuiltTool } from '@suga/ai-tool-core';
 import {
   HookAfterToolPhase,
   HookBeforeToolPhase,
@@ -41,6 +42,42 @@ import {
   MAX_LOOP_ITERATIONS
 } from '../constants';
 import { advanceState } from './stateMachine';
+
+/**
+ * P99: Deferred tools delta 计算函数 — 由 ai-runtime 注入（避免循环依赖）
+ *
+ * 封装 getDeferredToolsDelta + buildDeferredToolsSystemReminder 调用。
+ */
+export type DeferredToolsDeltaFn = (
+  deferredTools: readonly AnyBuiltTool[],
+  messages: readonly AgentMessage[]
+) => string | null;
+
+/**
+ * G12: PromptCache 断裂检测函数 — 由 ai-runtime 注入（避免循环依赖）
+ *
+ * 封装 detectCacheBreak 调用，避免 ai-agent-loop 依赖 ai-tool-adapter。
+ */
+export interface CacheBreakResult {
+  readonly isCacheBreak: boolean;
+  readonly reason?: string;
+  readonly cacheHitRate?: number;
+  readonly previousCacheHitRate?: number;
+  readonly recommendedAction?: 'retry_with_same_prefix' | 'accept_and_continue' | 'reduce_context';
+}
+
+export type CacheBreakDetectionFn = (
+  currentUsage: {
+    inputTokens: number;
+    cacheCreationInputTokens?: number;
+    cacheReadInputTokens?: number;
+  },
+  previousUsage?: {
+    inputTokens: number;
+    cacheCreationInputTokens?: number;
+    cacheReadInputTokens?: number;
+  }
+) => CacheBreakResult;
 
 /**
  * Agent 循环引擎
@@ -140,7 +177,7 @@ export class AgentLoop {
       phases.push(new HookAfterToolPhase(hookRegistry));
     }
 
-    phases.push(new PostProcessPhase(maxTurns));
+    phases.push(new PostProcessPhase(maxTurns, this.config.structuredOutputEnforcement));
 
     // 有 hook 注册表 → 在 PostProcess 后插入 HookStop + Notification + SessionEnd
     if (hookRegistry) {
@@ -215,6 +252,8 @@ export class AgentLoop {
     const composed = composePhases(this.phases);
     /** 累积最后一轮的 usage（CallModelPhase 写入 ctx.meta.usage） */
     let lastUsage: LLMStreamChunk['usage'] | undefined;
+    /** G12: 前一次 usage（用于 cache break detection） */
+    let previousUsage: LLMStreamChunk['usage'] | undefined;
     /** P88: 硬性循环计数 — 防止 while(true) 无限循环 */
     let iterationCount = 0;
 
@@ -245,8 +284,10 @@ export class AgentLoop {
         };
         return;
       }
-      // P12: 根据消息历史中的 toolReferences 动态计算工具定义
-      const dynamicToolDefs = this.computeToolDefs(state.messages);
+      // P12+P99: 根据消息历史中的 toolReferences 动态计算工具定义 + delta 通知
+      const { toolDefs: dynamicToolDefs, deferredToolsReminder } = this.computeToolDefs(
+        state.messages
+      );
 
       // 创建本轮可变上下文（P88: 传递 abort signal 到 Phase 层）
       const ctx = createMutableAgentContext(state, abortController.signal);
@@ -256,12 +297,54 @@ export class AgentLoop {
         ctx.meta.dynamicToolDefs = dynamicToolDefs;
       }
 
+      // P99: 注入 delta 通知到 ctx.meta（供 CallModelPhase 读取并追加到 systemPrompt）
+      if (deferredToolsReminder) {
+        ctx.meta.deferredToolsReminder = deferredToolsReminder;
+      }
+
       // 执行阶段链，流式产出事件
       yield* composed(ctx);
 
       // harvest本轮usage（CallModelPhase将LLMStreamChunk.usage写入ctx.meta）
       if (ctx.meta.usage) {
-        lastUsage = ctx.meta.usage as LLMStreamChunk['usage'];
+        const currentUsage = ctx.meta.usage as LLMStreamChunk['usage'] | undefined;
+
+        // G12: PromptCache 断裂检测 — 比较 current 和 previous usage
+        const cacheBreakFn = this.config.providers?.cacheBreakDetectionFn as
+          | CacheBreakDetectionFn
+          | undefined;
+        if (cacheBreakFn && previousUsage && currentUsage) {
+          const result = cacheBreakFn(
+            {
+              inputTokens: currentUsage.inputTokens,
+              cacheCreationInputTokens: currentUsage.cacheCreationInputTokens,
+              cacheReadInputTokens: currentUsage.cacheReadInputTokens
+            },
+            {
+              inputTokens: previousUsage.inputTokens,
+              cacheCreationInputTokens: previousUsage.cacheCreationInputTokens,
+              cacheReadInputTokens: previousUsage.cacheReadInputTokens
+            }
+          );
+
+          if (result.isCacheBreak) {
+            // 产出 cache_break_detected 事件
+            yield {
+              type: 'cache_break_detected',
+              reason: result.reason ?? 'unknown',
+              currentCacheHitRate: result.cacheHitRate,
+              previousCacheHitRate: result.previousCacheHitRate,
+              recommendedAction: result.recommendedAction
+            };
+
+            // 记录到 ctx.meta（供 CallModelPhase 调整后续行为）
+            ctx.meta.cacheBreakResult = result;
+          }
+        }
+
+        // 保存当前 usage 作为下一轮的 previousUsage
+        previousUsage = currentUsage;
+        lastUsage = currentUsage;
       }
 
       // 如果有错误但 PostProcessPhase 未被调用（composePhases 短路），
@@ -337,13 +420,28 @@ export class AgentLoop {
   }
 
   /**
-   * computeToolDefs — P12: 根据消息历史中的 toolReferences 动态计算工具定义列表
+   * computeToolDefs — P12+P99: 根据消息历史中的 toolReferences 动态计算工具定义列表
    *
-   * 策略: alwaysLoad 工具（非延迟）始终包含 + 已发现的延迟工具动态加入 这样下一轮 API 请求会包含被发现的延迟工具的完整定义
+   * 策略:
+   *
+   * - alwaysLoad 工具始终包含
+   * - 已发现的延迟工具动态加入（P12: 从 toolReferences）
+   * - P99: 发现 deferred 工具时 attach 到 active registry（后续 turn 不重复发现）
+   * - P99: 通过 providers.deferredToolsDeltaFn 计算 delta 通知
+   *
+   * @returns {toolDefs, deferredToolsReminder} — 工具定义 + delta 提醒文本
    */
-  private computeToolDefs(messages: readonly AgentMessage[]): ToolDefinition[] | undefined {
+  private computeToolDefs(messages: readonly AgentMessage[]): {
+    toolDefs: ToolDefinition[] | undefined;
+    deferredToolsReminder?: string;
+  } {
     const registry = this.config.toolRegistry;
-    if (!registry) return undefined;
+    if (!registry) return { toolDefs: undefined };
+
+    // P99: 从 providers 中读取 deferred 池和 delta 计算函数
+    const providers = this.config.providers ?? {};
+    const deferredTools = providers.deferredTools as readonly AnyBuiltTool[] | undefined;
+    const deferredToolsDeltaFn = providers.deferredToolsDeltaFn as DeferredToolsDeltaFn | undefined;
 
     // 从消息历史扫描已发现的工具名 (P12: 从 toolReferences)
     const discoveredNames = new Set<string>();
@@ -361,12 +459,35 @@ export class AgentLoop {
     // alwaysLoad 工具（非延迟）+ 已发现的延迟工具
     const allTools = registry.getAll();
     const alwaysLoad = allTools.filter(t => !this.isDeferredToolLocal(t));
-    const discovered = [...discoveredNames]
-      .map(n => registry.getByName(n))
-      .filter((t): t is NonNullable<typeof t> => t !== undefined);
 
-    const effective = [...alwaysLoad, ...discovered];
-    return effective.map(t => this.config.provider.formatToolDefinition(t));
+    // P99: attach 机制 — 发现的 deferred 工具注册到 active registry
+    if (deferredTools && deferredTools.length > 0) {
+      for (const name of discoveredNames) {
+        if (registry.getByName(name)) continue;
+        const deferredTool = deferredTools.find(t => t.name === name);
+        if (deferredTool) {
+          registry.register(deferredTool);
+        }
+      }
+    }
+
+    // 非 deferred 池中但存在于原始 registry 的工具
+    const discoveredFromRegistry = [...discoveredNames]
+      .map(n => registry.getByName(n))
+      .filter((t): t is NonNullable<typeof t> => t !== undefined)
+      .filter(t => !alwaysLoad.some(a => a.name === t.name));
+
+    const effective = [...alwaysLoad, ...discoveredFromRegistry];
+    const toolDefs = effective.map(t => this.config.provider.formatToolDefinition(t));
+
+    // P99: 计算 delta 通知（通过注入的 deltaFn 避免循环依赖）
+    let deferredToolsReminder: string | undefined;
+    if (deferredTools && deferredTools.length > 0 && deferredToolsDeltaFn) {
+      const reminder = deferredToolsDeltaFn(deferredTools, messages);
+      deferredToolsReminder = reminder ?? undefined;
+    }
+
+    return { toolDefs, deferredToolsReminder };
   }
 
   /** 内联延迟判定 — 避免循环依赖 ai-tools (P12) */
