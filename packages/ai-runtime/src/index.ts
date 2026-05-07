@@ -85,6 +85,71 @@ export {
   hasPermissionDenial
 } from './types/query-state';
 
+// Tips 系统 — spinner / banner 上展示的轻量级提示
+export {
+  TipRegistry,
+  InMemoryTipsHistoryStore,
+  getRelevantTips,
+  getTipToShowOnSpinner,
+  recordShownTip,
+  recordTipShown,
+  selectTipWithLongestTimeSinceShown,
+  getSessionsSinceLastShown
+} from './services/tips';
+export type {
+  Tip,
+  TipContext,
+  TipsHistory,
+  TipsHistoryStore,
+  TipSchedulerOptions,
+  RecordShownTipDeps
+} from './services/tips';
+
+// AwaySummary — 离开后回到对话的简短回顾
+export { generateAwaySummary } from './services/awaySummary';
+export type {
+  AwaySummaryMessage,
+  AwaySummaryQueryFn,
+  AwaySummaryConfig
+} from './services/awaySummary';
+
+// Session Transcript — 按日期分段持久化对话
+export { SessionTranscriptWriter } from './services/sessionTranscript';
+export type {
+  TranscriptMessage,
+  TranscriptSegment,
+  TranscriptStorage,
+  SessionTranscriptConfig
+} from './services/sessionTranscript';
+
+// Internal Logging — Anthropic 内部诊断（仅 ant 用户启用）
+export {
+  isAntUser,
+  getKubernetesNamespace,
+  getContainerId,
+  logPermissionContextForAnts
+} from './services/internalLogging';
+export type { PermissionContextLogMoment, InternalLogEvent } from './services/internalLogging';
+
+// Plugins — 后台 marketplace + plugin 安装管理
+export { performBackgroundPluginInstallations, diffMarketplaces } from './services/plugins';
+export type {
+  InstallationStatus,
+  MarketplaceInstallation,
+  PluginInstallationState,
+  SetInstallationState,
+  InstallationProgressEvent,
+  ReconcileResult,
+  LoadDeclaredMarketplaces,
+  LoadMaterializedMarketplaces,
+  ReconcileMarketplacesFn,
+  ClearMarketplacesCache,
+  ClearPluginCache,
+  RefreshActivePlugins,
+  PluginInstallationDeps,
+  MarketplaceDiff
+} from './services/plugins';
+
 // SDK 层 — QueryEngine + AgentEvent→SDKMessage 映射 + system prompt 组装
 export { QueryEngine } from './sdk/QueryEngine';
 export { createQueryEngine } from './sdk/createQueryEngine';
