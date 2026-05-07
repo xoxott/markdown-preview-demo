@@ -4,12 +4,16 @@
  * 使用 fs/promises + glob + child_process 实现所有 7 个接口方法。 宿主在 Node.js 环境中直接使用此实现，无需自行适配。
  */
 
+import type { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
-import { execFile } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import path from 'node:path';
 import { glob } from 'glob';
 import { findActualString } from '../tools/find-actual-string';
 import type {
+  BackgroundTaskDetail,
+  BackgroundTaskResult,
+  BackgroundTaskStatus,
   CommandResult,
   EditResult,
   FileContent,
@@ -20,7 +24,8 @@ import type {
   GrepMatchLine,
   GrepOptions,
   GrepResult,
-  RunCommandOptions
+  RunCommandOptions,
+  SpawnBackgroundOptions
 } from '../types/fs-provider';
 
 /** MIME 类型映射 — 常见扩展名到 MIME */
@@ -62,6 +67,31 @@ function inferMimeType(filePath: string): string {
 export class NodeFileSystemProvider implements FileSystemProvider {
   /** 默认 glob 选项 */
   private readonly defaultGlobOptions = { nodir: true, absolute: true };
+
+  // === G8: 后台任务管理 ===
+
+  /** 后台任务存储 */
+  private backgroundTasks = new Map<
+    string,
+    {
+      process: ReturnType<typeof spawn>;
+      command: string;
+      startedAt: number;
+      stdout: string;
+      stderr: string;
+      exitCode?: number;
+      completedAt?: number;
+      timedOut: boolean;
+      status: BackgroundTaskStatus;
+      notified: boolean;
+      outputFilePath?: string;
+      foregroundRefs: number;
+      cwd?: string;
+    }
+  >();
+
+  /** 任务 ID 计数器 */
+  private taskIdCounter = 0;
 
   /** 默认命令超时（ms） */
   private readonly defaultCommandTimeout = 120_000;
@@ -185,6 +215,21 @@ export class NodeFileSystemProvider implements FileSystemProvider {
     const timeout = options?.timeout ?? this.defaultCommandTimeout;
     const cwd = options?.cwd ?? process.cwd();
 
+    // G8: 后台命令 → spawn detached
+    if (options?.runInBackground) {
+      const bgResult = await this.spawnBackgroundCommand(command, {
+        cwd,
+        env: options?.env as Record<string, string> | undefined
+      });
+      return {
+        exitCode: 0,
+        stdout: `Background task started: ${bgResult.taskId}`,
+        stderr: '',
+        timedOut: false,
+        cwd
+      };
+    }
+
     try {
       const result = await this.execShellCommand(command, cwd, timeout, options?.env);
       return {
@@ -212,6 +257,167 @@ export class NodeFileSystemProvider implements FileSystemProvider {
         cwd
       };
     }
+  }
+
+  // === G8: 后台任务生命周期 ===
+
+  async spawnBackgroundCommand(
+    command: string,
+    options?: SpawnBackgroundOptions
+  ): Promise<BackgroundTaskResult> {
+    const taskId = `bg-${++this.taskIdCounter}-${Date.now()}`;
+    const cwd = options?.cwd ?? process.cwd();
+    const envObj = options?.env ? { ...process.env, ...options.env } : process.env;
+
+    const childProcess = spawn('sh', ['-c', command], {
+      cwd,
+      env: envObj,
+      detached: true,
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+
+    const entry = {
+      process: childProcess,
+      command,
+      startedAt: Date.now(),
+      stdout: '',
+      stderr: '',
+      exitCode: undefined as number | undefined,
+      completedAt: undefined as number | undefined,
+      timedOut: false,
+      status: 'running' as BackgroundTaskStatus,
+      notified: false,
+      outputFilePath: undefined as string | undefined,
+      foregroundRefs: 0,
+      cwd
+    };
+
+    this.backgroundTasks.set(taskId, entry);
+
+    // 收集输出
+    childProcess.stdout?.on('data', (data: Buffer) => {
+      entry.stdout += data.toString();
+    });
+    childProcess.stderr?.on('data', (data: Buffer) => {
+      entry.stderr += data.toString();
+    });
+
+    // 完成处理
+    childProcess.on('close', (code: number | null) => {
+      entry.exitCode = code ?? 0;
+      entry.completedAt = Date.now();
+      entry.status = code === 0 ? 'completed' : 'failed';
+
+      // 调用完成回调
+      if (options?.onCompleted) {
+        options.onCompleted(this.toBackgroundTaskDetail(taskId, entry));
+      }
+    });
+
+    childProcess.on('error', (err: Error) => {
+      entry.stderr += err.message;
+      entry.exitCode = -1;
+      entry.completedAt = Date.now();
+      entry.status = 'failed';
+
+      if (options?.onCompleted) {
+        options.onCompleted(this.toBackgroundTaskDetail(taskId, entry));
+      }
+    });
+
+    // detached 进程不引用父进程（除非 registerForeground）
+    childProcess.unref();
+
+    return {
+      taskId,
+      status: 'running',
+      command,
+      startedAt: entry.startedAt
+    };
+  }
+
+  async getBackgroundTask(taskId: string): Promise<BackgroundTaskDetail | null> {
+    const entry = this.backgroundTasks.get(taskId);
+    if (!entry) return null;
+    return this.toBackgroundTaskDetail(taskId, entry);
+  }
+
+  async stopBackgroundTask(taskId: string): Promise<boolean> {
+    const entry = this.backgroundTasks.get(taskId);
+    if (!entry || entry.status !== 'running') return false;
+
+    try {
+      entry.process.kill('SIGTERM');
+      entry.status = 'stopped';
+      entry.completedAt = Date.now();
+      entry.exitCode = -1;
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async listBackgroundTasks(): Promise<readonly BackgroundTaskDetail[]> {
+    return [...this.backgroundTasks.entries()].map(([id, entry]) =>
+      this.toBackgroundTaskDetail(id, entry)
+    );
+  }
+
+  registerForeground(taskId: string): void {
+    const entry = this.backgroundTasks.get(taskId);
+    if (!entry) return;
+    entry.foregroundRefs++;
+    // ref() 进程 → 防止父进程退出
+    entry.process.ref();
+  }
+
+  unregisterForeground(taskId: string): void {
+    const entry = this.backgroundTasks.get(taskId);
+    if (!entry) return;
+    entry.foregroundRefs--;
+    if (entry.foregroundRefs <= 0) {
+      entry.foregroundRefs = 0;
+      entry.process.unref();
+    }
+  }
+
+  markTaskNotified(taskId: string): void {
+    const entry = this.backgroundTasks.get(taskId);
+    if (entry) entry.notified = true;
+  }
+
+  /** 转换为 BackgroundTaskDetail */
+  private toBackgroundTaskDetail(
+    taskId: string,
+    entry: {
+      process: ReturnType<typeof spawn>;
+      command: string;
+      startedAt: number;
+      stdout: string;
+      stderr: string;
+      exitCode?: number;
+      completedAt?: number;
+      timedOut: boolean;
+      status: BackgroundTaskStatus;
+      notified: boolean;
+      outputFilePath?: string;
+      foregroundRefs: number;
+      cwd?: string;
+    }
+  ): BackgroundTaskDetail {
+    return {
+      taskId,
+      status: entry.status,
+      command: entry.command,
+      exitCode: entry.exitCode,
+      stdout: entry.stdout,
+      stderr: entry.stderr,
+      timedOut: entry.timedOut,
+      startedAt: entry.startedAt,
+      completedAt: entry.completedAt,
+      outputFilePath: entry.outputFilePath,
+      cwd: entry.cwd
+    };
   }
 
   // === 私有辅助方法 ===

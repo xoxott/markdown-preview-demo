@@ -22,6 +22,7 @@ export type * from './types/subagent-provider';
 export type * from './types/file-edit-log';
 export type * from './types/todo-provider';
 export type * from './types/lsp-provider';
+export type * from './types/powershell-types';
 
 // 工具输入 Schema 导出（供宿主构建工具时使用）
 export {
@@ -177,6 +178,46 @@ export { agentTool } from './tools/agent';
 // P100: Undo工具导出
 export { undoTool } from './tools/undo';
 
+// N5: DiscoverSkills工具导出
+export { discoverSkillsTool } from './tools/discover-skills';
+export type { DiscoverSkillsOutput, DiscoverSkillsInput } from './tools/discover-skills';
+export { DiscoverSkillsInputSchema } from './tools/discover-skills';
+
+// N6: VerifyPlanExecution工具导出
+export { verifyPlanTool } from './tools/verify-plan';
+export type { VerifyPlanOutput, VerifyPlanInput, PlanStepVerification } from './tools/verify-plan';
+export { VerifyPlanInputSchema } from './tools/verify-plan';
+
+// N32: ToolUseSummary 导出
+export {
+  generateToolUseSummary,
+  formatToolCallsForSummary,
+  ToolUseSummaryInputSchema
+} from './tools/tool-use-summary';
+export type {
+  ToolUseSummaryInput,
+  ToolUseSummaryOutput,
+  ToolUseSummaryFn
+} from './tools/tool-use-summary';
+
+// N31: DiagnosticTracking 导出
+export {
+  createInitialDiagnosticState,
+  updateDiagnosticBaseline,
+  detectDiagnosticChanges,
+  getNewErrors,
+  getResolvedErrors,
+  DEFAULT_DIAGNOSTIC_TRACKING_CONFIG
+} from './tools/diagnostic-tracking';
+export type {
+  DiagnosticSeverity,
+  DiagnosticItem,
+  DiagnosticChangeType,
+  DiagnosticChange,
+  DiagnosticTrackingConfig,
+  DiagnosticTrackingState
+} from './tools/diagnostic-tracking';
+
 // G1: TodoWrite工具导出
 export { todoWriteTool } from './tools/todo-write';
 
@@ -264,6 +305,11 @@ export type {
   DetectedImageOutput,
   ImageDetectionResult
 } from './tools/bash-image-output';
+
+// N33: SendUserFile工具导出
+export { sendUserFileTool } from './tools/send-user-file';
+export { SendUserFileInputSchema } from './tools/send-user-file';
+export type { SendUserFileInput, SendUserFileOutput } from './tools/send-user-file';
 
 // G25: Bash命令语义解释导出
 export { interpretCommandResult } from './tools/bash-interpret';
@@ -377,6 +423,10 @@ export { InMemoryRemoteTriggerProvider } from './provider/InMemoryRemoteTriggerP
 export { InMemorySubagentProvider } from './provider/InMemorySubagentProvider';
 export { InMemoryFileEditLog, generateEditId } from './provider/InMemoryFileEditLog';
 export { InMemoryTodoWriteProvider } from './provider/InMemoryTodoWriteProvider';
+
+// N15+N31: LSP后端+诊断跟踪
+export { InMemoryDiagnosticRegistry } from './provider/InMemoryDiagnosticRegistry';
+export type { DiagnosticEntry } from './provider/InMemoryDiagnosticRegistry';
 export { TerminalPermissionPromptHandler } from './provider/TerminalPermissionPromptHandler';
 export type { TerminalPermissionPromptConfig } from './provider/TerminalPermissionPromptHandler';
 export { NodeSettingsLayerReader } from './provider/NodeSettingsLayerReader';

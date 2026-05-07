@@ -143,12 +143,16 @@ describe('CronCreateTool', () => {
   });
 
   it('validateInput — 缺少 cron', () => {
-    const result = cronCreateTool.validateInput({
-      cron: '',
-      prompt: 'test',
-      recurring: true,
-      durable: false
-    });
+    const ctx = createContext();
+    const result = cronCreateTool.validateInput(
+      {
+        cron: '',
+        prompt: 'test',
+        recurring: true,
+        durable: false
+      },
+      ctx as any
+    );
     expect(result.behavior).toBe('deny');
   });
 
@@ -254,7 +258,7 @@ describe('InMemoryRemoteTriggerProvider', () => {
 
     const result = await provider.trigger('list');
     expect(result.action).toBe('list');
-    expect(result.data?.triggers).toHaveLength(1);
+    expect((result.data as any)?.triggers).toHaveLength(1);
   });
 
   it('action=create — 创建 trigger', async () => {
@@ -268,7 +272,7 @@ describe('InMemoryRemoteTriggerProvider', () => {
 
     expect(result.action).toBe('create');
     expect(result.id).toMatch(/^trigger_/);
-    expect(result.data?.trigger.name).toBe('my-trigger');
+    expect((result.data as any)?.trigger.name).toBe('my-trigger');
     expect(provider.size).toBe(1);
   });
 
@@ -278,7 +282,7 @@ describe('InMemoryRemoteTriggerProvider', () => {
 
     const result = await provider.trigger('get', created.id);
     expect(result.action).toBe('get');
-    expect(result.data?.trigger.id).toBe(created.id);
+    expect((result.data as any)?.trigger.id).toBe(created.id);
   });
 
   it('action=get — ID 不存在', async () => {
@@ -295,7 +299,7 @@ describe('InMemoryRemoteTriggerProvider', () => {
     const result = await provider.trigger('update', created.id, { prompt: 'new prompt' });
 
     expect(result.action).toBe('update');
-    expect(result.data?.trigger.prompt).toBe('new prompt');
+    expect((result.data as any)?.trigger.prompt).toBe('new prompt');
   });
 
   it('action=run — 运行 trigger', async () => {
@@ -304,7 +308,7 @@ describe('InMemoryRemoteTriggerProvider', () => {
 
     const result = await provider.trigger('run', created.id);
     expect(result.action).toBe('run');
-    expect(result.data?.trigger.id).toBe(created.id);
+    expect((result.data as any)?.trigger.id).toBe(created.id);
   });
 
   it('reset — 清空所有 trigger', async () => {
@@ -356,17 +360,20 @@ describe('RemoteTriggerTool', () => {
   });
 
   it('validateInput — action=get 无 trigger_id → deny', () => {
-    const result = remoteTriggerTool.validateInput({ action: 'get' });
+    const ctx = createContext();
+    const result = remoteTriggerTool.validateInput({ action: 'get' }, ctx as any);
     expect(result.behavior).toBe('deny');
   });
 
   it('validateInput — action=run 无 trigger_id → deny', () => {
-    const result = remoteTriggerTool.validateInput({ action: 'run' });
+    const ctx = createContext();
+    const result = remoteTriggerTool.validateInput({ action: 'run' }, ctx as any);
     expect(result.behavior).toBe('deny');
   });
 
   it('validateInput — action=list 无 trigger_id → allow', () => {
-    const result = remoteTriggerTool.validateInput({ action: 'list' });
+    const ctx = createContext();
+    const result = remoteTriggerTool.validateInput({ action: 'list' }, ctx as any);
     expect(result.behavior).toBe('allow');
   });
 

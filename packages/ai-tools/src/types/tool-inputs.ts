@@ -134,7 +134,15 @@ export const BashInputSchema = z.strictObject({
     .boolean()
     .optional()
     .default(false)
-    .describe('Run command in background (non-blocking)')
+    .describe('Run command in background (non-blocking)'),
+  /** G7: sed -i 拦截 — 宿主注入预计算结果（模型不可见） */
+  _simulatedSedEdit: z
+    .object({
+      filePath: z.string().describe('目标文件路径'),
+      newContent: z.string().describe('sed 替换后的完整文件内容')
+    })
+    .optional()
+    .describe('[hidden] Pre-computed sed edit result injected by host permission flow')
 });
 
 export type BashInput = z.infer<typeof BashInputSchema>;
@@ -469,3 +477,101 @@ export const RemoteTriggerInputSchema = z.strictObject({
 });
 
 export type RemoteTriggerInput = z.infer<typeof RemoteTriggerInputSchema>;
+
+// === AgentTool ===
+
+export const AgentInputSchema = z.strictObject({
+  subagent_type: z.string().describe('子代理类型标识 (如 "general-purpose", "explore", "plan")'),
+  task: z.string().describe('任务描述 — 子代理执行的核心指令'),
+  context: z.string().optional().describe('上下文指令 — 附加到任务末尾的补充信息'),
+  /** G33: 隔离模式 — "worktree" 在隔离git worktree中执行 */
+  isolation: z
+    .enum(['none', 'worktree'])
+    .optional()
+    .default('none')
+    .describe('隔离模式 (none=无隔离, worktree=git worktree隔离)'),
+  /** G34: 模型覆盖 — 指定子代理使用的LLM模型 */
+  model: z.string().optional().describe('Per-agent model override (e.g. "sonnet", "opus", "haiku")')
+});
+
+export type AgentInput = z.infer<typeof AgentInputSchema>;
+
+// === UndoTool (P100) ===
+
+export const UndoInputSchema = z.strictObject({
+  editId: z.string().optional().describe('指定要撤销的编辑 ID（不提供则撤销最近一次编辑）'),
+  filePath: z.string().optional().describe('指定文件路径，撤销该文件的最近一次编辑')
+});
+
+export type UndoInput = z.infer<typeof UndoInputSchema>;
+
+// === TodoWriteTool (G1) ===
+
+/** TodoWrite 条目 */
+export interface TodoItem {
+  /** 待办内容 */
+  readonly content: string;
+  /** 是否已完成 */
+  readonly completed?: boolean;
+  /** 优先级（可选） */
+  readonly priority?: 'high' | 'medium' | 'low';
+}
+
+export const TodoWriteInputSchema = z.strictObject({
+  /** 待办列表 — 完整替换当前清单 */
+  todos: z
+    .array(
+      z.object({
+        content: z.string().describe('待办内容'),
+        completed: z.boolean().optional().default(false).describe('是否已完成'),
+        priority: z.enum(['high', 'medium', 'low']).optional().describe('优先级')
+      })
+    )
+    .describe('完整的待办清单（替换当前列表）')
+});
+
+export type TodoWriteInput = z.infer<typeof TodoWriteInputSchema>;
+
+// === LSP 工具 (G2) ===
+
+/** LSP 位置输入（行号+字符号） */
+export const LspPositionSchema = z.strictObject({
+  line: z.number().int().min(0).describe('行号 (0-based)'),
+  character: z.number().int().min(0).describe('字符号 (0-based)')
+});
+export type LspPositionInput = z.infer<typeof LspPositionSchema>;
+
+export const LspGoToDefinitionInputSchema = z.strictObject({
+  filePath: z.string().describe('文件路径'),
+  position: LspPositionSchema.describe('位置 (行号+字符号)')
+});
+export type LspGoToDefinitionInput = z.infer<typeof LspGoToDefinitionInputSchema>;
+
+export const LspFindReferencesInputSchema = z.strictObject({
+  filePath: z.string().describe('文件路径'),
+  position: LspPositionSchema.describe('位置 (行号+字符号)'),
+  includeDeclaration: z.boolean().optional().default(true).describe('是否包含声明')
+});
+export type LspFindReferencesInput = z.infer<typeof LspFindReferencesInputSchema>;
+
+export const LspHoverInputSchema = z.strictObject({
+  filePath: z.string().describe('文件路径'),
+  position: LspPositionSchema.describe('位置 (行号+字符号)')
+});
+export type LspHoverInput = z.infer<typeof LspHoverInputSchema>;
+
+export const LspDocumentSymbolInputSchema = z.strictObject({
+  filePath: z.string().describe('文件路径')
+});
+export type LspDocumentSymbolInput = z.infer<typeof LspDocumentSymbolInputSchema>;
+
+export const LspDiagnosticsInputSchema = z.strictObject({
+  filePath: z.string().optional().describe('文件路径 (omit = workspace diagnostics)')
+});
+export type LspDiagnosticsInput = z.infer<typeof LspDiagnosticsInputSchema>;
+
+export const LspCompletionInputSchema = z.strictObject({
+  filePath: z.string().describe('文件路径'),
+  position: LspPositionSchema.describe('位置 (行号+字符号)')
+});
+export type LspCompletionInput = z.infer<typeof LspCompletionInputSchema>;

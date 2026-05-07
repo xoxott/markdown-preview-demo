@@ -1,6 +1,7 @@
 /** 工具输出类型定义 */
 
 // === WebFetchTool ===
+import type { SubagentToolResult } from '@suga/ai-subagent';
 import type { CommandResult, EditResult, FileContent, GrepResult } from './fs-provider';
 // === TaskTools ===
 import type {
@@ -25,6 +26,15 @@ import type { PlanModeResult } from './plan-mode-provider';
 import type { CronCreateResult, CronDeleteResult, CronEntry } from './cron-provider';
 // === RemoteTriggerTool ===
 import type { RemoteTriggerResult } from './remote-trigger-provider';
+// === LSP 工具 (G2) ===
+import type {
+  LspCompletionResult,
+  LspDiagnosticsResult,
+  LspDocumentSymbolResult,
+  LspFindReferencesResult,
+  LspGoToDefinitionResult,
+  LspHoverResult
+} from './lsp-provider';
 
 export interface WebFetchOutput {
   readonly content: string;
@@ -199,3 +209,32 @@ export type CronDeleteOutput = CronDeleteResult;
 export type CronListOutput = readonly CronEntry[];
 
 export type RemoteTriggerOutput = RemoteTriggerResult;
+export type AgentOutput = SubagentToolResult;
+
+// === UndoTool (P100) ===
+
+export interface UndoOutput {
+  readonly reverted: boolean;
+  readonly editId?: string;
+  readonly filePath?: string;
+  readonly error?: string;
+}
+
+// === TodoWriteTool (G1) ===
+
+export interface TodoWriteOutput {
+  readonly updated: boolean;
+  readonly todos: Array<{
+    content: string;
+    completed: boolean;
+    priority?: 'high' | 'medium' | 'low';
+  }>;
+  readonly reminder?: string;
+}
+
+export type LspGoToDefinitionOutput = LspGoToDefinitionResult;
+export type LspFindReferencesOutput = LspFindReferencesResult;
+export type LspHoverOutput = LspHoverResult;
+export type LspDocumentSymbolOutput = LspDocumentSymbolResult;
+export type LspDiagnosticsOutput = LspDiagnosticsResult;
+export type LspCompletionOutput = LspCompletionResult;

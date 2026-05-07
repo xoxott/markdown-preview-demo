@@ -205,11 +205,110 @@ export class MockFileSystemProvider implements FileSystemProvider {
   }
 
   async runCommand(command: string, options?: RunCommandOptions): Promise<CommandResult> {
+    // G8: 后台命令返回模拟任务信息
+    if (options?.runInBackground) {
+      return {
+        exitCode: 0,
+        stdout: `Background task started: bg-mock-${Date.now()}`,
+        stderr: '',
+        timedOut: false,
+        cwd: options?.cwd
+      };
+    }
+
     const preconfigured = this.commands.get(command);
     if (preconfigured) {
       return { ...preconfigured, cwd: options?.cwd ?? preconfigured.cwd };
     }
     return { ...this.defaultCommandResult, cwd: options?.cwd };
+  }
+
+  // === G8: 后台任务生命周期（Mock 实现） ===
+
+  private mockBackgroundTasks = new Map<
+    string,
+    {
+      command: string;
+      status: import('../types/fs-provider').BackgroundTaskStatus;
+      startedAt: number;
+      exitCode?: number;
+      stdout: string;
+      stderr: string;
+      completedAt?: number;
+      notified: boolean;
+    }
+  >();
+  private mockBgTaskCounter = 0;
+
+  async spawnBackgroundCommand(
+    command: string,
+    _options?: import('../types/fs-provider').SpawnBackgroundOptions
+  ): Promise<import('../types/fs-provider').BackgroundTaskResult> {
+    const taskId = `bg-mock-${++this.mockBgTaskCounter}`;
+    const startedAt = Date.now();
+    this.mockBackgroundTasks.set(taskId, {
+      command,
+      status: 'running',
+      startedAt,
+      stdout: '',
+      stderr: '',
+      notified: false
+    });
+    return { taskId, status: 'running', command, startedAt };
+  }
+
+  async getBackgroundTask(
+    taskId: string
+  ): Promise<import('../types/fs-provider').BackgroundTaskDetail | null> {
+    const entry = this.mockBackgroundTasks.get(taskId);
+    if (!entry) return null;
+    return {
+      taskId,
+      status: entry.status,
+      command: entry.command,
+      exitCode: entry.exitCode,
+      stdout: entry.stdout,
+      stderr: entry.stderr,
+      timedOut: false,
+      startedAt: entry.startedAt,
+      completedAt: entry.completedAt
+    };
+  }
+
+  async stopBackgroundTask(taskId: string): Promise<boolean> {
+    const entry = this.mockBackgroundTasks.get(taskId);
+    if (!entry || entry.status !== 'running') return false;
+    entry.status = 'stopped';
+    entry.exitCode = -1;
+    entry.completedAt = Date.now();
+    return true;
+  }
+
+  async listBackgroundTasks(): Promise<
+    readonly import('../types/fs-provider').BackgroundTaskDetail[]
+  > {
+    return [...this.mockBackgroundTasks.entries()].map(([id, e]) => ({
+      taskId: id,
+      status: e.status,
+      command: e.command,
+      exitCode: e.exitCode,
+      stdout: e.stdout,
+      stderr: e.stderr,
+      timedOut: false,
+      startedAt: e.startedAt,
+      completedAt: e.completedAt
+    }));
+  }
+
+  registerForeground(_taskId: string): void {
+    /* mock: no-op */
+  }
+  unregisterForeground(_taskId: string): void {
+    /* mock: no-op */
+  }
+  markTaskNotified(taskId: string): void {
+    const entry = this.mockBackgroundTasks.get(taskId);
+    if (entry) entry.notified = true;
   }
 
   async ls(dirPath: string, _options?: { recursive?: boolean }): Promise<FileLsEntry[]> {

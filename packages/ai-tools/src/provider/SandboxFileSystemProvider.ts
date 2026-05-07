@@ -18,6 +18,8 @@
 
 import type { SandboxSettings } from '@suga/ai-sdk';
 import type {
+  BackgroundTaskDetail,
+  BackgroundTaskResult,
   CommandResult,
   EditResult,
   FileContent,
@@ -26,7 +28,8 @@ import type {
   FileSystemProvider,
   GrepOptions,
   GrepResult,
-  RunCommandOptions
+  RunCommandOptions,
+  SpawnBackgroundOptions
 } from '../types/fs-provider';
 
 /** 沙箱拒绝错误 — 路径或命令被 deny 规则拦截 */
@@ -213,6 +216,40 @@ export class SandboxFileSystemProvider implements FileSystemProvider {
     // cwd 受沙箱约束
     if (options?.cwd) checkPath(options.cwd, this.sandbox);
     return this.inner.runCommand(command, options);
+  }
+
+  // === G8: 后台任务生命周期（委托到 inner） ===
+
+  async spawnBackgroundCommand(
+    command: string,
+    options?: SpawnBackgroundOptions
+  ): Promise<BackgroundTaskResult> {
+    if (options?.cwd) checkPath(options.cwd, this.sandbox);
+    return this.inner.spawnBackgroundCommand(command, options);
+  }
+
+  async getBackgroundTask(taskId: string): Promise<BackgroundTaskDetail | null> {
+    return this.inner.getBackgroundTask(taskId);
+  }
+
+  async stopBackgroundTask(taskId: string): Promise<boolean> {
+    return this.inner.stopBackgroundTask(taskId);
+  }
+
+  async listBackgroundTasks(): Promise<readonly BackgroundTaskDetail[]> {
+    return this.inner.listBackgroundTasks();
+  }
+
+  registerForeground(taskId: string): void {
+    this.inner.registerForeground(taskId);
+  }
+
+  unregisterForeground(taskId: string): void {
+    this.inner.unregisterForeground(taskId);
+  }
+
+  markTaskNotified(taskId: string): void {
+    this.inner.markTaskNotified(taskId);
   }
 }
 

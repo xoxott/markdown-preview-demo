@@ -146,6 +146,57 @@ export interface CommandResult {
   readonly cwd?: string;
 }
 
+// === G8: 后台任务生命周期类型 ===
+
+/** 后台任务状态 */
+export type BackgroundTaskStatus = 'running' | 'completed' | 'failed' | 'stopped';
+
+/** 后台任务结果（spawnBackgroundCommand 返回） */
+export interface BackgroundTaskResult {
+  /** 后台任务唯一 ID */
+  readonly taskId: string;
+  /** 任务状态 */
+  readonly status: BackgroundTaskStatus;
+  /** 命令 */
+  readonly command: string;
+  /** 启动时间戳 */
+  readonly startedAt: number;
+}
+
+/** 后台任务详情（查询结果） */
+export interface BackgroundTaskDetail {
+  /** 后台任务唯一 ID */
+  readonly taskId: string;
+  /** 任务状态 */
+  readonly status: BackgroundTaskStatus;
+  /** 命令 */
+  readonly command: string;
+  /** 退出码（完成后） */
+  readonly exitCode?: number;
+  /** 标准输出（完成后或部分） */
+  readonly stdout: string;
+  /** 标准错误输出（完成后或部分） */
+  readonly stderr: string;
+  /** 是否超时 */
+  readonly timedOut: boolean;
+  /** 启动时间戳 */
+  readonly startedAt: number;
+  /** 完成时间戳（完成后） */
+  readonly completedAt?: number;
+  /** 输出文件路径（可选 — 大输出持久化到文件） */
+  readonly outputFilePath?: string;
+}
+
+/** 后台命令启动选项 */
+export interface SpawnBackgroundOptions {
+  /** 工作目录 */
+  readonly cwd?: string;
+  /** 环境变量 */
+  readonly env?: Record<string, string>;
+  /** 完成回调（可选 — 任务完成时通知宿主） */
+  readonly onCompleted?: (detail: BackgroundTaskDetail) => void;
+}
+
 // === 目录列表 ===
 
 /** 目录列表条目 */
@@ -202,4 +253,30 @@ export interface FileSystemProvider {
 
   /** 运行 shell 命令 */
   runCommand(command: string, options?: RunCommandOptions): Promise<CommandResult>;
+
+  // === G8: 后台任务生命周期 ===
+
+  /** 启动后台 shell 命令 — 返回任务 ID，命令在 detached 子进程中运行 */
+  spawnBackgroundCommand(
+    command: string,
+    options?: SpawnBackgroundOptions
+  ): Promise<BackgroundTaskResult>;
+
+  /** 获取后台任务详情 */
+  getBackgroundTask(taskId: string): Promise<BackgroundTaskDetail | null>;
+
+  /** 停止后台任务（发送 SIGTERM） */
+  stopBackgroundTask(taskId: string): Promise<boolean>;
+
+  /** 列出所有后台任务 */
+  listBackgroundTasks(): Promise<readonly BackgroundTaskDetail[]>;
+
+  /** 注册前台保活 — 防止宿主进程在有后台任务时退出 */
+  registerForeground(taskId: string): void;
+
+  /** 取消前台保活 */
+  unregisterForeground(taskId: string): void;
+
+  /** 标记任务已通知 — 宿主已处理任务完成事件 */
+  markTaskNotified(taskId: string): void;
 }
