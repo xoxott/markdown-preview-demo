@@ -53,7 +53,63 @@ export {
   BUILTIN_AGENT_DEFINITIONS,
   createBuiltinSubagentRegistry
 } from './builtin/BuiltinAgentDefinitions';
-export { getSystemPromptForAgentType } from './builtin/SystemPrompts';
+export {
+  getSystemPromptForAgentType,
+  GENERAL_PURPOSE_PROMPT,
+  EXPLORE_AGENT_PROMPT,
+  PLAN_AGENT_PROMPT,
+  VERIFICATION_AGENT_PROMPT,
+  CLAUDE_CODE_GUIDE_PROMPT,
+  STATUSLINE_SETUP_PROMPT,
+  FORK_AGENT_PROMPT
+} from './builtin/SystemPrompts';
+
+// G38: Agent 颜色管理
+export { AgentColorManager, AGENT_COLORS } from './builtin/AgentColorManager';
+export type { AgentColorName } from './builtin/AgentColorManager';
+
+// G39: Agent 持久化记忆作用域
+export {
+  getAgentMemoryDir,
+  isAgentMemoryPath,
+  extractAgentTypeFromPath,
+  sanitizeAgentTypeForPath
+} from './builtin/AgentMemoryPaths';
+export type { AgentMemoryScope, AgentMemoryConfig } from './builtin/AgentMemoryPaths';
+
+// G40: 自定义 Agent 加载（.claude/agents/）
+export {
+  loadAgentsDir,
+  parseSubagentFromMarkdown,
+  parseSubagentFromJson,
+  parseMarkdownFrontmatter,
+  getAgentMemoryScope,
+  AgentJsonSchema
+} from './builtin/loadAgentsDir';
+export type {
+  AgentDefinitionSource,
+  AgentFileEntry,
+  AgentDefinitionFileSource,
+  ParsedAgentMarkdown,
+  AgentJson,
+  LoadAgentsOptions
+} from './builtin/loadAgentsDir';
+
+// G41: 后台 Agent 恢复执行
+export {
+  resumeAgent,
+  AgentResumeError,
+  filterUnresolvedToolUses,
+  filterOrphanedThinkingOnlyMessages,
+  filterWhitespaceOnlyAssistantMessages
+} from './builtin/resumeAgent';
+export type {
+  AgentTranscript,
+  AgentMetadata,
+  AgentResumeProvider,
+  ResumeAgentResult,
+  ResumeAgentOptions
+} from './builtin/resumeAgent';
 
 // G18: Agent MCP 服务器初始化
 export {
