@@ -91,3 +91,64 @@ export const McpArgsSchema = z.strictObject({
   url: z.string().optional().describe('服务器 URL（用于 add sse/http）')
 });
 export type McpArgs = z.infer<typeof McpArgsSchema>;
+
+// === Tier 3 (新增) ===
+
+/** /help 参数 */
+export const HelpArgsSchema = z.strictObject({
+  filter: z.string().optional().describe('按名称或类别过滤命令')
+});
+export type HelpArgs = z.infer<typeof HelpArgsSchema>;
+
+/** /clear 参数 */
+export const ClearArgsSchema = z.strictObject({
+  confirmed: z.boolean().optional().describe('确认清空（默认 true）')
+});
+export type ClearArgs = z.infer<typeof ClearArgsSchema>;
+
+/** /cost 参数 */
+export const CostArgsSchema = z.strictObject({
+  detailed: z.boolean().optional().describe('显示逐轮明细')
+});
+export type CostArgs = z.infer<typeof CostArgsSchema>;
+
+/** /fast 参数 */
+export const FastArgsSchema = z.strictObject({
+  model: z.string().optional().describe('目标模型名称（默认 haiku）')
+});
+export type FastArgs = z.infer<typeof FastArgsSchema>;
+
+/** /model 子命令 */
+export const ModelSubcommand = z.enum(['list', 'switch']);
+
+/** /model 参数 */
+export const ModelArgsSchema = z.strictObject({
+  subcommand: ModelSubcommand.optional().describe('操作类型（默认 list）'),
+  model: z.string().optional().describe('要切换的模型名称')
+});
+export type ModelArgs = z.infer<typeof ModelArgsSchema>;
+
+/** /permissions 子命令 */
+export const PermissionsSubcommand = z.enum(['list', 'grant', 'revoke']);
+
+/** /permissions 参数 */
+export const PermissionsArgsSchema = z.strictObject({
+  subcommand: PermissionsSubcommand.describe('权限操作类型'),
+  tool: z.string().optional().describe('工具名称（用于 grant）'),
+  pattern: z.string().optional().describe('命令模式（用于 grant）'),
+  ruleId: z.string().optional().describe('规则 ID（用于 revoke）')
+});
+export type PermissionsArgs = z.infer<typeof PermissionsArgsSchema>;
+
+/** /vim 参数 */
+export const VimArgsSchema = z.strictObject({
+  enabled: z.boolean().optional().describe('启用/禁用 vim 模式（默认切换）')
+});
+export type VimArgs = z.infer<typeof VimArgsSchema>;
+
+/** /terminal-setup 参数 */
+export const TerminalSetupArgsSchema = z.strictObject({
+  uninstall: z.boolean().optional().describe('卸载终端集成'),
+  shell: z.string().optional().describe('指定 shell（默认自动检测）')
+});
+export type TerminalSetupArgs = z.infer<typeof TerminalSetupArgsSchema>;

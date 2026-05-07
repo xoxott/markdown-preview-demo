@@ -33,3 +33,13 @@ export const INIT_TITLE = '## Project Initialization';
 /** Provider 缺失时的通用错误提示 */
 export const PROVIDER_MISSING_TEMPLATE =
   'Error: {command} requires {provider}. Host must inject it via SkillExecutionContext.';
+
+/** Tier 3 命令标题 */
+export const HELP_TITLE = '## Available Commands';
+export const CLEAR_TITLE = '## Session Cleared';
+export const COST_TITLE = '## Session Cost';
+export const FAST_TITLE = '## Model Switch';
+export const MODEL_TITLE = '## Model Selection';
+export const PERMISSIONS_TITLE = '## Permissions';
+export const VIM_TITLE = '## Vim Mode';
+export const TERMINAL_SETUP_TITLE = '## Terminal Setup';

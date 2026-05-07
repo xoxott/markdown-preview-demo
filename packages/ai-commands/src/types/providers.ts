@@ -228,3 +228,50 @@ export interface DiagnosticProvider {
   /** 运行所有检查 */
   runAll(): Promise<DiagnosticReport>;
 }
+
+// === Session Control Provider ===
+
+/** 会话控制 provider — /clear 需要 */
+export interface SessionControlProvider {
+  /** 清空会话上下文/历史 */
+  clearContext(): Promise<void>;
+}
+
+// === Model Control Provider ===
+
+/** 模型信息 */
+export interface ModelInfo {
+  readonly name: string;
+  readonly description: string;
+  readonly maxTokens?: number;
+}
+
+/** 模型控制 provider — /fast, /model 需要 */
+export interface ModelControlProvider {
+  /** 获取当前模型名称 */
+  getCurrentModel(): Promise<string>;
+  /** 列出可用模型 */
+  getAvailableModels(): Promise<ModelInfo[]>;
+  /** 切换模型 — 返回切换后的模型名称 */
+  switchModel(modelName: string): Promise<string>;
+}
+
+// === Permissions Provider ===
+
+/** 权限规则 */
+export interface PermissionRule {
+  readonly id: string;
+  readonly tool: string;
+  readonly pattern: string;
+  readonly scope: 'allow' | 'deny' | 'ask';
+}
+
+/** 权限管理 provider — /permissions 需要 */
+export interface PermissionsProvider {
+  /** 列出所有权限规则 */
+  listRules(): Promise<PermissionRule[]>;
+  /** 授予权限（添加 allow 规则） */
+  grant(tool: string, pattern: string): Promise<PermissionRule>;
+  /** 撤销权限（删除规则） */
+  revoke(ruleId: string): Promise<boolean>;
+}

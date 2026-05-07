@@ -7,11 +7,14 @@ import type {
   GitProvider,
   McpCommandProvider,
   MemoryCommandProvider,
+  ModelControlProvider,
+  PermissionsProvider,
+  SessionControlProvider,
   SessionInfoProvider
 } from './providers';
 
 /** 命令 tier 分类 */
-export type CommandTier = 'tier1' | 'tier2';
+export type CommandTier = 'tier1' | 'tier2' | 'tier3';
 
 /** 命令 catalog 条目 */
 export interface CommandCatalogEntry {
@@ -30,4 +33,7 @@ export interface ProvidersMap {
   mcpProvider: McpCommandProvider;
   diagnosticProvider: DiagnosticProvider;
   fsProvider: FileSystemProvider;
+  sessionControlProvider: SessionControlProvider;
+  modelControlProvider: ModelControlProvider;
+  permissionsProvider: PermissionsProvider;
 }

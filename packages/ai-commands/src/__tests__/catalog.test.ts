@@ -11,8 +11,8 @@ import {
 } from '../catalog';
 
 describe('COMMAND_CATALOG — 数据结构', () => {
-  it('包含 10 条目', () => {
-    expect(COMMAND_CATALOG.length).toBe(10);
+  it('包含 18 条目', () => {
+    expect(COMMAND_CATALOG.length).toBe(18);
   });
 
   it('tier1 有 5 个命令', () => {
@@ -23,6 +23,11 @@ describe('COMMAND_CATALOG — 数据结构', () => {
   it('tier2 有 5 个命令', () => {
     const tier2 = getCatalogByTier('tier2');
     expect(tier2.length).toBe(5);
+  });
+
+  it('tier3 有 8 个命令', () => {
+    const tier3 = getCatalogByTier('tier3');
+    expect(tier3.length).toBe(8);
   });
 
   it('git category 有 2 个命令', () => {
@@ -53,7 +58,7 @@ describe('registerAllCommands — 注册全部', () => {
   it('注册 → 所有命令可用（tier1 + tier2）', () => {
     const registry = new SkillRegistry();
     registerAllCommands(registry);
-    expect(registry.getAll().length).toBe(10);
+    expect(registry.getAll().length).toBe(18);
 
     // 验证所有命令可查找
     for (const name of ['commit', 'compact', 'memory', 'config', 'doctor']) {

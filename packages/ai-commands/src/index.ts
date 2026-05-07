@@ -15,7 +15,15 @@ export {
   DIFF_TITLE,
   MCP_TITLE,
   INIT_TITLE,
-  PROVIDER_MISSING_TEMPLATE
+  PROVIDER_MISSING_TEMPLATE,
+  HELP_TITLE,
+  CLEAR_TITLE,
+  COST_TITLE,
+  FAST_TITLE,
+  MODEL_TITLE,
+  PERMISSIONS_TITLE,
+  VIM_TITLE,
+  TERMINAL_SETUP_TITLE
 } from './constants';
 
 // 上下文扩展
@@ -75,11 +83,27 @@ export {
   buildMcpRestartPrompt
 } from './commands/tier2/mcp';
 
+// Tier 3 命令导出
+export { helpSkill, buildHelpPrompt } from './commands/tier3/help';
+export { clearSkill, buildClearPrompt } from './commands/tier3/clear';
+export { costSkill, buildCostPrompt } from './commands/tier3/cost';
+export { fastSkill, buildFastPrompt } from './commands/tier3/fast';
+export { modelSkill, buildModelListPrompt, buildModelSwitchPrompt } from './commands/tier3/model';
+export {
+  permissionsSkill,
+  buildPermissionsListPrompt,
+  buildPermissionsGrantPrompt,
+  buildPermissionsRevokePrompt
+} from './commands/tier3/permissions';
+export { vimSkill, buildVimPrompt } from './commands/tier3/vim';
+export { terminalSetupSkill, buildTerminalSetupPrompt } from './commands/tier3/terminal-setup';
+
 // Catalog 导出
 export {
   COMMAND_CATALOG,
   TIER1_COMMANDS,
   TIER2_COMMANDS,
+  TIER3_COMMANDS,
   ALL_COMMANDS,
   registerTierCommands,
   registerAllCommands,

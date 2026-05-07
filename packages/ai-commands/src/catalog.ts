@@ -12,6 +12,14 @@ import { initSkill } from './commands/tier2/init';
 import { statusSkill } from './commands/tier2/status';
 import { diffSkill } from './commands/tier2/diff';
 import { mcpSkill } from './commands/tier2/mcp';
+import { helpSkill } from './commands/tier3/help';
+import { clearSkill } from './commands/tier3/clear';
+import { costSkill } from './commands/tier3/cost';
+import { fastSkill } from './commands/tier3/fast';
+import { modelSkill } from './commands/tier3/model';
+import { permissionsSkill } from './commands/tier3/permissions';
+import { vimSkill } from './commands/tier3/vim';
+import { terminalSetupSkill } from './commands/tier3/terminal-setup';
 
 /** 命令 catalog 数据 */
 export const COMMAND_CATALOG: readonly CommandCatalogEntry[] = [
@@ -36,7 +44,26 @@ export const COMMAND_CATALOG: readonly CommandCatalogEntry[] = [
     requiredProviders: ['sessionInfoProvider']
   },
   { name: 'diff', tier: 'tier2', category: 'git', requiredProviders: ['gitProvider'] },
-  { name: 'mcp', tier: 'tier2', category: 'mcp', requiredProviders: ['mcpProvider'] }
+  { name: 'mcp', tier: 'tier2', category: 'mcp', requiredProviders: ['mcpProvider'] },
+  // Tier 3
+  { name: 'help', tier: 'tier3', category: 'session', requiredProviders: [] },
+  {
+    name: 'clear',
+    tier: 'tier3',
+    category: 'session',
+    requiredProviders: ['sessionControlProvider']
+  },
+  { name: 'cost', tier: 'tier3', category: 'session', requiredProviders: ['sessionInfoProvider'] },
+  { name: 'fast', tier: 'tier3', category: 'config', requiredProviders: ['modelControlProvider'] },
+  { name: 'model', tier: 'tier3', category: 'config', requiredProviders: ['modelControlProvider'] },
+  {
+    name: 'permissions',
+    tier: 'tier3',
+    category: 'config',
+    requiredProviders: ['permissionsProvider']
+  },
+  { name: 'vim', tier: 'tier3', category: 'config', requiredProviders: ['configProvider'] },
+  { name: 'terminal-setup', tier: 'tier3', category: 'config', requiredProviders: ['fsProvider'] }
 ];
 
 /** 所有 Tier 1 命令 SkillDefinition */
@@ -57,8 +84,24 @@ export const TIER2_COMMANDS: readonly SkillDefinition[] = [
   mcpSkill
 ];
 
+/** 所有 Tier 3 命令 SkillDefinition */
+export const TIER3_COMMANDS: readonly SkillDefinition[] = [
+  helpSkill,
+  clearSkill,
+  costSkill,
+  fastSkill,
+  modelSkill,
+  permissionsSkill,
+  vimSkill,
+  terminalSetupSkill
+];
+
 /** 所有命令 SkillDefinition */
-export const ALL_COMMANDS: readonly SkillDefinition[] = [...TIER1_COMMANDS, ...TIER2_COMMANDS];
+export const ALL_COMMANDS: readonly SkillDefinition[] = [
+  ...TIER1_COMMANDS,
+  ...TIER2_COMMANDS,
+  ...TIER3_COMMANDS
+];
 
 /** 按名称查找 SkillDefinition */
 function findCommand(name: string): SkillDefinition | undefined {

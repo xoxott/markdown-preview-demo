@@ -14,6 +14,9 @@ import type {
   GitProvider,
   McpCommandProvider,
   MemoryCommandProvider,
+  ModelControlProvider,
+  PermissionsProvider,
+  SessionControlProvider,
   SessionInfoProvider
 } from './types/providers';
 
@@ -33,6 +36,12 @@ export interface ExtendedSkillExecutionContext extends SkillExecutionContext {
   readonly diagnosticProvider?: DiagnosticProvider;
   /** 文件系统 provider（/init, /add-dir 需要） */
   readonly fsProvider?: FileSystemProvider;
+  /** 会话控制 provider（/clear 需要） */
+  readonly sessionControlProvider?: SessionControlProvider;
+  /** 模型控制 provider（/fast, /model 需要） */
+  readonly modelControlProvider?: ModelControlProvider;
+  /** 权限管理 provider（/permissions 需要） */
+  readonly permissionsProvider?: PermissionsProvider;
 }
 
 /** Provider 缺失错误 — 统一报错格式 */
@@ -67,7 +76,10 @@ function providerName(key: keyof ExtendedSkillExecutionContext): string {
     memoryProvider: 'MemoryCommandProvider',
     mcpProvider: 'McpCommandProvider',
     diagnosticProvider: 'DiagnosticProvider',
-    fsProvider: 'FileSystemProvider'
+    fsProvider: 'FileSystemProvider',
+    sessionControlProvider: 'SessionControlProvider',
+    modelControlProvider: 'ModelControlProvider',
+    permissionsProvider: 'PermissionsProvider'
   };
   return names[key] ?? key;
 }

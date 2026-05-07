@@ -137,3 +137,76 @@ export interface McpRemovePromptInput {
 export interface McpRestartPromptInput {
   readonly name: string;
 }
+
+// === Tier 3 prompt builder 输入 ===
+
+/** /help prompt 输入 */
+export interface HelpPromptInput {
+  readonly commands: readonly {
+    name: string;
+    description: string;
+    aliases?: string[];
+    argumentHint?: string;
+  }[];
+  readonly filter?: string;
+}
+
+/** /clear prompt 输入 */
+export interface ClearPromptInput {
+  readonly confirmed: boolean;
+}
+
+/** /cost prompt 输入 */
+export interface CostPromptInput {
+  readonly tokenUsage: TokenUsageInfo;
+  readonly cost: CostInfo;
+  readonly detailed?: boolean;
+}
+
+/** /fast prompt 输入 */
+export interface FastPromptInput {
+  readonly currentModel: string;
+  readonly targetModel: string;
+}
+
+/** /model list prompt 输入 */
+export interface ModelListPromptInput {
+  readonly currentModel: string;
+  readonly availableModels: readonly { name: string; description: string }[];
+}
+
+/** /model switch prompt 输入 */
+export interface ModelSwitchPromptInput {
+  readonly previousModel: string;
+  readonly newModel: string;
+}
+
+/** /permissions list prompt 输入 */
+export interface PermissionsListPromptInput {
+  readonly rules: readonly { id: string; tool: string; pattern: string; scope: string }[];
+}
+
+/** /permissions grant prompt 输入 */
+export interface PermissionsGrantPromptInput {
+  readonly rule: { id: string; tool: string; pattern: string; scope: string };
+}
+
+/** /permissions revoke prompt 输入 */
+export interface PermissionsRevokePromptInput {
+  readonly ruleId: string;
+  readonly success: boolean;
+}
+
+/** /vim prompt 输入 */
+export interface VimPromptInput {
+  readonly enabled: boolean;
+  readonly previousState: boolean;
+}
+
+/** /terminal-setup prompt 输入 */
+export interface TerminalSetupPromptInput {
+  readonly shell: string;
+  readonly rcPath: string;
+  readonly installed: boolean;
+  readonly uninstall?: boolean;
+}
