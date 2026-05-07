@@ -27,3 +27,36 @@ export type {
   SkillSearchResult,
   RemoteSkillLoaderFn
 } from './core/skill-search';
+
+// G56: 内置 Skill + MCP skill 抓取
+export {
+  BundledSkillRegistry,
+  getGlobalBundledSkillRegistry,
+  resetGlobalBundledSkillRegistry,
+  registerBundledSkill,
+  registerSimplifySkill,
+  registerVerifySkill,
+  registerRememberSkill,
+  registerLoremIpsumSkill,
+  generateLoremIpsum,
+  initBundledSkills,
+  registerMCPSkillBuilders,
+  getMCPSkillBuilders,
+  resetMCPSkillBuilders,
+  isMcpSkillPromptName,
+  stripMcpSkillPrefix,
+  fetchMcpSkillsForServer,
+  McpSkillsFetcher
+} from './bundled';
+export type {
+  BundledSkillDefinition,
+  BundledSkillContext,
+  BundledSkillContentBlock,
+  MCPSkillBuilders,
+  SkillCommand as McpSkillCommand,
+  SkillFrontmatterFields,
+  McpPromptInfo,
+  McpPromptArgument,
+  McpPromptsProvider,
+  FetchMcpSkillsOptions
+} from './bundled';
