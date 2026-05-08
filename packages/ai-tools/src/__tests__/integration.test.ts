@@ -1,13 +1,15 @@
 /** 集成测试 — 6 工具注册 + 端到端执行 + 跨工具交互 */
 
 import { describe, expect, it } from 'vitest';
-import { ToolRegistry } from '@suga/ai-tool-core';
+import { type PermissionResult, ToolRegistry } from '@suga/ai-tool-core';
 import { globTool } from '../tools/glob';
 import { grepTool } from '../tools/grep';
 import { fileReadTool } from '../tools/file-read';
 import { fileWriteTool } from '../tools/file-write';
 import { fileEditTool } from '../tools/file-edit';
 import { bashTool } from '../tools/bash';
+import { monitorTool } from '../tools/monitor';
+import { powershellTool } from '../tools/powershell';
 import type { ExtendedToolUseContext } from '../context-merge';
 import { MockFileSystemProvider } from './mocks/MockFileSystemProvider';
 
@@ -18,6 +20,12 @@ function createFullContext(fs: MockFileSystemProvider): ExtendedToolUseContext {
     sessionId: 'integration-test',
     fsProvider: fs
   };
+}
+
+function resolvePermissions(
+  r: PermissionResult | Promise<PermissionResult>
+): Promise<PermissionResult> {
+  return Promise.resolve(r);
 }
 
 describe('集成 — 6 工具注册', () => {
@@ -83,43 +91,105 @@ describe('集成 — 端到端工具执行', () => {
     }
   });
 
-  it('FileWriteTool → 写入文件 + 权限 ask', () => {
-    const result = fileWriteTool.checkPermissions(
-      { filePath: '/test.txt', content: 'hello' },
-      createFullContext(new MockFileSystemProvider())
+  it('FileWriteTool → 写入文件 + 权限 ask', async () => {
+    const result = await resolvePermissions(
+      fileWriteTool.checkPermissions(
+        { filePath: '/test.txt', content: 'hello' },
+        createFullContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('ask');
   });
 
-  it('FileEditTool → 编辑文件 + 权限 ask', () => {
-    const result = fileEditTool.checkPermissions(
-      { filePath: '/test.txt', oldString: 'old', newString: 'new', replaceAll: false },
-      createFullContext(new MockFileSystemProvider())
+  it('FileEditTool → 编辑文件 + 权限 ask', async () => {
+    const result = await resolvePermissions(
+      fileEditTool.checkPermissions(
+        { filePath: '/test.txt', oldString: 'old', newString: 'new', replaceAll: false },
+        createFullContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('ask');
   });
 
-  it('BashTool → 只读命令权限 allow', () => {
-    const result = bashTool.checkPermissions(
-      { command: 'ls', runInBackground: false },
-      createFullContext(new MockFileSystemProvider())
+  it('BashTool → 只读命令权限 allow', async () => {
+    const result = await resolvePermissions(
+      bashTool.checkPermissions(
+        { command: 'ls', runInBackground: false },
+        createFullContext(new MockFileSystemProvider())
+      )
     );
     // ls 是只读命令 → assessBashCommandSecurity → safe → allow
     expect(result.behavior).toBe('allow');
   });
 
-  it('BashTool → 破坏性命令权限 deny', () => {
-    const result = bashTool.checkPermissions(
-      { command: 'rm -rf /', runInBackground: false },
-      createFullContext(new MockFileSystemProvider())
+  it('BashTool → 破坏性命令权限 deny', async () => {
+    const result = await resolvePermissions(
+      bashTool.checkPermissions(
+        { command: 'rm -rf /', runInBackground: false },
+        createFullContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('deny');
   });
 
-  it('BashTool → 非只读非破坏性命令权限 ask', () => {
-    const result = bashTool.checkPermissions(
-      { command: 'npm install', runInBackground: false },
-      createFullContext(new MockFileSystemProvider())
+  it('BashTool → 非只读非破坏性命令权限 ask', async () => {
+    const result = await resolvePermissions(
+      bashTool.checkPermissions(
+        { command: 'npm install', runInBackground: false },
+        createFullContext(new MockFileSystemProvider())
+      )
+    );
+    expect(result.behavior).toBe('ask');
+  });
+});
+
+describe('集成 — PowerShell + Monitor', () => {
+  it('可注册且名称合规', () => {
+    const registry = new ToolRegistry();
+    registry.register(powershellTool);
+    registry.register(monitorTool);
+    expect(registry.get('powershell')).toBe(powershellTool);
+    expect(registry.get('monitor')).toBe(monitorTool);
+    expect(powershellTool.name).toMatch(/^[a-z][a-z0-9-_]*$/);
+    expect(monitorTool.name).toMatch(/^[a-z][a-z0-9-_]*$/);
+  });
+
+  it('MonitorTool → 后台 spawn 返回 taskId', async () => {
+    const fs = new MockFileSystemProvider();
+    const ctx = createFullContext(fs);
+    const result = await monitorTool.call({ command: 'echo ok' }, ctx);
+    expect(result.data.taskId).toBeDefined();
+    expect(result.data.taskId.startsWith('bg-mock')).toBe(true);
+  });
+
+  it('PowerShellTool → 经 runCommand 执行（Mock 默认成功）', async () => {
+    const fs = new MockFileSystemProvider();
+    fs.setDefaultCommandResult({ exitCode: 0, stdout: 'ok', stderr: '', timedOut: false });
+    const ctx = createFullContext(fs);
+    const result = await powershellTool.call(
+      { command: 'Write-Output 1', runInBackground: false },
+      ctx
+    );
+    expect(result.data.exitCode).toBe(0);
+    expect(result.data.stdout).toContain('ok');
+  });
+
+  it('PowerShellTool → 窄只读命令自动 allow', async () => {
+    const result = await resolvePermissions(
+      powershellTool.checkPermissions(
+        { command: 'Get-ChildItem', runInBackground: false },
+        createFullContext(new MockFileSystemProvider())
+      )
+    );
+    expect(result.behavior).toBe('allow');
+  });
+
+  it('PowerShellTool → 网络 cmdlet 需要 ask', async () => {
+    const result = await resolvePermissions(
+      powershellTool.checkPermissions(
+        { command: 'Invoke-WebRequest https://example.com', runInBackground: false },
+        createFullContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('ask');
   });

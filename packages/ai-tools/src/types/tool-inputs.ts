@@ -147,6 +147,38 @@ export const BashInputSchema = z.strictObject({
 
 export type BashInput = z.infer<typeof BashInputSchema>;
 
+// === PowerShellTool — EncodedCommand，少转义 ===
+
+export const PowerShellInputSchema = z.strictObject({
+  command: z.string().describe('PowerShell script or expression to run'),
+  timeout: z
+    .number()
+    .int()
+    .min(0)
+    .optional()
+    .describe('Timeout in milliseconds (max 600000, default 120000)'),
+  description: z.string().optional().describe('Short description for permission UI'),
+  runInBackground: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe('Start as background task (release foreground; poll task id)')
+});
+
+export type PowerShellInput = z.infer<typeof PowerShellInputSchema>;
+
+// === MonitorTool — 后台长驻命令 ===
+
+export const MonitorInputSchema = z.strictObject({
+  command: z
+    .string()
+    .min(1)
+    .describe('Shell command to run detached; use task-output / fs background APIs to poll'),
+  description: z.string().optional().describe('What this monitored command is doing')
+});
+
+export type MonitorInput = z.infer<typeof MonitorInputSchema>;
+
 // === TaskCreateTool ===
 
 export const TaskCreateInputSchema = z.strictObject({

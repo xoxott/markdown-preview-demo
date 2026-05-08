@@ -32,6 +32,8 @@ export {
   FileWriteInputSchema,
   FileEditInputSchema,
   BashInputSchema,
+  PowerShellInputSchema,
+  MonitorInputSchema,
   WebFetchInputSchema,
   FileLsInputSchema,
   NotebookEditInputSchema,
@@ -104,6 +106,9 @@ export { fileReadTool } from './tools/file-read';
 export { fileWriteTool } from './tools/file-write';
 export { fileEditTool } from './tools/file-edit';
 export { bashTool } from './tools/bash';
+export { powershellTool } from './tools/powershell';
+export { monitorTool } from './tools/monitor';
+export type { MonitorOutput } from './tools/monitor';
 export { webFetchTool } from './tools/web-fetch';
 export { fileLsTool } from './tools/file-ls';
 export { notebookEditTool } from './tools/notebook-edit';
@@ -404,6 +409,14 @@ export type {
   BashPermissionMatchResult,
   ExpansionCheckResult
 } from './tools/bash-permission-rules';
+
+export {
+  matchPowerShellPermissionRule,
+  DEFAULT_POWERSHELL_PERMISSION_RULES
+} from './tools/powershell-permission-rules';
+export type { PowerShellPermissionMatchResult } from './tools/powershell-permission-rules';
+export { assessPowerShellCommandSecurity } from './tools/powershell-security';
+export type { PowerShellSecurityAssessment } from './tools/powershell-security';
 
 // G7: sed -i 拦截导出
 export { isSedInPlaceEdit, parseSedEditCommand, applySedSubstitution } from './tools/sedEditParser';

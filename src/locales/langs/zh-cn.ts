@@ -283,10 +283,11 @@ const local: App.I18n.Schema = {
       colCategory: '类别',
       colProviders: '依赖 Provider',
       commandsLead: '数据源自 @suga/ai-commands 的 catalog 快照，与 CLI 注册表一致。',
-      markdownLead: '本页 Markdown 由 @suga/markdown-it-render-vnode-vue 栈渲染，与业务编辑器同源。',
+      markdownLead:
+        '本页 Markdown 由 @suga/markdown-it-render-vnode-vue 栈渲染，与业务编辑器同源。',
       argsLead:
         'parseCommandArgs（@suga/ai-commands）支持 JSON、key=value 与位置参数，以下为实时解析结果。',
-      argsPlaceholder: "例如：subcommand=save name=demo 或 {\"subcommand\":\"list\"}",
+      argsPlaceholder: '例如：subcommand=save name=demo 或 {"subcommand":"list"}',
       argsRun: '解析',
       argsParsed: '解析结果',
       groupRender: '渲染与文档',
@@ -294,7 +295,7 @@ const local: App.I18n.Schema = {
       groupAgent: 'Agent 与编排',
       groupInfra: '基础设施',
       colorDemo: '@suga/color 颜色转换',
-      colorHint: '输入任意 CSS 颜色值',
+      colorHint: '输入任意 CSS 颜色值'
     },
     userManagement: {
       title: '用户管理',

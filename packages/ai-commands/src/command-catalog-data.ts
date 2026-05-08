@@ -1,6 +1,4 @@
-/**
- * 命令 catalog 纯数据 — 无 Skill 实现依赖，可供浏览器宿主只读展示 catalog。
- */
+/** 命令 catalog 纯数据 — 无 Skill 实现依赖，可供浏览器宿主只读展示 catalog。 */
 
 import type { CommandCatalogEntry } from './types/catalog';
 

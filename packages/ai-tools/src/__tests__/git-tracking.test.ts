@@ -1,6 +1,6 @@
 /** G6 Git 操作跟踪测试 */
 
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   GitOperationTracker,
   detectGitOperation,

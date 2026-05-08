@@ -31,8 +31,7 @@ export default defineComponent({
         key: 'name',
         ellipsis: { tooltip: true },
         width: 140,
-        render: (row: Row) =>
-          h('code', { class: 'font-mono text-sm text-cyan-800' }, row.name)
+        render: (row: Row) => h('code', { class: 'font-mono text-sm text-cyan-800' }, row.name)
       },
       {
         title: () => t('page.chat.colTier'),
@@ -56,7 +55,8 @@ export default defineComponent({
       {
         title: () => t('page.chat.colProviders'),
         key: 'requiredProviders',
-        render: (row: Row) => (row.requiredProviders.length ? row.requiredProviders.join(', ') : '—')
+        render: (row: Row) =>
+          row.requiredProviders.length ? row.requiredProviders.join(', ') : '—'
       }
     ]);
 
@@ -75,7 +75,7 @@ export default defineComponent({
           </NRadioGroup>
         </div>
         <NDataTable
-          class="w-full min-w-0"
+          class="min-w-0 w-full"
           columns={columns.value}
           data={rows.value}
           bordered={false}

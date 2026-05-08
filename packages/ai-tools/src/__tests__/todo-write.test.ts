@@ -1,6 +1,6 @@
 /** G1 TodoWrite 工具测试 */
 
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ToolRegistry } from '@suga/ai-tool-core';
 import { InMemoryTodoWriteProvider, todoWriteTool } from '../index';
 import type { ExtendedToolUseContext } from '../context-merge';

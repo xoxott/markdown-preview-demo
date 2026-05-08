@@ -14,7 +14,8 @@ import { z } from 'zod';
 import { buildTool } from '@suga/ai-tool-core';
 import type { ToolResult, ToolUseContext } from '@suga/ai-tool-core';
 
-export const BRIEF_TOOL_NAME = 'SendUserMessage';
+/** 对外工具名 — 须匹配 @suga/ai-tool-core TOOL_NAME_PATTERN */
+export const BRIEF_TOOL_NAME = 'send_user_message';
 export const LEGACY_BRIEF_TOOL_NAME = 'Brief';
 
 export const BRIEF_TOOL_DESCRIPTION = 'Send a message to the user';

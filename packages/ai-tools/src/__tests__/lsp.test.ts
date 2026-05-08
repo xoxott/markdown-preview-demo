@@ -1,6 +1,6 @@
 /** G2: LSP 工具测试 — InMemoryLspProvider + 6 工具 */
 
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ToolRegistry } from '@suga/ai-tool-core';
 import {
   InMemoryLspProvider,

@@ -3,9 +3,7 @@
 import type { ToolExecutor, ToolRegistry, ToolUseContext } from '@suga/ai-tool-core';
 import type { ToolScheduler } from '../types/scheduler';
 import type { ToolResultMessage, ToolUseBlock } from '../types/messages';
-/** 生成唯一 ID */
 
-/** 生成唯一 ID */
 function generateId(): string {
   return `tu_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 }

@@ -297,7 +297,7 @@ const local: App.I18n.Schema = {
       groupAgent: 'Agent & loop',
       groupInfra: 'Infrastructure',
       colorDemo: '@suga/color conversion',
-      colorHint: 'Enter any CSS color',
+      colorHint: 'Enter any CSS color'
     },
     userManagement: {
       title: 'User Management',

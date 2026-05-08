@@ -751,6 +751,9 @@ importers:
       '@suga/ai-subagent':
         specifier: workspace:*
         version: link:../ai-subagent
+      '@suga/ai-tool-adapter':
+        specifier: workspace:*
+        version: link:../ai-tool-adapter
       '@suga/ai-tool-core':
         specifier: workspace:*
         version: link:../ai-tool-core
@@ -761,6 +764,9 @@ importers:
         specifier: ^4.2.1
         version: 4.2.1
     devDependencies:
+      '@suga/ai-runtime':
+        specifier: workspace:*
+        version: link:../ai-runtime
       typescript:
         specifier: ^5.6.3
         version: 5.6.3

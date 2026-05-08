@@ -35,6 +35,7 @@ import type { FileEditLogProvider } from './types/file-edit-log';
 import type { FileWriteStateTracker } from './tools/file-write-state';
 import type { TodoWriteProvider } from './types/todo-provider';
 import type { LspProvider } from './types/lsp-provider';
+import type { BashPermissionRule } from './tools/bash-permission-rules';
 
 /** 扩展的 ToolUseContext — 包含所有宿主注入Provider */
 export interface ExtendedToolUseContext extends ToolUseContext {
@@ -86,6 +87,8 @@ export interface ExtendedToolUseContext extends ToolUseContext {
   sandboxFsProvider?: FileSystemProvider;
   /** G35: 记忆根路径 — 用于子代理 scoped memory 路径计算 */
   memoryRoot?: string;
+  /** Bash 结构与 bash 一致的 PowerShell 命令文本权限规则；未注入则使用 PowerShellTool 内置默认列表 */
+  powershellPermissionRules?: readonly BashPermissionRule[];
 }
 
 // Side-effect export 确保 augmentation 说明生效

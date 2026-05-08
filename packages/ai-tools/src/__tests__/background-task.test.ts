@@ -1,6 +1,6 @@
 /** G8 后台任务生命周期测试 — MockFileSystemProvider 后台任务方法 */
 
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import type { BackgroundTaskDetail, BackgroundTaskResult } from '../types/fs-provider';
 import { MockFileSystemProvider } from './mocks/MockFileSystemProvider';
 
