@@ -16,6 +16,7 @@ import {
   extractDomain,
   isDomainAllowed
 } from '../provider/SandboxHttpProvider';
+import { fsProviderBackgroundNoops } from './test-helpers';
 
 // ============================================================
 // extractDomain tests
@@ -325,7 +326,8 @@ describe('buildProviderMap sandbox network 贅通', () => {
       ls: vi.fn().mockResolvedValue([]),
       runCommand: vi
         .fn()
-        .mockResolvedValue({ exitCode: 0, stdout: '', stderr: '', timedOut: false })
+        .mockResolvedValue({ exitCode: 0, stdout: '', stderr: '', timedOut: false }),
+      ...fsProviderBackgroundNoops
     };
     const mockHttp = {
       fetch: vi.fn().mockResolvedValue(new Response('ok')),
@@ -368,7 +370,8 @@ describe('buildProviderMap sandbox network 贅通', () => {
       ls: vi.fn().mockResolvedValue([]),
       runCommand: vi
         .fn()
-        .mockResolvedValue({ exitCode: 0, stdout: '', stderr: '', timedOut: false })
+        .mockResolvedValue({ exitCode: 0, stdout: '', stderr: '', timedOut: false }),
+      ...fsProviderBackgroundNoops
     };
     const mockHttp = {
       fetch: vi.fn().mockResolvedValue(new Response('ok')),

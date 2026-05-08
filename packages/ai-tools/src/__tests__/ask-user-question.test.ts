@@ -6,6 +6,7 @@ import type { ExtendedToolUseContext } from '../context-merge';
 import type { AskUserQuestionInput } from '../types/tool-inputs';
 import { InMemoryUserInteractionProvider } from '../provider/InMemoryUserInteractionProvider';
 import { askUserQuestionTool } from '../tools/ask-user-question';
+import { awaitedPermission, awaitedValidation } from './test-helpers';
 
 const baseQuestions = [
   {
@@ -96,9 +97,11 @@ describe('AskUserQuestionTool', () => {
     expect(result.data.answers['Which approach?']).toBe('A');
   });
 
-  it('validateInput(0个问题) → deny', () => {
+  it('validateInput(0个问题) → deny', async () => {
     const ctx = createContext();
-    const result = askUserQuestionTool.validateInput!({ questions: [] } as any, ctx);
+    const result = await awaitedValidation(
+      askUserQuestionTool.validateInput!({ questions: [] } as any, ctx)
+    );
     expect(result.behavior).toBe('deny');
   });
 
@@ -108,11 +111,13 @@ describe('AskUserQuestionTool', () => {
     ).toBe(true);
   });
 
-  it('checkPermissions → ask', () => {
+  it('checkPermissions → ask', async () => {
     const ctx = createContext();
-    const result = askUserQuestionTool.checkPermissions!(
-      { questions: baseQuestions } as AskUserQuestionInput,
-      ctx
+    const result = await awaitedPermission(
+      askUserQuestionTool.checkPermissions!(
+        { questions: baseQuestions } as AskUserQuestionInput,
+        ctx
+      )
     );
     expect(result.behavior).toBe('ask');
   });

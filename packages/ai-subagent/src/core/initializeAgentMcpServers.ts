@@ -43,7 +43,7 @@ export class ScopedMcpResourceProvider implements McpResourceProvider {
     }
     const all = await this.inner.listResources(server);
     // 过滤只返回允许的服务器
-    return all.filter(entry => this.allowedServers.has(entry.server));
+    return all.filter((entry: McpResourceEntry) => this.allowedServers.has(entry.server));
   }
 
   async readResource(server: string, uri: string): Promise<McpResourceContent> {

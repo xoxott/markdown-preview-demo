@@ -6,6 +6,7 @@ import type { ExtendedToolUseContext } from '../context-merge';
 import type { WebSearchInput } from '../types/tool-inputs';
 import { InMemorySearchProvider } from '../provider/InMemorySearchProvider';
 import { webSearchTool } from '../tools/web-search';
+import { awaitedValidation } from './test-helpers';
 
 function createContext(provider?: InMemorySearchProvider): ExtendedToolUseContext {
   const searchProvider = provider ?? new InMemorySearchProvider();
@@ -82,15 +83,19 @@ describe('WebSearchTool', () => {
     expect(result.data.results).toEqual([]);
   });
 
-  it('validateInput(空查询) → deny', () => {
+  it('validateInput(空查询) → deny', async () => {
     const ctx = createContext();
-    const result = webSearchTool.validateInput!({ query: '' } as WebSearchInput, ctx);
+    const result = await awaitedValidation(
+      webSearchTool.validateInput!({ query: '' } as WebSearchInput, ctx)
+    );
     expect(result.behavior).toBe('deny');
   });
 
-  it('validateInput(有效查询) → allow', () => {
+  it('validateInput(有效查询) → allow', async () => {
     const ctx = createContext();
-    const result = webSearchTool.validateInput!({ query: 'test' } as WebSearchInput, ctx);
+    const result = await awaitedValidation(
+      webSearchTool.validateInput!({ query: 'test' } as WebSearchInput, ctx)
+    );
     expect(result.behavior).toBe('allow');
   });
 

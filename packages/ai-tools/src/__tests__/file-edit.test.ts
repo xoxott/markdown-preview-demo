@@ -6,6 +6,7 @@ import { fileEditTool, preserveQuoteStyle } from '../tools/file-edit';
 import { FileEditInputSchema } from '../types/tool-inputs';
 import type { ExtendedToolUseContext } from '../context-merge';
 import { MockFileSystemProvider } from './mocks/MockFileSystemProvider';
+import { awaitedPermission, awaitedValidation } from './test-helpers';
 
 function createContext(fs: MockFileSystemProvider): ExtendedToolUseContext {
   return {
@@ -77,50 +78,60 @@ describe('FileEditTool — schema 验证', () => {
 });
 
 describe('FileEditTool — validateInput', () => {
-  it('有效输入 → allow', () => {
-    const result = fileEditTool.validateInput(
-      { filePath: '/test.txt', oldString: 'old', newString: 'new', replaceAll: false },
-      createContext(new MockFileSystemProvider())
+  it('有效输入 → allow', async () => {
+    const result = await awaitedValidation(
+      fileEditTool.validateInput(
+        { filePath: '/test.txt', oldString: 'old', newString: 'new', replaceAll: false },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
   });
 
-  it('空路径 → deny', () => {
-    const result = fileEditTool.validateInput(
-      { filePath: '', oldString: 'old', newString: 'new', replaceAll: false },
-      createContext(new MockFileSystemProvider())
+  it('空路径 → deny', async () => {
+    const result = await awaitedValidation(
+      fileEditTool.validateInput(
+        { filePath: '', oldString: 'old', newString: 'new', replaceAll: false },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('deny');
     if (result.behavior === 'deny') expect(result.reason).toBe('empty_path');
   });
 
-  it('相对路径 → deny', () => {
-    const result = fileEditTool.validateInput(
-      { filePath: 'test.txt', oldString: 'old', newString: 'new', replaceAll: false },
-      createContext(new MockFileSystemProvider())
+  it('相对路径 → deny', async () => {
+    const result = await awaitedValidation(
+      fileEditTool.validateInput(
+        { filePath: 'test.txt', oldString: 'old', newString: 'new', replaceAll: false },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('deny');
     if (result.behavior === 'deny') expect(result.reason).toBe('relative_path');
   });
 
-  it('空 oldString → deny', () => {
-    const result = fileEditTool.validateInput(
-      { filePath: '/test.txt', oldString: '', newString: 'new', replaceAll: false },
-      createContext(new MockFileSystemProvider())
+  it('空 oldString → deny', async () => {
+    const result = await awaitedValidation(
+      fileEditTool.validateInput(
+        { filePath: '/test.txt', oldString: '', newString: 'new', replaceAll: false },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('deny');
     if (result.behavior === 'deny') expect(result.reason).toBe('empty_old_string');
   });
 
-  it('oldString 弯引号规范化 → updatedInput', () => {
-    const result = fileEditTool.validateInput(
-      {
-        filePath: '/test.txt',
-        oldString: '\u2018old\u2019',
-        newString: "'new'",
-        replaceAll: false
-      },
-      createContext(new MockFileSystemProvider())
+  it('oldString 弯引号规范化 → updatedInput', async () => {
+    const result = await awaitedValidation(
+      fileEditTool.validateInput(
+        {
+          filePath: '/test.txt',
+          oldString: '\u2018old\u2019',
+          newString: "'new'",
+          replaceAll: false
+        },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
     if (result.behavior === 'allow' && result.updatedInput) {
@@ -129,15 +140,17 @@ describe('FileEditTool — validateInput', () => {
     }
   });
 
-  it('newString 弯引号规范化 → updatedInput', () => {
-    const result = fileEditTool.validateInput(
-      {
-        filePath: '/test.txt',
-        oldString: "'old'",
-        newString: '\u2018new\u2019',
-        replaceAll: false
-      },
-      createContext(new MockFileSystemProvider())
+  it('newString 弯引号规范化 → updatedInput', async () => {
+    const result = await awaitedValidation(
+      fileEditTool.validateInput(
+        {
+          filePath: '/test.txt',
+          oldString: "'old'",
+          newString: '\u2018new\u2019',
+          replaceAll: false
+        },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
     if (result.behavior === 'allow' && result.updatedInput) {
@@ -146,15 +159,17 @@ describe('FileEditTool — validateInput', () => {
     }
   });
 
-  it('双字符串同时规范化 → updatedInput', () => {
-    const result = fileEditTool.validateInput(
-      {
-        filePath: '/test.txt',
-        oldString: '\u2018old\u2019\r\nline',
-        newString: '\u201Cnew\u201D\r\nline',
-        replaceAll: false
-      },
-      createContext(new MockFileSystemProvider())
+  it('双字符串同时规范化 → updatedInput', async () => {
+    const result = await awaitedValidation(
+      fileEditTool.validateInput(
+        {
+          filePath: '/test.txt',
+          oldString: '\u2018old\u2019\r\nline',
+          newString: '\u201Cnew\u201D\r\nline',
+          replaceAll: false
+        },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
     if (result.behavior === 'allow' && result.updatedInput) {
@@ -164,15 +179,17 @@ describe('FileEditTool — validateInput', () => {
     }
   });
 
-  it('LF 行尾规范化 → updatedInput', () => {
-    const result = fileEditTool.validateInput(
-      {
-        filePath: '/test.txt',
-        oldString: 'old\r\nline',
-        newString: 'new\r\nline',
-        replaceAll: false
-      },
-      createContext(new MockFileSystemProvider())
+  it('LF 行尾规范化 → updatedInput', async () => {
+    const result = await awaitedValidation(
+      fileEditTool.validateInput(
+        {
+          filePath: '/test.txt',
+          oldString: 'old\r\nline',
+          newString: 'new\r\nline',
+          replaceAll: false
+        },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
     if (result.behavior === 'allow' && result.updatedInput) {
@@ -182,42 +199,50 @@ describe('FileEditTool — validateInput', () => {
     }
   });
 
-  it('无需规范化 → allow 无 updatedInput', () => {
-    const result = fileEditTool.validateInput(
-      {
-        filePath: '/test.txt',
-        oldString: "'old'\nline",
-        newString: "'new'\nline",
-        replaceAll: false
-      },
-      createContext(new MockFileSystemProvider())
+  it('无需规范化 → allow 无 updatedInput', async () => {
+    const result = await awaitedValidation(
+      fileEditTool.validateInput(
+        {
+          filePath: '/test.txt',
+          oldString: "'old'\nline",
+          newString: "'new'\nline",
+          replaceAll: false
+        },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
     if (result.behavior === 'allow') expect(result.updatedInput).toBeUndefined();
   });
 
-  it('oldString === newString → allow（不做特殊限制）', () => {
-    const result = fileEditTool.validateInput(
-      { filePath: '/test.txt', oldString: 'same', newString: 'same', replaceAll: false },
-      createContext(new MockFileSystemProvider())
+  it('oldString === newString → allow（不做特殊限制）', async () => {
+    const result = await awaitedValidation(
+      fileEditTool.validateInput(
+        { filePath: '/test.txt', oldString: 'same', newString: 'same', replaceAll: false },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
   });
 });
 
 describe('FileEditTool — checkPermissions', () => {
-  it('总是 ask', () => {
-    const result = fileEditTool.checkPermissions(
-      { filePath: '/test.txt', oldString: 'old', newString: 'new', replaceAll: false },
-      createContext(new MockFileSystemProvider())
+  it('总是 ask', async () => {
+    const result = await awaitedPermission(
+      fileEditTool.checkPermissions(
+        { filePath: '/test.txt', oldString: 'old', newString: 'new', replaceAll: false },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('ask');
   });
 
-  it('ask message 含文件路径', () => {
-    const result = fileEditTool.checkPermissions(
-      { filePath: '/test.txt', oldString: 'old', newString: 'new', replaceAll: false },
-      createContext(new MockFileSystemProvider())
+  it('ask message 含文件路径', async () => {
+    const result = await awaitedPermission(
+      fileEditTool.checkPermissions(
+        { filePath: '/test.txt', oldString: 'old', newString: 'new', replaceAll: false },
+        createContext(new MockFileSystemProvider())
+      )
     );
     if (result.behavior === 'ask') expect(result.message).toContain('/test.txt');
   });

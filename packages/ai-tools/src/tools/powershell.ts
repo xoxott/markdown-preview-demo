@@ -106,11 +106,7 @@ export const powershellTool = buildTool<PowerShellInput, BashOutput>({
       };
     }
 
-    if (
-      ruleMatch.behavior === 'allow' &&
-      ruleMatch.matchedRule &&
-      assessment.safetyLevel !== 'dangerous'
-    ) {
+    if (ruleMatch.behavior === 'allow' && ruleMatch.matchedRule) {
       return {
         behavior: 'allow',
         decisionReason: ruleMatch.reason

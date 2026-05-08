@@ -6,6 +6,7 @@ import type { ExtendedToolUseContext } from '../context-merge';
 import type { ExitPlanModeInput } from '../types/tool-inputs';
 import { InMemoryPlanModeProvider } from '../provider/InMemoryPlanModeProvider';
 import { exitPlanModeTool } from '../tools/exit-plan-mode';
+import { awaitedPermission } from './test-helpers';
 
 function createContext(provider?: InMemoryPlanModeProvider): ExtendedToolUseContext {
   const planModeProvider = provider ?? new InMemoryPlanModeProvider();
@@ -56,9 +57,11 @@ describe('ExitPlanModeTool', () => {
     expect(exitPlanModeTool.safetyLabel!({} as ExitPlanModeInput)).toBe('system');
   });
 
-  it('checkPermissions → ask', () => {
+  it('checkPermissions → ask', async () => {
     const ctx = createContext();
-    const result = exitPlanModeTool.checkPermissions!({} as ExitPlanModeInput, ctx);
+    const result = await awaitedPermission(
+      exitPlanModeTool.checkPermissions!({} as ExitPlanModeInput, ctx)
+    );
     expect(result.behavior).toBe('ask');
   });
 });

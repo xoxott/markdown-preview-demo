@@ -6,6 +6,7 @@ import { fileWriteTool } from '../tools/file-write';
 import { FileWriteInputSchema } from '../types/tool-inputs';
 import type { ExtendedToolUseContext } from '../context-merge';
 import { MockFileSystemProvider } from './mocks/MockFileSystemProvider';
+import { awaitedPermission, awaitedValidation } from './test-helpers';
 
 function createContext(fs: MockFileSystemProvider): ExtendedToolUseContext {
   return {
@@ -48,36 +49,44 @@ describe('FileWriteTool — schema 验证', () => {
 });
 
 describe('FileWriteTool — validateInput', () => {
-  it('有效输入 → allow', () => {
-    const result = fileWriteTool.validateInput(
-      { filePath: '/test.txt', content: 'hello' },
-      createContext(new MockFileSystemProvider())
+  it('有效输入 → allow', async () => {
+    const result = await awaitedValidation(
+      fileWriteTool.validateInput(
+        { filePath: '/test.txt', content: 'hello' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
   });
 
-  it('空路径 → deny', () => {
-    const result = fileWriteTool.validateInput(
-      { filePath: '', content: 'hello' },
-      createContext(new MockFileSystemProvider())
+  it('空路径 → deny', async () => {
+    const result = await awaitedValidation(
+      fileWriteTool.validateInput(
+        { filePath: '', content: 'hello' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('deny');
     if (result.behavior === 'deny') expect(result.reason).toBe('empty_path');
   });
 
-  it('相对路径 → deny', () => {
-    const result = fileWriteTool.validateInput(
-      { filePath: 'test.txt', content: 'hello' },
-      createContext(new MockFileSystemProvider())
+  it('相对路径 → deny', async () => {
+    const result = await awaitedValidation(
+      fileWriteTool.validateInput(
+        { filePath: 'test.txt', content: 'hello' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('deny');
     if (result.behavior === 'deny') expect(result.reason).toBe('relative_path');
   });
 
-  it('弯引号规范化 → updatedInput 含直引号', () => {
-    const result = fileWriteTool.validateInput(
-      { filePath: '/test.txt', content: '\u2018hello\u2019' },
-      createContext(new MockFileSystemProvider())
+  it('弯引号规范化 → updatedInput 含直引号', async () => {
+    const result = await awaitedValidation(
+      fileWriteTool.validateInput(
+        { filePath: '/test.txt', content: '\u2018hello\u2019' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
     if (result.behavior === 'allow' && result.updatedInput) {
@@ -85,10 +94,12 @@ describe('FileWriteTool — validateInput', () => {
     }
   });
 
-  it('CRLF → LF 规范化 → updatedInput', () => {
-    const result = fileWriteTool.validateInput(
-      { filePath: '/test.txt', content: 'line1\r\nline2' },
-      createContext(new MockFileSystemProvider())
+  it('CRLF → LF 规范化 → updatedInput', async () => {
+    const result = await awaitedValidation(
+      fileWriteTool.validateInput(
+        { filePath: '/test.txt', content: 'line1\r\nline2' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
     if (result.behavior === 'allow' && result.updatedInput) {
@@ -96,10 +107,12 @@ describe('FileWriteTool — validateInput', () => {
     }
   });
 
-  it('组合规范化 → 弯引号+CRLF 同时处理', () => {
-    const result = fileWriteTool.validateInput(
-      { filePath: '/test.txt', content: '\u2018hello\u2019\r\nworld' },
-      createContext(new MockFileSystemProvider())
+  it('组合规范化 → 弯引号+CRLF 同时处理', async () => {
+    const result = await awaitedValidation(
+      fileWriteTool.validateInput(
+        { filePath: '/test.txt', content: '\u2018hello\u2019\r\nworld' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
     if (result.behavior === 'allow' && result.updatedInput) {
@@ -107,37 +120,45 @@ describe('FileWriteTool — validateInput', () => {
     }
   });
 
-  it('无需规范化 → allow 无 updatedInput', () => {
-    const result = fileWriteTool.validateInput(
-      { filePath: '/test.txt', content: "'hello'\nworld" },
-      createContext(new MockFileSystemProvider())
+  it('无需规范化 → allow 无 updatedInput', async () => {
+    const result = await awaitedValidation(
+      fileWriteTool.validateInput(
+        { filePath: '/test.txt', content: "'hello'\nworld" },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
     if (result.behavior === 'allow') expect(result.updatedInput).toBeUndefined();
   });
 
-  it('空内容 → allow（允许创建空文件）', () => {
-    const result = fileWriteTool.validateInput(
-      { filePath: '/test.txt', content: '' },
-      createContext(new MockFileSystemProvider())
+  it('空内容 → allow（允许创建空文件）', async () => {
+    const result = await awaitedValidation(
+      fileWriteTool.validateInput(
+        { filePath: '/test.txt', content: '' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
   });
 });
 
 describe('FileWriteTool — checkPermissions', () => {
-  it('总是 ask', () => {
-    const result = fileWriteTool.checkPermissions(
-      { filePath: '/test.txt', content: 'hello' },
-      createContext(new MockFileSystemProvider())
+  it('总是 ask', async () => {
+    const result = await awaitedPermission(
+      fileWriteTool.checkPermissions(
+        { filePath: '/test.txt', content: 'hello' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('ask');
   });
 
-  it('ask message 含文件路径', () => {
-    const result = fileWriteTool.checkPermissions(
-      { filePath: '/test.txt', content: 'hello' },
-      createContext(new MockFileSystemProvider())
+  it('ask message 含文件路径', async () => {
+    const result = await awaitedPermission(
+      fileWriteTool.checkPermissions(
+        { filePath: '/test.txt', content: 'hello' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     if (result.behavior === 'ask') expect(result.message).toContain('/test.txt');
   });

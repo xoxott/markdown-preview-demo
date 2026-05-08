@@ -8,6 +8,7 @@ import { cronDeleteTool } from '../tools/cron-delete';
 import { cronListTool } from '../tools/cron-list';
 import { remoteTriggerTool } from '../tools/remote-trigger';
 import type { ExtendedToolUseContext } from '../context-merge';
+import { awaitedValidation } from './test-helpers';
 
 /** 创建基础上下文（含 Provider） */
 function createContext(providers: Partial<ExtendedToolUseContext> = {}): ExtendedToolUseContext {
@@ -142,16 +143,18 @@ describe('CronCreateTool', () => {
     expect(result.data.id).toBe('');
   });
 
-  it('validateInput — 缺少 cron', () => {
+  it('validateInput — 缺少 cron', async () => {
     const ctx = createContext();
-    const result = cronCreateTool.validateInput(
-      {
-        cron: '',
-        prompt: 'test',
-        recurring: true,
-        durable: false
-      },
-      ctx as any
+    const result = await awaitedValidation(
+      cronCreateTool.validateInput(
+        {
+          cron: '',
+          prompt: 'test',
+          recurring: true,
+          durable: false
+        },
+        ctx as ExtendedToolUseContext
+      )
     );
     expect(result.behavior).toBe('deny');
   });
@@ -359,21 +362,21 @@ describe('RemoteTriggerTool', () => {
     expect(result.data.action).toBe('get');
   });
 
-  it('validateInput — action=get 无 trigger_id → deny', () => {
+  it('validateInput — action=get 无 trigger_id → deny', async () => {
     const ctx = createContext();
-    const result = remoteTriggerTool.validateInput({ action: 'get' }, ctx as any);
+    const result = await awaitedValidation(remoteTriggerTool.validateInput({ action: 'get' }, ctx));
     expect(result.behavior).toBe('deny');
   });
 
-  it('validateInput — action=run 无 trigger_id → deny', () => {
+  it('validateInput — action=run 无 trigger_id → deny', async () => {
     const ctx = createContext();
-    const result = remoteTriggerTool.validateInput({ action: 'run' }, ctx as any);
+    const result = await awaitedValidation(remoteTriggerTool.validateInput({ action: 'run' }, ctx));
     expect(result.behavior).toBe('deny');
   });
 
-  it('validateInput — action=list 无 trigger_id → allow', () => {
+  it('validateInput — action=list 无 trigger_id → allow', async () => {
     const ctx = createContext();
-    const result = remoteTriggerTool.validateInput({ action: 'list' }, ctx as any);
+    const result = await awaitedValidation(remoteTriggerTool.validateInput({ action: 'list' }, ctx));
     expect(result.behavior).toBe('allow');
   });
 

@@ -6,6 +6,7 @@ import { fileReadTool } from '../tools/file-read';
 import { FileReadInputSchema } from '../types/tool-inputs';
 import type { ExtendedToolUseContext } from '../context-merge';
 import { MockFileSystemProvider } from './mocks/MockFileSystemProvider';
+import { awaitedPermission, awaitedValidation } from './test-helpers';
 
 function createContext(fs: MockFileSystemProvider): ExtendedToolUseContext {
   return {
@@ -49,63 +50,74 @@ describe('FileReadTool — schema 验证', () => {
 });
 
 describe('FileReadTool — validateInput', () => {
-  it('有效路径 → allow', () => {
-    const result = fileReadTool.validateInput(
-      { filePath: '/test.txt' },
-      createContext(new MockFileSystemProvider())
+  it('有效路径 → allow', async () => {
+    const result = await awaitedValidation(
+      fileReadTool.validateInput(
+        { filePath: '/test.txt' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
   });
 
-  it('空路径 → deny', () => {
-    const result = fileReadTool.validateInput(
-      { filePath: '' },
-      createContext(new MockFileSystemProvider())
+  it('空路径 → deny', async () => {
+    const result = await awaitedValidation(
+      fileReadTool.validateInput({ filePath: '' }, createContext(new MockFileSystemProvider()))
     );
     expect(result.behavior).toBe('deny');
     if (result.behavior === 'deny') expect(result.reason).toBe('empty_path');
   });
 
-  it('相对路径 → deny', () => {
-    const result = fileReadTool.validateInput(
-      { filePath: 'test.txt' },
-      createContext(new MockFileSystemProvider())
+  it('相对路径 → deny', async () => {
+    const result = await awaitedValidation(
+      fileReadTool.validateInput(
+        { filePath: 'test.txt' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('deny');
     if (result.behavior === 'deny') expect(result.reason).toBe('relative_path');
   });
 
-  it('offset + pages 冲突 → deny', () => {
-    const result = fileReadTool.validateInput(
-      { filePath: '/test.pdf', offset: 0, pages: '1-5' },
-      createContext(new MockFileSystemProvider())
+  it('offset + pages 冲突 → deny', async () => {
+    const result = await awaitedValidation(
+      fileReadTool.validateInput(
+        { filePath: '/test.pdf', offset: 0, pages: '1-5' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('deny');
     if (result.behavior === 'deny') expect(result.reason).toBe('conflicting_read_options');
   });
 
-  it('带 offset → allow', () => {
-    const result = fileReadTool.validateInput(
-      { filePath: '/test.txt', offset: 10 },
-      createContext(new MockFileSystemProvider())
+  it('带 offset → allow', async () => {
+    const result = await awaitedValidation(
+      fileReadTool.validateInput(
+        { filePath: '/test.txt', offset: 10 },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
   });
 
-  it('带 pages → allow', () => {
-    const result = fileReadTool.validateInput(
-      { filePath: '/test.pdf', pages: '1-5' },
-      createContext(new MockFileSystemProvider())
+  it('带 pages → allow', async () => {
+    const result = await awaitedValidation(
+      fileReadTool.validateInput(
+        { filePath: '/test.pdf', pages: '1-5' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
   });
 });
 
 describe('FileReadTool — checkPermissions', () => {
-  it('总是 allow', () => {
-    const result = fileReadTool.checkPermissions(
-      { filePath: '/test.txt' },
-      createContext(new MockFileSystemProvider())
+  it('总是 allow', async () => {
+    const result = await awaitedPermission(
+      fileReadTool.checkPermissions(
+        { filePath: '/test.txt' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
   });

@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { discoverSkillsTool } from '../tools/discover-skills';
 import { verifyPlanTool } from '../tools/verify-plan';
+import { minimalToolUseContext } from './test-helpers';
 
 describe('discoverSkillsTool', () => {
   it('returns empty list when no provider', async () => {
-    const result = await discoverSkillsTool.call({ query: undefined }, {});
+    const result = await discoverSkillsTool.call({ query: undefined }, minimalToolUseContext());
     expect(result.data.skills).toEqual([]);
   });
 
@@ -17,7 +18,10 @@ describe('discoverSkillsTool', () => {
         ]
       }
     };
-    const result = await discoverSkillsTool.call({ query: undefined }, context);
+    const result = await discoverSkillsTool.call(
+      { query: undefined },
+      minimalToolUseContext(context)
+    );
     expect(result.data.skills).toHaveLength(2);
     expect(result.data.skills[0].name).toBe('commit');
   });
@@ -31,7 +35,7 @@ describe('discoverSkillsTool', () => {
         ]
       }
     };
-    const result = await discoverSkillsTool.call({ query: 'review' }, context);
+    const result = await discoverSkillsTool.call({ query: 'review' }, minimalToolUseContext(context));
     expect(result.data.skills).toHaveLength(1);
     expect(result.data.skills[0].name).toBe('review-pr');
   });
@@ -42,14 +46,14 @@ describe('discoverSkillsTool', () => {
         list: () => [{ name: 'commit', description: 'Create git commits' }]
       }
     };
-    const result = await discoverSkillsTool.call({ query: 'xyz' }, context);
+    const result = await discoverSkillsTool.call({ query: 'xyz' }, minimalToolUseContext(context));
     expect(result.data.skills).toHaveLength(0);
   });
 });
 
 describe('verifyPlanTool', () => {
   it('returns no plan when provider missing', async () => {
-    const result = await verifyPlanTool.call({ planId: undefined }, {});
+    const result = await verifyPlanTool.call({ planId: undefined }, minimalToolUseContext());
     expect(result.data.totalSteps).toBe(0);
     expect(result.data.allCompleted).toBe(false);
     expect(result.data.summary).toContain('No plan found');
@@ -67,7 +71,7 @@ describe('verifyPlanTool', () => {
         })
       }
     };
-    const result = await verifyPlanTool.call({ planId: undefined }, context);
+    const result = await verifyPlanTool.call({ planId: undefined }, minimalToolUseContext(context));
     expect(result.data.totalSteps).toBe(2);
     expect(result.data.completedSteps).toBe(2);
     expect(result.data.allCompleted).toBe(true);
@@ -86,7 +90,7 @@ describe('verifyPlanTool', () => {
         })
       }
     };
-    const result = await verifyPlanTool.call({ planId: undefined }, context);
+    const result = await verifyPlanTool.call({ planId: undefined }, minimalToolUseContext(context));
     expect(result.data.totalSteps).toBe(2);
     expect(result.data.completedSteps).toBe(1);
     expect(result.data.allCompleted).toBe(false);
@@ -99,7 +103,7 @@ describe('verifyPlanTool', () => {
         getActivePlan: () => undefined
       }
     };
-    const result = await verifyPlanTool.call({ planId: undefined }, context);
+    const result = await verifyPlanTool.call({ planId: undefined }, minimalToolUseContext(context));
     expect(result.data.totalSteps).toBe(0);
   });
 });

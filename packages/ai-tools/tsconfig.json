@@ -8,7 +8,10 @@
     "paths": {
       "@/*": ["./src/*"],
       "~/*": ["./*"],
-      "@suga/ai-tool-core": ["../ai-tool-core/src/index.ts"]
+      "@suga/ai-tool-core": ["../ai-tool-core/src/index.ts"],
+      "@suga/ai-tools": ["./src/index.ts"],
+      "@suga/ai-subagent": ["../ai-subagent/src/index.ts"],
+      "@suga/ai-agent-loop": ["../ai-agent-loop/src/index.ts"]
     },
     "resolveJsonModule": true,
     "types": ["node"],

@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ToolRegistry } from '@suga/ai-tool-core';
 import { InMemoryTodoWriteProvider, todoWriteTool } from '../index';
 import type { ExtendedToolUseContext } from '../context-merge';
+import { awaitedValidation, minimalToolUseContext } from './test-helpers';
 
 function createContext(provider?: InMemoryTodoWriteProvider): ExtendedToolUseContext {
   return {
@@ -96,23 +97,21 @@ describe('todoWriteTool', () => {
 
   it('无 todoWriteProvider → updated=false + error', async () => {
     const ctx = createContext(); // 无 provider
-    const result = await todoWriteTool.call({ todos: [{ content: 'Task' }] }, ctx);
+    const result = await todoWriteTool.call({ todos: [{ content: 'Task', completed: false }] }, ctx);
     expect(result.data.updated).toBe(false);
     expect(result.error).toContain('No TodoWriteProvider');
   });
 
-  it('空 todos → validateInput 拒绝', () => {
-    const result = todoWriteTool.validateInput(
-      { todos: [] },
-      { abortController: new AbortController(), tools: new ToolRegistry(), sessionId: 'test' }
+  it('空 todos → validateInput 拒绝', async () => {
+    const result = await awaitedValidation(
+      todoWriteTool.validateInput({ todos: [] }, minimalToolUseContext())
     );
     expect(result.behavior).toBe('deny');
   });
 
-  it('空 content → validateInput 拒绝', () => {
-    const result = todoWriteTool.validateInput(
-      { todos: [{ content: '' }] },
-      { abortController: new AbortController(), tools: new ToolRegistry(), sessionId: 'test' }
+  it('空 content → validateInput 拒绝', async () => {
+    const result = await awaitedValidation(
+      todoWriteTool.validateInput({ todos: [{ content: '', completed: false }] }, minimalToolUseContext())
     );
     expect(result.behavior).toBe('deny');
   });

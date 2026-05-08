@@ -6,6 +6,7 @@ import type { ExtendedToolUseContext } from '../context-merge';
 import type { TaskOutputInput } from '../types/tool-inputs';
 import { InMemoryTaskStoreProvider } from '../provider/InMemoryTaskStoreProvider';
 import { taskOutputTool } from '../tools/task-output';
+import { awaitedValidation } from './test-helpers';
 
 function createContext(provider?: InMemoryTaskStoreProvider): ExtendedToolUseContext {
   const taskStoreProvider = provider ?? new InMemoryTaskStoreProvider();
@@ -63,9 +64,11 @@ describe('TaskOutputTool', () => {
     expect(result.data.output).toBeUndefined();
   });
 
-  it('validateInput(空taskId) → deny', () => {
+  it('validateInput(空taskId) → deny', async () => {
     const ctx = createContext();
-    const result = taskOutputTool.validateInput!({ taskId: '' } as TaskOutputInput, ctx);
+    const result = await awaitedValidation(
+      taskOutputTool.validateInput!({ taskId: '' } as TaskOutputInput, ctx)
+    );
     expect(result.behavior).toBe('deny');
   });
 

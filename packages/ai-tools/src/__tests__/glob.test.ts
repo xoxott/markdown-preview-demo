@@ -6,6 +6,7 @@ import { globTool } from '../tools/glob';
 import { GlobInputSchema } from '../types/tool-inputs';
 import type { ExtendedToolUseContext } from '../context-merge';
 import { MockFileSystemProvider } from './mocks/MockFileSystemProvider';
+import { awaitedPermission, awaitedValidation } from './test-helpers';
 
 function createContext(fs: MockFileSystemProvider): ExtendedToolUseContext {
   return {
@@ -46,45 +47,46 @@ describe('GlobTool — schema 验证', () => {
 });
 
 describe('GlobTool — validateInput', () => {
-  it('有效 pattern → allow', () => {
-    const result = globTool.validateInput(
-      { pattern: '**/*.ts' },
-      createContext(new MockFileSystemProvider())
+  it('有效 pattern → allow', async () => {
+    const result = await awaitedValidation(
+      globTool.validateInput({ pattern: '**/*.ts' }, createContext(new MockFileSystemProvider()))
     );
     expect(result.behavior).toBe('allow');
   });
 
-  it('空 pattern → deny', () => {
-    const result = globTool.validateInput(
-      { pattern: '' },
-      createContext(new MockFileSystemProvider())
+  it('空 pattern → deny', async () => {
+    const result = await awaitedValidation(
+      globTool.validateInput({ pattern: '' }, createContext(new MockFileSystemProvider()))
     );
     expect(result.behavior).toBe('deny');
     if (result.behavior === 'deny') expect(result.reason).toBe('empty_pattern');
   });
 
-  it('pattern + path → allow', () => {
-    const result = globTool.validateInput(
-      { pattern: '*.ts', path: '/src' },
-      createContext(new MockFileSystemProvider())
+  it('pattern + path → allow', async () => {
+    const result = await awaitedValidation(
+      globTool.validateInput(
+        { pattern: '*.ts', path: '/src' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
   });
 });
 
 describe('GlobTool — checkPermissions', () => {
-  it('总是 allow', () => {
-    const result = globTool.checkPermissions(
-      { pattern: '**/*.ts' },
-      createContext(new MockFileSystemProvider())
+  it('总是 allow', async () => {
+    const result = await awaitedPermission(
+      globTool.checkPermissions(
+        { pattern: '**/*.ts' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
   });
 
-  it('空 pattern 时仍然 allow（validateInput 已拦截）', () => {
-    const result = globTool.checkPermissions(
-      { pattern: '' },
-      createContext(new MockFileSystemProvider())
+  it('空 pattern 时仍然 allow（validateInput 已拦截）', async () => {
+    const result = await awaitedPermission(
+      globTool.checkPermissions({ pattern: '' }, createContext(new MockFileSystemProvider()))
     );
     expect(result.behavior).toBe('allow');
   });

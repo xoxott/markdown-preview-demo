@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import type { FileSystemProvider } from '../types/fs-provider';
 import { SendUserFileInputSchema, sendUserFileTool } from '../tools/send-user-file';
+import { minimalToolUseContext } from './test-helpers';
 
 describe('SendUserFileInputSchema', () => {
   it('validates valid input', () => {
@@ -23,14 +25,17 @@ describe('SendUserFileInputSchema', () => {
 
 describe('sendUserFileTool', () => {
   it('returns error when no fsProvider', async () => {
-    const result = await sendUserFileTool.call({ filePath: '/test.png' }, {});
+    const result = await sendUserFileTool.call({ filePath: '/test.png' }, minimalToolUseContext());
     expect(result.data.sent).toBe(false);
     expect(result.data.error).toBe('No fsProvider available');
   });
 
   it('returns error when file not found', async () => {
-    const fsProvider = { stat: (_path: string) => null };
-    const result = await sendUserFileTool.call({ filePath: '/missing.png' }, { fsProvider });
+    const fsProvider = { stat: (_path: string) => null } as unknown as FileSystemProvider;
+    const result = await sendUserFileTool.call(
+      { filePath: '/missing.png' },
+      minimalToolUseContext({ fsProvider })
+    );
     expect(result.data.sent).toBe(false);
     expect(result.data.error).toBe('File not found or not a file');
   });
@@ -38,8 +43,11 @@ describe('sendUserFileTool', () => {
   it('returns success with file info', async () => {
     const fsProvider = {
       stat: (_path: string) => ({ size: 1024, isFile: true })
-    };
-    const result = await sendUserFileTool.call({ filePath: '/docs/image.png' }, { fsProvider });
+    } as unknown as FileSystemProvider;
+    const result = await sendUserFileTool.call(
+      { filePath: '/docs/image.png' },
+      minimalToolUseContext({ fsProvider })
+    );
     expect(result.data.sent).toBe(true);
     expect(result.data.fileName).toBe('image.png');
     expect(result.data.mimeType).toBe('image/png');
@@ -49,8 +57,11 @@ describe('sendUserFileTool', () => {
   it('guesses mime type from extension', async () => {
     const fsProvider = {
       stat: (_path: string) => ({ size: 500, isFile: true })
-    };
-    const result = await sendUserFileTool.call({ filePath: '/data/report.pdf' }, { fsProvider });
+    } as unknown as FileSystemProvider;
+    const result = await sendUserFileTool.call(
+      { filePath: '/data/report.pdf' },
+      minimalToolUseContext({ fsProvider })
+    );
     expect(result.data.mimeType).toBe('application/pdf');
   });
 });

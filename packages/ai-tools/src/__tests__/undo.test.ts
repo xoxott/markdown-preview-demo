@@ -4,7 +4,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ToolRegistry } from '@suga/ai-tool-core';
 import { InMemoryFileEditLog, generateEditId, undoTool } from '../index';
 import type { FileEditLogEntry, FileEditLogProvider } from '../types/file-edit-log';
-import type { FileSystemProvider } from '../types/fs-provider';
+import type { FileSystemProvider, GrepOptions, GrepResult } from '../types/fs-provider';
+import { fsProviderBackgroundNoops } from './test-helpers';
 
 // === Mock FileSystemProvider ===
 
@@ -67,8 +68,10 @@ class MockFSProvider implements FileSystemProvider {
   async glob() {
     return [];
   }
-  async grep() {
-    return { mode: 'files-with-matches', totalMatches: 0 };
+  async grep(_pattern: string, options: GrepOptions): Promise<GrepResult> {
+    const base: GrepResult = { mode: options.outputMode, totalMatches: 0 };
+    if (options.outputMode === 'files-with-matches') return { ...base, filePaths: [] };
+    return base;
   }
   async ls() {
     return [];
@@ -76,6 +79,16 @@ class MockFSProvider implements FileSystemProvider {
   async runCommand() {
     return { exitCode: 0, stdout: '', stderr: '', timedOut: false };
   }
+
+  spawnBackgroundCommand = fsProviderBackgroundNoops.spawnBackgroundCommand.bind(
+    fsProviderBackgroundNoops
+  );
+  getBackgroundTask = fsProviderBackgroundNoops.getBackgroundTask.bind(fsProviderBackgroundNoops);
+  stopBackgroundTask = fsProviderBackgroundNoops.stopBackgroundTask.bind(fsProviderBackgroundNoops);
+  listBackgroundTasks = fsProviderBackgroundNoops.listBackgroundTasks.bind(fsProviderBackgroundNoops);
+  registerForeground = fsProviderBackgroundNoops.registerForeground.bind(fsProviderBackgroundNoops);
+  unregisterForeground = fsProviderBackgroundNoops.unregisterForeground.bind(fsProviderBackgroundNoops);
+  markTaskNotified = fsProviderBackgroundNoops.markTaskNotified.bind(fsProviderBackgroundNoops);
 
   reset(): void {
     this.files.clear();

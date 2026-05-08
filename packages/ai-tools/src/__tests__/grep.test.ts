@@ -6,6 +6,7 @@ import { grepTool } from '../tools/grep';
 import { GrepInputSchema } from '../types/tool-inputs';
 import type { ExtendedToolUseContext } from '../context-merge';
 import { MockFileSystemProvider } from './mocks/MockFileSystemProvider';
+import { awaitedPermission, awaitedValidation } from './test-helpers';
 
 function createContext(fs: MockFileSystemProvider): ExtendedToolUseContext {
   return {
@@ -73,63 +74,77 @@ describe('GrepTool — schema 验证', () => {
 });
 
 describe('GrepTool — validateInput', () => {
-  it('有效输入 → allow', () => {
-    const result = grepTool.validateInput(
-      { pattern: 'hello', outputMode: 'content' },
-      createContext(new MockFileSystemProvider())
+  it('有效输入 → allow', async () => {
+    const result = await awaitedValidation(
+      grepTool.validateInput(
+        { pattern: 'hello', outputMode: 'content' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
   });
 
-  it('空 pattern → deny', () => {
-    const result = grepTool.validateInput(
-      { pattern: '', outputMode: 'content' },
-      createContext(new MockFileSystemProvider())
+  it('空 pattern → deny', async () => {
+    const result = await awaitedValidation(
+      grepTool.validateInput(
+        { pattern: '', outputMode: 'content' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('deny');
     if (result.behavior === 'deny') expect(result.reason).toBe('empty_pattern');
   });
 
-  it('contextBefore/After + contextLines 冲突 → deny', () => {
-    const result = grepTool.validateInput(
-      { pattern: 'x', contextBefore: 2, contextLines: 3, outputMode: 'content' },
-      createContext(new MockFileSystemProvider())
+  it('contextBefore/After + contextLines 冲突 → deny', async () => {
+    const result = await awaitedValidation(
+      grepTool.validateInput(
+        { pattern: 'x', contextBefore: 2, contextLines: 3, outputMode: 'content' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('deny');
     if (result.behavior === 'deny') expect(result.reason).toBe('conflicting_context_options');
   });
 
-  it('headLimit=0 → deny', () => {
-    const result = grepTool.validateInput(
-      { pattern: 'x', headLimit: 0, outputMode: 'content' },
-      createContext(new MockFileSystemProvider())
+  it('headLimit=0 → deny', async () => {
+    const result = await awaitedValidation(
+      grepTool.validateInput(
+        { pattern: 'x', headLimit: 0, outputMode: 'content' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('deny');
     if (result.behavior === 'deny') expect(result.reason).toBe('zero_head_limit');
   });
 
-  it('仅 contextBefore → allow', () => {
-    const result = grepTool.validateInput(
-      { pattern: 'x', contextBefore: 2, outputMode: 'content' },
-      createContext(new MockFileSystemProvider())
+  it('仅 contextBefore → allow', async () => {
+    const result = await awaitedValidation(
+      grepTool.validateInput(
+        { pattern: 'x', contextBefore: 2, outputMode: 'content' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
   });
 });
 
 describe('GrepTool — checkPermissions', () => {
-  it('总是 allow', () => {
-    const result = grepTool.checkPermissions(
-      { pattern: 'hello', outputMode: 'content' },
-      createContext(new MockFileSystemProvider())
+  it('总是 allow', async () => {
+    const result = await awaitedPermission(
+      grepTool.checkPermissions(
+        { pattern: 'hello', outputMode: 'content' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
   });
 
-  it('带 path 仍然 allow', () => {
-    const result = grepTool.checkPermissions(
-      { pattern: 'hello', path: '/src', outputMode: 'content' },
-      createContext(new MockFileSystemProvider())
+  it('带 path 仍然 allow', async () => {
+    const result = await awaitedPermission(
+      grepTool.checkPermissions(
+        { pattern: 'hello', path: '/src', outputMode: 'content' },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
   });

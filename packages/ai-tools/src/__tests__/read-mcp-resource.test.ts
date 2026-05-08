@@ -7,6 +7,7 @@ import type { ReadMcpResourceInput } from '../types/tool-inputs';
 import type { McpResourceContent } from '../types/mcp-resource-provider';
 import { InMemoryMcpResourceProvider } from '../provider/InMemoryMcpResourceProvider';
 import { readMcpResourceTool } from '../tools/read-mcp-resource';
+import { awaitedValidation } from './test-helpers';
 
 function createContext(provider?: InMemoryMcpResourceProvider): ExtendedToolUseContext {
   const mcpResourceProvider = provider ?? new InMemoryMcpResourceProvider();
@@ -56,20 +57,24 @@ describe('ReadMcpResourceTool', () => {
     expect(result.data.contents).toEqual([]);
   });
 
-  it('validateInput(空server) → deny', () => {
+  it('validateInput(空server) → deny', async () => {
     const ctx = createContext();
-    const result = readMcpResourceTool.validateInput!(
-      { server: '', uri: 'x' } as ReadMcpResourceInput,
-      ctx
+    const result = await awaitedValidation(
+      readMcpResourceTool.validateInput!(
+        { server: '', uri: 'x' } as ReadMcpResourceInput,
+        ctx
+      )
     );
     expect(result.behavior).toBe('deny');
   });
 
-  it('validateInput(空uri) → deny', () => {
+  it('validateInput(空uri) → deny', async () => {
     const ctx = createContext();
-    const result = readMcpResourceTool.validateInput!(
-      { server: 'fs', uri: '' } as ReadMcpResourceInput,
-      ctx
+    const result = await awaitedValidation(
+      readMcpResourceTool.validateInput!(
+        { server: 'fs', uri: '' } as ReadMcpResourceInput,
+        ctx
+      )
     );
     expect(result.behavior).toBe('deny');
   });

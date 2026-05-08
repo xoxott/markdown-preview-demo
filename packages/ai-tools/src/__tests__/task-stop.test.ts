@@ -6,6 +6,7 @@ import type { ExtendedToolUseContext } from '../context-merge';
 import type { TaskStopInput } from '../types/tool-inputs';
 import { InMemoryTaskStoreProvider } from '../provider/InMemoryTaskStoreProvider';
 import { taskStopTool } from '../tools/task-stop';
+import { awaitedPermission, awaitedValidation } from './test-helpers';
 
 function createContext(provider?: InMemoryTaskStoreProvider): ExtendedToolUseContext {
   const taskStoreProvider = provider ?? new InMemoryTaskStoreProvider();
@@ -66,9 +67,11 @@ describe('TaskStopTool', () => {
     expect(updated?.status).toBe('completed');
   });
 
-  it('validateInput(空taskId) → deny', () => {
+  it('validateInput(空taskId) → deny', async () => {
     const ctx = createContext();
-    const result = taskStopTool.validateInput!({ taskId: '' } as TaskStopInput, ctx);
+    const result = await awaitedValidation(
+      taskStopTool.validateInput!({ taskId: '' } as TaskStopInput, ctx)
+    );
     expect(result.behavior).toBe('deny');
   });
 
@@ -84,9 +87,11 @@ describe('TaskStopTool', () => {
     expect(taskStopTool.safetyLabel!({ taskId: 'test' } as TaskStopInput)).toBe('system');
   });
 
-  it('checkPermissions → ask', () => {
+  it('checkPermissions → ask', async () => {
     const ctx = createContext();
-    const result = taskStopTool.checkPermissions!({ taskId: 'test' } as TaskStopInput, ctx);
+    const result = await awaitedPermission(
+      taskStopTool.checkPermissions!({ taskId: 'test' } as TaskStopInput, ctx)
+    );
     expect(result.behavior).toBe('ask');
   });
 });

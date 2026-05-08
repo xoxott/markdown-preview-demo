@@ -6,6 +6,7 @@ import type { ExtendedToolUseContext } from '../context-merge';
 import type { SkillInput } from '../types/tool-inputs';
 import { InMemorySkillProvider } from '../provider/InMemorySkillProvider';
 import { skillTool } from '../tools/skill';
+import { awaitedPermission, awaitedValidation } from './test-helpers';
 
 function createContext(provider?: InMemorySkillProvider): ExtendedToolUseContext {
   const skillProvider = provider ?? new InMemorySkillProvider();
@@ -86,9 +87,11 @@ describe('SkillTool', () => {
     expect(result.data.allowedTools).toEqual(['bash', 'file-edit']);
   });
 
-  it('validateInput(空skill名) → deny', () => {
+  it('validateInput(空skill名) → deny', async () => {
     const ctx = createContext();
-    const result = skillTool.validateInput!({ skill: '' } as SkillInput, ctx);
+    const result = await awaitedValidation(
+      skillTool.validateInput!({ skill: '' } as SkillInput, ctx)
+    );
     expect(result.behavior).toBe('deny');
   });
 
@@ -96,9 +99,11 @@ describe('SkillTool', () => {
     expect(skillTool.isReadOnly!({ skill: 'test' } as SkillInput)).toBe(false);
   });
 
-  it('checkPermissions → ask', () => {
+  it('checkPermissions → ask', async () => {
     const ctx = createContext();
-    const result = skillTool.checkPermissions!({ skill: 'test' } as SkillInput, ctx);
+    const result = await awaitedPermission(
+      skillTool.checkPermissions!({ skill: 'test' } as SkillInput, ctx)
+    );
     expect(result.behavior).toBe('ask');
   });
 });

@@ -159,15 +159,6 @@ describe('applySedSubstitution', () => {
   });
 
   it('& 引用 → 整个匹配', () => {
-    const _info: SedEditInfo = {
-      filePath: 'test.txt',
-      pattern: '[0-9]+',
-      replacement: 'number-&',
-      flags: 'g',
-      extendedRegex: false,
-      originalCommand: "sed -i 's/[0-9]+/number-&/g' test.txt"
-    };
-    // BRE: [0-9]+ 在BRE中 + 需转义 → \+ 才是"至少一次"
     // 这里 pattern 是 [0-9]+，在BRE中 + 是普通字符，所以只匹配单数字后面紧跟+
     // 让我们用正确的BRE模式
     const infoBRE: SedEditInfo = {

@@ -6,6 +6,7 @@ import { bashTool } from '../tools/bash';
 import { BashInputSchema } from '../types/tool-inputs';
 import type { ExtendedToolUseContext } from '../context-merge';
 import { MockFileSystemProvider } from './mocks/MockFileSystemProvider';
+import { awaitedPermission, awaitedValidation } from './test-helpers';
 
 function createContext(fs: MockFileSystemProvider): ExtendedToolUseContext {
   return {
@@ -54,102 +55,126 @@ describe('BashTool — schema 验证', () => {
 });
 
 describe('BashTool — validateInput', () => {
-  it('有效命令 → allow', () => {
-    const result = bashTool.validateInput(
-      { command: 'ls', runInBackground: false },
-      createContext(new MockFileSystemProvider())
+  it('有效命令 → allow', async () => {
+    const result = await awaitedValidation(
+      bashTool.validateInput(
+        { command: 'ls', runInBackground: false },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
   });
 
-  it('空命令 → deny', () => {
-    const result = bashTool.validateInput(
-      { command: '', runInBackground: false },
-      createContext(new MockFileSystemProvider())
+  it('空命令 → deny', async () => {
+    const result = await awaitedValidation(
+      bashTool.validateInput(
+        { command: '', runInBackground: false },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('deny');
     if (result.behavior === 'deny') expect(result.reason).toBe('empty_command');
   });
 
-  it('timeout > 600000 → deny', () => {
-    const result = bashTool.validateInput(
-      { command: 'ls', timeout: 700000, runInBackground: false },
-      createContext(new MockFileSystemProvider())
+  it('timeout > 600000 → deny', async () => {
+    const result = await awaitedValidation(
+      bashTool.validateInput(
+        { command: 'ls', timeout: 700000, runInBackground: false },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('deny');
     if (result.behavior === 'deny') expect(result.reason).toBe('timeout_exceeded');
   });
 
-  it('timeout = 600000 → allow（边界值）', () => {
-    const result = bashTool.validateInput(
-      { command: 'ls', timeout: 600000, runInBackground: false },
-      createContext(new MockFileSystemProvider())
+  it('timeout = 600000 → allow（边界值）', async () => {
+    const result = await awaitedValidation(
+      bashTool.validateInput(
+        { command: 'ls', timeout: 600000, runInBackground: false },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
   });
 
-  it('含 description → allow', () => {
-    const result = bashTool.validateInput(
-      { command: 'ls', description: 'List files', runInBackground: false },
-      createContext(new MockFileSystemProvider())
+  it('含 description → allow', async () => {
+    const result = await awaitedValidation(
+      bashTool.validateInput(
+        { command: 'ls', description: 'List files', runInBackground: false },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
   });
 
-  it('含 runInBackground → allow', () => {
-    const result = bashTool.validateInput(
-      { command: 'sleep 10', runInBackground: true },
-      createContext(new MockFileSystemProvider())
+  it('含 runInBackground → allow', async () => {
+    const result = await awaitedValidation(
+      bashTool.validateInput(
+        { command: 'sleep 10', runInBackground: true },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
   });
 });
 
 describe('BashTool — checkPermissions（动态安全评估）', () => {
-  it('只读命令 → allow', () => {
-    const result = bashTool.checkPermissions(
-      { command: 'ls', runInBackground: false },
-      createContext(new MockFileSystemProvider())
+  it('只读命令 → allow', async () => {
+    const result = await awaitedPermission(
+      bashTool.checkPermissions(
+        { command: 'ls', runInBackground: false },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('allow');
   });
 
-  it('破坏性命令 → deny', () => {
-    const result = bashTool.checkPermissions(
-      { command: 'rm -rf /', runInBackground: false },
-      createContext(new MockFileSystemProvider())
+  it('破坏性命令 → deny', async () => {
+    const result = await awaitedPermission(
+      bashTool.checkPermissions(
+        { command: 'rm -rf /', runInBackground: false },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('deny');
   });
 
-  it('非只读非破坏性 → ask', () => {
-    const result = bashTool.checkPermissions(
-      { command: 'npm test', runInBackground: false },
-      createContext(new MockFileSystemProvider())
+  it('非只读非破坏性 → ask', async () => {
+    const result = await awaitedPermission(
+      bashTool.checkPermissions(
+        { command: 'npm test', runInBackground: false },
+        createContext(new MockFileSystemProvider())
+      )
     );
     expect(result.behavior).toBe('ask');
   });
 
-  it('有 description → ask 消息含 description', () => {
-    const result = bashTool.checkPermissions(
-      { command: 'npm test', description: 'Run tests', runInBackground: false },
-      createContext(new MockFileSystemProvider())
+  it('有 description → ask 消息含 description', async () => {
+    const result = await awaitedPermission(
+      bashTool.checkPermissions(
+        { command: 'npm test', description: 'Run tests', runInBackground: false },
+        createContext(new MockFileSystemProvider())
+      )
     );
     if (result.behavior === 'ask') expect(result.message).toBe('Run tests');
   });
 
-  it('无 description → ask 消息含命令', () => {
-    const result = bashTool.checkPermissions(
-      { command: 'npm test', runInBackground: false },
-      createContext(new MockFileSystemProvider())
+  it('无 description → ask 消息含命令', async () => {
+    const result = await awaitedPermission(
+      bashTool.checkPermissions(
+        { command: 'npm test', runInBackground: false },
+        createContext(new MockFileSystemProvider())
+      )
     );
     if (result.behavior === 'ask') expect(result.message).toContain('npm test');
   });
 
-  it('message 格式正确', () => {
-    const result = bashTool.checkPermissions(
-      { command: 'npm test', runInBackground: false },
-      createContext(new MockFileSystemProvider())
+  it('message 格式正确', async () => {
+    const result = await awaitedPermission(
+      bashTool.checkPermissions(
+        { command: 'npm test', runInBackground: false },
+        createContext(new MockFileSystemProvider())
+      )
     );
     if (result.behavior === 'ask') expect(result.message).toBeDefined();
   });

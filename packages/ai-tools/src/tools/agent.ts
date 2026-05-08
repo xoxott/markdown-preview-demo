@@ -2,7 +2,7 @@
 
 import { buildTool } from '@suga/ai-tool-core';
 import type { SafetyLabel, ToolResult } from '@suga/ai-tool-core';
-import type { AgentMemoryScope, SubagentToolResult } from '@suga/ai-subagent';
+import type { SubagentDefinition, SubagentToolResult } from '@suga/ai-subagent';
 import { computeScopedMemoryPath } from '@suga/ai-subagent';
 import type { ExtendedToolUseContext } from '../context-merge';
 import type { AgentInput } from '../types/tool-inputs';
@@ -64,7 +64,8 @@ export const agentTool = buildTool<AgentInput, AgentOutput>({
 
     // G33+G34: isolation 和 model 覆盖
     // G35: worktree隔离自动启用scoped memory
-    const overriddenDef = {
+    type ScopedMemory = NonNullable<SubagentDefinition['memoryScope']>;
+    const overriddenDef: SubagentDefinition = {
       ...def,
       ...(input.isolation === 'worktree' ? { isolation: 'worktree' as const } : {}),
       ...(input.model ? { model: input.model } : {}),
@@ -77,7 +78,7 @@ export const agentTool = buildTool<AgentInput, AgentOutput>({
               ),
               agentType: def.agentType,
               enabled: true
-            } as AgentMemoryScope
+            } satisfies ScopedMemory
           }
         : {})
     };

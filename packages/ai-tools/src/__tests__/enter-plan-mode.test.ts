@@ -6,6 +6,7 @@ import type { ExtendedToolUseContext } from '../context-merge';
 import type { EnterPlanModeInput } from '../types/tool-inputs';
 import { InMemoryPlanModeProvider } from '../provider/InMemoryPlanModeProvider';
 import { enterPlanModeTool } from '../tools/enter-plan-mode';
+import { awaitedPermission } from './test-helpers';
 
 function createContext(provider?: InMemoryPlanModeProvider): ExtendedToolUseContext {
   const planModeProvider = provider ?? new InMemoryPlanModeProvider();
@@ -56,9 +57,11 @@ describe('EnterPlanModeTool', () => {
     expect(enterPlanModeTool.safetyLabel!({} as EnterPlanModeInput)).toBe('system');
   });
 
-  it('checkPermissions → ask', () => {
+  it('checkPermissions → ask', async () => {
     const ctx = createContext();
-    const result = enterPlanModeTool.checkPermissions!({} as EnterPlanModeInput, ctx);
+    const result = await awaitedPermission(
+      enterPlanModeTool.checkPermissions!({} as EnterPlanModeInput, ctx)
+    );
     expect(result.behavior).toBe('ask');
   });
 });

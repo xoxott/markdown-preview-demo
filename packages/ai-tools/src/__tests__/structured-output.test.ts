@@ -3,6 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import type { StructuredOutputInput } from '../types/tool-inputs';
 import { structuredOutputTool } from '../tools/structured-output';
+import { awaitedValidation, minimalToolUseContext } from './test-helpers';
 
 describe('StructuredOutputTool', () => {
   it('validate(匹配schema) → valid=true', async () => {
@@ -11,7 +12,7 @@ describe('StructuredOutputTool', () => {
         schema: { required: ['name'], properties: { name: { type: 'string' } } },
         data: { name: 'test' }
       } as StructuredOutputInput,
-      {} as any
+      minimalToolUseContext()
     );
     expect(result.data.valid).toBe(true);
     expect(result.data.errors).toBeUndefined();
@@ -26,7 +27,7 @@ describe('StructuredOutputTool', () => {
         },
         data: { name: 'test' }
       } as StructuredOutputInput,
-      {} as any
+      minimalToolUseContext()
     );
     expect(result.data.valid).toBe(false);
     expect(result.data.errors).toContain('Missing required field: "age"');
@@ -38,7 +39,7 @@ describe('StructuredOutputTool', () => {
         schema: { properties: { count: { type: 'number' } } },
         data: { count: 'not-a-number' }
       } as StructuredOutputInput,
-      {} as any
+      minimalToolUseContext()
     );
     expect(result.data.valid).toBe(false);
     expect(result.data.errors!.length).toBeGreaterThan(0);
@@ -50,7 +51,7 @@ describe('StructuredOutputTool', () => {
         schema: { properties: { name: { type: 'string' } } },
         data: { name: 'x' }
       } as StructuredOutputInput,
-      {} as any
+      minimalToolUseContext()
     );
     expect(result.data.valid).toBe(true);
   });
@@ -61,7 +62,7 @@ describe('StructuredOutputTool', () => {
         schema: { properties: { items: { type: 'array' } } },
         data: { items: 'not-array' }
       } as StructuredOutputInput,
-      {} as any
+      minimalToolUseContext()
     );
     expect(result.data.valid).toBe(false);
   });
@@ -72,15 +73,17 @@ describe('StructuredOutputTool', () => {
         schema: { properties: { active: { type: 'boolean' } } },
         data: { active: true }
       } as StructuredOutputInput,
-      {} as any
+      minimalToolUseContext()
     );
     expect(result.data.valid).toBe(true);
   });
 
-  it('validateInput(空schema) → deny', () => {
-    const result = structuredOutputTool.validateInput!(
-      { schema: {} as any, data: { x: 1 } } as StructuredOutputInput,
-      {} as any
+  it('validateInput(空schema) → deny', async () => {
+    const result = await awaitedValidation(
+      structuredOutputTool.validateInput!(
+        { schema: {} as Record<string, unknown>, data: { x: 1 } } as StructuredOutputInput,
+        minimalToolUseContext()
+      )
     );
     expect(result.behavior).toBe('deny');
   });

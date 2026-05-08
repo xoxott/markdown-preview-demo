@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { InMemorySubagentProvider } from '../provider/InMemorySubagentProvider';
 import { agentTool } from '../tools/agent';
 import type { ExtendedToolUseContext } from '../context-merge';
+import { awaitedValidation } from './test-helpers';
 
 /** 创建基础上下文 */
 function createContext(providers: Partial<ExtendedToolUseContext> = {}): ExtendedToolUseContext {
@@ -115,7 +116,7 @@ describe('AgentTool', () => {
     const context = createContext({ subagentProvider: provider });
 
     const result = await agentTool.call(
-      { subagent_type: 'explore', task: 'find files', context: undefined },
+      { subagent_type: 'explore', task: 'find files', context: undefined, isolation: 'none' as const },
       context
     );
 
@@ -129,7 +130,7 @@ describe('AgentTool', () => {
     const context = createContext({ subagentProvider: provider });
 
     const result = await agentTool.call(
-      { subagent_type: 'plan', task: 'design api', context: 'focus on security' },
+      { subagent_type: 'plan', task: 'design api', context: 'focus on security', isolation: 'none' as const },
       context
     );
 
@@ -142,7 +143,7 @@ describe('AgentTool', () => {
     const context = createContext({ subagentProvider: provider });
 
     const result = await agentTool.call(
-      { subagent_type: 'unknown', task: 'test', context: undefined },
+      { subagent_type: 'unknown', task: 'test', context: undefined, isolation: 'none' as const },
       context
     );
 
@@ -154,7 +155,7 @@ describe('AgentTool', () => {
     const context = createContext();
 
     const result = await agentTool.call(
-      { subagent_type: 'explore', task: 'find files', context: undefined },
+      { subagent_type: 'explore', task: 'find files', context: undefined, isolation: 'none' as const },
       context
     );
 
@@ -162,48 +163,59 @@ describe('AgentTool', () => {
     expect(result.data.error).toBe('No SubagentProvider');
   });
 
-  it('validateInput — 空 subagent_type → deny', () => {
+  it('validateInput — 空 subagent_type → deny', async () => {
     const ctx = createContext();
-    const result = agentTool.validateInput(
-      { subagent_type: '', task: 'test', context: undefined },
-      ctx as any
+    const result = await awaitedValidation(
+      agentTool.validateInput(
+        { subagent_type: '', task: 'test', context: undefined, isolation: 'none' },
+        ctx
+      )
     );
     expect(result.behavior).toBe('deny');
   });
 
-  it('validateInput — 空 task → deny', () => {
+  it('validateInput — 空 task → deny', async () => {
     const ctx = createContext();
-    const result = agentTool.validateInput(
-      { subagent_type: 'explore', task: '', context: undefined },
-      ctx as any
+    const result = await awaitedValidation(
+      agentTool.validateInput(
+        { subagent_type: 'explore', task: '', context: undefined, isolation: 'none' },
+        ctx
+      )
     );
     expect(result.behavior).toBe('deny');
   });
 
-  it('validateInput — 正常输入 → allow', () => {
+  it('validateInput — 正常输入 → allow', async () => {
     const ctx = createContext();
-    const result = agentTool.validateInput(
-      { subagent_type: 'explore', task: 'find files', context: undefined },
-      ctx as any
+    const result = await awaitedValidation(
+      agentTool.validateInput(
+        {
+          subagent_type: 'explore',
+          task: 'find files',
+          context: undefined,
+          isolation: 'none' as const
+        },
+        ctx
+      )
     );
     expect(result.behavior).toBe('allow');
   });
 
   it('safetyLabel = system', () => {
     expect(
-      agentTool.safetyLabel({ subagent_type: 'explore', task: 'test', context: undefined })
+      agentTool.safetyLabel({ subagent_type: 'explore', task: 'test', context: undefined, isolation: 'none' })
     ).toBe('system');
   });
 
   it('isReadOnly = false', () => {
     expect(
-      agentTool.isReadOnly({ subagent_type: 'explore', task: 'test', context: undefined })
+      agentTool.isReadOnly({ subagent_type: 'explore', task: 'test', context: undefined, isolation: 'none' })
     ).toBe(false);
   });
 
   it('isConcurrencySafe = false', () => {
     expect(
-      agentTool.isConcurrencySafe({ subagent_type: 'explore', task: 'test', context: undefined })
+      agentTool.isConcurrencySafe({ subagent_type: 'explore', task: 'test', context: undefined, isolation: 'none' })
     ).toBe(false);
   });
 

@@ -6,6 +6,7 @@ import type { ExtendedToolUseContext } from '../context-merge';
 import type { ConfigInput } from '../types/tool-inputs';
 import { InMemoryConfigProvider } from '../provider/InMemoryConfigProvider';
 import { configTool } from '../tools/config';
+import { awaitedPermission } from './test-helpers';
 
 function createContext(provider?: InMemoryConfigProvider): ExtendedToolUseContext {
   const configProvider = provider ?? new InMemoryConfigProvider();
@@ -108,17 +109,21 @@ describe('ConfigTool', () => {
     );
   });
 
-  it('checkPermissions(GET) → allow', () => {
+  it('checkPermissions(GET) → allow', async () => {
     const ctx = createContext();
-    const result = configTool.checkPermissions!({ setting: 'theme' } as ConfigInput, ctx);
+    const result = await awaitedPermission(
+      configTool.checkPermissions!({ setting: 'theme' } as ConfigInput, ctx)
+    );
     expect(result.behavior).toBe('allow');
   });
 
-  it('checkPermissions(SET) → ask', () => {
+  it('checkPermissions(SET) → ask', async () => {
     const ctx = createContext();
-    const result = configTool.checkPermissions!(
-      { setting: 'theme', value: 'dark' } as ConfigInput,
-      ctx
+    const result = await awaitedPermission(
+      configTool.checkPermissions!(
+        { setting: 'theme', value: 'dark' } as ConfigInput,
+        ctx
+      )
     );
     expect(result.behavior).toBe('ask');
   });

@@ -4,102 +4,20 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ToolRegistry } from '@suga/ai-tool-core';
 import { FileWriteStateTracker, fileEditTool } from '../index';
 import type { ExtendedToolUseContext } from '../context-merge';
-import type { FileSystemProvider } from '../types/fs-provider';
+import { MockFileSystemProvider } from './mocks/MockFileSystemProvider';
 
-// === Mock FileSystemProvider ===
-
-class MockFSProvider implements FileSystemProvider {
-  private files = new Map<string, string>();
-  private mtimes = new Map<string, number>();
-
-  setFile(path: string, content: string, mtimeMs?: number): void {
-    this.files.set(path, content);
-    this.mtimes.set(path, mtimeMs ?? Date.now());
-  }
-
-  async stat(path: string) {
-    const exists = this.files.has(path);
-    return {
-      exists,
-      isFile: exists,
-      isDirectory: false,
-      size: exists ? this.files.get(path)!.length : 0,
-      mtimeMs: this.mtimes.get(path) ?? Date.now()
-    };
-  }
-
-  async readFile(path: string) {
-    const content = this.files.get(path);
-    if (!content) throw new Error(`File not found: ${path}`);
-    return {
-      content,
-      mimeType: 'text/plain',
-      lineCount: content.split('\n').length,
-      mtimeMs: this.mtimes.get(path) ?? Date.now()
-    };
-  }
-
-  async writeFile(path: string, content: string): Promise<void> {
-    this.files.set(path, content);
-    this.mtimes.set(path, Date.now());
-  }
-
-  async editFile(path: string, oldString: string, newString: string, replaceAll?: boolean) {
-    const content = this.files.get(path);
-    if (!content) return { applied: false, replacementCount: 0, error: `File not found: ${path}` };
-
-    if (replaceAll) {
-      const count = content.split(oldString).length - 1;
-      if (count === 0) return { applied: false, replacementCount: 0, error: 'oldString not found' };
-      const newContent = content.replaceAll(oldString, newString);
-      this.files.set(path, newContent);
-      this.mtimes.set(path, Date.now());
-      return { applied: true, replacementCount: count, newContent };
-    }
-
-    const idx = content.indexOf(oldString);
-    if (idx === -1) return { applied: false, replacementCount: 0, error: 'oldString not found' };
-    const secondIdx = content.indexOf(oldString, idx + 1);
-    if (secondIdx !== -1)
-      return { applied: false, replacementCount: 0, error: 'oldString not unique' };
-
-    const newContent = content.replace(oldString, newString);
-    this.files.set(path, newContent);
-    this.mtimes.set(path, Date.now());
-    return { applied: true, replacementCount: 1, newContent };
-  }
-
-  async glob() {
-    return [];
-  }
-  async grep() {
-    return { mode: 'files-with-matches', totalMatches: 0 };
-  }
-  async ls() {
-    return [];
-  }
-  async runCommand() {
-    return { exitCode: 0, stdout: '', stderr: '', timedOut: false };
-  }
-
-  reset(): void {
-    this.files.clear();
-    this.mtimes.clear();
-  }
-}
-
-function createContext(tracker?: FileWriteStateTracker): ExtendedToolUseContext {
+function createContext(tracker?: FileWriteStateTracker, fs?: MockFileSystemProvider): ExtendedToolUseContext {
   return {
-    fsProvider: new MockFSProvider(),
+    fsProvider: fs ?? new MockFileSystemProvider(),
     tools: new ToolRegistry(),
     abortController: new AbortController(),
     sessionId: 'test-g3g4',
     fileWriteStateTracker: tracker
-  } as ExtendedToolUseContext;
+  };
 }
 
 describe('G4: read-before-edit强制', () => {
-  let fs: MockFSProvider;
+  let fs: MockFileSystemProvider;
   let tracker: FileWriteStateTracker;
 
   beforeEach(() => {
@@ -111,14 +29,12 @@ describe('G4: read-before-edit强制', () => {
   });
 
   it('文件未被Read → 编辑应拒绝', async () => {
-    fs = new MockFSProvider();
-    fs.setFile('/test.ts', 'old content');
-    const ctx = createContext(tracker);
-    ctx.fsProvider = fs;
+    fs = new MockFileSystemProvider();
+    fs.addFile('/test.ts', 'old content');
+    const ctx = createContext(tracker, fs);
 
-    // 文件不在 tracker 中 → 拒绝
     const result = await fileEditTool.call(
-      { filePath: '/test.ts', oldString: 'old', newString: 'new' },
+      { filePath: '/test.ts', oldString: 'old', newString: 'new', replaceAll: false },
       ctx
     );
     expect(result.data.applied).toBe(false);
@@ -128,14 +44,13 @@ describe('G4: read-before-edit强制', () => {
   });
 
   it('文件已被Read → 编辑应允许', async () => {
-    fs = new MockFSProvider();
-    fs.setFile('/test.ts', 'hello world');
+    fs = new MockFileSystemProvider();
+    fs.addFile('/test.ts', 'hello world');
     tracker.recordRead('/test.ts', Date.now());
-    const ctx = createContext(tracker);
-    ctx.fsProvider = fs;
+    const ctx = createContext(tracker, fs);
 
     const result = await fileEditTool.call(
-      { filePath: '/test.ts', oldString: 'hello', newString: 'hi' },
+      { filePath: '/test.ts', oldString: 'hello', newString: 'hi', replaceAll: false },
       ctx
     );
     expect(result.data.applied).toBe(true);
@@ -143,13 +58,12 @@ describe('G4: read-before-edit强制', () => {
   });
 
   it('无 fileWriteStateTracker → 不强制read-before-edit', async () => {
-    fs = new MockFSProvider();
-    fs.setFile('/test.ts', 'hello world');
-    const ctx = createContext(); // 无 tracker
-    ctx.fsProvider = fs;
+    fs = new MockFileSystemProvider();
+    fs.addFile('/test.ts', 'hello world');
+    const ctx = createContext(undefined, fs);
 
     const result = await fileEditTool.call(
-      { filePath: '/test.ts', oldString: 'hello', newString: 'hi' },
+      { filePath: '/test.ts', oldString: 'hello', newString: 'hi', replaceAll: false },
       ctx
     );
     expect(result.data.applied).toBe(true);
@@ -157,7 +71,7 @@ describe('G4: read-before-edit强制', () => {
 });
 
 describe('G3: mtime一致性检查', () => {
-  let fs: MockFSProvider;
+  let fs: MockFileSystemProvider;
   let tracker: FileWriteStateTracker;
 
   beforeEach(() => {
@@ -169,29 +83,27 @@ describe('G3: mtime一致性检查', () => {
   });
 
   it('mtime一致 → 编辑应允许', async () => {
-    fs = new MockFSProvider();
+    fs = new MockFileSystemProvider();
     const mtime = 1000;
-    fs.setFile('/test.ts', 'hello world', mtime);
+    fs.addFile('/test.ts', 'hello world', mtime);
     tracker.recordRead('/test.ts', mtime);
-    const ctx = createContext(tracker);
-    ctx.fsProvider = fs;
+    const ctx = createContext(tracker, fs);
 
     const result = await fileEditTool.call(
-      { filePath: '/test.ts', oldString: 'hello', newString: 'hi' },
+      { filePath: '/test.ts', oldString: 'hello', newString: 'hi', replaceAll: false },
       ctx
     );
     expect(result.data.applied).toBe(true);
   });
 
   it('mtime不一致 → 编辑应拒绝（文件被外部修改）', async () => {
-    fs = new MockFSProvider();
-    fs.setFile('/test.ts', 'modified content', 2000); // 外部修改了
-    tracker.recordRead('/test.ts', 1000); // Read时记录的是旧mtime
-    const ctx = createContext(tracker);
-    ctx.fsProvider = fs;
+    fs = new MockFileSystemProvider();
+    fs.addFile('/test.ts', 'modified content', 2000);
+    tracker.recordRead('/test.ts', 1000);
+    const ctx = createContext(tracker, fs);
 
     const result = await fileEditTool.call(
-      { filePath: '/test.ts', oldString: 'modified', newString: 'new' },
+      { filePath: '/test.ts', oldString: 'modified', newString: 'new', replaceAll: false },
       ctx
     );
     expect(result.data.applied).toBe(false);
@@ -200,24 +112,21 @@ describe('G3: mtime一致性检查', () => {
   });
 
   it('无 readState → mtime检查跳过（null）', async () => {
-    fs = new MockFSProvider();
-    fs.setFile('/test.ts', 'hello world');
-    // tracker中没有这个文件的记录
-    // 但 validateWriteRequirement 会先拒绝 → 所以不测试mtime
+    fs = new MockFileSystemProvider();
+    fs.addFile('/test.ts', 'hello world');
   });
 
   it('编辑成功后 → tracker应清除readState', async () => {
-    fs = new MockFSProvider();
+    fs = new MockFileSystemProvider();
     const mtime = 1000;
-    fs.setFile('/test.ts', 'hello world', mtime);
+    fs.addFile('/test.ts', 'hello world', mtime);
     tracker.recordRead('/test.ts', mtime);
-    const ctx = createContext(tracker);
-    ctx.fsProvider = fs;
+    const ctx = createContext(tracker, fs);
 
     expect(tracker.hasBeenRead('/test.ts')).toBe(true);
 
     const result = await fileEditTool.call(
-      { filePath: '/test.ts', oldString: 'hello', newString: 'hi' },
+      { filePath: '/test.ts', oldString: 'hello', newString: 'hi', replaceAll: false },
       ctx
     );
     expect(result.data.applied).toBe(true);

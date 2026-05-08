@@ -13,6 +13,7 @@ import {
   toolSearchTool
 } from '../tools/tool-search';
 import type { ParsedQuery } from '../tools/tool-search';
+import { awaitedValidation, minimalToolUseContext } from './test-helpers';
 
 // ============================================================
 // 工具名解析测试
@@ -349,13 +350,17 @@ describe('ToolSearchTool 定义', () => {
     expect(toolSearchTool.searchHint).toContain('discover');
   });
 
-  it('validateInput — 空查询被拒绝', () => {
-    const result = toolSearchTool.validateInput({ query: '', max_results: 5 }, {} as any);
+  it('validateInput — 空查询被拒绝', async () => {
+    const result = await awaitedValidation(
+      toolSearchTool.validateInput({ query: '', max_results: 5 }, minimalToolUseContext())
+    );
     expect(result.behavior).toBe('deny');
   });
 
-  it('validateInput — 正常查询被允许', () => {
-    const result = toolSearchTool.validateInput({ query: 'file', max_results: 5 }, {} as any);
+  it('validateInput — 正常查询被允许', async () => {
+    const result = await awaitedValidation(
+      toolSearchTool.validateInput({ query: 'file', max_results: 5 }, minimalToolUseContext())
+    );
     expect(result.behavior).toBe('allow');
   });
 

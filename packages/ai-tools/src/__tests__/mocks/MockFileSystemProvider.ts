@@ -229,7 +229,7 @@ export class MockFileSystemProvider implements FileSystemProvider {
     string,
     {
       command: string;
-      status: import('../types/fs-provider').BackgroundTaskStatus;
+      status: import('../../types/fs-provider').BackgroundTaskStatus;
       startedAt: number;
       exitCode?: number;
       stdout: string;
@@ -242,8 +242,8 @@ export class MockFileSystemProvider implements FileSystemProvider {
 
   async spawnBackgroundCommand(
     command: string,
-    _options?: import('../types/fs-provider').SpawnBackgroundOptions
-  ): Promise<import('../types/fs-provider').BackgroundTaskResult> {
+    _options?: import('../../types/fs-provider').SpawnBackgroundOptions
+  ): Promise<import('../../types/fs-provider').BackgroundTaskResult> {
     const taskId = `bg-mock-${++this.mockBgTaskCounter}`;
     const startedAt = Date.now();
     this.mockBackgroundTasks.set(taskId, {
@@ -259,7 +259,7 @@ export class MockFileSystemProvider implements FileSystemProvider {
 
   async getBackgroundTask(
     taskId: string
-  ): Promise<import('../types/fs-provider').BackgroundTaskDetail | null> {
+  ): Promise<import('../../types/fs-provider').BackgroundTaskDetail | null> {
     const entry = this.mockBackgroundTasks.get(taskId);
     if (!entry) return null;
     return {
@@ -285,7 +285,7 @@ export class MockFileSystemProvider implements FileSystemProvider {
   }
 
   async listBackgroundTasks(): Promise<
-    readonly import('../types/fs-provider').BackgroundTaskDetail[]
+    readonly import('../../types/fs-provider').BackgroundTaskDetail[]
   > {
     return [...this.mockBackgroundTasks.entries()].map(([id, e]) => ({
       taskId: id,

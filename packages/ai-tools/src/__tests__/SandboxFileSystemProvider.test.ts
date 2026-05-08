@@ -20,6 +20,7 @@ import {
   isPathAllowed,
   pathMatchesPattern
 } from '../provider/SandboxFileSystemProvider';
+import { fsProviderBackgroundNoops } from './test-helpers';
 
 // ============================================================
 // Mock FileSystemProvider
@@ -58,7 +59,8 @@ function createMockFsProvider(): FileSystemProvider {
       stdout: 'ok',
       stderr: '',
       timedOut: false
-    } as CommandResult)
+    } as CommandResult),
+    ...fsProviderBackgroundNoops
   };
 }
 
