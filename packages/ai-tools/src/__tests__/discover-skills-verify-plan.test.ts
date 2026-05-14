@@ -35,7 +35,10 @@ describe('discoverSkillsTool', () => {
         ]
       }
     };
-    const result = await discoverSkillsTool.call({ query: 'review' }, minimalToolUseContext(context));
+    const result = await discoverSkillsTool.call(
+      { query: 'review' },
+      minimalToolUseContext(context)
+    );
     expect(result.data.skills).toHaveLength(1);
     expect(result.data.skills[0].name).toBe('review-pr');
   });

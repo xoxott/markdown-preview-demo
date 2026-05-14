@@ -1,8 +1,10 @@
 /**
- * 测试共用：G11 工具 validateInput / checkPermissions 可能返回 Promise；ToolUseContext 最小构造；FileSystemProvider G8 stub。
+ * 测试共用：G11 工具 validateInput / checkPermissions 可能返回 Promise；ToolUseContext 最小构造；FileSystemProvider
+ * G8 stub。
  */
 
-import { ToolRegistry, type PermissionResult, ToolUseContext, ValidationResult } from '@suga/ai-tool-core';
+import type { PermissionResult, ToolUseContext, ValidationResult } from '@suga/ai-tool-core';
+import { ToolRegistry } from '@suga/ai-tool-core';
 import type { FileSystemProvider } from '../types/fs-provider';
 
 export async function awaitedValidation(

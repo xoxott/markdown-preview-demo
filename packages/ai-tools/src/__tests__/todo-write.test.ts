@@ -97,7 +97,10 @@ describe('todoWriteTool', () => {
 
   it('无 todoWriteProvider → updated=false + error', async () => {
     const ctx = createContext(); // 无 provider
-    const result = await todoWriteTool.call({ todos: [{ content: 'Task', completed: false }] }, ctx);
+    const result = await todoWriteTool.call(
+      { todos: [{ content: 'Task', completed: false }] },
+      ctx
+    );
     expect(result.data.updated).toBe(false);
     expect(result.error).toContain('No TodoWriteProvider');
   });
@@ -111,7 +114,10 @@ describe('todoWriteTool', () => {
 
   it('空 content → validateInput 拒绝', async () => {
     const result = await awaitedValidation(
-      todoWriteTool.validateInput({ todos: [{ content: '', completed: false }] }, minimalToolUseContext())
+      todoWriteTool.validateInput(
+        { todos: [{ content: '', completed: false }] },
+        minimalToolUseContext()
+      )
     );
     expect(result.behavior).toBe('deny');
   });

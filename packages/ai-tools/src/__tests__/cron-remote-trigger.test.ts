@@ -376,7 +376,9 @@ describe('RemoteTriggerTool', () => {
 
   it('validateInput — action=list 无 trigger_id → allow', async () => {
     const ctx = createContext();
-    const result = await awaitedValidation(remoteTriggerTool.validateInput({ action: 'list' }, ctx));
+    const result = await awaitedValidation(
+      remoteTriggerTool.validateInput({ action: 'list' }, ctx)
+    );
     expect(result.behavior).toBe('allow');
   });
 

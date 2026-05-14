@@ -60,10 +60,7 @@ describe('ReadMcpResourceTool', () => {
   it('validateInput(空server) → deny', async () => {
     const ctx = createContext();
     const result = await awaitedValidation(
-      readMcpResourceTool.validateInput!(
-        { server: '', uri: 'x' } as ReadMcpResourceInput,
-        ctx
-      )
+      readMcpResourceTool.validateInput!({ server: '', uri: 'x' } as ReadMcpResourceInput, ctx)
     );
     expect(result.behavior).toBe('deny');
   });
@@ -71,10 +68,7 @@ describe('ReadMcpResourceTool', () => {
   it('validateInput(空uri) → deny', async () => {
     const ctx = createContext();
     const result = await awaitedValidation(
-      readMcpResourceTool.validateInput!(
-        { server: 'fs', uri: '' } as ReadMcpResourceInput,
-        ctx
-      )
+      readMcpResourceTool.validateInput!({ server: 'fs', uri: '' } as ReadMcpResourceInput, ctx)
     );
     expect(result.behavior).toBe('deny');
   });

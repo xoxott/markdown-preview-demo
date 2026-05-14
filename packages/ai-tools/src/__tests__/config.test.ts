@@ -120,10 +120,7 @@ describe('ConfigTool', () => {
   it('checkPermissions(SET) → ask', async () => {
     const ctx = createContext();
     const result = await awaitedPermission(
-      configTool.checkPermissions!(
-        { setting: 'theme', value: 'dark' } as ConfigInput,
-        ctx
-      )
+      configTool.checkPermissions!({ setting: 'theme', value: 'dark' } as ConfigInput, ctx)
     );
     expect(result.behavior).toBe('ask');
   });

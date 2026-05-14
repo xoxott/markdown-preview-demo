@@ -116,7 +116,12 @@ describe('AgentTool', () => {
     const context = createContext({ subagentProvider: provider });
 
     const result = await agentTool.call(
-      { subagent_type: 'explore', task: 'find files', context: undefined, isolation: 'none' as const },
+      {
+        subagent_type: 'explore',
+        task: 'find files',
+        context: undefined,
+        isolation: 'none' as const
+      },
       context
     );
 
@@ -130,7 +135,12 @@ describe('AgentTool', () => {
     const context = createContext({ subagentProvider: provider });
 
     const result = await agentTool.call(
-      { subagent_type: 'plan', task: 'design api', context: 'focus on security', isolation: 'none' as const },
+      {
+        subagent_type: 'plan',
+        task: 'design api',
+        context: 'focus on security',
+        isolation: 'none' as const
+      },
       context
     );
 
@@ -155,7 +165,12 @@ describe('AgentTool', () => {
     const context = createContext();
 
     const result = await agentTool.call(
-      { subagent_type: 'explore', task: 'find files', context: undefined, isolation: 'none' as const },
+      {
+        subagent_type: 'explore',
+        task: 'find files',
+        context: undefined,
+        isolation: 'none' as const
+      },
       context
     );
 
@@ -203,19 +218,34 @@ describe('AgentTool', () => {
 
   it('safetyLabel = system', () => {
     expect(
-      agentTool.safetyLabel({ subagent_type: 'explore', task: 'test', context: undefined, isolation: 'none' })
+      agentTool.safetyLabel({
+        subagent_type: 'explore',
+        task: 'test',
+        context: undefined,
+        isolation: 'none'
+      })
     ).toBe('system');
   });
 
   it('isReadOnly = false', () => {
     expect(
-      agentTool.isReadOnly({ subagent_type: 'explore', task: 'test', context: undefined, isolation: 'none' })
+      agentTool.isReadOnly({
+        subagent_type: 'explore',
+        task: 'test',
+        context: undefined,
+        isolation: 'none'
+      })
     ).toBe(false);
   });
 
   it('isConcurrencySafe = false', () => {
     expect(
-      agentTool.isConcurrencySafe({ subagent_type: 'explore', task: 'test', context: undefined, isolation: 'none' })
+      agentTool.isConcurrencySafe({
+        subagent_type: 'explore',
+        task: 'test',
+        context: undefined,
+        isolation: 'none'
+      })
     ).toBe(false);
   });
 

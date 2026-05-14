@@ -6,7 +6,10 @@ import { FileWriteStateTracker, fileEditTool } from '../index';
 import type { ExtendedToolUseContext } from '../context-merge';
 import { MockFileSystemProvider } from './mocks/MockFileSystemProvider';
 
-function createContext(tracker?: FileWriteStateTracker, fs?: MockFileSystemProvider): ExtendedToolUseContext {
+function createContext(
+  tracker?: FileWriteStateTracker,
+  fs?: MockFileSystemProvider
+): ExtendedToolUseContext {
   return {
     fsProvider: fs ?? new MockFileSystemProvider(),
     tools: new ToolRegistry(),

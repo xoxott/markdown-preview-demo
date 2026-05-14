@@ -76,10 +76,7 @@ describe('GlobTool — validateInput', () => {
 describe('GlobTool — checkPermissions', () => {
   it('总是 allow', async () => {
     const result = await awaitedPermission(
-      globTool.checkPermissions(
-        { pattern: '**/*.ts' },
-        createContext(new MockFileSystemProvider())
-      )
+      globTool.checkPermissions({ pattern: '**/*.ts' }, createContext(new MockFileSystemProvider()))
     );
     expect(result.behavior).toBe('allow');
   });

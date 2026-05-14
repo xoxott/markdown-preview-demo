@@ -80,14 +80,15 @@ class MockFSProvider implements FileSystemProvider {
     return { exitCode: 0, stdout: '', stderr: '', timedOut: false };
   }
 
-  spawnBackgroundCommand = fsProviderBackgroundNoops.spawnBackgroundCommand.bind(
-    fsProviderBackgroundNoops
-  );
+  spawnBackgroundCommand =
+    fsProviderBackgroundNoops.spawnBackgroundCommand.bind(fsProviderBackgroundNoops);
   getBackgroundTask = fsProviderBackgroundNoops.getBackgroundTask.bind(fsProviderBackgroundNoops);
   stopBackgroundTask = fsProviderBackgroundNoops.stopBackgroundTask.bind(fsProviderBackgroundNoops);
-  listBackgroundTasks = fsProviderBackgroundNoops.listBackgroundTasks.bind(fsProviderBackgroundNoops);
+  listBackgroundTasks =
+    fsProviderBackgroundNoops.listBackgroundTasks.bind(fsProviderBackgroundNoops);
   registerForeground = fsProviderBackgroundNoops.registerForeground.bind(fsProviderBackgroundNoops);
-  unregisterForeground = fsProviderBackgroundNoops.unregisterForeground.bind(fsProviderBackgroundNoops);
+  unregisterForeground =
+    fsProviderBackgroundNoops.unregisterForeground.bind(fsProviderBackgroundNoops);
   markTaskNotified = fsProviderBackgroundNoops.markTaskNotified.bind(fsProviderBackgroundNoops);
 
   reset(): void {
