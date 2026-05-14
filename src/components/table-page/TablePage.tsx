@@ -26,7 +26,8 @@ import {
  *
  * - `search` 插槽：完全自定义筛选区（仍建议外层用 NCard 保持视觉一致）。
  * - `searchCollapsible` / `searchCollapsedRows` / `searchCollapsedRowHeightPx`：搜索区多行时展开收起。
- * - `enableColumnSetting`：在操作栏集成列显隐 / 拖拽排序（复用 `advanced/TableColumnSetting`）； 可与 `columnChecks` + `onUpdateColumnChecks` 受控配合。
+ * - `enableColumnSetting`：在操作栏集成列显隐 / 拖拽排序（复用 `advanced/TableColumnSetting`）； 可与 `columnChecks` +
+ *   `onUpdateColumnChecks` 受控配合。
  * - `tableProps`：向 naive `NDataTable` 透传 `remote`、`flexHeight`、`rowProps` 等原生能力。
  */
 export default defineComponent({

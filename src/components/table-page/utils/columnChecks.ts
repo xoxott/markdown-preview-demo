@@ -11,11 +11,11 @@ export function getTablePageColumnChecks(columns: TableColumnConfig[]): ColumnCh
   }));
 }
 
-/**
- * 列定义变更时合并勾选状态：新列默认勾选；已删列从 checks 中消失； 顺序与标题以当前 `columns` 为准（与 `useTable.reloadColumns`
- * 行为一致）。
- */
-export function mergeTablePageColumnChecks(columns: TableColumnConfig[], prev: ColumnCheck[]): ColumnCheck[] {
+/** 列定义变更时合并勾选状态：新列默认勾选；已删列从 checks 中消失； 顺序与标题以当前 `columns` 为准（与 `useTable.reloadColumns` 行为一致）。 */
+export function mergeTablePageColumnChecks(
+  columns: TableColumnConfig[],
+  prev: ColumnCheck[]
+): ColumnCheck[] {
   const next = getTablePageColumnChecks(columns);
   const prevMap = new Map(prev.map(c => [c.key, c]));
   return next.map(c => ({
