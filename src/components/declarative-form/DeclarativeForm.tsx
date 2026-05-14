@@ -2,9 +2,7 @@ import { type PropType, defineComponent } from 'vue';
 import { NDatePicker, NForm, NFormItem, NInput, NSelect } from 'naive-ui';
 import type { DeclarativeFieldConfig } from './types';
 
-/**
- * 配置驱动的 naive-ui 行内/块级表单：仅负责字段渲染与 model 回写， 不包含业务按钮；搜索条、弹窗筛选、设置面板等均可复用。
- */
+/** 配置驱动的 naive-ui 行内/块级表单：仅负责字段渲染与 model 回写， 不包含业务按钮；搜索条、弹窗筛选、设置面板等均可复用。 */
 export default defineComponent({
   name: 'DeclarativeForm',
   props: {
@@ -38,7 +36,10 @@ export default defineComponent({
     }
   },
   setup(props, { slots }) {
-    const mergeControlProps = (fieldConfig: DeclarativeFieldConfig, extra: Record<string, unknown>) => {
+    const mergeControlProps = (
+      fieldConfig: DeclarativeFieldConfig,
+      extra: Record<string, unknown>
+    ) => {
       const { componentProps = {} } = fieldConfig;
       return {
         ...componentProps,

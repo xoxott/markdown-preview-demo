@@ -1,6 +1,6 @@
 import { type PropType, computed, defineComponent, nextTick, onMounted, ref, watch } from 'vue';
-import { NButton, NFormItem, NSpace } from 'naive-ui';
 import { useResizeObserver } from '@vueuse/core';
+import { NButton, NFormItem, NSpace } from 'naive-ui';
 import { DeclarativeForm } from '@/components/declarative-form';
 import { $t } from '@/locales';
 import type { SearchFieldConfig } from './types';
@@ -118,9 +118,7 @@ export default defineComponent({
     );
 
     const clipClass = computed(() =>
-      props.collapsible
-        ? 'overflow-hidden transition-[max-height] duration-300 ease-in-out'
-        : ''
+      props.collapsible ? 'overflow-hidden transition-[max-height] duration-300 ease-in-out' : ''
     );
 
     const clipStyle = computed(() => {
@@ -175,7 +173,7 @@ export default defineComponent({
       );
 
       return (
-        <div class="w-full min-w-0">
+        <div class="min-w-0 w-full">
           <div ref={clipRef} class={clipClass.value} style={clipStyle.value}>
             {form}
           </div>
@@ -185,7 +183,9 @@ export default defineComponent({
                 <div class="flex items-center gap-4px">
                   <div
                     class={
-                      expanded.value ? 'i-carbon-chevron-up text-14px' : 'i-carbon-chevron-down text-14px'
+                      expanded.value
+                        ? 'i-carbon-chevron-up text-14px'
+                        : 'i-carbon-chevron-down text-14px'
                     }
                   />
                   <span>

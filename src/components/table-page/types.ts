@@ -1,9 +1,13 @@
 import type { VNode } from 'vue';
 import type { DataTableProps as NaiveDataTableProps, PaginationProps } from 'naive-ui';
-import type { DeclarativeFieldConfig, DeclarativeFieldType } from '@/components/declarative-form/types';
+import type {
+  DeclarativeFieldConfig,
+  DeclarativeFieldType
+} from '@/components/declarative-form/types';
 
 /**
- * 与 DeclarativeForm 字段类型一致；在 TablePage 语境下为「搜索字段」配置。 新建通用表单请优先使用 `DeclarativeFieldConfig`（`@/components/declarative-form`）。
+ * 与 DeclarativeForm 字段类型一致；在 TablePage 语境下为「搜索字段」配置。 新建通用表单请优先使用
+ * `DeclarativeFieldConfig`（`@/components/declarative-form`）。
  */
 export type SearchFieldType = DeclarativeFieldType;
 

@@ -40,8 +40,6 @@ export interface DeclarativeFormProps {
   showLabel?: boolean;
   /** 是否 inline 布局，与 naive NForm inline 一致 */
   inline?: boolean;
-  /**
-   * 若传入，则 input 控件在按下 Enter 时调用（例如搜索条提交）； 普通业务表单可不传，避免误触提交。
-   */
+  /** 若传入，则 input 控件在按下 Enter 时调用（例如搜索条提交）； 普通业务表单可不传，避免误触提交。 */
   onInputEnterPress?: () => void;
 }
