@@ -8,3 +8,4 @@ export { default as DataTable } from './DataTable';
 export * from './types';
 export * from './hooks';
 export * from './renderers';
+export * from './utils/columnChecks';

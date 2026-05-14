@@ -243,6 +243,15 @@ export interface TablePageProps {
   initialSearchModel?: Record<string, unknown>;
   /** 操作栏配置；不传则不展示工具卡片区 */
   actionConfig?: ActionBarConfig;
+  /**
+   * 为 true 时在操作栏展示「列设置」（显隐 + 拖拽排序）。 非受控时由 TablePage 内部维护 checks；受控时需同时传 `columnChecks` 与
+   * `onUpdateColumnChecks`。
+   */
+  enableColumnSetting?: boolean;
+  /** 受控：列勾选与顺序，与 `onUpdateColumnChecks` 成对使用 */
+  columnChecks?: NaiveUI.TableColumnCheck[];
+  /** 受控：列设置变更回调 */
+  onUpdateColumnChecks?: (next: NaiveUI.TableColumnCheck[]) => void;
   /** 列定义 */
   columns: TableColumnConfig<any>[];
   /** 行数据 */
@@ -329,6 +338,12 @@ export interface SearchBarProps {
   defaultExpanded?: boolean;
 }
 
+/** ActionBar 上挂接的列设置（与 `TableColumnSetting` / `NaiveUI.TableColumnCheck[]` 一致） */
+export interface ActionBarColumnSetting {
+  checks: NaiveUI.TableColumnCheck[];
+  onUpdateChecks: (next: NaiveUI.TableColumnCheck[]) => void;
+}
+
 /** ActionBar 对外 Props */
 export interface ActionBarProps {
   /** 工具区配置 */
@@ -337,6 +352,8 @@ export interface ActionBarProps {
   selectedKeys: (string | number)[];
   /** 总条数（用于统计与分页 total） */
   total: number;
+  /** 为 true 时在左侧按钮组末尾展示列设置弹层 */
+  columnSetting?: ActionBarColumnSetting;
 }
 
 /** DataTable 对外 Props */

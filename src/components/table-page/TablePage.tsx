@@ -1,4 +1,4 @@
-import { type PropType, computed, defineComponent } from 'vue';
+import { type PropType, computed, defineComponent, ref, watch } from 'vue';
 import { NCard } from 'naive-ui';
 import type { DataTableProps as NaiveDataTableProps, PaginationProps } from 'naive-ui';
 import type { ActionBarConfig, SearchFieldConfig, TableColumnConfig } from './types';
@@ -6,6 +6,11 @@ import SearchBar from './SearchBar';
 import ActionBar from './ActionBar';
 import DataTable from './DataTable';
 import { useSearchForm } from './hooks/useSearchForm';
+import {
+  applyTablePageColumnChecks,
+  getTablePageColumnChecks,
+  mergeTablePageColumnChecks
+} from './utils/columnChecks';
 
 /**
  * 典型后台「筛选 + 工具条 + 表格」三栏布局的页面级容器。
@@ -21,6 +26,7 @@ import { useSearchForm } from './hooks/useSearchForm';
  *
  * - `search` 插槽：完全自定义筛选区（仍建议外层用 NCard 保持视觉一致）。
  * - `searchCollapsible` / `searchCollapsedRows` / `searchCollapsedRowHeightPx`：搜索区多行时展开收起。
+ * - `enableColumnSetting`：在操作栏集成列显隐 / 拖拽排序（复用 `advanced/TableColumnSetting`）； 可与 `columnChecks` + `onUpdateColumnChecks` 受控配合。
  * - `tableProps`：向 naive `NDataTable` 透传 `remote`、`flexHeight`、`rowProps` 等原生能力。
  */
 export default defineComponent({
@@ -162,10 +168,72 @@ export default defineComponent({
     tableProps: {
       type: Object as PropType<Partial<NaiveDataTableProps>>,
       default: undefined
+    },
+    enableColumnSetting: {
+      type: Boolean,
+      default: false
+    },
+    columnChecks: {
+      type: Array as PropType<NaiveUI.TableColumnCheck[]>,
+      default: undefined
+    },
+    onUpdateColumnChecks: {
+      type: Function as PropType<(next: NaiveUI.TableColumnCheck[]) => void>,
+      default: undefined
     }
   },
-  emits: ['search', 'reset'],
+  emits: ['search', 'reset', 'update:columnChecks'],
   setup(props, { emit, slots }) {
+    const internalControlledAtInit =
+      props.enableColumnSetting &&
+      props.columnChecks !== undefined &&
+      props.onUpdateColumnChecks !== undefined;
+
+    const internalColumnChecks = ref<NaiveUI.TableColumnCheck[]>(
+      props.enableColumnSetting && !internalControlledAtInit
+        ? getTablePageColumnChecks(props.columns)
+        : []
+    );
+
+    const isChecksControlled = computed(
+      () =>
+        props.enableColumnSetting &&
+        props.columnChecks !== undefined &&
+        props.onUpdateColumnChecks !== undefined
+    );
+
+    const activeColumnChecks = computed((): NaiveUI.TableColumnCheck[] => {
+      if (!props.enableColumnSetting) return [];
+      if (isChecksControlled.value) return props.columnChecks as NaiveUI.TableColumnCheck[];
+      return internalColumnChecks.value;
+    });
+
+    const patchColumnChecks = (next: NaiveUI.TableColumnCheck[]) => {
+      if (!props.enableColumnSetting) return;
+      if (isChecksControlled.value) {
+        props.onUpdateColumnChecks!(next);
+      } else {
+        internalColumnChecks.value = next;
+      }
+      emit('update:columnChecks', next);
+    };
+
+    watch(
+      () => props.columns,
+      cols => {
+        if (!props.enableColumnSetting || isChecksControlled.value) return;
+        internalColumnChecks.value = mergeTablePageColumnChecks(cols, internalColumnChecks.value);
+      },
+      { deep: true, immediate: true }
+    );
+
+    const displayColumns = computed(() => {
+      if (!props.enableColumnSetting) return props.columns;
+      const checks = activeColumnChecks.value;
+      if (checks.length === 0) return props.columns;
+      return applyTablePageColumnChecks(props.columns, checks);
+    });
+
     /** 内部搜索：仅当未传入 searchModel 且存在 searchConfig 时启用。 若已受控，则 config 传空数组，避免维护两套互不同步的 model。 */
     const internalSearch = useSearchForm({
       config: props.searchModel !== undefined ? [] : (props.searchConfig ?? []),
@@ -255,14 +323,22 @@ export default defineComponent({
     };
 
     const renderActionArea = () => {
-      if (!props.actionConfig && !slots.action) return null;
+      if (!props.actionConfig && !slots.action && !props.enableColumnSetting) return null;
       const inner =
         slots.action?.() ??
-        (props.actionConfig ? (
+        (props.actionConfig || props.enableColumnSetting ? (
           <ActionBar
-            config={props.actionConfig}
+            config={props.actionConfig ?? { showStats: true }}
             selectedKeys={props.selectedKeys}
             total={props.pagination?.itemCount ?? props.data.length}
+            columnSetting={
+              props.enableColumnSetting
+                ? {
+                    checks: activeColumnChecks.value,
+                    onUpdateChecks: patchColumnChecks
+                  }
+                : undefined
+            }
           />
         ) : null);
 
@@ -290,7 +366,7 @@ export default defineComponent({
         >
           {slots.tablePrepend?.()}
           <DataTable
-            columns={props.columns}
+            columns={displayColumns.value}
             data={props.data}
             loading={props.loading}
             pagination={props.pagination}

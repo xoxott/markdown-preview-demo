@@ -1,7 +1,8 @@
 import { type PropType, defineComponent } from 'vue';
 import { NBadge, NButton, NSpace, NText } from 'naive-ui';
+import TableColumnSetting from '@/components/advanced/table-column-setting';
 import { $t } from '@/locales';
-import type { ActionBarProps, PresetButtonType } from './types';
+import type { ActionBarColumnSetting, ActionBarProps, PresetButtonType } from './types';
 
 /** 表格上方工具条：左侧为预设按钮（新增 / 批量删除 / 刷新 / 导出）与自定义按钮， 右侧为可选统计文案；批量类按钮在无选中行时可自动禁用。 */
 export default defineComponent({
@@ -18,6 +19,10 @@ export default defineComponent({
     total: {
       type: Number,
       required: true
+    },
+    columnSetting: {
+      type: Object as PropType<ActionBarColumnSetting | undefined>,
+      default: undefined
     }
   },
   setup(props) {
@@ -144,6 +149,13 @@ export default defineComponent({
           {props.config.custom?.map((buttonConfig, index) =>
             renderCustomButton(buttonConfig, index)
           )}
+
+          {props.columnSetting ? (
+            <TableColumnSetting
+              columns={props.columnSetting.checks}
+              onUpdate:columns={props.columnSetting.onUpdateChecks}
+            />
+          ) : null}
         </NSpace>
 
         {/* 右侧统计信息 */}
