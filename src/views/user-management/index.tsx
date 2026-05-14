@@ -16,10 +16,10 @@ import {
   useMessage
 } from 'naive-ui';
 import {
+  fetchAdminRoleOptions,
   fetchBatchDeleteUsers,
   fetchCreateUser,
   fetchDeleteUser,
-  fetchRoleList,
   fetchToggleUserStatus,
   fetchUpdateUser,
   fetchUserDetail,
@@ -472,7 +472,7 @@ export default defineComponent({
     // 加载角色列表
     async function loadRoles() {
       try {
-        const { data: rolesData } = await fetchRoleList();
+        const { data: rolesData } = await fetchAdminRoleOptions();
         if (rolesData?.lists && Array.isArray(rolesData.lists)) {
           roles.value = rolesData.lists;
         } else {

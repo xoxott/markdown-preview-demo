@@ -91,8 +91,8 @@ export function fetchToggleUserStatus(id: number, isActive: boolean) {
   });
 }
 
-/** Get role list */
-export function fetchRoleList() {
+/** 用户/角色表单等场景使用的管理员角色下拉列表（非分页） */
+export function fetchAdminRoleOptions() {
   return request<Api.UserManagement.RoleListResponse>({
     url: '/api/admin/roles',
     method: 'get'

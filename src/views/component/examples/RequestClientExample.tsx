@@ -14,10 +14,10 @@ import {
   NText
 } from 'naive-ui';
 import type { AxiosProgressEvent } from 'axios';
-import { createRequestClient } from '@/utils/request/createRequestClient';
+import { createPipelineClient } from '@/service/request/pipeline';
 
-// 创建请求客户端（仅配置 Axios 基础配置，步骤配置已写死在 createRequestClient 内部）
-const client = createRequestClient({
+// 步骤链客户端（配置在 service/request/pipeline/createPipelineClient），与业务 request（createFlatRequest）独立
+const client = createPipelineClient({
   baseURL: 'https://jsonplaceholder.typicode.com',
   timeout: 10000,
   headers: {

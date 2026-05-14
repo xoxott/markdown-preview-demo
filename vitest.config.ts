@@ -50,6 +50,13 @@ export default defineConfig({
           globals: true,
           setupFiles: ['./src/hooks/upload/__tests__/setup.ts']
         }
+      },
+      {
+        test: {
+          include: ['src/service/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+          environment: 'node',
+          globals: true
+        }
       }
     ]
   },

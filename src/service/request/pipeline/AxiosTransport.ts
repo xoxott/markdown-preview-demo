@@ -1,23 +1,30 @@
-/** Axios 传输层适配器 将 Axios 实例适配为 request-core 的 Transport 接口 */
+/** Axios 传输层：将 Axios 实例适配为 @suga/request-core 的 Transport */
 
 import type { AxiosInstance, AxiosResponse } from 'axios';
 import axios from 'axios';
 import type { NormalizedRequestConfig, Transport, TransportResponse } from '@suga/request-core';
 
+/** 与步骤链配合时，用于把 `pipelineCorrelationId` 关联到完整 Axios 响应 */
+export type AxiosResponseCaptureMap = Map<string, AxiosResponse>;
+
 /** Axios 传输层选项 */
 export interface AxiosTransportOptions {
-  /** HTTP 请求实例（必需，通常是通过 axios.create() 创建的实例） */
+  /** 通常由 axios.create() 得到的实例 */
   instance: unknown;
+  /**
+   * 若提供：当请求配置含 `pipelineCorrelationId` 且 `instance.request` 成功后，写入完整 Axios 响应， 供
+   * `PipelineTransportStep` 写入 `ctx.meta`，供 `createFlatRequestFromStack` 使用。
+   */
+  responseCaptureByCorrelationId?: AxiosResponseCaptureMap;
 }
 
-/** 将 Axios 响应头转换为标准格式 */
+/** 将 Axios 响应头转为 Record<string, string> */
 function normalizeHeaders(headers: AxiosResponse['headers']): Record<string, string> {
   const normalized: Record<string, string> = {};
 
   if (headers && typeof headers === 'object') {
     for (const [key, value] of Object.entries(headers)) {
       if (value !== undefined && value !== null) {
-        // AxiosHeaderValue 可能是 string | string[] | number  统一转换为 string
         normalized[key] = Array.isArray(value) ? value.join(', ') : String(value);
       }
     }
@@ -26,14 +33,10 @@ function normalizeHeaders(headers: AxiosResponse['headers']): Record<string, str
   return normalized;
 }
 
-/** 类型守卫：检查是否为 Axios 实例 注意：AxiosInstance 实际上是一个函数对象，所以 typeof 是 'function' 而不是 'object' */
 function isAxiosInstance(instance: unknown): instance is AxiosInstance {
   if (!instance) {
     return false;
   }
-
-  // AxiosInstance 是一个函数对象，typeof 是 'function'
-  // 但它也有 request、get、post 等方法属性
   return (
     (typeof instance === 'object' || typeof instance === 'function') &&
     typeof (instance as { request?: unknown }).request === 'function' &&
@@ -41,9 +44,11 @@ function isAxiosInstance(instance: unknown): instance is AxiosInstance {
   );
 }
 
-/** Axios 传输层适配器 */
+/** Axios 实现 Transport，供步骤链末端发起真实 HTTP */
 export class AxiosTransport implements Transport {
   private readonly instance: AxiosInstance;
+
+  private readonly responseCaptureByCorrelationId?: AxiosResponseCaptureMap;
 
   constructor(options: AxiosTransportOptions) {
     if (!isAxiosInstance(options.instance)) {
@@ -52,16 +57,31 @@ export class AxiosTransport implements Transport {
       );
     }
     this.instance = options.instance;
+    this.responseCaptureByCorrelationId = options.responseCaptureByCorrelationId;
+  }
+
+  /** 取出并移除关联的 Axios 响应（由 PipelineTransportStep 在传输完成后调用） */
+  takeCapturedResponse(correlationId: string): AxiosResponse | undefined {
+    const map = this.responseCaptureByCorrelationId;
+    if (!map) return undefined;
+    const r = map.get(correlationId);
+    map.delete(correlationId);
+    return r;
   }
 
   async request<T = unknown>(config: NormalizedRequestConfig): Promise<TransportResponse<T>> {
     try {
-      const axiosConfig = config as unknown as Parameters<AxiosInstance['request']>[0];
+      const extended = config as NormalizedRequestConfig & { pipelineCorrelationId?: string };
+      const correlationId = extended.pipelineCorrelationId;
+      const axiosConfig = { ...extended } as unknown as Parameters<AxiosInstance['request']>[0];
+      delete (axiosConfig as { pipelineCorrelationId?: string }).pipelineCorrelationId;
 
-      // 执行请求
       const response = await this.instance.request<T>(axiosConfig);
 
-      // 转换为 TransportResponse
+      if (correlationId && this.responseCaptureByCorrelationId) {
+        this.responseCaptureByCorrelationId.set(correlationId, response);
+      }
+
       return {
         data: response.data,
         status: response.status,

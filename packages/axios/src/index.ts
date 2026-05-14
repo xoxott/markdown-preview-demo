@@ -1,5 +1,10 @@
 import axios, { AxiosError } from 'axios';
-import type { AxiosResponse, CreateAxiosDefaults, InternalAxiosRequestConfig } from 'axios';
+import type {
+  AxiosInstance,
+  AxiosResponse,
+  CreateAxiosDefaults,
+  InternalAxiosRequestConfig
+} from 'axios';
 import axiosRetry from 'axios-retry';
 import { nanoid } from '@suga/utils';
 import { createAxiosConfig, createDefaultOptions, createRetryOptions } from './options';
@@ -12,6 +17,25 @@ import type {
   RequestOption,
   ResponseType
 } from './type';
+
+/** Axios 实例 + 拦截器选项 + 取消方法，供与步骤链（如 @suga/request-*）组合 */
+export type AxiosRequestStackResult<ResponseData = any> = {
+  instance: AxiosInstance;
+  opts: RequestOption<ResponseData>;
+  cancelRequest: (requestId: string) => void;
+  cancelAllRequest: () => void;
+};
+
+/**
+ * 创建带拦截器的 Axios 栈（与 {@link createFlatRequest} 内部实现一致），不包装为 flat 函数。 可将 `instance` 交给
+ * `AxiosTransport` 等适配器，再用 {@link createFlatRequestFromStack} 组装对外 API。
+ */
+export function createAxiosRequestStack<ResponseData = any>(
+  axiosConfig?: CreateAxiosDefaults,
+  options?: Partial<RequestOption<ResponseData>>
+): AxiosRequestStackResult<ResponseData> {
+  return createCommonRequest<ResponseData>(axiosConfig, options);
+}
 
 function createCommonRequest<ResponseData = any>(
   axiosConfig?: CreateAxiosDefaults,
@@ -197,22 +221,28 @@ export function createFlatRequest<ResponseData = any, State = Record<string, unk
   axiosConfig?: CreateAxiosDefaults,
   options?: Partial<RequestOption<ResponseData>>
 ) {
-  const { instance, opts, cancelRequest, cancelAllRequest } = createCommonRequest<ResponseData>(
-    axiosConfig,
-    options
-  );
+  const stack = createCommonRequest<ResponseData>(axiosConfig, options);
+  return createFlatRequestFromStack<ResponseData, State>(stack, config => stack.instance(config));
+}
+
+/** 使用已有 Axios 栈与自定义「如何发起请求」（例如经步骤链后再调 `instance.request`），得到与 {@link createFlatRequest} 相同的平面返回形态。 */
+export function createFlatRequestFromStack<ResponseData = any, State = Record<string, unknown>>(
+  stack: AxiosRequestStackResult<ResponseData>,
+  execute: (config: CustomAxiosRequestConfig) => Promise<AxiosResponse<ResponseData>>
+): FlatRequestInstance<State, ResponseData> {
+  const { opts, cancelRequest, cancelAllRequest } = stack;
 
   const flatRequest: FlatRequestInstance<State, ResponseData> = async function flatRequest<
     T = any,
     R extends ResponseType = 'json'
   >(config: CustomAxiosRequestConfig) {
     try {
-      const response: AxiosResponse<ResponseData> = await instance(config);
+      const response: AxiosResponse<ResponseData> = await execute(config);
 
       const responseType = response.config?.responseType || 'json';
 
       if (responseType === 'json') {
-        const data = opts.transformBackendResponse(response);
+        const data = await Promise.resolve(opts.transformBackendResponse(response));
 
         return { data, error: null, response };
       }
