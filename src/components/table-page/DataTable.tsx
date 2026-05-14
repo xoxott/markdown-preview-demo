@@ -86,6 +86,16 @@ export default defineComponent({
     }
   },
   setup(props) {
+    /** naive-ui 2.41+ 的 NDataTable 仅接受函数型 rowKey；将字符串字段名规范为 (row) => row[field]。 */
+    const naiveRowKey = computed((): ((row: Record<string, unknown>) => string | number) => {
+      const rk = props.rowKey;
+      if (typeof rk === 'function') {
+        return rk as (row: Record<string, unknown>) => string | number;
+      }
+      const field = typeof rk === 'string' && rk.length > 0 ? rk : 'id';
+      return (row: Record<string, unknown>) => row[field] as string | number;
+    });
+
     /** 将业务列声明展开为 naive 可识别的列数组（含 selection / index） */
     const processedColumns = computed(() => {
       const cols: any[] = [];
@@ -181,7 +191,7 @@ export default defineComponent({
         data: props.data,
         loading: props.loading,
         pagination: props.pagination,
-        rowKey: props.rowKey as any,
+        rowKey: naiveRowKey.value,
         scrollX: props.scrollX,
         maxHeight: props.maxHeight,
         striped: props.striped,
