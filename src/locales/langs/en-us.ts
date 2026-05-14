@@ -40,6 +40,8 @@ const local: App.I18n.Schema = {
     refresh: 'Refresh',
     reset: 'Reset',
     search: 'Search',
+    searchExpand: 'Show more',
+    searchCollapse: 'Show less',
     switch: 'Switch',
     tip: 'Tip',
     trigger: 'Trigger',

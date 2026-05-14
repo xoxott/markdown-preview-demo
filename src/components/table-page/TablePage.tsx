@@ -20,6 +20,7 @@ import { useSearchForm } from './hooks/useSearchForm';
  * 扩展点：
  *
  * - `search` 插槽：完全自定义筛选区（仍建议外层用 NCard 保持视觉一致）。
+ * - `searchCollapsible` / `searchCollapsedRows` / `searchCollapsedRowHeightPx`：搜索区多行时展开收起。
  * - `tableProps`：向 naive `NDataTable` 透传 `remote`、`flexHeight`、`rowProps` 等原生能力。
  */
 export default defineComponent({
@@ -125,6 +126,22 @@ export default defineComponent({
       type: Boolean,
       default: false
     },
+    searchCollapsible: {
+      type: Boolean,
+      default: false
+    },
+    searchCollapsedRows: {
+      type: Number,
+      default: 1
+    },
+    searchCollapsedRowHeightPx: {
+      type: Number,
+      default: 52
+    },
+    searchDefaultExpanded: {
+      type: Boolean,
+      default: false
+    },
     showActionCard: {
       type: Boolean,
       default: true
@@ -217,6 +234,10 @@ export default defineComponent({
             onSearch={triggerSearch}
             onReset={triggerReset}
             onUpdateModel={patchSearchField}
+            collapsible={props.searchCollapsible}
+            collapsedRows={props.searchCollapsedRows}
+            collapsedRowHeightPx={props.searchCollapsedRowHeightPx}
+            defaultExpanded={props.searchDefaultExpanded}
           />
         ) : null);
 

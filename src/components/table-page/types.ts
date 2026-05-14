@@ -1,41 +1,14 @@
 import type { VNode } from 'vue';
 import type { DataTableProps as NaiveDataTableProps, PaginationProps } from 'naive-ui';
+import type { DeclarativeFieldConfig, DeclarativeFieldType } from '@/components/declarative-form/types';
 
-/** 搜索控件类型：与 SearchBar 内渲染分支一一对应 */
-export type SearchFieldType = 'input' | 'select' | 'date-range' | 'date' | 'custom';
+/**
+ * 与 DeclarativeForm 字段类型一致；在 TablePage 语境下为「搜索字段」配置。 新建通用表单请优先使用 `DeclarativeFieldConfig`（`@/components/declarative-form`）。
+ */
+export type SearchFieldType = DeclarativeFieldType;
 
-/** 单个搜索字段的配置项（声明式驱动 SearchBar） */
-export interface SearchFieldConfig {
-  /** 控件类型 */
-  type: SearchFieldType;
-  /** 绑定到表单 model 上的键名 */
-  field: string;
-  /** 占位提示文案 */
-  placeholder?: string;
-  /** input 前缀图标（UnoCSS / iconfont 类名） */
-  icon?: string;
-  /** 控件宽度，如 `220px` */
-  width?: string;
-  /** 下拉选项（type 为 select 时使用） */
-  options?: Array<{ label: string; value: any }>;
-  /** 是否显示清空按钮，默认 true */
-  clearable?: boolean;
-  /** 是否禁用当前字段 */
-  disabled?: boolean;
-  /**
-   * 初始值 / 重置回退值：未传 initialSearchModel 对应键时使用； useSearchForm 重置时优先 initialValues[field]，其次取本字段的
-   * defaultValue
-   */
-  defaultValue?: unknown;
-  /** 透传给底层 Naive UI 组件的属性（如 NSelect 的 multiple、filterable） 会与内部占位的 value / onUpdate:value 等合并，后者优先 */
-  componentProps?: Record<string, unknown>;
-  /** type 为 custom 时的渲染函数 */
-  render?: (model: any, updateModel: (field: string, value: any) => void) => VNode;
-  /** 表单项标签文案 */
-  label?: string;
-  /** 是否展示标签；为 false 时可强制隐藏单个字段标签 */
-  showLabel?: boolean;
-}
+/** @see DeclarativeFieldConfig */
+export type SearchFieldConfig = DeclarativeFieldConfig;
 
 /** 操作栏内置按钮种类 */
 export type PresetButtonType = 'add' | 'batchDelete' | 'refresh' | 'export';
@@ -304,6 +277,14 @@ export interface TablePageProps {
   showSearchCard?: boolean;
   /** 搜索区 NCard bordered */
   searchCardBordered?: boolean;
+  /** 为 true 时搜索区超出指定行数可展开 / 收起 */
+  searchCollapsible?: boolean;
+  /** 收起时保留的大致行数（与 searchCollapsedRowHeightPx 相乘为 max-height），默认 1，最小 1 */
+  searchCollapsedRows?: number;
+  /** 收起时每行估算高度（px），用于计算 max-height；控件较大时可调大，默认 52 */
+  searchCollapsedRowHeightPx?: number;
+  /** 为 true 时初始为展开态 */
+  searchDefaultExpanded?: boolean;
   /** 是否渲染操作区外层 NCard */
   showActionCard?: boolean;
   /** 操作区 NCard bordered */
@@ -334,6 +315,14 @@ export interface SearchBarProps {
   showLabel?: boolean;
   /** 是否渲染内置「搜索 / 重置」按钮组 */
   showActionButtons?: boolean;
+  /** 为 true 时筛选项超出指定行数可展开 / 收起 */
+  collapsible?: boolean;
+  /** 收起时保留的大致行数，默认 1 */
+  collapsedRows?: number;
+  /** 收起时每行估算高度（px），默认 52 */
+  collapsedRowHeightPx?: number;
+  /** 为 true 时初始为展开态 */
+  defaultExpanded?: boolean;
 }
 
 /** ActionBar 对外 Props */

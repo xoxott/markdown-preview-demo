@@ -39,6 +39,8 @@ const local: App.I18n.Schema = {
     refresh: '刷新',
     reset: '重置',
     search: '搜索',
+    searchExpand: '展开',
+    searchCollapse: '收起',
     switch: '切换',
     tip: '提示',
     trigger: '触发',

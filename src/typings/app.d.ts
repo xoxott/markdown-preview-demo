@@ -333,6 +333,8 @@ declare namespace App {
         refresh: string;
         reset: string;
         search: string;
+        searchExpand: string;
+        searchCollapse: string;
         switch: string;
         tip: string;
         trigger: string;
