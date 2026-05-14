@@ -241,11 +241,9 @@ export default defineComponent({
       initialValues: (props.initialSearchModel as Record<string, unknown>) ?? {},
       onSearch: values => {
         emit('search', values as Record<string, unknown>);
-        props.onSearch?.(values as Record<string, unknown>);
       },
       onReset: () => {
         emit('reset');
-        props.onReset?.();
       }
     });
 
@@ -267,12 +265,11 @@ export default defineComponent({
       }
     };
 
-    /** 受控：由父级 reset；非受控：走内部 handleSearch 链（已含 emit） */
+    /** 受控：仅 emit，由 Vue 派发至父级 `onSearch` / `@search`；勿再调 `props.onSearch`，否则与 emit 指向同一监听器时会触发两次请求。 */
     const triggerSearch = () => {
       if (props.searchModel !== undefined) {
         const snapshot = { ...(props.searchModel as Record<string, unknown>) };
         emit('search', snapshot);
-        props.onSearch?.(snapshot);
       } else if (hasSearchFields.value) {
         internalSearch.handleSearch();
       }
@@ -280,7 +277,6 @@ export default defineComponent({
 
     const triggerReset = () => {
       if (props.searchModel !== undefined) {
-        props.onReset?.();
         emit('reset');
       } else if (hasSearchFields.value) {
         internalSearch.handleReset();
