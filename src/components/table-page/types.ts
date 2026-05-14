@@ -23,14 +23,11 @@ export interface SearchFieldConfig {
   /** 是否禁用当前字段 */
   disabled?: boolean;
   /**
-   * 初始值 / 重置回退值：未传 initialSearchModel 对应键时使用；
-   * useSearchForm 重置时优先 initialValues[field]，其次取本字段的 defaultValue
+   * 初始值 / 重置回退值：未传 initialSearchModel 对应键时使用； useSearchForm 重置时优先 initialValues[field]，其次取本字段的
+   * defaultValue
    */
   defaultValue?: unknown;
-  /**
-   * 透传给底层 Naive UI 组件的属性（如 NSelect 的 multiple、filterable）
-   * 会与内部占位的 value / onUpdate:value 等合并，后者优先
-   */
+  /** 透传给底层 Naive UI 组件的属性（如 NSelect 的 multiple、filterable） 会与内部占位的 value / onUpdate:value 等合并，后者优先 */
   componentProps?: Record<string, unknown>;
   /** type 为 custom 时的渲染函数 */
   render?: (model: any, updateModel: (field: string, value: any) => void) => VNode;
@@ -219,10 +216,7 @@ export type RendererConfig =
   | ActionRendererConfig
   | TextRendererConfig;
 
-/**
- * 业务侧声明的列配置：在 naive DataTable 列基础上增加预设 render / renderConfig。
- * 其余键会原样透传，便于使用官方列能力（sorter、filter 等）。
- */
+/** 业务侧声明的列配置：在 naive DataTable 列基础上增加预设 render / renderConfig。 其余键会原样透传，便于使用官方列能力（sorter、filter 等）。 */
 export interface TableColumnConfig<T = any> {
   /** 列唯一 key，与行数据字段或虚拟列名对应 */
   key: string | number;
@@ -243,8 +237,8 @@ export interface TableColumnConfig<T = any> {
 }
 
 /**
- * 与 TablePage / SearchBar 对接的一组搜索状态方法。
- * 推荐直接展开 `useTablePage(...).searchBindings` 传入 TablePage（其 `searchModel` 即 `useTable` 的 `searchParams`）。
+ * 与 TablePage / SearchBar 对接的一组搜索状态方法。 推荐直接展开 `useTablePage(...).searchBindings` 传入 TablePage（其
+ * `searchModel` 即 `useTable` 的 `searchParams`）。
  */
 export interface TablePageSearchBindings {
   /** 当前搜索表单（一般为 reactive） */
@@ -257,21 +251,16 @@ export interface TablePageSearchBindings {
   onReset: () => void;
 }
 
-/**
- * TablePage 组件的完整 Props 契约（文档与类型推导用）。
- * 实际 TSX 中仍通过 defineComponent 的 props 选项声明运行时校验。
- */
+/** TablePage 组件的完整 Props 契约（文档与类型推导用）。 实际 TSX 中仍通过 defineComponent 的 props 选项声明运行时校验。 */
 export interface TablePageProps {
   /** 搜索区字段配置；与 searchBindings / searchModel 二选一或组合使用，详见 README */
   searchConfig?: SearchFieldConfig[];
   /**
-   * 受控搜索表单数据：与 useTablePage 返回的 searchBindings.searchModel 引用相同对象即可。
-   * 不传且存在 searchConfig 时，TablePage 内部会自建一份 reactive（适合无请求封装的静态演示）。
+   * 受控搜索表单数据：与 useTablePage 返回的 searchBindings.searchModel 引用相同对象即可。 不传且存在 searchConfig 时，TablePage
+   * 内部会自建一份 reactive（适合无请求封装的静态演示）。
    */
   searchModel?: Record<string, any>;
-  /**
-   * 单字段更新回调；不传时若仍传入 searchModel，则直接写入 searchModel[field]（依赖 reactive 对象）。
-   */
+  /** 单字段更新回调；不传时若仍传入 searchModel，则直接写入 searchModel[field]（依赖 reactive 对象）。 */
   onUpdateSearchField?: (field: string, value: unknown) => void;
   /** 仅内部搜索模式生效：初始填充值 */
   initialSearchModel?: Record<string, unknown>;
@@ -289,11 +278,7 @@ export interface TablePageProps {
   selectedKeys?: (string | number)[];
   /** 行主键字段名或 getter */
   rowKey?: string | ((row: any) => string | number);
-  /**
-   * 搜索提交：受控模式下通常绑定 useSearchForm.handleSearch；
-   * 内部模式下会在复位表单后附带调用。
-   * 若需当前表单快照请监听 @search 事件。
-   */
+  /** 搜索提交：受控模式下通常绑定 useSearchForm.handleSearch； 内部模式下会在复位表单后附带调用。 若需当前表单快照请监听 @search 事件。 */
   onSearch?: (payload?: Record<string, unknown>) => void;
   /** 重置完成后的回调 */
   onReset?: () => void;
@@ -327,10 +312,7 @@ export interface TablePageProps {
   gapClass?: string;
   /** 是否包裹根节点 p-16px，默认 true */
   padded?: boolean;
-  /**
-   * 透传给 NDataTable 的原生属性（remote、flexHeight、rowProps 等），
-   * 会与组件内置 props 浅合并，内置键优先。
-   */
+  /** 透传给 NDataTable 的原生属性（remote、flexHeight、rowProps 等）， 会与组件内置 props 浅合并，内置键优先。 */
   tableProps?: Partial<NaiveDataTableProps>;
 }
 

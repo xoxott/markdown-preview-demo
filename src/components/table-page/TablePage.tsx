@@ -1,7 +1,6 @@
 import { type PropType, computed, defineComponent } from 'vue';
 import { NCard } from 'naive-ui';
-import type { PaginationProps } from 'naive-ui';
-import type { DataTableProps as NaiveDataTableProps } from 'naive-ui';
+import type { DataTableProps as NaiveDataTableProps, PaginationProps } from 'naive-ui';
 import type { ActionBarConfig, SearchFieldConfig, TableColumnConfig } from './types';
 import SearchBar from './SearchBar';
 import ActionBar from './ActionBar';
@@ -12,12 +11,14 @@ import { useSearchForm } from './hooks/useSearchForm';
  * 典型后台「筛选 + 工具条 + 表格」三栏布局的页面级容器。
  *
  * 搜索数据流（重要）：
- * - **受控（推荐）**：传入 `searchModel` + `onUpdateSearchField` + `onSearch` + `onReset`，
- *   与 `useTablePage` 返回的 `searchBindings`（底层为 `useTable` 的 `searchParams`）对齐，保证请求参数与 UI 同步。
+ *
+ * - **受控（推荐）**：传入 `searchModel` + `onUpdateSearchField` + `onSearch` + `onReset`， 与 `useTablePage`
+ *   返回的 `searchBindings`（底层为 `useTable` 的 `searchParams`）对齐，保证请求参数与 UI 同步。
  * - **非受控**：仅传 `searchConfig`（及可选 `initialSearchModel`）时，由本组件内部 `useSearchForm`
  *   托管表单；适合静态演示或与外部请求逻辑解耦的场景。
  *
  * 扩展点：
+ *
  * - `search` 插槽：完全自定义筛选区（仍建议外层用 NCard 保持视觉一致）。
  * - `tableProps`：向 naive `NDataTable` 透传 `remote`、`flexHeight`、`rowProps` 等原生能力。
  */
@@ -148,10 +149,7 @@ export default defineComponent({
   },
   emits: ['search', 'reset'],
   setup(props, { emit, slots }) {
-    /**
-     * 内部搜索：仅当未传入 searchModel 且存在 searchConfig 时启用。
-     * 若已受控，则 config 传空数组，避免维护两套互不同步的 model。
-     */
+    /** 内部搜索：仅当未传入 searchModel 且存在 searchConfig 时启用。 若已受控，则 config 传空数组，避免维护两套互不同步的 model。 */
     const internalSearch = useSearchForm({
       config: props.searchModel !== undefined ? [] : (props.searchConfig ?? []),
       initialValues: (props.initialSearchModel as Record<string, any>) ?? {},
@@ -166,9 +164,7 @@ export default defineComponent({
     });
 
     /** 实际绑定到 SearchBar 的 model：受控优先 */
-    const activeSearchModel = computed(
-      () => props.searchModel ?? internalSearch.formModel
-    );
+    const activeSearchModel = computed(() => props.searchModel ?? internalSearch.formModel);
 
     const hasSearchFields = computed(() => (props.searchConfig?.length ?? 0) > 0);
 
@@ -205,9 +201,8 @@ export default defineComponent({
       }
     };
 
-    const rootClass = computed(
-      () =>
-        `h-full flex flex-col overflow-hidden ${props.gapClass} ${props.padded ? 'p-16px' : ''} ${props.class}`.trim()
+    const rootClass = computed(() =>
+      `h-full flex flex-col overflow-hidden ${props.gapClass} ${props.padded ? 'p-16px' : ''} ${props.class}`.trim()
     );
 
     const renderSearchArea = () => {

@@ -5,8 +5,8 @@
  */
 
 import { defineComponent } from 'vue';
-import type { AxiosResponse } from 'axios';
 import { useMessage } from 'naive-ui';
+import type { AxiosResponse } from 'axios';
 import type { FlatResponseSuccessData } from '@suga/axios';
 import { TablePage, useTablePage } from '@/components/table-page';
 import type {
@@ -34,10 +34,7 @@ interface ExampleListParams extends Api.Common.PaginationParams {
   status?: boolean | '' | undefined;
 }
 
-/**
- * 模拟列表接口：返回形态与项目 request 扁平化结果一致，
- * 以便 `useTable`（@/hooks/common/table）解析 `lists` + `meta`。
- */
+/** 模拟列表接口：返回形态与项目 request 扁平化结果一致， 以便 `useTable`（@/hooks/common/table）解析 `lists` + `meta`。 */
 async function fetchExampleList(
   _params: ExampleListParams
 ): Promise<NaiveUI.FlatResponseData<Api.ListData<ExampleData>>> {

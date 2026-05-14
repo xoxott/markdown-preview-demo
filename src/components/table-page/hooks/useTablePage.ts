@@ -3,19 +3,16 @@ import { useTable } from '@/hooks/common/table';
 import type { SearchFieldConfig, TablePageSearchBindings } from '../types';
 
 /**
- * TablePage 配套的数据 Hook：内部复用项目统一的 `useTable`（@/hooks/common/table），
- * 避免与 naive + suga 表格请求、分页、ListData 解析重复实现。
+ * TablePage 配套的数据 Hook：内部复用项目统一的 `useTable`（@/hooks/common/table）， 避免与 naive + suga
+ * 表格请求、分页、ListData 解析重复实现。
  *
- * 搜索表单与请求参数共用 **`searchParams`**（与 `useTable` 返回的为同一 reactive），
- * `searchBindings` 可直接展开到 `<TablePage />`，SearchBar 的字段名需与接口入参一致。
+ * 搜索表单与请求参数共用 **`searchParams`**（与 `useTable` 返回的为同一 reactive）， `searchBindings` 可直接展开到 `<TablePage
+ * />`，SearchBar 的字段名需与接口入参一致。
  */
 export interface UseTablePageOptions<A extends NaiveUI.TableApiFn> {
   /** 列表请求：需符合 `NaiveUI.TableApiFn`（FlatResponse + ListData） */
   apiFn: A;
-  /**
-   * 除 page / limit 外的默认查询参数；
-   * page、limit 由 `initialPagination` 写入初始请求，之后与分页组件联动。
-   */
+  /** 除 page / limit 外的默认查询参数； page、limit 由 `initialPagination` 写入初始请求，之后与分页组件联动。 */
   apiParams?: Omit<Parameters<A>[0], 'page' | 'limit'>;
   /** 仅用于 SearchBar 声明；不参与请求时也可不传 */
   searchConfig?: SearchFieldConfig[];
@@ -77,10 +74,7 @@ export function useTablePage<A extends NaiveUI.TableApiFn>(options: UseTablePage
 
   const selectedKeys = ref<(string | number)[]>([]);
 
-  /**
-   * 与 TablePage / SearchBar 绑定：model 即 `searchParams`，
-   * 修改字段会立刻反映到下次请求；提交搜索时仅重置页码并拉数。
-   */
+  /** 与 TablePage / SearchBar 绑定：model 即 `searchParams`， 修改字段会立刻反映到下次请求；提交搜索时仅重置页码并拉数。 */
   const searchBindings: TablePageSearchBindings = {
     searchModel: tableState.searchParams as unknown as Record<string, any>,
     onUpdateSearchField: (field: string, value: unknown) => {

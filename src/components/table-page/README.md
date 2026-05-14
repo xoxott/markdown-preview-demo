@@ -17,15 +17,14 @@ TablePage（页面容器）
 
 ## 搜索数据流（重要）
 
-| 模式 | 条件 | 行为 |
-|------|------|------|
+| 模式         | 条件                                                  | 行为                                                                                            |
+| ------------ | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | 受控（推荐） | 传入 `searchModel`（及建议同时展开 `searchBindings`） | 表单读写走 `onUpdateSearchField`；搜索/重置走 `onSearch`、`onReset`（与 `useTablePage` 已对齐） |
-| 非受控 | 仅 `searchConfig`，不传 `searchModel` | TablePage 内部 `useSearchForm` 托管；可通过 `@search` / `@reset` 或 `onSearch` / `onReset` 监听 |
+| 非受控       | 仅 `searchConfig`，不传 `searchModel`                 | TablePage 内部 `useSearchForm` 托管；可通过 `@search` / `@reset` 或 `onSearch` / `onReset` 监听 |
 
 事件：`TablePage` 会 `emit('search', snapshot)`、`emit('reset')`，便于埋点或与父层解耦。
 
 ## 特性
-
 
 - 🎯 **高度可配置**: 通过配置对象快速构建页面，减少 80% 重复代码
 - 🎨 **预设渲染器**: 内置常见场景的渲染器（头像、状态、日期、标签、操作等）
@@ -149,52 +148,52 @@ export default defineComponent({
 
 #### Props（核心）
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| searchConfig | `SearchFieldConfig[]` | - | 搜索字段声明；与 `search` 插槽二选一或共存（插槽优先渲染整块） |
-| searchModel | `Record<string, any>` | - | 受控表单对象；与 `useTablePage().searchBindings` 一同传入 |
-| onUpdateSearchField | `(field, value) => void` | - | 受控字段更新；不传且存在 `searchModel` 时直接写字段（依赖 reactive） |
-| initialSearchModel | `Record<string, unknown>` | - | **仅非受控**内部表单初始值 |
-| onSearch | `(payload?) => void` | - | 搜索提交；受控时通常绑定 `searchBindings.onSearch` |
-| onReset | `() => void` | - | 重置；受控时绑定 `searchBindings.onReset` |
-| actionConfig | `ActionBarConfig` | - | 工具条；可与 `action` 插槽组合（插槽优先） |
-| columns | `TableColumnConfig[]` | （必填） | 列配置 |
-| data | `any[]` | （必填） | 行数据 |
-| loading | `boolean` | `false` | 加载态 |
-| pagination | `PaginationProps` | - | 分页；与 naive `NDataTable` 一致 |
-| selectedKeys | `(string \| number)[]` | `[]` | 多选选中行 |
-| rowKey | `string \| (row) => string \| number` | `'id'` | 行主键 |
-| onUpdateSelectedKeys | `(keys) => void` | - | 多选变更 |
-| scrollX | `number` | - | 横向滚动宽度 |
-| showIndex | `boolean` | `true` | 序号列 |
-| showSelection | `boolean` | `true` | 多选列 |
-| striped | `boolean` | `true` | 斑马纹 |
-| size | `'small' \| 'medium' \| 'large'` | `'small'` | 表格尺寸 |
-| bordered | `boolean` | `false` | 单元格边框 |
-| maxHeight | `string \| number` | `'100%'` | 表格 body 最大高度 |
-| class | `string` | `''` | 根容器额外 class |
-| showSearchCard | `boolean` | `true` | 搜索区是否包 `NCard` |
-| searchCardBordered | `boolean` | `false` | 搜索区 `NCard` bordered |
-| showActionCard | `boolean` | `true` | 操作区是否包 `NCard` |
-| actionCardBordered | `boolean` | `false` | 操作区 `NCard` bordered |
-| padded | `boolean` | `true` | 根节点 `p-16px` |
-| gapClass | `string` | `'gap-16px'` | 根 flex 子项间距 |
-| tableProps | `Partial<NaiveDataTableProps>` | - | 透传 `NDataTable`（如 `remote`、`flexHeight`、`rowProps`） |
+| 属性                 | 类型                                  | 默认值       | 说明                                                                 |
+| -------------------- | ------------------------------------- | ------------ | -------------------------------------------------------------------- |
+| searchConfig         | `SearchFieldConfig[]`                 | -            | 搜索字段声明；与 `search` 插槽二选一或共存（插槽优先渲染整块）       |
+| searchModel          | `Record<string, any>`                 | -            | 受控表单对象；与 `useTablePage().searchBindings` 一同传入            |
+| onUpdateSearchField  | `(field, value) => void`              | -            | 受控字段更新；不传且存在 `searchModel` 时直接写字段（依赖 reactive） |
+| initialSearchModel   | `Record<string, unknown>`             | -            | **仅非受控**内部表单初始值                                           |
+| onSearch             | `(payload?) => void`                  | -            | 搜索提交；受控时通常绑定 `searchBindings.onSearch`                   |
+| onReset              | `() => void`                          | -            | 重置；受控时绑定 `searchBindings.onReset`                            |
+| actionConfig         | `ActionBarConfig`                     | -            | 工具条；可与 `action` 插槽组合（插槽优先）                           |
+| columns              | `TableColumnConfig[]`                 | （必填）     | 列配置                                                               |
+| data                 | `any[]`                               | （必填）     | 行数据                                                               |
+| loading              | `boolean`                             | `false`      | 加载态                                                               |
+| pagination           | `PaginationProps`                     | -            | 分页；与 naive `NDataTable` 一致                                     |
+| selectedKeys         | `(string \| number)[]`                | `[]`         | 多选选中行                                                           |
+| rowKey               | `string \| (row) => string \| number` | `'id'`       | 行主键                                                               |
+| onUpdateSelectedKeys | `(keys) => void`                      | -            | 多选变更                                                             |
+| scrollX              | `number`                              | -            | 横向滚动宽度                                                         |
+| showIndex            | `boolean`                             | `true`       | 序号列                                                               |
+| showSelection        | `boolean`                             | `true`       | 多选列                                                               |
+| striped              | `boolean`                             | `true`       | 斑马纹                                                               |
+| size                 | `'small' \| 'medium' \| 'large'`      | `'small'`    | 表格尺寸                                                             |
+| bordered             | `boolean`                             | `false`      | 单元格边框                                                           |
+| maxHeight            | `string \| number`                    | `'100%'`     | 表格 body 最大高度                                                   |
+| class                | `string`                              | `''`         | 根容器额外 class                                                     |
+| showSearchCard       | `boolean`                             | `true`       | 搜索区是否包 `NCard`                                                 |
+| searchCardBordered   | `boolean`                             | `false`      | 搜索区 `NCard` bordered                                              |
+| showActionCard       | `boolean`                             | `true`       | 操作区是否包 `NCard`                                                 |
+| actionCardBordered   | `boolean`                             | `false`      | 操作区 `NCard` bordered                                              |
+| padded               | `boolean`                             | `true`       | 根节点 `p-16px`                                                      |
+| gapClass             | `string`                              | `'gap-16px'` | 根 flex 子项间距                                                     |
+| tableProps           | `Partial<NaiveDataTableProps>`        | -            | 透传 `NDataTable`（如 `remote`、`flexHeight`、`rowProps`）           |
 
 #### 事件
 
-| 事件名 | 载荷 | 说明 |
-|--------|------|------|
+| 事件名 | 载荷                      | 说明                                        |
+| ------ | ------------------------- | ------------------------------------------- |
 | search | `Record<string, unknown>` | 当前筛选快照（受控为 `searchModel` 浅拷贝） |
-| reset | - | 表单已复位 |
+| reset  | -                         | 表单已复位                                  |
 
 #### 插槽
 
-| 插槽名 | 说明 |
-|--------|------|
-| search | 替换默认 `SearchBar` 卡片内容（仍包在 `NCard` 内，除非 `showSearchCard=false`） |
-| action | 替换默认 `ActionBar`（可无 `actionConfig` 仅插槽） |
-| tablePrepend / tableAppend | 表格卡片内、表格上下的附加内容 |
+| 插槽名                     | 说明                                                                            |
+| -------------------------- | ------------------------------------------------------------------------------- |
+| search                     | 替换默认 `SearchBar` 卡片内容（仍包在 `NCard` 内，除非 `showSearchCard=false`） |
+| action                     | 替换默认 `ActionBar`（可无 `actionConfig` 仅插槽）                              |
+| tablePrepend / tableAppend | 表格卡片内、表格上下的附加内容                                                  |
 
 ### SearchBar
 
@@ -271,12 +270,12 @@ const searchConfig: SearchFieldConfig[] = [
 
 内部调用 **`useTable`（`@/hooks/common/table`）**，`searchBindings.searchModel` 与接口入参 **`searchParams`** 为同一 `reactive` 对象，筛选项字段名请与后端 `PaginationParams` 对齐。
 
-| 字段 | 说明 |
-|------|------|
-| searchBindings | `{ searchModel, onUpdateSearchField, onSearch, onReset }`，建议 `<TablePage {...searchBindings} searchConfig={...} />` |
-| searchParams | 与 `useTable` 相同，即当前请求参数（含 `page`、`limit`） |
-| updateSearchParams / resetSearchParams | 透传自 `useTable`，高级场景可手动合并参数后拉数 |
-| columnChecks / reloadColumns 等 | 与 `useTable` 一致；TablePage 自带列配置时可忽略内部占位列 |
+| 字段                                   | 说明                                                                                                                   |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| searchBindings                         | `{ searchModel, onUpdateSearchField, onSearch, onReset }`，建议 `<TablePage {...searchBindings} searchConfig={...} />` |
+| searchParams                           | 与 `useTable` 相同，即当前请求参数（含 `page`、`limit`）                                                               |
+| updateSearchParams / resetSearchParams | 透传自 `useTable`，高级场景可手动合并参数后拉数                                                                        |
+| columnChecks / reloadColumns 等        | 与 `useTable` 一致；TablePage 自带列配置时可忽略内部占位列                                                             |
 
 ### ActionBar
 
@@ -552,7 +551,9 @@ const {
   resetSearchParams
 } = useTablePage({
   apiFn: fetchUserList, // NaiveUI.TableApiFn
-  apiParams: { /* 可选：除 page/limit 外默认参数 */ },
+  apiParams: {
+    /* 可选：除 page/limit 外默认参数 */
+  },
   searchConfig,
   initialSearchParams: {},
   initialPagination: { page: 1, pageSize: 10 },

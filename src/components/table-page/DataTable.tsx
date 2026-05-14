@@ -15,6 +15,7 @@ import {
 
 /**
  * 在 naive NDataTable 之上封装：
+ *
  * - 可选多选列、序号列；
  * - 列配置支持字符串预设渲染器（avatar / status / date 等）或自定义 render 函数；
  * - `tableProps` 向底层表格透传，便于开启 remote、虚拟滚动等高级特性。

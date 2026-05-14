@@ -4,8 +4,8 @@ import { $t } from '@/locales';
 import type { SearchFieldConfig } from './types';
 
 /**
- * 声明式搜索条：根据 `SearchFieldConfig[]` 自动生成 naive 表单控件，
- * 末尾固定「搜索 / 重置」按钮组；可通过 `showActionButtons` 关闭按钮并自行在外层接管。
+ * 声明式搜索条：根据 `SearchFieldConfig[]` 自动生成 naive 表单控件， 末尾固定「搜索 / 重置」按钮组；可通过 `showActionButtons`
+ * 关闭按钮并自行在外层接管。
  */
 export default defineComponent({
   name: 'SearchBar',
@@ -49,14 +49,8 @@ export default defineComponent({
     }
   },
   setup(props, { slots }) {
-    /**
-     * 将配置中的 componentProps 与受控 value 合并；
-     * value / onUpdate:value / disabled 由配置项显式覆盖，避免被外部误覆盖。
-     */
-    const mergeControlProps = (
-      fieldConfig: SearchFieldConfig,
-      extra: Record<string, unknown>
-    ) => {
+    /** 将配置中的 componentProps 与受控 value 合并； value / onUpdate:value / disabled 由配置项显式覆盖，避免被外部误覆盖。 */
+    const mergeControlProps = (fieldConfig: SearchFieldConfig, extra: Record<string, unknown>) => {
       const { componentProps = {} } = fieldConfig;
       return {
         ...componentProps,
@@ -73,12 +67,12 @@ export default defineComponent({
       switch (type) {
         case 'input': {
           const bind = mergeControlProps(fieldConfig, {
-            value: props.model[field],
+            'value': props.model[field],
             'onUpdate:value': (value: any) => props.onUpdateModel(field, value),
             placeholder,
             clearable,
-            style: styleWidth,
-            onKeyup: (e: KeyboardEvent) => {
+            'style': styleWidth,
+            'onKeyup': (e: KeyboardEvent) => {
               if (e.key === 'Enter') {
                 props.onSearch();
               }
@@ -95,36 +89,36 @@ export default defineComponent({
 
         case 'select': {
           const bind = mergeControlProps(fieldConfig, {
-            value: props.model[field],
+            'value': props.model[field],
             'onUpdate:value': (value: any) => props.onUpdateModel(field, value),
             placeholder,
             clearable,
-            options: options || [],
-            style: styleWidth
+            'options': options || [],
+            'style': styleWidth
           });
           return <NSelect {...bind} />;
         }
 
         case 'date': {
           const bind = mergeControlProps(fieldConfig, {
-            value: props.model[field],
+            'value': props.model[field],
             'onUpdate:value': (value: any) => props.onUpdateModel(field, value),
             placeholder,
             clearable,
-            style: styleWidth,
-            type: 'date'
+            'style': styleWidth,
+            'type': 'date'
           });
           return <NDatePicker {...bind} />;
         }
 
         case 'date-range': {
           const bind = mergeControlProps(fieldConfig, {
-            value: props.model[field],
+            'value': props.model[field],
             'onUpdate:value': (value: any) => props.onUpdateModel(field, value),
             placeholder,
             clearable,
-            style: styleWidth,
-            type: 'daterange'
+            'style': styleWidth,
+            'type': 'daterange'
           });
           return <NDatePicker {...bind} />;
         }

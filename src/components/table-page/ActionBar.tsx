@@ -3,10 +3,7 @@ import { NBadge, NButton, NSpace, NText } from 'naive-ui';
 import { $t } from '@/locales';
 import type { ActionBarProps, PresetButtonType } from './types';
 
-/**
- * 表格上方工具条：左侧为预设按钮（新增 / 批量删除 / 刷新 / 导出）与自定义按钮，
- * 右侧为可选统计文案；批量类按钮在无选中行时可自动禁用。
- */
+/** 表格上方工具条：左侧为预设按钮（新增 / 批量删除 / 刷新 / 导出）与自定义按钮， 右侧为可选统计文案；批量类按钮在无选中行时可自动禁用。 */
 export default defineComponent({
   name: 'ActionBar',
   props: {
