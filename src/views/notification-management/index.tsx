@@ -1,6 +1,5 @@
 import { computed, defineComponent, getCurrentInstance, ref } from 'vue';
 import { useMessage } from 'naive-ui';
-import { DEFAULT_TABLE_PAGE_SIZE } from '@/constants/datatable';
 import {
   fetchBatchDeleteNotifications,
   fetchCreateNotification,
@@ -12,11 +11,10 @@ import {
 } from '@/service/api/notification';
 import { fetchUserList } from '@/service/api/user';
 import { fetchRoleList } from '@/service/api/role';
-import { useTable } from '@/hooks/common/table';
+import TablePage from '@/components/table-page/TablePage';
+import { useAdminListTable } from '@/components/table-page/hooks';
 import { $t } from '@/locales';
 import { useDialog } from '@/components/base-dialog/useDialog';
-import { tableListPlaceholderColumns } from '@/views/_shared/tableListPlaceholderColumns';
-import TablePage from '@/components/table-page/TablePage';
 import { useNotificationDialog } from './components/useNotificationDialog';
 import type { NotificationFormData } from './components/dialog';
 import {
@@ -71,30 +69,20 @@ export default defineComponent({
       }
     }
 
-    const {
-      data,
-      loading,
-      pagination,
-      getData,
-      searchParams,
-      updateSearchParams,
-      resetSearchParams
-    } = useTable<typeof fetchNotificationList>({
-      apiFn: fetchNotificationList,
-      apiParams: {
-        page: 1,
-        limit: DEFAULT_TABLE_PAGE_SIZE,
-        search: '',
-        isSent: undefined as boolean | undefined,
-        type: undefined as string | undefined,
-        targetUserId: undefined as number | undefined,
-        sortBy: undefined as string | undefined,
-        sortOrder: undefined as 'asc' | 'desc' | undefined
-      },
-      columns: () => tableListPlaceholderColumns<typeof fetchNotificationList>(),
-      showTotal: true,
-      immediate: true
-    });
+    const { data, loading, pagination, getData, searchParams, onSearch, onReset } =
+      useAdminListTable({
+        apiFn: fetchNotificationList,
+        listFilters: {
+          search: '',
+          isSent: undefined as boolean | undefined,
+          type: undefined as string | undefined,
+          targetUserId: undefined as number | undefined,
+          sortBy: undefined as string | undefined,
+          sortOrder: undefined as 'asc' | 'desc' | undefined
+        },
+        showTotal: true,
+        immediate: true
+      });
 
     async function handleAdd() {
       if (users.value.length === 0 || roles.value.length === 0) {
@@ -240,17 +228,8 @@ export default defineComponent({
         class="h-full"
         searchConfig={searchConfig.value}
         searchModel={searchParams}
-        onSearch={() => {
-          updateSearchParams({
-            page: 1,
-            limit: pagination.pageSize ?? DEFAULT_TABLE_PAGE_SIZE
-          });
-          getData();
-        }}
-        onReset={() => {
-          resetSearchParams();
-          getData();
-        }}
+        onSearch={onSearch}
+        onReset={onReset}
         actionConfig={{
           preset: {
             add: { onClick: handleAdd },

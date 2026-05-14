@@ -1,6 +1,5 @@
 import { computed, defineComponent, getCurrentInstance, onMounted, ref } from 'vue';
 import { useMessage } from 'naive-ui';
-import { DEFAULT_TABLE_PAGE_SIZE } from '@/constants/datatable';
 import {
   fetchAdminRoleOptions,
   fetchBatchDeleteUsers,
@@ -11,11 +10,10 @@ import {
   fetchUserDetail,
   fetchUserList
 } from '@/service/api/user';
-import { useTable } from '@/hooks/common/table';
 import TablePage from '@/components/table-page/TablePage';
+import { useAdminListTable } from '@/components/table-page/hooks';
 import { $t } from '@/locales';
 import { useDialog } from '@/components/base-dialog/useDialog';
-import { tableListPlaceholderColumns } from '@/views/_shared/tableListPlaceholderColumns';
 import type { UserFormData } from './components/dialog';
 import { useUserDialog } from './components/useUserDialog';
 import { USER_LIST_SCROLL_X, createUserSearchFields, createUserTableColumns } from './listUiConfig';
@@ -43,29 +41,19 @@ export default defineComponent({
       }));
     });
 
-    const {
-      data,
-      loading,
-      pagination,
-      getData,
-      searchParams,
-      updateSearchParams,
-      resetSearchParams
-    } = useTable<typeof fetchUserList>({
-      apiFn: fetchUserList,
-      apiParams: {
-        page: 1,
-        limit: DEFAULT_TABLE_PAGE_SIZE,
-        search: '',
-        isActive: undefined as boolean | undefined,
-        isOnline: undefined as boolean | undefined,
-        isBlacklisted: undefined as boolean | undefined,
-        roleCode: undefined as string | undefined
-      },
-      columns: () => tableListPlaceholderColumns<typeof fetchUserList>(),
-      showTotal: true,
-      immediate: true
-    });
+    const { data, loading, pagination, getData, searchParams, onSearch, onReset } =
+      useAdminListTable({
+        apiFn: fetchUserList,
+        listFilters: {
+          search: '',
+          isActive: undefined as boolean | undefined,
+          isOnline: undefined as boolean | undefined,
+          isBlacklisted: undefined as boolean | undefined,
+          roleCode: undefined as string | undefined
+        },
+        showTotal: true,
+        immediate: true
+      });
 
     async function handleAdd() {
       if (!Array.isArray(roles.value) || roles.value.length === 0) {
@@ -204,17 +192,8 @@ export default defineComponent({
         class="h-full"
         searchConfig={searchConfig.value}
         searchModel={searchParams}
-        onSearch={() => {
-          updateSearchParams({
-            page: 1,
-            limit: pagination.pageSize ?? DEFAULT_TABLE_PAGE_SIZE
-          });
-          getData();
-        }}
-        onReset={() => {
-          resetSearchParams();
-          getData();
-        }}
+        onSearch={onSearch}
+        onReset={onReset}
         actionConfig={{
           preset: {
             add: { onClick: handleAdd },

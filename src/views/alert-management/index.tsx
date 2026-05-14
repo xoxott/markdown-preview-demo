@@ -1,6 +1,5 @@
 import { computed, defineComponent, getCurrentInstance, ref } from 'vue';
 import { useMessage } from 'naive-ui';
-import { DEFAULT_TABLE_PAGE_SIZE } from '@/constants/datatable';
 import {
   fetchAcknowledgeAlert,
   fetchAlertDetail,
@@ -14,11 +13,10 @@ import {
 } from '@/service/api/alert';
 import { fetchUserList } from '@/service/api/user';
 import { fetchRoleList } from '@/service/api/role';
-import { useTable } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import { useDialog } from '@/components/base-dialog/useDialog';
-import { tableListPlaceholderColumns } from '@/views/_shared/tableListPlaceholderColumns';
 import TablePage from '@/components/table-page/TablePage';
+import { useAdminListTable } from '@/components/table-page/hooks';
 import { useAlertDialog } from './components/useAlertDialog';
 import type { AlertFormData } from './components/dialog';
 import {
@@ -73,30 +71,20 @@ export default defineComponent({
       }
     }
 
-    const {
-      data,
-      loading,
-      pagination,
-      getData,
-      searchParams,
-      updateSearchParams,
-      resetSearchParams
-    } = useTable<typeof fetchAlertList>({
-      apiFn: fetchAlertList,
-      apiParams: {
-        page: 1,
-        limit: DEFAULT_TABLE_PAGE_SIZE,
-        search: '',
-        status: undefined as string | undefined,
-        level: undefined as string | undefined,
-        isEnabled: undefined as boolean | undefined,
-        sortBy: undefined as string | undefined,
-        sortOrder: undefined as 'asc' | 'desc' | undefined
-      },
-      columns: () => tableListPlaceholderColumns<typeof fetchAlertList>(),
-      showTotal: true,
-      immediate: true
-    });
+    const { data, loading, pagination, getData, searchParams, onSearch, onReset } =
+      useAdminListTable({
+        apiFn: fetchAlertList,
+        listFilters: {
+          search: '',
+          status: undefined as string | undefined,
+          level: undefined as string | undefined,
+          isEnabled: undefined as boolean | undefined,
+          sortBy: undefined as string | undefined,
+          sortOrder: undefined as 'asc' | 'desc' | undefined
+        },
+        showTotal: true,
+        immediate: true
+      });
 
     async function handleAdd() {
       await ensureUsersAndRolesLoaded();
@@ -254,17 +242,8 @@ export default defineComponent({
         class="h-full"
         searchConfig={searchConfig.value}
         searchModel={searchParams}
-        onSearch={() => {
-          updateSearchParams({
-            page: 1,
-            limit: pagination.pageSize ?? DEFAULT_TABLE_PAGE_SIZE
-          });
-          getData();
-        }}
-        onReset={() => {
-          resetSearchParams();
-          getData();
-        }}
+        onSearch={onSearch}
+        onReset={onReset}
         actionConfig={{
           preset: {
             add: { onClick: handleAdd },

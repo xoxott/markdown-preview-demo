@@ -1,6 +1,5 @@
 import { computed, defineComponent, getCurrentInstance, ref } from 'vue';
 import { useMessage } from 'naive-ui';
-import { DEFAULT_TABLE_PAGE_SIZE } from '@/constants/datatable';
 import {
   fetchBatchDeleteVersionLogs,
   fetchCreateVersionLog,
@@ -10,11 +9,10 @@ import {
   fetchVersionLogDetail,
   fetchVersionLogList
 } from '@/service/api/version-log';
-import { useTable } from '@/hooks/common/table';
-import TablePage from '@/components/table-page/TablePage';
-import { $t } from '@/locales';
 import { useDialog } from '@/components/base-dialog/useDialog';
-import { tableListPlaceholderColumns } from '@/views/_shared/tableListPlaceholderColumns';
+import TablePage from '@/components/table-page/TablePage';
+import { useAdminListTable } from '@/components/table-page/hooks';
+import { $t } from '@/locales';
 import type { VersionLogFormData } from './components/dialog';
 import { useVersionLogDialog } from './components/useVersionLogDialog';
 import {
@@ -43,19 +41,18 @@ export default defineComponent({
       getData,
       searchParams,
       updateSearchParams,
-      resetSearchParams
-    } = useTable<typeof fetchVersionLogList>({
+      onSearch,
+      onReset,
+      getListLimit
+    } = useAdminListTable({
       apiFn: fetchVersionLogList,
-      apiParams: {
-        page: 1,
-        limit: DEFAULT_TABLE_PAGE_SIZE,
+      listFilters: {
         search: '',
         isPublished: undefined as boolean | undefined,
         type: undefined as string | undefined,
         sortBy: undefined as string | undefined,
         sortOrder: undefined as 'asc' | 'desc' | undefined
       },
-      columns: () => tableListPlaceholderColumns<typeof fetchVersionLogList>(),
       showTotal: true,
       immediate: true
     });
@@ -205,17 +202,8 @@ export default defineComponent({
         class="h-full"
         searchConfig={searchConfig.value}
         searchModel={searchParams}
-        onSearch={() => {
-          updateSearchParams({
-            page: 1,
-            limit: pagination.pageSize ?? DEFAULT_TABLE_PAGE_SIZE
-          });
-          getData();
-        }}
-        onReset={() => {
-          resetSearchParams();
-          getData();
-        }}
+        onSearch={onSearch}
+        onReset={onReset}
         actionConfig={{
           preset: {
             add: { onClick: handleAdd },
@@ -243,7 +231,7 @@ export default defineComponent({
               sortBy,
               sortOrder,
               page: 1,
-              limit: pagination.pageSize ?? DEFAULT_TABLE_PAGE_SIZE
+              limit: getListLimit()
             });
             getData();
           }

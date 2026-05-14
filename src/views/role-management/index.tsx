@@ -1,6 +1,5 @@
 import { computed, defineComponent, getCurrentInstance, ref } from 'vue';
 import { useMessage } from 'naive-ui';
-import { DEFAULT_TABLE_PAGE_SIZE } from '@/constants/datatable';
 import {
   fetchBatchDeleteRoles,
   fetchCreateRole,
@@ -10,11 +9,10 @@ import {
   fetchToggleRoleStatus,
   fetchUpdateRole
 } from '@/service/api/role';
-import { useTable } from '@/hooks/common/table';
 import TablePage from '@/components/table-page/TablePage';
+import { useAdminListTable } from '@/components/table-page/hooks';
 import { $t } from '@/locales';
 import { useDialog } from '@/components/base-dialog/useDialog';
-import { tableListPlaceholderColumns } from '@/views/_shared/tableListPlaceholderColumns';
 import type { RoleFormData } from './components/dialog';
 import { useRoleDialog } from './components/useRoleDialog';
 import { ROLE_LIST_SCROLL_X, createRoleSearchFields, createRoleTableColumns } from './listUiConfig';
@@ -31,26 +29,16 @@ export default defineComponent({
 
     const selectedRowKeys = ref<number[]>([]);
 
-    const {
-      data,
-      loading,
-      pagination,
-      getData,
-      searchParams,
-      updateSearchParams,
-      resetSearchParams
-    } = useTable<typeof fetchRoleList>({
-      apiFn: fetchRoleList,
-      apiParams: {
-        page: 1,
-        limit: DEFAULT_TABLE_PAGE_SIZE,
-        search: '',
-        isActive: undefined as boolean | undefined
-      },
-      columns: () => tableListPlaceholderColumns<typeof fetchRoleList>(),
-      showTotal: true,
-      immediate: true
-    });
+    const { data, loading, pagination, getData, searchParams, onSearch, onReset } =
+      useAdminListTable({
+        apiFn: fetchRoleList,
+        listFilters: {
+          search: '',
+          isActive: undefined as boolean | undefined
+        },
+        showTotal: true,
+        immediate: true
+      });
 
     async function handleAdd() {
       const formData: RoleFormData = {
@@ -157,17 +145,8 @@ export default defineComponent({
         class="h-full"
         searchConfig={searchConfig.value}
         searchModel={searchParams}
-        onSearch={() => {
-          updateSearchParams({
-            page: 1,
-            limit: pagination.pageSize ?? DEFAULT_TABLE_PAGE_SIZE
-          });
-          getData();
-        }}
-        onReset={() => {
-          resetSearchParams();
-          getData();
-        }}
+        onSearch={onSearch}
+        onReset={onReset}
         actionConfig={{
           preset: {
             add: { onClick: handleAdd },

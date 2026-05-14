@@ -12,6 +12,7 @@ TablePage（页面容器）
 ```
 
 - **`useTablePage`**：在 **`@/hooks/common/table` 的 `useTable`** 之上增加 `searchBindings`、多选 `selectedKeys` 等与 `TablePage` 对齐的字段；列表请求、分页、`searchParams` 与项目其它管理页一致。
+- **`useAdminListTable`**：与 **`useTablePage`** 不同，面向「已有 `listUiConfig`、自行拼 `TablePage`」的管理页：内部仍用 `useTable` + 占位列，并统一提供 **`onSearch` / `onReset` / `getListLimit`**（搜索时同步 `limit` 与当前 `pageSize`）。
 - **`useSearchForm`**：仅管理独立搜索 model；页面若已使用 `useTable`，可直接用其 **`searchParams`** 作为 SearchBar 的 model，通常不再需要本 hook。
 - **受控 vs 非受控搜索**：列表页请使用受控（`searchBindings`），保证 URL/缓存与表单一致；演示页可只传 `searchConfig` 由 TablePage 内部托管。
 

@@ -1,6 +1,5 @@
 import { computed, defineComponent, getCurrentInstance, ref } from 'vue';
 import { useMessage } from 'naive-ui';
-import { DEFAULT_TABLE_PAGE_SIZE } from '@/constants/datatable';
 import {
   fetchAnnouncementDetail,
   fetchAnnouncementList,
@@ -10,11 +9,10 @@ import {
   fetchToggleAnnouncementStatus,
   fetchUpdateAnnouncement
 } from '@/service/api/announcement';
-import { useTable } from '@/hooks/common/table';
 import TablePage from '@/components/table-page/TablePage';
+import { useAdminListTable } from '@/components/table-page/hooks';
 import { $t } from '@/locales';
 import { useDialog } from '@/components/base-dialog/useDialog';
-import { tableListPlaceholderColumns } from '@/views/_shared/tableListPlaceholderColumns';
 import type { AnnouncementFormData } from './components/dialog';
 import { useAnnouncementDialog } from './components/useAnnouncementDialog';
 import {
@@ -35,29 +33,19 @@ export default defineComponent({
 
     const selectedRowKeys = ref<number[]>([]);
 
-    const {
-      data,
-      loading,
-      pagination,
-      getData,
-      searchParams,
-      updateSearchParams,
-      resetSearchParams
-    } = useTable<typeof fetchAnnouncementList>({
-      apiFn: fetchAnnouncementList,
-      apiParams: {
-        page: 1,
-        limit: DEFAULT_TABLE_PAGE_SIZE,
-        search: '',
-        isPublished: undefined as boolean | undefined,
-        type: undefined as string | undefined,
-        sortBy: undefined as string | undefined,
-        sortOrder: undefined as 'asc' | 'desc' | undefined
-      },
-      columns: () => tableListPlaceholderColumns<typeof fetchAnnouncementList>(),
-      showTotal: true,
-      immediate: true
-    });
+    const { data, loading, pagination, getData, searchParams, onSearch, onReset } =
+      useAdminListTable({
+        apiFn: fetchAnnouncementList,
+        listFilters: {
+          search: '',
+          isPublished: undefined as boolean | undefined,
+          type: undefined as string | undefined,
+          sortBy: undefined as string | undefined,
+          sortOrder: undefined as 'asc' | 'desc' | undefined
+        },
+        showTotal: true,
+        immediate: true
+      });
 
     async function handleAdd() {
       const formData: AnnouncementFormData = {
@@ -177,17 +165,8 @@ export default defineComponent({
         class="h-full"
         searchConfig={searchConfig.value}
         searchModel={searchParams}
-        onSearch={() => {
-          updateSearchParams({
-            page: 1,
-            limit: pagination.pageSize ?? DEFAULT_TABLE_PAGE_SIZE
-          });
-          getData();
-        }}
-        onReset={() => {
-          resetSearchParams();
-          getData();
-        }}
+        onSearch={onSearch}
+        onReset={onReset}
         actionConfig={{
           preset: {
             add: { onClick: handleAdd },

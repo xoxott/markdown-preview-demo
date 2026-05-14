@@ -68,7 +68,9 @@ export function useTablePage<A extends NaiveUI.TableApiFn>(options: UseTablePage
       Reflect.set(tableState.searchParams, field, value);
     },
     onSearch: () => {
-      tableState.updateSearchParams({ page: 1 } as Partial<Parameters<A>[0]>);
+      const pageLimit =
+        (tableState.pagination.pageSize as number | undefined) ?? DEFAULT_TABLE_PAGE_SIZE;
+      tableState.updateSearchParams({ page: 1, limit: pageLimit } as Partial<Parameters<A>[0]>);
       tableState.getData();
     },
     onReset: () => {
