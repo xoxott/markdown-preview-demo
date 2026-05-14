@@ -1,5 +1,6 @@
 import { computed, defineComponent, getCurrentInstance, ref } from 'vue';
-import { NButton, NSpace, NSwitch, useMessage } from 'naive-ui';
+import { useMessage } from 'naive-ui';
+import { DEFAULT_TABLE_PAGE_SIZE } from '@/constants/datatable';
 import {
   fetchBatchDeleteRoles,
   fetchCreateRole,
@@ -11,12 +12,12 @@ import {
 } from '@/service/api/role';
 import { useTable } from '@/hooks/common/table';
 import TablePage from '@/components/table-page/TablePage';
-import type { SearchFieldConfig, TableColumnConfig } from '@/components/table-page/types';
 import { $t } from '@/locales';
 import { useDialog } from '@/components/base-dialog/useDialog';
 import { tableListPlaceholderColumns } from '@/views/_shared/tableListPlaceholderColumns';
 import type { RoleFormData } from './components/dialog';
 import { useRoleDialog } from './components/useRoleDialog';
+import { ROLE_LIST_SCROLL_X, createRoleSearchFields, createRoleTableColumns } from './listUiConfig';
 
 type Role = Api.RoleManagement.Role;
 
@@ -42,7 +43,7 @@ export default defineComponent({
       apiFn: fetchRoleList,
       apiParams: {
         page: 1,
-        limit: 10,
+        limit: DEFAULT_TABLE_PAGE_SIZE,
         search: '',
         isActive: undefined as boolean | undefined
       },
@@ -141,85 +142,15 @@ export default defineComponent({
       );
     }
 
-    const searchConfig = computed<SearchFieldConfig[]>(() => [
-      {
-        type: 'input',
-        field: 'search',
-        placeholder: $t('page.roleManagement.searchPlaceholder'),
-        icon: 'i-carbon-search',
-        width: '200px'
-      },
-      {
-        type: 'select',
-        field: 'isActive',
-        placeholder: $t('page.roleManagement.statusPlaceholder'),
-        width: '120px',
-        options: [
-          { label: $t('page.roleManagement.active'), value: true },
-          { label: $t('page.roleManagement.inactive'), value: false }
-        ]
-      }
-    ]);
+    const searchConfig = computed(() => createRoleSearchFields());
 
-    const tableColumns = computed((): TableColumnConfig<Role>[] => [
-      {
-        title: $t('page.roleManagement.name'),
-        key: 'name',
-        width: 150
-      },
-      {
-        title: $t('page.roleManagement.code'),
-        key: 'code',
-        width: 150
-      },
-      {
-        title: $t('page.roleManagement.description'),
-        key: 'description',
-        width: 200,
-        render: (row: Role) => row.description || '-'
-      },
-      {
-        title: $t('page.roleManagement.status'),
-        key: 'isActive',
-        width: 100,
-        render: (row: Role) => (
-          <NSwitch
-            value={row.isActive}
-            onUpdateValue={(v: boolean) => handleToggleStatus(row.id, v)}
-          />
-        )
-      },
-      {
-        title: $t('page.roleManagement.createdAt'),
-        key: 'createdAt',
-        width: 180,
-        render: (row: Role) =>
-          row.createdAt ? new Date(row.createdAt).toLocaleString('zh-CN') : '-'
-      },
-      {
-        title: $t('page.roleManagement.updatedAt'),
-        key: 'updatedAt',
-        width: 180,
-        render: (row: Role) =>
-          row.updatedAt ? new Date(row.updatedAt).toLocaleString('zh-CN') : '-'
-      },
-      {
-        title: $t('common.operate'),
-        key: 'action',
-        width: 200,
-        fixed: 'right',
-        render: (row: Role) => (
-          <NSpace size="small">
-            <NButton size="small" type="primary" onClick={() => handleEdit(row)}>
-              {$t('common.edit')}
-            </NButton>
-            <NButton size="small" type="error" onClick={() => handleDelete(row)}>
-              {$t('common.delete')}
-            </NButton>
-          </NSpace>
-        )
-      }
-    ]);
+    const tableColumns = computed(() =>
+      createRoleTableColumns({
+        onEdit: handleEdit,
+        onDelete: handleDelete,
+        onToggleStatus: handleToggleStatus
+      })
+    );
 
     return () => (
       <TablePage
@@ -227,7 +158,10 @@ export default defineComponent({
         searchConfig={searchConfig.value}
         searchModel={searchParams}
         onSearch={() => {
-          updateSearchParams({ page: 1, limit: pagination.pageSize ?? 10 });
+          updateSearchParams({
+            page: 1,
+            limit: pagination.pageSize ?? DEFAULT_TABLE_PAGE_SIZE
+          });
           getData();
         }}
         onReset={() => {
@@ -250,7 +184,7 @@ export default defineComponent({
           selectedRowKeys.value = keys as number[];
         }}
         rowKey="id"
-        scrollX={1800}
+        scrollX={ROLE_LIST_SCROLL_X}
         searchCardBordered={false}
         actionCardBordered={false}
       />

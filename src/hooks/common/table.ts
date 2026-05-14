@@ -3,6 +3,7 @@ import type { Ref } from 'vue';
 import type { PaginationProps } from 'naive-ui';
 import { jsonClone } from '@suga/utils';
 import { useBoolean, useTable as useHookTable } from '@suga/hooks';
+import { DEFAULT_TABLE_PAGE_SIZE } from '@/constants/datatable';
 import { useAppStore } from '@/store/modules/app';
 import { $t } from '@/locales';
 
@@ -49,11 +50,11 @@ export function useTable<A extends NaiveUI.TableApiFn>(config: NaiveUI.NaiveTabl
 
       const records: GetTableData<A>[] = responseData?.lists || [];
       const page = responseData?.meta?.page || 1;
-      const limit = responseData?.meta?.limit || 10;
+      const limit = responseData?.meta?.limit || DEFAULT_TABLE_PAGE_SIZE;
       const total = responseData?.meta?.total || 0;
 
       // Ensure that the limit is greater than 0, If it is less than 0, it will cause paging calculation errors.
-      const pageSize = limit <= 0 ? 10 : limit;
+      const pageSize = limit <= 0 ? DEFAULT_TABLE_PAGE_SIZE : limit;
 
       const recordsWithIndex: NaiveUI.TableDataWithIndex<GetTableData<A>>[] = records.map(
         (item, index) => {
@@ -132,7 +133,7 @@ export function useTable<A extends NaiveUI.TableApiFn>(config: NaiveUI.NaiveTabl
 
   const pagination: PaginationProps = reactive({
     page: 1,
-    pageSize: 10,
+    pageSize: DEFAULT_TABLE_PAGE_SIZE,
     showSizePicker: true,
     itemCount: 0,
     pageSizes: [10, 15, 20, 25, 30],

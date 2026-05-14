@@ -1,4 +1,5 @@
 import { computed, ref } from 'vue';
+import { DEFAULT_TABLE_PAGE_SIZE } from '@/constants/datatable';
 import { useTable } from '@/hooks/common/table';
 import { tableListPlaceholderColumns } from '@/views/_shared/tableListPlaceholderColumns';
 import type { SearchFieldConfig, TablePageSearchBindings } from '../types';
@@ -35,13 +36,13 @@ export function useTablePage<A extends NaiveUI.TableApiFn>(options: UseTablePage
     apiParams: extraApiParams,
     searchConfig = [],
     initialSearchParams = {},
-    initialPagination = { page: 1, pageSize: 10 },
+    initialPagination = { page: 1, pageSize: DEFAULT_TABLE_PAGE_SIZE },
     immediate = true,
     showTotal
   } = options;
 
   const page = initialPagination.page ?? 1;
-  const limit = initialPagination.pageSize ?? 10;
+  const limit = initialPagination.pageSize ?? DEFAULT_TABLE_PAGE_SIZE;
 
   const mergedApiParams = {
     page,
