@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { type AxiosAdapter } from 'axios';
 import { describe, expect, it, vi } from 'vitest';
 import { PrepareContextStep } from '@suga/request-core';
 import { AxiosTransport } from '../pipeline/AxiosTransport';
@@ -35,10 +35,10 @@ describe('runPipelineAxiosRequest + capture', () => {
       config: { url: '/t', method: 'get' }
     };
 
-    const adapter = vi.fn(async () => axiosResponse);
+    const adapter = vi.fn(async () => axiosResponse) as unknown as AxiosAdapter;
 
     const instance = axios.create({
-      adapter: adapter as import('axios').AxiosAdapter
+      adapter
     });
 
     const capture = new Map();
@@ -59,15 +59,17 @@ describe('runPipelineAxiosRequest + capture', () => {
 });
 
 describe('buildPipelineSteps profiles', () => {
+  const stubAdapter = vi.fn() as unknown as AxiosAdapter;
+
   it('minimal 仅 Prepare + Transport', () => {
-    const instance = axios.create({ adapter: vi.fn() });
+    const instance = axios.create({ adapter: stubAdapter });
     const transport = new AxiosTransport({ instance });
     const steps = buildPipelineSteps(transport, 'minimal');
     expect(steps.length).toBe(2);
   });
 
   it('standard 包含缓存与去重等步骤', () => {
-    const instance = axios.create({ adapter: vi.fn() });
+    const instance = axios.create({ adapter: stubAdapter });
     const transport = new AxiosTransport({ instance });
     const steps = buildPipelineSteps(transport, 'standard');
     expect(steps.length).toBeGreaterThan(2);
