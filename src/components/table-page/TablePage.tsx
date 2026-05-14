@@ -1,16 +1,46 @@
-import { type PropType, defineComponent } from 'vue';
+import { type PropType, computed, defineComponent } from 'vue';
 import { NCard } from 'naive-ui';
 import type { PaginationProps } from 'naive-ui';
+import type { DataTableProps as NaiveDataTableProps } from 'naive-ui';
 import type { ActionBarConfig, SearchFieldConfig, TableColumnConfig } from './types';
 import SearchBar from './SearchBar';
 import ActionBar from './ActionBar';
 import DataTable from './DataTable';
+import { useSearchForm } from './hooks/useSearchForm';
 
+/**
+ * 典型后台「筛选 + 工具条 + 表格」三栏布局的页面级容器。
+ *
+ * 搜索数据流（重要）：
+ * - **受控（推荐）**：传入 `searchModel` + `onUpdateSearchField` + `onSearch` + `onReset`，
+ *   与 `useTablePage` 返回的 `searchBindings`（底层为 `useTable` 的 `searchParams`）对齐，保证请求参数与 UI 同步。
+ * - **非受控**：仅传 `searchConfig`（及可选 `initialSearchModel`）时，由本组件内部 `useSearchForm`
+ *   托管表单；适合静态演示或与外部请求逻辑解耦的场景。
+ *
+ * 扩展点：
+ * - `search` 插槽：完全自定义筛选区（仍建议外层用 NCard 保持视觉一致）。
+ * - `tableProps`：向 naive `NDataTable` 透传 `remote`、`flexHeight`、`rowProps` 等原生能力。
+ */
 export default defineComponent({
   name: 'TablePage',
   props: {
     searchConfig: {
       type: Array as PropType<SearchFieldConfig[]>,
+      default: undefined
+    },
+    /** 受控：外部持有的表单对象，一般即 useSearchForm().formModel */
+    searchModel: {
+      type: Object as PropType<Record<string, any>>,
+      default: undefined
+    },
+    /** 受控：单字段更新；缺省时若存在 searchModel 则直接写入该对象字段 */
+    onUpdateSearchField: {
+      type: Function as PropType<(field: string, value: unknown) => void>,
+      default: undefined
+    },
+    /** 非受控：内部表单的初始值 */
+    initialSearchModel: {
+      type: Object as PropType<Record<string, unknown>>,
       default: undefined
     },
     actionConfig: {
@@ -42,7 +72,7 @@ export default defineComponent({
       default: 'id'
     },
     onSearch: {
-      type: Function as PropType<(searchForm: Record<string, any>) => void>,
+      type: Function as PropType<(payload?: Record<string, unknown>) => void>,
       default: undefined
     },
     onReset: {
@@ -84,41 +114,165 @@ export default defineComponent({
     class: {
       type: String,
       default: ''
+    },
+    /** 为 false 时搜索区不包 NCard（插槽自定义时常关） */
+    showSearchCard: {
+      type: Boolean,
+      default: true
+    },
+    searchCardBordered: {
+      type: Boolean,
+      default: false
+    },
+    showActionCard: {
+      type: Boolean,
+      default: true
+    },
+    actionCardBordered: {
+      type: Boolean,
+      default: false
+    },
+    gapClass: {
+      type: String,
+      default: 'gap-16px'
+    },
+    padded: {
+      type: Boolean,
+      default: true
+    },
+    /** 透传给 NDataTable，见 README「表格透传」 */
+    tableProps: {
+      type: Object as PropType<Partial<NaiveDataTableProps>>,
+      default: undefined
     }
   },
-  setup(props) {
+  emits: ['search', 'reset'],
+  setup(props, { emit, slots }) {
+    /**
+     * 内部搜索：仅当未传入 searchModel 且存在 searchConfig 时启用。
+     * 若已受控，则 config 传空数组，避免维护两套互不同步的 model。
+     */
+    const internalSearch = useSearchForm({
+      config: props.searchModel !== undefined ? [] : (props.searchConfig ?? []),
+      initialValues: (props.initialSearchModel as Record<string, any>) ?? {},
+      onSearch: values => {
+        emit('search', values as Record<string, unknown>);
+        props.onSearch?.(values as Record<string, unknown>);
+      },
+      onReset: () => {
+        emit('reset');
+        props.onReset?.();
+      }
+    });
+
+    /** 实际绑定到 SearchBar 的 model：受控优先 */
+    const activeSearchModel = computed(
+      () => props.searchModel ?? internalSearch.formModel
+    );
+
+    const hasSearchFields = computed(() => (props.searchConfig?.length ?? 0) > 0);
+
+    const showSearchBlock = computed(() => Boolean(slots.search) || hasSearchFields.value);
+
+    /** 单字段写入：显式回调 > 直接写 searchModel > 写内部表单 */
+    const patchSearchField = (field: string, value: unknown) => {
+      if (props.onUpdateSearchField) {
+        props.onUpdateSearchField(field, value);
+      } else if (props.searchModel) {
+        (props.searchModel as Record<string, unknown>)[field] = value as never;
+      } else {
+        internalSearch.updateModel(field, value);
+      }
+    };
+
+    /** 受控：由父级 reset；非受控：走内部 handleSearch 链（已含 emit） */
+    const triggerSearch = () => {
+      if (props.searchModel !== undefined) {
+        const snapshot = { ...(props.searchModel as Record<string, unknown>) };
+        emit('search', snapshot);
+        props.onSearch?.(snapshot);
+      } else if (hasSearchFields.value) {
+        internalSearch.handleSearch();
+      }
+    };
+
+    const triggerReset = () => {
+      if (props.searchModel !== undefined) {
+        props.onReset?.();
+        emit('reset');
+      } else if (hasSearchFields.value) {
+        internalSearch.handleReset();
+      }
+    };
+
+    const rootClass = computed(
+      () =>
+        `h-full flex flex-col overflow-hidden ${props.gapClass} ${props.padded ? 'p-16px' : ''} ${props.class}`.trim()
+    );
+
+    const renderSearchArea = () => {
+      if (!showSearchBlock.value) return null;
+
+      const inner =
+        slots.search?.() ??
+        (hasSearchFields.value ? (
+          <SearchBar
+            config={props.searchConfig!}
+            model={activeSearchModel.value}
+            onSearch={triggerSearch}
+            onReset={triggerReset}
+            onUpdateModel={patchSearchField}
+          />
+        ) : null);
+
+      if (!inner) return null;
+
+      if (props.showSearchCard === false) {
+        return <div class="flex-shrink-0">{inner}</div>;
+      }
+
+      return (
+        <NCard class="flex-shrink-0" bordered={props.searchCardBordered}>
+          {inner}
+        </NCard>
+      );
+    };
+
+    const renderActionArea = () => {
+      if (!props.actionConfig && !slots.action) return null;
+      const inner =
+        slots.action?.() ??
+        (props.actionConfig ? (
+          <ActionBar
+            config={props.actionConfig}
+            selectedKeys={props.selectedKeys}
+            total={props.pagination?.itemCount ?? props.data.length}
+          />
+        ) : null);
+
+      if (!inner) return null;
+
+      if (props.showActionCard === false) {
+        return <div class="flex-shrink-0">{inner}</div>;
+      }
+
+      return (
+        <NCard class="flex-shrink-0" bordered={props.actionCardBordered}>
+          {inner}
+        </NCard>
+      );
+    };
+
     return () => (
-      <div class={`h-full flex flex-col gap-16px overflow-hidden p-16px ${props.class}`}>
-        {/* Search Bar */}
-        {props.searchConfig && props.searchConfig.length > 0 && (
-          <NCard class="flex-shrink-0" bordered={false}>
-            <SearchBar
-              config={props.searchConfig}
-              model={{}}
-              onSearch={() => props.onSearch?.({})}
-              onReset={() => props.onReset?.()}
-              onUpdateModel={() => {}}
-            />
-          </NCard>
-        )}
-
-        {/* Action Bar */}
-        {props.actionConfig && (
-          <NCard class="flex-shrink-0" bordered={false}>
-            <ActionBar
-              config={props.actionConfig}
-              selectedKeys={props.selectedKeys}
-              total={props.pagination?.itemCount || props.data.length}
-            />
-          </NCard>
-        )}
-
-        {/* Data Table */}
+      <div class={rootClass.value}>
+        {renderSearchArea()}
+        {renderActionArea()}
         <NCard
           class="flex-1 overflow-hidden"
           bordered={false}
           contentStyle={{ height: '100%', padding: 0 }}
         >
+          {slots.tablePrepend?.()}
           <DataTable
             columns={props.columns}
             data={props.data}
@@ -134,7 +288,9 @@ export default defineComponent({
             size={props.size}
             bordered={props.bordered}
             maxHeight={props.maxHeight}
+            tableProps={props.tableProps}
           />
+          {slots.tableAppend?.()}
         </NCard>
       </div>
     );

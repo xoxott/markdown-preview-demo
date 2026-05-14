@@ -5,7 +5,9 @@
  */
 
 import { defineComponent } from 'vue';
+import type { AxiosResponse } from 'axios';
 import { useMessage } from 'naive-ui';
+import type { FlatResponseSuccessData } from '@suga/axios';
 import { TablePage, useTablePage } from '@/components/table-page';
 import type {
   ActionBarConfig,
@@ -13,7 +15,7 @@ import type {
   TableColumnConfig
 } from '@/components/table-page';
 
-// 模拟数据类型
+/** 列表行数据（接口实体） */
 interface ExampleData {
   id: number;
   name: string;
@@ -23,37 +25,58 @@ interface ExampleData {
   createdAt: string;
 }
 
-// 模拟 API 函数
-const fetchExampleList = async (_params: any) => {
-  // 模拟 API 调用
-  return {
-    data: {
-      lists: [
-        {
-          id: 1,
-          name: '张三',
-          email: 'zhangsan@example.com',
-          status: true,
-          role: '管理员',
-          createdAt: '2024-01-01 10:00:00'
-        },
-        {
-          id: 2,
-          name: '李四',
-          email: 'lisi@example.com',
-          status: false,
-          role: '用户',
-          createdAt: '2024-01-02 11:00:00'
-        }
-      ],
-      meta: {
-        total: 2,
-        page: 1,
-        limit: 10
+/** useTable 注入序号后的行类型，与表格 data 一致 */
+type ExampleRow = NaiveUI.TableDataWithIndex<ExampleData>;
+
+/** 与 SearchBar 字段、列表接口对齐的查询参数 */
+interface ExampleListParams extends Api.Common.PaginationParams {
+  search?: string;
+  status?: boolean | '' | undefined;
+}
+
+/**
+ * 模拟列表接口：返回形态与项目 request 扁平化结果一致，
+ * 以便 `useTable`（@/hooks/common/table）解析 `lists` + `meta`。
+ */
+async function fetchExampleList(
+  _params: ExampleListParams
+): Promise<NaiveUI.FlatResponseData<Api.ListData<ExampleData>>> {
+  const listData: Api.ListData<ExampleData> = {
+    lists: [
+      {
+        id: 1,
+        name: '张三',
+        email: 'zhangsan@example.com',
+        status: true,
+        role: '管理员',
+        createdAt: '2024-01-01 10:00:00'
+      },
+      {
+        id: 2,
+        name: '李四',
+        email: 'lisi@example.com',
+        status: false,
+        role: '用户',
+        createdAt: '2024-01-02 11:00:00'
       }
+    ],
+    meta: {
+      page: 1,
+      limit: 10,
+      total: 2,
+      totalPages: 1,
+      hasPrevPage: false,
+      hasNextPage: false
     }
   };
-};
+
+  const success: FlatResponseSuccessData<Api.ListData<ExampleData>> = {
+    data: listData,
+    error: null,
+    response: {} as AxiosResponse<Api.ListData<ExampleData>>
+  };
+  return success;
+}
 
 export default defineComponent({
   name: 'BasicExample',
@@ -83,8 +106,8 @@ export default defineComponent({
     ];
 
     // 使用 hook 管理数据
-    const { data, loading, pagination, selectedKeys, refresh, updateSelectedKeys } =
-      useTablePage<ExampleData>({
+    const { data, loading, pagination, selectedKeys, refresh, updateSelectedKeys, searchBindings } =
+      useTablePage({
         apiFn: fetchExampleList,
         searchConfig,
         immediate: true
@@ -95,11 +118,11 @@ export default defineComponent({
       message.success('点击了新增按钮');
     };
 
-    const handleEdit = (row: ExampleData) => {
+    const handleEdit = (row: ExampleRow) => {
       message.info(`编辑: ${row.name}`);
     };
 
-    const handleDelete = (row: ExampleData) => {
+    const handleDelete = (row: ExampleRow) => {
       message.warning(`删除: ${row.name}`);
     };
 
@@ -107,7 +130,7 @@ export default defineComponent({
       message.error(`批量删除 ${selectedKeys.value.length} 条数据`);
     };
 
-    const handleToggleStatus = (row: ExampleData, value: boolean) => {
+    const handleToggleStatus = (row: ExampleRow, value: boolean) => {
       message.success(`${row.name} 状态已${value ? '启用' : '禁用'}`);
     };
 
@@ -140,7 +163,7 @@ export default defineComponent({
     };
 
     // 表格列配置
-    const columns: TableColumnConfig<ExampleData>[] = [
+    const columns: TableColumnConfig<ExampleRow>[] = [
       {
         key: 'name',
         title: '姓名',
@@ -210,12 +233,13 @@ export default defineComponent({
 
     return () => (
       <TablePage
+        {...searchBindings}
         searchConfig={searchConfig}
         actionConfig={actionConfig}
-        columns={columns as any}
-        data={data.value as any}
+        columns={columns}
+        data={data.value}
         loading={loading.value}
-        pagination={pagination as any}
+        pagination={pagination}
         selectedKeys={selectedKeys.value}
         onUpdateSelectedKeys={updateSelectedKeys}
         scrollX={1200}

@@ -316,6 +316,7 @@ declare namespace App {
         delete: string;
         deleteSuccess: string;
         confirmDelete: string;
+        export: string;
         edit: string;
         warning: string;
         error: string;

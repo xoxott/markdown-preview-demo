@@ -2,6 +2,8 @@
 
 本指南将帮助你将现有的表格页面迁移到新的 TablePage 组件系统。
 
+**重要（v2 约定）**：使用 `useTablePage` 时，必须在 `<TablePage>` 上展开 **`searchBindings`**。`useTablePage` 已基于 **`@/hooks/common/table` 的 `useTable`** 实现，与现有管理页的请求与分页行为一致。详见 `README.md`「搜索数据流」。
+
 ## 快速迁移步骤
 
 ### 步骤 1: 备份现有文件
@@ -113,15 +115,17 @@ export default defineComponent({
     const columns: TableColumnConfig[] = [...];
 
     // 使用 hook 管理状态
-    const { data, loading, pagination, selectedKeys, refresh, updateSelectedKeys } = useTablePage({
-      apiFn: fetchUserList,
-      searchConfig,
-      immediate: true
-    });
+    const { data, loading, pagination, selectedKeys, refresh, updateSelectedKeys, searchBindings } =
+      useTablePage({
+        apiFn: fetchUserList,
+        searchConfig,
+        immediate: true
+      });
 
     // 简洁的 JSX
     return () => (
       <TablePage
+        {...searchBindings}
         searchConfig={searchConfig}
         actionConfig={actionConfig}
         columns={columns}
@@ -285,21 +289,11 @@ return () => (
 
 ### Q4: 如何处理 API 数据格式不一致？
 
-A: 使用 `transformer` 自定义数据转换：
-
-```typescript
-const { data, loading, pagination } = useTablePage({
-  apiFn: fetchDataList,
-  transformer: response => ({
-    data: response.items, // 自定义数据字段
-    total: response.count // 自定义总数字段
-  })
-});
-```
+A: `useTablePage` 已统一走 `@/hooks/common/table` 的 **`useTable`**，响应需符合项目约定的 **ListData**（`lists` + `meta`）。若后端字段不同，请在 **`apiFn` 内先做映射** 再返回与 `FlatResponseData<Api.ListData<T>>` 一致的结构，而不是在 Hook 层再包一层 `transformer`。
 
 ### Q5: 旧版本的功能是否都支持？
 
-A: 是的，新版本完全兼容旧版本的所有功能，并提供了更多增强功能：
+A: 与 `TablePage` 相关的列表能力均保留；`useTablePage` 的数据层已与项目 **`useTable`** 对齐，若你曾依赖旧版 Hook 内独有的 `transformer`，请改为在 **`apiFn`** 中适配响应格式。
 
 - ✅ 搜索和筛选
 - ✅ 分页

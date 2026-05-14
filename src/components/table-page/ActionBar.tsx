@@ -3,6 +3,10 @@ import { NBadge, NButton, NSpace, NText } from 'naive-ui';
 import { $t } from '@/locales';
 import type { ActionBarProps, PresetButtonType } from './types';
 
+/**
+ * 表格上方工具条：左侧为预设按钮（新增 / 批量删除 / 刷新 / 导出）与自定义按钮，
+ * 右侧为可选统计文案；批量类按钮在无选中行时可自动禁用。
+ */
 export default defineComponent({
   name: 'ActionBar',
   props: {
@@ -20,6 +24,7 @@ export default defineComponent({
     }
   },
   setup(props) {
+    /** 内置按钮的默认文案 / 图标 / 语义色 / 是否依赖选中行 */
     const presetButtonMap: Record<
       PresetButtonType,
       {
@@ -46,12 +51,13 @@ export default defineComponent({
         type: 'default'
       },
       export: {
-        label: '导出',
+        label: $t('common.export'),
         icon: 'i-carbon-download',
         type: 'default'
       }
     };
 
+    /** 渲染单个预设按钮，合并业务侧覆盖项 */
     const renderPresetButton = (buttonType: PresetButtonType, buttonConfig: any) => {
       const preset = presetButtonMap[buttonType];
       const { label = preset.label, icon = preset.icon, onClick, disabled, loading } = buttonConfig;
@@ -71,6 +77,7 @@ export default defineComponent({
       );
     };
 
+    /** 渲染自定义按钮 */
     const renderCustomButton = (buttonConfig: any, index: number) => {
       const {
         label,
@@ -99,6 +106,7 @@ export default defineComponent({
       );
     };
 
+    /** 右侧统计：支持 statsRender 完全自定义 */
     const renderStats = () => {
       const { showStats = true, statsRender } = props.config;
 
@@ -118,7 +126,7 @@ export default defineComponent({
       return (
         <NText depth={3} class="text-13px">
           共 {props.total} 条数据
-          {props.selectedKeys.length > 0 && `, 已选择 ${props.selectedKeys.length} 条`}
+          {props.selectedKeys.length > 0 && `，已选择 ${props.selectedKeys.length} 条`}
         </NText>
       );
     };
@@ -126,7 +134,7 @@ export default defineComponent({
     return () => (
       <div class="flex items-center justify-between">
         <NSpace size="small">
-          {/* Preset buttons */}
+          {/* 内置预设按钮 */}
           {props.config.preset &&
             Object.entries(props.config.preset).map(([key, config]) => {
               if (config.show !== false) {
@@ -135,13 +143,13 @@ export default defineComponent({
               return null;
             })}
 
-          {/* Custom buttons */}
+          {/* 业务自定义按钮 */}
           {props.config.custom?.map((buttonConfig, index) =>
             renderCustomButton(buttonConfig, index)
           )}
         </NSpace>
 
-        {/* Stats */}
+        {/* 右侧统计信息 */}
         {renderStats()}
       </div>
     );

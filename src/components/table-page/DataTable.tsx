@@ -1,7 +1,8 @@
 import { type PropType, computed, defineComponent } from 'vue';
 import { NDataTable } from 'naive-ui';
+import type { DataTableProps as NaiveDataTableProps, PaginationProps } from 'naive-ui';
 import { $t } from '@/locales';
-import type { DataTableProps, PresetRendererType, TableColumnConfig } from './types';
+import type { PresetRendererType, TableColumnConfig } from './types';
 import {
   ActionRenderer,
   AvatarRenderer,
@@ -12,6 +13,12 @@ import {
   TextRenderer
 } from './renderers';
 
+/**
+ * 在 naive NDataTable 之上封装：
+ * - 可选多选列、序号列；
+ * - 列配置支持字符串预设渲染器（avatar / status / date 等）或自定义 render 函数；
+ * - `tableProps` 向底层表格透传，便于开启 remote、虚拟滚动等高级特性。
+ */
 export default defineComponent({
   name: 'DataTable',
   props: {
@@ -28,7 +35,7 @@ export default defineComponent({
       default: false
     },
     pagination: {
-      type: Object as PropType<DataTableProps['pagination']>,
+      type: Object as PropType<NaiveDataTableProps['pagination']>,
       default: undefined
     },
     selectedKeys: {
@@ -70,14 +77,18 @@ export default defineComponent({
     maxHeight: {
       type: [String, Number] as PropType<string | number>,
       default: '100%'
+    },
+    /** 与 TablePage.tableProps 一致：浅合并进 NDataTable */
+    tableProps: {
+      type: Object as PropType<Partial<NaiveDataTableProps>>,
+      default: undefined
     }
   },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(props) {
+    /** 将业务列声明展开为 naive 可识别的列数组（含 selection / index） */
     const processedColumns = computed(() => {
       const cols: any[] = [];
 
-      // Add selection column
       if (props.showSelection) {
         cols.push({
           type: 'selection',
@@ -86,7 +97,6 @@ export default defineComponent({
         });
       }
 
-      // Add index column
       if (props.showIndex) {
         cols.push({
           title: $t('common.index'),
@@ -94,19 +104,19 @@ export default defineComponent({
           width: 70,
           fixed: 'left',
           render: (_row: any, index: number) => {
-            const page = props.pagination?.page || 1;
-            const pageSize = props.pagination?.pageSize || 10;
+            const pg = props.pagination;
+            const isObj = typeof pg === 'object' && pg !== null;
+            const page = isObj ? ((pg as PaginationProps).page ?? 1) : 1;
+            const pageSize = isObj ? ((pg as PaginationProps).pageSize ?? 10) : 10;
             return (page - 1) * pageSize + index + 1;
           }
         });
       }
 
-      // Process custom columns
       props.columns.forEach(column => {
         const { render, renderConfig, ...restColumn } = column;
         const key = (column as any).key;
 
-        // If render is a function, use it directly
         if (typeof render === 'function') {
           cols.push({
             ...restColumn,
@@ -116,7 +126,6 @@ export default defineComponent({
           return;
         }
 
-        // If render is a preset renderer type
         if (typeof render === 'string') {
           const rendererType = render as PresetRendererType;
 
@@ -149,7 +158,6 @@ export default defineComponent({
           return;
         }
 
-        // Default: just display the field value
         cols.push({
           ...restColumn,
           key,
@@ -164,21 +172,29 @@ export default defineComponent({
       return cols;
     });
 
-    return () => (
-      <NDataTable
-        columns={processedColumns.value}
-        data={props.data}
-        loading={props.loading}
-        pagination={props.pagination}
-        rowKey={props.rowKey as any}
-        checkedRowKeys={props.selectedKeys}
-        onUpdateCheckedRowKeys={props.onUpdateSelectedKeys}
-        scrollX={props.scrollX}
-        maxHeight={props.maxHeight}
-        striped={props.striped}
-        size={props.size}
-        bordered={props.bordered}
-      />
+    /** 合并顺序：外部 tableProps 先展开，再用内置受控字段覆盖，避免 checkedRowKeys 被意外冲掉 */
+    const mergedTableProps = computed(
+      (): Partial<NaiveDataTableProps> => ({
+        ...(props.tableProps ?? {}),
+        columns: processedColumns.value,
+        data: props.data,
+        loading: props.loading,
+        pagination: props.pagination,
+        rowKey: props.rowKey as any,
+        scrollX: props.scrollX,
+        maxHeight: props.maxHeight,
+        striped: props.striped,
+        size: props.size,
+        bordered: props.bordered,
+        ...(props.showSelection
+          ? {
+              checkedRowKeys: props.selectedKeys,
+              onUpdateCheckedRowKeys: props.onUpdateSelectedKeys ?? (() => {})
+            }
+          : {})
+      })
     );
+
+    return () => <NDataTable {...mergedTableProps.value} />;
   }
 });

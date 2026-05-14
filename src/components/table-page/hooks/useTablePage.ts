@@ -1,157 +1,131 @@
-import { computed, reactive, ref } from 'vue';
-import type { PaginationProps } from 'naive-ui';
-import type { SearchFieldConfig } from '../types';
-import { useSearchForm } from './useSearchForm';
+import { computed, ref } from 'vue';
+import { useTable } from '@/hooks/common/table';
+import type { SearchFieldConfig, TablePageSearchBindings } from '../types';
 
-export interface UseTablePageOptions<T = any> {
-  /** API 函数 */
-  apiFn: (params: any) => Promise<any>;
-  /** 搜索字段配置 */
+/**
+ * TablePage 配套的数据 Hook：内部复用项目统一的 `useTable`（@/hooks/common/table），
+ * 避免与 naive + suga 表格请求、分页、ListData 解析重复实现。
+ *
+ * 搜索表单与请求参数共用 **`searchParams`**（与 `useTable` 返回的为同一 reactive），
+ * `searchBindings` 可直接展开到 `<TablePage />`，SearchBar 的字段名需与接口入参一致。
+ */
+export interface UseTablePageOptions<A extends NaiveUI.TableApiFn> {
+  /** 列表请求：需符合 `NaiveUI.TableApiFn`（FlatResponse + ListData） */
+  apiFn: A;
+  /**
+   * 除 page / limit 外的默认查询参数；
+   * page、limit 由 `initialPagination` 写入初始请求，之后与分页组件联动。
+   */
+  apiParams?: Omit<Parameters<A>[0], 'page' | 'limit'>;
+  /** 仅用于 SearchBar 声明；不参与请求时也可不传 */
   searchConfig?: SearchFieldConfig[];
-  /** 初始搜索参数 */
-  initialSearchParams?: Record<string, any>;
-  /** 初始分页参数 */
+  /** 合并进首次 `searchParams` 的筛选项（键名应对齐接口） */
+  initialSearchParams?: Partial<Omit<Parameters<A>[0], 'page' | 'limit'>>;
   initialPagination?: {
     page?: number;
     pageSize?: number;
   };
-  /** 是否立即加载 */
+  /** 是否挂载后立即请求，默认 true */
   immediate?: boolean;
-  /** 数据转换器 */
-  transformer?: (response: any) => {
-    data: T[];
-    total: number;
-  };
+  /** 是否展示分页前缀总条数，同 `useTable` */
+  showTotal?: boolean;
 }
 
-export function useTablePage<T = any>(options: UseTablePageOptions<T>) {
+/** 占位列：满足 `useTable` 对 columns 的协议；TablePage 展示仍使用业务传入的 columns */
+function createInternalPlaceholderColumns<
+  A extends NaiveUI.TableApiFn
+>(): () => NaiveUI.TableColumn<NaiveUI.TableDataWithIndex<NaiveUI.GetTableData<A>>>[] {
+  return () =>
+    [
+      {
+        title: ' ',
+        key: 'id',
+        width: 1,
+        render: () => null
+      }
+    ] as unknown as NaiveUI.TableColumn<NaiveUI.TableDataWithIndex<NaiveUI.GetTableData<A>>>[];
+}
+
+export function useTablePage<A extends NaiveUI.TableApiFn>(options: UseTablePageOptions<A>) {
   const {
     apiFn,
+    apiParams: extraApiParams,
     searchConfig = [],
     initialSearchParams = {},
     initialPagination = { page: 1, pageSize: 10 },
     immediate = true,
-    transformer
+    showTotal
   } = options;
 
-  // Table data
-  const data = ref<T[]>([]);
-  const loading = ref(false);
+  const page = initialPagination.page ?? 1;
+  const limit = initialPagination.pageSize ?? 10;
+
+  const mergedApiParams = {
+    page,
+    limit,
+    ...(initialSearchParams as object),
+    ...(extraApiParams as object)
+  } as Parameters<A>[0];
+
+  const tableState = useTable<A>({
+    apiFn,
+    apiParams: mergedApiParams,
+    columns: createInternalPlaceholderColumns<A>(),
+    immediate,
+    showTotal
+  });
+
   const selectedKeys = ref<(string | number)[]>([]);
 
-  // Pagination
-  const pagination = reactive<PaginationProps>({
-    page: initialPagination.page || 1,
-    pageSize: initialPagination.pageSize || 10,
-    itemCount: 0,
-    showSizePicker: true,
-    pageSizes: [10, 15, 20, 25, 30, 50],
-    onUpdatePage: (page: number) => {
-      pagination.page = page;
-      getData();
+  /**
+   * 与 TablePage / SearchBar 绑定：model 即 `searchParams`，
+   * 修改字段会立刻反映到下次请求；提交搜索时仅重置页码并拉数。
+   */
+  const searchBindings: TablePageSearchBindings = {
+    searchModel: tableState.searchParams as unknown as Record<string, any>,
+    onUpdateSearchField: (field: string, value: unknown) => {
+      (tableState.searchParams as unknown as Record<string, unknown>)[field] = value as never;
     },
-    onUpdatePageSize: (pageSize: number) => {
-      pagination.pageSize = pageSize;
-      pagination.page = 1;
-      getData();
-    },
-    prefix: paginationInfo => `共 ${paginationInfo.itemCount} 条`
-  });
-
-  // Search form
-  const searchForm = useSearchForm({
-    config: searchConfig,
-    initialValues: initialSearchParams,
     onSearch: () => {
-      pagination.page = 1;
-      getData();
+      tableState.updateSearchParams({ page: 1 } as Partial<Parameters<A>[0]>);
+      tableState.getData();
     },
     onReset: () => {
-      pagination.page = 1;
-      getData();
+      tableState.resetSearchParams();
+      tableState.getData();
     }
-  });
+  };
 
-  /** Get table data */
-  async function getData() {
-    loading.value = true;
-    try {
-      const params = {
-        page: pagination.page,
-        limit: pagination.pageSize,
-        ...searchForm.getValues()
-      };
-
-      const response = await apiFn(params);
-
-      if (transformer) {
-        const transformed = transformer(response);
-        data.value = transformed.data as T[];
-        pagination.itemCount = transformed.total;
-      } else {
-        // Default transformer for ListData format
-        const responseData = response.data || response;
-        data.value = (responseData.lists || []) as T[];
-        pagination.itemCount = responseData.meta?.total || 0;
-      }
-    } catch (error) {
-      console.error('Failed to fetch data:', error);
-      data.value = [];
-      pagination.itemCount = 0;
-    } finally {
-      loading.value = false;
-    }
-  }
-
-  /** Refresh data (keep current page) */
   const refresh = () => {
-    getData();
+    tableState.getData();
   };
 
-  /** Reset and reload data */
   const reload = () => {
-    pagination.page = 1;
     selectedKeys.value = [];
-    searchForm.resetForm();
-    getData();
+    tableState.resetSearchParams();
+    tableState.getData();
   };
 
-  /** Update selected keys */
   const updateSelectedKeys = (keys: (string | number)[]) => {
     selectedKeys.value = keys;
   };
 
-  /** Clear selected keys */
   const clearSelection = () => {
     selectedKeys.value = [];
   };
 
-  // Auto load data
-  if (immediate) {
-    getData();
-  }
+  const { columns: _unusedHookColumns, ...tableRest } = tableState;
 
   return {
-    // Data
-    data,
-    loading,
+    ...tableRest,
     selectedKeys,
-
-    // Pagination
-    pagination,
-
-    // Search form
-    searchForm,
-
-    // Methods
-    getData,
+    searchBindings,
+    searchConfig,
     refresh,
     reload,
     updateSelectedKeys,
     clearSelection,
-
-    // Computed
     hasSelection: computed(() => selectedKeys.value.length > 0),
-    total: computed(() => pagination.itemCount || 0)
+    total: computed(() => tableState.pagination.itemCount || 0)
   };
 }

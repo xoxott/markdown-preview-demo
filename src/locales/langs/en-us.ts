@@ -23,6 +23,7 @@ const local: App.I18n.Schema = {
     delete: 'Delete',
     deleteSuccess: 'Delete Success',
     confirmDelete: 'Are you sure you want to delete?',
+    export: 'Export',
     edit: 'Edit',
     warning: 'Warning',
     error: 'Error',
