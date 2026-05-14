@@ -1,16 +1,5 @@
-import { defineComponent, getCurrentInstance, reactive, ref } from 'vue';
-import {
-  NButton,
-  NCard,
-  NDataTable,
-  NForm,
-  NFormItem,
-  NInput,
-  NSelect,
-  NSpace,
-  NSwitch,
-  useMessage
-} from 'naive-ui';
+import { computed, defineComponent, getCurrentInstance, ref } from 'vue';
+import { NButton, NSpace, NSwitch, useMessage } from 'naive-ui';
 import {
   fetchBatchDeleteRoles,
   fetchCreateRole,
@@ -20,12 +9,14 @@ import {
   fetchToggleRoleStatus,
   fetchUpdateRole
 } from '@/service/api/role';
-import { useNaiveForm } from '@/hooks/common/form';
 import { useTable } from '@/hooks/common/table';
-import type { RoleFormData } from '@/components/role-management/dialog';
-import { useRoleDialog } from '@/components/role-management/useRoleDialog';
+import TablePage from '@/components/table-page/TablePage';
+import type { SearchFieldConfig, TableColumnConfig } from '@/components/table-page/types';
 import { $t } from '@/locales';
 import { useDialog } from '@/components/base-dialog/useDialog';
+import { tableListPlaceholderColumns } from '@/views/_shared/tableListPlaceholderColumns';
+import type { RoleFormData } from './components/dialog';
+import { useRoleDialog } from './components/useRoleDialog';
 
 type Role = Api.RoleManagement.Role;
 
@@ -36,20 +27,30 @@ export default defineComponent({
     const instance = getCurrentInstance();
     const roleDialog = useRoleDialog();
     const dialog = useDialog(instance?.appContext.app);
-    const { formRef: searchFormRef, resetFields } = useNaiveForm();
 
     const selectedRowKeys = ref<number[]>([]);
 
-    // 前置声明 getData 以避免 no-use-before-define
-    let getData: () => void;
-
-    // 搜索表单数据
-    const searchForm = reactive({
-      search: '',
-      isActive: undefined
+    const {
+      data,
+      loading,
+      pagination,
+      getData,
+      searchParams,
+      updateSearchParams,
+      resetSearchParams
+    } = useTable<typeof fetchRoleList>({
+      apiFn: fetchRoleList,
+      apiParams: {
+        page: 1,
+        limit: 10,
+        search: '',
+        isActive: undefined as boolean | undefined
+      },
+      columns: () => tableListPlaceholderColumns<typeof fetchRoleList>(),
+      showTotal: true,
+      immediate: true
     });
 
-    // 打开新增对话框
     async function handleAdd() {
       const formData: RoleFormData = {
         name: '',
@@ -61,303 +62,198 @@ export default defineComponent({
       await roleDialog.showRoleForm({
         isEdit: false,
         formData,
-        onConfirm: async (data: RoleFormData) => {
-          try {
-            await fetchCreateRole({
-              name: data.name,
-              code: data.code,
-              description: data.description || undefined,
-              isActive: data.isActive
-            });
-            message.success($t('common.addSuccess'));
-            getData();
-          } catch (error: any) {
-            message.error(error?.message || '操作失败');
-            throw error;
-          }
+        onConfirm: async (form: RoleFormData) => {
+          await fetchCreateRole({
+            name: form.name,
+            code: form.code,
+            description: form.description || undefined,
+            isActive: form.isActive
+          });
+          message.success($t('common.addSuccess'));
+          getData();
         }
       });
     }
 
-    // 打开编辑对话框
     async function handleEdit(row: Role) {
-      try {
-        const { data: roleDetail } = await fetchRoleDetail(row.id);
-        if (!roleDetail) {
-          message.error($t('page.roleManagement.getDetailFailed' as any));
-          return;
-        }
-
-        const formData: RoleFormData = {
-          name: roleDetail.name,
-          code: roleDetail.code,
-          description: roleDetail.description || '',
-          isActive: roleDetail.isActive
-        };
-
-        await roleDialog.showRoleForm({
-          isEdit: true,
-          formData,
-          onConfirm: async (data: RoleFormData) => {
-            try {
-              const updateData: Api.RoleManagement.UpdateRoleRequest = {
-                name: data.name,
-                description: data.description || undefined,
-                isActive: data.isActive
-              };
-              await fetchUpdateRole(row.id, updateData);
-              message.success($t('common.updateSuccess'));
-              getData();
-            } catch (error: any) {
-              message.error(error?.message || '操作失败');
-              throw error;
-            }
-          }
-        });
-      } catch (error: any) {
-        message.error(error?.message || $t('page.roleManagement.getDetailFailed' as any));
+      const { data: roleDetail } = await fetchRoleDetail(row.id);
+      if (!roleDetail) {
+        message.error($t('page.roleManagement.getDetailFailed'));
+        return;
       }
+
+      const formData: RoleFormData = {
+        name: roleDetail.name,
+        code: roleDetail.code,
+        description: roleDetail.description || '',
+        isActive: roleDetail.isActive
+      };
+
+      await roleDialog.showRoleForm({
+        isEdit: true,
+        formData,
+        onConfirm: async (form: RoleFormData) => {
+          const updateData: Api.RoleManagement.UpdateRoleRequest = {
+            name: form.name,
+            description: form.description || undefined,
+            isActive: form.isActive
+          };
+          await fetchUpdateRole(row.id, updateData);
+          message.success($t('common.updateSuccess'));
+          getData();
+        }
+      });
     }
 
-    // 切换角色状态
     async function handleToggleStatus(roleId: number, isActive: boolean) {
       try {
         await fetchToggleRoleStatus(roleId, isActive);
-        message.success($t('page.roleManagement.toggleStatusSuccess' as any));
+        message.success($t('page.roleManagement.toggleStatusSuccess'));
         getData();
-      } catch (error: any) {
-        message.error(error?.message || '操作失败');
-        getData(); // 刷新数据以恢复状态
+      } catch {
+        getData();
       }
     }
 
-    // 删除角色
     async function handleDelete(row: Role) {
       await dialog.confirmDelete(row.name, async () => {
-        try {
-          await fetchDeleteRole(row.id);
-          message.success($t('common.deleteSuccess'));
-          getData();
-        } catch (error: any) {
-          message.error(error?.message || '操作失败');
-        }
+        await fetchDeleteRole(row.id);
+        message.success($t('common.deleteSuccess'));
+        getData();
       });
     }
 
-    // 创建表格列
-    function createColumns() {
-      return [
-        {
-          type: 'selection',
-          width: 50
-        },
-        {
-          title: $t('common.index'),
-          key: 'index',
-          width: 80
-        },
-        {
-          title: $t('page.roleManagement.name' as any),
-          key: 'name',
-          width: 150
-        },
-        {
-          title: $t('page.roleManagement.code' as any),
-          key: 'code',
-          width: 150
-        },
-        {
-          title: $t('page.roleManagement.description' as any),
-          key: 'description',
-          width: 200,
-          render: (row: Role) => {
-            return row.description || '-';
-          }
-        },
-        {
-          title: $t('page.roleManagement.status' as any),
-          key: 'isActive',
-          width: 100,
-          render: (row: Role) => (
-            <NSwitch
-              value={row.isActive}
-              onUpdateValue={value => handleToggleStatus(row.id, value)}
-              loading={false}
-            />
-          )
-        },
-        {
-          title: $t('page.roleManagement.createdAt' as any),
-          key: 'createdAt',
-          width: 180,
-          render: (row: Role) => {
-            if (!row.createdAt) return '-';
-            return new Date(row.createdAt).toLocaleString('zh-CN');
-          }
-        },
-        {
-          title: $t('page.roleManagement.updatedAt' as any),
-          key: 'updatedAt',
-          width: 180,
-          render: (row: Role) => {
-            if (!row.updatedAt) return '-';
-            return new Date(row.updatedAt).toLocaleString('zh-CN');
-          }
-        },
-        {
-          title: $t('common.operate'),
-          key: 'action',
-          width: 200,
-          fixed: 'right',
-          render: (row: Role) => (
-            <NSpace size="small">
-              <NButton size="small" type="primary" onClick={() => handleEdit(row)}>
-                {$t('common.edit')}
-              </NButton>
-              <NButton size="small" type="error" onClick={() => handleDelete(row)}>
-                {$t('common.delete')}
-              </NButton>
-            </NSpace>
-          )
-        }
-      ];
-    }
-
-    // 表格配置
-    const {
-      columns,
-      data,
-      loading,
-      pagination,
-      getData: _getData,
-      updateSearchParams,
-      resetSearchParams
-    } = useTable({
-      apiFn: fetchRoleList,
-      apiParams: {
-        page: 1,
-        limit: 10,
-        ...searchForm
-      },
-      columns: () => createColumns() as any,
-      showTotal: true,
-      immediate: true
-    });
-    getData = _getData;
-
-    // 搜索
-    function handleSearch() {
-      updateSearchParams({
-        page: 1,
-        ...searchForm
-      });
-      getData();
-    }
-
-    // 重置搜索
-    function handleReset() {
-      resetFields();
-      resetSearchParams();
-      getData();
-    }
-
-    // 批量删除
     async function handleBatchDelete() {
       if (selectedRowKeys.value.length === 0) {
-        message.warning($t('page.roleManagement.selectRolesToDelete' as any));
+        message.warning($t('page.roleManagement.selectRolesToDelete'));
         return;
       }
       await dialog.confirmDelete(
-        $t('page.roleManagement.confirmBatchDelete' as any, {
+        $t('page.roleManagement.confirmBatchDelete', {
           count: selectedRowKeys.value.length
         }),
         async () => {
-          try {
-            await fetchBatchDeleteRoles({ ids: selectedRowKeys.value });
-            message.success($t('page.roleManagement.batchDeleteSuccess' as any));
-            selectedRowKeys.value = [];
-            getData();
-          } catch (error: any) {
-            message.error(error?.message || $t('common.error'));
-          }
+          await fetchBatchDeleteRoles({ ids: selectedRowKeys.value });
+          message.success($t('page.roleManagement.batchDeleteSuccess'));
+          selectedRowKeys.value = [];
+          getData();
         }
       );
     }
 
-    return () => (
-      <NSpace vertical size={16}>
-        {/* 搜索栏 */}
-        <NCard>
-          <NForm ref={searchFormRef} model={searchForm} inline>
-            <NFormItem path="search">
-              <NInput
-                v-model:value={searchForm.search}
-                placeholder={$t('page.roleManagement.searchPlaceholder' as any)}
-                style={{ width: '200px' }}
-                clearable
-                onKeyup={(e: KeyboardEvent) => {
-                  if (e.key === 'Enter') {
-                    handleSearch();
-                  }
-                }}
-              />
-            </NFormItem>
-            <NFormItem path="isActive">
-              <NSelect
-                v-model:value={searchForm.isActive}
-                placeholder={$t('page.roleManagement.statusPlaceholder' as any)}
-                style={{ width: '120px' }}
-                clearable
-                options={[
-                  { label: $t('page.roleManagement.active' as any), value: true as any },
-                  { label: $t('page.roleManagement.inactive' as any), value: false as any }
-                ]}
-              />
-            </NFormItem>
-            <NFormItem>
-              <NSpace>
-                <NButton type="primary" onClick={handleSearch}>
-                  {$t('common.search')}
-                </NButton>
-                <NButton onClick={handleReset}>{$t('common.reset')}</NButton>
-              </NSpace>
-            </NFormItem>
-          </NForm>
-        </NCard>
+    const searchConfig = computed<SearchFieldConfig[]>(() => [
+      {
+        type: 'input',
+        field: 'search',
+        placeholder: $t('page.roleManagement.searchPlaceholder'),
+        icon: 'i-carbon-search',
+        width: '200px'
+      },
+      {
+        type: 'select',
+        field: 'isActive',
+        placeholder: $t('page.roleManagement.statusPlaceholder'),
+        width: '120px',
+        options: [
+          { label: $t('page.roleManagement.active'), value: true },
+          { label: $t('page.roleManagement.inactive'), value: false }
+        ]
+      }
+    ]);
 
-        {/* 操作栏 */}
-        <NCard>
-          <NSpace>
-            <NButton type="primary" onClick={handleAdd}>
-              {$t('common.add')}
-            </NButton>
-            <NButton
-              type="error"
-              disabled={selectedRowKeys.value.length === 0}
-              onClick={handleBatchDelete}
-            >
-              {$t('common.batchDelete')}
-            </NButton>
-            <NButton onClick={getData}>{$t('common.refresh')}</NButton>
-          </NSpace>
-        </NCard>
-
-        {/* 表格 */}
-        <NCard>
-          <NDataTable
-            columns={columns.value as any}
-            data={data.value}
-            loading={loading.value}
-            pagination={pagination}
-            rowKey={(row: Role) => row.id}
-            checkedRowKeys={selectedRowKeys.value}
-            onUpdateCheckedRowKeys={keys => {
-              selectedRowKeys.value = keys as number[];
-            }}
-            scrollX={1800}
+    const tableColumns = computed((): TableColumnConfig<Role>[] => [
+      {
+        title: $t('page.roleManagement.name'),
+        key: 'name',
+        width: 150
+      },
+      {
+        title: $t('page.roleManagement.code'),
+        key: 'code',
+        width: 150
+      },
+      {
+        title: $t('page.roleManagement.description'),
+        key: 'description',
+        width: 200,
+        render: (row: Role) => row.description || '-'
+      },
+      {
+        title: $t('page.roleManagement.status'),
+        key: 'isActive',
+        width: 100,
+        render: (row: Role) => (
+          <NSwitch
+            value={row.isActive}
+            onUpdateValue={(v: boolean) => handleToggleStatus(row.id, v)}
           />
-        </NCard>
-      </NSpace>
+        )
+      },
+      {
+        title: $t('page.roleManagement.createdAt'),
+        key: 'createdAt',
+        width: 180,
+        render: (row: Role) =>
+          row.createdAt ? new Date(row.createdAt).toLocaleString('zh-CN') : '-'
+      },
+      {
+        title: $t('page.roleManagement.updatedAt'),
+        key: 'updatedAt',
+        width: 180,
+        render: (row: Role) =>
+          row.updatedAt ? new Date(row.updatedAt).toLocaleString('zh-CN') : '-'
+      },
+      {
+        title: $t('common.operate'),
+        key: 'action',
+        width: 200,
+        fixed: 'right',
+        render: (row: Role) => (
+          <NSpace size="small">
+            <NButton size="small" type="primary" onClick={() => handleEdit(row)}>
+              {$t('common.edit')}
+            </NButton>
+            <NButton size="small" type="error" onClick={() => handleDelete(row)}>
+              {$t('common.delete')}
+            </NButton>
+          </NSpace>
+        )
+      }
+    ]);
+
+    return () => (
+      <TablePage
+        class="h-full"
+        searchConfig={searchConfig.value}
+        searchModel={searchParams}
+        onSearch={() => {
+          updateSearchParams({ page: 1, limit: pagination.pageSize ?? 10 });
+          getData();
+        }}
+        onReset={() => {
+          resetSearchParams();
+          getData();
+        }}
+        actionConfig={{
+          preset: {
+            add: { onClick: handleAdd },
+            batchDelete: { onClick: handleBatchDelete },
+            refresh: { onClick: getData }
+          }
+        }}
+        columns={tableColumns.value}
+        data={data.value}
+        loading={loading.value}
+        pagination={pagination}
+        selectedKeys={selectedRowKeys.value}
+        onUpdateSelectedKeys={keys => {
+          selectedRowKeys.value = keys as number[];
+        }}
+        rowKey="id"
+        scrollX={1800}
+        searchCardBordered={false}
+        actionCardBordered={false}
+      />
     );
   }
 });

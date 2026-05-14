@@ -39,7 +39,7 @@ export default defineComponent({
     },
     /** 受控：外部持有的表单对象，一般即 useSearchForm().formModel */
     searchModel: {
-      type: Object as PropType<Record<string, any>>,
+      type: Object as PropType<object>,
       default: undefined
     },
     /** 受控：单字段更新；缺省时若存在 searchModel 则直接写入该对象字段 */
@@ -238,7 +238,7 @@ export default defineComponent({
     /** 内部搜索：仅当未传入 searchModel 且存在 searchConfig 时启用。 若已受控，则 config 传空数组，避免维护两套互不同步的 model。 */
     const internalSearch = useSearchForm({
       config: props.searchModel !== undefined ? [] : (props.searchConfig ?? []),
-      initialValues: (props.initialSearchModel as Record<string, any>) ?? {},
+      initialValues: (props.initialSearchModel as Record<string, unknown>) ?? {},
       onSearch: values => {
         emit('search', values as Record<string, unknown>);
         props.onSearch?.(values as Record<string, unknown>);

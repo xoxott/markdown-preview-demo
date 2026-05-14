@@ -18,7 +18,7 @@ export default defineComponent({
     },
     /** 与 NForm / 各控件 value 绑定的扁平对象 */
     model: {
-      type: Object as PropType<Record<string, any>>,
+      type: Object as PropType<object>,
       required: true
     },
     /** 点击「搜索」或输入框回车时触发（由父级决定发请求或 emit） */
@@ -33,7 +33,7 @@ export default defineComponent({
     },
     /** 任一控件变更时回写字段值 */
     onUpdateModel: {
-      type: Function as PropType<(field: string, value: any) => void>,
+      type: Function as PropType<(field: string, value: unknown) => void>,
       required: true
     },
     labelPlacement: {
@@ -138,7 +138,7 @@ export default defineComponent({
       const form = (
         <DeclarativeForm
           fields={props.config}
-          model={props.model}
+          model={props.model as Record<string, unknown>}
           onUpdateModel={props.onUpdateModel}
           labelPlacement={props.labelPlacement}
           showLabel={props.showLabel}

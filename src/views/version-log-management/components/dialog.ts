@@ -1,4 +1,4 @@
-import type { BaseDialogProps } from '../base-dialog/dialog';
+import type { BaseDialogProps } from '@/components/base-dialog/dialog';
 
 /** 版本日志表单数据 */
 export interface VersionLogFormData {

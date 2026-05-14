@@ -11,11 +11,11 @@ export default defineComponent({
       required: true
     },
     model: {
-      type: Object as PropType<Record<string, any>>,
+      type: Object as PropType<Record<string, unknown>>,
       required: true
     },
     onUpdateModel: {
-      type: Function as PropType<(field: string, value: any) => void>,
+      type: Function as PropType<(field: string, value: unknown) => void>,
       required: true
     },
     labelPlacement: {
@@ -56,7 +56,7 @@ export default defineComponent({
         case 'input': {
           const bind = mergeControlProps(fieldConfig, {
             'value': props.model[field],
-            'onUpdate:value': (value: any) => props.onUpdateModel(field, value),
+            'onUpdate:value': (value: unknown) => props.onUpdateModel(field, value),
             placeholder,
             clearable,
             'style': styleWidth,
@@ -78,7 +78,7 @@ export default defineComponent({
         case 'select': {
           const bind = mergeControlProps(fieldConfig, {
             'value': props.model[field],
-            'onUpdate:value': (value: any) => props.onUpdateModel(field, value),
+            'onUpdate:value': (value: unknown) => props.onUpdateModel(field, value),
             placeholder,
             clearable,
             'options': options || [],
@@ -90,7 +90,7 @@ export default defineComponent({
         case 'date': {
           const bind = mergeControlProps(fieldConfig, {
             'value': props.model[field],
-            'onUpdate:value': (value: any) => props.onUpdateModel(field, value),
+            'onUpdate:value': (value: unknown) => props.onUpdateModel(field, value),
             placeholder,
             clearable,
             'style': styleWidth,
@@ -102,7 +102,7 @@ export default defineComponent({
         case 'date-range': {
           const bind = mergeControlProps(fieldConfig, {
             'value': props.model[field],
-            'onUpdate:value': (value: any) => props.onUpdateModel(field, value),
+            'onUpdate:value': (value: unknown) => props.onUpdateModel(field, value),
             placeholder,
             clearable,
             'style': styleWidth,

@@ -219,7 +219,7 @@ export interface TableColumnConfig<T = any> {
  */
 export interface TablePageSearchBindings {
   /** 当前搜索表单（一般为 reactive） */
-  searchModel: Record<string, any>;
+  searchModel: object;
   /** 单字段更新：受控模式下应写回父级状态 */
   onUpdateSearchField: (field: string, value: unknown) => void;
   /** 触发搜索（如重置页码并请求列表） */
@@ -236,7 +236,7 @@ export interface TablePageProps {
    * 受控搜索表单数据：与 useTablePage 返回的 searchBindings.searchModel 引用相同对象即可。 不传且存在 searchConfig 时，TablePage
    * 内部会自建一份 reactive（适合无请求封装的静态演示）。
    */
-  searchModel?: Record<string, any>;
+  searchModel?: object;
   /** 单字段更新回调；不传时若仍传入 searchModel，则直接写入 searchModel[field]（依赖 reactive 对象）。 */
   onUpdateSearchField?: (field: string, value: unknown) => void;
   /** 仅内部搜索模式生效：初始填充值 */
@@ -315,13 +315,13 @@ export interface SearchBarProps {
   /** 字段配置列表 */
   config: SearchFieldConfig[];
   /** v-model 语义：当前表单 JSON */
-  model: Record<string, any>;
+  model: object;
   /** 触发查询 */
   onSearch: () => void;
   /** 触发重置 */
   onReset: () => void;
   /** 字段级更新 */
-  onUpdateModel: (field: string, value: any) => void;
+  onUpdateModel: (field: string, value: unknown) => void;
   /** naive NForm label-placement */
   labelPlacement?: 'left' | 'top';
   /** 全局是否展示标签（可被字段级 showLabel 覆盖） */

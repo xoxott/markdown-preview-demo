@@ -1,16 +1,5 @@
-import { defineComponent, getCurrentInstance, reactive, ref } from 'vue';
-import {
-  NButton,
-  NCard,
-  NDataTable,
-  NForm,
-  NFormItem,
-  NInput,
-  NSelect,
-  NSpace,
-  NSwitch,
-  useMessage
-} from 'naive-ui';
+import { computed, defineComponent, getCurrentInstance, ref } from 'vue';
+import { NButton, NSpace, NSwitch, useMessage } from 'naive-ui';
 import {
   fetchBatchDeletePermissions,
   fetchCreatePermission,
@@ -20,12 +9,14 @@ import {
   fetchTogglePermissionStatus,
   fetchUpdatePermission
 } from '@/service/api/permission';
-import { useNaiveForm } from '@/hooks/common/form';
 import { useTable } from '@/hooks/common/table';
-import type { PermissionFormData } from '@/components/permission-management/dialog';
-import { usePermissionDialog } from '@/components/permission-management/usePermissionDialog';
+import TablePage from '@/components/table-page/TablePage';
+import type { SearchFieldConfig, TableColumnConfig } from '@/components/table-page/types';
 import { $t } from '@/locales';
 import { useDialog } from '@/components/base-dialog/useDialog';
+import { tableListPlaceholderColumns } from '@/views/_shared/tableListPlaceholderColumns';
+import type { PermissionFormData } from './components/dialog';
+import { usePermissionDialog } from './components/usePermissionDialog';
 
 type Permission = Api.PermissionManagement.Permission;
 
@@ -36,34 +27,9 @@ export default defineComponent({
     const instance = getCurrentInstance();
     const permissionDialog = usePermissionDialog();
     const dialog = useDialog(instance?.appContext.app);
-    const { formRef: searchFormRef, resetFields } = useNaiveForm();
 
     const selectedRowKeys = ref<number[]>([]);
 
-    // 前置声明 getData 以避免 no-use-before-define
-    let getData: () => void;
-
-    // 资源选项（用于搜索筛选）
-    const resourceOptions = [
-      { label: '全部', value: undefined },
-      { label: '用户', value: 'user' },
-      { label: '角色', value: 'role' },
-      { label: '权限', value: 'permission' },
-      { label: '系统', value: 'system' },
-      { label: '其他', value: 'other' }
-    ];
-
-    // 操作选项（用于搜索筛选）
-    const actionOptions = [
-      { label: '全部', value: undefined },
-      { label: '读取', value: 'read' },
-      { label: '写入', value: 'write' },
-      { label: '删除', value: 'delete' },
-      { label: '创建', value: 'create' },
-      { label: '管理', value: 'manage' }
-    ];
-
-    // 排序字段选项
     const sortByOptions = [
       { label: '创建时间', value: 'createdAt' },
       { label: '更新时间', value: 'updatedAt' },
@@ -73,17 +39,31 @@ export default defineComponent({
       { label: '操作', value: 'action' }
     ];
 
-    // 搜索表单数据
-    const searchForm = reactive({
-      search: '',
-      isActive: undefined,
-      resource: undefined,
-      action: undefined,
-      sortBy: undefined as string | undefined,
-      sortOrder: undefined as 'asc' | 'desc' | undefined
+    const {
+      data,
+      loading,
+      pagination,
+      getData,
+      searchParams,
+      updateSearchParams,
+      resetSearchParams
+    } = useTable<typeof fetchPermissionList>({
+      apiFn: fetchPermissionList,
+      apiParams: {
+        page: 1,
+        limit: 10,
+        search: '',
+        isActive: undefined as boolean | undefined,
+        resource: undefined as string | undefined,
+        action: undefined as string | undefined,
+        sortBy: undefined as string | undefined,
+        sortOrder: undefined as 'asc' | 'desc' | undefined
+      },
+      columns: () => tableListPlaceholderColumns<typeof fetchPermissionList>(),
+      showTotal: true,
+      immediate: true
     });
 
-    // 打开新增对话框
     async function handleAdd() {
       const formData: PermissionFormData = {
         name: '',
@@ -97,358 +77,262 @@ export default defineComponent({
       await permissionDialog.showPermissionForm({
         isEdit: false,
         formData,
-        onConfirm: async (data: PermissionFormData) => {
-          try {
-            await fetchCreatePermission({
-              name: data.name,
-              code: data.code,
-              resource: data.resource,
-              action: data.action,
-              description: data.description || undefined,
-              isActive: data.isActive
-            });
-            message.success($t('common.addSuccess'));
-            getData();
-          } catch (error: any) {
-            message.error(error?.message || '操作失败');
-            throw error;
-          }
+        onConfirm: async (form: PermissionFormData) => {
+          await fetchCreatePermission({
+            name: form.name,
+            code: form.code,
+            resource: form.resource,
+            action: form.action,
+            description: form.description || undefined,
+            isActive: form.isActive
+          });
+          message.success($t('common.addSuccess'));
+          getData();
         }
       });
     }
 
-    // 打开编辑对话框
     async function handleEdit(row: Permission) {
-      try {
-        const { data: permissionDetail } = await fetchPermissionDetail(row.id);
-        if (!permissionDetail) {
-          message.error($t('page.permissionManagement.getDetailFailed' as any));
-          return;
-        }
-
-        const formData: PermissionFormData = {
-          name: permissionDetail.name,
-          code: permissionDetail.code,
-          resource: permissionDetail.resource,
-          action: permissionDetail.action,
-          description: permissionDetail.description || '',
-          isActive: permissionDetail.isActive
-        };
-
-        await permissionDialog.showPermissionForm({
-          isEdit: true,
-          formData,
-          onConfirm: async (data: PermissionFormData) => {
-            try {
-              const updateData: Api.PermissionManagement.UpdatePermissionRequest = {
-                name: data.name,
-                resource: data.resource,
-                action: data.action,
-                description: data.description || undefined,
-                isActive: data.isActive
-              };
-              await fetchUpdatePermission(row.id, updateData);
-              message.success($t('common.updateSuccess'));
-              getData();
-            } catch (error: any) {
-              message.error(error?.message || '操作失败');
-              throw error;
-            }
-          }
-        });
-      } catch (error: any) {
-        message.error(error?.message || $t('page.permissionManagement.getDetailFailed' as any));
+      const { data: permissionDetail } = await fetchPermissionDetail(row.id);
+      if (!permissionDetail) {
+        message.error($t('page.permissionManagement.getDetailFailed'));
+        return;
       }
+
+      const formData: PermissionFormData = {
+        name: permissionDetail.name,
+        code: permissionDetail.code,
+        resource: permissionDetail.resource,
+        action: permissionDetail.action,
+        description: permissionDetail.description || '',
+        isActive: permissionDetail.isActive
+      };
+
+      await permissionDialog.showPermissionForm({
+        isEdit: true,
+        formData,
+        onConfirm: async (form: PermissionFormData) => {
+          const updateData: Api.PermissionManagement.UpdatePermissionRequest = {
+            name: form.name,
+            resource: form.resource,
+            action: form.action,
+            description: form.description || undefined,
+            isActive: form.isActive
+          };
+          await fetchUpdatePermission(row.id, updateData);
+          message.success($t('common.updateSuccess'));
+          getData();
+        }
+      });
     }
 
-    // 切换权限状态
     async function handleToggleStatus(permissionId: number, isActive: boolean) {
       try {
         await fetchTogglePermissionStatus(permissionId, isActive);
-        message.success($t('page.permissionManagement.toggleStatusSuccess' as any));
+        message.success($t('page.permissionManagement.toggleStatusSuccess'));
         getData();
-      } catch (error: any) {
-        message.error(error?.message || '操作失败');
-        getData(); // 刷新数据以恢复状态
+      } catch {
+        getData();
       }
     }
 
-    // 删除权限
     async function handleDelete(row: Permission) {
       await dialog.confirmDelete(row.name, async () => {
-        try {
-          await fetchDeletePermission(row.id);
-          message.success($t('common.deleteSuccess'));
-          getData();
-        } catch (error: any) {
-          message.error(error?.message || '操作失败');
-        }
+        await fetchDeletePermission(row.id);
+        message.success($t('common.deleteSuccess'));
+        getData();
       });
     }
 
-    // 创建表格列
-    function createColumns() {
-      return [
-        {
-          type: 'selection',
-          width: 50
-        },
-        {
-          title: $t('common.index'),
-          key: 'index',
-          width: 80
-        },
-        {
-          title: $t('page.permissionManagement.name' as any),
-          key: 'name',
-          width: 150
-        },
-        {
-          title: $t('page.permissionManagement.code' as any),
-          key: 'code',
-          width: 150
-        },
-        {
-          title: $t('page.permissionManagement.resource' as any),
-          key: 'resource',
-          width: 120
-        },
-        {
-          title: $t('page.permissionManagement.action' as any),
-          key: 'action',
-          width: 120
-        },
-        {
-          title: $t('page.permissionManagement.description' as any),
-          key: 'description',
-          width: 200,
-          render: (row: Permission) => {
-            return row.description || '-';
-          }
-        },
-        {
-          title: $t('page.permissionManagement.status' as any),
-          key: 'isActive',
-          width: 100,
-          render: (row: Permission) => (
-            <NSwitch
-              value={row.isActive}
-              onUpdateValue={value => handleToggleStatus(row.id, value)}
-              loading={false}
-            />
-          )
-        },
-        {
-          title: $t('page.permissionManagement.createdAt' as any),
-          key: 'createdAt',
-          width: 180,
-          render: (row: Permission) => {
-            if (!row.createdAt) return '-';
-            return new Date(row.createdAt).toLocaleString('zh-CN');
-          }
-        },
-        {
-          title: $t('page.permissionManagement.updatedAt' as any),
-          key: 'updatedAt',
-          width: 180,
-          render: (row: Permission) => {
-            if (!row.updatedAt) return '-';
-            return new Date(row.updatedAt).toLocaleString('zh-CN');
-          }
-        },
-        {
-          title: $t('common.operate'),
-          key: 'operate',
-          width: 200,
-          fixed: 'right',
-          render: (row: Permission) => (
-            <NSpace size="small">
-              <NButton size="small" type="primary" onClick={() => handleEdit(row)}>
-                {$t('common.edit')}
-              </NButton>
-              <NButton size="small" type="error" onClick={() => handleDelete(row)}>
-                {$t('common.delete')}
-              </NButton>
-            </NSpace>
-          )
-        }
-      ];
-    }
-
-    // 表格配置
-    const {
-      columns,
-      data,
-      loading,
-      pagination,
-      getData: _getData,
-      updateSearchParams,
-      resetSearchParams
-    } = useTable({
-      apiFn: fetchPermissionList,
-      apiParams: {
-        page: 1,
-        limit: 10,
-        ...searchForm
-      },
-      columns: () => createColumns() as any,
-      showTotal: true,
-      immediate: true
-    });
-    getData = _getData;
-
-    // 搜索
-    function handleSearch() {
-      updateSearchParams({
-        page: 1,
-        ...searchForm
-      });
-      getData();
-    }
-
-    // 重置搜索
-    function handleReset() {
-      resetFields();
-      resetSearchParams();
-      getData();
-    }
-
-    // 批量删除
     async function handleBatchDelete() {
       if (selectedRowKeys.value.length === 0) {
-        message.warning($t('page.permissionManagement.selectPermissionsToDelete' as any));
+        message.warning($t('page.permissionManagement.selectPermissionsToDelete'));
         return;
       }
       await dialog.confirmDelete(
-        $t('page.permissionManagement.confirmBatchDelete' as any, {
+        $t('page.permissionManagement.confirmBatchDelete', {
           count: selectedRowKeys.value.length
         }),
         async () => {
-          try {
-            await fetchBatchDeletePermissions({ ids: selectedRowKeys.value });
-            message.success($t('page.permissionManagement.batchDeleteSuccess' as any));
-            selectedRowKeys.value = [];
-            getData();
-          } catch (error: any) {
-            message.error(error?.message || $t('common.error'));
-          }
+          await fetchBatchDeletePermissions({ ids: selectedRowKeys.value });
+          message.success($t('page.permissionManagement.batchDeleteSuccess'));
+          selectedRowKeys.value = [];
+          getData();
         }
       );
     }
 
-    return () => (
-      <NSpace vertical size={16}>
-        {/* 搜索栏 */}
-        <NCard>
-          <NForm ref={searchFormRef} model={searchForm} inline>
-            <NFormItem path="search">
-              <NInput
-                v-model:value={searchForm.search}
-                placeholder={$t('page.permissionManagement.searchPlaceholder' as any)}
-                style={{ width: '200px' }}
-                clearable
-                onKeyup={(e: KeyboardEvent) => {
-                  if (e.key === 'Enter') {
-                    handleSearch();
-                  }
-                }}
-              />
-            </NFormItem>
-            <NFormItem path="resource">
-              <NSelect
-                v-model:value={searchForm.resource}
-                placeholder={$t('page.permissionManagement.resourcePlaceholder' as any)}
-                style={{ width: '120px' }}
-                clearable
-                options={resourceOptions}
-              />
-            </NFormItem>
-            <NFormItem path="action">
-              <NSelect
-                v-model:value={searchForm.action}
-                placeholder={$t('page.permissionManagement.actionPlaceholder' as any)}
-                style={{ width: '120px' }}
-                clearable
-                options={actionOptions}
-              />
-            </NFormItem>
-            <NFormItem path="sortBy">
-              <NSelect
-                v-model:value={searchForm.sortBy}
-                placeholder="排序字段"
-                style={{ width: '120px' }}
-                clearable
-                options={sortByOptions}
-              />
-            </NFormItem>
-            <NFormItem path="sortOrder">
-              <NSelect
-                v-model:value={searchForm.sortOrder}
-                placeholder="排序方式"
-                style={{ width: '120px' }}
-                clearable
-                options={[
-                  { label: '升序', value: 'asc' },
-                  { label: '降序', value: 'desc' }
-                ]}
-              />
-            </NFormItem>
-            <NFormItem path="isActive">
-              <NSelect
-                v-model:value={searchForm.isActive}
-                placeholder={$t('page.permissionManagement.statusPlaceholder' as any)}
-                style={{ width: '120px' }}
-                clearable
-                options={[
-                  { label: $t('page.permissionManagement.active' as any), value: true as any },
-                  { label: $t('page.permissionManagement.inactive' as any), value: false as any }
-                ]}
-              />
-            </NFormItem>
-            <NFormItem>
-              <NSpace>
-                <NButton type="primary" onClick={handleSearch}>
-                  {$t('common.search')}
-                </NButton>
-                <NButton onClick={handleReset}>{$t('common.reset')}</NButton>
-              </NSpace>
-            </NFormItem>
-          </NForm>
-        </NCard>
+    const searchConfig = computed<SearchFieldConfig[]>(() => [
+      {
+        type: 'input',
+        field: 'search',
+        placeholder: $t('page.permissionManagement.searchPlaceholder'),
+        icon: 'i-carbon-search',
+        width: '200px'
+      },
+      {
+        type: 'select',
+        field: 'resource',
+        placeholder: $t('page.permissionManagement.resourcePlaceholder'),
+        width: '120px',
+        options: [
+          { label: '用户', value: 'user' },
+          { label: '角色', value: 'role' },
+          { label: '权限', value: 'permission' },
+          { label: '系统', value: 'system' },
+          { label: '其他', value: 'other' }
+        ]
+      },
+      {
+        type: 'select',
+        field: 'action',
+        placeholder: $t('page.permissionManagement.actionPlaceholder'),
+        width: '120px',
+        options: [
+          { label: '读取', value: 'read' },
+          { label: '写入', value: 'write' },
+          { label: '删除', value: 'delete' },
+          { label: '创建', value: 'create' },
+          { label: '管理', value: 'manage' }
+        ]
+      },
+      {
+        type: 'select',
+        field: 'sortBy',
+        placeholder: '排序字段',
+        width: '120px',
+        options: sortByOptions
+      },
+      {
+        type: 'select',
+        field: 'sortOrder',
+        placeholder: '排序方式',
+        width: '120px',
+        options: [
+          { label: '升序', value: 'asc' },
+          { label: '降序', value: 'desc' }
+        ]
+      },
+      {
+        type: 'select',
+        field: 'isActive',
+        placeholder: $t('page.permissionManagement.statusPlaceholder'),
+        width: '120px',
+        options: [
+          { label: $t('page.permissionManagement.active'), value: true },
+          { label: $t('page.permissionManagement.inactive'), value: false }
+        ]
+      }
+    ]);
 
-        {/* 操作栏 */}
-        <NCard>
-          <NSpace>
-            <NButton type="primary" onClick={handleAdd}>
-              {$t('common.add')}
-            </NButton>
-            <NButton
-              type="error"
-              disabled={selectedRowKeys.value.length === 0}
-              onClick={handleBatchDelete}
-            >
-              {$t('common.batchDelete')}
-            </NButton>
-            <NButton onClick={getData}>{$t('common.refresh')}</NButton>
-          </NSpace>
-        </NCard>
-
-        {/* 表格 */}
-        <NCard>
-          <NDataTable
-            columns={columns.value as any}
-            data={data.value}
-            loading={loading.value}
-            pagination={pagination}
-            rowKey={(row: Permission) => row.id}
-            checkedRowKeys={selectedRowKeys.value}
-            onUpdateCheckedRowKeys={keys => {
-              selectedRowKeys.value = keys as number[];
-            }}
-            scrollX={1800}
+    const tableColumns = computed((): TableColumnConfig<Permission>[] => [
+      {
+        title: $t('page.permissionManagement.name'),
+        key: 'name',
+        width: 150
+      },
+      {
+        title: $t('page.permissionManagement.code'),
+        key: 'code',
+        width: 150
+      },
+      {
+        title: $t('page.permissionManagement.resource'),
+        key: 'resource',
+        width: 120
+      },
+      {
+        title: $t('page.permissionManagement.action'),
+        key: 'action',
+        width: 120
+      },
+      {
+        title: $t('page.permissionManagement.description'),
+        key: 'description',
+        width: 200,
+        render: (row: Permission) => row.description || '-'
+      },
+      {
+        title: $t('page.permissionManagement.status'),
+        key: 'isActive',
+        width: 100,
+        render: (row: Permission) => (
+          <NSwitch
+            value={row.isActive}
+            onUpdateValue={value => handleToggleStatus(row.id, value)}
+            loading={false}
           />
-        </NCard>
-      </NSpace>
+        )
+      },
+      {
+        title: $t('page.permissionManagement.createdAt'),
+        key: 'createdAt',
+        width: 180,
+        render: (row: Permission) => {
+          if (!row.createdAt) return '-';
+          return new Date(row.createdAt).toLocaleString('zh-CN');
+        }
+      },
+      {
+        title: $t('page.permissionManagement.updatedAt'),
+        key: 'updatedAt',
+        width: 180,
+        render: (row: Permission) => {
+          if (!row.updatedAt) return '-';
+          return new Date(row.updatedAt).toLocaleString('zh-CN');
+        }
+      },
+      {
+        title: $t('common.operate'),
+        key: 'operate',
+        width: 200,
+        fixed: 'right',
+        render: (row: Permission) => (
+          <NSpace size="small">
+            <NButton size="small" type="primary" onClick={() => handleEdit(row)}>
+              {$t('common.edit')}
+            </NButton>
+            <NButton size="small" type="error" onClick={() => handleDelete(row)}>
+              {$t('common.delete')}
+            </NButton>
+          </NSpace>
+        )
+      }
+    ]);
+
+    return () => (
+      <TablePage
+        class="h-full"
+        searchConfig={searchConfig.value}
+        searchModel={searchParams}
+        onSearch={() => {
+          updateSearchParams({ page: 1, limit: pagination.pageSize ?? 10 });
+          getData();
+        }}
+        onReset={() => {
+          resetSearchParams();
+          getData();
+        }}
+        actionConfig={{
+          preset: {
+            add: { onClick: handleAdd },
+            batchDelete: { onClick: handleBatchDelete },
+            refresh: { onClick: getData }
+          }
+        }}
+        columns={tableColumns.value}
+        data={data.value}
+        loading={loading.value}
+        pagination={pagination}
+        selectedKeys={selectedRowKeys.value}
+        onUpdateSelectedKeys={keys => {
+          selectedRowKeys.value = keys as number[];
+        }}
+        rowKey="id"
+        scrollX={1800}
+        searchCardBordered={false}
+        actionCardBordered={false}
+      />
     );
   }
 });

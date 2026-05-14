@@ -1,17 +1,5 @@
-import { computed, defineComponent, getCurrentInstance, reactive, ref } from 'vue';
-import {
-  NButton,
-  NCard,
-  NDataTable,
-  NForm,
-  NFormItem,
-  NInput,
-  NSelect,
-  NSpace,
-  NSwitch,
-  NTag,
-  useMessage
-} from 'naive-ui';
+import { computed, defineComponent, getCurrentInstance, ref } from 'vue';
+import { NButton, NSpace, NSwitch, NTag, useMessage } from 'naive-ui';
 import {
   fetchAcknowledgeAlert,
   fetchAlertDetail,
@@ -25,12 +13,14 @@ import {
 } from '@/service/api/alert';
 import { fetchUserList } from '@/service/api/user';
 import { fetchRoleList } from '@/service/api/role';
-import { useNaiveForm } from '@/hooks/common/form';
 import { useTable } from '@/hooks/common/table';
-import type { AlertFormData } from '@/components/alert-management/dialog';
-import { useAlertDialog } from '@/components/alert-management/useAlertDialog';
 import { $t } from '@/locales';
 import { useDialog } from '@/components/base-dialog/useDialog';
+import { tableListPlaceholderColumns } from '@/views/_shared/tableListPlaceholderColumns';
+import type { SearchFieldConfig, TableColumnConfig } from '@/components/table-page/types';
+import TablePage from '@/components/table-page/TablePage';
+import { useAlertDialog } from './components/useAlertDialog';
+import type { AlertFormData } from './components/dialog';
 
 type Alert = Api.AlertManagement.Alert;
 
@@ -41,14 +31,9 @@ export default defineComponent({
     const instance = getCurrentInstance();
     const alertDialog = useAlertDialog();
     const dialog = useDialog(instance?.appContext.app);
-    const { formRef: searchFormRef, resetFields } = useNaiveForm();
 
     const selectedRowKeys = ref<number[]>([]);
 
-    // 前置声明 getData 以避免 no-use-before-define
-    let getData: () => void;
-
-    // 用户和角色选项
     const users = ref<Api.UserManagement.User[]>([]);
     const roles = ref<Api.RoleManagement.Role[]>([]);
 
@@ -66,7 +51,6 @@ export default defineComponent({
       }));
     });
 
-    // 加载用户和角色列表
     async function loadUsersAndRoles() {
       try {
         const [usersRes, rolesRes] = await Promise.all([
@@ -79,40 +63,37 @@ export default defineComponent({
         if (rolesRes.data?.lists) {
           roles.value = rolesRes.data.lists;
         }
-      } catch (error: any) {
-        console.error('Failed to load users and roles:', error);
+      } catch {
+        /* 全局 request 已提示；此处仅避免未处理 rejection */
       }
     }
 
-    // 级别选项（用于搜索筛选）
-    const levelOptions = [
-      { label: $t('page.alertManagement.all' as any), value: undefined },
-      { label: $t('page.alertManagement.levelCritical' as any), value: 'critical' },
-      { label: $t('page.alertManagement.levelWarning' as any), value: 'warning' },
-      { label: $t('page.alertManagement.levelInfo' as any), value: 'info' }
-    ];
-
-    // 状态选项（用于搜索筛选）
-    const statusOptions = [
-      { label: $t('page.alertManagement.all' as any), value: undefined },
-      { label: $t('page.alertManagement.statusActive' as any), value: 'active' },
-      { label: $t('page.alertManagement.statusResolved' as any), value: 'resolved' },
-      { label: $t('page.alertManagement.statusAcknowledged' as any), value: 'acknowledged' }
-    ];
-
-    // 搜索表单数据
-    const searchForm = reactive({
-      search: '',
-      status: undefined,
-      level: undefined,
-      isEnabled: undefined,
-      sortBy: undefined as string | undefined,
-      sortOrder: undefined as 'asc' | 'desc' | undefined
+    const {
+      data,
+      loading,
+      pagination,
+      getData,
+      searchParams,
+      updateSearchParams,
+      resetSearchParams
+    } = useTable<typeof fetchAlertList>({
+      apiFn: fetchAlertList,
+      apiParams: {
+        page: 1,
+        limit: 10,
+        search: '',
+        status: undefined as string | undefined,
+        level: undefined as string | undefined,
+        isEnabled: undefined as boolean | undefined,
+        sortBy: undefined as string | undefined,
+        sortOrder: undefined as 'asc' | 'desc' | undefined
+      },
+      columns: () => tableListPlaceholderColumns<typeof fetchAlertList>(),
+      showTotal: true,
+      immediate: true
     });
 
-    // 打开新增对话框
     async function handleAdd() {
-      // 确保用户和角色列表已加载
       await ensureUsersAndRolesLoaded();
 
       const formData: AlertFormData = {
@@ -132,335 +113,117 @@ export default defineComponent({
         formData,
         userOptions: userOptions.value,
         roleOptions: roleOptions.value,
-        onConfirm: async (data: AlertFormData) => {
-          try {
-            await fetchCreateAlert({
-              name: data.name,
-              description: data.description || undefined,
-              level: data.level,
-              condition: data.condition || undefined,
-              threshold: data.threshold || undefined,
-              metric: data.metric || undefined,
-              isEnabled: data.isEnabled,
-              targetUserIds: data.targetUserIds.length > 0 ? data.targetUserIds : undefined,
-              targetRoleCodes: data.targetRoleCodes.length > 0 ? data.targetRoleCodes : undefined
-            });
-            message.success($t('common.addSuccess'));
-            getData();
-          } catch (error: any) {
-            message.error(error?.message || '操作失败');
-            throw error;
-          }
+        onConfirm: async (form: AlertFormData) => {
+          await fetchCreateAlert({
+            name: form.name,
+            description: form.description || undefined,
+            level: form.level,
+            condition: form.condition || undefined,
+            threshold: form.threshold || undefined,
+            metric: form.metric || undefined,
+            isEnabled: form.isEnabled,
+            targetUserIds: form.targetUserIds.length > 0 ? form.targetUserIds : undefined,
+            targetRoleCodes: form.targetRoleCodes.length > 0 ? form.targetRoleCodes : undefined
+          });
+          message.success($t('common.addSuccess'));
+          getData();
         }
       });
     }
 
-    // 打开编辑对话框
     async function handleEdit(row: Alert) {
-      try {
-        const { data: alertDetail } = await fetchAlertDetail(row.id);
-        if (!alertDetail) {
-          message.error($t('page.alertManagement.getDetailFailed' as any));
-          return;
-        }
-
-        // 确保用户和角色列表已加载
-        await ensureUsersAndRolesLoaded();
-
-        const formData: AlertFormData = {
-          name: alertDetail.name,
-          description: alertDetail.description || '',
-          level: alertDetail.level,
-          condition: alertDetail.condition || '',
-          threshold: alertDetail.threshold,
-          metric: alertDetail.metric || '',
-          isEnabled: alertDetail.isEnabled,
-          targetUserIds: alertDetail.targetUserIds || [],
-          targetRoleCodes: alertDetail.targetRoleCodes || []
-        };
-
-        await alertDialog.showAlertForm({
-          isEdit: true,
-          formData,
-          userOptions: userOptions.value,
-          roleOptions: roleOptions.value,
-          onConfirm: async (data: AlertFormData) => {
-            try {
-              const updateData: Api.AlertManagement.UpdateAlertRequest = {
-                name: data.name,
-                description: data.description || undefined,
-                level: data.level,
-                condition: data.condition || undefined,
-                threshold: data.threshold || undefined,
-                metric: data.metric || undefined,
-                isEnabled: data.isEnabled,
-                targetUserIds: data.targetUserIds.length > 0 ? data.targetUserIds : undefined,
-                targetRoleCodes: data.targetRoleCodes.length > 0 ? data.targetRoleCodes : undefined
-              };
-              await fetchUpdateAlert(row.id, updateData);
-              message.success($t('common.updateSuccess'));
-              getData();
-            } catch (error: any) {
-              message.error(error?.message || '操作失败');
-              throw error;
-            }
-          }
-        });
-      } catch (error: any) {
-        message.error(error?.message || $t('page.alertManagement.getDetailFailed' as any));
+      const { data: alertDetail } = await fetchAlertDetail(row.id);
+      if (!alertDetail) {
+        message.error($t('page.alertManagement.getDetailFailed'));
+        return;
       }
+
+      await ensureUsersAndRolesLoaded();
+
+      const formData: AlertFormData = {
+        name: alertDetail.name,
+        description: alertDetail.description || '',
+        level: alertDetail.level,
+        condition: alertDetail.condition || '',
+        threshold: alertDetail.threshold,
+        metric: alertDetail.metric || '',
+        isEnabled: alertDetail.isEnabled,
+        targetUserIds: alertDetail.targetUserIds || [],
+        targetRoleCodes: alertDetail.targetRoleCodes || []
+      };
+
+      await alertDialog.showAlertForm({
+        isEdit: true,
+        formData,
+        userOptions: userOptions.value,
+        roleOptions: roleOptions.value,
+        onConfirm: async (form: AlertFormData) => {
+          const updateData: Api.AlertManagement.UpdateAlertRequest = {
+            name: form.name,
+            description: form.description || undefined,
+            level: form.level,
+            condition: form.condition || undefined,
+            threshold: form.threshold || undefined,
+            metric: form.metric || undefined,
+            isEnabled: form.isEnabled,
+            targetUserIds: form.targetUserIds.length > 0 ? form.targetUserIds : undefined,
+            targetRoleCodes: form.targetRoleCodes.length > 0 ? form.targetRoleCodes : undefined
+          };
+          await fetchUpdateAlert(row.id, updateData);
+          message.success($t('common.updateSuccess'));
+          getData();
+        }
+      });
     }
 
-    // 切换告警状态（启用/禁用）
     async function handleToggleStatus(alertId: number, isEnabled: boolean) {
       try {
         await fetchToggleAlertStatus(alertId, isEnabled);
-        message.success($t('page.alertManagement.toggleStatusSuccess' as any));
+        message.success($t('page.alertManagement.toggleStatusSuccess'));
         getData();
-      } catch (error: any) {
-        message.error(error?.message || '操作失败');
-        getData(); // 刷新数据以恢复状态
+      } catch {
+        getData();
       }
     }
 
-    // 确认告警
     async function handleAcknowledge(row: Alert) {
-      try {
-        await fetchAcknowledgeAlert(row.id);
-        message.success($t('page.alertManagement.acknowledgeSuccess' as any));
-        getData();
-      } catch (error: any) {
-        message.error(error?.message || '操作失败');
-      }
+      await fetchAcknowledgeAlert(row.id);
+      message.success($t('page.alertManagement.acknowledgeSuccess'));
+      getData();
     }
 
-    // 解决告警
     async function handleResolve(row: Alert) {
-      try {
-        await fetchResolveAlert(row.id);
-        message.success($t('page.alertManagement.resolveSuccess' as any));
-        getData();
-      } catch (error: any) {
-        message.error(error?.message || '操作失败');
-      }
+      await fetchResolveAlert(row.id);
+      message.success($t('page.alertManagement.resolveSuccess'));
+      getData();
     }
 
-    // 删除告警
     async function handleDelete(row: Alert) {
       await dialog.confirmDelete(row.name, async () => {
-        try {
-          await fetchDeleteAlert(row.id);
-          message.success($t('common.deleteSuccess'));
-          getData();
-        } catch (error: any) {
-          message.error(error?.message || '操作失败');
-        }
+        await fetchDeleteAlert(row.id);
+        message.success($t('common.deleteSuccess'));
+        getData();
       });
     }
 
-    // 创建表格列
-    function createColumns() {
-      return [
-        {
-          type: 'selection',
-          width: 50
-        },
-        {
-          title: $t('common.index'),
-          key: 'index',
-          width: 80
-        },
-        {
-          title: $t('page.alertManagement.name' as any),
-          key: 'name',
-          width: 200
-        },
-        {
-          title: $t('page.alertManagement.level' as any),
-          key: 'level',
-          width: 120,
-          render: (row: Alert) => {
-            const levelMap: Record<string, { label: string; type: 'error' | 'warning' | 'info' }> =
-              {
-                critical: { label: $t('page.alertManagement.levelCritical' as any), type: 'error' },
-                warning: { label: $t('page.alertManagement.levelWarning' as any), type: 'warning' },
-                info: { label: $t('page.alertManagement.levelInfo' as any), type: 'info' }
-              };
-            const level = levelMap[row.level] || { label: row.level, type: 'info' };
-            return <NTag type={level.type}>{level.label}</NTag>;
-          }
-        },
-        {
-          title: $t('page.alertManagement.status' as any),
-          key: 'status',
-          width: 120,
-          render: (row: Alert) => {
-            const statusMap: Record<string, string> = {
-              active: $t('page.alertManagement.statusActive' as any),
-              resolved: $t('page.alertManagement.statusResolved' as any),
-              acknowledged: $t('page.alertManagement.statusAcknowledged' as any)
-            };
-            return statusMap[row.status] || row.status;
-          }
-        },
-        {
-          title: $t('page.alertManagement.metric' as any),
-          key: 'metric',
-          width: 120,
-          render: (row: Alert) => {
-            return row.metric || '-';
-          }
-        },
-        {
-          title: $t('page.alertManagement.threshold' as any),
-          key: 'threshold',
-          width: 100,
-          render: (row: Alert) => {
-            return row.threshold !== null ? row.threshold : '-';
-          }
-        },
-        {
-          title: $t('page.alertManagement.triggerCount' as any),
-          key: 'triggerCount',
-          width: 120,
-          render: (row: Alert) => {
-            return row.triggerCount !== null ? row.triggerCount : '-';
-          }
-        },
-        {
-          title: $t('page.alertManagement.targetUsers' as any),
-          key: 'targetUserIds',
-          width: 150,
-          render: (row: Alert) => {
-            if (!row.targetUserIds || row.targetUserIds.length === 0) {
-              return row.targetRoleCodes && row.targetRoleCodes.length > 0
-                ? $t('page.alertManagement.targetRoles' as any)
-                : $t('page.alertManagement.allUsers' as any);
-            }
-            return `${row.targetUserIds.length} ${$t('page.alertManagement.users' as any)}`;
-          }
-        },
-        {
-          title: $t('page.alertManagement.enabled' as any),
-          key: 'isEnabled',
-          width: 100,
-          render: (row: Alert) => (
-            <NSwitch
-              value={row.isEnabled}
-              onUpdateValue={value => handleToggleStatus(row.id, value)}
-              loading={false}
-            />
-          )
-        },
-        {
-          title: $t('page.alertManagement.lastTriggeredAt' as any),
-          key: 'lastTriggeredAt',
-          width: 180,
-          render: (row: Alert) => {
-            if (!row.lastTriggeredAt) return '-';
-            return new Date(row.lastTriggeredAt).toLocaleString('zh-CN');
-          }
-        },
-        {
-          title: $t('page.alertManagement.createdAt' as any),
-          key: 'createdAt',
-          width: 180,
-          render: (row: Alert) => {
-            if (!row.createdAt) return '-';
-            return new Date(row.createdAt).toLocaleString('zh-CN');
-          }
-        },
-        {
-          title: $t('common.operate'),
-          key: 'operate',
-          width: 280,
-          fixed: 'right',
-          render: (row: Alert) => (
-            <NSpace size="small">
-              <NButton size="small" type="primary" onClick={() => handleEdit(row)}>
-                {$t('common.edit')}
-              </NButton>
-              {row.status === 'active' && (
-                <>
-                  <NButton size="small" type="info" onClick={() => handleAcknowledge(row)}>
-                    {$t('page.alertManagement.acknowledge' as any)}
-                  </NButton>
-                  <NButton size="small" type="success" onClick={() => handleResolve(row)}>
-                    {$t('page.alertManagement.resolve' as any)}
-                  </NButton>
-                </>
-              )}
-              <NButton size="small" type="error" onClick={() => handleDelete(row)}>
-                {$t('common.delete')}
-              </NButton>
-            </NSpace>
-          )
-        }
-      ];
-    }
-
-    // 表格配置
-    const {
-      columns,
-      data,
-      loading,
-      pagination,
-      getData: _getData,
-      updateSearchParams,
-      resetSearchParams
-    } = useTable({
-      apiFn: fetchAlertList,
-      apiParams: {
-        page: 1,
-        limit: 10,
-        ...searchForm
-      },
-      columns: () => createColumns() as any,
-      showTotal: true,
-      immediate: true
-    });
-    getData = _getData;
-
-    // 搜索
-    function handleSearch() {
-      updateSearchParams({
-        page: 1,
-        ...searchForm
-      });
-      getData();
-    }
-
-    // 重置搜索
-    function handleReset() {
-      resetFields();
-      resetSearchParams();
-      getData();
-    }
-
-    // 批量删除
     async function handleBatchDelete() {
       if (selectedRowKeys.value.length === 0) {
-        message.warning($t('page.alertManagement.selectAlertsToDelete' as any));
+        message.warning($t('page.alertManagement.selectAlertsToDelete'));
         return;
       }
       await dialog.confirmDelete(
-        $t('page.alertManagement.confirmBatchDelete' as any, {
+        $t('page.alertManagement.confirmBatchDelete', {
           count: selectedRowKeys.value.length
         }),
         async () => {
-          try {
-            await fetchBatchDeleteAlerts({ ids: selectedRowKeys.value });
-            message.success($t('page.alertManagement.batchDeleteSuccess' as any));
-            selectedRowKeys.value = [];
-            getData();
-          } catch (error: any) {
-            message.error(error?.message || $t('common.error'));
-          }
+          await fetchBatchDeleteAlerts({ ids: selectedRowKeys.value });
+          message.success($t('page.alertManagement.batchDeleteSuccess'));
+          selectedRowKeys.value = [];
+          getData();
         }
       );
     }
 
-    // 按需加载用户和角色列表（只在需要时加载）
     let usersAndRolesLoaded = false;
     async function ensureUsersAndRolesLoaded() {
       if (!usersAndRolesLoaded && (users.value.length === 0 || roles.value.length === 0)) {
@@ -469,98 +232,203 @@ export default defineComponent({
       }
     }
 
-    return () => (
-      <NSpace vertical size={16}>
-        {/* 搜索栏 */}
-        <NCard>
-          <NForm ref={searchFormRef} model={searchForm} inline>
-            <NFormItem path="search">
-              <NInput
-                v-model:value={searchForm.search}
-                placeholder={$t('page.alertManagement.searchPlaceholder' as any)}
-                style={{ width: '200px' }}
-                clearable
-                onKeyup={(e: KeyboardEvent) => {
-                  if (e.key === 'Enter') {
-                    handleSearch();
-                  }
-                }}
-              />
-            </NFormItem>
-            <NFormItem path="level">
-              <NSelect
-                v-model:value={searchForm.level}
-                placeholder={$t('page.alertManagement.levelPlaceholder' as any)}
-                style={{ width: '120px' }}
-                clearable
-                options={levelOptions}
-              />
-            </NFormItem>
-            <NFormItem path="status">
-              <NSelect
-                v-model:value={searchForm.status}
-                placeholder={$t('page.alertManagement.statusPlaceholder' as any)}
-                style={{ width: '120px' }}
-                clearable
-                options={statusOptions}
-              />
-            </NFormItem>
-            <NFormItem path="isEnabled">
-              <NSelect
-                v-model:value={searchForm.isEnabled}
-                placeholder={$t('page.alertManagement.enabledStatusPlaceholder' as any)}
-                style={{ width: '120px' }}
-                clearable
-                options={[
-                  { label: $t('page.alertManagement.enabled' as any), value: true as any },
-                  { label: $t('page.alertManagement.disabled' as any), value: false as any }
-                ]}
-              />
-            </NFormItem>
-            <NFormItem>
-              <NSpace>
-                <NButton type="primary" onClick={handleSearch}>
-                  {$t('common.search')}
-                </NButton>
-                <NButton onClick={handleReset}>{$t('common.reset')}</NButton>
-              </NSpace>
-            </NFormItem>
-          </NForm>
-        </NCard>
+    const searchConfig = computed<SearchFieldConfig[]>(() => [
+      {
+        type: 'input',
+        field: 'search',
+        placeholder: $t('page.alertManagement.searchPlaceholder'),
+        icon: 'i-carbon-search',
+        width: '200px'
+      },
+      {
+        type: 'select',
+        field: 'level',
+        placeholder: $t('page.alertManagement.levelPlaceholder'),
+        width: '120px',
+        options: [
+          { label: $t('page.alertManagement.levelCritical'), value: 'critical' },
+          { label: $t('page.alertManagement.levelWarning'), value: 'warning' },
+          { label: $t('page.alertManagement.levelInfo'), value: 'info' }
+        ]
+      },
+      {
+        type: 'select',
+        field: 'status',
+        placeholder: $t('page.alertManagement.statusPlaceholder'),
+        width: '120px',
+        options: [
+          { label: $t('page.alertManagement.statusActive'), value: 'active' },
+          { label: $t('page.alertManagement.statusResolved'), value: 'resolved' },
+          { label: $t('page.alertManagement.statusAcknowledged'), value: 'acknowledged' }
+        ]
+      },
+      {
+        type: 'select',
+        field: 'isEnabled',
+        placeholder: $t('page.alertManagement.enabledStatusPlaceholder'),
+        width: '120px',
+        options: [
+          { label: $t('page.alertManagement.enabled'), value: true },
+          { label: $t('page.alertManagement.disabled'), value: false }
+        ]
+      }
+    ]);
 
-        {/* 操作栏 */}
-        <NCard>
-          <NSpace>
-            <NButton type="primary" onClick={handleAdd}>
-              {$t('common.add')}
-            </NButton>
-            <NButton
-              type="error"
-              disabled={selectedRowKeys.value.length === 0}
-              onClick={handleBatchDelete}
-            >
-              {$t('common.batchDelete')}
-            </NButton>
-            <NButton onClick={getData}>{$t('common.refresh')}</NButton>
-          </NSpace>
-        </NCard>
-
-        {/* 表格 */}
-        <NCard>
-          <NDataTable
-            columns={columns.value as any}
-            data={data.value}
-            loading={loading.value}
-            pagination={pagination}
-            rowKey={(row: Alert) => row.id}
-            checkedRowKeys={selectedRowKeys.value}
-            onUpdateCheckedRowKeys={keys => {
-              selectedRowKeys.value = keys as number[];
-            }}
-            scrollX={2400}
+    const tableColumns = computed((): TableColumnConfig<Alert>[] => [
+      {
+        title: $t('page.alertManagement.name'),
+        key: 'name',
+        width: 200
+      },
+      {
+        title: $t('page.alertManagement.level'),
+        key: 'level',
+        width: 120,
+        render: (row: Alert) => {
+          const levelMap: Record<string, { label: string; type: 'error' | 'warning' | 'info' }> = {
+            critical: { label: $t('page.alertManagement.levelCritical'), type: 'error' },
+            warning: { label: $t('page.alertManagement.levelWarning'), type: 'warning' },
+            info: { label: $t('page.alertManagement.levelInfo'), type: 'info' }
+          };
+          const level = levelMap[row.level] || { label: row.level, type: 'info' };
+          return <NTag type={level.type}>{level.label}</NTag>;
+        }
+      },
+      {
+        title: $t('page.alertManagement.status'),
+        key: 'status',
+        width: 120,
+        render: (row: Alert) => {
+          const statusMap: Record<string, string> = {
+            active: $t('page.alertManagement.statusActive'),
+            resolved: $t('page.alertManagement.statusResolved'),
+            acknowledged: $t('page.alertManagement.statusAcknowledged')
+          };
+          return statusMap[row.status] || row.status;
+        }
+      },
+      {
+        title: $t('page.alertManagement.metric'),
+        key: 'metric',
+        width: 120,
+        render: (row: Alert) => row.metric || '-'
+      },
+      {
+        title: $t('page.alertManagement.threshold'),
+        key: 'threshold',
+        width: 100,
+        render: (row: Alert) => (row.threshold !== null ? row.threshold : '-')
+      },
+      {
+        title: $t('page.alertManagement.triggerCount'),
+        key: 'triggerCount',
+        width: 120,
+        render: (row: Alert) => (row.triggerCount !== null ? row.triggerCount : '-')
+      },
+      {
+        title: $t('page.alertManagement.targetUsers'),
+        key: 'targetUserIds',
+        width: 150,
+        render: (row: Alert) => {
+          if (!row.targetUserIds || row.targetUserIds.length === 0) {
+            return row.targetRoleCodes && row.targetRoleCodes.length > 0
+              ? $t('page.alertManagement.targetRoles')
+              : $t('page.alertManagement.allUsers');
+          }
+          return `${row.targetUserIds.length} ${$t('page.alertManagement.users')}`;
+        }
+      },
+      {
+        title: $t('page.alertManagement.enabled'),
+        key: 'isEnabled',
+        width: 100,
+        render: (row: Alert) => (
+          <NSwitch
+            value={row.isEnabled}
+            onUpdateValue={value => handleToggleStatus(row.id, value)}
+            loading={false}
           />
-        </NCard>
-      </NSpace>
+        )
+      },
+      {
+        title: $t('page.alertManagement.lastTriggeredAt'),
+        key: 'lastTriggeredAt',
+        width: 180,
+        render: (row: Alert) => {
+          if (!row.lastTriggeredAt) return '-';
+          return new Date(row.lastTriggeredAt).toLocaleString('zh-CN');
+        }
+      },
+      {
+        title: $t('page.alertManagement.createdAt'),
+        key: 'createdAt',
+        width: 180,
+        render: (row: Alert) => {
+          if (!row.createdAt) return '-';
+          return new Date(row.createdAt).toLocaleString('zh-CN');
+        }
+      },
+      {
+        title: $t('common.operate'),
+        key: 'operate',
+        width: 280,
+        fixed: 'right',
+        render: (row: Alert) => (
+          <NSpace size="small">
+            <NButton size="small" type="primary" onClick={() => handleEdit(row)}>
+              {$t('common.edit')}
+            </NButton>
+            {row.status === 'active' && (
+              <>
+                <NButton size="small" type="info" onClick={() => handleAcknowledge(row)}>
+                  {$t('page.alertManagement.acknowledge')}
+                </NButton>
+                <NButton size="small" type="success" onClick={() => handleResolve(row)}>
+                  {$t('page.alertManagement.resolve')}
+                </NButton>
+              </>
+            )}
+            <NButton size="small" type="error" onClick={() => handleDelete(row)}>
+              {$t('common.delete')}
+            </NButton>
+          </NSpace>
+        )
+      }
+    ]);
+
+    return () => (
+      <TablePage
+        class="h-full"
+        searchConfig={searchConfig.value}
+        searchModel={searchParams}
+        onSearch={() => {
+          updateSearchParams({ page: 1, limit: pagination.pageSize ?? 10 });
+          getData();
+        }}
+        onReset={() => {
+          resetSearchParams();
+          getData();
+        }}
+        actionConfig={{
+          preset: {
+            add: { onClick: handleAdd },
+            batchDelete: { onClick: handleBatchDelete },
+            refresh: { onClick: getData }
+          }
+        }}
+        columns={tableColumns.value}
+        data={data.value}
+        loading={loading.value}
+        pagination={pagination}
+        selectedKeys={selectedRowKeys.value}
+        onUpdateSelectedKeys={keys => {
+          selectedRowKeys.value = keys as number[];
+        }}
+        rowKey="id"
+        scrollX={2400}
+        searchCardBordered={false}
+        actionCardBordered={false}
+      />
     );
   }
 });

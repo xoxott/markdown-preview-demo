@@ -28,6 +28,8 @@ export function setupUnplugin(viteEnv: Env.ImportMeta) {
       defaultClass: 'inline-block'
     }),
     Components({
+      /** 仅扫描通用组件目录；业务弹窗放在 `src/views/<feature>/components`，避免进入全局自动注册 */
+      dirs: ['src/components'],
       dts: 'src/typings/components.d.ts',
       extensions: ['vue', 'tsx'],
       types: [{ from: 'vue-router', names: ['RouterLink', 'RouterView'] }],

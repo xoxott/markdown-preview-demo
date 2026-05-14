@@ -1,17 +1,5 @@
-import { defineComponent, getCurrentInstance, reactive, ref } from 'vue';
-import {
-  NButton,
-  NCard,
-  NDataTable,
-  NForm,
-  NFormItem,
-  NInput,
-  NSelect,
-  NSpace,
-  NSwitch,
-  NTag,
-  useMessage
-} from 'naive-ui';
+import { computed, defineComponent, getCurrentInstance, ref } from 'vue';
+import { NButton, NSpace, NSwitch, NTag, useMessage } from 'naive-ui';
 import {
   fetchAnnouncementDetail,
   fetchAnnouncementList,
@@ -21,12 +9,14 @@ import {
   fetchToggleAnnouncementStatus,
   fetchUpdateAnnouncement
 } from '@/service/api/announcement';
-import { useNaiveForm } from '@/hooks/common/form';
 import { useTable } from '@/hooks/common/table';
-import type { AnnouncementFormData } from '@/components/announcement-management/dialog';
-import { useAnnouncementDialog } from '@/components/announcement-management/useAnnouncementDialog';
+import TablePage from '@/components/table-page/TablePage';
+import type { SearchFieldConfig, TableColumnConfig } from '@/components/table-page/types';
 import { $t } from '@/locales';
 import { useDialog } from '@/components/base-dialog/useDialog';
+import { tableListPlaceholderColumns } from '@/views/_shared/tableListPlaceholderColumns';
+import type { AnnouncementFormData } from './components/dialog';
+import { useAnnouncementDialog } from './components/useAnnouncementDialog';
 
 type Announcement = Api.AnnouncementManagement.Announcement;
 
@@ -37,32 +27,33 @@ export default defineComponent({
     const instance = getCurrentInstance();
     const announcementDialog = useAnnouncementDialog();
     const dialog = useDialog(instance?.appContext.app);
-    const { formRef: searchFormRef, resetFields } = useNaiveForm();
 
     const selectedRowKeys = ref<number[]>([]);
 
-    // 前置声明 getData 以避免 no-use-before-define
-    let getData: () => void;
-
-    // 类型选项（用于搜索筛选）
-    const typeOptions = [
-      { label: $t('page.announcementManagement.all' as any), value: undefined },
-      { label: $t('page.announcementManagement.typeNotice' as any), value: 'notice' },
-      { label: $t('page.announcementManagement.typeAnnouncement' as any), value: 'announcement' },
-      { label: $t('page.announcementManagement.typeWarning' as any), value: 'warning' },
-      { label: $t('page.announcementManagement.typeInfo' as any), value: 'info' }
-    ];
-
-    // 搜索表单数据
-    const searchForm = reactive({
-      search: '',
-      isPublished: undefined,
-      type: undefined,
-      sortBy: undefined as string | undefined,
-      sortOrder: undefined as 'asc' | 'desc' | undefined
+    const {
+      data,
+      loading,
+      pagination,
+      getData,
+      searchParams,
+      updateSearchParams,
+      resetSearchParams
+    } = useTable<typeof fetchAnnouncementList>({
+      apiFn: fetchAnnouncementList,
+      apiParams: {
+        page: 1,
+        limit: 10,
+        search: '',
+        isPublished: undefined as boolean | undefined,
+        type: undefined as string | undefined,
+        sortBy: undefined as string | undefined,
+        sortOrder: undefined as 'asc' | 'desc' | undefined
+      },
+      columns: () => tableListPlaceholderColumns<typeof fetchAnnouncementList>(),
+      showTotal: true,
+      immediate: true
     });
 
-    // 打开新增对话框
     async function handleAdd() {
       const formData: AnnouncementFormData = {
         title: '',
@@ -77,353 +68,246 @@ export default defineComponent({
       await announcementDialog.showAnnouncementForm({
         isEdit: false,
         formData,
-        onConfirm: async (data: AnnouncementFormData) => {
-          try {
-            await fetchCreateAnnouncement({
-              title: data.title,
-              content: data.content,
-              type: data.type || undefined,
-              priority: data.priority || undefined,
-              isPublished: data.isPublished,
-              publishedAt: data.publishedAt || undefined,
-              expiresAt: data.expiresAt || undefined
-            });
-            message.success($t('common.addSuccess'));
-            getData();
-          } catch (error: any) {
-            message.error(error?.message || '操作失败');
-            throw error;
-          }
+        onConfirm: async (form: AnnouncementFormData) => {
+          await fetchCreateAnnouncement({
+            title: form.title,
+            content: form.content,
+            type: form.type || undefined,
+            priority: form.priority || undefined,
+            isPublished: form.isPublished,
+            publishedAt: form.publishedAt || undefined,
+            expiresAt: form.expiresAt || undefined
+          });
+          message.success($t('common.addSuccess'));
+          getData();
         }
       });
     }
 
-    // 打开编辑对话框
     async function handleEdit(row: Announcement) {
-      try {
-        const { data: announcementDetail } = await fetchAnnouncementDetail(row.id);
-        if (!announcementDetail) {
-          message.error($t('page.announcementManagement.getDetailFailed' as any));
-          return;
-        }
-
-        const formData: AnnouncementFormData = {
-          title: announcementDetail.title,
-          content: announcementDetail.content,
-          type: announcementDetail.type || '',
-          priority: announcementDetail.priority,
-          isPublished: announcementDetail.isPublished,
-          publishedAt: announcementDetail.publishedAt || '',
-          expiresAt: announcementDetail.expiresAt || ''
-        };
-
-        await announcementDialog.showAnnouncementForm({
-          isEdit: true,
-          formData,
-          onConfirm: async (data: AnnouncementFormData) => {
-            try {
-              const updateData: Api.AnnouncementManagement.UpdateAnnouncementRequest = {
-                title: data.title,
-                content: data.content,
-                type: data.type || undefined,
-                priority: data.priority || undefined,
-                isPublished: data.isPublished,
-                publishedAt: data.publishedAt || undefined,
-                expiresAt: data.expiresAt || undefined
-              };
-              await fetchUpdateAnnouncement(row.id, updateData);
-              message.success($t('common.updateSuccess'));
-              getData();
-            } catch (error: any) {
-              message.error(error?.message || '操作失败');
-              throw error;
-            }
-          }
-        });
-      } catch (error: any) {
-        message.error(error?.message || $t('page.announcementManagement.getDetailFailed' as any));
+      const { data: announcementDetail } = await fetchAnnouncementDetail(row.id);
+      if (!announcementDetail) {
+        message.error($t('page.announcementManagement.getDetailFailed'));
+        return;
       }
+
+      const formData: AnnouncementFormData = {
+        title: announcementDetail.title,
+        content: announcementDetail.content,
+        type: announcementDetail.type || '',
+        priority: announcementDetail.priority,
+        isPublished: announcementDetail.isPublished,
+        publishedAt: announcementDetail.publishedAt || '',
+        expiresAt: announcementDetail.expiresAt || ''
+      };
+
+      await announcementDialog.showAnnouncementForm({
+        isEdit: true,
+        formData,
+        onConfirm: async (form: AnnouncementFormData) => {
+          const updateData: Api.AnnouncementManagement.UpdateAnnouncementRequest = {
+            title: form.title,
+            content: form.content,
+            type: form.type || undefined,
+            priority: form.priority || undefined,
+            isPublished: form.isPublished,
+            publishedAt: form.publishedAt || undefined,
+            expiresAt: form.expiresAt || undefined
+          };
+          await fetchUpdateAnnouncement(row.id, updateData);
+          message.success($t('common.updateSuccess'));
+          getData();
+        }
+      });
     }
 
-    // 切换公告状态
     async function handleToggleStatus(announcementId: number, isPublished: boolean) {
       try {
         await fetchToggleAnnouncementStatus(announcementId, isPublished);
-        message.success($t('page.announcementManagement.toggleStatusSuccess' as any));
+        message.success($t('page.announcementManagement.toggleStatusSuccess'));
         getData();
-      } catch (error: any) {
-        message.error(error?.message || '操作失败');
-        getData(); // 刷新数据以恢复状态
+      } catch {
+        getData();
       }
     }
 
-    // 删除公告
     async function handleDelete(row: Announcement) {
       await dialog.confirmDelete(row.title, async () => {
-        try {
-          await fetchDeleteAnnouncement(row.id);
-          message.success($t('common.deleteSuccess'));
-          getData();
-        } catch (error: any) {
-          message.error(error?.message || '操作失败');
-        }
+        await fetchDeleteAnnouncement(row.id);
+        message.success($t('common.deleteSuccess'));
+        getData();
       });
     }
 
-    // 创建表格列
-    function createColumns() {
-      return [
-        {
-          type: 'selection',
-          width: 50
-        },
-        {
-          title: $t('common.index'),
-          key: 'index',
-          width: 80
-        },
-        {
-          title: $t('page.announcementManagement.title' as any),
-          key: 'title',
-          width: 200
-        },
-        {
-          title: $t('page.announcementManagement.content' as any),
-          key: 'content',
-          width: 300,
-          render: (row: Announcement) => {
-            const content = row.content || '-';
-            return content.length > 50 ? `${content.substring(0, 50)}...` : content;
-          }
-        },
-        {
-          title: $t('page.announcementManagement.type' as any),
-          key: 'type',
-          width: 120,
-          render: (row: Announcement) => {
-            if (!row.type) return '-';
-            const typeMap: Record<string, string> = {
-              notice: $t('page.announcementManagement.typeNotice' as any),
-              announcement: $t('page.announcementManagement.typeAnnouncement' as any),
-              warning: $t('page.announcementManagement.typeWarning' as any),
-              info: $t('page.announcementManagement.typeInfo' as any)
-            };
-            return <NTag type="info">{typeMap[row.type] || row.type}</NTag>;
-          }
-        },
-        {
-          title: $t('page.announcementManagement.priority' as any),
-          key: 'priority',
-          width: 100,
-          render: (row: Announcement) => {
-            return row.priority || '-';
-          }
-        },
-        {
-          title: $t('page.announcementManagement.status' as any),
-          key: 'isPublished',
-          width: 120,
-          render: (row: Announcement) => (
-            <NSwitch
-              value={row.isPublished}
-              onUpdateValue={value => handleToggleStatus(row.id, value)}
-              loading={false}
-            />
-          )
-        },
-        {
-          title: $t('page.announcementManagement.publishedAt' as any),
-          key: 'publishedAt',
-          width: 180,
-          render: (row: Announcement) => {
-            if (!row.publishedAt) return '-';
-            return new Date(row.publishedAt).toLocaleString('zh-CN');
-          }
-        },
-        {
-          title: $t('page.announcementManagement.expiresAt' as any),
-          key: 'expiresAt',
-          width: 180,
-          render: (row: Announcement) => {
-            if (!row.expiresAt) return '-';
-            return new Date(row.expiresAt).toLocaleString('zh-CN');
-          }
-        },
-        {
-          title: $t('page.announcementManagement.createdAt' as any),
-          key: 'createdAt',
-          width: 180,
-          render: (row: Announcement) => {
-            if (!row.createdAt) return '-';
-            return new Date(row.createdAt).toLocaleString('zh-CN');
-          }
-        },
-        {
-          title: $t('common.operate'),
-          key: 'operate',
-          width: 200,
-          fixed: 'right',
-          render: (row: Announcement) => (
-            <NSpace size="small">
-              <NButton size="small" type="primary" onClick={() => handleEdit(row)}>
-                {$t('common.edit')}
-              </NButton>
-              <NButton size="small" type="error" onClick={() => handleDelete(row)}>
-                {$t('common.delete')}
-              </NButton>
-            </NSpace>
-          )
-        }
-      ];
-    }
-
-    // 表格配置
-    const {
-      columns,
-      data,
-      loading,
-      pagination,
-      getData: _getData,
-      updateSearchParams,
-      resetSearchParams
-    } = useTable({
-      apiFn: fetchAnnouncementList,
-      apiParams: {
-        page: 1,
-        limit: 10,
-        ...searchForm
-      },
-      columns: () => createColumns() as any,
-      showTotal: true,
-      immediate: true
-    });
-    getData = _getData;
-
-    // 搜索
-    function handleSearch() {
-      updateSearchParams({
-        page: 1,
-        ...searchForm
-      });
-      getData();
-    }
-
-    // 重置搜索
-    function handleReset() {
-      resetFields();
-      resetSearchParams();
-      getData();
-    }
-
-    // 批量删除
     async function handleBatchDelete() {
       if (selectedRowKeys.value.length === 0) {
-        message.warning($t('page.announcementManagement.selectAnnouncementsToDelete' as any));
+        message.warning($t('page.announcementManagement.selectAnnouncementsToDelete'));
         return;
       }
       await dialog.confirmDelete(
-        $t('page.announcementManagement.confirmBatchDelete' as any, {
+        $t('page.announcementManagement.confirmBatchDelete', {
           count: selectedRowKeys.value.length
         }),
         async () => {
-          try {
-            await fetchBatchDeleteAnnouncements({ ids: selectedRowKeys.value });
-            message.success($t('page.announcementManagement.batchDeleteSuccess' as any));
-            selectedRowKeys.value = [];
-            getData();
-          } catch (error: any) {
-            message.error(error?.message || $t('common.error'));
-          }
+          await fetchBatchDeleteAnnouncements({ ids: selectedRowKeys.value });
+          message.success($t('page.announcementManagement.batchDeleteSuccess'));
+          selectedRowKeys.value = [];
+          getData();
         }
       );
     }
 
-    return () => (
-      <NSpace vertical size={16}>
-        {/* 搜索栏 */}
-        <NCard>
-          <NForm ref={searchFormRef} model={searchForm} inline>
-            <NFormItem path="search">
-              <NInput
-                v-model:value={searchForm.search}
-                placeholder={$t('page.announcementManagement.searchPlaceholder' as any)}
-                style={{ width: '200px' }}
-                clearable
-                onKeyup={(e: KeyboardEvent) => {
-                  if (e.key === 'Enter') {
-                    handleSearch();
-                  }
-                }}
-              />
-            </NFormItem>
-            <NFormItem path="type">
-              <NSelect
-                v-model:value={searchForm.type}
-                placeholder={$t('page.announcementManagement.typePlaceholder' as any)}
-                style={{ width: '120px' }}
-                clearable
-                options={typeOptions}
-              />
-            </NFormItem>
-            <NFormItem path="isPublished">
-              <NSelect
-                v-model:value={searchForm.isPublished}
-                placeholder={$t('page.announcementManagement.statusPlaceholder' as any)}
-                style={{ width: '120px' }}
-                clearable
-                options={[
-                  { label: $t('page.announcementManagement.published' as any), value: true as any },
-                  {
-                    label: $t('page.announcementManagement.unpublished' as any),
-                    value: false as any
-                  }
-                ]}
-              />
-            </NFormItem>
-            <NFormItem>
-              <NSpace>
-                <NButton type="primary" onClick={handleSearch}>
-                  {$t('common.search')}
-                </NButton>
-                <NButton onClick={handleReset}>{$t('common.reset')}</NButton>
-              </NSpace>
-            </NFormItem>
-          </NForm>
-        </NCard>
+    const searchConfig = computed<SearchFieldConfig[]>(() => [
+      {
+        type: 'input',
+        field: 'search',
+        placeholder: $t('page.announcementManagement.searchPlaceholder'),
+        icon: 'i-carbon-search',
+        width: '200px'
+      },
+      {
+        type: 'select',
+        field: 'type',
+        placeholder: $t('page.announcementManagement.typePlaceholder'),
+        width: '120px',
+        options: [
+          { label: $t('page.announcementManagement.typeNotice'), value: 'notice' },
+          { label: $t('page.announcementManagement.typeAnnouncement'), value: 'announcement' },
+          { label: $t('page.announcementManagement.typeWarning'), value: 'warning' },
+          { label: $t('page.announcementManagement.typeInfo'), value: 'info' }
+        ]
+      },
+      {
+        type: 'select',
+        field: 'isPublished',
+        placeholder: $t('page.announcementManagement.statusPlaceholder'),
+        width: '120px',
+        options: [
+          { label: $t('page.announcementManagement.published'), value: true },
+          { label: $t('page.announcementManagement.unpublished'), value: false }
+        ]
+      }
+    ]);
 
-        {/* 操作栏 */}
-        <NCard>
-          <NSpace>
-            <NButton type="primary" onClick={handleAdd}>
-              {$t('common.add')}
-            </NButton>
-            <NButton
-              type="error"
-              disabled={selectedRowKeys.value.length === 0}
-              onClick={handleBatchDelete}
-            >
-              {$t('common.batchDelete')}
-            </NButton>
-            <NButton onClick={getData}>{$t('common.refresh')}</NButton>
-          </NSpace>
-        </NCard>
-
-        {/* 表格 */}
-        <NCard>
-          <NDataTable
-            columns={columns.value as any}
-            data={data.value}
-            loading={loading.value}
-            pagination={pagination}
-            rowKey={(row: Announcement) => row.id}
-            checkedRowKeys={selectedRowKeys.value}
-            onUpdateCheckedRowKeys={keys => {
-              selectedRowKeys.value = keys as number[];
-            }}
-            scrollX={2000}
+    const tableColumns = computed((): TableColumnConfig<Announcement>[] => [
+      {
+        title: $t('page.announcementManagement.title'),
+        key: 'title',
+        width: 200
+      },
+      {
+        title: $t('page.announcementManagement.content'),
+        key: 'content',
+        width: 300,
+        render: (row: Announcement) => {
+          const content = row.content || '-';
+          return content.length > 50 ? `${content.substring(0, 50)}...` : content;
+        }
+      },
+      {
+        title: $t('page.announcementManagement.type'),
+        key: 'type',
+        width: 120,
+        render: (row: Announcement) => {
+          if (!row.type) return '-';
+          const typeMap: Record<string, string> = {
+            notice: $t('page.announcementManagement.typeNotice'),
+            announcement: $t('page.announcementManagement.typeAnnouncement'),
+            warning: $t('page.announcementManagement.typeWarning'),
+            info: $t('page.announcementManagement.typeInfo')
+          };
+          return <NTag type="info">{typeMap[row.type] || row.type}</NTag>;
+        }
+      },
+      {
+        title: $t('page.announcementManagement.priority'),
+        key: 'priority',
+        width: 100,
+        render: (row: Announcement) => row.priority ?? '-'
+      },
+      {
+        title: $t('page.announcementManagement.status'),
+        key: 'isPublished',
+        width: 120,
+        render: (row: Announcement) => (
+          <NSwitch
+            value={row.isPublished}
+            onUpdateValue={(v: boolean) => handleToggleStatus(row.id, v)}
           />
-        </NCard>
-      </NSpace>
+        )
+      },
+      {
+        title: $t('page.announcementManagement.publishedAt'),
+        key: 'publishedAt',
+        width: 180,
+        render: (row: Announcement) =>
+          row.publishedAt ? new Date(row.publishedAt).toLocaleString('zh-CN') : '-'
+      },
+      {
+        title: $t('page.announcementManagement.expiresAt'),
+        key: 'expiresAt',
+        width: 180,
+        render: (row: Announcement) =>
+          row.expiresAt ? new Date(row.expiresAt).toLocaleString('zh-CN') : '-'
+      },
+      {
+        title: $t('page.announcementManagement.createdAt'),
+        key: 'createdAt',
+        width: 180,
+        render: (row: Announcement) =>
+          row.createdAt ? new Date(row.createdAt).toLocaleString('zh-CN') : '-'
+      },
+      {
+        title: $t('common.operate'),
+        key: 'operate',
+        width: 200,
+        fixed: 'right',
+        render: (row: Announcement) => (
+          <NSpace size="small">
+            <NButton size="small" type="primary" onClick={() => handleEdit(row)}>
+              {$t('common.edit')}
+            </NButton>
+            <NButton size="small" type="error" onClick={() => handleDelete(row)}>
+              {$t('common.delete')}
+            </NButton>
+          </NSpace>
+        )
+      }
+    ]);
+
+    return () => (
+      <TablePage
+        class="h-full"
+        searchConfig={searchConfig.value}
+        searchModel={searchParams}
+        onSearch={() => {
+          updateSearchParams({ page: 1, limit: pagination.pageSize ?? 10 });
+          getData();
+        }}
+        onReset={() => {
+          resetSearchParams();
+          getData();
+        }}
+        actionConfig={{
+          preset: {
+            add: { onClick: handleAdd },
+            batchDelete: { onClick: handleBatchDelete },
+            refresh: { onClick: getData }
+          }
+        }}
+        columns={tableColumns.value}
+        data={data.value}
+        loading={loading.value}
+        pagination={pagination}
+        selectedKeys={selectedRowKeys.value}
+        onUpdateSelectedKeys={keys => {
+          selectedRowKeys.value = keys as number[];
+        }}
+        rowKey="id"
+        scrollX={2000}
+        searchCardBordered={false}
+        actionCardBordered={false}
+      />
     );
   }
 });

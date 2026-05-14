@@ -1,5 +1,6 @@
 import { computed, ref } from 'vue';
 import { useTable } from '@/hooks/common/table';
+import { tableListPlaceholderColumns } from '@/views/_shared/tableListPlaceholderColumns';
 import type { SearchFieldConfig, TablePageSearchBindings } from '../types';
 
 /**
@@ -28,21 +29,6 @@ export interface UseTablePageOptions<A extends NaiveUI.TableApiFn> {
   showTotal?: boolean;
 }
 
-/** 占位列：满足 `useTable` 对 columns 的协议；TablePage 展示仍使用业务传入的 columns */
-function createInternalPlaceholderColumns<
-  A extends NaiveUI.TableApiFn
->(): () => NaiveUI.TableColumn<NaiveUI.TableDataWithIndex<NaiveUI.GetTableData<A>>>[] {
-  return () =>
-    [
-      {
-        title: ' ',
-        key: 'id',
-        width: 1,
-        render: () => null
-      }
-    ] as unknown as NaiveUI.TableColumn<NaiveUI.TableDataWithIndex<NaiveUI.GetTableData<A>>>[];
-}
-
 export function useTablePage<A extends NaiveUI.TableApiFn>(options: UseTablePageOptions<A>) {
   const {
     apiFn,
@@ -67,7 +53,7 @@ export function useTablePage<A extends NaiveUI.TableApiFn>(options: UseTablePage
   const tableState = useTable<A>({
     apiFn,
     apiParams: mergedApiParams,
-    columns: createInternalPlaceholderColumns<A>(),
+    columns: () => tableListPlaceholderColumns<A>(),
     immediate,
     showTotal
   });
@@ -76,9 +62,9 @@ export function useTablePage<A extends NaiveUI.TableApiFn>(options: UseTablePage
 
   /** 与 TablePage / SearchBar 绑定：model 即 `searchParams`， 修改字段会立刻反映到下次请求；提交搜索时仅重置页码并拉数。 */
   const searchBindings: TablePageSearchBindings = {
-    searchModel: tableState.searchParams as unknown as Record<string, any>,
+    searchModel: tableState.searchParams,
     onUpdateSearchField: (field: string, value: unknown) => {
-      (tableState.searchParams as unknown as Record<string, unknown>)[field] = value as never;
+      Reflect.set(tableState.searchParams, field, value);
     },
     onSearch: () => {
       tableState.updateSearchParams({ page: 1 } as Partial<Parameters<A>[0]>);
