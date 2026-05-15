@@ -1,10 +1,9 @@
 /** 上传管理抽屉 — 与 /upload 页面相同的上传面板（UploadMainPanel） */
 
-import { defineComponent, type PropType } from 'vue';
+import { type PropType, defineComponent } from 'vue';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { NScrollbar, useMessage, useThemeVars } from 'naive-ui';
-import type { UploadConfig } from '@/hooks/upload';
-import type { FileTask } from '@/hooks/upload';
+import type { FileTask, UploadConfig } from '@/hooks/upload';
 import type { EventLog, UploadHookReturn } from '@/views/upload/types';
 import UploadMainPanel from '@/views/upload/components/UploadMainPanel';
 

@@ -1,14 +1,7 @@
-/**
- * 上传页核心面板：UploadArea + UploadStats + FileList
- * 供 /upload 页面与文件管理器上传抽屉共用
- */
-import { computed, defineComponent, type PropType } from 'vue';
+/** 上传页核心面板：UploadArea + UploadStats + FileList 供 /upload 页面与文件管理器上传抽屉共用 */
+import { type PropType, computed, defineComponent } from 'vue';
 import { useMessage } from 'naive-ui';
-import type { UploadConfig } from '@/hooks/upload';
-import type { FileTask } from '@/hooks/upload';
-import FileList from './FileList';
-import UploadArea from './UploadArea';
-import UploadStats from './UploadStats';
+import type { FileTask, UploadConfig } from '@/hooks/upload';
 import type { EventLog, UploadHookReturn } from '../types';
 import { useEstimatedTime } from '../hooks/useEstimatedTime';
 import {
@@ -22,6 +15,9 @@ import {
   createFileOperationHandlers,
   createUploadHandlers
 } from '../utils/handlers';
+import UploadStats from './UploadStats';
+import FileList from './FileList';
+import UploadArea from './UploadArea';
 
 interface ThemeVars {
   primaryColor: string;
@@ -107,7 +103,7 @@ export default defineComponent({
     };
 
     return () => (
-      <div class="flex min-h-0 flex-1 flex-col gap-4">
+      <div class="min-h-0 flex flex-col flex-1 gap-4">
         <div class="flex flex-col gap-4 lg:flex-row">
           <UploadArea
             settings={props.settings}

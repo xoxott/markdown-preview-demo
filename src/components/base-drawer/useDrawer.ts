@@ -56,10 +56,10 @@ class DrawerManager {
     watchEffect(() => {
       const vnode = createVNode(DrawerPortal, {
         options,
-        visible: visible.value,
-        loading: loading.value,
-        disabled: disabled.value,
-        onExpose: (api: DrawerExposeApi) => {
+        'visible': visible.value,
+        'loading': loading.value,
+        'disabled': disabled.value,
+        'onExpose': (api: DrawerExposeApi) => {
           exposedMethods = api;
         },
         'onUpdate:visible': (val: boolean) => {

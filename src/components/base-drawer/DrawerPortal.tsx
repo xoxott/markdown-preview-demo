@@ -54,10 +54,7 @@ export default defineComponent({
     );
 
     return () => (
-      <NConfigProvider
-        theme={darkMode.value ? darkTheme : null}
-        themeOverrides={naiveTheme.value}
-      >
+      <NConfigProvider theme={darkMode.value ? darkTheme : null} themeOverrides={naiveTheme.value}>
         <BaseDrawer
           ref={drawerRef}
           options={props.options}

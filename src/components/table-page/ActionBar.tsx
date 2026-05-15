@@ -5,8 +5,8 @@ import { $t } from '@/locales';
 import type { ActionBarColumnSetting, ActionBarProps, PresetButtonType } from './types';
 
 /**
- * 表格工具条：预设按钮（新增 / 批量删除 / 刷新 / 导出）、自定义按钮与可选列设置。
- * 默认整体靠右；仅在 `config.showStats === true` 时左侧展示统计、右侧为按钮组（两端对齐）。
+ * 表格工具条：预设按钮（新增 / 批量删除 / 刷新 / 导出）、自定义按钮与可选列设置。 默认整体靠右；仅在 `config.showStats === true`
+ * 时左侧展示统计、右侧为按钮组（两端对齐）。
  */
 export default defineComponent({
   name: 'ActionBar',

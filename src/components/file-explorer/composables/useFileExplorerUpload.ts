@@ -1,8 +1,8 @@
 /** 文件管理器上传集成 composable — 与 /upload 页面共用 useUploadHook + 默认配置 */
 import { computed, ref } from 'vue';
+import type { UploadConfig } from '@/hooks/upload';
 import { useUploadHook } from '@/views/upload/hooks/useUploadHook';
 import { useUploadSettings } from '@/views/upload/hooks/useUploadSettings';
-import type { UploadConfig } from '@/hooks/upload';
 
 /** 上传进度信息（供 StatusBar 使用） */
 export interface UploadProgressInfo {
