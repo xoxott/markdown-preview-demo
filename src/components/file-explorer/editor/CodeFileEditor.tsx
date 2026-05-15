@@ -6,6 +6,7 @@ import type * as monaco from 'monaco-editor-core';
 import { MonacoEditor, resolveLanguage } from '@/components/monaco';
 import type { IFileDataSource } from '../datasources/types';
 import type { FileItem } from '../types/file-explorer';
+import type { FileEditorSessionChangeHandler } from './fileEditorSession';
 import FileEditorToolbar from './FileEditorToolbar';
 import { useFileEditorCore } from './useFileEditorCore';
 
@@ -20,9 +21,7 @@ export default defineComponent({
       default: undefined
     },
     onSessionChange: {
-      type: Function as PropType<
-        (session: import('./fileEditorSession').FileEditorSession | null) => void
-      >,
+      type: Function as PropType<FileEditorSessionChangeHandler>,
       default: undefined
     }
   },

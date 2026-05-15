@@ -1,4 +1,4 @@
-import { type PropType, defineComponent, shallowRef } from 'vue';
+import { type PropType, defineComponent, ref, shallowRef } from 'vue';
 import { NDrawer, NDrawerContent, useMessage } from 'naive-ui';
 import { FilePreview } from '@/components/file-explorer/preview';
 import { FileEditor } from '@/components/file-explorer/editor';
@@ -27,6 +27,8 @@ export default defineComponent({
   setup(props) {
     const message = useMessage();
     const editorSession = shallowRef<FileEditorSession | null>(null);
+    const fileDrawerWidth = ref<number | string>('80%');
+    const uploadDrawerWidth = ref<number | string>('60%');
 
     const tryCloseFileDrawer = () => {
       if (props.preview.useTextEditor() && editorSession.value?.isDirty.value) {
@@ -51,9 +53,13 @@ export default defineComponent({
           show={props.preview.showFileDrawer.value}
           onUpdate:show={handleDrawerShowUpdate}
           placement="right"
-          width="80%"
+          width={fileDrawerWidth.value}
+          minWidth={360}
           resizable
           contentClass="h-full"
+          onUpdateWidth={width => {
+            fileDrawerWidth.value = width;
+          }}
         >
           <NDrawerContent
             closable
@@ -105,9 +111,13 @@ export default defineComponent({
         <NDrawer
           v-model:show={props.uploadIntegration.showUploadDrawer.value}
           placement="right"
-          width="60%"
+          width={uploadDrawerWidth.value}
+          minWidth={400}
           resizable
           contentClass="h-full"
+          onUpdateWidth={width => {
+            uploadDrawerWidth.value = width;
+          }}
         >
           <NDrawerContent closable nativeScrollbar={false}>
             {{

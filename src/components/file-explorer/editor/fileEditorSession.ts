@@ -7,4 +7,6 @@ export interface FileEditorSession {
   save: () => void | Promise<void>;
 }
 
+export type FileEditorSessionChangeHandler = (session: FileEditorSession | null) => void;
+
 export const FILE_EDITOR_SESSION_KEY: InjectionKey<FileEditorSession> = Symbol('fileEditorSession');

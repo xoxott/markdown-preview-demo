@@ -4,7 +4,6 @@ import { NButton, NIcon, NTooltip, useThemeVars } from 'naive-ui';
 import { ArrowsMaximize, ArrowsMinimize, Copy } from '@vicons/tabler';
 import { Save } from '@vicons/ionicons5';
 
-/** 编辑器操作条：视图切换、保存等（文件名与关闭由抽屉头部负责） */
 export default defineComponent({
   name: 'FileEditorToolbar',
   props: {
@@ -26,7 +25,7 @@ export default defineComponent({
           backgroundColor: themeVars.value.cardColor
         }}
       >
-        <div class="flex min-w-0 flex-wrap items-center gap-2">
+        <div class="min-w-0 flex flex-wrap items-center gap-2">
           {(slots.default as (() => VNode) | undefined)?.()}
           {props.isDirty && (
             <span class="shrink-0 text-xs" style={{ color: themeVars.value.warningColor }}>
