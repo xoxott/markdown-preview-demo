@@ -1,13 +1,21 @@
+import type { TableColumnCheckFixed } from '@suga/hooks';
 import type { TableColumnConfig } from '../types';
 
 type ColumnCheck = NaiveUI.TableColumnCheck;
+
+function fixedFromColumn(col: TableColumnConfig): TableColumnCheckFixed {
+  const f = (col as { fixed?: 'left' | 'right' }).fixed;
+  return f === 'left' || f === 'right' ? f : 'unFixed';
+}
 
 /** 由 `TableColumnConfig[]` 生成列设置初始状态（全部勾选） */
 export function getTablePageColumnChecks(columns: TableColumnConfig[]): ColumnCheck[] {
   return columns.map(col => ({
     key: String(col.key),
     title: typeof col.title === 'string' && col.title ? col.title : String(col.key),
-    checked: true
+    checked: true,
+    visible: true,
+    fixed: fixedFromColumn(col)
   }));
 }
 
@@ -18,10 +26,15 @@ export function mergeTablePageColumnChecks(
 ): ColumnCheck[] {
   const next = getTablePageColumnChecks(columns);
   const prevMap = new Map(prev.map(c => [c.key, c]));
-  return next.map(c => ({
-    ...c,
-    checked: prevMap.get(c.key)?.checked ?? true
-  }));
+  return next.map(c => {
+    const p = prevMap.get(c.key);
+    return {
+      ...c,
+      checked: p?.checked ?? c.checked,
+      fixed: p?.fixed ?? c.fixed,
+      visible: p?.visible ?? c.visible
+    };
+  });
 }
 
 /** 按列设置过滤并排序，得到实际传给 DataTable 的列配置 */
@@ -34,7 +47,10 @@ export function applyTablePageColumnChecks(
   for (const check of checks) {
     if (!check.checked) continue;
     const col = map.get(String(check.key));
-    if (col) out.push(col);
+    if (!col) continue;
+    const fixed =
+      check.fixed === 'left' || check.fixed === 'right' ? check.fixed : undefined;
+    out.push({ ...col, fixed });
   }
   return out;
 }

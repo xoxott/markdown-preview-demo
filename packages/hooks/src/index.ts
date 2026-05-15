@@ -7,4 +7,6 @@ import useTable from './use-table';
 
 export { useBoolean, useLoading, useCountDown, useContext, useSvgIconRender, useTable };
 
+export type { TableColumnCheck, TableColumnCheckFixed, TableConfig } from './use-table';
+
 export * from './use-signal';

@@ -17,6 +17,7 @@ const local: App.I18n.Schema = {
     check: '勾选',
     expandColumn: '展开列',
     columnSetting: '列设置',
+    selectAll: '全选',
     config: '配置',
     confirm: '确认',
     delete: '删除',
@@ -33,6 +34,7 @@ const local: App.I18n.Schema = {
     lookForward: '敬请期待',
     modify: '修改',
     modifySuccess: '修改成功',
+    nextStep: '下一步',
     noData: '无数据',
     operate: '操作',
     pleaseCheckValue: '请检查输入的值是否合法',
@@ -44,6 +46,7 @@ const local: App.I18n.Schema = {
     switch: '切换',
     tip: '提示',
     trigger: '触发',
+    dragSort: '拖拽排序',
     update: '更新',
     updateSuccess: '更新成功',
     userCenter: '个人中心',
@@ -687,7 +690,17 @@ const local: App.I18n.Schema = {
     unpin: '取消固定'
   },
   datatable: {
-    itemCount: '共 {total} 条'
+    itemCount: '共 {total} 条',
+    fixed: {
+      left: '左固定',
+      right: '右固定',
+      unFixed: '取消固定'
+    },
+    fixedCurrent: {
+      unFixed: '当前：未固定',
+      left: '当前：左固定',
+      right: '当前：右固定'
+    }
   }
 };
 

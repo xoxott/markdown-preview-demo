@@ -143,6 +143,7 @@ export default defineComponent({
     return () => (
       <TablePage
         class="h-full"
+        enableColumnSetting={true}
         searchConfig={searchConfig.value}
         searchModel={searchParams}
         onSearch={onSearch}

@@ -18,6 +18,7 @@ const local: App.I18n.Schema = {
     check: 'Check',
     expandColumn: 'Expand Column',
     columnSetting: 'Column Setting',
+    selectAll: 'Select All',
     config: 'Config',
     confirm: 'Confirm',
     delete: 'Delete',
@@ -34,6 +35,7 @@ const local: App.I18n.Schema = {
     lookForward: 'Coming soon',
     modify: 'Modify',
     modifySuccess: 'Modify Success',
+    nextStep: 'Next',
     noData: 'No Data',
     operate: 'Operate',
     pleaseCheckValue: 'Please check whether the value is valid',
@@ -45,6 +47,7 @@ const local: App.I18n.Schema = {
     switch: 'Switch',
     tip: 'Tip',
     trigger: 'Trigger',
+    dragSort: 'Drag to reorder',
     update: 'Update',
     updateSuccess: 'Update Success',
     userCenter: 'User Center',
@@ -691,7 +694,17 @@ const local: App.I18n.Schema = {
     unpin: 'Unpin'
   },
   datatable: {
-    itemCount: 'Total {total} items'
+    itemCount: 'Total {total} items',
+    fixed: {
+      left: 'Left Fixed',
+      right: 'Right Fixed',
+      unFixed: 'Unfixed'
+    },
+    fixedCurrent: {
+      unFixed: 'Current: not fixed',
+      left: 'Current: pinned left',
+      right: 'Current: pinned right'
+    }
   }
 };
 

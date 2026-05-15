@@ -46,10 +46,10 @@ export default defineComponent({
         apiFn: fetchUserList,
         listFilters: {
           search: '',
-          isActive: undefined as number | undefined,
-          isOnline: undefined as number | undefined,
-          isBlacklisted: undefined as number | undefined,
-          roleCode: undefined as string | undefined
+          isActive: undefined,
+          isOnline: undefined,
+          isBlacklisted: undefined,
+          roleCode: undefined
         },
         showTotal: true,
         immediate: true
@@ -190,6 +190,7 @@ export default defineComponent({
     return () => (
       <TablePage
         class="h-full"
+        enableColumnSetting={true}
         searchConfig={searchConfig.value}
         searchModel={searchParams}
         onSearch={onSearch}

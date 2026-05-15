@@ -311,6 +311,7 @@ declare namespace App {
         check: string;
         expandColumn: string;
         columnSetting: string;
+        selectAll: string;
         config: string;
         confirm: string;
         delete: string;
@@ -327,6 +328,7 @@ declare namespace App {
         lookForward: string;
         modify: string;
         modifySuccess: string;
+        nextStep: string;
         noData: string;
         operate: string;
         pleaseCheckValue: string;
@@ -338,6 +340,7 @@ declare namespace App {
         switch: string;
         tip: string;
         trigger: string;
+        dragSort: string;
         update: string;
         updateSuccess: string;
         userCenter: string;
@@ -893,6 +896,16 @@ declare namespace App {
       };
       datatable: {
         itemCount: string;
+        fixed: {
+          left: string;
+          right: string;
+          unFixed: string;
+        };
+        fixedCurrent: {
+          unFixed: string;
+          left: string;
+          right: string;
+        };
       };
     };
 

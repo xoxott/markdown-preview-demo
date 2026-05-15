@@ -2,7 +2,7 @@ import { computed, effectScope, onScopeDispose, reactive, ref, watch } from 'vue
 import type { Ref } from 'vue';
 import type { PaginationProps } from 'naive-ui';
 import { jsonClone } from '@suga/utils';
-import { useBoolean, useTable as useHookTable } from '@suga/hooks';
+import { useBoolean, useTable as useHookTable, type TableColumnCheckFixed } from '@suga/hooks';
 import { DEFAULT_TABLE_PAGE_SIZE } from '@/constants/datatable';
 import { useAppStore } from '@/store/modules/app';
 import { $t } from '@/locales';
@@ -21,7 +21,7 @@ export function useTable<A extends NaiveUI.TableApiFn>(config: NaiveUI.NaiveTabl
 
   const isMobile = computed(() => appStore.isMobile);
 
-  const { apiFn, apiParams, immediate, showTotal } = config;
+  const { apiFn, apiParams, immediate, showTotal, getColumnVisible } = config;
 
   const SELECTION_KEY = '__selection__';
 
@@ -77,22 +77,37 @@ export function useTable<A extends NaiveUI.TableApiFn>(config: NaiveUI.NaiveTabl
 
       cols.forEach(column => {
         if (isTableColumnHasKey(column)) {
+          const rawFixed = (column as { fixed?: 'left' | 'right' }).fixed;
+          const fixed: TableColumnCheckFixed =
+            rawFixed === 'left' || rawFixed === 'right' ? rawFixed : 'unFixed';
           checks.push({
             key: column.key as string,
             title: column.title!,
-            checked: true
+            checked: true,
+            fixed,
+            visible: getColumnVisible?.(column) ?? true
           });
         } else if (column.type === 'selection') {
+          const rawFixed = (column as { fixed?: 'left' | 'right' }).fixed;
+          const fixed: TableColumnCheckFixed =
+            rawFixed === 'left' || rawFixed === 'right' ? rawFixed : 'unFixed';
           checks.push({
             key: SELECTION_KEY,
             title: $t('common.check'),
-            checked: true
+            checked: true,
+            fixed,
+            visible: getColumnVisible?.(column) ?? false
           });
         } else if (column.type === 'expand') {
+          const rawFixed = (column as { fixed?: 'left' | 'right' }).fixed;
+          const fixed: TableColumnCheckFixed =
+            rawFixed === 'left' || rawFixed === 'right' ? rawFixed : 'unFixed';
           checks.push({
             key: EXPAND_KEY,
             title: $t('common.expandColumn'),
-            checked: true
+            checked: true,
+            fixed,
+            visible: getColumnVisible?.(column) ?? false
           });
         }
       });
@@ -114,7 +129,13 @@ export function useTable<A extends NaiveUI.TableApiFn>(config: NaiveUI.NaiveTabl
 
       const filteredColumns = checks
         .filter(item => item.checked)
-        .map(check => columnMap.get(check.key))
+        .map(check => {
+          const base = columnMap.get(check.key);
+          if (!base) return null;
+          const fixed =
+            check.fixed === 'left' || check.fixed === 'right' ? check.fixed : undefined;
+          return { ...(base as object), fixed } as TableColumn<NaiveUI.TableDataWithIndex<GetTableData<A>>>;
+        })
         .filter(Boolean) as TableColumn<NaiveUI.TableDataWithIndex<GetTableData<A>>>[];
 
       return filteredColumns;

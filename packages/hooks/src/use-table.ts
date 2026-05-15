@@ -10,10 +10,17 @@ export type ApiFn = (args: any) => Promise<unknown>;
 
 export type TableColumnCheckTitle = string | ((...args: any) => VNodeChild);
 
+/** 列设置里「固定」状态；`unFixed` 表示不固定（与 SoybeanAdmin 一致） */
+export type TableColumnCheckFixed = 'left' | 'right' | 'unFixed';
+
 export type TableColumnCheck = {
   key: string;
   title: TableColumnCheckTitle;
   checked: boolean;
+  /** 是否在列设置面板中展示该行；为 false 时整行隐藏 */
+  visible?: boolean;
+  /** 列固定；未传时由业务侧按 `unFixed` 处理 */
+  fixed?: TableColumnCheckFixed;
 };
 
 export type TableDataWithIndex<T> = T & { index: number };
@@ -81,14 +88,19 @@ export default function useTable<A extends ApiFn, T, C>(config: TableConfig<A, T
   function reloadColumns() {
     allColumns.value = config.columns();
 
-    const checkMap = new Map(columnChecks.value.map(col => [col.key, col.checked]));
+    const prevMap = new Map(columnChecks.value.map(col => [col.key, col]));
 
     const defaultChecks = getColumnChecks(allColumns.value);
 
-    columnChecks.value = defaultChecks.map(col => ({
-      ...col,
-      checked: checkMap.get(col.key) ?? col.checked
-    }));
+    columnChecks.value = defaultChecks.map(col => {
+      const prev = prevMap.get(col.key);
+      return {
+        ...col,
+        checked: prev?.checked ?? col.checked,
+        fixed: prev?.fixed ?? col.fixed,
+        visible: prev?.visible ?? col.visible
+      };
+    });
   }
 
   async function getData() {
