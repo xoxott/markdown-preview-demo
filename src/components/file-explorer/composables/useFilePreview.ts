@@ -19,10 +19,12 @@ export function useFilePreview(options: UseFilePreviewOptions) {
   const openedFile = ref<FileItem | null>(null);
   const fileContent = ref<string | Blob | undefined>(undefined);
   const fileLoading = ref(false);
-  const editorMode = ref<'preview' | 'edit'>('preview');
   const showFileDrawer = ref(false);
 
-  /** 打开文件预览 */
+  /** 文本内容走内置编辑器（Markdown 含编辑/预览/分屏），二进制走预览器 */
+  const useTextEditor = () => typeof fileContent.value === 'string';
+
+  /** 打开文件 */
   const openFile = async (file: FileItem) => {
     if (file.type === 'folder') return false;
 
@@ -30,7 +32,6 @@ export function useFilePreview(options: UseFilePreviewOptions) {
       openedFile.value = file;
       fileLoading.value = true;
       showFileDrawer.value = true;
-      editorMode.value = 'preview';
 
       const ds = dataSource();
       if (ds) {
@@ -48,13 +49,6 @@ export function useFilePreview(options: UseFilePreviewOptions) {
     return true;
   };
 
-  /** 切换到编辑模式 */
-  const editFile = () => {
-    if (openedFile.value && typeof fileContent.value === 'string') {
-      editorMode.value = 'edit';
-    }
-  };
-
   /** 保存文件 */
   const saveFile = async (file: FileItem, content: string) => {
     const ds = dataSource();
@@ -70,17 +64,15 @@ export function useFilePreview(options: UseFilePreviewOptions) {
     openedFile.value = null;
     fileContent.value = undefined;
     showFileDrawer.value = false;
-    editorMode.value = 'preview';
   };
 
   return {
     openedFile,
     fileContent,
     fileLoading,
-    editorMode,
     showFileDrawer,
+    useTextEditor,
     openFile,
-    editFile,
     saveFile,
     closeFile
   };

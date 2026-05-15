@@ -10,12 +10,24 @@ import { resolveEditorKind } from './resolveEditorKind';
 export default defineComponent({
   name: 'FileEditor',
   props: {
-    file: { type: Object as PropType<FileItem>, required: true },
-    dataSource: { type: Object as PropType<IFileDataSource>, required: true },
-    content: { type: String, default: '' },
-    onClose: { type: Function as PropType<() => void>, default: undefined },
+    file: { 
+      type: Object as PropType<FileItem>, 
+      required: true 
+    },
+    dataSource: { 
+      type: Object as PropType<IFileDataSource>, 
+      required: true 
+    },
+    content: { 
+      type: String, 
+      default: '' 
+    },
     onSave: {
       type: Function as PropType<(file: FileItem, content: string) => Promise<void>>,
+      default: undefined
+    },
+    onSessionChange: {
+      type: Function as PropType<(session: import('./fileEditorSession').FileEditorSession | null) => void>,
       default: undefined
     }
   },
@@ -27,8 +39,8 @@ export default defineComponent({
         file: props.file,
         dataSource: props.dataSource,
         content: props.content,
-        onClose: props.onClose,
-        onSave: props.onSave
+        onSave: props.onSave,
+        onSessionChange: props.onSessionChange
       };
 
       return editorKind.value === 'markdown' ? (

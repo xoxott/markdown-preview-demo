@@ -17,7 +17,6 @@ export interface UseFileEditorCoreOptions {
   dataSource: IFileDataSource;
   content: string;
   onSave?: (file: FileItem, content: string) => Promise<void>;
-  onClose?: () => void;
 }
 
 /** 文件编辑器共享状态：内容、脏标记、保存、全屏 */
@@ -64,14 +63,6 @@ export function useFileEditorCore(options: UseFileEditorCoreOptions) {
     } finally {
       saving.value = false;
     }
-  };
-
-  const handleClose = () => {
-    if (isDirty.value) {
-      message.warning('文件已修改，请先保存');
-      return;
-    }
-    options.onClose?.();
   };
 
   const handleToggleFullscreen = () => {
@@ -122,7 +113,6 @@ export function useFileEditorCore(options: UseFileEditorCoreOptions) {
     isFullscreen,
     handleContentChange,
     handleSave,
-    handleClose,
     handleToggleFullscreen,
     copyContent
   };

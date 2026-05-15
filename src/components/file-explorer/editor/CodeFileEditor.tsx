@@ -1,5 +1,5 @@
 import type { PropType } from 'vue';
-import { computed, defineComponent, shallowRef } from 'vue';
+import { computed, defineComponent, onBeforeUnmount, onMounted, shallowRef, watch } from 'vue';
 import { NButton, NIcon, NTooltip } from 'naive-ui';
 import { FileCode } from '@vicons/tabler';
 import type * as monaco from 'monaco-editor-core';
@@ -15,9 +15,14 @@ export default defineComponent({
     file: { type: Object as PropType<FileItem>, required: true },
     dataSource: { type: Object as PropType<IFileDataSource>, required: true },
     content: { type: String, default: '' },
-    onClose: { type: Function as PropType<() => void>, default: undefined },
     onSave: {
       type: Function as PropType<(file: FileItem, content: string) => Promise<void>>,
+      default: undefined
+    },
+    onSessionChange: {
+      type: Function as PropType<
+        (session: import('./fileEditorSession').FileEditorSession | null) => void
+      >,
       default: undefined
     }
   },
@@ -29,9 +34,20 @@ export default defineComponent({
       file: props.file,
       dataSource: props.dataSource,
       content: props.content,
-      onSave: props.onSave,
-      onClose: props.onClose
+      onSave: props.onSave
     });
+
+    const publishSession = () => {
+      props.onSessionChange?.({
+        isDirty: core.isDirty,
+        saving: core.saving,
+        save: core.handleSave
+      });
+    };
+
+    onMounted(publishSession);
+    onBeforeUnmount(() => props.onSessionChange?.(null));
+    watch([core.isDirty, core.saving], publishSession);
 
     const handleFormat = () => {
       editorInstance.value?.getAction('editor.action.formatDocument')?.run();
@@ -40,17 +56,15 @@ export default defineComponent({
     return () => (
       <div ref={core.wrapperRef} class="h-full min-h-0 flex flex-col flex-1 overflow-hidden">
         <FileEditorToolbar
-          file={props.file}
           isDirty={core.isDirty.value}
           saving={core.saving.value}
-          isFullscreen={core.isFullscreen.value}
           onSave={core.handleSave}
-          onClose={core.handleClose}
+          isFullscreen={core.isFullscreen.value}
           onCopy={() => core.copyContent(() => core.editorContent.value)}
           onToggleFullscreen={core.handleToggleFullscreen}
         >
           {{
-            center: () => (
+            default: () => (
               <NTooltip>
                 {{
                   trigger: () => (

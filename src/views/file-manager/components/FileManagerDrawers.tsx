@@ -1,7 +1,8 @@
-import { type PropType, defineComponent } from 'vue';
-import { NButton, NDrawer, NDrawerContent } from 'naive-ui';
+import { type PropType, defineComponent, shallowRef } from 'vue';
+import { NDrawer, NDrawerContent, useMessage } from 'naive-ui';
 import { FilePreview } from '@/components/file-explorer/preview';
 import { FileEditor } from '@/components/file-explorer/editor';
+import type { FileEditorSession } from '@/components/file-explorer/editor/fileEditorSession';
 import UploadDrawer from '@/components/file-explorer/upload/UploadDrawer';
 import type { FileExplorerLogic } from '@/components/file-explorer/composables/useFileExplorerLogic';
 import type { FilePreviewState } from '@/components/file-explorer/composables/useFilePreview';
@@ -24,10 +25,31 @@ export default defineComponent({
     }
   },
   setup(props) {
+    const message = useMessage();
+    const editorSession = shallowRef<FileEditorSession | null>(null);
+
+    const tryCloseFileDrawer = () => {
+      if (props.preview.useTextEditor() && editorSession.value?.isDirty.value) {
+        message.warning('文件已修改，请先保存');
+        return;
+      }
+      editorSession.value = null;
+      props.preview.closeFile();
+    };
+
+    const handleDrawerShowUpdate = (show: boolean) => {
+      if (show) {
+        props.preview.showFileDrawer.value = true;
+        return;
+      }
+      tryCloseFileDrawer();
+    };
+
     return () => (
       <>
         <NDrawer
-          v-model:show={props.preview.showFileDrawer.value}
+          show={props.preview.showFileDrawer.value}
+          onUpdate:show={handleDrawerShowUpdate}
           placement="right"
           width="80%"
           resizable
@@ -47,30 +69,23 @@ export default defineComponent({
           >
             {{
               header: () => (
-                <div class="flex items-center justify-between">
-                  <span class="font-medium">{props.preview.openedFile.value?.name || '文件'}</span>
-                  {props.preview.editorMode.value === 'preview' &&
-                    props.preview.openedFile.value && (
-                      <NButton size="small" onClick={props.preview.editFile}>
-                        编辑
-                      </NButton>
-                    )}
-                </div>
+                <span class="min-w-0 truncate font-medium">
+                  {props.preview.openedFile.value?.name || '文件'}
+                </span>
               ),
               default: () => {
                 if (!props.preview.openedFile.value) return null;
 
-                if (
-                  props.preview.editorMode.value === 'edit' &&
-                  typeof props.preview.fileContent.value === 'string'
-                ) {
+                if (props.preview.useTextEditor()) {
                   return (
                     <FileEditor
                       file={props.preview.openedFile.value}
                       dataSource={props.logic.dataSource.value!}
-                      content={props.preview.fileContent.value}
-                      onClose={props.preview.closeFile}
+                      content={props.preview.fileContent.value as string}
                       onSave={props.preview.saveFile}
+                      onSessionChange={session => {
+                        editorSession.value = session;
+                      }}
                     />
                   );
                 }

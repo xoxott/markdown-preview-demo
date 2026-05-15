@@ -1,6 +1,6 @@
 import type { PropType } from 'vue';
-import { defineComponent, ref } from 'vue';
-import { NButton, NButtonGroup, NIcon, NScrollbar, useThemeVars } from 'naive-ui';
+import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { NButton, NButtonGroup, NIcon, NScrollbar, NSplit, useThemeVars } from 'naive-ui';
 import { LayoutColumns, LayoutNavbar, Markdown } from '@vicons/tabler';
 import MarkdownPreview from '@/components/markdown';
 import { MonacoEditor } from '@/components/monaco';
@@ -19,28 +19,48 @@ export default defineComponent({
     file: { type: Object as PropType<FileItem>, required: true },
     dataSource: { type: Object as PropType<IFileDataSource>, required: true },
     content: { type: String, default: '' },
-    onClose: { type: Function as PropType<() => void>, default: undefined },
     onSave: {
       type: Function as PropType<(file: FileItem, content: string) => Promise<void>>,
+      default: undefined
+    },
+    onSessionChange: {
+      type: Function as PropType<
+        (session: import('./fileEditorSession').FileEditorSession | null) => void
+      >,
       default: undefined
     }
   },
   setup(props) {
     const themeVars = useThemeVars();
-    const viewMode = ref<MarkdownViewMode>('split');
+    const viewMode = ref<MarkdownViewMode>('preview');
 
     const core = useFileEditorCore({
       file: props.file,
       dataSource: props.dataSource,
       content: props.content,
-      onSave: props.onSave,
-      onClose: props.onClose
+      onSave: props.onSave
     });
+
+    const publishSession = () => {
+      props.onSessionChange?.({
+        isDirty: core.isDirty,
+        saving: core.saving,
+        save: core.handleSave
+      });
+    };
+
+    onMounted(publishSession);
+    onBeforeUnmount(() => props.onSessionChange?.(null));
+    watch([core.isDirty, core.saving], publishSession);
 
     const paneHeaderStyle = {
       borderColor: themeVars.value.dividerColor,
       color: themeVars.value.textColor3,
       backgroundColor: themeVars.value.tableHeaderColor
+    };
+
+    const paneBackgroundStyle = {
+      backgroundColor: themeVars.value.bodyColor
     };
 
     const renderViewToggle = () => (
@@ -124,42 +144,37 @@ export default defineComponent({
         style={{ backgroundColor: themeVars.value.bodyColor }}
       >
         <FileEditorToolbar
-          file={props.file}
           isDirty={core.isDirty.value}
           saving={core.saving.value}
-          isFullscreen={core.isFullscreen.value}
           onSave={core.handleSave}
-          onClose={core.handleClose}
+          isFullscreen={core.isFullscreen.value}
           onCopy={() => core.copyContent(() => core.editorContent.value)}
           onToggleFullscreen={core.handleToggleFullscreen}
         >
-          {{ center: renderViewToggle }}
+          {{ default: renderViewToggle }}
         </FileEditorToolbar>
 
         <div class="min-h-0 flex flex-col flex-1 overflow-hidden">
           {viewMode.value === 'edit' && renderEditorPane()}
           {viewMode.value === 'preview' && renderPreviewPane()}
           {viewMode.value === 'split' && (
-            <div
-              class="grid min-h-0 flex-1 gap-px"
-              style={{
-                gridTemplateColumns: '1fr 1fr',
-                backgroundColor: themeVars.value.dividerColor
-              }}
+            <NSplit
+              direction="horizontal"
+              class="min-h-0 flex-1"
+              style={{ height: '100%' }}
+              defaultSize={0.5}
+              min={0.25}
+              max={0.75}
+              pane1Class="min-h-0 flex flex-col overflow-hidden"
+              pane2Class="min-h-0 flex flex-col overflow-hidden"
+              pane1Style={paneBackgroundStyle}
+              pane2Style={paneBackgroundStyle}
             >
-              <div
-                class="min-h-0 flex flex-col overflow-hidden"
-                style={{ backgroundColor: themeVars.value.bodyColor }}
-              >
-                {renderEditorPane()}
-              </div>
-              <div
-                class="min-h-0 flex flex-col overflow-hidden"
-                style={{ backgroundColor: themeVars.value.bodyColor }}
-              >
-                {renderPreviewPane()}
-              </div>
-            </div>
+              {{
+                1: () => renderEditorPane(),
+                2: () => renderPreviewPane()
+              }}
+            </NSplit>
           )}
         </div>
       </div>
