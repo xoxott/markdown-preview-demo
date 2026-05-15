@@ -57,7 +57,7 @@ export interface ActionBarConfig {
   preset?: Partial<Record<PresetButtonType, PresetButtonConfig>>;
   /** 追加的自定义按钮 */
   custom?: CustomButtonConfig[];
-  /** 是否展示右侧统计文案，默认 true */
+  /** 是否展示统计文案（与按钮同一行：有统计时为两端对齐，无统计时按钮整体靠右），默认 false */
   showStats?: boolean;
   /** 自定义统计区域：入参为总条数与已选条数 */
   statsRender?: (total: number, selected: number) => VNode | string;

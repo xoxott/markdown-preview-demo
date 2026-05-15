@@ -4,7 +4,10 @@ import TableColumnSetting from '@/components/advanced/table-column-setting';
 import { $t } from '@/locales';
 import type { ActionBarColumnSetting, ActionBarProps, PresetButtonType } from './types';
 
-/** 表格上方工具条：左侧为预设按钮（新增 / 批量删除 / 刷新 / 导出）与自定义按钮， 右侧为可选统计文案；批量类按钮在无选中行时可自动禁用。 */
+/**
+ * 表格工具条：预设按钮（新增 / 批量删除 / 刷新 / 导出）、自定义按钮与可选列设置。
+ * 默认整体靠右；仅在 `config.showStats === true` 时左侧展示统计、右侧为按钮组（两端对齐）。
+ */
 export default defineComponent({
   name: 'ActionBar',
   props: {
@@ -26,7 +29,6 @@ export default defineComponent({
     }
   },
   setup(props) {
-    /** 内置按钮的默认文案 / 图标 / 语义色 / 是否依赖选中行 */
     const presetButtonMap: Record<
       PresetButtonType,
       {
@@ -59,7 +61,6 @@ export default defineComponent({
       }
     };
 
-    /** 渲染单个预设按钮，合并业务侧覆盖项 */
     const renderPresetButton = (buttonType: PresetButtonType, buttonConfig: any) => {
       const preset = presetButtonMap[buttonType];
       const { label = preset.label, icon = preset.icon, onClick, disabled, loading } = buttonConfig;
@@ -79,7 +80,6 @@ export default defineComponent({
       );
     };
 
-    /** 渲染自定义按钮 */
     const renderCustomButton = (buttonConfig: any, index: number) => {
       const {
         label,
@@ -108,11 +108,11 @@ export default defineComponent({
       );
     };
 
-    /** 右侧统计：支持 statsRender 完全自定义 */
     const renderStats = () => {
-      const { showStats = true, statsRender } = props.config;
-
+      const showStats = props.config.showStats ?? false;
       if (!showStats) return null;
+
+      const { statsRender } = props.config;
 
       if (statsRender) {
         const result = statsRender(props.total, props.selectedKeys.length);
@@ -133,34 +133,38 @@ export default defineComponent({
       );
     };
 
-    return () => (
-      <div class="flex items-center justify-between">
-        <NSpace size="small">
-          {/* 内置预设按钮 */}
-          {props.config.preset &&
-            Object.entries(props.config.preset).map(([key, config]) => {
-              if (config.show !== false) {
-                return renderPresetButton(key as PresetButtonType, config);
-              }
-              return null;
-            })}
+    return () => {
+      const showStats = props.config.showStats ?? false;
+      return (
+        <div
+          class={[
+            'flex flex-wrap items-center gap-12px',
+            showStats ? 'justify-between' : 'justify-end'
+          ].join(' ')}
+        >
+          {renderStats()}
+          <NSpace size="small" wrap={false}>
+            {props.config.preset &&
+              Object.entries(props.config.preset).map(([key, config]) => {
+                if (config.show !== false) {
+                  return renderPresetButton(key as PresetButtonType, config);
+                }
+                return null;
+              })}
 
-          {/* 业务自定义按钮 */}
-          {props.config.custom?.map((buttonConfig, index) =>
-            renderCustomButton(buttonConfig, index)
-          )}
+            {props.config.custom?.map((buttonConfig, index) =>
+              renderCustomButton(buttonConfig, index)
+            )}
 
-          {props.columnSetting ? (
-            <TableColumnSetting
-              columns={props.columnSetting.checks}
-              onUpdate:columns={props.columnSetting.onUpdateChecks}
-            />
-          ) : null}
-        </NSpace>
-
-        {/* 右侧统计信息 */}
-        {renderStats()}
-      </div>
-    );
+            {props.columnSetting ? (
+              <TableColumnSetting
+                columns={props.columnSetting.checks}
+                onUpdate:columns={props.columnSetting.onUpdateChecks}
+              />
+            ) : null}
+          </NSpace>
+        </div>
+      );
+    };
   }
 });

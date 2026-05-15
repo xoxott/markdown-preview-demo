@@ -133,6 +133,7 @@ export default defineComponent({
 
     // 操作栏配置
     const actionConfig: ActionBarConfig = {
+      showStats: true,
       preset: {
         add: {
           show: true,

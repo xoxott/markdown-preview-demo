@@ -196,7 +196,6 @@ declare module 'vue' {
     SystemLogo: typeof import('./../components/common/system-logo.vue')['default']
     SystemMonitoringDrawer: typeof import('./../components/monitoring/SystemMonitoringDrawer.tsx')['default']
     TableColumnSetting: typeof import('./../components/advanced/table-column-setting.tsx')['default']
-    TableHeaderOperation: typeof import('./../components/advanced/table-header-operation.tsx')['default']
     TablePage: typeof import('./../components/table-page/TablePage.tsx')['default']
     TagRenderer: typeof import('./../components/table-page/renderers/TagRenderer.tsx')['default']
     TextRenderer: typeof import('./../components/table-page/renderers/TextRenderer.tsx')['default']

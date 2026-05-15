@@ -28,6 +28,7 @@ import {
  * - `searchCollapsible` / `searchCollapsedRows` / `searchCollapsedRowHeightPx`：搜索区多行时展开收起。
  * - `enableColumnSetting`：在操作栏集成列显隐 / 拖拽排序（复用 `advanced/TableColumnSetting`）； 可与 `columnChecks` +
  *   `onUpdateColumnChecks` 受控配合。
+ * - `actionConfig.showStats`：为 true 时在工具条左侧展示「共 x 条」等统计，按钮组仍在右侧；默认不展示。
  * - `tableProps`：向 naive `NDataTable` 透传 `remote`、`flexHeight`、`rowProps` 等原生能力。
  */
 export default defineComponent({
@@ -325,7 +326,7 @@ export default defineComponent({
         slots.action?.() ??
         (props.actionConfig || props.enableColumnSetting ? (
           <ActionBar
-            config={props.actionConfig ?? { showStats: true }}
+            config={props.actionConfig ?? { showStats: false }}
             selectedKeys={props.selectedKeys}
             total={props.pagination?.itemCount ?? props.data.length}
             columnSetting={

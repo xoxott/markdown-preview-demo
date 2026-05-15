@@ -122,16 +122,11 @@ export default defineComponent({
       }
     };
 
-    /** 与 SoybeanAdmin 演示接近：窄宽、列表区约 200px 高，避免 min-w + 过大 max-h 把弹层撑满 */
-    const popoverBodyStyle = { padding: '8px 10px' } as const;
-    const listMaxHeight = 'min(200px, calc(100vh - 160px))';
-
     return () => (
       <NPopover
         placement="bottom-end"
         trigger="click"
         showArrow={false}
-        contentStyle={popoverBodyStyle}
         onUpdateShow={onPopoverShowUpdate}
       >
         {{
@@ -160,8 +155,8 @@ export default defineComponent({
               <NScrollbar
                 trigger="hover"
                 yPlacement="right"
-                contentClass="pr-2px"
-                style={{ maxHeight: listMaxHeight }}
+                contentClass="pr-10px"
+                style={{ maxHeight: 'min(200px, calc(100vh - 160px))' }}
               >
                 <ColumnDraggable
                   key={draggableMountKey.value}
@@ -206,7 +201,7 @@ export default defineComponent({
                               size="small"
                               disabled={!item.checked}
                               focusable={false}
-                              class="none_draggable flex-shrink-0"
+                              class="none_draggable flex-shrink-0 ml-4px"
                               onClick={() => handleFixed(index)}
                             >
                               {renderPinIcon(normalizeFixed(item.fixed))}
