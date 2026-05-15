@@ -1,5 +1,4 @@
-import { type PropType, defineComponent } from 'vue';
-import type { Ref } from 'vue';
+import { type PropType, type Ref, defineComponent } from 'vue';
 import { DragPreview } from '@/components/common-interaction';
 import type { DragItem } from '@/components/common-interaction';
 import ViewContainer from './container/ViewContainer';

@@ -1,17 +1,16 @@
 /**
- * MonacoEditorCore — 纯编辑器组件（无 toolbar）
- *
- * 只负责创建和管理 Monaco editor 实例，不渲染任何工具栏。 通过 `ready` 事件暴露编辑器实例，供父组件调用编辑器操作。
+ * 单 DOM 挂载点。铺满父级（height 为 100%/auto）时依赖父级 flex 列 + `flex:1; min-height:0`； Drawer 等场景首帧高度可能为 0，用
+ * ResizeObserver 在容器有尺寸后再 create（之后由 automaticLayout 接管）。
  */
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
 import * as monaco from 'monaco-editor-core';
-import { useMarkdownTheme } from '../markdown/hooks/useMarkdownTheme';
-import { loadLanguage, registerHighlighter } from './highlight';
-import { resolveLanguageFromFilename } from './languageMap';
-import { getOrCreateModel } from './utils';
-import './index.scss';
+import { useMarkdownTheme } from '../../markdown/hooks/useMarkdownTheme';
+import { loadLanguage, registerHighlighter } from '../lib/highlight';
+import { resolveLanguageFromFilename } from '../lib/languageMap';
+import { getOrCreateModel } from '../lib/utils';
+import '../styles/index.scss';
 
-export interface MonacoEditorCoreProps {
+export interface MonacoEditorProps {
   modelValue?: string;
   filename?: string;
   language?: string;
@@ -23,24 +22,62 @@ export interface MonacoEditorCoreProps {
   height?: string | number;
 }
 
-export interface MonacoEditorCoreEmits {
+export interface MonacoEditorEmits {
   (e: 'update:modelValue', value: string): void;
   (e: 'change', value: string): void;
   (e: 'ready', editor: monaco.editor.IStandaloneCodeEditor): void;
 }
 
-export const MonacoEditorCore = defineComponent({
-  name: 'MonacoEditorCore',
+/**
+ * 判断是否是 flex 填充高度
+ *
+ * @param height 高度
+ * @returns 是否是 flex 填充高度
+ */
+function isFlexFillHeight(height: string | number): boolean {
+  if (typeof height === 'number') return false;
+  return height === '100%' || height === 'auto';
+}
+
+export const MonacoEditor = defineComponent({
+  name: 'MonacoEditor',
   props: {
-    modelValue: { type: String, default: '' },
-    filename: { type: String, default: 'untitled' },
-    language: { type: String, default: '' },
-    readonly: { type: Boolean, default: false },
-    showLineNumbers: { type: Boolean, default: true },
-    folding: { type: Boolean, default: true },
-    minimap: { type: Boolean, default: false },
-    fontSize: { type: Number, default: 14 },
-    height: { type: [String, Number], default: '100%' }
+    modelValue: {
+      type: String,
+      default: ''
+    },
+    filename: {
+      type: String,
+      default: 'untitled'
+    },
+    language: {
+      type: String,
+      default: ''
+    },
+    readonly: {
+      type: Boolean,
+      default: false
+    },
+    showLineNumbers: {
+      type: Boolean,
+      default: true
+    },
+    folding: {
+      type: Boolean,
+      default: true
+    },
+    minimap: {
+      type: Boolean,
+      default: false
+    },
+    fontSize: {
+      type: Number,
+      default: 14
+    },
+    height: {
+      type: [String, Number],
+      default: '100%'
+    }
   },
   emits: {
     'update:modelValue': (_value: string) => true,
@@ -52,30 +89,30 @@ export const MonacoEditorCore = defineComponent({
     const containerRef = ref<HTMLElement>();
     const editor = shallowRef<monaco.editor.IStandaloneCodeEditor>();
     const model = shallowRef<monaco.editor.ITextModel>();
+    let resizeObserver: ResizeObserver | undefined;
 
-    // ==================== 计算属性 ====================
+    const flexFill = computed(() => isFlexFillHeight(props.height));
 
-    /** 根据 language prop 或 filename 推断语言 */
+    const containerStyle = computed(() => {
+      if (typeof props.height === 'number') {
+        return { height: `${props.height}px`, flex: 'none' };
+      }
+      if (!flexFill.value) {
+        return { height: props.height as string, flex: 'none' };
+      }
+      return { flex: '1 1 0%', minHeight: 0 };
+    });
+
     const lang = computed(() => {
       if (props.language) return props.language;
       return resolveLanguageFromFilename(props.filename);
     });
 
-    /** 编辑器高度 */
-    const editorHeight = computed(() => {
-      if (typeof props.height === 'number') return `${props.height}px`;
-      return props.height;
-    });
-
-    /** 主题名称 */
     const themeName = computed(() => {
       const themes = registerHighlighter();
       return darkMode.value ? themes.dark : themes.light;
     });
 
-    // ==================== 编辑器操作 ====================
-
-    /** 触发变更事件 */
     const emitChangeEvent = () => {
       if (editor.value) {
         const value = editor.value.getValue();
@@ -84,13 +121,11 @@ export const MonacoEditorCore = defineComponent({
       }
     };
 
-    /** 初始化编辑器 */
     const initEditor = async () => {
-      if (!containerRef.value) return;
+      if (!containerRef.value || editor.value) return;
 
       registerHighlighter();
 
-      // 非核心语言 → 动态加载
       const currentLang = lang.value;
       if (currentLang && currentLang !== 'plaintext') {
         await loadLanguage(currentLang);
@@ -124,9 +159,17 @@ export const MonacoEditorCore = defineComponent({
 
       editor.value.onDidChangeModelContent(() => emitChangeEvent());
       emit('ready', editor.value);
+      resizeObserver?.disconnect();
+      resizeObserver = undefined;
     };
 
-    // ==================== 监听器 ====================
+    const tryInitWhenSized = () => {
+      if (!containerRef.value || editor.value) return;
+      const { width, height } = containerRef.value.getBoundingClientRect();
+      if (width > 0 && height > 0) {
+        initEditor().catch(() => {});
+      }
+    };
 
     watch(
       () => props.modelValue,
@@ -157,24 +200,30 @@ export const MonacoEditorCore = defineComponent({
       }
     );
 
-    // ==================== 生命周期 ====================
+    onMounted(() => {
+      const el = containerRef.value;
+      if (!el) return;
 
-    onMounted(() => initEditor());
-
-    onBeforeUnmount(() => {
-      editor.value?.dispose();
-      model.value?.dispose();
+      resizeObserver = new ResizeObserver(tryInitWhenSized);
+      resizeObserver.observe(el);
+      tryInitWhenSized();
     });
 
-    // ==================== 渲染 ====================
+    onBeforeUnmount(() => {
+      resizeObserver?.disconnect();
+      resizeObserver = undefined;
+      editor.value?.dispose();
+      editor.value = undefined;
+      model.value?.dispose();
+      model.value = undefined;
+    });
 
     return () => (
       <div
-        class="relative flex flex-col bg-white dark:bg-gray-900"
-        style={{ height: editorHeight.value }}
-      >
-        <div ref={containerRef} class="w-full flex-1 overflow-hidden bg-white dark:bg-gray-900" />
-      </div>
+        ref={containerRef}
+        class="monaco-editor-core min-h-0 w-full overflow-hidden bg-white dark:bg-gray-900"
+        style={containerStyle.value}
+      />
     );
   }
 });

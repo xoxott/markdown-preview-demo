@@ -1,14 +1,18 @@
-export { MonacoEditor as default, MonacoEditor } from './MonacoEditor';
-export type { MonacoEditorProps, MonacoEditorEmits, MonacoLanguage } from './MonacoEditor';
-export { MonacoEditorCore } from './MonacoEditorCore';
-export type { MonacoEditorCoreProps, MonacoEditorCoreEmits } from './MonacoEditorCore';
-export { EditorToolbar } from './EditorToolbar';
-export type { EditorToolbarProps, ToolbarAction } from './EditorToolbar';
-export { getOrCreateModel } from './utils';
+export { MonacoEditor as default, MonacoEditor } from './components/MonacoEditor';
+export type { MonacoEditorProps, MonacoEditorEmits } from './components/MonacoEditor';
+export { EditorToolbar } from './components/EditorToolbar';
+export type { EditorToolbarProps, ToolbarAction } from './components/EditorToolbar';
+export { useMonacoEditorToolbar } from './composables/useMonacoEditorToolbar';
+export type { UseMonacoEditorToolbarOptions } from './composables/useMonacoEditorToolbar';
+export { getOrCreateModel } from './lib/utils';
 export {
   registerHighlighter,
   loadLanguage,
   preloadCommonLanguages,
   getHighlighter
-} from './highlight';
-export { resolveLanguage, resolveLanguageFromFilename, EXTENSION_TO_LANGUAGE } from './languageMap';
+} from './lib/highlight';
+export {
+  resolveLanguage,
+  resolveLanguageFromFilename,
+  EXTENSION_TO_LANGUAGE
+} from './lib/languageMap';

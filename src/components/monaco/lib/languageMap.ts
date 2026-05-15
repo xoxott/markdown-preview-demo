@@ -1,7 +1,7 @@
 /**
  * 文件扩展名 → shiki/Monaco 语言 ID 集中映射
  *
- * 所有组件（MonacoEditor、CodePreviewer、FileEditor）共享此映射， 不再各自维护重复且不一致的映射表。
+ * 所有 Monaco 使用方（CodePreviewer、FileEditor 等）共享此映射。
  *
  * 映射值使用 shiki 的标准语言 ID，与 bundledLanguages 的 key 一致， 便于动态加载对应的语法 grammar。
  */

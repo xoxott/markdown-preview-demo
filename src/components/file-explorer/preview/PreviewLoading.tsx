@@ -15,7 +15,7 @@ export const PreviewLoading = defineComponent({
 
     return () => (
       <div
-        class="h-full flex flex-col items-center justify-center gap-3"
+        class="min-h-0 flex flex-col flex-1 items-center justify-center gap-3"
         style={{ backgroundColor: themeVars.value.bodyColor }}
       >
         <NSpin size="large" />

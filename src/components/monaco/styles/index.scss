@@ -1,3 +1,10 @@
+/* MonacoEditor：单容器挂载点；铺满父级时用 flex-1，固定高度用内联 height */
+.monaco-editor-core {
+  position: relative;
+  width: 100%;
+  min-height: 0;
+}
+
 .vue-repl-container {
   display: flex;
   min-height: fit-content !important;

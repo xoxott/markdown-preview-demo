@@ -1,11 +1,15 @@
 import type { PropType } from 'vue';
 import { computed, defineComponent } from 'vue';
 import { useThemeVars } from 'naive-ui';
-import { MonacoEditor } from '@/components/monaco';
-import { resolveLanguage } from '@/components/monaco/languageMap';
+import {
+  EditorToolbar,
+  MonacoEditor,
+  resolveLanguage,
+  useMonacoEditorToolbar
+} from '@/components/monaco';
 import type { FileItem } from '../../types/file-explorer';
 
-/** 代码/文本预览器 — 复用 MonacoEditor 只读模式，集中语言映射 */
+/** 代码/文本预览器 — MonacoEditor + EditorToolbar 组合 */
 export const CodePreviewer = defineComponent({
   name: 'CodePreviewer',
   props: {
@@ -14,6 +18,7 @@ export const CodePreviewer = defineComponent({
   },
   setup(props) {
     const themeVars = useThemeVars();
+    const toolbar = useMonacoEditorToolbar({ readonly: true, folding: true, baseHeight: '100%' });
 
     const language = computed(() => resolveLanguage(props.file.extension || ''));
 
@@ -30,14 +35,32 @@ export const CodePreviewer = defineComponent({
     return () => (
       <div class="h-full flex flex-col" style={{ backgroundColor: themeVars.value.bodyColor }}>
         {typeof props.content === 'string' ? (
-          <MonacoEditor
-            modelValue={previewContent.value}
-            filename={props.file.name}
-            language={language.value}
-            readonly={true}
-            showToolbar={true}
-            height="100%"
-          />
+          <div
+            ref={toolbar.wrapperRef}
+            class="h-full min-h-0 flex flex-col overflow-hidden"
+            style={toolbar.shellStyle.value}
+          >
+            <EditorToolbar
+              language={language.value}
+              readonly
+              folding
+              actions={toolbar.actions.value}
+              isFolded={toolbar.isFolded.value}
+              isFullscreen={toolbar.isFullscreen.value}
+              onCopy={toolbar.handleCopy}
+              onFormat={toolbar.handleFormat}
+              onToggleFold={toolbar.handleToggleFold}
+              onToggleFullscreen={toolbar.handleToggleFullscreen}
+            />
+            <MonacoEditor
+              modelValue={previewContent.value}
+              filename={props.file.name}
+              language={language.value}
+              readonly
+              height="100%"
+              onReady={toolbar.bindEditor}
+            />
+          </div>
         ) : (
           <div class="h-full flex items-center justify-center text-sm text-gray-500">
             无法预览此文件

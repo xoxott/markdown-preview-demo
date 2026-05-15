@@ -153,7 +153,7 @@ export default defineComponent({
 
       if (!props.content) {
         return (
-          <div class="h-full flex flex-col">
+          <div class="min-h-0 flex flex-col flex-1 overflow-hidden">
             <PreviewHeader file={props.file} category={category.value} />
             <UnsupportedPreview file={props.file} />
           </div>
@@ -162,7 +162,7 @@ export default defineComponent({
 
       if (!previewerMatch.value) {
         return (
-          <div class="h-full flex flex-col">
+          <div class="min-h-0 flex flex-col flex-1 overflow-hidden">
             <PreviewHeader file={props.file} category="unsupported" />
             <UnsupportedPreview file={props.file} />
           </div>
@@ -171,7 +171,7 @@ export default defineComponent({
 
       const PreviewerComponent = previewerMatch.value.component;
       return (
-        <div class="h-full flex flex-col">
+        <div class="min-h-0 flex flex-col flex-1 overflow-hidden">
           <PreviewHeader file={props.file} category={category.value} />
           <div class="flex-1 overflow-hidden">
             {h(PreviewerComponent, { file: props.file, content: props.content })}

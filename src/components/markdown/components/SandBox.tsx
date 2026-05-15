@@ -13,7 +13,7 @@ import {
   NSpace
 } from 'naive-ui';
 import { Bug, PlayerPlay } from '@vicons/tabler';
-import Monaco from '@/components/monaco/index';
+import { EditorToolbar, MonacoEditor, useMonacoEditorToolbar } from '@/components/monaco';
 import { useMarkdownTheme } from '../hooks/useMarkdownTheme';
 import { useRunJSCode } from '../hooks/useRunJSCode';
 import '@vue/repl/style.css';
@@ -57,6 +57,11 @@ export const SandBox = defineComponent({
   },
   setup(props, { emit }) {
     const { darkMode } = useMarkdownTheme();
+    const editorToolbar = useMonacoEditorToolbar({
+      readonly: () => props.readonly,
+      folding: true,
+      baseHeight: '350px'
+    });
 
     // 状态管理
     const showDrawer = computed({
@@ -217,12 +222,35 @@ export const SandBox = defineComponent({
 
                   {/* 代码编辑器 */}
                   <NCard title="代码预览" size="small" bordered>
-                    <Monaco
-                      v-model={currentCode.value}
-                      language={currentMode.value === 'vue' ? 'vue' : 'javascript'}
-                      height="350px"
-                      readonly={props.readonly}
-                    />
+                    <div
+                      ref={editorToolbar.wrapperRef}
+                      class="flex flex-col overflow-hidden rounded bg-white dark:bg-gray-900"
+                      style={editorToolbar.shellStyle.value}
+                    >
+                      <EditorToolbar
+                        language={currentMode.value === 'vue' ? 'vue' : 'javascript'}
+                        readonly={props.readonly}
+                        folding
+                        actions={editorToolbar.actions.value}
+                        isFolded={editorToolbar.isFolded.value}
+                        isFullscreen={editorToolbar.isFullscreen.value}
+                        onCopy={editorToolbar.handleCopy}
+                        onFormat={editorToolbar.handleFormat}
+                        onToggleFold={editorToolbar.handleToggleFold}
+                        onToggleFullscreen={editorToolbar.handleToggleFullscreen}
+                      />
+                      <MonacoEditor
+                        modelValue={currentCode.value}
+                        language={currentMode.value === 'vue' ? 'vue' : 'javascript'}
+                        filename={currentMode.value === 'vue' ? 'App.vue' : 'main.js'}
+                        readonly={props.readonly}
+                        height="100%"
+                        onUpdate:modelValue={value => {
+                          currentCode.value = value;
+                        }}
+                        onReady={editorToolbar.bindEditor}
+                      />
+                    </div>
                   </NCard>
 
                   {/* 运行按钮 */}

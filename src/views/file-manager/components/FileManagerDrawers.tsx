@@ -33,7 +33,18 @@ export default defineComponent({
           resizable
           contentClass="h-full"
         >
-          <NDrawerContent closable nativeScrollbar={false}>
+          <NDrawerContent
+            closable
+            nativeScrollbar={false}
+            bodyContentStyle={{
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              minHeight: 0,
+              padding: 0,
+              overflow: 'hidden'
+            }}
+          >
             {{
               header: () => (
                 <div class="flex items-center justify-between">

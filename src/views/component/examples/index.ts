@@ -29,6 +29,9 @@ export { default as RequestClientExample } from './RequestClientExample';
 // 文件预览示例
 export { FilePreviewExample } from './FilePreviewExample';
 
+// Monaco 编辑器示例
+export { default as MonacoEditorExample } from './MonacoEditorExample';
+
 // 流式笔写效果示例
 export { default as StreamingPenExample } from './StreamingPenExample';
 export { default as StreamingPenDebugExample } from './StreamingPenDebugExample';

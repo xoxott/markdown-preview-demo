@@ -10,7 +10,12 @@
  * 新增示例时，请在 examples 目录下创建对应的组件文件
  */
 import { defineComponent } from 'vue';
-import { BasicComponentsExample, FilePreviewExample, RequestClientExample } from './examples';
+import {
+  BasicComponentsExample,
+  FilePreviewExample,
+  MonacoEditorExample,
+  RequestClientExample
+} from './examples';
 
 export default defineComponent({
   name: 'ComponentExample',
@@ -58,6 +63,16 @@ export default defineComponent({
           </div>
           <FlowExamples />
         </section> */}
+
+        {/* ==================== Monaco 编辑器 ==================== */}
+        <section class="space-y-4">
+          <div class="mb-4 flex items-center gap-3">
+            <div class="h-1 w-12 rounded bg-indigo-500"></div>
+            <h1 class="text-3xl text-gray-900 font-bold">Monaco 编辑器</h1>
+            <div class="h-1 flex-1 rounded bg-gray-200"></div>
+          </div>
+          <MonacoEditorExample />
+        </section>
 
         {/* ==================== RequestClient 组件 (Request Client) ==================== */}
         <section class="space-y-4">

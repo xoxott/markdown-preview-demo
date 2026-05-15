@@ -153,6 +153,17 @@ interface IFileDataSource {
 
 示例可参考 `views/component/examples/FilePreviewExample.tsx`。
 
+## 文件编辑
+
+`FileEditor` 按扩展名分发（`editor/resolveEditorKind.ts`）：
+
+| 类型     | 扩展名                    | 编辑器                                                                                   |
+| -------- | ------------------------- | ---------------------------------------------------------------------------------------- |
+| Markdown | `md` / `markdown` / `mdx` | `MarkdownFileEditor`：Monaco 源码 + `@/components/markdown` 实时预览，支持编辑/分屏/预览 |
+| 其它     | 代码类扩展名              | `CodeFileEditor`：Monaco + 格式化                                                        |
+
+预览模式仍走 `FilePreview` / `MarkdownPreviewer`（同一套 Markdown 渲染组件）。
+
 ## 快捷键
 
 点击文件区域获得焦点后生效（`config/shortcuts.config.ts`）。
