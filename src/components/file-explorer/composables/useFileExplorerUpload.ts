@@ -80,3 +80,5 @@ export function useFileExplorerUpload(options?: UseFileExplorerUploadOptions) {
     uploadProgressInfo
   };
 }
+
+export type FileExplorerUploadState = ReturnType<typeof useFileExplorerUpload>;

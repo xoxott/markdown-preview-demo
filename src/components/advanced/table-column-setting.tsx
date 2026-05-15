@@ -6,12 +6,10 @@ import { VueDraggable } from 'vue-draggable-plus';
 import type { TableColumnCheckFixed } from '@suga/hooks';
 import { $t } from '@/locales';
 
-/** vue-draggable-plus 的组件类型未声明 `update:modelValue`，TSX 需放宽才能绑定 v-model */
 const ColumnDraggable = VueDraggable as any;
 
 const FIXED_CYCLE: TableColumnCheckFixed[] = ['left', 'right', 'unFixed'];
 
-/** 按当前固定状态，说明「再点一下图钉」会发生什么（与图标：当前态 + 操作预期一致） */
 const COLUMN_PIN_CLICK_HINT: Record<TableColumnCheckFixed, App.I18n.I18nKey> = {
   unFixed: 'datatable.columnPinClickHint.unFixed',
   left: 'datatable.columnPinClickHint.left',
@@ -30,15 +28,6 @@ function renderTitle(item: NaiveUI.TableColumnCheck) {
   return t;
 }
 
-/**
- * 与 SoybeanAdmin 演示一致（octicon）：
- *
- * - 未固定：pin-16
- * - 左固定：同一 pin-16 + rotate-270
- * - 右固定：pin-slash-16
- *
- * @see https://github.com/soybeanjs/soybean-admin/blob/main/src/components/advanced/table-column-setting.vue
- */
 function renderPinIcon(fixed: TableColumnCheckFixed) {
   const cls = 'inline-block shrink-0 text-icon';
   if (fixed === 'unFixed') {
@@ -122,7 +111,6 @@ export default defineComponent({
       }
     };
 
-    /** 与 SoybeanAdmin 演示接近：窄宽、列表区约 200px 高，避免 min-w + 过大 max-h 把弹层撑满 */
     const popoverBodyStyle = { padding: '8px 10px' } as const;
     const listMaxHeight = 'min(200px, calc(100vh - 160px))';
 

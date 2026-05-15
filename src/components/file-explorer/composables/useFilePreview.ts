@@ -85,3 +85,5 @@ export function useFilePreview(options: UseFilePreviewOptions) {
     closeFile
   };
 }
+
+export type FilePreviewState = ReturnType<typeof useFilePreview>;

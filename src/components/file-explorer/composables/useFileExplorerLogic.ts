@@ -307,3 +307,5 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
     fileOperations
   };
 }
+
+export type FileExplorerLogic = ReturnType<typeof useFileExplorerLogic>;

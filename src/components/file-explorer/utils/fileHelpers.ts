@@ -58,6 +58,7 @@ const CATEGORY_ICON_MAP: Record<string, Component> = {
   other: File
 };
 
+/** 获取文件图标 */
 export const getFileIcon = (item: FileItem) => {
   if (item.type === 'folder') return Folder;
   const category = getFileCategoryByExtension(item.extension);

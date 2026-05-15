@@ -1,4 +1,5 @@
 import type { FileItem } from '../types/file-explorer';
+import { mockThumbnail } from '../utils/mockThumbnail';
 
 /** Mock 文件数据 */
 export const mockFileItems: FileItem[] = [
@@ -29,7 +30,7 @@ export const mockFileItems: FileItem[] = [
     extension: 'png',
     modifiedAt: new Date(2025, 10, 3),
     createdAt: new Date(2025, 10, 3),
-    thumbnailUrl: 'https://via.placeholder.com/150/3b82f6',
+    thumbnailUrl: mockThumbnail('3b82f6', 'PNG'),
     path: '/banner.png'
   },
   {
@@ -59,7 +60,7 @@ export const mockFileItems: FileItem[] = [
     extension: 'mp4',
     modifiedAt: new Date(2025, 9, 28),
     createdAt: new Date(2025, 9, 28),
-    thumbnailUrl: 'https://via.placeholder.com/150/ec4899',
+    thumbnailUrl: mockThumbnail('ec4899', 'MP4'),
     path: '/video-demo.mp4'
   },
   {
@@ -229,7 +230,7 @@ export const mockFileItems: FileItem[] = [
     extension: 'jpg',
     modifiedAt: new Date(2025, 10, 15),
     createdAt: new Date(2025, 10, 14),
-    thumbnailUrl: 'https://via.placeholder.com/150/10b981',
+    thumbnailUrl: mockThumbnail('10b981', 'JPG'),
     path: '/photo1.jpg'
   },
   {
@@ -240,7 +241,7 @@ export const mockFileItems: FileItem[] = [
     extension: 'jpg',
     modifiedAt: new Date(2025, 10, 15),
     createdAt: new Date(2025, 10, 14),
-    thumbnailUrl: 'https://via.placeholder.com/150/f97316',
+    thumbnailUrl: mockThumbnail('f97316', 'JPG'),
     path: '/photo2.jpg'
   },
   {
@@ -281,7 +282,7 @@ export const mockFileItems: FileItem[] = [
     extension: 'webp',
     modifiedAt: new Date(2025, 10, 18),
     createdAt: new Date(2025, 10, 18),
-    thumbnailUrl: 'https://via.placeholder.com/150/6366f1',
+    thumbnailUrl: mockThumbnail('6366f1', 'WEBP'),
     path: '/thumbnail.webp'
   },
   {

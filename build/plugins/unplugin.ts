@@ -28,8 +28,30 @@ export function setupUnplugin(viteEnv: Env.ImportMeta) {
       defaultClass: 'inline-block'
     }),
     Components({
-      /** 仅扫描通用组件目录；业务弹窗放在 `src/views/<feature>/components`，避免进入全局自动注册 */
-      dirs: ['src/components'],
+      /**
+       * 仅扫描通用组件根目录；不含 file-explorer（由页面显式 import）
+       * 新增共享组件目录时请同步加入此列表
+       */
+      dirs: [
+        'src/components/advanced',
+        'src/components/ai-workflow',
+        'src/components/base-dialog',
+        'src/components/base-drawer',
+        'src/components/clockLoading',
+        'src/components/common-interaction',
+        'src/components/common',
+        'src/components/custom-upload',
+        'src/components/custom',
+        'src/components/declarative-form',
+        'src/components/docviewer',
+        'src/components/flow',
+        'src/components/markdown',
+        'src/components/mobile',
+        'src/components/monaco',
+        'src/components/monitoring',
+        'src/components/streaming-pen-effect',
+        'src/components/table-page'
+      ],
       dts: 'src/typings/components.d.ts',
       extensions: ['vue', 'tsx'],
       types: [{ from: 'vue-router', names: ['RouterLink', 'RouterView'] }],
