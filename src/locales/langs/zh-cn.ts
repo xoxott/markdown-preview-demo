@@ -34,7 +34,6 @@ const local: App.I18n.Schema = {
     lookForward: '敬请期待',
     modify: '修改',
     modifySuccess: '修改成功',
-    nextStep: '下一步',
     noData: '无数据',
     operate: '操作',
     pleaseCheckValue: '请检查输入的值是否合法',
@@ -696,10 +695,10 @@ const local: App.I18n.Schema = {
       right: '右固定',
       unFixed: '取消固定'
     },
-    fixedCurrent: {
-      unFixed: '当前：未固定',
-      left: '当前：左固定',
-      right: '当前：右固定'
+    columnPinClickHint: {
+      unFixed: '点击后将该列固定到左侧',
+      left: '点击后将该列固定到右侧',
+      right: '点击后将取消该列固定'
     }
   }
 };

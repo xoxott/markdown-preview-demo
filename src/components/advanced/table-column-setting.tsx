@@ -1,6 +1,7 @@
-import { computed, defineComponent, nextTick, ref, type PropType } from 'vue';
+import { type PropType, computed, defineComponent, nextTick, ref } from 'vue';
 import { NButton, NCheckbox, NDivider, NIcon, NPopover, NScrollbar, NTooltip } from 'naive-ui';
-import { GripVertical, Pin, Pinned, PinnedOff } from '@vicons/tabler';
+import { Icon } from '@iconify/vue';
+import { GripVertical } from '@vicons/tabler';
 import { VueDraggable } from 'vue-draggable-plus';
 import type { TableColumnCheckFixed } from '@suga/hooks';
 import { $t } from '@/locales';
@@ -10,17 +11,11 @@ const ColumnDraggable = VueDraggable as any;
 
 const FIXED_CYCLE: TableColumnCheckFixed[] = ['left', 'right', 'unFixed'];
 
-/** 与 SoybeanAdmin 一致：tooltip 文案表示「下一次点击」将切换到的目标 */
-const TOOLTIP_BY_CURRENT: Record<TableColumnCheckFixed, App.I18n.I18nKey> = {
-  left: 'datatable.fixed.right',
-  right: 'datatable.fixed.unFixed',
-  unFixed: 'datatable.fixed.left'
-};
-
-const FIXED_CURRENT_I18N: Record<TableColumnCheckFixed, App.I18n.I18nKey> = {
-  unFixed: 'datatable.fixedCurrent.unFixed',
-  left: 'datatable.fixedCurrent.left',
-  right: 'datatable.fixedCurrent.right'
+/** 按当前固定状态，说明「再点一下图钉」会发生什么（与图标：当前态 + 操作预期一致） */
+const COLUMN_PIN_CLICK_HINT: Record<TableColumnCheckFixed, App.I18n.I18nKey> = {
+  unFixed: 'datatable.columnPinClickHint.unFixed',
+  left: 'datatable.columnPinClickHint.left',
+  right: 'datatable.columnPinClickHint.right'
 };
 
 function normalizeFixed(f: TableColumnCheckFixed | undefined): TableColumnCheckFixed {
@@ -35,32 +30,25 @@ function renderTitle(item: NaiveUI.TableColumnCheck) {
   return t;
 }
 
-/** 与 SoybeanAdmin 一致：未固定=空心图钉；左固定=实心图钉（旋转）；右固定=取消固定样式图钉 */
+/**
+ * 与 SoybeanAdmin 演示一致（octicon）：
+ * - 未固定：pin-16
+ * - 左固定：同一 pin-16 + rotate-270
+ * - 右固定：pin-slash-16
+ * @see https://github.com/soybeanjs/soybean-admin/blob/main/src/components/advanced/table-column-setting.vue
+ */
 function renderPinIcon(fixed: TableColumnCheckFixed) {
+  const cls = 'inline-block shrink-0 text-icon';
   if (fixed === 'unFixed') {
-    return (
-      <NIcon size={18} class="text-icon">
-        <Pin />
-      </NIcon>
-    );
+    return <Icon icon="octicon:pin-16" width={16} height={16} class={cls} />;
   }
   if (fixed === 'left') {
-    return (
-      <NIcon size={18} class="text-icon rotate-270">
-        <Pinned />
-      </NIcon>
-    );
+    return <Icon icon="octicon:pin-16" width={16} height={16} class={`${cls} rotate-270`} />;
   }
-  return (
-    <NIcon size={18} class="text-icon">
-      <PinnedOff />
-    </NIcon>
-  );
+  return <Icon icon="octicon:pin-slash-16" width={16} height={16} class={cls} />;
 }
 
-/**
- * 列显隐 + 拖拽排序 + 左/右/不固定切换（对齐 SoybeanAdmin `table-column-setting.vue`）。
- */
+/** 列显隐 + 拖拽排序 + 左/右/不固定切换（对齐 SoybeanAdmin `table-column-setting.vue`）。 */
 export default defineComponent({
   name: 'TableColumnSetting',
   props: {
@@ -100,9 +88,7 @@ export default defineComponent({
 
     const toggleSelectAll = (checked: boolean) => {
       patchColumns(
-        props.columns.map(column =>
-          column.visible === false ? column : { ...column, checked }
-        )
+        props.columns.map(column => (column.visible === false ? column : { ...column, checked }))
       );
     };
 
@@ -134,8 +120,18 @@ export default defineComponent({
       }
     };
 
+    /** 与 SoybeanAdmin 演示接近：窄宽、列表区约 200px 高，避免 min-w + 过大 max-h 把弹层撑满 */
+    const popoverBodyStyle = { padding: '8px 10px' } as const;
+    const listMaxHeight = 'min(200px, calc(100vh - 160px))';
+
     return () => (
-      <NPopover placement="bottom-end" trigger="click" onUpdateShow={onPopoverShowUpdate}>
+      <NPopover
+        placement="bottom-end"
+        trigger="click"
+        showArrow={false}
+        contentStyle={popoverBodyStyle}
+        onUpdateShow={onPopoverShowUpdate}
+      >
         {{
           trigger: () => (
             <NButton size="small">
@@ -146,8 +142,8 @@ export default defineComponent({
             </NButton>
           ),
           default: () => (
-            <div class="min-w-280px">
-              <div class="h-36px flex-y-center rd-4px pl-26px hover:(bg-primary bg-opacity-20)">
+            <div class="w-max max-w-[min(240px,calc(100vw-32px))]">
+              <div class="h-32px flex-y-center rd-4px pl-10px hover:(bg-primary bg-opacity-20)">
                 <NCheckbox
                   class="flex-1"
                   checked={selectAllChecked.value}
@@ -162,8 +158,8 @@ export default defineComponent({
               <NScrollbar
                 trigger="hover"
                 yPlacement="right"
-                contentClass="pr-4px"
-                style={{ maxHeight: 'min(320px, calc(100vh - 200px))' }}
+                contentClass="pr-2px"
+                style={{ maxHeight: listMaxHeight }}
               >
                 <ColumnDraggable
                   key={draggableMountKey.value}
@@ -175,59 +171,56 @@ export default defineComponent({
                   direction="vertical"
                 >
                   {props.columns.map((item, index) => (
-                  <div
-                    key={String(item.key)}
-                    class={[
-                      'h-36px flex-y-center justify-between gap-6px',
-                      item.visible === false ? 'hidden' : ''
-                    ]}
-                  >
-                    <div class="h-full min-w-0 flex flex-1 flex-y-center rd-4px hover:(bg-primary bg-opacity-20)">
-                      <span
-                        class="column-setting__drag-handle mr-6px inline-flex h-36px w-28px flex-shrink-0 cursor-grab items-center justify-center rd-4px text-icon hover:(bg-primary bg-opacity-15) active:cursor-grabbing"
-                        title={$t('common.dragSort')}
-                      >
-                        <NIcon size={18}>
-                          <GripVertical />
-                        </NIcon>
-                      </span>
-                      <NCheckbox
-                        class="none_draggable min-w-0 flex-1"
-                        checked={item.checked}
-                        onUpdate:checked={(v: boolean) => patchChecked(index, v)}
-                      >
-                        {renderTitle(item)}
-                      </NCheckbox>
-                    </div>
-                    <NTooltip>
-                      {{
-                        trigger: () => (
-                          <NButton
-                            quaternary
-                            circle
-                            size="small"
-                            disabled={!item.checked}
-                            focusable={false}
-                            class="none_draggable flex-shrink-0"
-                            onClick={() => handleFixed(index)}
-                          >
-                            {renderPinIcon(normalizeFixed(item.fixed))}
-                          </NButton>
-                        ),
-                        default: () => {
-                          const f = normalizeFixed(item.fixed);
-                          return (
-                            <div class="flex max-w-260px flex-col gap-6px py-4px">
-                              <div class="font-500">{$t(FIXED_CURRENT_I18N[f])}</div>
-                              <div class="text-12px opacity-75">
-                                {$t('common.nextStep')}: {$t(TOOLTIP_BY_CURRENT[f])}
+                    <div
+                      key={String(item.key)}
+                      class={[
+                        'h-32px flex-y-center justify-between gap-4px',
+                        item.visible === false ? 'hidden' : ''
+                      ]}
+                    >
+                      <div class="h-full min-w-0 flex flex-y-center flex-1 rd-4px hover:(bg-primary bg-opacity-20)">
+                        <span
+                          class="column-setting__drag-handle mr-4px h-32px w-24px inline-flex flex-shrink-0 cursor-grab items-center justify-center rd-4px text-icon active:cursor-grabbing hover:(bg-primary bg-opacity-15)"
+                          title={$t('common.dragSort')}
+                        >
+                          <NIcon size={16}>
+                            <GripVertical />
+                          </NIcon>
+                        </span>
+                        <NCheckbox
+                          class="none_draggable min-w-0 flex-1"
+                          checked={item.checked}
+                          onUpdate:checked={(v: boolean) => patchChecked(index, v)}
+                        >
+                          {renderTitle(item)}
+                        </NCheckbox>
+                      </div>
+                      <NTooltip>
+                        {{
+                          trigger: () => (
+                            <NButton
+                              quaternary
+                              circle
+                              size="small"
+                              disabled={!item.checked}
+                              focusable={false}
+                              class="none_draggable flex-shrink-0"
+                              onClick={() => handleFixed(index)}
+                            >
+                              {renderPinIcon(normalizeFixed(item.fixed))}
+                            </NButton>
+                          ),
+                          default: () => {
+                            const f = normalizeFixed(item.fixed);
+                            return (
+                              <div class="max-w-240px text-13px leading-snug">
+                                {$t(COLUMN_PIN_CLICK_HINT[f])}
                               </div>
-                            </div>
-                          );
-                        }
-                      }}
-                    </NTooltip>
-                  </div>
+                            );
+                          }
+                        }}
+                      </NTooltip>
+                    </div>
                   ))}
                 </ColumnDraggable>
               </NScrollbar>

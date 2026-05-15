@@ -2,7 +2,7 @@ import { computed, effectScope, onScopeDispose, reactive, ref, watch } from 'vue
 import type { Ref } from 'vue';
 import type { PaginationProps } from 'naive-ui';
 import { jsonClone } from '@suga/utils';
-import { useBoolean, useTable as useHookTable, type TableColumnCheckFixed } from '@suga/hooks';
+import { type TableColumnCheckFixed, useBoolean, useTable as useHookTable } from '@suga/hooks';
 import { DEFAULT_TABLE_PAGE_SIZE } from '@/constants/datatable';
 import { useAppStore } from '@/store/modules/app';
 import { $t } from '@/locales';
@@ -132,9 +132,10 @@ export function useTable<A extends NaiveUI.TableApiFn>(config: NaiveUI.NaiveTabl
         .map(check => {
           const base = columnMap.get(check.key);
           if (!base) return null;
-          const fixed =
-            check.fixed === 'left' || check.fixed === 'right' ? check.fixed : undefined;
-          return { ...(base as object), fixed } as TableColumn<NaiveUI.TableDataWithIndex<GetTableData<A>>>;
+          const fixed = check.fixed === 'left' || check.fixed === 'right' ? check.fixed : undefined;
+          return { ...(base as object), fixed } as TableColumn<
+            NaiveUI.TableDataWithIndex<GetTableData<A>>
+          >;
         })
         .filter(Boolean) as TableColumn<NaiveUI.TableDataWithIndex<GetTableData<A>>>[];
 

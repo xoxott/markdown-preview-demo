@@ -48,8 +48,7 @@ export function applyTablePageColumnChecks(
     if (!check.checked) continue;
     const col = map.get(String(check.key));
     if (!col) continue;
-    const fixed =
-      check.fixed === 'left' || check.fixed === 'right' ? check.fixed : undefined;
+    const fixed = check.fixed === 'left' || check.fixed === 'right' ? check.fixed : undefined;
     out.push({ ...col, fixed });
   }
   return out;

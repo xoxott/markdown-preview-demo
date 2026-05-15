@@ -60,9 +60,7 @@ declare namespace NaiveUI {
      * @default false
      */
     showTotal?: boolean;
-    /**
-     * 列设置面板中是否展示该列配置行（与 SoybeanAdmin `getColumnVisible` 一致；未传时普通列为 true，selection/expand 为 false）
-     */
+    /** 列设置面板中是否展示该列配置行（与 SoybeanAdmin `getColumnVisible` 一致；未传时普通列为 true，selection/expand 为 false） */
     getColumnVisible?: (column: TableColumn<TableDataWithIndex<GetTableData<A>>>) => boolean;
   };
 }

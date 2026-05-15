@@ -35,7 +35,6 @@ const local: App.I18n.Schema = {
     lookForward: 'Coming soon',
     modify: 'Modify',
     modifySuccess: 'Modify Success',
-    nextStep: 'Next',
     noData: 'No Data',
     operate: 'Operate',
     pleaseCheckValue: 'Please check whether the value is valid',
@@ -700,10 +699,10 @@ const local: App.I18n.Schema = {
       right: 'Right Fixed',
       unFixed: 'Unfixed'
     },
-    fixedCurrent: {
-      unFixed: 'Current: not fixed',
-      left: 'Current: pinned left',
-      right: 'Current: pinned right'
+    columnPinClickHint: {
+      unFixed: 'Click to pin this column to the left',
+      left: 'Click to pin this column to the right',
+      right: 'Click to unpin this column'
     }
   }
 };

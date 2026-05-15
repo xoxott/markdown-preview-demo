@@ -328,7 +328,6 @@ declare namespace App {
         lookForward: string;
         modify: string;
         modifySuccess: string;
-        nextStep: string;
         noData: string;
         operate: string;
         pleaseCheckValue: string;
@@ -901,7 +900,7 @@ declare namespace App {
           right: string;
           unFixed: string;
         };
-        fixedCurrent: {
+        columnPinClickHint: {
           unFixed: string;
           left: string;
           right: string;
