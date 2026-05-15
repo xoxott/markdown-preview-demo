@@ -201,7 +201,7 @@ export default defineComponent({
                               size="small"
                               disabled={!item.checked}
                               focusable={false}
-                              class="none_draggable flex-shrink-0 ml-4px"
+                              class="none_draggable ml-4px flex-shrink-0"
                               onClick={() => handleFixed(index)}
                             >
                               {renderPinIcon(normalizeFixed(item.fixed))}
