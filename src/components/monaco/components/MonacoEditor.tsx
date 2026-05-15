@@ -93,6 +93,7 @@ export const MonacoEditor = defineComponent({
 
     const flexFill = computed(() => isFlexFillHeight(props.height));
 
+    // 计算容器样式
     const containerStyle = computed(() => {
       if (typeof props.height === 'number') {
         return { height: `${props.height}px`, flex: 'none' };
