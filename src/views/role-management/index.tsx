@@ -34,7 +34,7 @@ export default defineComponent({
         apiFn: fetchRoleList,
         listFilters: {
           search: '',
-          isActive: undefined as boolean | undefined
+          isActive: undefined as number | undefined
         },
         showTotal: true,
         immediate: true

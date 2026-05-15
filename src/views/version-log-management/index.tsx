@@ -48,7 +48,7 @@ export default defineComponent({
       apiFn: fetchVersionLogList,
       listFilters: {
         search: '',
-        isPublished: undefined as boolean | undefined,
+        isPublished: undefined as number | undefined,
         type: undefined as string | undefined,
         sortBy: undefined as string | undefined,
         sortOrder: undefined as 'asc' | 'desc' | undefined

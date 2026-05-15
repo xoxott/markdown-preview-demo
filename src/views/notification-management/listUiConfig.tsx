@@ -31,8 +31,8 @@ export function createNotificationSearchFields(): SearchFieldConfig[] {
       placeholder: $t('page.notificationManagement.statusPlaceholder'),
       width: '120px',
       options: [
-        { label: $t('page.notificationManagement.sent'), value: true },
-        { label: $t('page.notificationManagement.unsent'), value: false }
+        { label: $t('page.notificationManagement.sent'), value: 1 },
+        { label: $t('page.notificationManagement.unsent'), value: 0 }
       ]
     }
   ];

@@ -20,8 +20,8 @@ export function createRoleSearchFields(): SearchFieldConfig[] {
       placeholder: $t('page.roleManagement.statusPlaceholder'),
       width: '120px',
       options: [
-        { label: $t('page.roleManagement.active'), value: true },
-        { label: $t('page.roleManagement.inactive'), value: false }
+        { label: $t('page.roleManagement.active'), value: 1 },
+        { label: $t('page.roleManagement.inactive'), value: 0 }
       ]
     }
   ];

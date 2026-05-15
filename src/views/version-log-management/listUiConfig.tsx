@@ -47,8 +47,8 @@ export function createVersionLogSearchFields(): SearchFieldConfig[] {
       placeholder: $t('page.versionLogManagement.statusPlaceholder'),
       width: '120px',
       options: [
-        { label: $t('page.versionLogManagement.published'), value: true },
-        { label: $t('page.versionLogManagement.unpublished'), value: false }
+        { label: $t('page.versionLogManagement.published'), value: 1 },
+        { label: $t('page.versionLogManagement.unpublished'), value: 0 }
       ]
     }
   ];

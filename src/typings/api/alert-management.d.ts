@@ -40,8 +40,8 @@ declare namespace Api {
       status?: string;
       /** Filter by level */
       level?: string;
-      /** Filter by enabled status */
-      isEnabled?: boolean;
+      /** Filter by enabled status：1 启用 / 0 停用 */
+      isEnabled?: number;
       /** Filter by target user ID */
       targetUserId?: number;
       /** Sort by field */

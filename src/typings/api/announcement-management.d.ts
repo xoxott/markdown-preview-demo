@@ -28,8 +28,8 @@ declare namespace Api {
     interface AnnouncementListParams extends Common.PaginationParams {
       /** Search keyword (title or content) */
       search?: string;
-      /** Filter by status */
-      isPublished?: boolean;
+      /** Filter by status：1 已发布 / 0 未发布，不传表示不限 */
+      isPublished?: number;
       /** Filter by type */
       type?: string;
       /** Sort by field */

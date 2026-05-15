@@ -41,8 +41,8 @@ export function createAlertSearchFields(): SearchFieldConfig[] {
       placeholder: $t('page.alertManagement.enabledStatusPlaceholder'),
       width: '120px',
       options: [
-        { label: $t('page.alertManagement.enabled'), value: true },
-        { label: $t('page.alertManagement.disabled'), value: false }
+        { label: $t('page.alertManagement.enabled'), value: 1 },
+        { label: $t('page.alertManagement.disabled'), value: 0 }
       ]
     }
   ];

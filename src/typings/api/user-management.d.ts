@@ -39,12 +39,12 @@ declare namespace Api {
     interface UserListParams extends Common.PaginationParams {
       /** Search keyword (username or email) */
       search?: string;
-      /** Filter by status */
-      isActive?: boolean;
-      /** Filter by online status */
-      isOnline?: boolean;
-      /** Filter by blacklist status */
-      isBlacklisted?: boolean;
+      /** Filter by status：1 启用 / 0 停用 */
+      isActive?: number;
+      /** Filter by online status：1 在线 / 0 离线 */
+      isOnline?: number;
+      /** Filter by blacklist status：1 已拉黑 / 0 未拉黑 */
+      isBlacklisted?: number;
       /** Filter by role code */
       roleCode?: string;
     }

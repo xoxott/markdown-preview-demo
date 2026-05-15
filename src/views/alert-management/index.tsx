@@ -78,7 +78,7 @@ export default defineComponent({
           search: '',
           status: undefined as string | undefined,
           level: undefined as string | undefined,
-          isEnabled: undefined as boolean | undefined,
+          isEnabled: undefined as number | undefined,
           sortBy: undefined as string | undefined,
           sortOrder: undefined as 'asc' | 'desc' | undefined
         },

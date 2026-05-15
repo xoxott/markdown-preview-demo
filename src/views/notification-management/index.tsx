@@ -74,7 +74,7 @@ export default defineComponent({
         apiFn: fetchNotificationList,
         listFilters: {
           search: '',
-          isSent: undefined as boolean | undefined,
+          isSent: undefined as number | undefined,
           type: undefined as string | undefined,
           targetUserId: undefined as number | undefined,
           sortBy: undefined as string | undefined,

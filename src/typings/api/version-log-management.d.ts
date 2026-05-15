@@ -32,8 +32,8 @@ declare namespace Api {
       search?: string;
       /** Filter by type */
       type?: string;
-      /** Filter by status */
-      isPublished?: boolean;
+      /** Filter by status：1 已发布 / 0 未发布 */
+      isPublished?: number;
       /** Filter by start date */
       startDate?: string;
       /** Filter by end date */

@@ -38,7 +38,7 @@ export default defineComponent({
         apiFn: fetchPermissionList,
         listFilters: {
           search: '',
-          isActive: undefined as boolean | undefined,
+          isActive: undefined as number | undefined,
           resource: undefined as string | undefined,
           action: undefined as string | undefined,
           sortBy: undefined as string | undefined,

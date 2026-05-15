@@ -71,8 +71,8 @@ export function createPermissionSearchFields(): SearchFieldConfig[] {
       placeholder: $t('page.permissionManagement.statusPlaceholder'),
       width: '120px',
       options: [
-        { label: $t('page.permissionManagement.active'), value: true },
-        { label: $t('page.permissionManagement.inactive'), value: false }
+        { label: $t('page.permissionManagement.active'), value: 1 },
+        { label: $t('page.permissionManagement.inactive'), value: 0 }
       ]
     }
   ];

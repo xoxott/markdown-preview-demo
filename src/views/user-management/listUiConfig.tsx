@@ -20,8 +20,8 @@ export function createUserSearchFields(roles: Api.UserManagement.Role[]): Search
       placeholder: $t('page.userManagement.statusPlaceholder'),
       width: '130px',
       options: [
-        { label: $t('page.userManagement.active'), value: true },
-        { label: $t('page.userManagement.inactive'), value: false }
+        { label: $t('page.userManagement.active'), value: 1 },
+        { label: $t('page.userManagement.inactive'), value: 0 }
       ]
     },
     {
@@ -30,8 +30,8 @@ export function createUserSearchFields(roles: Api.UserManagement.Role[]): Search
       placeholder: $t('page.userManagement.onlineStatusPlaceholder'),
       width: '130px',
       options: [
-        { label: $t('page.userManagement.online'), value: true },
-        { label: $t('page.userManagement.offline'), value: false }
+        { label: $t('page.userManagement.online'), value: 1 },
+        { label: $t('page.userManagement.offline'), value: 0 }
       ]
     },
     {
@@ -40,8 +40,8 @@ export function createUserSearchFields(roles: Api.UserManagement.Role[]): Search
       placeholder: $t('page.userManagement.blacklistStatusPlaceholder'),
       width: '130px',
       options: [
-        { label: $t('page.userManagement.blacklisted'), value: true },
-        { label: $t('page.userManagement.notBlacklisted'), value: false }
+        { label: $t('page.userManagement.blacklisted'), value: 1 },
+        { label: $t('page.userManagement.notBlacklisted'), value: 0 }
       ]
     },
     {

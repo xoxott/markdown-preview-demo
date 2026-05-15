@@ -31,8 +31,8 @@ export function createAnnouncementSearchFields(): SearchFieldConfig[] {
       placeholder: $t('page.announcementManagement.statusPlaceholder'),
       width: '120px',
       options: [
-        { label: $t('page.announcementManagement.published'), value: true },
-        { label: $t('page.announcementManagement.unpublished'), value: false }
+        { label: $t('page.announcementManagement.published'), value: 1 },
+        { label: $t('page.announcementManagement.unpublished'), value: 0 }
       ]
     }
   ];

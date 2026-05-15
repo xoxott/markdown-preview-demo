@@ -25,8 +25,8 @@ declare namespace Api {
     interface RoleListParams extends Common.PaginationParams {
       /** Search keyword (name or code) */
       search?: string;
-      /** Filter by status */
-      isActive?: boolean;
+      /** Filter by status：1 启用 / 0 停用，不传表示不限 */
+      isActive?: number;
     }
 
     /** Create role request */
