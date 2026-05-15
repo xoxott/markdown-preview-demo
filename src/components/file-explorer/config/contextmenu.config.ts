@@ -1,5 +1,6 @@
 import type { Ref } from 'vue';
 import type { MessageApiInjection } from 'naive-ui/es/message/src/MessageProvider';
+import type { FileOpenPreference } from '../open/resolveFileOpenMode';
 import type { FileItem, SortField } from '../types/file-explorer';
 
 /** 右键菜单处理器依赖项 */
@@ -19,8 +20,8 @@ export interface ContextMenuHandlerDeps {
   message: MessageApiInjection;
   /** 当前选中的文件列表 */
   selectedFiles: Ref<FileItem[]>;
-  /** 打开文件的回调 */
-  onOpen?: (file: FileItem) => void;
+  /** 打开文件的回调（preference 与双击打开解析逻辑一致） */
+  onOpen?: (file: FileItem, preference?: FileOpenPreference) => void;
   /** 排序的回调 */
   onSort?: (field: SortField) => void;
   /** 切换信息面板的回调 */
@@ -51,6 +52,16 @@ export function createContextMenuHandler(deps: ContextMenuHandlerDeps) {
     onUploadFolder
   } = deps;
 
+  const openSelectedFile = (preference: FileOpenPreference) => {
+    if (selectedFiles.value.length === 1) {
+      onOpen?.(selectedFiles.value[0], preference);
+    } else if (selectedFiles.value.length === 0) {
+      message.warning('请先选择一个文件');
+    } else {
+      message.warning('只能打开一个文件');
+    }
+  };
+
   // 事件处理映射表
   const handlers: Record<string, () => void | Promise<void>> = {
     // ==================== 文件操作 ====================
@@ -75,32 +86,10 @@ export function createContextMenuHandler(deps: ContextMenuHandlerDeps) {
     },
 
     // ==================== 打开操作 ====================
-    'open': () => {
-      if (selectedFiles.value.length === 1) {
-        onOpen?.(selectedFiles.value[0]);
-      } else if (selectedFiles.value.length === 0) {
-        message.warning('请先选择一个文件');
-      } else {
-        message.warning('只能打开一个文件');
-      }
-    },
-
-    // 打开方式子菜单
-    'open-default': () => {
-      if (selectedFiles.value.length === 1) {
-        message.info(`使用默认程序打开: ${selectedFiles.value[0].name}`);
-      }
-    },
-    'open-text': () => {
-      if (selectedFiles.value.length === 1) {
-        message.info(`使用文本编辑器打开: ${selectedFiles.value[0].name}`);
-      }
-    },
-    'open-code': () => {
-      if (selectedFiles.value.length === 1) {
-        message.info(`使用代码编辑器打开: ${selectedFiles.value[0].name}`);
-      }
-    },
+    'open': () => openSelectedFile('auto'),
+    'open-markdown': () => openSelectedFile('markdown'),
+    'open-code': () => openSelectedFile('code'),
+    'open-preview': () => openSelectedFile('preview'),
 
     // ==================== 排序操作 ====================
     'sort-name': () => onSort?.('name'),

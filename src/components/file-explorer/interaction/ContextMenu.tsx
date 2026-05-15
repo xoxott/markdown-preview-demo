@@ -1,5 +1,5 @@
 import type { CSSProperties, Component, PropType } from 'vue';
-import { computed, defineComponent, nextTick, ref, watch } from 'vue';
+import { computed, defineComponent, nextTick, ref, toRaw, watch } from 'vue';
 import { useEventListener } from '@vueuse/core';
 import { NDropdown, NIcon } from 'naive-ui';
 import type { DropdownOption } from 'naive-ui';
@@ -66,7 +66,7 @@ export default defineComponent({
             key: item.key,
             label: item.label,
             disabled: item.disabled,
-            icon: item.icon ? () => <NIcon component={item.icon} /> : undefined,
+            icon: item.icon ? () => <NIcon component={toRaw(item.icon!)} /> : undefined,
             props: {
               class: item.danger ? 'text-red-500' : ''
             }
@@ -77,7 +77,7 @@ export default defineComponent({
               key: child.key,
               label: child.label,
               disabled: child.disabled,
-              icon: child.icon ? () => <NIcon component={child.icon} /> : undefined
+              icon: child.icon ? () => <NIcon component={toRaw(child.icon!)} /> : undefined
             }));
           }
 

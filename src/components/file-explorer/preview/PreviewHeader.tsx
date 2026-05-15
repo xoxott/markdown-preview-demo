@@ -1,6 +1,6 @@
 import type { PropType } from 'vue';
 import { defineComponent } from 'vue';
-import { NTag, NText, useThemeVars } from 'naive-ui';
+import { NTag, useThemeVars } from 'naive-ui';
 import type { FileCategory } from '../preview/types';
 import type { FileItem } from '../types/file-explorer';
 import { formatFileSize } from '../utils/fileHelpers';
@@ -23,7 +23,7 @@ const categoryLabels: Record<FileCategory, string> = {
   unsupported: '未知'
 };
 
-/** 文件信息头部组件 — 显示文件名、类型、大小等基本信息 */
+/** 预览元信息条 — 类型、大小等（文件名由外层抽屉/页面标题展示） */
 export const PreviewHeader = defineComponent({
   name: 'PreviewHeader',
   props: {
@@ -47,10 +47,7 @@ export const PreviewHeader = defineComponent({
           backgroundColor: themeVars.value.cardColor
         }}
       >
-        <div class="flex items-center gap-3">
-          <NText strong class="text-base">
-            {props.file.name}
-          </NText>
+        <div class="flex items-center gap-2">
           <NTag size="small" type="info" bordered={false}>
             {categoryLabels[props.category]}
           </NTag>

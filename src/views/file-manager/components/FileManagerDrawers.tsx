@@ -1,5 +1,5 @@
 import { type PropType, defineComponent, ref, shallowRef } from 'vue';
-import { NDrawer, NDrawerContent, useMessage } from 'naive-ui';
+import { NDrawer, NDrawerContent, useDialog } from 'naive-ui';
 import { FilePreview } from '@/components/file-explorer/preview';
 import { FileEditor } from '@/components/file-explorer/editor';
 import type { FileEditorSession } from '@/components/file-explorer/editor/fileEditorSession';
@@ -25,18 +25,42 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const message = useMessage();
+    const dialog = useDialog();
     const editorSession = shallowRef<FileEditorSession | null>(null);
     const fileDrawerWidth = ref<number | string>('80%');
     const uploadDrawerWidth = ref<number | string>('60%');
 
-    const tryCloseFileDrawer = () => {
-      if (props.preview.useTextEditor() && editorSession.value?.isDirty.value) {
-        message.warning('文件已修改，请先保存');
-        return;
-      }
+    const forceCloseFileDrawer = () => {
       editorSession.value = null;
       props.preview.closeFile();
+    };
+
+    const tryCloseFileDrawer = () => {
+      const hasUnsavedChanges = props.preview.useTextEditor() && editorSession.value?.isDirty.value;
+
+      if (!hasUnsavedChanges) {
+        forceCloseFileDrawer();
+        return;
+      }
+
+      const fileName = props.preview.openedFile.value?.name ?? '文件';
+
+      dialog.warning({
+        title: '未保存的修改',
+        content: `「${fileName}」已修改，是否在关闭前保存？`,
+        positiveText: '保存',
+        negativeText: '不保存',
+        maskClosable: false,
+        onPositiveClick: async () => {
+          await editorSession.value?.save();
+          if (!editorSession.value?.isDirty.value) {
+            forceCloseFileDrawer();
+          }
+        },
+        onNegativeClick: () => {
+          forceCloseFileDrawer();
+        }
+      });
     };
 
     const handleDrawerShowUpdate = (show: boolean) => {
@@ -88,6 +112,7 @@ export default defineComponent({
                       file={props.preview.openedFile.value}
                       dataSource={props.logic.dataSource.value!}
                       content={props.preview.fileContent.value as string}
+                      editorKind={props.preview.editorKindOverride.value ?? undefined}
                       onSave={props.preview.saveFile}
                       onSessionChange={session => {
                         editorSession.value = session;

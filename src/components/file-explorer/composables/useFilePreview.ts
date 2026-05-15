@@ -1,7 +1,15 @@
 import { ref } from 'vue';
 import { useMessage } from 'naive-ui';
+import type { FileEditorKind } from '../editor/resolveEditorKind';
 import type { FileItem } from '../types/file-explorer';
 import type { IFileDataSource } from '../datasources/types';
+
+export interface OpenFileOptions {
+  /** 强制使用预览器（如 Markdown 只读预览） */
+  preferPreview?: boolean;
+  /** 指定编辑器类型（覆盖扩展名推断） */
+  editorKind?: FileEditorKind;
+}
 
 /** 文件预览 composable 选项 */
 export interface UseFilePreviewOptions {
@@ -20,13 +28,18 @@ export function useFilePreview(options: UseFilePreviewOptions) {
   const fileContent = ref<string | Blob | undefined>(undefined);
   const fileLoading = ref(false);
   const showFileDrawer = ref(false);
+  const preferPreview = ref(false);
+  const editorKindOverride = ref<FileEditorKind | null>(null);
 
-  /** 文本内容走内置编辑器（Markdown 含编辑/预览/分屏），二进制走预览器 */
-  const useTextEditor = () => typeof fileContent.value === 'string';
+  /** 文本内容且未强制预览时走内置编辑器 */
+  const useTextEditor = () => !preferPreview.value && typeof fileContent.value === 'string';
 
   /** 打开文件 */
-  const openFile = async (file: FileItem) => {
+  const openFile = async (file: FileItem, openOptions?: OpenFileOptions) => {
     if (file.type === 'folder') return false;
+
+    preferPreview.value = openOptions?.preferPreview ?? false;
+    editorKindOverride.value = openOptions?.editorKind ?? null;
 
     try {
       openedFile.value = file;
@@ -63,6 +76,8 @@ export function useFilePreview(options: UseFilePreviewOptions) {
   const closeFile = () => {
     openedFile.value = null;
     fileContent.value = undefined;
+    preferPreview.value = false;
+    editorKindOverride.value = null;
     showFileDrawer.value = false;
   };
 
@@ -71,6 +86,8 @@ export function useFilePreview(options: UseFilePreviewOptions) {
     fileContent,
     fileLoading,
     showFileDrawer,
+    preferPreview,
+    editorKindOverride,
     useTextEditor,
     openFile,
     saveFile,

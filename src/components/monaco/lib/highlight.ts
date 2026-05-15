@@ -16,6 +16,7 @@ import langMarkdown from 'shiki/langs/markdown.mjs';
 /** 主题 */
 import themeDark from 'shiki/themes/dark-plus.mjs';
 import themeLight from 'shiki/themes/light-plus.mjs';
+import { setupMonacoEnvironment } from './setupMonacoEnvironment';
 
 /** 核心语言 ID 列表 — 初始化时同步注册 */
 const CORE_LANG_IDS = [
@@ -59,6 +60,8 @@ const COMMON_LANG_IDS = [
 
 /** 初始化 shiki 高亮器（同步），注册核心语言和主题。 首次调用时执行，后续调用直接返回主题名称。 */
 export function registerHighlighter() {
+  setupMonacoEnvironment();
+
   if (!initialized) {
     highlighterInstance = createHighlighterCoreSync({
       themes: [themeDark, themeLight],

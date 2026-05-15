@@ -12,6 +12,7 @@ import { getPageSizeByViewMode } from '../config/pagination.config';
 import { createOperationsConfig } from '../config/operations.config';
 import { createShortcutsConfig } from '../config/shortcuts.config';
 import { createContextMenuHandler } from '../config/contextmenu.config';
+import type { FileOpenPreference } from '../open/resolveFileOpenMode';
 import { useFileDialog } from '../hooks/useFileDialog';
 import type { DataSourceType, ServerFileDataSourceConfig } from '../datasources/types';
 import { LocalFileDataSource, ServerFileDataSource } from '../datasources';
@@ -30,7 +31,7 @@ export interface UseFileExplorerLogicOptions {
   /** 服务器数据源配置 */
   serverDataSourceConfig?: ServerFileDataSourceConfig;
   /** 打开文件的回调（供快捷键/右键菜单使用） */
-  onOpen?: (file: FileItem) => void;
+  onOpen?: (file: FileItem, preference?: FileOpenPreference) => void;
   /** 上传文件回调（右键菜单 → 打开上传抽屉 + 文件选择器） */
   onUploadFile?: () => void;
   /** 上传文件夹回调 */

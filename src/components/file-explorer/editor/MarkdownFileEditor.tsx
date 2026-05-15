@@ -52,131 +52,133 @@ export default defineComponent({
     onBeforeUnmount(() => props.onSessionChange?.(null));
     watch([core.isDirty, core.saving], publishSession);
 
-    const paneHeaderStyle = {
-      borderColor: themeVars.value.dividerColor,
-      color: themeVars.value.textColor3,
-      backgroundColor: themeVars.value.tableHeaderColor
-    };
+    return () => {
+      const paneHeaderStyle = {
+        borderColor: themeVars.value.dividerColor,
+        color: themeVars.value.textColor3,
+        backgroundColor: themeVars.value.tableHeaderColor
+      };
 
-    const paneBackgroundStyle = {
-      backgroundColor: themeVars.value.bodyColor
-    };
+      const paneBackgroundStyle = {
+        backgroundColor: themeVars.value.bodyColor
+      };
 
-    const renderViewToggle = () => (
-      <NButtonGroup size="small">
-        <NButton
-          type={viewMode.value === 'edit' ? 'primary' : 'default'}
-          onClick={() => {
-            viewMode.value = 'edit';
-          }}
-        >
-          <NIcon size={14} class="mr-1">
-            <LayoutNavbar />
-          </NIcon>
-          编辑
-        </NButton>
-        <NButton
-          type={viewMode.value === 'split' ? 'primary' : 'default'}
-          onClick={() => {
-            viewMode.value = 'split';
-          }}
-        >
-          <NIcon size={14} class="mr-1">
-            <LayoutColumns />
-          </NIcon>
-          分屏
-        </NButton>
-        <NButton
-          type={viewMode.value === 'preview' ? 'primary' : 'default'}
-          onClick={() => {
-            viewMode.value = 'preview';
-          }}
-        >
-          <NIcon size={14} class="mr-1">
-            <Markdown />
-          </NIcon>
-          预览
-        </NButton>
-      </NButtonGroup>
-    );
-
-    const renderEditorPane = () => (
-      <div class={PANE_SHELL_CLASS}>
-        <div class="shrink-0 border-b px-3 py-1.5 text-xs" style={paneHeaderStyle}>
-          Markdown 源码
-        </div>
-        <MonacoEditor
-          modelValue={core.editorContent.value}
-          filename={props.file.name}
-          language="markdown"
-          readonly={false}
-          minimap={false}
-          height="100%"
-          onUpdate:modelValue={core.handleContentChange}
-        />
-      </div>
-    );
-
-    const renderPreviewPane = () => (
-      <div class={PANE_SHELL_CLASS}>
-        <div class="shrink-0 border-b px-3 py-1.5 text-xs" style={paneHeaderStyle}>
-          实时预览
-        </div>
-        <NScrollbar class="min-h-0 flex-1">
-          <div
-            class="p-4"
-            style={{
-              backgroundColor: themeVars.value.cardColor,
-              color: themeVars.value.textColorBase
-            }}
-          >
-            <MarkdownPreview content={core.editorContent.value} />
+      const createEditorPane = () => (
+        <div class={PANE_SHELL_CLASS}>
+          <div class="shrink-0 border-b px-3 py-1.5 text-xs" style={paneHeaderStyle}>
+            Markdown 源码
           </div>
-        </NScrollbar>
-      </div>
-    );
-
-    return () => (
-      <div
-        ref={core.wrapperRef}
-        class="h-full min-h-0 flex flex-col flex-1 overflow-hidden"
-        style={{ backgroundColor: themeVars.value.bodyColor }}
-      >
-        <FileEditorToolbar
-          isDirty={core.isDirty.value}
-          saving={core.saving.value}
-          onSave={core.handleSave}
-          isFullscreen={core.isFullscreen.value}
-          onCopy={() => core.copyContent(() => core.editorContent.value)}
-          onToggleFullscreen={core.handleToggleFullscreen}
-        >
-          {{ default: renderViewToggle }}
-        </FileEditorToolbar>
-
-        <div class="min-h-0 flex flex-col flex-1 overflow-hidden">
-          {viewMode.value === 'edit' && renderEditorPane()}
-          {viewMode.value === 'preview' && renderPreviewPane()}
-          {viewMode.value === 'split' && (
-            <NSplit
-              direction="horizontal"
-              class="min-h-0 flex-1"
-              style={{ height: '100%' }}
-              defaultSize={0.5}
-              min={0.25}
-              max={0.75}
-              pane1Class="min-h-0 flex flex-col overflow-hidden"
-              pane2Class="min-h-0 flex flex-col overflow-hidden"
-              pane1Style={paneBackgroundStyle}
-              pane2Style={paneBackgroundStyle}
-            >
-              {{
-                1: () => renderEditorPane(),
-                2: () => renderPreviewPane()
-              }}
-            </NSplit>
-          )}
+          <MonacoEditor
+            modelValue={core.editorContent.value}
+            filename={props.file.name}
+            language="markdown"
+            readonly={false}
+            minimap={false}
+            height="100%"
+            onUpdate:modelValue={core.handleContentChange}
+          />
         </div>
-      </div>
-    );
+      );
+
+      const createPreviewPane = () => (
+        <div class={PANE_SHELL_CLASS}>
+          <div class="shrink-0 border-b px-3 py-1.5 text-xs" style={paneHeaderStyle}>
+            实时预览
+          </div>
+          <NScrollbar class="min-h-0 flex-1">
+            <div
+              class="p-4"
+              style={{
+                backgroundColor: themeVars.value.cardColor,
+                color: themeVars.value.textColorBase
+              }}
+            >
+              <MarkdownPreview content={core.editorContent.value} />
+            </div>
+          </NScrollbar>
+        </div>
+      );
+
+      return (
+        <div
+          ref={core.wrapperRef}
+          class="h-full min-h-0 flex flex-col flex-1 overflow-hidden"
+          style={{ backgroundColor: themeVars.value.bodyColor }}
+        >
+          <FileEditorToolbar
+            isDirty={core.isDirty.value}
+            saving={core.saving.value}
+            onSave={core.handleSave}
+            isFullscreen={core.isFullscreen.value}
+            onCopy={() => core.copyContent(() => core.editorContent.value)}
+            onToggleFullscreen={core.handleToggleFullscreen}
+          >
+            {{
+              default: () => (
+                <NButtonGroup size="small">
+                  <NButton
+                    type={viewMode.value === 'edit' ? 'primary' : 'default'}
+                    onClick={() => {
+                      viewMode.value = 'edit';
+                    }}
+                  >
+                    <NIcon size={14} class="mr-1">
+                      <LayoutNavbar />
+                    </NIcon>
+                    编辑
+                  </NButton>
+                  <NButton
+                    type={viewMode.value === 'split' ? 'primary' : 'default'}
+                    onClick={() => {
+                      viewMode.value = 'split';
+                    }}
+                  >
+                    <NIcon size={14} class="mr-1">
+                      <LayoutColumns />
+                    </NIcon>
+                    分屏
+                  </NButton>
+                  <NButton
+                    type={viewMode.value === 'preview' ? 'primary' : 'default'}
+                    onClick={() => {
+                      viewMode.value = 'preview';
+                    }}
+                  >
+                    <NIcon size={14} class="mr-1">
+                      <Markdown />
+                    </NIcon>
+                    预览
+                  </NButton>
+                </NButtonGroup>
+              )
+            }}
+          </FileEditorToolbar>
+
+          <div class="min-h-0 flex flex-col flex-1 overflow-hidden">
+            {viewMode.value === 'edit' && createEditorPane()}
+            {viewMode.value === 'preview' && createPreviewPane()}
+            {viewMode.value === 'split' && (
+              <NSplit
+                direction="horizontal"
+                class="min-h-0 flex-1"
+                style={{ height: '100%' }}
+                defaultSize={0.5}
+                min={0.25}
+                max={0.75}
+                pane1Class="min-h-0 flex flex-col overflow-hidden"
+                pane2Class="min-h-0 flex flex-col overflow-hidden"
+                pane1Style={paneBackgroundStyle}
+                pane2Style={paneBackgroundStyle}
+              >
+                {{
+                  1: createEditorPane,
+                  2: createPreviewPane
+                }}
+              </NSplit>
+            )}
+          </div>
+        </div>
+      );
+    };
   }
 });

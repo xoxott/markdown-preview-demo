@@ -142,3 +142,14 @@ declare namespace Env {
 interface ImportMeta {
   readonly env: Env.ImportMeta;
 }
+
+declare global {
+  // Monaco Editor worker 环境（由 setupMonacoEnvironment 注入）
+  // eslint-disable-next-line vars-on-top, no-var
+  var MonacoEnvironment:
+    | {
+        getWorker?: (workerId: string, label: string) => Worker;
+        getWorkerUrl?: (workerId: string, label: string) => string;
+      }
+    | undefined;
+}

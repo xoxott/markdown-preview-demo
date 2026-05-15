@@ -5,7 +5,7 @@ import type { FileItem } from '../types/file-explorer';
 import CodeFileEditor from './CodeFileEditor';
 import MarkdownFileEditor from './MarkdownFileEditor';
 import type { FileEditorSessionChangeHandler } from './fileEditorSession';
-import { resolveEditorKind } from './resolveEditorKind';
+import { type FileEditorKind, resolveEditorKind } from './resolveEditorKind';
 
 /** 按文件类型分发到代码编辑器或 Markdown 编辑器 */
 export default defineComponent({
@@ -30,10 +30,14 @@ export default defineComponent({
     onSessionChange: {
       type: Function as PropType<FileEditorSessionChangeHandler>,
       default: undefined
+    },
+    editorKind: {
+      type: String as PropType<FileEditorKind>,
+      default: undefined
     }
   },
   setup(props) {
-    const editorKind = computed(() => resolveEditorKind(props.file.extension));
+    const editorKind = computed(() => props.editorKind ?? resolveEditorKind(props.file.extension));
 
     return () => {
       const shared = {

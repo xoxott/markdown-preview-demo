@@ -7,6 +7,7 @@ import * as monaco from 'monaco-editor-core';
 import { useMarkdownTheme } from '../../markdown/hooks/useMarkdownTheme';
 import { loadLanguage, registerHighlighter } from '../lib/highlight';
 import { resolveLanguageFromFilename } from '../lib/languageMap';
+import { setupMonacoEnvironment } from '../lib/setupMonacoEnvironment';
 import { getOrCreateModel } from '../lib/utils';
 import '../styles/index.scss';
 
@@ -125,6 +126,7 @@ export const MonacoEditor = defineComponent({
     const initEditor = async () => {
       if (!containerRef.value || editor.value) return;
 
+      setupMonacoEnvironment();
       registerHighlighter();
 
       const currentLang = lang.value;

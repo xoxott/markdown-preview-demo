@@ -1,4 +1,4 @@
-import type { PropType, VNode } from 'vue';
+import type { PropType } from 'vue';
 import { defineComponent } from 'vue';
 import { NButton, NIcon, NTooltip, useThemeVars } from 'naive-ui';
 import { ArrowsMaximize, ArrowsMinimize, Copy } from '@vicons/tabler';
@@ -26,7 +26,7 @@ export default defineComponent({
         }}
       >
         <div class="min-w-0 flex flex-wrap items-center gap-2">
-          {(slots.default as (() => VNode) | undefined)?.()}
+          {slots.default?.()}
           {props.isDirty && (
             <span class="shrink-0 text-xs" style={{ color: themeVars.value.warningColor }}>
               未保存

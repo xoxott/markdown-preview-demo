@@ -1,4 +1,4 @@
-const MARKDOWN_EXTENSIONS = new Set(['md', 'markdown', 'mdx']);
+import { MARKDOWN_EXTENSIONS } from '../open/fileOpenExtensions';
 
 export type FileEditorKind = 'markdown' | 'code';
 

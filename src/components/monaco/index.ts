@@ -4,6 +4,7 @@ export { EditorToolbar } from './components/EditorToolbar';
 export type { EditorToolbarProps, ToolbarAction } from './components/EditorToolbar';
 export { useMonacoEditorToolbar } from './composables/useMonacoEditorToolbar';
 export type { UseMonacoEditorToolbarOptions } from './composables/useMonacoEditorToolbar';
+export { setupMonacoEnvironment } from './lib/setupMonacoEnvironment';
 export { getOrCreateModel } from './lib/utils';
 export {
   registerHighlighter,

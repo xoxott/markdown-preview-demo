@@ -45,6 +45,7 @@ export default defineComponent({
     const { handleContextMenuShow, handleContextMenuHide, options } = useContextMenuOptions({
       selectedIds: props.selectedIds,
       onSelect: props.onSelect,
+      items: toRef(props, 'items'),
       dataSourceType: toRef(props, 'dataSourceType')
     });
 
