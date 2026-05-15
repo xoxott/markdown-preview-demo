@@ -32,9 +32,11 @@ function renderTitle(item: NaiveUI.TableColumnCheck) {
 
 /**
  * 与 SoybeanAdmin 演示一致（octicon）：
+ *
  * - 未固定：pin-16
  * - 左固定：同一 pin-16 + rotate-270
  * - 右固定：pin-slash-16
+ *
  * @see https://github.com/soybeanjs/soybean-admin/blob/main/src/components/advanced/table-column-setting.vue
  */
 function renderPinIcon(fixed: TableColumnCheckFixed) {
@@ -142,7 +144,7 @@ export default defineComponent({
             </NButton>
           ),
           default: () => (
-            <div class="w-max max-w-[min(240px,calc(100vw-32px))]">
+            <div class="max-w-[min(240px,calc(100vw-32px))] w-max">
               <div class="h-32px flex-y-center rd-4px pl-10px hover:(bg-primary bg-opacity-20)">
                 <NCheckbox
                   class="flex-1"
