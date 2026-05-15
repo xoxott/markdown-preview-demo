@@ -270,7 +270,7 @@ export default defineComponent({
                   {{
                     uploadDropOverlay: () => (
                       <UploadDropOverlay
-                        onFilesDrop={uploadIntegration.addFilesAndStart}
+                        onFilesDrop={uploadIntegration.addFilesAndOpenDrawer}
                         disabled={logic.dataSourceType.value !== 'server'}
                         currentPath={logic.currentPath.value}
                       />
@@ -369,6 +369,7 @@ export default defineComponent({
               default: () => (
                 <UploadDrawer
                   upload={uploadIntegration.upload}
+                  settings={uploadIntegration.settings}
                   onClose={uploadIntegration.closeUploadDrawer}
                 />
               )

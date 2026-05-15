@@ -1,7 +1,8 @@
-/** 文件管理器上传集成 composable — 桥接 useChunkUpload 与 FileExplorer */
+/** 文件管理器上传集成 composable — 与 /upload 页面共用 useUploadHook + 默认配置 */
 import { computed, ref } from 'vue';
-import { useChunkUpload } from '@/hooks/upload';
-import type { UploadConfig } from '@/hooks/upload/types';
+import { useUploadHook } from '@/views/upload/hooks/useUploadHook';
+import { useUploadSettings } from '@/views/upload/hooks/useUploadSettings';
+import type { UploadConfig } from '@/hooks/upload';
 
 /** 上传进度信息（供 StatusBar 使用） */
 export interface UploadProgressInfo {
@@ -15,7 +16,7 @@ export interface UploadProgressInfo {
 
 /** useFileExplorerUpload 选项 */
 export interface UseFileExplorerUploadOptions {
-  /** 上传配置（透传给 useChunkUpload） */
+  /** 合并到默认上传配置（与上传页同一套 settings） */
   uploadConfig?: Partial<UploadConfig>;
   /** 上传完成后回调（刷新文件列表） */
   onUploadComplete?: () => void;
@@ -23,10 +24,13 @@ export interface UseFileExplorerUploadOptions {
 
 /** 文件管理器上传集成 composable */
 export function useFileExplorerUpload(options?: UseFileExplorerUploadOptions) {
-  // 1. 初始化 useChunkUpload
-  const upload = useChunkUpload(options?.uploadConfig || {});
+  const { settings, chunkSizeOptions } = useUploadSettings();
+  if (options?.uploadConfig) {
+    Object.assign(settings, options.uploadConfig);
+  }
 
-  // 2. 上传抽屉状态
+  const upload = useUploadHook(settings);
+
   const showUploadDrawer = ref(false);
 
   const openUploadDrawer = () => {
@@ -37,27 +41,22 @@ export function useFileExplorerUpload(options?: UseFileExplorerUploadOptions) {
     showUploadDrawer.value = false;
   };
 
-  // 3. 从拖拽/输入添加文件并开始上传
-  const addFilesAndStart = async (files: File[]) => {
+  /** 从拖拽添加文件并打开抽屉（与上传页一致：需点击「开始上传」） */
+  const addFilesAndOpenDrawer = async (files: File[]) => {
     if (files.length === 0) return;
     await upload.addFiles(files);
-    upload.start();
     openUploadDrawer();
   };
 
-  // 4. 上传完成后刷新文件列表（通过原始 uploader 实例注册回调）
-  upload.uploader
-    .onFileSuccess(() => {
-      options?.onUploadComplete?.();
-    })
-    .onAllComplete(() => {
-      options?.onUploadComplete?.();
-    });
+  upload.uploader.onFileSuccess(() => {
+    options?.onUploadComplete?.();
+  });
+  upload.uploader.onAllComplete(() => {
+    options?.onUploadComplete?.();
+  });
 
-  // 5. StatusBar 进度信息（computed）
   const uploadProgressInfo = computed<UploadProgressInfo | null>(() => {
     const stats = upload.uploadStats.value;
-    // 有文件在队列时才显示（包括已完成/失败的）
     if (stats.total === 0 && !upload.isUploading.value) return null;
 
     return {
@@ -71,17 +70,13 @@ export function useFileExplorerUpload(options?: UseFileExplorerUploadOptions) {
   });
 
   return {
-    /** useChunkUpload 完整返回值 */
     upload,
-    /** 上传抽屉显示状态 */
+    settings,
+    chunkSizeOptions,
     showUploadDrawer,
-    /** 打开上传抽屉 */
     openUploadDrawer,
-    /** 关闭上传抽屉 */
     closeUploadDrawer,
-    /** 添加文件并开始上传 */
-    addFilesAndStart,
-    /** StatusBar 进度信息（null 表示无上传任务） */
+    addFilesAndOpenDrawer,
     uploadProgressInfo
   };
 }

@@ -1,4 +1,4 @@
-import { type PropType, defineComponent, ref, watch } from 'vue';
+import { type PropType, defineComponent, nextTick, ref, watch } from 'vue';
 import { NButton, NCode, NScrollbar, NTimeline, NTimelineItem } from 'naive-ui';
 import type { EventLog } from '../../types';
 
@@ -20,7 +20,7 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const scrollbarRef = ref<InstanceType<typeof NScrollbar>>();
+    const scrollEndRef = ref<HTMLDivElement | null>(null);
 
     const getTimelineType = (type: EventLog['type']): 'default' | 'success' | 'error' | 'info' => {
       if (type === 'error' || type === 'chunk-error' || type === 'all-error') return 'error';
@@ -33,9 +33,9 @@ export default defineComponent({
     watch(
       () => props.eventLogs.length,
       () => {
-        if (scrollbarRef.value) {
-          scrollbarRef.value.scrollTo({ top: 99999, behavior: 'smooth' });
-        }
+        nextTick(() => {
+          scrollEndRef.value?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        });
       }
     );
 
@@ -46,7 +46,7 @@ export default defineComponent({
             清空日志
           </NButton>
         </div>
-        <NScrollbar ref={scrollbarRef} style="max-height: calc(100vh - 200px)">
+        <NScrollbar style="max-height: calc(100vh - 200px)">
           <NTimeline>
             {props.eventLogs.length === 0 ? (
               <div class="py-8 text-center text-gray-400">暂无事件日志</div>
@@ -73,6 +73,7 @@ export default defineComponent({
               ))
             )}
           </NTimeline>
+          <div ref={scrollEndRef} class="h-px" />
         </NScrollbar>
       </div>
     );

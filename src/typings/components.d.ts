@@ -56,6 +56,7 @@ declare module 'vue' {
     Docviewer: typeof import('./../components/docviewer/index.vue')['default']
     DragPreview: typeof import('./../components/common-interaction/DragPreview/DragPreview.tsx')['default']
     DrawerExample: typeof import('./../components/base-drawer/DrawerExample.tsx')['default']
+    DrawerPortal: typeof import('./../components/base-drawer/DrawerPortal.tsx')['default']
     DropZone: typeof import('./../components/common-interaction/DropZone/DropZone.tsx')['default']
     EchartsPreviewer: typeof import('./../components/file-explorer/preview/previewers/EchartsPreviewer.tsx')['default']
     EchartsRenderer: typeof import('./../components/markdown/components/EchartsRenderer.tsx')['default']

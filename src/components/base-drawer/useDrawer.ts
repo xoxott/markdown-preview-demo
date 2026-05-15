@@ -8,11 +8,9 @@ import {
   render,
   watchEffect
 } from 'vue';
-import { storeToRefs } from 'pinia';
-import { NConfigProvider, darkTheme } from 'naive-ui';
-import { useThemeStore } from '@/store/modules/theme';
 import type { DrawerInstance, DrawerOptions } from './drawer';
-import BaseDrawer from './index';
+import type { DrawerExposeApi } from './DrawerPortal';
+import DrawerPortal from './DrawerPortal';
 
 /** 抽屉管理器（单例模式） 支持嵌套抽屉和多实例管理 */
 class DrawerManager {
@@ -23,10 +21,6 @@ class DrawerManager {
   async createDrawer(options: DrawerOptions): Promise<DrawerInstance> {
     const container = document.createElement('div');
     document.body.appendChild(container);
-
-    // 获取主题配置
-    const themeStore = useThemeStore();
-    const { naiveTheme, darkMode } = storeToRefs(themeStore);
 
     // 获取父组件上下文
     const parent = getCurrentInstance();
@@ -55,16 +49,19 @@ class DrawerManager {
       }, 300);
     };
 
-    // 用于存储暴露的方法引用
-    let exposedMethods: any = null;
+    // 用于存储暴露的方法引用（由 DrawerPortal 在 render 内通过 ref 绑定）
+    let exposedMethods: DrawerExposeApi | null = null;
 
     // 使用 watchEffect 实现响应式渲染
     watchEffect(() => {
-      const drawerVNode = createVNode(BaseDrawer, {
+      const vnode = createVNode(DrawerPortal, {
         options,
-        'visible': visible.value,
-        'loading': loading.value,
-        'disabled': disabled.value,
+        visible: visible.value,
+        loading: loading.value,
+        disabled: disabled.value,
+        onExpose: (api: DrawerExposeApi) => {
+          exposedMethods = api;
+        },
         'onUpdate:visible': (val: boolean) => {
           visible.value = val;
         },
@@ -73,25 +70,10 @@ class DrawerManager {
         },
         'onUpdate:disabled': (val: boolean) => {
           disabled.value = val;
-        },
-        'ref': (el: any) => {
-          if (el) {
-            exposedMethods = el;
-          }
         }
       });
 
-      // 包裹主题配置
-      const vnode = createVNode(
-        NConfigProvider,
-        {
-          theme: darkMode.value ? darkTheme : null,
-          themeOverrides: naiveTheme.value
-        },
-        { default: () => drawerVNode }
-      );
-
-      // 继承上下文
+      // 继承上下文（message、dialog 等）
       if (parent) {
         vnode.appContext = parent.appContext;
       }

@@ -1,29 +1,16 @@
-import { computed, defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { useMessage, useThemeVars } from 'naive-ui';
 import type { ChunkInfo, FileTask } from '@/hooks/upload';
-import FileList from './components/FileList';
 import PageHeader from './components/PageHeader';
 import StatsCards from './components/StatsCards';
-import UploadArea from './components/UploadArea';
-import UploadStats from './components/UploadStats';
+import UploadMainPanel from './components/UploadMainPanel';
 import { useDrawers } from './components/drawers';
-import { useEstimatedTime } from './hooks/useEstimatedTime';
 import { useEventLogs } from './hooks/useEventLogs';
 import { useUploadHook } from './hooks/useUploadHook';
 import { useUploadSettings } from './hooks/useUploadSettings';
-import {
-  useAllFiles,
-  useFailedCount,
-  useNetworkQualityColor,
-  useNetworkQualityText,
-  useTodayStatsData
-} from './utils/computed';
-import {
-  createFileHandlers,
-  createFileOperationHandlers,
-  createUploadHandlers
-} from './utils/handlers';
+import { useTodayStatsData } from './utils/computed';
+import { createFileOperationHandlers } from './utils/handlers';
 
 export default defineComponent({
   name: 'Upload',
@@ -43,32 +30,14 @@ export default defineComponent({
     const { eventLogs, addEventLog, clearEventLogs } = useEventLogs();
 
     // 计算属性
-    const failedCount = useFailedCount(uploadHook.completedUploads);
-    const networkQualityText = useNetworkQualityText(uploadHook.networkQuality);
-    const networkQualityColor = useNetworkQualityColor(uploadHook.networkQuality);
     const todayStatsData = useTodayStatsData(
       uploadHook.getTodayStats,
       uploadHook.uploadQueue,
       uploadHook.activeUploads,
       uploadHook.completedUploads
     );
-    const allFiles = useAllFiles(
-      uploadHook.uploadQueue,
-      uploadHook.activeUploads,
-      uploadHook.completedUploads
-    );
-
-    // 预计剩余时间
-    const estimatedTime = computed(() => uploadHook.uploadStats.value.estimatedTime || 0);
-    const { displayEstimatedTime } = useEstimatedTime(
-      estimatedTime,
-      uploadHook.isUploading,
-      uploadHook.isPaused
-    );
 
     // ==================== 事件处理 ====================
-    const fileHandlers = createFileHandlers(uploadHook, addEventLog, message);
-    const uploadHandlers = createUploadHandlers(uploadHook, addEventLog, message, failedCount);
     const fileOperationHandlers = createFileOperationHandlers(uploadHook, addEventLog, message);
 
     // ==================== 事件监听 ====================
@@ -199,22 +168,6 @@ export default defineComponent({
       }
     };
 
-    // ==================== 文件列表列处理函数 ====================
-    const fileListHandlers = {
-      onPause: fileOperationHandlers.handlePause,
-      onResume: fileOperationHandlers.handleResume,
-      onCancel: fileOperationHandlers.handleCancel,
-      onRetrySingle: fileOperationHandlers.handleRetrySingle,
-      onViewTask: handleViewTask,
-      onRemove: fileOperationHandlers.handleRemove
-    };
-
-    const fileListUtils = {
-      formatFileSize: uploadHook.formatFileSize,
-      formatSpeed: uploadHook.formatSpeed,
-      getStatusText: uploadHook.getStatusText
-    };
-
     return () => (
       <div class="min-h-full bg-[rgb(var(--container-bg-color))] p-3 lg:p-6 sm:p-4">
         <div class="mx-auto max-w-7xl flex flex-col gap-4">
@@ -231,55 +184,13 @@ export default defineComponent({
           {/* 统计卡片 */}
           <StatsCards uploadStats={uploadHook.uploadStats.value} themeVars={themeVars.value} />
 
-          {/* 上传区域和统计面板 */}
-          <div class="flex flex-col gap-4 lg:flex-row">
-            {/* 上传区域 */}
-            <UploadArea
-              settings={settings}
-              isUploading={uploadHook.isUploading.value}
-              isPaused={uploadHook.isPaused.value}
-              uploadQueueLength={uploadHook.uploadQueue.value.length}
-              totalFiles={uploadHook.uploadStats.value.total}
-              failedCount={failedCount.value}
-              themeVars={themeVars.value}
-              isMobile={isMobile.value}
-              onFilesChange={fileHandlers.handleFilesChange}
-              onUploadError={fileHandlers.handleUploadError}
-              onExceed={fileHandlers.handleExceed}
-              onStartUpload={uploadHandlers.handleStartUpload}
-              onPauseAll={uploadHandlers.handlePauseAll}
-              onResumeAll={uploadHandlers.handleResumeAll}
-              onCancelAll={uploadHandlers.handleCancelAll}
-              onRetryFailed={uploadHandlers.handleRetryFailed}
-            />
-
-            {/* 上传统计 */}
-            <UploadStats
-              totalProgress={uploadHook.totalProgress.value}
-              uploadSpeed={uploadHook.uploadSpeed.value}
-              displayEstimatedTime={displayEstimatedTime.value}
-              networkQualityText={networkQualityText.value}
-              networkQualityColor={networkQualityColor.value}
-              uploadedSize={uploadHook.uploadStats.value.uploadedSize || 0}
-              totalSize={uploadHook.uploadStats.value.totalSize || 0}
-              getProgressStatus={uploadHook.getProgressStatus}
-              formatSpeed={uploadHook.formatSpeed}
-              formatTime={uploadHook.formatTime}
-              formatFileSize={uploadHook.formatFileSize}
-              themeVars={themeVars.value}
-            />
-          </div>
-
-          {/* 文件列表 */}
-          <FileList
-            allFiles={allFiles.value}
-            uploadQueueLength={uploadHook.uploadQueue.value.length}
-            activeUploadsSize={uploadHook.activeUploads.value.size}
-            completedUploadsLength={uploadHook.completedUploads.value.length}
-            handlers={fileListHandlers}
-            utils={fileListUtils}
-            isMobile={isMobile.value}
+          <UploadMainPanel
+            settings={settings}
+            upload={uploadHook}
             themeVars={themeVars.value}
+            isMobile={isMobile.value}
+            addEventLog={addEventLog}
+            onViewTask={handleViewTask}
           />
         </div>
       </div>
