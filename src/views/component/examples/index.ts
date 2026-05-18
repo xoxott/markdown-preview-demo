@@ -32,6 +32,9 @@ export { FilePreviewExample } from './FilePreviewExample';
 // Monaco 编辑器示例
 export { default as MonacoEditorExample } from './MonacoEditorExample';
 
+// TablePage 检索区示例
+export { default as TablePageSearchExample } from './TablePageSearchExample';
+
 // 流式笔写效果示例
 export { default as StreamingPenExample } from './StreamingPenExample';
 export { default as StreamingPenDebugExample } from './StreamingPenDebugExample';

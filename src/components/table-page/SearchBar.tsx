@@ -8,6 +8,8 @@ import type { SearchFieldConfig } from './types';
 /**
  * 表格筛选条：在 DeclarativeForm 之上提供「搜索 / 重置」按钮组与回车提交； 可通过 `showActionButtons` 关闭按钮并在外层接管。 开启
  * `collapsible` 后按「行数 × 行高」裁剪高度，内容超出时出现展开 / 收起。
+ *
+ * 折叠时仅裁剪筛选项区域，操作按钮固定在裁剪区下方，避免收起后无法点击搜索/重置。
  */
 export default defineComponent({
   name: 'SearchBar',
@@ -134,6 +136,50 @@ export default defineComponent({
       scheduleMeasure();
     };
 
+    const renderExpandToggle = () =>
+      props.collapsible && needsToggle.value ? (
+        <NButton secondary type="primary" onClick={toggleExpand}>
+          <div class="flex items-center gap-4px">
+            <div
+              class={
+                expanded.value ? 'i-carbon-chevron-up text-16px' : 'i-carbon-chevron-down text-16px'
+              }
+            />
+            <span>{expanded.value ? $t('common.searchCollapse') : $t('common.searchExpand')}</span>
+          </div>
+        </NButton>
+      ) : null;
+
+    const renderActionButtons = () => {
+      const showExpand = props.collapsible && needsToggle.value;
+      if (!props.showActionButtons && !showExpand) return null;
+
+      return (
+        <NFormItem class="!mb-0">
+          <NSpace size="small" align="center">
+            {props.showActionButtons ? (
+              <>
+                <NButton type="primary" onClick={props.onSearch}>
+                  <div class="flex items-center gap-4px">
+                    <div class="i-carbon-search text-16px" />
+                    <span>{$t('common.search')}</span>
+                  </div>
+                </NButton>
+                <NButton onClick={props.onReset}>
+                  <div class="flex items-center gap-4px">
+                    <div class="i-carbon-reset text-16px" />
+                    <span>{$t('common.reset')}</span>
+                  </div>
+                </NButton>
+              </>
+            ) : null}
+            {renderExpandToggle()}
+            {slots.actionsExtra?.()}
+          </NSpace>
+        </NFormItem>
+      );
+    };
+
     return () => {
       const form = (
         <DeclarativeForm
@@ -148,26 +194,7 @@ export default defineComponent({
           {{
             toolbarBefore: slots.toolbarBefore,
             toolbarAfter: slots.toolbarAfter,
-            suffix: () =>
-              props.showActionButtons ? (
-                <NFormItem class="!mb-0">
-                  <NSpace size="small">
-                    <NButton type="primary" onClick={props.onSearch}>
-                      <div class="flex items-center gap-4px">
-                        <div class="i-carbon-search text-16px" />
-                        <span>{$t('common.search')}</span>
-                      </div>
-                    </NButton>
-                    <NButton onClick={props.onReset}>
-                      <div class="flex items-center gap-4px">
-                        <div class="i-carbon-reset text-16px" />
-                        <span>{$t('common.reset')}</span>
-                      </div>
-                    </NButton>
-                    {slots.actionsExtra?.()}
-                  </NSpace>
-                </NFormItem>
-              ) : null
+            suffix: props.collapsible ? undefined : () => renderActionButtons()
           }}
         </DeclarativeForm>
       );
@@ -177,24 +204,7 @@ export default defineComponent({
           <div ref={clipRef} class={clipClass.value} style={clipStyle.value}>
             {form}
           </div>
-          {props.collapsible && needsToggle.value ? (
-            <div class="flex justify-end pt-6px">
-              <NButton text type="primary" size="small" onClick={toggleExpand}>
-                <div class="flex items-center gap-4px">
-                  <div
-                    class={
-                      expanded.value
-                        ? 'i-carbon-chevron-up text-14px'
-                        : 'i-carbon-chevron-down text-14px'
-                    }
-                  />
-                  <span>
-                    {expanded.value ? $t('common.searchCollapse') : $t('common.searchExpand')}
-                  </span>
-                </div>
-              </NButton>
-            </div>
-          ) : null}
+          {props.collapsible ? <div class="mt-8px">{renderActionButtons()}</div> : null}
         </div>
       );
     };

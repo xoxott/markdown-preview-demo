@@ -1,0 +1,14 @@
+/**
+ * naive-ui 行内表单默认为 inline-flex + nowrap，筛选项过多时会挤在一行。
+ * 检索条等场景需要按容器宽度自动换行。
+ */
+.declarative-form--inline-wrap.n-form.n-form--inline {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  row-gap: 12px;
+
+  .n-form-item {
+    flex-shrink: 0;
+  }
+}

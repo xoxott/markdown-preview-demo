@@ -14,7 +14,8 @@ import {
   BasicComponentsExample,
   FilePreviewExample,
   MonacoEditorExample,
-  RequestClientExample
+  RequestClientExample,
+  TablePageSearchExample
 } from './examples';
 
 export default defineComponent({
@@ -72,6 +73,18 @@ export default defineComponent({
             <div class="h-1 flex-1 rounded bg-gray-200"></div>
           </div>
           <MonacoEditorExample />
+        </section>
+
+        {/* ==================== TablePage 检索区 (SearchBar) ==================== */}
+        <section class="space-y-4">
+          <div class="mb-4 flex items-center gap-3">
+            <div class="h-1 w-12 rounded bg-teal-500"></div>
+            <h1 class="text-3xl text-gray-900 font-bold">TablePage 检索区</h1>
+            <div class="h-1 flex-1 rounded bg-gray-200"></div>
+          </div>
+          <div class="rounded-lg bg-white p-6 shadow-sm">
+            <TablePageSearchExample />
+          </div>
         </section>
 
         {/* ==================== RequestClient 组件 (Request Client) ==================== */}

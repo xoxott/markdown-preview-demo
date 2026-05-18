@@ -1,6 +1,7 @@
-import { type PropType, defineComponent } from 'vue';
+import { type PropType, computed, defineComponent } from 'vue';
 import { NDatePicker, NForm, NFormItem, NInput, NSelect } from 'naive-ui';
 import type { DeclarativeFieldConfig } from './types';
+import './declarative-form.scss';
 
 /** 配置驱动的 naive-ui 行内/块级表单：仅负责字段渲染与 model 回写， 不包含业务按钮；搜索条、弹窗筛选、设置面板等均可复用。 */
 export default defineComponent({
@@ -30,12 +31,21 @@ export default defineComponent({
       type: Boolean,
       default: true
     },
+    /** 行内布局时是否允许表单项换行（检索条默认开启） */
+    wrap: {
+      type: Boolean,
+      default: true
+    },
     onInputEnterPress: {
       type: Function as PropType<() => void>,
       default: undefined
     }
   },
   setup(props, { slots }) {
+    const formClass = computed(() =>
+      props.inline && props.wrap ? 'declarative-form--inline-wrap' : undefined
+    );
+
     const mergeControlProps = (
       fieldConfig: DeclarativeFieldConfig,
       extra: Record<string, unknown>
@@ -121,6 +131,7 @@ export default defineComponent({
 
     return () => (
       <NForm
+        class={formClass.value}
         model={props.model}
         inline={props.inline}
         labelPlacement={props.labelPlacement}
