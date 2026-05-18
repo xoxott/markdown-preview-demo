@@ -93,7 +93,8 @@ export default defineComponent({
     return () => (
       <div class="space-y-16px">
         <NAlert type="info" showIcon={false}>
-          验证 TablePage / SearchBar 检索区：多字段换行、展开收起；收起后搜索/重置应仍可点击。缩小窗口宽度更容易触发折叠。
+          验证 TablePage / SearchBar
+          检索区：多字段换行、展开收起；收起后搜索/重置应仍可点击。缩小窗口宽度更容易触发折叠。
         </NAlert>
 
         <div class="flex flex-col gap-16px lg:flex-row">
