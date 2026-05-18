@@ -76,8 +76,8 @@ export interface DeclarativeFieldConfig {
   /** 控件固定宽度（如 `'200px'`）。 仅在 `layout="inline"` 时写入控件 `style`；栅格模式下会被忽略以保证列宽自适应。 */
   width?: string;
   /**
-   * 栅格布局下控件 `style.maxWidth`（如 `'320px'`、`'min(100%, 280px)'`）。
-   * 仅 `layout="grid"` 时生效；未设置时 `date-range` 使用组件内置默认上限。
+   * 栅格布局下控件 `style.maxWidth`（如 `'320px'`、`'min(100%, 280px)'`）。 仅 `layout="grid"` 时生效；未设置时
+   * `date-range` 使用组件内置默认上限。
    */
   gridMaxWidth?: string;
   /** 栅格占列数（`NGi` 的 `span`）。 未设置时：`datetime-range` / `time-range` / `transfer` 默认为 `2`，其余为 `1`。 */

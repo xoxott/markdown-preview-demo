@@ -77,7 +77,11 @@ export function bindField(
   bindOptions?: BindFieldOptions
 ) {
   const { field: key, placeholder, clearable = true } = field;
-  const style = ctx.isGrid ? resolveGridControlStyle(field) : field.width ? { width: field.width } : undefined;
+  const style = ctx.isGrid
+    ? resolveGridControlStyle(field)
+    : field.width
+      ? { width: field.width }
+      : undefined;
   const valueProp = bindOptions?.valueProp ?? 'value';
   const updateEvent = bindOptions?.updateEvent ?? 'onUpdate:value';
   const passClearable = bindOptions?.passClearable ?? true;
@@ -116,7 +120,11 @@ export function bindFileListField(
   extra: Record<string, unknown> = {}
 ) {
   const { field: key } = field;
-  const style = ctx.isGrid ? resolveGridControlStyle(field) : field.width ? { width: field.width } : undefined;
+  const style = ctx.isGrid
+    ? resolveGridControlStyle(field)
+    : field.width
+      ? { width: field.width }
+      : undefined;
 
   return mergeControlProps(
     field,
