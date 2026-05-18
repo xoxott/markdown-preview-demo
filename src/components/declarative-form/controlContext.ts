@@ -1,5 +1,5 @@
 import type { DeclarativeFieldConfig } from './types';
-import { gridControlStyle, stripGridFixedWidthProps } from './grid';
+import { resolveGridControlStyle, stripGridFixedWidthProps } from './grid';
 
 /**
  * 控件渲染上下文，由 {@link DeclarativeForm} 构造并传入内置/扩展渲染器。
@@ -62,7 +62,7 @@ export interface BindFieldOptions {
  * 将字段配置与 `ctx.model` 双向绑定，供内置/扩展渲染器复用。
  *
  * 自动注入 `value` / `onUpdate:value`、`placeholder`、`clearable` 及布局相关 `style`： 栅格模式使用
- * {@link gridControlStyle}，行内模式在字段配置了 `width` 时写入固定宽度。
+ * {@link resolveGridControlStyle}，行内模式在字段配置了 `width` 时写入固定宽度。
  *
  * @param field 字段声明配置
  * @param ctx 控件渲染上下文
@@ -77,7 +77,7 @@ export function bindField(
   bindOptions?: BindFieldOptions
 ) {
   const { field: key, placeholder, clearable = true } = field;
-  const style = ctx.isGrid ? gridControlStyle : field.width ? { width: field.width } : undefined;
+  const style = ctx.isGrid ? resolveGridControlStyle(field) : field.width ? { width: field.width } : undefined;
   const valueProp = bindOptions?.valueProp ?? 'value';
   const updateEvent = bindOptions?.updateEvent ?? 'onUpdate:value';
   const passClearable = bindOptions?.passClearable ?? true;
@@ -116,7 +116,7 @@ export function bindFileListField(
   extra: Record<string, unknown> = {}
 ) {
   const { field: key } = field;
-  const style = ctx.isGrid ? gridControlStyle : field.width ? { width: field.width } : undefined;
+  const style = ctx.isGrid ? resolveGridControlStyle(field) : field.width ? { width: field.width } : undefined;
 
   return mergeControlProps(
     field,

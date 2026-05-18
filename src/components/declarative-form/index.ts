@@ -39,6 +39,7 @@ export {
   pickLeadingFields,
   resolveFieldSpan,
   resolveGridColCount,
+  resolveGridControlStyle,
   stripGridFixedWidthProps,
   sumFieldSpans
 } from './grid';

@@ -35,7 +35,7 @@ SearchBar 对齐 [Pro Naive 查询表单](https://naive.soybeanjs.cn/pro-naive/f
 └─────────────────────────────┘
 ```
 
-字段占列：`span` 可显式指定；`date-range` 在栅格下默认占 **2** 列（见 `resolveFieldSpan`）。
+字段占列：`span` 可显式指定；`datetime-range` / `time-range` / `transfer` 在栅格下默认占 **2** 列；`date-range` 默认 **1** 列并限制最大宽度（见 `resolveFieldSpan`、`resolveGridControlStyle`）。
 
 **宽度**：配置里的 `width`（如 `220px`）只在行内 `inline` 布局生效。栅格检索强制 `width: 100%` + `min-width: 0`，避免控件最小宽度大于栅格列宽时顶开相邻格或与操作区重叠。操作区独占一行时，极窄视口下按钮组允许换行。
 
@@ -233,7 +233,7 @@ interface SearchFieldConfig {
   placeholder?: string;
   icon?: string;
   width?: string;
-  span?: number; // 栅格占列，date-range 默认 2
+  span?: number; // 栅格占列；datetime-range / time-range / transfer 默认 2；date-range 默认 1
   options?: Array<{ label: string; value: any }>;
   clearable?: boolean;
   disabled?: boolean;
