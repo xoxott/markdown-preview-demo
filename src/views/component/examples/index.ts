@@ -35,6 +35,9 @@ export { default as MonacoEditorExample } from './MonacoEditorExample';
 // TablePage 检索区示例
 export { default as TablePageSearchExample } from './TablePageSearchExample';
 
+// 声明式动态表单示例
+export { default as DeclarativeFormExample } from './DeclarativeFormExample';
+
 // 流式笔写效果示例
 export { default as StreamingPenExample } from './StreamingPenExample';
 export { default as StreamingPenDebugExample } from './StreamingPenDebugExample';

@@ -12,6 +12,7 @@
 import { defineComponent } from 'vue';
 import {
   BasicComponentsExample,
+  DeclarativeFormExample,
   FilePreviewExample,
   MonacoEditorExample,
   RequestClientExample,
@@ -73,6 +74,18 @@ export default defineComponent({
             <div class="h-1 flex-1 rounded bg-gray-200"></div>
           </div>
           <MonacoEditorExample />
+        </section>
+
+        {/* ==================== 声明式动态表单 (DeclarativeForm) ==================== */}
+        <section class="space-y-4">
+          <div class="mb-4 flex items-center gap-3">
+            <div class="h-1 w-12 rounded bg-cyan-500"></div>
+            <h1 class="text-3xl text-gray-900 font-bold">声明式动态表单</h1>
+            <div class="h-1 flex-1 rounded bg-gray-200"></div>
+          </div>
+          <div class="rounded-lg bg-white p-6 shadow-sm">
+            <DeclarativeFormExample />
+          </div>
         </section>
 
         {/* ==================== TablePage 检索区 (SearchBar) ==================== */}

@@ -6,7 +6,8 @@ import type {
   DeclarativeFormSuffixPlacement
 } from './types';
 import { resolveFieldLabel } from './fieldLabel';
-import { renderDeclarativeControl } from './renderDeclarativeControl';
+import './naiveFormControls';
+import { renderDeclarativeControl } from './controlRegistry';
 import { DEFAULT_GRID_COLS, resolveFieldSpan } from './grid';
 import './declarative-form.scss';
 

@@ -17,16 +17,47 @@ export type DeclarativeFormLayout = 'inline' | 'grid';
  */
 export type DeclarativeFormSuffixPlacement = 'inline' | 'grid-cell' | 'below-grid';
 
+/** 内置 Naive 表单控件 type，在 `naiveFormControls` 加载时注册 */
+export const DECLARATIVE_BUILTIN_FIELD_TYPES = [
+  'input',
+  'textarea',
+  'password',
+  'input-number',
+  'select',
+  'auto-complete',
+  'cascader',
+  'tree-select',
+  'date',
+  'datetime',
+  'date-range',
+  'datetime-range',
+  'month',
+  'year',
+  'quarter',
+  'week',
+  'time',
+  'time-range',
+  'switch',
+  'checkbox',
+  'checkbox-group',
+  'radio-group',
+  'slider',
+  'rate',
+  'color-picker',
+  'transfer',
+  'dynamic-input',
+  'upload',
+  'custom'
+] as const;
+
+export type DeclarativeBuiltinFieldType = (typeof DECLARATIVE_BUILTIN_FIELD_TYPES)[number];
+
 /**
- * 声明式表单内置控件类型。
+ * 字段控件 type：内置类型 + 通过 `registerDeclarativeControl` 注册的扩展名。
  *
- * - `input`：文本输入框，支持 `icon` 前缀图标与回车回调（`onInputEnterPress`）。
- * - `select`：下拉选择，需配置 `options`。
- * - `date`：单日期选择器。
- * - `date-range`：日期范围选择器，栅格模式下默认占 2 列。
- * - `custom`：自定义渲染，需提供 `render`。
+ * 内置类型见 {@link DeclarativeBuiltinFieldType}；弹窗/编辑表单可注册 `input-number`、`switch` 等而无需改核心代码。
  */
-export type DeclarativeFieldType = 'input' | 'select' | 'date-range' | 'date' | 'custom';
+export type DeclarativeFieldType = DeclarativeBuiltinFieldType | (string & {});
 
 /**
  * 单个表单字段的声明式配置。
@@ -46,8 +77,8 @@ export interface DeclarativeFieldConfig {
   width?: string;
   /** 栅格占列数（`NGi` 的 `span`）。 未设置时：`date-range` 默认为 `2`，其余类型默认为 `1`。 */
   span?: number;
-  /** 下拉选项，仅 `type="select"` 时使用 */
-  options?: Array<{ label: string; value: any }>;
+  /** 选项数据：`select` / `radio-group` / `checkbox-group` / `cascader` / `tree-select` / `transfer` 等 */
+  options?: Array<{ label: string; value: any; [key: string]: any }>;
   /** 是否显示清除按钮，默认 `true` */
   clearable?: boolean;
   /** 是否禁用；也可通过 `componentProps.disabled` 覆盖 */

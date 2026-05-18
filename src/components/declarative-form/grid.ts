@@ -51,17 +51,25 @@ export function stripGridFixedWidthProps(
   return next;
 }
 
+/** 栅格下默认占 2 列的字段 type（区间选择、穿梭框等） */
+export const GRID_WIDE_FIELD_TYPES = new Set([
+  'date-range',
+  'datetime-range',
+  'time-range',
+  'transfer'
+]);
+
 /**
  * 解析单个字段在栅格中占用的列数（`NGi.span`）。
  *
- * 优先级：`field.span` 显式配置 > 类型默认（`date-range` 为 2）> 其余为 1。
+ * 优先级：`field.span` 显式配置 > {@link GRID_WIDE_FIELD_TYPES} 默认 2 列 > 其余为 1。
  *
  * @param field 字段配置
  * @returns 占列数，正整数
  */
 export function resolveFieldSpan(field: DeclarativeFieldConfig): number {
   if (typeof field.span === 'number') return field.span;
-  if (field.type === 'date-range') return 2;
+  if (GRID_WIDE_FIELD_TYPES.has(field.type)) return 2;
   return 1;
 }
 
