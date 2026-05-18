@@ -1,43 +1,138 @@
-# TablePage 通用表格页面组件
+# TablePage 通用表格页面
 
-一套高度可配置、功能完善的表格页面组件系统，用于快速构建后台管理系统的列表页面。
+配置驱动的「检索 + 工具条 + 表格」三栏布局，用于后台列表页。子组件可单独使用，也可由 `TablePage` 组合。
 
-## 架构说明
+## 架构
 
 ```
-TablePage（页面容器）
-├── 搜索区：SearchBar（配置驱动）或 search 插槽完全自定义
-├── 操作区：ActionBar（配置驱动）或 action 插槽
+TablePage
+├── 检索区：SearchBar（DeclarativeForm 栅格）或 search 插槽
+├── 操作区：ActionBar 或 action 插槽
 └── 表格区：DataTable（列预设渲染 + tableProps 透传 NDataTable）
 ```
 
-- **`useTablePage`**：在 **`@/hooks/common/table` 的 `useTable`** 之上增加 `searchBindings`、多选 `selectedKeys` 等与 `TablePage` 对齐的字段；列表请求、分页、`searchParams` 与项目其它管理页一致。
-- **`useAdminListTable`**：与 **`useTablePage`** 不同，面向「已有 `listUiConfig`、自行拼 `TablePage`」的管理页：内部仍用 `useTable` + 占位列，并统一提供 **`onSearch` / `onReset` / `getListLimit`**（搜索时同步 `limit` 与当前 `pageSize`）。
-- **`useSearchForm`**：仅管理独立搜索 model；页面若已使用 `useTable`，可直接用其 **`searchParams`** 作为 SearchBar 的 model，通常不再需要本 hook。
-- **受控 vs 非受控搜索**：列表页请使用受控（`searchBindings`），保证 URL/缓存与表单一致；演示页可只传 `searchConfig` 由 TablePage 内部托管。
+| 模块                | 说明                                                                                            |
+| ------------------- | ----------------------------------------------------------------------------------------------- |
+| `useTablePage`      | 基于 `@/hooks/common/table` 的 `useTable`，提供 `searchBindings`、多选等与 TablePage 对齐的字段 |
+| `useAdminListTable` | 已有 `listUiConfig` 的管理页：内部 `useTable` + 统一 `onSearch` / `onReset`                     |
+| `useSearchForm`     | 仅托管独立搜索 model；列表页已用 `useTable` 时通常直接用 `searchParams`                         |
+| `DeclarativeForm`   | SearchBar 底层；`layout="grid"` + `suffixPlacement="below-grid"`                                |
 
-## 搜索数据流（重要）
+## 检索区（栅格布局）
 
-| 模式         | 条件                                                  | 行为                                                                                            |
-| ------------ | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| 受控（推荐） | 传入 `searchModel`（及建议同时展开 `searchBindings`） | 表单读写走 `onUpdateSearchField`；搜索/重置走 `onSearch`、`onReset`（与 `useTablePage` 已对齐） |
-| 非受控       | 仅 `searchConfig`，不传 `searchModel`                 | TablePage 内部 `useSearchForm` 托管；可通过 `@search` / `@reset` 或 `onSearch` / `onReset` 监听 |
+SearchBar 对齐 [Pro Naive 查询表单](https://naive.soybeanjs.cn/pro-naive/form/query) 的栅格检索形态：
 
-事件：`TablePage` 会 `emit('search', snapshot)`、`emit('reset')`，便于埋点或与父层解耦。
+- **筛选项**：`NForm` → `NGrid` → `NGi` + `NFormItem`，列数由 `cols` 控制（默认 `1 s:2 m:3 l:4`，大屏 4 列）。
+- **操作区**：重置 → 搜索 → 展开/收起，**独占下一整行**（span = `cols`），右对齐；不使用 `NGi suffix`，避免窄屏压住前一格。
+- **收起**：`useGridFormCollapse` 按 span 裁剪 `fields`（无动画）；操作区在栅格外始终完整展示。
+- **展开按钮**：仅当字段总 span 大于 `cols × collapsedRows` 且 `collapsible=true` 时显示。
 
-## 特性
+```
+┌─────────┬─────────┬─────────┐  宽屏 3 列示例
+│ 字段 1  │ 字段 2  │ 字段 3  │
+├─────────┴─────────┴─────────┤
+│              [重置][搜索][展开] │  操作区独占一行
+└─────────────────────────────┘
+```
 
-- 🎯 **高度可配置**: 通过配置对象快速构建页面，减少 80% 重复代码
-- 🎨 **预设渲染器**: 内置常见场景的渲染器（头像、状态、日期、标签、操作等）
-- 🔧 **灵活扩展**: 支持自定义渲染和插槽扩展
-- 📦 **组件独立**: 子组件可独立使用，也可组合使用
-- 🎭 **类型安全**: 完整的 TypeScript 类型定义
-- 📱 **响应式设计**: 自适应移动端和桌面端
-- 🚀 **开箱即用**: 内置搜索、分页、批量操作等常用功能
+字段占列：`span` 可显式指定；`date-range` 在栅格下默认占 **2** 列（见 `resolveFieldSpan`）。
+
+**宽度**：配置里的 `width`（如 `220px`）只在行内 `inline` 布局生效。栅格检索强制 `width: 100%` + `min-width: 0`，避免控件最小宽度大于栅格列宽时顶开相邻格或与操作区重叠。操作区独占一行时，极窄视口下按钮组允许换行。
+
+### TablePage 检索相关 Props
+
+| 属性                                | 默认            | 说明                                                   |
+| ----------------------------------- | --------------- | ------------------------------------------------------ |
+| `searchCollapsible`                 | `false`         | 是否可展开/收起                                        |
+| `searchCols`                        | `1 s:2 m:3 l:4` | 栅格列数或响应式字符串                                 |
+| `searchGridXGap` / `searchGridYGap` | `24` / `0`      | 栅格间距                                               |
+| `searchGridResponsive`              | `screen`        | `screen` 随视口；`self` 随检索区容器（嵌套窄卡片时用） |
+| `searchCollapsedRows`               | `1`             | 收起时保留的**行数**（按 span 累计）                   |
+| `searchDefaultCollapsed`            | `false`         | 初始是否收起                                           |
+
+### SearchBar 独立使用
+
+```tsx
+import SearchBar, { DEFAULT_GRID_COLS } from '@/components/table-page';
+
+<SearchBar
+  config={searchConfig}
+  model={formModel}
+  onUpdateModel={updateField}
+  onSearch={handleSearch}
+  onReset={handleReset}
+  cols={DEFAULT_GRID_COLS}
+  collapsible
+  collapsedRows={1}
+  defaultCollapsed
+/>;
+```
+
+| 属性                                          | 默认                    | 说明                      |
+| --------------------------------------------- | ----------------------- | ------------------------- |
+| `cols`                                        | `1 s:2 m:3 l:4`         | 同 TablePage `searchCols` |
+| `gridXGap` / `gridYGap`                       | `24` / `0`              | 栅格间距                  |
+| `gridResponsive`                              | `screen`                | 响应式断点策略            |
+| `collapsible`                                 | `false`                 | 可折叠                    |
+| `collapsedRows`                               | `1`                     | 收起保留行数              |
+| `defaultCollapsed`                            | `false`                 | 初始收起                  |
+| `showActionButtons`                           | `true`                  | 是否显示搜索/重置         |
+| `labelPlacement` / `labelWidth` / `showLabel` | `left` / `80` / `false` | 表单项标签                |
+
+**插槽**：`toolbarBefore`、`toolbarAfter`、`actionsExtra`（追加在操作按钮后）。
+
+**演示**：`src/views/component/examples/TablePageSearchExample.tsx`（少量字段 / 多字段可折叠 / TablePage 集成 / 独立 SearchBar）。
+
+## 搜索数据流
+
+| 模式         | 条件                             | 行为                                                            |
+| ------------ | -------------------------------- | --------------------------------------------------------------- |
+| 受控（推荐） | `searchModel` + `searchBindings` | 字段走 `onUpdateSearchField`；搜索/重置走 `onSearch`、`onReset` |
+| 非受控       | 仅 `searchConfig`                | TablePage 内部 `useSearchForm` 托管                             |
+
+`useTablePage` 务必展开 **`searchBindings`**：`searchModel` 与接口入参 `searchParams` 为同一 `reactive` 对象。
+
+```tsx
+const { data, loading, pagination, selectedKeys, searchBindings, updateSelectedKeys } =
+  useTablePage({ apiFn: fetchList, searchConfig, immediate: true });
+
+return () => (
+  <TablePage
+    {...searchBindings}
+    searchConfig={searchConfig}
+    searchCollapsible
+    searchDefaultCollapsed
+    columns={columns}
+    data={data.value}
+    loading={loading.value}
+    pagination={pagination}
+    selectedKeys={selectedKeys.value}
+    onUpdateSelectedKeys={updateSelectedKeys}
+  />
+);
+```
+
+## 目录结构
+
+```
+src/components/table-page/
+├── TablePage.tsx
+├── SearchBar.tsx
+├── SearchFormSuffix.tsx
+├── hooks/                         # useTablePage、useSearchForm 等
+├── ActionBar.tsx
+├── DataTable.tsx
+├── types.ts
+├── index.ts
+├── hooks/
+│   ├── useTablePage.ts
+│   └── useSearchForm.ts
+├── renderers/                     # 列预设渲染
+├── examples/BasicExample.tsx
+└── README.md                      # 本文档
+```
 
 ## 快速开始
-
-### 基础用法
 
 ```tsx
 import { TablePage, useTablePage } from '@/components/table-page';
@@ -47,160 +142,89 @@ import type {
   TableColumnConfig
 } from '@/components/table-page';
 
-export default defineComponent({
-  setup() {
-    // 搜索配置
-    const searchConfig: SearchFieldConfig[] = [
-      {
-        type: 'input',
-        field: 'search',
-        placeholder: '搜索关键词',
-        icon: 'i-carbon-search',
-        width: '220px'
-      },
-      {
-        type: 'select',
-        field: 'status',
-        placeholder: '状态',
-        width: '130px',
-        options: [
-          { label: '启用', value: true },
-          { label: '禁用', value: false }
-        ]
-      }
-    ];
-
-    // 使用 hook：务必解构 searchBindings 并展开到 TablePage，搜索与请求才会联动
-    const { data, loading, pagination, selectedKeys, refresh, updateSelectedKeys, searchBindings } =
-      useTablePage({
-        apiFn: fetchDataList,
-        searchConfig,
-        immediate: true
-      });
-
-    // 操作栏配置
-    const actionConfig: ActionBarConfig = {
-      preset: {
-        add: { show: true, onClick: handleAdd },
-        batchDelete: { show: true, onClick: handleBatchDelete },
-        refresh: { show: true, onClick: refresh }
-      }
-    };
-
-    // 表格列配置
-    const columns: TableColumnConfig[] = [
-      {
-        key: 'username',
-        title: '用户名',
-        width: 140,
-        render: 'avatar',
-        renderConfig: {
-          avatarField: 'avatar',
-          nameField: 'username'
-        }
-      },
-      {
-        key: 'status',
-        title: '状态',
-        width: 90,
-        render: 'status',
-        renderConfig: {
-          type: 'switch',
-          onChange: handleToggleStatus
-        }
-      },
-      {
-        key: 'action',
-        title: '操作',
-        width: 180,
-        fixed: 'right',
-        render: 'action',
-        renderConfig: {
-          buttons: [
-            { label: '编辑', type: 'primary', onClick: handleEdit },
-            { label: '删除', type: 'error', onClick: handleDelete }
-          ]
-        }
-      }
-    ];
-
-    return () => (
-      <TablePage
-        {...searchBindings}
-        searchConfig={searchConfig}
-        actionConfig={actionConfig}
-        columns={columns}
-        data={data.value}
-        loading={loading.value}
-        pagination={pagination}
-        selectedKeys={selectedKeys.value}
-        onUpdateSelectedKeys={updateSelectedKeys}
-      />
-    );
+const searchConfig: SearchFieldConfig[] = [
+  {
+    type: 'input',
+    field: 'search',
+    placeholder: '关键词',
+    icon: 'i-carbon-search',
+    width: '220px'
+  },
+  {
+    type: 'select',
+    field: 'status',
+    placeholder: '状态',
+    width: '130px',
+    options: [
+      { label: '启用', value: true },
+      { label: '禁用', value: false }
+    ]
   }
-});
+];
+
+const { data, loading, pagination, selectedKeys, searchBindings, updateSelectedKeys } =
+  useTablePage({
+    apiFn: fetchDataList,
+    searchConfig,
+    immediate: true
+  });
+
+const actionConfig: ActionBarConfig = {
+  preset: {
+    add: { show: true, onClick: handleAdd },
+    batchDelete: { show: true, onClick: handleBatchDelete },
+    refresh: { show: true, onClick: refresh }
+  }
+};
+
+const columns: TableColumnConfig[] = [
+  {
+    key: 'username',
+    title: '用户名',
+    width: 140,
+    render: 'avatar',
+    renderConfig: { avatarField: 'avatar', nameField: 'username' }
+  },
+  {
+    key: 'action',
+    title: '操作',
+    width: 180,
+    fixed: 'right',
+    render: 'action',
+    renderConfig: {
+      buttons: [
+        { label: '编辑', type: 'primary', onClick: handleEdit },
+        { label: '删除', type: 'error', onClick: handleDelete }
+      ]
+    }
+  }
+];
+
+// <TablePage {...searchBindings} searchConfig={...} actionConfig={...} columns={...} ... />
 ```
 
-## 组件 API
+## TablePage API（核心 Props）
 
-### TablePage
+| 属性                                                           | 说明                                                 |
+| -------------------------------------------------------------- | ---------------------------------------------------- |
+| `searchConfig`                                                 | 搜索字段；与 `search` 插槽二选一（插槽优先整块替换） |
+| `searchModel` / `onUpdateSearchField` / `onSearch` / `onReset` | 受控检索                                             |
+| `initialSearchModel`                                           | 仅非受控初始值                                       |
+| `actionConfig`                                                 | 工具条                                               |
+| `columns` / `data` / `loading` / `pagination`                  | 表格                                                 |
+| `selectedKeys` / `onUpdateSelectedKeys` / `rowKey`             | 多选                                                 |
+| `showSearchCard` / `searchCardBordered`                        | 检索区卡片                                           |
+| `showActionCard` / `actionCardBordered`                        | 操作区卡片                                           |
+| `tableProps`                                                   | 透传 `NDataTable`（`remote`、`flexHeight` 等）       |
+| `padded` / `gapClass` / `class`                                | 根布局                                               |
 
-主组件：搜索卡片区 + 操作卡片区 + 表格卡片区。布局类 props（`padded`、`gapClass`、`showSearchCard` 等）用于适配不同后台壳层。
+**事件**：`search`（当前筛选快照）、`reset`。
 
-#### Props（核心）
+**插槽**：`search`、`action`、`tablePrepend`、`tableAppend`。
 
-| 属性                 | 类型                                  | 默认值       | 说明                                                                 |
-| -------------------- | ------------------------------------- | ------------ | -------------------------------------------------------------------- |
-| searchConfig         | `SearchFieldConfig[]`                 | -            | 搜索字段声明；与 `search` 插槽二选一或共存（插槽优先渲染整块）       |
-| searchModel          | `Record<string, any>`                 | -            | 受控表单对象；与 `useTablePage().searchBindings` 一同传入            |
-| onUpdateSearchField  | `(field, value) => void`              | -            | 受控字段更新；不传且存在 `searchModel` 时直接写字段（依赖 reactive） |
-| initialSearchModel   | `Record<string, unknown>`             | -            | **仅非受控**内部表单初始值                                           |
-| onSearch             | `(payload?) => void`                  | -            | 搜索提交；受控时通常绑定 `searchBindings.onSearch`                   |
-| onReset              | `() => void`                          | -            | 重置；受控时绑定 `searchBindings.onReset`                            |
-| actionConfig         | `ActionBarConfig`                     | -            | 工具条；可与 `action` 插槽组合（插槽优先）                           |
-| columns              | `TableColumnConfig[]`                 | （必填）     | 列配置                                                               |
-| data                 | `any[]`                               | （必填）     | 行数据                                                               |
-| loading              | `boolean`                             | `false`      | 加载态                                                               |
-| pagination           | `PaginationProps`                     | -            | 分页；与 naive `NDataTable` 一致                                     |
-| selectedKeys         | `(string \| number)[]`                | `[]`         | 多选选中行                                                           |
-| rowKey               | `string \| (row) => string \| number` | `'id'`       | 行主键                                                               |
-| onUpdateSelectedKeys | `(keys) => void`                      | -            | 多选变更                                                             |
-| scrollX              | `number`                              | -            | 横向滚动宽度                                                         |
-| showIndex            | `boolean`                             | `true`       | 序号列                                                               |
-| showSelection        | `boolean`                             | `true`       | 多选列                                                               |
-| striped              | `boolean`                             | `true`       | 斑马纹                                                               |
-| size                 | `'small' \| 'medium' \| 'large'`      | `'small'`    | 表格尺寸                                                             |
-| bordered             | `boolean`                             | `false`      | 单元格边框                                                           |
-| maxHeight            | `string \| number`                    | `'100%'`     | 表格 body 最大高度                                                   |
-| class                | `string`                              | `''`         | 根容器额外 class                                                     |
-| showSearchCard       | `boolean`                             | `true`       | 搜索区是否包 `NCard`                                                 |
-| searchCardBordered   | `boolean`                             | `false`      | 搜索区 `NCard` bordered                                              |
-| showActionCard       | `boolean`                             | `true`       | 操作区是否包 `NCard`                                                 |
-| actionCardBordered   | `boolean`                             | `false`      | 操作区 `NCard` bordered                                              |
-| padded               | `boolean`                             | `true`       | 根节点 `p-16px`                                                      |
-| gapClass             | `string`                              | `'gap-16px'` | 根 flex 子项间距                                                     |
-| tableProps           | `Partial<NaiveDataTableProps>`        | -            | 透传 `NDataTable`（如 `remote`、`flexHeight`、`rowProps`）           |
+## SearchFieldConfig
 
-#### 事件
-
-| 事件名 | 载荷                      | 说明                                        |
-| ------ | ------------------------- | ------------------------------------------- |
-| search | `Record<string, unknown>` | 当前筛选快照（受控为 `searchModel` 浅拷贝） |
-| reset  | -                         | 表单已复位                                  |
-
-#### 插槽
-
-| 插槽名                     | 说明                                                                            |
-| -------------------------- | ------------------------------------------------------------------------------- |
-| search                     | 替换默认 `SearchBar` 卡片内容（仍包在 `NCard` 内，除非 `showSearchCard=false`） |
-| action                     | 替换默认 `ActionBar`（可无 `actionConfig` 仅插槽）                              |
-| tablePrepend / tableAppend | 表格卡片内、表格上下的附加内容                                                  |
-
-### SearchBar
-
-可独立使用。字段通过 `SearchFieldConfig` 声明；`toolbarBefore` / `toolbarAfter` / `actionsExtra` 插槽用于扩展布局。
-
-#### SearchFieldConfig
+与 `DeclarativeFieldConfig`（`@/components/declarative-form`）相同：
 
 ```typescript
 interface SearchFieldConfig {
@@ -209,80 +233,19 @@ interface SearchFieldConfig {
   placeholder?: string;
   icon?: string;
   width?: string;
+  span?: number; // 栅格占列，date-range 默认 2
   options?: Array<{ label: string; value: any }>;
   clearable?: boolean;
   disabled?: boolean;
-  /** 重置回退值，优先级低于 useSearchForm 的 initialValues[field] */
   defaultValue?: unknown;
-  /** 透传给 NSelect / NInput / NDatePicker */
   componentProps?: Record<string, unknown>;
-  render?: (model: any, updateModel: (field: string, value: any) => void) => VNode;
+  render?: (model, updateModel) => VNode;
   label?: string;
   showLabel?: boolean;
 }
 ```
 
-#### 示例
-
-```typescript
-const searchConfig: SearchFieldConfig[] = [
-  {
-    type: 'input',
-    field: 'keyword',
-    placeholder: '搜索关键词',
-    icon: 'i-carbon-search',
-    width: '220px'
-  },
-  {
-    type: 'select',
-    field: 'status',
-    placeholder: '选择状态',
-    width: '130px',
-    options: [
-      { label: '全部', value: '' },
-      { label: '启用', value: 1 },
-      { label: '禁用', value: 0 }
-    ],
-    componentProps: { filterable: true }
-  },
-  {
-    type: 'date',
-    field: 'date',
-    placeholder: '选择日期',
-    width: '180px'
-  },
-  {
-    type: 'date-range',
-    field: 'dateRange',
-    placeholder: '选择日期范围',
-    width: '240px'
-  },
-  {
-    type: 'custom',
-    field: 'custom',
-    render: (model, updateModel) => (
-      <NInput value={model.custom} onUpdateValue={(v) => updateModel('custom', v)} />
-    )
-  }
-];
-```
-
-### useTablePage 补充
-
-内部调用 **`useTable`（`@/hooks/common/table`）**，`searchBindings.searchModel` 与接口入参 **`searchParams`** 为同一 `reactive` 对象，筛选项字段名请与后端 `PaginationParams` 对齐。
-
-| 字段                                   | 说明                                                                                                                   |
-| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| searchBindings                         | `{ searchModel, onUpdateSearchField, onSearch, onReset }`，建议 `<TablePage {...searchBindings} searchConfig={...} />` |
-| searchParams                           | 与 `useTable` 相同，即当前请求参数（含 `page`、`limit`）                                                               |
-| updateSearchParams / resetSearchParams | 透传自 `useTable`，高级场景可手动合并参数后拉数                                                                        |
-| columnChecks / reloadColumns 等        | 与 `useTable` 一致；TablePage 自带列配置时可忽略内部占位列                                                             |
-
-### ActionBar
-
-操作栏组件，支持预设按钮和自定义按钮。
-
-#### ActionBarConfig
+## ActionBar
 
 ```typescript
 interface ActionBarConfig {
@@ -298,387 +261,88 @@ interface ActionBarConfig {
 }
 ```
 
-#### 示例
+## DataTable 预设渲染器
 
-```typescript
-const actionConfig: ActionBarConfig = {
-  // 预设按钮
-  preset: {
-    add: {
-      show: true,
-      onClick: handleAdd,
-      label: '新增用户' // 可选：自定义标签
-    },
-    batchDelete: {
-      show: true,
-      onClick: handleBatchDelete
-    },
-    refresh: {
-      show: true,
-      onClick: handleRefresh
-    }
-  },
-  // 自定义按钮
-  custom: [
-    {
-      label: '导出',
-      icon: 'i-carbon-download',
-      type: 'default',
-      onClick: handleExport
-    },
-    {
-      label: '导入',
-      icon: 'i-carbon-upload',
-      type: 'default',
-      onClick: handleImport
-    }
-  ],
-  // 自定义统计信息
-  statsRender: (total, selected) => (
-    <span>共 {total} 条，已选 {selected} 条</span>
-  )
-};
-```
+| 类型 | `render` | 典型用途                                   |
+| ---- | -------- | ------------------------------------------ |
+| 头像 | `avatar` | 头像 + 名称                                |
+| 状态 | `status` | `switch` / `tag`                           |
+| 日期 | `date`   | `datetime` / `date` / `relative` / `smart` |
+| 标签 | `tag`    | `simple` / `badge` / `popover`             |
+| 操作 | `action` | 行内按钮、确认、更多                       |
+| 文本 | `text`   | 省略、空值                                 |
 
-### DataTable
+配置字段见 `types.ts` 与各 `renderers/*.tsx`；复杂列仍可用 `render: (row) => VNode`。
 
-数据表格组件，支持预设渲染器。
-
-#### 预设渲染器
-
-##### 1. Avatar Renderer (头像渲染器)
-
-```typescript
-{
-  key: 'username',
-  title: '用户名',
-  render: 'avatar',
-  renderConfig: {
-    avatarField: 'avatar',        // 头像字段
-    nameField: 'username',         // 名称字段
-    size: 28,                      // 头像大小
-    showOnlineStatus: true,        // 显示在线状态
-    onlineStatusField: 'isOnline'  // 在线状态字段
-  }
-}
-```
-
-##### 2. Status Renderer (状态渲染器)
-
-```typescript
-// Switch 类型
-{
-  key: 'isActive',
-  title: '状态',
-  render: 'status',
-  renderConfig: {
-    type: 'switch',
-    onChange: (row, value) => handleToggleStatus(row.id, value)
-  }
-}
-
-// Tag 类型
-{
-  key: 'status',
-  title: '状态',
-  render: 'status',
-  renderConfig: {
-    type: 'tag',
-    trueLabel: '启用',
-    falseLabel: '禁用',
-    trueType: 'success',
-    falseType: 'default'
-  }
-}
-```
-
-##### 3. Date Renderer (日期渲染器)
-
-```typescript
-{
-  key: 'createdAt',
-  title: '创建时间',
-  render: 'date',
-  renderConfig: {
-    format: 'datetime',  // 'datetime' | 'date' | 'time' | 'relative' | 'smart'
-    emptyText: '-'
-  }
-}
-
-// Smart 格式：今天显示时间，7天内显示"X天前"，更早显示日期
-{
-  key: 'lastLoginAt',
-  title: '最后登录',
-  render: 'date',
-  renderConfig: {
-    format: 'smart',
-    emptyText: '从未登录'
-  }
-}
-```
-
-##### 4. Tag Renderer (标签渲染器)
-
-```typescript
-// Simple 类型：直接显示所有标签
-{
-  key: 'tags',
-  title: '标签',
-  render: 'tag',
-  renderConfig: {
-    type: 'simple',
-    tagType: 'info',
-    round: true
-  }
-}
-
-// Badge 类型：显示第一个标签 + 数量徽章
-{
-  key: 'roles',
-  title: '角色',
-  render: 'tag',
-  renderConfig: {
-    type: 'badge',
-    maxShow: 1,
-    fieldMap: {
-      label: 'name',
-      value: 'id'
-    }
-  }
-}
-
-// Popover 类型：悬停显示所有标签
-{
-  key: 'roles',
-  title: '角色',
-  render: 'tag',
-  renderConfig: {
-    type: 'popover',
-    maxShow: 2,
-    fieldMap: {
-      label: 'name',
-      value: 'id'
-    }
-  }
-}
-```
-
-##### 5. Action Renderer (操作渲染器)
-
-```typescript
-{
-  key: 'action',
-  title: '操作',
-  fixed: 'right',
-  render: 'action',
-  renderConfig: {
-    buttons: [
-      {
-        label: '编辑',
-        icon: 'i-carbon-edit',
-        type: 'primary',
-        secondary: true,
-        onClick: (row) => handleEdit(row)
-      },
-      {
-        label: '删除',
-        icon: 'i-carbon-trash-can',
-        type: 'error',
-        secondary: true,
-        onClick: (row) => handleDelete(row),
-        // 条件显示
-        show: (row) => row.canDelete,
-        // 条件禁用
-        disabled: (row) => row.isSystem,
-        // 确认提示
-        confirm: {
-          title: '确认删除',
-          content: '删除后无法恢复，确定要删除吗？'
-        }
-      }
-    ],
-    maxShow: 3,  // 最多显示按钮数，超出显示"更多"
-    moreText: '更多'
-  }
-}
-```
-
-##### 6. Text Renderer (文本渲染器)
-
-```typescript
-{
-  key: 'description',
-  title: '描述',
-  render: 'text',
-  renderConfig: {
-    emptyText: '-',
-    strong: false,
-    depth: 1,
-    ellipsis: true,
-    lineClamp: 2
-  }
-}
-```
-
-## Hooks API
+## Hooks
 
 ### useTablePage
-
-基于 **`@/hooks/common/table` 的 `useTable`**，与现有管理页同一套分页与 ListData 解析；多选、`searchBindings` 为 TablePage 补齐。
 
 ```typescript
 const {
   data,
   loading,
-  selectedKeys,
   pagination,
-  searchParams, // 与 searchBindings.searchModel 同一 reactive，即请求参数
+  selectedKeys,
+  searchParams,
   searchBindings,
-  getData,
   refresh,
-  reload,
-  updateSelectedKeys,
-  clearSelection,
-  hasSelection,
-  total,
-  // 以下与 useTable 一致，按需使用
-  empty,
-  columnChecks,
-  reloadColumns,
-  mobilePagination,
-  updatePagination,
-  getDataByPage,
-  updateSearchParams,
-  resetSearchParams
+  updateSelectedKeys
 } = useTablePage({
-  apiFn: fetchUserList, // NaiveUI.TableApiFn
-  apiParams: {
-    /* 可选：除 page/limit 外默认参数 */
-  },
+  apiFn,
   searchConfig,
+  apiParams: {},
   initialSearchParams: {},
-  initialPagination: { page: 1, pageSize: 10 },
-  immediate: true,
-  showTotal: true
+  immediate: true
 });
 ```
 
 ### useSearchForm
 
-用于管理搜索表单的状态。
+独立表单托管：`formModel`、`updateModel`、`resetForm`、`handleSearch`、`handleReset`。
 
-```typescript
-const {
-  formModel, // 表单模型
-  formRef, // 表单引用
-  updateModel, // 更新字段
-  getValues, // 获取表单值
-  setValues, // 设置表单值
-  resetForm, // 重置表单
-  handleSearch, // 处理搜索
-  handleReset // 处理重置
-} = useSearchForm({
-  config: searchConfig,
-  initialValues: {},
-  onSearch: values => console.log(values),
-  onReset: () => console.log('reset')
-});
-```
+## 从旧页面迁移
 
-## 完整示例
+1. 备份原 `index.tsx`，对照 `examples/BasicExample.tsx` 或业务页。
+2. 搜索区：手写 `NFormItem` → `SearchFieldConfig[]`；列表页加 `searchCollapsible` 等栅格 props（可选）。
+3. 操作区：手写按钮 → `actionConfig.preset` / `custom`。
+4. 表格列：内联 `render` → 预设 `render` + `renderConfig`（可混用自定义 `render`）。
+5. 状态：`useTable` / 手写分页 → `useTablePage` + `<TablePage {...searchBindings} />`。
+6. API：在 `apiFn` 内适配为项目约定的 `ListData`（`lists` + `meta`），勿依赖已移除的 Hook 层 transformer。
 
-参考 `src/views/user-management/index-new.tsx` 查看完整的用户管理页面示例。
+**检查清单**：检索/重置、分页、增删改、批量、列渲染、TS 无报错、窄屏检索区无按钮重叠。
 
 ## 最佳实践
 
-### 1. 使用 useTablePage Hook
+1. 列表页始终 **受控** + 展开 `searchBindings`。
+2. 配置化优先：搜索、工具条、列集中声明。
+3. 多字段检索开启 `searchCollapsible`；字段多时用 `searchDefaultCollapsed`。
+4. 检索区嵌在窄侧栏/抽屉时传 `searchGridResponsive="self"`。
+5. 需要 3 列大屏：`searchCols="1 s:2 l:3"`。
+6. 子组件可拆：`SearchBar` + `ActionBar` + `DataTable` 自定义布局。
 
-`useTablePage` 内部已是 **`useTable`**，与手写管理页时引入 `@/hooks/common/table` 的行为一致；搭配 TablePage 时务必展开 **`searchBindings`**。
+## 常见问题
 
-```typescript
-const tablePageHook = useTablePage({
-  apiFn: fetchUserList,
-  searchConfig,
-  immediate: true
-});
+**Q：收起后操作按钮不见了？**  
+A：操作区始终渲染；仅筛选项被裁剪。确认 `showActionButtons` 未关。
 
-const { data, loading, pagination, selectedKeys, refresh } = tablePageHook;
-```
+**Q：窄屏字段与按钮重叠？**  
+A：多为筛选项配置了固定 `width` 或 Naive 控件默认 `min-width: auto`。栅格检索已忽略字段 `width` 并打通 `min-width: 0` 收缩链；操作区独占一行。若仍异常，检查 `componentProps.style.width` 或外层 `overflow`。
 
-### 2. 配置化优先
+**Q：API 字段名与表单不一致？**  
+A：在 `onSearch` 或请求前映射；`searchParams` 键名需与后端入参一致。
 
-尽量使用配置化的方式定义搜索字段、操作按钮和表格列，减少重复代码：
-
-```typescript
-// 好的做法
-const searchConfig: SearchFieldConfig[] = [...];
-const actionConfig: ActionBarConfig = {...};
-const columns: TableColumnConfig[] = [...];
-
-// 避免手写大量 JSX
-```
-
-### 3. 使用预设渲染器
-
-优先使用预设渲染器，只在特殊情况下使用自定义渲染：
-
-```typescript
-// 好的做法
-{
-  key: 'status',
-  render: 'status',
-  renderConfig: { type: 'switch', onChange: handleToggle }
-}
-
-// 只在预设渲染器无法满足时使用自定义
-{
-  key: 'complex',
-  render: (row) => <ComplexComponent data={row} />
-}
-```
-
-### 4. 类型安全
-
-充分利用 TypeScript 类型定义：
-
-```typescript
-type User = Api.UserManagement.User;
-
-const columns: TableColumnConfig<User>[] = [
-  // TypeScript 会提供类型提示和检查
-];
-```
-
-### 5. 组件独立使用
-
-子组件可以独立使用，适合需要自定义布局的场景：
-
-```typescript
-import { SearchBar, ActionBar, DataTable } from '@/components/table-page';
-
-// 自定义布局
-return () => (
-  <div class="custom-layout">
-    <SearchBar {...searchProps} />
-    <ActionBar {...actionProps} />
-    <DataTable {...tableProps} />
-  </div>
-);
-```
-
-## 注意事项
-
-1. **分页参数格式**: 确保 API 函数接受 `{ page, limit, ...searchParams }` 格式的参数
-2. **数据格式**: 默认期望 API 返回 `{ lists: [], meta: { total, page, limit } }` 格式，可通过 `transformer` 自定义
-3. **行键**: 确保数据中有唯一的 `id` 字段，或通过 `rowKey` 指定其他字段
-4. **图标**: 使用 UnoCSS 的图标类名（如 `i-carbon-*`）
+**Q：如何完全自定义检索区？**  
+A：使用 TablePage 的 `search` 插槽，或 `showSearchCard={false}` 自行包卡片。
 
 ## 更新日志
 
-### v1.0.0 (2024-12-22)
+### 检索栅格（当前）
 
-- ✨ 初始版本发布
-- 🎨 支持 7 种预设渲染器
-- 📦 完整的 TypeScript 类型定义
-- 🚀 开箱即用的 hooks
-- 📱 响应式设计
+- SearchBar 栅格布局，操作区独占一行；`useGridFormCollapse` 字段级收起。
+- 默认 `cols: 1 s:2 m:3 l:4`，`gridResponsive: screen`。
+- 移除 `defaultExpanded`、`collapsedRowHeightPx`、`gridActionSpan` 等冗余 API。
+
+### v1.0.0
+
+- TablePage + 7 种列预设渲染器 + `useTablePage` / `useSearchForm`。

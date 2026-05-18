@@ -1,6 +1,7 @@
 import { type PropType, computed, defineComponent, ref, watch } from 'vue';
 import { NCard } from 'naive-ui';
 import type { DataTableProps as NaiveDataTableProps, PaginationProps } from 'naive-ui';
+import { DEFAULT_GRID_COLS } from '@/components/declarative-form';
 import type { ActionBarConfig, SearchFieldConfig, TableColumnConfig } from './types';
 import SearchBar from './SearchBar';
 import ActionBar from './ActionBar';
@@ -13,50 +14,102 @@ import {
 } from './utils/columnChecks';
 
 /**
- * 典型后台「筛选 + 工具条 + 表格」三栏布局的页面级容器。
+ * 典型后台「检索 + 工具条 + 表格」页面容器。
  *
- * 搜索数据流（重要）：
+ * 检索数据流：
  *
- * - **受控（推荐）**：传入 `searchModel` + `onUpdateSearchField` + `onSearch` + `onReset`， 与 `useTablePage`
- *   返回的 `searchBindings`（底层为 `useTable` 的 `searchParams`）对齐，保证请求参数与 UI 同步。
- * - **非受控**：仅传 `searchConfig`（及可选 `initialSearchModel`）时，由本组件内部 `useSearchForm`
- *   托管表单；适合静态演示或与外部请求逻辑解耦的场景。
+ * - **受控（推荐）**：展开 `useTablePage` 的 `searchBindings`（`searchModel` 即 `searchParams`）。
+ * - **非受控**：仅传 `searchConfig`，内部 `useSearchForm` 托管。
  *
- * 扩展点：
- *
- * - `search` 插槽：完全自定义筛选区（仍建议外层用 NCard 保持视觉一致）。
- * - `searchCollapsible` / `searchCollapsedRows` / `searchCollapsedRowHeightPx`：搜索区多行时展开收起。
- * - `enableColumnSetting`：在操作栏集成列显隐 / 拖拽排序（复用 `advanced/TableColumnSetting`）； 可与 `columnChecks` +
- *   `onUpdateColumnChecks` 受控配合。
- * - `actionConfig.showStats`：为 true 时在工具条左侧展示「共 x 条」等统计，按钮组仍在右侧；默认不展示。
- * - `tableProps`：向 naive `NDataTable` 透传 `remote`、`flexHeight`、`rowProps` 等原生能力。
+ * 详见同目录 README.md。
  */
 export default defineComponent({
   name: 'TablePage',
   props: {
+    // —— 检索区 ——
+    /** 检索字段配置；有 `search` 插槽时插槽优先 */
     searchConfig: {
       type: Array as PropType<SearchFieldConfig[]>,
       default: undefined
     },
-    /** 受控：外部持有的表单对象，一般即 useSearchForm().formModel */
+    /** 受控表单对象，与 searchBindings.searchModel 同一引用 */
     searchModel: {
       type: Object as PropType<object>,
       default: undefined
     },
-    /** 受控：单字段更新；缺省时若存在 searchModel 则直接写入该对象字段 */
+    /** 受控单字段更新；未传且存在 searchModel 时直接写字段 */
     onUpdateSearchField: {
       type: Function as PropType<(field: string, value: unknown) => void>,
       default: undefined
     },
-    /** 非受控：内部表单的初始值 */
+    /** 非受控模式下的表单初始值 */
     initialSearchModel: {
       type: Object as PropType<Record<string, unknown>>,
       default: undefined
     },
+    /** 是否可展开/收起多余筛选项 */
+    searchCollapsible: {
+      type: Boolean,
+      default: false
+    },
+    /** 检索栅格列数，默认 `1 s:2 m:3 l:4`（大屏 4 列） */
+    searchCols: {
+      type: [Number, String] as PropType<number | string>,
+      default: DEFAULT_GRID_COLS
+    },
+    /** 检索栅格水平间距（px） */
+    searchGridXGap: {
+      type: Number,
+      default: 24
+    },
+    /** 检索栅格垂直间距（px） */
+    searchGridYGap: {
+      type: Number,
+      default: 0
+    },
+    /** 检索栅格响应式：`screen` | `self` */
+    searchGridResponsive: {
+      type: String as PropType<'self' | 'screen'>,
+      default: 'screen'
+    },
+    /** 收起时保留的筛选项行数 */
+    searchCollapsedRows: {
+      type: Number,
+      default: 1
+    },
+    /** 检索区初始是否收起 */
+    searchDefaultCollapsed: {
+      type: Boolean,
+      default: false
+    },
+    /** 为 false 时检索区不包 NCard */
+    showSearchCard: {
+      type: Boolean,
+      default: true
+    },
+    /** 检索区 NCard 是否 bordered */
+    searchCardBordered: {
+      type: Boolean,
+      default: false
+    },
+
+    // —— 操作栏 ——
+    /** 表格上方工具条（新增 / 批量删除 / 刷新等） */
     actionConfig: {
       type: Object as PropType<ActionBarConfig>,
       default: undefined
     },
+    /** 为 false 时操作区不包 NCard */
+    showActionCard: {
+      type: Boolean,
+      default: true
+    },
+    actionCardBordered: {
+      type: Boolean,
+      default: false
+    },
+
+    // —— 表格 ——
     columns: {
       type: Array as PropType<TableColumnConfig[]>,
       required: true
@@ -80,14 +133,6 @@ export default defineComponent({
     rowKey: {
       type: [String, Function] as PropType<string | ((row: any) => string | number)>,
       default: 'id'
-    },
-    onSearch: {
-      type: Function as PropType<(payload?: Record<string, unknown>) => void>,
-      default: undefined
-    },
-    onReset: {
-      type: Function as PropType<() => void>,
-      default: undefined
     },
     onUpdateSelectedKeys: {
       type: Function as PropType<(keys: (string | number)[]) => void>,
@@ -121,56 +166,12 @@ export default defineComponent({
       type: [String, Number] as PropType<string | number>,
       default: '100%'
     },
-    class: {
-      type: String,
-      default: ''
-    },
-    /** 为 false 时搜索区不包 NCard（插槽自定义时常关） */
-    showSearchCard: {
-      type: Boolean,
-      default: true
-    },
-    searchCardBordered: {
-      type: Boolean,
-      default: false
-    },
-    searchCollapsible: {
-      type: Boolean,
-      default: false
-    },
-    searchCollapsedRows: {
-      type: Number,
-      default: 1
-    },
-    searchCollapsedRowHeightPx: {
-      type: Number,
-      default: 52
-    },
-    searchDefaultExpanded: {
-      type: Boolean,
-      default: false
-    },
-    showActionCard: {
-      type: Boolean,
-      default: true
-    },
-    actionCardBordered: {
-      type: Boolean,
-      default: false
-    },
-    gapClass: {
-      type: String,
-      default: 'gap-16px'
-    },
-    padded: {
-      type: Boolean,
-      default: true
-    },
-    /** 透传给 NDataTable，见 README「表格透传」 */
+    /** 透传 NDataTable（remote、flexHeight、rowProps 等） */
     tableProps: {
       type: Object as PropType<Partial<NaiveDataTableProps>>,
       default: undefined
     },
+    /** 操作栏展示列显隐 / 排序设置 */
     enableColumnSetting: {
       type: Boolean,
       default: false
@@ -182,6 +183,30 @@ export default defineComponent({
     onUpdateColumnChecks: {
       type: Function as PropType<(next: NaiveUI.TableColumnCheck[]) => void>,
       default: undefined
+    },
+
+    // —— 事件（受控时常由 searchBindings 提供，勿与 emit 重复绑定） ——
+    onSearch: {
+      type: Function as PropType<(payload?: Record<string, unknown>) => void>,
+      default: undefined
+    },
+    onReset: {
+      type: Function as PropType<() => void>,
+      default: undefined
+    },
+
+    // —— 布局 ——
+    class: {
+      type: String,
+      default: ''
+    },
+    gapClass: {
+      type: String,
+      default: 'gap-16px'
+    },
+    padded: {
+      type: Boolean,
+      default: true
     }
   },
   emits: ['search', 'reset', 'update:columnChecks'],
@@ -300,10 +325,13 @@ export default defineComponent({
             onSearch={triggerSearch}
             onReset={triggerReset}
             onUpdateModel={patchSearchField}
+            cols={props.searchCols}
+            gridXGap={props.searchGridXGap}
+            gridYGap={props.searchGridYGap}
+            gridResponsive={props.searchGridResponsive}
             collapsible={props.searchCollapsible}
             collapsedRows={props.searchCollapsedRows}
-            collapsedRowHeightPx={props.searchCollapsedRowHeightPx}
-            defaultExpanded={props.searchDefaultExpanded}
+            defaultCollapsed={props.searchDefaultCollapsed}
           />
         ) : null);
 

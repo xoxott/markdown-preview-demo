@@ -1,47 +1,121 @@
 import type { VNode } from 'vue';
 
-/** 声明式表单控件类型：与 DeclarativeForm 渲染分支一一对应 */
+/**
+ * 声明式表单整体布局模式。
+ *
+ * - `inline`：行内表单项，字段可通过 `width` 固定控件宽度，支持 `wrap` 换行。
+ * - `grid`：基于 Naive UI `NGrid` 的栅格布局，字段通过 `span` 占列，配合 `gridCols` 等属性响应式排布。
+ */
+export type DeclarativeFormLayout = 'inline' | 'grid';
+
+/**
+ * 表单尾部插槽（`#suffix`）的放置方式，仅在与 `layout` 组合时生效。
+ *
+ * - `inline`：与字段同一行内联，适用于 `layout="inline"`。
+ * - `grid-cell`：作为栅格中的一个单元格，与最后一行字段并列，适用于 `layout="grid"`。
+ * - `below-grid`：独占栅格下方一行（检索栏常见：查询 / 重置按钮整行右对齐）。
+ */
+export type DeclarativeFormSuffixPlacement = 'inline' | 'grid-cell' | 'below-grid';
+
+/**
+ * 声明式表单内置控件类型。
+ *
+ * - `input`：文本输入框，支持 `icon` 前缀图标与回车回调（`onInputEnterPress`）。
+ * - `select`：下拉选择，需配置 `options`。
+ * - `date`：单日期选择器。
+ * - `date-range`：日期范围选择器，栅格模式下默认占 2 列。
+ * - `custom`：自定义渲染，需提供 `render`。
+ */
 export type DeclarativeFieldType = 'input' | 'select' | 'date-range' | 'date' | 'custom';
 
-/** 单字段配置：由配置数组驱动 naive-ui 表单项渲染 */
+/**
+ * 单个表单字段的声明式配置。
+ *
+ * `field` 同时作为 `model` 的键名与 `NFormItem` 的 `path`，用于校验与双向绑定。
+ */
 export interface DeclarativeFieldConfig {
+  /** 控件类型，决定渲染的 Naive UI 组件或自定义内容 */
   type: DeclarativeFieldType;
-  /** 绑定到 model 的键名 */
+  /** 绑定字段名，对应 `model[field]` */
   field: string;
+  /** 占位提示文案 */
   placeholder?: string;
-  /** input 前缀图标（UnoCSS / iconfont 类名） */
+  /** 图标类名（如 UnoCSS icon），仅 `type="input"` 时作为输入框前缀展示 */
   icon?: string;
-  /** 控件宽度，如 `220px` */
+  /** 控件固定宽度（如 `'200px'`）。 仅在 `layout="inline"` 时写入控件 `style`；栅格模式下会被忽略以保证列宽自适应。 */
   width?: string;
-  /** 下拉选项（type 为 select 时使用） */
+  /** 栅格占列数（`NGi` 的 `span`）。 未设置时：`date-range` 默认为 `2`，其余类型默认为 `1`。 */
+  span?: number;
+  /** 下拉选项，仅 `type="select"` 时使用 */
   options?: Array<{ label: string; value: any }>;
+  /** 是否显示清除按钮，默认 `true` */
   clearable?: boolean;
+  /** 是否禁用；也可通过 `componentProps.disabled` 覆盖 */
   disabled?: boolean;
-  /**
-   * 初始值：与外部 initialValues / reset 逻辑配合时使用； table-page 的 useSearchForm 重置时优先 initialValues[field]，其次
-   * defaultValue
-   */
+  /** 字段初始值（由调用方写入 `model`，此处仅作文档性约定） */
   defaultValue?: unknown;
-  /** 透传给底层 Naive UI 组件；会与内部的 value / onUpdate:value 等合并，后者优先 */
+  /** 透传给底层 Naive 控件的额外属性。 栅格模式下会剥离 `style` 中的 `width` / `minWidth` / `maxWidth`，避免破坏列宽伸缩。 */
   componentProps?: Record<string, unknown>;
-  /** type 为 custom 时的渲染函数 */
+  /**
+   * 自定义渲染函数，仅 `type="custom"` 时使用。
+   *
+   * @param model 当前表单数据对象
+   * @param updateModel 更新指定字段的回调，等价于 `onUpdateModel(field, value)`
+   */
   render?: (model: any, updateModel: (field: string, value: any) => void) => VNode;
+  /** 表单项标签文案 */
   label?: string;
-  /** 为 false 时可强制隐藏单个字段标签 */
+  /** 是否展示该字段的标签。 在表单级 `showLabel={true}` 时，设为 `false` 可单独隐藏本字段标签。 */
   showLabel?: boolean;
 }
 
-/** DeclarativeForm 对外 Props（文档与二次封装引用） */
+/**
+ * {@link DeclarativeForm} 组件的 Props 类型定义。
+ *
+ * 表单数据由外部 `model` + `onUpdateModel` 受控，组件本身不维护字段状态。
+ */
 export interface DeclarativeFormProps {
+  /** 字段配置列表，按数组顺序渲染 */
   fields: DeclarativeFieldConfig[];
-  model: Record<string, any>;
-  onUpdateModel: (field: string, value: any) => void;
+  /** 表单数据对象（受控） */
+  model: Record<string, unknown>;
+  /** 字段值变更回调，`(field, value)` 更新 `model[field]` */
+  onUpdateModel: (field: string, value: unknown) => void;
+  /** 标签相对控件的位置，透传至 `NForm`，默认 `'left'` */
   labelPlacement?: 'left' | 'top';
+  /** 标签宽度，透传至 `NForm` */
+  labelWidth?: number | string;
+  /** 是否全局展示字段标签；具体字段仍可通过 `DeclarativeFieldConfig.showLabel` 覆盖 */
   showLabel?: boolean;
-  /** 是否 inline 布局，与 naive NForm inline 一致 */
+  /**
+   * 布局模式，默认 `'inline'`。
+   *
+   * @see DeclarativeFormLayout
+   */
+  layout?: DeclarativeFormLayout;
+  /** 是否行内排列，透传至 `NForm` 的 `inline`。 仅 `layout="inline"` 时生效；栅格模式下强制为非 inline。 */
   inline?: boolean;
-  /** 行内布局时是否允许换行，默认 true */
+  /** 行内布局是否允许换行（`declarative-form--inline-wrap`）。 仅 `layout="inline"` 且 `inline={true}` 时生效。 */
   wrap?: boolean;
-  /** 若传入，则 input 控件在按下 Enter 时调用（例如搜索条提交）； 普通业务表单可不传，避免误触提交。 */
+  /**
+   * 尾部 `#suffix` 插槽的放置方式，默认 `'inline'`。
+   *
+   * @see DeclarativeFormSuffixPlacement
+   */
+  suffixPlacement?: DeclarativeFormSuffixPlacement;
+  /** 栅格列数，透传至 `NGrid.cols`。 支持数字或 Naive 响应式字符串（如 `'1 s:2 m:3 l:4'`），默认见 `DEFAULT_GRID_COLS`。 */
+  gridCols?: number | string;
+  /** 栅格水平间距（px），透传至 `NGrid.xGap`，默认 `24` */
+  gridXGap?: number;
+  /** 栅格垂直间距（px），透传至 `NGrid.yGap`，默认 `0` */
+  gridYGap?: number;
+  /**
+   * 栅格响应式断点策略，透传至 `NGrid.responsive`。
+   *
+   * - `'screen'`：按视口断点（默认）
+   * - `'self'`：按栅格容器宽度
+   */
+  gridResponsive?: 'self' | 'screen';
+  /** `type="input"` 时按下 Enter 键的回调（常用于触发搜索） */
   onInputEnterPress?: () => void;
 }

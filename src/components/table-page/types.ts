@@ -290,14 +290,18 @@ export interface TablePageProps {
   showSearchCard?: boolean;
   /** 搜索区 NCard bordered */
   searchCardBordered?: boolean;
-  /** 为 true 时搜索区超出指定行数可展开 / 收起 */
+  /** 为 true 时搜索区可展开 / 收起 */
   searchCollapsible?: boolean;
-  /** 收起时保留的大致行数（与 searchCollapsedRowHeightPx 相乘为 max-height），默认 1，最小 1 */
+  /** 栅格每行列数，默认 `1 s:2 m:3 l:4` */
+  searchCols?: number | string;
+  searchGridXGap?: number;
+  searchGridYGap?: number;
+  /** `screen` 随视口；`self` 随检索区容器宽度 */
+  searchGridResponsive?: 'self' | 'screen';
+  /** 收起时保留的筛选项行数 */
   searchCollapsedRows?: number;
-  /** 收起时每行估算高度（px），用于计算 max-height；控件较大时可调大，默认 52 */
-  searchCollapsedRowHeightPx?: number;
-  /** 为 true 时初始为展开态 */
-  searchDefaultExpanded?: boolean;
+  /** 初始是否收起 */
+  searchDefaultCollapsed?: boolean;
   /** 是否渲染操作区外层 NCard */
   showActionCard?: boolean;
   /** 操作区 NCard bordered */
@@ -310,32 +314,30 @@ export interface TablePageProps {
   tableProps?: Partial<NaiveDataTableProps>;
 }
 
-/** SearchBar 对外 Props（供二次封装或文档引用） */
+/** SearchBar 对外 Props（与 defineComponent props 一致，供二次封装） */
 export interface SearchBarProps {
-  /** 字段配置列表 */
   config: SearchFieldConfig[];
-  /** v-model 语义：当前表单 JSON */
   model: object;
-  /** 触发查询 */
   onSearch: () => void;
-  /** 触发重置 */
   onReset: () => void;
-  /** 字段级更新 */
   onUpdateModel: (field: string, value: unknown) => void;
-  /** naive NForm label-placement */
+  /** 表单项标签位置 */
   labelPlacement?: 'left' | 'top';
-  /** 全局是否展示标签（可被字段级 showLabel 覆盖） */
+  /** 左标签宽度 */
+  labelWidth?: number | string;
   showLabel?: boolean;
-  /** 是否渲染内置「搜索 / 重置」按钮组 */
+  /** 是否显示搜索 / 重置按钮 */
   showActionButtons?: boolean;
-  /** 为 true 时筛选项超出指定行数可展开 / 收起 */
+  /** 栅格列数，默认 `1 s:2 m:3 l:4` */
+  cols?: number | string;
+  gridXGap?: number;
+  gridYGap?: number;
+  gridResponsive?: 'self' | 'screen';
+  /** 是否可展开收起筛选项 */
   collapsible?: boolean;
-  /** 收起时保留的大致行数，默认 1 */
+  /** 收起时保留行数 */
   collapsedRows?: number;
-  /** 收起时每行估算高度（px），默认 52 */
-  collapsedRowHeightPx?: number;
-  /** 为 true 时初始为展开态 */
-  defaultExpanded?: boolean;
+  defaultCollapsed?: boolean;
 }
 
 /** ActionBar 上挂接的列设置（与 `TableColumnSetting` / `NaiveUI.TableColumnCheck[]` 一致） */

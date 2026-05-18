@@ -2,6 +2,7 @@ import { computed, defineComponent } from 'vue';
 import { RouterView } from 'vue-router';
 import { NConfigProvider, NWatermark, darkTheme } from 'naive-ui';
 import type { WatermarkProps } from 'naive-ui';
+import hljs from 'highlight.js';
 import { useAppStore } from './store/modules/app';
 import { useThemeStore } from './store/modules/theme';
 import { naiveDateLocales, naiveLocales } from './locales/naive';
@@ -45,6 +46,7 @@ export default defineComponent({
         themeOverrides={themeStore.naiveTheme}
         locale={naiveLocale.value}
         dateLocale={naiveDateLocale.value}
+        hljs={hljs}
         class="h-full"
       >
         <AppProvider>

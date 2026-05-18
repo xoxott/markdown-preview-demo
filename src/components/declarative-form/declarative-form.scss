@@ -1,14 +1,76 @@
-/**
- * naive-ui 行内表单默认为 inline-flex + nowrap，筛选项过多时会挤在一行。
- * 检索条等场景需要按容器宽度自动换行。
- */
+/** 行内检索：允许换行 */
 .declarative-form--inline-wrap.n-form.n-form--inline {
   display: inline-flex;
   flex-wrap: wrap;
   align-content: flex-start;
-  row-gap: 12px;
+  row-gap: 8px;
 
   .n-form-item {
+    flex-shrink: 0;
+  }
+}
+
+/** 栅格表单 */
+.declarative-form--grid.n-form {
+  width: 100%;
+  min-width: 0;
+
+  .n-grid {
+    min-width: 0;
+  }
+
+  .n-grid > * {
+    min-width: 0;
+  }
+
+  .declarative-form__grid-item,
+  .declarative-form__action-gi,
+  .declarative-form__action-row {
+    min-width: 0;
+  }
+
+  .n-form-item {
+    min-width: 0;
+  }
+
+  .declarative-form__grid-item .n-form-item-blank {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .declarative-form__control.n-input,
+  .declarative-form__control.n-base-selection,
+  .declarative-form__control.n-date-picker {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .declarative-form__control .n-input-wrapper,
+  .declarative-form__control .n-input__input-el,
+  .declarative-form__control .n-base-selection-label,
+  .declarative-form__control .n-date-picker-trigger {
+    min-width: 0;
+  }
+}
+
+.declarative-form--search.declarative-form--grid {
+  .declarative-form__action-row {
+    width: 100%;
+    min-width: 0;
+    margin-top: 0;
+  }
+
+  .declarative-form__suffix .n-form-item-blank {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    justify-content: flex-end;
+    min-width: 0;
+  }
+
+  .declarative-form__suffix .n-button {
     flex-shrink: 0;
   }
 }

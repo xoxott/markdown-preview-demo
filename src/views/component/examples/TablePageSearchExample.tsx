@@ -93,8 +93,7 @@ export default defineComponent({
     return () => (
       <div class="space-y-16px">
         <NAlert type="info" showIcon={false}>
-          验证 TablePage / SearchBar
-          检索区：多字段换行、展开收起；收起后搜索/重置应仍可点击。缩小窗口宽度更容易触发折叠。
+          默认 `cols="1 s:2 m:3 l:4"`：宽屏 4 列，操作区独占一行。可折叠 Tab 默认收起。
         </NAlert>
 
         <div class="flex flex-col gap-16px lg:flex-row">
@@ -114,8 +113,8 @@ export default defineComponent({
                 config={manySearchFields}
                 model={manyModel}
                 collapsible
+                defaultCollapsed
                 collapsedRows={1}
-                collapsedRowHeightPx={56}
                 onSearch={manyHandlers.onSearch}
                 onReset={manyHandlers.onReset}
                 onUpdateModel={manyHandlers.onUpdate}
@@ -136,8 +135,8 @@ export default defineComponent({
                   showSelection={false}
                   showIndex={false}
                   searchCollapsible
+                  searchDefaultCollapsed
                   searchCollapsedRows={1}
-                  searchCollapsedRowHeightPx={56}
                   searchCardBordered={false}
                   showActionCard={false}
                   padded={false}
@@ -151,6 +150,7 @@ export default defineComponent({
                 config={manySearchFields}
                 model={standaloneModel}
                 collapsible
+                defaultCollapsed
                 collapsedRows={1}
                 onSearch={standaloneHandlers.onSearch}
                 onReset={standaloneHandlers.onReset}
@@ -168,6 +168,7 @@ export default defineComponent({
             <NCode
               code={currentModelJson.value}
               language="json"
+              wordWrap
               class="max-h-180px overflow-auto text-12px"
             />
             <div class="text-12px text-gray-500">最近操作</div>

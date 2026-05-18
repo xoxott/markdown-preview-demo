@@ -1,16 +1,13 @@
-import { type PropType, computed, defineComponent, nextTick, onMounted, ref, watch } from 'vue';
-import { useResizeObserver } from '@vueuse/core';
-import { NButton, NFormItem, NSpace } from 'naive-ui';
-import { DeclarativeForm } from '@/components/declarative-form';
-import { $t } from '@/locales';
+import { type PropType, computed, defineComponent, toRef } from 'vue';
+import {
+  DEFAULT_GRID_COLS,
+  DeclarativeForm,
+  useGridFormCollapse
+} from '@/components/declarative-form';
 import type { SearchFieldConfig } from './types';
+import SearchFormSuffix from './SearchFormSuffix';
 
-/**
- * 表格筛选条：在 DeclarativeForm 之上提供「搜索 / 重置」按钮组与回车提交； 可通过 `showActionButtons` 关闭按钮并在外层接管。 开启
- * `collapsible` 后按「行数 × 行高」裁剪高度，内容超出时出现展开 / 收起。
- *
- * 折叠时仅裁剪筛选项区域，操作按钮固定在裁剪区下方，避免收起后无法点击搜索/重置。
- */
+/** 表格页检索条：栅格排布筛选项，重置 / 搜索 / 展开按钮独占下一行。 */
 export default defineComponent({
   name: 'SearchBar',
   props: {
@@ -18,22 +15,18 @@ export default defineComponent({
       type: Array as PropType<SearchFieldConfig[]>,
       required: true
     },
-    /** 与 NForm / 各控件 value 绑定的扁平对象 */
     model: {
       type: Object as PropType<object>,
       required: true
     },
-    /** 点击「搜索」或输入框回车时触发（由父级决定发请求或 emit） */
     onSearch: {
       type: Function as PropType<() => void>,
       required: true
     },
-    /** 点击「重置」时触发 */
     onReset: {
       type: Function as PropType<() => void>,
       required: true
     },
-    /** 任一控件变更时回写字段值 */
     onUpdateModel: {
       type: Function as PropType<(field: string, value: unknown) => void>,
       required: true
@@ -42,171 +35,106 @@ export default defineComponent({
       type: String as PropType<'left' | 'top'>,
       default: 'left'
     },
+    labelWidth: {
+      type: [Number, String] as PropType<number | string>,
+      default: 80
+    },
     showLabel: {
       type: Boolean,
       default: false
     },
-    /** 为 false 时可把按钮挪到页眉等位置，仅保留筛选项 */
     showActionButtons: {
       type: Boolean,
       default: true
+    },
+    cols: {
+      type: [Number, String] as PropType<number | string>,
+      default: DEFAULT_GRID_COLS
+    },
+    gridXGap: {
+      type: Number,
+      default: 24
+    },
+    gridYGap: {
+      type: Number,
+      default: 0
+    },
+    gridResponsive: {
+      type: String as PropType<'self' | 'screen'>,
+      default: 'screen'
     },
     collapsible: {
       type: Boolean,
       default: false
     },
-    /** 收起时保留的大致行数（与 collapsedRowHeightPx 相乘为 max-height），最小 1 */
     collapsedRows: {
       type: Number,
       default: 1
     },
-    /** 收起时每行估算高度（px），用于 max-height */
-    collapsedRowHeightPx: {
-      type: Number,
-      default: 52
-    },
-    /** 为 true 时初始为展开态 */
-    defaultExpanded: {
+    defaultCollapsed: {
       type: Boolean,
       default: false
     }
   },
   setup(props, { slots }) {
-    const clipRef = ref<HTMLElement | null>(null);
-    const expanded = ref(props.defaultExpanded);
-    const needsToggle = ref(false);
-    /** 展开态 max-height，用于 CSS 过渡（略大于内容高度） */
-    const expandedMaxPx = ref(4000);
-
-    const maxCollapsedPx = computed(() => {
-      const rows = Math.max(1, Math.floor(props.collapsedRows));
-      const rowH = Math.max(32, props.collapsedRowHeightPx);
-      return rows * rowH;
+    const { visibleFields, showCollapseToggle, collapsed, toggleCollapsed } = useGridFormCollapse({
+      fields: toRef(props, 'config'),
+      cols: toRef(props, 'cols'),
+      collapsedRows: toRef(props, 'collapsedRows'),
+      collapsible: toRef(props, 'collapsible'),
+      defaultCollapsed: toRef(props, 'defaultCollapsed')
     });
 
-    const scheduleMeasure = () => {
-      nextTick(() => {
-        if (!props.collapsible || !clipRef.value) {
-          needsToggle.value = false;
-          return;
-        }
-        const el = clipRef.value;
-        const full = el.scrollHeight;
-        expandedMaxPx.value = Math.min(12000, Math.ceil(full + 32));
-        needsToggle.value = full > maxCollapsedPx.value + 2;
-      });
-    };
-
-    useResizeObserver(clipRef, scheduleMeasure);
-
-    watch(
-      () => ({
-        collapsible: props.collapsible,
-        collapsedRows: props.collapsedRows,
-        collapsedRowHeightPx: props.collapsedRowHeightPx,
-        config: props.config
-      }),
-      scheduleMeasure,
-      { deep: true, flush: 'post' }
+    const showSuffix = computed(
+      () => props.showActionButtons || props.collapsible || Boolean(slots.actionsExtra)
     );
 
-    onMounted(scheduleMeasure);
+    const gridBind = computed(() => ({
+      cols: props.cols,
+      xGap: props.gridXGap,
+      yGap: props.gridYGap,
+      responsive: props.gridResponsive
+    }));
 
-    watch(
-      () => props.defaultExpanded,
-      v => {
-        expanded.value = v;
-      }
-    );
-
-    const clipClass = computed(() =>
-      props.collapsible ? 'overflow-hidden transition-[max-height] duration-300 ease-in-out' : ''
-    );
-
-    const clipStyle = computed(() => {
-      if (!props.collapsible) return undefined;
-      if (expanded.value) {
-        return { maxHeight: `${expandedMaxPx.value}px` };
-      }
-      return { maxHeight: `${maxCollapsedPx.value}px` };
-    });
-
-    const toggleExpand = () => {
-      expanded.value = !expanded.value;
-      scheduleMeasure();
-    };
-
-    const renderExpandToggle = () =>
-      props.collapsible && needsToggle.value ? (
-        <NButton secondary type="primary" onClick={toggleExpand}>
-          <div class="flex items-center gap-4px">
-            <div
-              class={
-                expanded.value ? 'i-carbon-chevron-up text-16px' : 'i-carbon-chevron-down text-16px'
+    return () => (
+      <DeclarativeForm
+        class="w-full"
+        layout="grid"
+        suffixPlacement="below-grid"
+        fields={visibleFields.value}
+        model={props.model as Record<string, unknown>}
+        onUpdateModel={props.onUpdateModel}
+        labelPlacement={props.labelPlacement}
+        labelWidth={props.labelWidth}
+        showLabel={props.showLabel}
+        gridCols={gridBind.value.cols}
+        gridXGap={gridBind.value.xGap}
+        gridYGap={gridBind.value.yGap}
+        gridResponsive={gridBind.value.responsive}
+        onInputEnterPress={props.onSearch}
+      >
+        {{
+          toolbarBefore: slots.toolbarBefore,
+          toolbarAfter: slots.toolbarAfter,
+          ...(showSuffix.value
+            ? {
+                suffix: () => (
+                  <SearchFormSuffix
+                    showSearch={props.showActionButtons}
+                    showReset={props.showActionButtons}
+                    showCollapse={showCollapseToggle.value}
+                    collapsed={collapsed.value}
+                    onSearch={props.onSearch}
+                    onReset={props.onReset}
+                    onToggleCollapse={toggleCollapsed}
+                  >
+                    {slots.actionsExtra?.()}
+                  </SearchFormSuffix>
+                )
               }
-            />
-            <span>{expanded.value ? $t('common.searchCollapse') : $t('common.searchExpand')}</span>
-          </div>
-        </NButton>
-      ) : null;
-
-    const renderActionButtons = () => {
-      const showExpand = props.collapsible && needsToggle.value;
-      if (!props.showActionButtons && !showExpand) return null;
-
-      return (
-        <NFormItem class="!mb-0">
-          <NSpace size="small" align="center">
-            {props.showActionButtons ? (
-              <>
-                <NButton type="primary" onClick={props.onSearch}>
-                  <div class="flex items-center gap-4px">
-                    <div class="i-carbon-search text-16px" />
-                    <span>{$t('common.search')}</span>
-                  </div>
-                </NButton>
-                <NButton onClick={props.onReset}>
-                  <div class="flex items-center gap-4px">
-                    <div class="i-carbon-reset text-16px" />
-                    <span>{$t('common.reset')}</span>
-                  </div>
-                </NButton>
-              </>
-            ) : null}
-            {renderExpandToggle()}
-            {slots.actionsExtra?.()}
-          </NSpace>
-        </NFormItem>
-      );
-    };
-
-    return () => {
-      const form = (
-        <DeclarativeForm
-          fields={props.config}
-          model={props.model as Record<string, unknown>}
-          onUpdateModel={props.onUpdateModel}
-          labelPlacement={props.labelPlacement}
-          showLabel={props.showLabel}
-          inline
-          onInputEnterPress={props.onSearch}
-        >
-          {{
-            toolbarBefore: slots.toolbarBefore,
-            toolbarAfter: slots.toolbarAfter,
-            suffix: props.collapsible ? undefined : () => renderActionButtons()
-          }}
-        </DeclarativeForm>
-      );
-
-      return (
-        <div class="min-w-0 w-full">
-          <div ref={clipRef} class={clipClass.value} style={clipStyle.value}>
-            {form}
-          </div>
-          {props.collapsible ? <div class="mt-8px">{renderActionButtons()}</div> : null}
-        </div>
-      );
-    };
+            : {})
+        }}
+      </DeclarativeForm>
+    );
   }
 });
