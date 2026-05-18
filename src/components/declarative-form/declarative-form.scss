@@ -74,3 +74,16 @@
     flex-shrink: 0;
   }
 }
+
+.declarative-form--readonly {
+  .declarative-form__readonly-value {
+    color: var(--n-text-color);
+    line-height: 1.5715;
+    min-height: 22px;
+    word-break: break-word;
+  }
+
+  .declarative-form__readonly-value--multiline {
+    white-space: pre-wrap;
+  }
+}

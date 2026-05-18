@@ -2,6 +2,7 @@
 
 import { computed, defineComponent, reactive, ref } from 'vue';
 import { NAlert, NButton, NCard, NCode, NSpace, NTabPane, NTabs, useMessage } from 'naive-ui';
+import dayjs from 'dayjs';
 import {
   DEFAULT_GRID_COLS,
   type DeclarativeFieldConfig,
@@ -91,6 +92,20 @@ function createDialogModel() {
   };
 }
 
+function createReadonlyDetailModel() {
+  const start = dayjs().subtract(7, 'day').startOf('day').valueOf();
+  const end = dayjs().add(7, 'day').startOf('day').valueOf();
+  return {
+    name: '季度活动公告',
+    amount: 128,
+    category: 'event' as string | null,
+    status: 'published',
+    enabled: true,
+    period: [start, end] as [number, number],
+    remark: ''
+  };
+}
+
 export default defineComponent({
   name: 'DeclarativeFormExample',
   setup() {
@@ -98,13 +113,19 @@ export default defineComponent({
     const activeTab = ref('inline');
     const inlineModel = reactive(createInlineModel());
     const dialogModel = reactive(createDialogModel());
+    const readonlyDetailModel = reactive(createReadonlyDetailModel());
 
-    const patchField = (model: Record<string, unknown>, key: string, value: unknown) => {
-      model[key] = value;
+    const patchField = (target: Record<string, unknown>, key: string, value: unknown) => {
+      // 受控 model 由 reactive 包裹，需就地写入
+      // eslint-disable-next-line no-param-reassign -- reactive 对象字段更新
+      target[key] = value;
     };
 
     const currentModelJson = computed(() => {
-      const data = activeTab.value === 'inline' ? inlineModel : dialogModel;
+      let data: Record<string, unknown>;
+      if (activeTab.value === 'inline') data = inlineModel;
+      else if (activeTab.value === 'readonly') data = readonlyDetailModel;
+      else data = dialogModel;
       return JSON.stringify(data, null, 2);
     });
 
@@ -116,8 +137,8 @@ export default defineComponent({
       <div class="space-y-16px">
         <NAlert type="info" showIcon={false}>
           通过 `fields` 配置驱动 Naive 表单控件；`layout="grid"` + `showLabel`
-          适合弹窗编辑，`layout="inline"` 适合检索栏。控件 type 由 `naiveFormControls`
-          注册表统一渲染。
+          适合弹窗编辑，`layout="inline"` 适合检索栏。`readonly` 时仅展示标签与文本值，空字段为
+          `-`；可用 `renderReadonly` 单字段覆盖。
         </NAlert>
 
         <div class="flex flex-col gap-16px lg:flex-row">
@@ -176,6 +197,27 @@ export default defineComponent({
                       </NSpace>
                     )
                   }}
+                />
+              </NCard>
+            </NTabPane>
+
+            <NTabPane name="readonly" tab="只读详情">
+              <NCard
+                title="readonly + showLabel"
+                size="small"
+                bordered={false}
+                class="!bg-transparent"
+              >
+                <DeclarativeForm
+                  readonly
+                  fields={dialogFields}
+                  model={readonlyDetailModel}
+                  onUpdateModel={() => {}}
+                  layout="grid"
+                  gridCols={DEFAULT_GRID_COLS}
+                  labelPlacement="left"
+                  labelWidth={80}
+                  showLabel
                 />
               </NCard>
             </NTabPane>

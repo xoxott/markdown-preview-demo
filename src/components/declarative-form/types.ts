@@ -99,6 +99,11 @@ export interface DeclarativeFieldConfig {
    * @param updateModel 更新指定字段的回调，等价于 `onUpdateModel(field, value)`
    */
   render?: (model: any, updateModel: (field: string, value: any) => void) => VNode;
+  /**
+   * 只读模式（`DeclarativeForm` 的 `readonly`）下自定义整块展示，优先级高于内置 {@link formatReadonlyValue}。 返回
+   * `null`、`undefined` 或空白字符串时显示 `-`。
+   */
+  renderReadonly?: (model: Record<string, unknown>) => VNode | string | null | undefined;
   /** 表单项标签文案 */
   label?: string;
   /** 是否展示该字段的标签。 在表单级 `showLabel={true}` 时，设为 `false` 可单独隐藏本字段标签。 */
@@ -154,4 +159,6 @@ export interface DeclarativeFormProps {
   gridResponsive?: 'self' | 'screen';
   /** `type="input"` 时按下 Enter 键的回调（常用于触发搜索） */
   onInputEnterPress?: () => void;
+  /** 为 `true` 时仅展示标签与格式化后的字段值，不渲染可编辑控件；空值显示 `-`。 典型场景为详情抽屉 / 弹窗；建议同时设置 `showLabel`。 */
+  readonly?: boolean;
 }

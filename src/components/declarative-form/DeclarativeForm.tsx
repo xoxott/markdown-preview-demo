@@ -9,6 +9,7 @@ import { resolveFieldLabel } from './fieldLabel';
 import './naiveFormControls';
 import { renderDeclarativeControl } from './controlRegistry';
 import { DEFAULT_GRID_COLS, resolveFieldSpan } from './grid';
+import { renderReadonlyFieldValue } from './renderReadonlyFieldValue';
 import './declarative-form.scss';
 
 /**
@@ -36,6 +37,10 @@ import './declarative-form.scss';
  * - `below-grid` + `layout="grid"`：栅格下方独占一行（`SearchBar` 默认用法）。
  *
  * 展开 / 收起逻辑不在本组件内，由调用方裁剪 `fields`（如 `useGridFormCollapse`）。
+ *
+ * ## 只读模式
+ *
+ * `readonly={true}` 时渲染标签 + 文本值，不挂载输入控件；无内容时展示 `-`。 字段级可通过 `renderReadonly` 覆盖展示。
  *
  * @see DeclarativeFormProps
  * @see SearchBar
@@ -117,6 +122,11 @@ export default defineComponent({
     onInputEnterPress: {
       type: Function as PropType<() => void>,
       default: undefined
+    },
+    /** 为 true 时只读展示标签与格式化值，空值显示 `-` */
+    readonly: {
+      type: Boolean,
+      default: false
     }
   },
   setup(props, { slots }) {
@@ -134,12 +144,16 @@ export default defineComponent({
      */
     const formClass = computed(() => {
       if (!isGrid.value) {
-        return props.inline && props.wrap ? 'declarative-form--inline-wrap' : undefined;
+        const parts: string[] = [];
+        if (props.readonly) parts.push('declarative-form--readonly');
+        if (props.inline && props.wrap) parts.push('declarative-form--inline-wrap');
+        return parts.length ? parts.join(' ') : undefined;
       }
-      return [
-        'declarative-form--grid',
-        suffixBelowGrid.value ? 'declarative-form--search' : undefined
-      ];
+      const parts: string[] = [];
+      if (props.readonly) parts.push('declarative-form--readonly');
+      parts.push('declarative-form--grid');
+      if (suffixBelowGrid.value) parts.push('declarative-form--search');
+      return parts;
     });
 
     /** 透传给 `NGrid` 的 props，与 props 解耦便于模板展开 */
@@ -164,7 +178,9 @@ export default defineComponent({
      */
     const renderField = (field: DeclarativeFieldConfig, index: number) => {
       const label = resolveFieldLabel(field, props.showLabel);
-      const control = renderDeclarativeControl(field, controlCtx.value);
+      const control = props.readonly
+        ? renderReadonlyFieldValue(field, props.model)
+        : renderDeclarativeControl(field, controlCtx.value);
 
       if (!isGrid.value) {
         return (
