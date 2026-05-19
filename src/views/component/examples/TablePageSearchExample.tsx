@@ -1,7 +1,7 @@
 /** TablePage / SearchBar 检索区示例：多字段换行、展开收起、按钮可用性 */
 
 import { computed, defineComponent, reactive, ref } from 'vue';
-import { NAlert, NCard, NCode, NTabPane, NTabs, useMessage } from 'naive-ui';
+import { NCard, NCode, NTabPane, NTabs, useMessage } from 'naive-ui';
 import SearchBar from '@/components/table-page/SearchBar';
 import TablePage from '@/components/table-page/TablePage';
 import type { TableColumnConfig } from '@/components/table-page/types';
@@ -83,7 +83,9 @@ export default defineComponent({
     };
 
     const currentModelJson = computed(() => {
-      if (activeTab.value === 'few') return JSON.stringify(fewModel, null, 2);
+      if (activeTab.value === 'few' || activeTab.value === 'label-top') {
+        return JSON.stringify(fewModel, null, 2);
+      }
       if (activeTab.value === 'many' || activeTab.value === 'table-page') {
         return JSON.stringify(manyModel, null, 2);
       }
@@ -92,10 +94,6 @@ export default defineComponent({
 
     return () => (
       <div class="space-y-16px">
-        <NAlert type="info" showIcon={false}>
-          默认 `cols="1 s:2 m:3 l:4"`：宽屏 4 列，操作区独占一行。可折叠 Tab 默认收起。
-        </NAlert>
-
         <div class="flex flex-col gap-16px lg:flex-row">
           <NTabs v-model:value={activeTab.value} type="line" class="min-w-0 flex-1">
             <NTabPane name="few" tab="少量字段（不折叠）">
@@ -155,6 +153,17 @@ export default defineComponent({
                 onSearch={standaloneHandlers.onSearch}
                 onReset={standaloneHandlers.onReset}
                 onUpdateModel={standaloneHandlers.onUpdate}
+              />
+            </NTabPane>
+
+            <NTabPane name="label-top" tab="标签在上">
+              <SearchBar
+                config={fewSearchFields}
+                model={fewModel}
+                labelPlacement="top"
+                onSearch={fewHandlers.onSearch}
+                onReset={fewHandlers.onReset}
+                onUpdateModel={fewHandlers.onUpdate}
               />
             </NTabPane>
           </NTabs>

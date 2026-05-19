@@ -1,7 +1,7 @@
 import { type PropType, computed, defineComponent, ref, watch } from 'vue';
 import { NCard } from 'naive-ui';
 import type { DataTableProps as NaiveDataTableProps, PaginationProps } from 'naive-ui';
-import { DEFAULT_GRID_COLS } from '@/components/declarative-form';
+import { SEARCH_GRID_COLS } from '@/components/declarative-form';
 import type { ActionBarConfig, SearchFieldConfig, TableColumnConfig } from './types';
 import SearchBar from './SearchBar';
 import ActionBar from './ActionBar';
@@ -52,10 +52,10 @@ export default defineComponent({
       type: Boolean,
       default: false
     },
-    /** 检索栅格列数，默认 `1 s:2 m:3 l:4`（大屏 4 列） */
+    /** 检索栅格列数，默认 `1 s:2 m:3 l:5`（尾列留给操作按钮） */
     searchCols: {
       type: [Number, String] as PropType<number | string>,
-      default: DEFAULT_GRID_COLS
+      default: SEARCH_GRID_COLS
     },
     /** 检索栅格水平间距（px） */
     searchGridXGap: {
@@ -91,6 +91,21 @@ export default defineComponent({
     searchCardBordered: {
       type: Boolean,
       default: false
+    },
+    /** 是否展示检索项标签（需在各字段配置 `label`） */
+    searchShowLabel: {
+      type: Boolean,
+      default: true
+    },
+    /** 检索项标签位置：`left` | `top` */
+    searchLabelPlacement: {
+      type: String as PropType<'left' | 'top'>,
+      default: 'left'
+    },
+    /** 检索项左标签宽度 */
+    searchLabelWidth: {
+      type: [Number, String] as PropType<number | string>,
+      default: 80
     },
 
     // —— 操作栏 ——
@@ -325,6 +340,9 @@ export default defineComponent({
             onSearch={triggerSearch}
             onReset={triggerReset}
             onUpdateModel={patchSearchField}
+            showLabel={props.searchShowLabel}
+            labelPlacement={props.searchLabelPlacement}
+            labelWidth={props.searchLabelWidth}
             cols={props.searchCols}
             gridXGap={props.searchGridXGap}
             gridYGap={props.searchGridYGap}

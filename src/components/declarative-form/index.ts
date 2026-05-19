@@ -7,7 +7,8 @@ export type {
   DeclarativeFieldType,
   DeclarativeFormProps,
   DeclarativeFormLayout,
-  DeclarativeFormSuffixPlacement
+  DeclarativeFormSuffixPlacement,
+  DeclarativeFormSuffixSlotProps
 } from './types';
 export { DECLARATIVE_BUILTIN_FIELD_TYPES } from './types';
 export type { DeclarativeControlContext } from './controlContext';
@@ -32,6 +33,7 @@ export {
 } from './controlRegistry';
 export {
   DEFAULT_GRID_COLS,
+  SEARCH_GRID_COLS,
   GRID_WIDE_FIELD_TYPES,
   exceedsGridCapacity,
   getGridFieldCapacity,

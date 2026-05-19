@@ -12,10 +12,16 @@ export type DeclarativeFormLayout = 'inline' | 'grid';
  * 表单尾部插槽（`#suffix`）的放置方式，仅在与 `layout` 组合时生效。
  *
  * - `inline`：与字段同一行内联，适用于 `layout="inline"`。
- * - `grid-cell`：作为栅格中的一个单元格，与最后一行字段并列，适用于 `layout="grid"`。
- * - `below-grid`：独占栅格下方一行（检索栏常见：查询 / 重置按钮整行右对齐）。
+ * - `grid-cell`：`NGi suffix`，占最后一行剩余列并右对齐（对齐 Pro Naive `ProSearchForm` / `SearchBar`）。
+ * - `below-grid`：栅格下方独占一行（历史布局，非检索栏默认）。
  */
 export type DeclarativeFormSuffixPlacement = 'inline' | 'grid-cell' | 'below-grid';
+
+/** `#suffix` 插槽参数（`grid-cell` 时由 Naive `NGrid` 提供 `overflow`） */
+export interface DeclarativeFormSuffixSlotProps {
+  /** 筛选项是否超出 `gridCollapsedRows` 行容量 */
+  overflow?: boolean;
+}
 
 /** 内置 Naive 表单控件 type，在 `naiveFormControls` 加载时注册 */
 export const DECLARATIVE_BUILTIN_FIELD_TYPES = [
@@ -104,7 +110,7 @@ export interface DeclarativeFieldConfig {
    * `null`、`undefined` 或空白字符串时显示 `-`。
    */
   renderReadonly?: (model: Record<string, unknown>) => VNode | string | null | undefined;
-  /** 表单项标签文案 */
+  /** 表单项标签文案（与 `placeholder` 独立，不可互相替代） */
   label?: string;
   /** 是否展示该字段的标签。 在表单级 `showLabel={true}` 时，设为 `false` 可单独隐藏本字段标签。 */
   showLabel?: boolean;
@@ -157,6 +163,13 @@ export interface DeclarativeFormProps {
    * - `'self'`：按栅格容器宽度
    */
   gridResponsive?: 'self' | 'screen';
+  /**
+   * 是否收起栅格内超出 `gridCollapsedRows` 的字段，透传 `NGrid.collapsed`。
+   * 检索栏由 `useGridFormCollapse` / `SearchBar` 传入，勿与手动裁剪 `fields` 混用。
+   */
+  gridCollapsed?: boolean;
+  /** 收起时保留的行数，透传 `NGrid.collapsedRows`，默认 `1` */
+  gridCollapsedRows?: number;
   /** `type="input"` 时按下 Enter 键的回调（常用于触发搜索） */
   onInputEnterPress?: () => void;
   /** 为 `true` 时仅展示标签与格式化后的字段值，不渲染可编辑控件；空值显示 `-`。 典型场景为详情抽屉 / 弹窗；建议同时设置 `showLabel`。 */

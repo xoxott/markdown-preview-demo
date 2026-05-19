@@ -10,14 +10,16 @@ export const fewSearchFields: SearchFieldConfig[] = [
   {
     type: 'input',
     field: 'search',
-    placeholder: '关键词',
+    label: '关键词',
+    placeholder: '请输入关键词',
     icon: 'i-carbon-search',
     width: '220px'
   },
   {
     type: 'select',
     field: 'status',
-    placeholder: '状态',
+    label: '状态',
+    placeholder: '请选择状态',
     width: '130px',
     options: [
       { label: '启用', value: 1 },
@@ -31,49 +33,56 @@ export const manySearchFields: SearchFieldConfig[] = [
   {
     type: 'input',
     field: 'search',
-    placeholder: '关键词',
+    label: '关键词',
+    placeholder: '请输入关键词',
     icon: 'i-carbon-search',
     width: '200px'
   },
   {
     type: 'input',
     field: 'email',
-    placeholder: '邮箱',
+    label: '邮箱',
+    placeholder: '请输入邮箱',
     icon: 'i-carbon-email',
     width: '200px'
   },
   {
     type: 'input',
     field: 'username',
-    placeholder: '用户名',
+    label: '用户名',
+    placeholder: '请输入用户名',
     icon: 'i-carbon-user',
     width: '160px'
   },
   {
     type: 'select',
     field: 'isActive',
-    placeholder: '状态',
+    label: '状态',
+    placeholder: '请选择',
     width: '120px',
     options: yesNoOptions
   },
   {
     type: 'select',
     field: 'isOnline',
-    placeholder: '在线',
+    label: '在线',
+    placeholder: '请选择',
     width: '120px',
     options: yesNoOptions
   },
   {
     type: 'select',
     field: 'isBlacklisted',
-    placeholder: '黑名单',
+    label: '黑名单',
+    placeholder: '请选择',
     width: '120px',
     options: yesNoOptions
   },
   {
     type: 'select',
     field: 'roleCode',
-    placeholder: '角色',
+    label: '角色',
+    placeholder: '请选择角色',
     width: '130px',
     options: [
       { label: '管理员', value: 'admin' },
@@ -83,19 +92,22 @@ export const manySearchFields: SearchFieldConfig[] = [
   {
     type: 'date-range',
     field: 'createdAtRange',
-    placeholder: '注册时间',
+    label: '注册时间',
+    placeholder: '选择日期范围',
     width: '280px'
   },
   {
     type: 'date-range',
     field: 'lastLoginAtRange',
-    placeholder: '最后登录',
+    label: '最后登录',
+    placeholder: '选择日期范围',
     width: '280px'
   },
   {
     type: 'select',
     field: 'sortBy',
-    placeholder: '排序字段',
+    label: '排序字段',
+    placeholder: '请选择',
     width: '140px',
     options: [
       { label: '注册时间', value: 'createdAt' },
@@ -105,7 +117,8 @@ export const manySearchFields: SearchFieldConfig[] = [
   {
     type: 'select',
     field: 'sortOrder',
-    placeholder: '排序方向',
+    label: '排序方向',
+    placeholder: '请选择',
     width: '120px',
     options: [
       { label: '升序', value: 'asc' },
@@ -115,13 +128,15 @@ export const manySearchFields: SearchFieldConfig[] = [
   {
     type: 'date',
     field: 'updatedAfter',
-    placeholder: '更新于（起）',
+    label: '更新于（起）',
+    placeholder: '选择日期',
     width: '160px'
   },
   {
     type: 'date',
     field: 'updatedBefore',
-    placeholder: '更新于（止）',
+    label: '更新于（止）',
+    placeholder: '选择日期',
     width: '160px'
   }
 ];

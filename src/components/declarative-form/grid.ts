@@ -7,13 +7,16 @@ import type { DeclarativeFieldConfig } from './types';
  *
  * - 解析字段占列（`span`）与 `NGrid.cols` 的容量
  * - 为栅格模式提供控件样式（列宽自适应）
- * - 支撑 `useGridFormCollapse` 的「按 span 裁剪首屏字段」逻辑
+ * - 支撑 `useGridFormCollapse` 判断是否展示展开按钮（`exceedsGridCapacity`）
  *
  * 容量计算采用「最大列数 × 行数」的保守估计：对响应式 `cols` 字符串取各断点列数的最大值， 以便在任意视口下收起逻辑都不会展示超出首屏行数的字段。
  */
 
-/** 栅格默认列数：窄屏 1 列 → 宽屏 4 列（检索栏 / 通用栅格表单共用，透传 `NGrid.cols`） */
+/** 栅格默认列数：窄屏 1 列 → 宽屏 4 列（弹窗等多列表单，透传 `NGrid.cols`） */
 export const DEFAULT_GRID_COLS = '1 s:2 m:3 l:4';
+
+/** 检索栏栅格列数：窄屏 1 列 → 大屏 5 列（含尾列操作区） */
+export const SEARCH_GRID_COLS = '1 s:2 m:3 l:5';
 
 /**
  * 栅格单元内控件的行内样式。

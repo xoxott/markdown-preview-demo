@@ -1,13 +1,13 @@
 import { type PropType, computed, defineComponent, toRef } from 'vue';
 import {
-  DEFAULT_GRID_COLS,
   DeclarativeForm,
+  SEARCH_GRID_COLS,
   useGridFormCollapse
 } from '@/components/declarative-form';
 import type { SearchFieldConfig } from './types';
 import SearchFormSuffix from './SearchFormSuffix';
 
-/** 表格页检索条：栅格排布筛选项，重置 / 搜索 / 展开按钮独占下一行。 */
+/** 表格页检索条：栅格排布筛选项，操作区占最后一行尾列（对齐 Pro Naive `ProSearchForm`）。 */
 export default defineComponent({
   name: 'SearchBar',
   props: {
@@ -41,7 +41,7 @@ export default defineComponent({
     },
     showLabel: {
       type: Boolean,
-      default: false
+      default: true
     },
     showActionButtons: {
       type: Boolean,
@@ -49,7 +49,7 @@ export default defineComponent({
     },
     cols: {
       type: [Number, String] as PropType<number | string>,
-      default: DEFAULT_GRID_COLS
+      default: SEARCH_GRID_COLS
     },
     gridXGap: {
       type: Number,
@@ -77,7 +77,7 @@ export default defineComponent({
     }
   },
   setup(props, { slots }) {
-    const { visibleFields, showCollapseToggle, collapsed, toggleCollapsed } = useGridFormCollapse({
+    const { showCollapseToggle, collapsed, toggleCollapsed } = useGridFormCollapse({
       fields: toRef(props, 'config'),
       cols: toRef(props, 'cols'),
       collapsedRows: toRef(props, 'collapsedRows'),
@@ -88,6 +88,8 @@ export default defineComponent({
     const showSuffix = computed(
       () => props.showActionButtons || props.collapsible || Boolean(slots.actionsExtra)
     );
+
+    const gridCollapsed = computed(() => (props.collapsible ? collapsed.value : undefined));
 
     const gridBind = computed(() => ({
       cols: props.cols,
@@ -100,8 +102,8 @@ export default defineComponent({
       <DeclarativeForm
         class="w-full"
         layout="grid"
-        suffixPlacement="below-grid"
-        fields={visibleFields.value}
+        suffixPlacement="grid-cell"
+        fields={props.config}
         model={props.model as Record<string, unknown>}
         onUpdateModel={props.onUpdateModel}
         labelPlacement={props.labelPlacement}
@@ -111,6 +113,8 @@ export default defineComponent({
         gridXGap={gridBind.value.xGap}
         gridYGap={gridBind.value.yGap}
         gridResponsive={gridBind.value.responsive}
+        gridCollapsed={gridCollapsed.value}
+        gridCollapsedRows={props.collapsedRows}
         onInputEnterPress={props.onSearch}
       >
         {{

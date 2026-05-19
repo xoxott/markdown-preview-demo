@@ -85,6 +85,7 @@ export default defineComponent({
       {
         type: 'input',
         field: 'search',
+        label: '关键词',
         placeholder: '搜索名称或邮箱',
         icon: 'i-carbon-search',
         width: '220px'
@@ -92,7 +93,8 @@ export default defineComponent({
       {
         type: 'select',
         field: 'status',
-        placeholder: '状态',
+        label: '状态',
+        placeholder: '请选择状态',
         width: '130px',
         options: [
           { label: '全部', value: '' },

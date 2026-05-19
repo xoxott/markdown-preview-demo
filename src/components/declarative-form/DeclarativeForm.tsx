@@ -3,7 +3,8 @@ import { NForm, NFormItem, NGi, NGrid } from 'naive-ui';
 import type {
   DeclarativeFieldConfig,
   DeclarativeFormLayout,
-  DeclarativeFormSuffixPlacement
+  DeclarativeFormSuffixPlacement,
+  DeclarativeFormSuffixSlotProps
 } from './types';
 import { resolveFieldLabel } from './fieldLabel';
 import './naiveFormControls';
@@ -33,14 +34,10 @@ import './declarative-form.scss';
  * ## suffixPlacement 与 layout 的组合
  *
  * - `inline` + `layout="inline"`：与字段同一行末尾内联。
- * - `grid-cell` + `layout="grid"`：占栅格 1 列，与最后一行字段并列。
- * - `below-grid` + `layout="grid"`：栅格下方独占一行（`SearchBar` 默认用法）。
+ * - `grid-cell` + `layout="grid"`：`NGi suffix`，与最后一行字段并列（`SearchBar` 默认，对齐 Pro Naive）。
+ * - `below-grid` + `layout="grid"`：栅格下方独占一行。
  *
- * 展开 / 收起逻辑不在本组件内，由调用方裁剪 `fields`（如 `useGridFormCollapse`）。
- *
- * ## 只读模式
- *
- * `readonly={true}` 时渲染标签 + 文本值，不挂载输入控件；无内容时展示 `-`。 字段级可通过 `renderReadonly` 覆盖展示。
+ * 检索栏收起：传 `gridCollapsed` + `gridCollapsedRows` 给 `NGrid`，勿裁剪 `fields`。
  *
  * @see DeclarativeFormProps
  * @see SearchBar
@@ -48,100 +45,85 @@ import './declarative-form.scss';
 export default defineComponent({
   name: 'DeclarativeForm',
   props: {
-    /** 字段配置列表，按数组顺序渲染 */
     fields: {
       type: Array as PropType<DeclarativeFieldConfig[]>,
       required: true
     },
-    /** 表单数据对象（受控） */
     model: {
       type: Object as PropType<Record<string, unknown>>,
       required: true
     },
-    /** 单字段更新回调，调用方负责合并进 `model` */
     onUpdateModel: {
       type: Function as PropType<(field: string, value: unknown) => void>,
       required: true
     },
-    /** 标签相对控件的位置，透传 `NForm.labelPlacement` */
     labelPlacement: {
       type: String as PropType<'left' | 'top'>,
       default: 'left'
     },
-    /** 标签宽度，透传 `NForm.labelWidth` */
     labelWidth: {
       type: [Number, String] as PropType<number | string>,
       default: undefined
     },
-    /** 是否全局展示字段标签；单字段可通过 `field.showLabel` 覆盖 */
     showLabel: {
       type: Boolean,
       default: false
     },
-    /** 布局模式：`inline` 行内 | `grid` 栅格 */
     layout: {
       type: String as PropType<DeclarativeFormLayout>,
       default: 'inline'
     },
-    /** 是否行内排列；仅 `layout="inline"` 时透传 `NForm.inline`，栅格模式强制为 false */
     inline: {
       type: Boolean,
       default: true
     },
-    /** 行内是否允许换行，对应样式 `declarative-form--inline-wrap` */
     wrap: {
       type: Boolean,
       default: true
     },
-    /** `#suffix` 插槽放置方式。 需与 `layout` 匹配，错误组合时插槽可能不渲染。 */
     suffixPlacement: {
       type: String as PropType<DeclarativeFormSuffixPlacement>,
       default: 'inline'
     },
-    /** 栅格列数，透传 `NGrid.cols`，默认响应式 `1 s:2 m:3 l:4` */
     gridCols: {
       type: [Number, String] as PropType<number | string>,
       default: DEFAULT_GRID_COLS
     },
-    /** 栅格水平间距（px） */
     gridXGap: {
       type: Number,
       default: 24
     },
-    /** 栅格垂直间距（px） */
     gridYGap: {
       type: Number,
       default: 0
     },
-    /** 栅格响应式断点：`screen` 视口 | `self` 容器宽度 */
     gridResponsive: {
       type: String as PropType<'self' | 'screen'>,
       default: 'screen'
     },
-    /** `type="input"` 时按 Enter 的回调（如触发搜索） */
+    gridCollapsed: {
+      type: Boolean,
+      default: undefined
+    },
+    gridCollapsedRows: {
+      type: Number,
+      default: 1
+    },
     onInputEnterPress: {
       type: Function as PropType<() => void>,
       default: undefined
     },
-    /** 为 true 时只读展示标签与格式化值，空值显示 `-` */
     readonly: {
       type: Boolean,
       default: false
     }
   },
   setup(props, { slots }) {
-    /** 是否为栅格布局 */
     const isGrid = computed(() => props.layout === 'grid');
-
-    /** 检索栏模式：栅格 + 操作区在栅格下方独占一行。 会附加 `declarative-form--search` 以应用右对齐等样式。 */
+    const suffixInGrid = computed(() => isGrid.value && props.suffixPlacement === 'grid-cell');
     const suffixBelowGrid = computed(() => isGrid.value && props.suffixPlacement === 'below-grid');
+    const suffixSearchMode = computed(() => suffixInGrid.value || suffixBelowGrid.value);
 
-    /**
-     * 根 `NForm` 的 class：
-     *
-     * - inline + wrap → `declarative-form--inline-wrap`
-     * - grid → `declarative-form--grid`，检索模式再加 `declarative-form--search`
-     */
     const formClass = computed(() => {
       if (!isGrid.value) {
         const parts: string[] = [];
@@ -152,19 +134,25 @@ export default defineComponent({
       const parts: string[] = [];
       if (props.readonly) parts.push('declarative-form--readonly');
       parts.push('declarative-form--grid');
-      if (suffixBelowGrid.value) parts.push('declarative-form--search');
+      if (suffixSearchMode.value) parts.push('declarative-form--search');
       return parts;
     });
 
-    /** 透传给 `NGrid` 的 props，与 props 解耦便于模板展开 */
-    const gridProps = computed(() => ({
-      cols: props.gridCols,
-      xGap: props.gridXGap,
-      yGap: props.gridYGap,
-      responsive: props.gridResponsive
-    }));
+    const gridProps = computed(() => {
+      const base = {
+        cols: props.gridCols,
+        xGap: props.gridXGap,
+        yGap: props.gridYGap,
+        responsive: props.gridResponsive
+      };
+      if (props.gridCollapsed === undefined) return base;
+      return {
+        ...base,
+        collapsed: props.gridCollapsed,
+        collapsedRows: props.gridCollapsedRows
+      };
+    });
 
-    /** 控件渲染上下文，传入 `renderDeclarativeControl`。 `isGrid` 影响控件宽度策略（栅格下 strip 固定 width）。 */
     const controlCtx = computed(() => ({
       model: props.model,
       onUpdateModel: props.onUpdateModel,
@@ -172,10 +160,11 @@ export default defineComponent({
       onInputEnterPress: props.onInputEnterPress
     }));
 
-    /**
-     * 渲染单个字段：解析标签 → 渲染控件 → 包一层表单项。 inline：`NFormItem`；grid：`NGi` + `NFormItem`（`span` 由字段类型 /
-     * 配置决定）。
-     */
+    const renderSuffixContent = (slotProps?: DeclarativeFormSuffixSlotProps) => {
+      if (!slots.suffix) return null;
+      return (slots.suffix as (props?: DeclarativeFormSuffixSlotProps) => unknown)(slotProps);
+    };
+
     const renderField = (field: DeclarativeFieldConfig, index: number) => {
       const label = resolveFieldLabel(field, props.showLabel);
       const control = props.readonly
@@ -199,22 +188,25 @@ export default defineComponent({
       );
     };
 
-    /** 栅格内联 suffix：`suffixPlacement="grid-cell"` 时占 1 列， 与同行字段并列（常用于字段较少、按钮跟在最后一块）。 */
+    /** `grid-cell`：对齐 Pro Naive `NGi suffix` */
     const renderSuffixInGrid = () =>
       slots.suffix ? (
-        <NGi span={1} class="declarative-form__action-gi">
-          <NFormItem showLabel={false} class="declarative-form__suffix !mb-0">
-            {slots.suffix()}
-          </NFormItem>
+        <NGi suffix class="declarative-form__action-gi">
+          {{
+            default: ({ overflow }: { overflow: boolean }) => (
+              <NFormItem showLabel={false} class="declarative-form__suffix !mb-0">
+                {renderSuffixContent({ overflow })}
+              </NFormItem>
+            )
+          }}
         </NGi>
       ) : null;
 
-    /** 栅格下方 suffix：`suffixPlacement="below-grid"` 时整行展示操作区， 不占用 `NGrid` 列（检索栏查询 / 重置按钮典型布局）。 */
     const renderSuffixBelowGrid = () =>
       slots.suffix ? (
         <div class="declarative-form__action-row">
           <NFormItem showLabel={false} class="declarative-form__suffix !mb-0">
-            {slots.suffix()}
+            {renderSuffixContent()}
           </NFormItem>
         </div>
       ) : null;
@@ -233,7 +225,7 @@ export default defineComponent({
           <>
             <NGrid {...gridProps.value}>
               {props.fields.map(renderField)}
-              {props.suffixPlacement === 'grid-cell' ? renderSuffixInGrid() : null}
+              {suffixInGrid.value ? renderSuffixInGrid() : null}
             </NGrid>
             {suffixBelowGrid.value ? renderSuffixBelowGrid() : null}
           </>
@@ -244,7 +236,6 @@ export default defineComponent({
             {props.suffixPlacement === 'inline' ? slots.suffix?.() : null}
           </>
         )}
-        {/* 栅格模式下 toolbarAfter 放在栅格与 suffix 之后，避免打断栅格流 */}
         {isGrid.value ? slots.toolbarAfter?.() : null}
       </NForm>
     );

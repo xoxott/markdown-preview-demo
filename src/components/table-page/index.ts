@@ -2,6 +2,7 @@
 export {
   DeclarativeForm,
   DEFAULT_GRID_COLS,
+  SEARCH_GRID_COLS,
   useGridFormCollapse
 } from '@/components/declarative-form';
 export { default as TablePage } from './TablePage';

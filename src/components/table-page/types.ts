@@ -292,7 +292,7 @@ export interface TablePageProps {
   searchCardBordered?: boolean;
   /** 为 true 时搜索区可展开 / 收起 */
   searchCollapsible?: boolean;
-  /** 栅格每行列数，默认 `1 s:2 m:3 l:4` */
+  /** 栅格每行列数，默认 `1 s:2 m:3 l:5`（含尾列操作区） */
   searchCols?: number | string;
   searchGridXGap?: number;
   searchGridYGap?: number;
@@ -302,6 +302,12 @@ export interface TablePageProps {
   searchCollapsedRows?: number;
   /** 初始是否收起 */
   searchDefaultCollapsed?: boolean;
+  /** 是否展示检索项标签（字段需配置 `label`） */
+  searchShowLabel?: boolean;
+  /** 检索项标签位置 */
+  searchLabelPlacement?: 'left' | 'top';
+  /** 检索项左标签宽度 */
+  searchLabelWidth?: number | string;
   /** 是否渲染操作区外层 NCard */
   showActionCard?: boolean;
   /** 操作区 NCard bordered */
@@ -328,7 +334,7 @@ export interface SearchBarProps {
   showLabel?: boolean;
   /** 是否显示搜索 / 重置按钮 */
   showActionButtons?: boolean;
-  /** 栅格列数，默认 `1 s:2 m:3 l:4` */
+  /** 栅格列数，默认 `1 s:2 m:3 l:5` */
   cols?: number | string;
   gridXGap?: number;
   gridYGap?: number;

@@ -1,9 +1,7 @@
 import { type PropType, defineComponent } from 'vue';
 import { NButton, NIcon } from 'naive-ui';
-import { ChevronDown, ChevronUp } from '@vicons/tabler';
+import { ChevronDown, ChevronUp, Refresh, Search } from '@vicons/tabler';
 import { $t } from '@/locales';
-import IconAntDesignReloadOutlined from '~icons/ant-design/reload-outlined';
-import IconUilSearch from '~icons/uil/search';
 
 /** 检索条操作区：重置 → 搜索 → 展开/收起，由 DeclarativeForm `suffix` 插槽渲染在独立一行。 */
 export default defineComponent({
@@ -48,7 +46,11 @@ export default defineComponent({
         {props.showReset ? (
           <NButton onClick={props.onReset}>
             {{
-              icon: () => <IconAntDesignReloadOutlined class="text-16px" />,
+              icon: () => (
+                <NIcon size={16}>
+                  <Refresh />
+                </NIcon>
+              ),
               default: () => $t('common.reset')
             }}
           </NButton>
@@ -56,7 +58,11 @@ export default defineComponent({
         {props.showSearch ? (
           <NButton type="primary" onClick={props.onSearch}>
             {{
-              icon: () => <IconUilSearch class="text-16px" />,
+              icon: () => (
+                <NIcon size={16}>
+                  <Search />
+                </NIcon>
+              ),
               default: () => $t('common.search')
             }}
           </NButton>
@@ -67,7 +73,9 @@ export default defineComponent({
               default: () =>
                 props.collapsed ? $t('common.searchExpand') : $t('common.searchCollapse'),
               icon: () => (
-                <NIcon size={14}>{props.collapsed ? <ChevronDown /> : <ChevronUp />}</NIcon>
+                <NIcon size={14}>
+                  {props.collapsed ? <ChevronDown /> : <ChevronUp />}
+                </NIcon>
               )
             }}
           </NButton>
