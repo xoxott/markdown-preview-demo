@@ -48,3 +48,4 @@ export {
 export { useGridFormCollapse } from './useGridFormCollapse';
 export type { UseGridFormCollapseOptions } from './useGridFormCollapse';
 export { formatReadonlyValue, isReadonlyValueEmpty } from './formatReadonlyValue';
+export { normalizeControlValue, resolveFieldInitialValue } from './fieldInitialValue';

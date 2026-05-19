@@ -1,3 +1,4 @@
+import { resolveFieldInitialValue } from '@/components/declarative-form';
 import type { SearchFieldConfig } from '@/components/table-page/types';
 
 const yesNoOptions = [
@@ -144,13 +145,7 @@ export const manySearchFields: SearchFieldConfig[] = [
 export function createInitialSearchModel(fields: SearchFieldConfig[]) {
   const model: Record<string, unknown> = {};
   for (const field of fields) {
-    if (field.type === 'date-range' || field.type === 'date') {
-      model[field.field] = field.defaultValue ?? null;
-    } else if (field.type === 'input') {
-      model[field.field] = field.defaultValue ?? '';
-    } else {
-      model[field.field] = field.defaultValue ?? undefined;
-    }
+    model[field.field] = resolveFieldInitialValue(field);
   }
   return model;
 }

@@ -1,4 +1,5 @@
 import { reactive, ref } from 'vue';
+import { resolveFieldInitialValue } from '@/components/declarative-form';
 import type { SearchFieldConfig } from '../types';
 
 /** useSearchForm 初始化选项 */
@@ -31,10 +32,7 @@ export function useSearchForm(options: UseSearchFormOptions) {
     if (Object.hasOwn(initialValues, field.field)) {
       return initialValues[field.field];
     }
-    if (Object.hasOwn(field, 'defaultValue')) {
-      return field.defaultValue;
-    }
-    return undefined;
+    return resolveFieldInitialValue(field);
   }
 
   config.forEach(field => {

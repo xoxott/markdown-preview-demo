@@ -1,4 +1,5 @@
 import type { DeclarativeFieldConfig } from './types';
+import { normalizeControlValue } from './fieldInitialValue';
 import { resolveGridControlStyle, stripGridFixedWidthProps } from './grid';
 
 /**
@@ -89,7 +90,7 @@ export function bindField(
   return mergeControlProps(
     field,
     {
-      [valueProp]: ctx.model[key],
+      [valueProp]: normalizeControlValue(field, ctx.model[key]),
       [updateEvent]: (value: unknown) => ctx.onUpdateModel(key, value),
       placeholder,
       ...(passClearable ? { clearable } : {}),
