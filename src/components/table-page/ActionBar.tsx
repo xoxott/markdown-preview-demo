@@ -29,7 +29,8 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const presetButtonMap: Record<
+    /** 在 render 内调用，切换语言时文案会随 locale 更新 */
+    const getPresetButtonMap = (): Record<
       PresetButtonType,
       {
         label: string;
@@ -37,7 +38,7 @@ export default defineComponent({
         type: 'default' | 'primary' | 'error';
         needSelection?: boolean;
       }
-    > = {
+    > => ({
       add: {
         label: $t('common.add'),
         icon: 'i-carbon-add',
@@ -59,10 +60,10 @@ export default defineComponent({
         icon: 'i-carbon-download',
         type: 'default'
       }
-    };
+    });
 
     const renderPresetButton = (buttonType: PresetButtonType, buttonConfig: any) => {
-      const preset = presetButtonMap[buttonType];
+      const preset = getPresetButtonMap()[buttonType];
       const { label = preset.label, icon = preset.icon, onClick, disabled, loading } = buttonConfig;
 
       const isDisabled = disabled || (preset.needSelection && props.selectedKeys.length === 0);

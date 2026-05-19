@@ -26,6 +26,7 @@ export function createVersionLogSearchFields(): SearchFieldConfig[] {
     {
       type: 'input',
       field: 'search',
+      label: $t('common.searchFieldLabel'),
       placeholder: $t('page.versionLogManagement.searchPlaceholder'),
       icon: 'i-carbon-search',
       width: '200px'
@@ -33,6 +34,7 @@ export function createVersionLogSearchFields(): SearchFieldConfig[] {
     {
       type: 'select',
       field: 'type',
+      label: $t('page.versionLogManagement.type'),
       placeholder: $t('page.versionLogManagement.typePlaceholder'),
       width: '120px',
       options: [
@@ -44,6 +46,7 @@ export function createVersionLogSearchFields(): SearchFieldConfig[] {
     {
       type: 'select',
       field: 'isPublished',
+      label: $t('page.versionLogManagement.status'),
       placeholder: $t('page.versionLogManagement.statusPlaceholder'),
       width: '120px',
       options: [

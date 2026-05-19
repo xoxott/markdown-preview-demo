@@ -323,6 +323,7 @@ declare namespace App {
         error: string;
         index: string;
         keywordSearch: string;
+        searchFieldLabel: string;
         logout: string;
         logoutConfirm: string;
         lookForward: string;
@@ -611,6 +612,8 @@ declare namespace App {
           codePlaceholder: string;
           resourcePlaceholder: string;
           actionPlaceholder: string;
+          sortByLabel: string;
+          sortOrderLabel: string;
           parentPlaceholder: string;
           descriptionPlaceholder: string;
           nameRequired: string;

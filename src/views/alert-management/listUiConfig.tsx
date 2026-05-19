@@ -9,6 +9,7 @@ export function createAlertSearchFields(): SearchFieldConfig[] {
     {
       type: 'input',
       field: 'search',
+      label: $t('common.searchFieldLabel'),
       placeholder: $t('page.alertManagement.searchPlaceholder'),
       icon: 'i-carbon-search',
       width: '200px'
@@ -16,6 +17,7 @@ export function createAlertSearchFields(): SearchFieldConfig[] {
     {
       type: 'select',
       field: 'level',
+      label: $t('page.alertManagement.level'),
       placeholder: $t('page.alertManagement.levelPlaceholder'),
       width: '120px',
       options: [
@@ -27,6 +29,7 @@ export function createAlertSearchFields(): SearchFieldConfig[] {
     {
       type: 'select',
       field: 'status',
+      label: $t('page.alertManagement.status'),
       placeholder: $t('page.alertManagement.statusPlaceholder'),
       width: '120px',
       options: [
@@ -38,6 +41,7 @@ export function createAlertSearchFields(): SearchFieldConfig[] {
     {
       type: 'select',
       field: 'isEnabled',
+      label: $t('page.alertManagement.enabled'),
       placeholder: $t('page.alertManagement.enabledStatusPlaceholder'),
       width: '120px',
       options: [

@@ -9,6 +9,7 @@ export function createNotificationSearchFields(): SearchFieldConfig[] {
     {
       type: 'input',
       field: 'search',
+      label: $t('common.searchFieldLabel'),
       placeholder: $t('page.notificationManagement.searchPlaceholder'),
       icon: 'i-carbon-search',
       width: '200px'
@@ -16,6 +17,7 @@ export function createNotificationSearchFields(): SearchFieldConfig[] {
     {
       type: 'select',
       field: 'type',
+      label: $t('page.notificationManagement.type'),
       placeholder: $t('page.notificationManagement.typePlaceholder'),
       width: '120px',
       options: [
@@ -28,6 +30,7 @@ export function createNotificationSearchFields(): SearchFieldConfig[] {
     {
       type: 'select',
       field: 'isSent',
+      label: $t('page.notificationManagement.status'),
       placeholder: $t('page.notificationManagement.statusPlaceholder'),
       width: '120px',
       options: [

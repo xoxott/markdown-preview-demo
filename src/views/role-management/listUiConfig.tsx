@@ -10,6 +10,7 @@ export function createRoleSearchFields(): SearchFieldConfig[] {
     {
       type: 'input',
       field: 'search',
+      label: $t('common.searchFieldLabel'),
       placeholder: $t('page.roleManagement.searchPlaceholder'),
       icon: 'i-carbon-search',
       width: '200px'
@@ -17,6 +18,7 @@ export function createRoleSearchFields(): SearchFieldConfig[] {
     {
       type: 'select',
       field: 'isActive',
+      label: $t('page.roleManagement.status'),
       placeholder: $t('page.roleManagement.statusPlaceholder'),
       width: '120px',
       options: [

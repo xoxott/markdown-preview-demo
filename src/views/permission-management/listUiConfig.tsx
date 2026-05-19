@@ -18,6 +18,7 @@ export function createPermissionSearchFields(): SearchFieldConfig[] {
     {
       type: 'input',
       field: 'search',
+      label: $t('common.searchFieldLabel'),
       placeholder: $t('page.permissionManagement.searchPlaceholder'),
       icon: 'i-carbon-search',
       width: '200px'
@@ -25,6 +26,7 @@ export function createPermissionSearchFields(): SearchFieldConfig[] {
     {
       type: 'select',
       field: 'resource',
+      label: $t('page.permissionManagement.resource'),
       placeholder: $t('page.permissionManagement.resourcePlaceholder'),
       width: '120px',
       options: [
@@ -38,6 +40,7 @@ export function createPermissionSearchFields(): SearchFieldConfig[] {
     {
       type: 'select',
       field: 'action',
+      label: $t('page.permissionManagement.action'),
       placeholder: $t('page.permissionManagement.actionPlaceholder'),
       width: '120px',
       options: [
@@ -51,14 +54,16 @@ export function createPermissionSearchFields(): SearchFieldConfig[] {
     {
       type: 'select',
       field: 'sortBy',
-      placeholder: '排序字段',
+      label: $t('page.permissionManagement.sortByLabel'),
+      placeholder: $t('page.permissionManagement.sortByLabel'),
       width: '120px',
       options: SORT_BY_OPTIONS
     },
     {
       type: 'select',
       field: 'sortOrder',
-      placeholder: '排序方式',
+      label: $t('page.permissionManagement.sortOrderLabel'),
+      placeholder: $t('page.permissionManagement.sortOrderLabel'),
       width: '120px',
       options: [
         { label: '升序', value: 'asc' },
@@ -68,6 +73,7 @@ export function createPermissionSearchFields(): SearchFieldConfig[] {
     {
       type: 'select',
       field: 'isActive',
+      label: $t('page.permissionManagement.status'),
       placeholder: $t('page.permissionManagement.statusPlaceholder'),
       width: '120px',
       options: [

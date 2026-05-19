@@ -10,6 +10,7 @@ export function createUserSearchFields(roles: Api.UserManagement.Role[]): Search
     {
       type: 'input',
       field: 'search',
+      label: $t('common.searchFieldLabel'),
       placeholder: $t('page.userManagement.searchPlaceholder'),
       icon: 'i-carbon-search',
       width: '220px'
@@ -17,6 +18,7 @@ export function createUserSearchFields(roles: Api.UserManagement.Role[]): Search
     {
       type: 'select',
       field: 'isActive',
+      label: $t('page.userManagement.status'),
       placeholder: $t('page.userManagement.statusPlaceholder'),
       width: '130px',
       options: [
@@ -27,6 +29,7 @@ export function createUserSearchFields(roles: Api.UserManagement.Role[]): Search
     {
       type: 'select',
       field: 'isOnline',
+      label: $t('page.userManagement.onlineStatus'),
       placeholder: $t('page.userManagement.onlineStatusPlaceholder'),
       width: '130px',
       options: [
@@ -37,6 +40,7 @@ export function createUserSearchFields(roles: Api.UserManagement.Role[]): Search
     {
       type: 'select',
       field: 'isBlacklisted',
+      label: $t('page.userManagement.blacklistStatus'),
       placeholder: $t('page.userManagement.blacklistStatusPlaceholder'),
       width: '130px',
       options: [
@@ -47,7 +51,8 @@ export function createUserSearchFields(roles: Api.UserManagement.Role[]): Search
     {
       type: 'select',
       field: 'roleCode',
-      placeholder: '筛选角色',
+      label: $t('page.userManagement.role'),
+      placeholder: $t('page.userManagement.rolePlaceholder'),
       width: '130px',
       options: roles.map(role => ({
         label: role.name,

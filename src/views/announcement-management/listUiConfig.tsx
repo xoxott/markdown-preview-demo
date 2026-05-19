@@ -9,6 +9,7 @@ export function createAnnouncementSearchFields(): SearchFieldConfig[] {
     {
       type: 'input',
       field: 'search',
+      label: $t('common.searchFieldLabel'),
       placeholder: $t('page.announcementManagement.searchPlaceholder'),
       icon: 'i-carbon-search',
       width: '200px'
@@ -16,6 +17,7 @@ export function createAnnouncementSearchFields(): SearchFieldConfig[] {
     {
       type: 'select',
       field: 'type',
+      label: $t('page.announcementManagement.type'),
       placeholder: $t('page.announcementManagement.typePlaceholder'),
       width: '120px',
       options: [
@@ -28,6 +30,7 @@ export function createAnnouncementSearchFields(): SearchFieldConfig[] {
     {
       type: 'select',
       field: 'isPublished',
+      label: $t('page.announcementManagement.status'),
       placeholder: $t('page.announcementManagement.statusPlaceholder'),
       width: '120px',
       options: [
