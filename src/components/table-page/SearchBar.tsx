@@ -1,9 +1,11 @@
-import { type PropType, computed, defineComponent, toRef } from 'vue';
+import { type PropType, computed, defineComponent, ref, toRef } from 'vue';
 import {
   DeclarativeForm,
   SEARCH_GRID_COLS,
-  useGridFormCollapse
+  useGridFormCollapse,
+  useResponsiveGridColCount
 } from '@/components/declarative-form';
+import type { DeclarativeFormSuffixSlotProps } from '@/components/declarative-form';
 import type { SearchFieldConfig } from './types';
 import SearchFormSuffix from './SearchFormSuffix';
 
@@ -78,12 +80,20 @@ export default defineComponent({
     }
   },
   setup(props, { slots }) {
+    const gridOverflow = ref(false);
+    const responsiveCols = useResponsiveGridColCount(
+      toRef(props, 'cols'),
+      toRef(props, 'gridResponsive')
+    );
+
     const { showCollapseToggle, collapsed, toggleCollapsed } = useGridFormCollapse({
       fields: toRef(props, 'config'),
       cols: toRef(props, 'cols'),
       collapsedRows: toRef(props, 'collapsedRows'),
       collapsible: toRef(props, 'collapsible'),
-      defaultCollapsed: toRef(props, 'defaultCollapsed')
+      defaultCollapsed: toRef(props, 'defaultCollapsed'),
+      responsiveCols,
+      gridOverflow
     });
 
     const showSuffix = computed(
@@ -123,19 +133,24 @@ export default defineComponent({
           toolbarAfter: slots.toolbarAfter,
           ...(showSuffix.value
             ? {
-                suffix: () => (
-                  <SearchFormSuffix
-                    showSearch={props.showActionButtons}
-                    showReset={props.showActionButtons}
-                    showCollapse={showCollapseToggle.value}
-                    collapsed={collapsed.value}
-                    onSearch={props.onSearch}
-                    onReset={props.onReset}
-                    onToggleCollapse={toggleCollapsed}
-                  >
-                    {slots.actionsExtra?.()}
-                  </SearchFormSuffix>
-                )
+                suffix: (slotProps?: DeclarativeFormSuffixSlotProps) => {
+                  if (props.collapsible && collapsed.value) {
+                    gridOverflow.value = Boolean(slotProps?.overflow);
+                  }
+                  return (
+                    <SearchFormSuffix
+                      showSearch={props.showActionButtons}
+                      showReset={props.showActionButtons}
+                      showCollapse={showCollapseToggle.value}
+                      collapsed={collapsed.value}
+                      onSearch={props.onSearch}
+                      onReset={props.onReset}
+                      onToggleCollapse={toggleCollapsed}
+                    >
+                      {slots.actionsExtra?.()}
+                    </SearchFormSuffix>
+                  );
+                }
               }
             : {})
         }}

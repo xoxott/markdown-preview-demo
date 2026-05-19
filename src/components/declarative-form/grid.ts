@@ -18,6 +18,16 @@ export const DEFAULT_GRID_COLS = '1 s:2 m:3 l:4';
 /** 检索栏栅格列数：窄屏 1 列 → 大屏 6 列（最多 5 个单列表单项 + 尾列操作区，避免操作区独占一行贴右） */
 export const SEARCH_GRID_COLS = '1 s:2 m:3 l:6 xl:7';
 
+/** 与 Naive UI `NGrid`（`responsive="screen"`）一致的断点，用于按视口解析 `cols` */
+export const NAIVE_GRID_BREAKPOINTS = {
+  xs: 0,
+  s: 640,
+  m: 1024,
+  l: 1280,
+  xl: 1536,
+  xxl: 1920
+} as const;
+
 /**
  * 栅格单元内控件的行内样式。
  *
@@ -99,7 +109,7 @@ export function resolveGridControlStyle(field: DeclarativeFieldConfig) {
  *   - 裸数字如 `1`、`4`
  *   - 断点前缀如 `s:2`、`l:4`（见 Naive UI `NGrid` cols 语法）
  *
- * 用于容量估算；实际渲染列数仍由 Naive 按视口决定。
+ * 用于容量估算的上界；检索栏展开按钮请配合 {@link useResponsiveGridColCount} 或 `NGrid` suffix `overflow`。
  *
  * @example
  *   resolveGridColCount(4); // 4
@@ -126,12 +136,17 @@ export function resolveGridColCount(cols: number | string): number {
 /**
  * 栅格可容纳的字段 span 总上限（用于收起首屏计算）。
  *
- * @param cols 栅格列数配置
+ * @param cols 栅格列数配置或当前视口列数
  * @param rows 行数（如 `collapsedRows`）
- * @returns `resolveGridColCount(cols) × rows`
+ * @param suffixSpan `NGi suffix` 占列（检索栏默认 1），与 Naive `NGrid` 收起算法对齐
+ * @returns `resolveGridColCount(cols) × rows - suffixSpan`（至少为 1）
  */
-export function getGridFieldCapacity(cols: number | string, rows: number): number {
-  return resolveGridColCount(cols) * rows;
+export function getGridFieldCapacity(
+  cols: number | string,
+  rows: number,
+  suffixSpan = 0
+): number {
+  return Math.max(resolveGridColCount(cols) * rows - suffixSpan, 1);
 }
 
 /**
@@ -180,13 +195,15 @@ export function pickLeadingFields(
  * @param fields 完整字段列表
  * @param cols 栅格列数配置
  * @param rows 收起时对应的行数（与 `collapsedRows` 一致）
- * @returns 若 `sumFieldSpans(fields) > getGridFieldCapacity(cols, rows)` 则为 true
+ * @param suffixSpan `NGi suffix` 占列，检索栏传 `1`
+ * @returns 若 `sumFieldSpans(fields) > getGridFieldCapacity(cols, rows, suffixSpan)` 则为 true
  * @see useGridFormCollapse
  */
 export function exceedsGridCapacity(
   fields: DeclarativeFieldConfig[],
   cols: number | string,
-  rows: number
+  rows: number,
+  suffixSpan = 0
 ): boolean {
-  return sumFieldSpans(fields) > getGridFieldCapacity(cols, rows);
+  return sumFieldSpans(fields) > getGridFieldCapacity(cols, rows, suffixSpan);
 }

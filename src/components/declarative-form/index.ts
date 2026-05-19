@@ -33,6 +33,7 @@ export {
 } from './controlRegistry';
 export {
   DEFAULT_GRID_COLS,
+  NAIVE_GRID_BREAKPOINTS,
   SEARCH_GRID_COLS,
   GRID_WIDE_FIELD_TYPES,
   exceedsGridCapacity,
@@ -45,7 +46,8 @@ export {
   stripGridFixedWidthProps,
   sumFieldSpans
 } from './grid';
-export { useGridFormCollapse } from './useGridFormCollapse';
+export { useGridFormCollapse, SEARCH_GRID_SUFFIX_SPAN } from './useGridFormCollapse';
 export type { UseGridFormCollapseOptions } from './useGridFormCollapse';
+export { useResponsiveGridColCount } from './useResponsiveGridColCount';
 export { formatReadonlyValue, isReadonlyValueEmpty } from './formatReadonlyValue';
 export { normalizeControlValue, resolveFieldInitialValue } from './fieldInitialValue';

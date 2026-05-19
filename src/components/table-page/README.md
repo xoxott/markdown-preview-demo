@@ -25,7 +25,7 @@ SearchBar 对齐 [Pro Naive `ProSearchForm`](https://naive.soybeanjs.cn/pro-naiv
 - **筛选项**：`NForm` → `NGrid` → `NGi` + `NFormItem`，列数由 `cols` 控制（默认 `1 s:2 m:3 l:6 xl:7`）。
 - **操作区**：`NGi suffix`，占**最后一行剩余列**，重置 → 搜索 → 展开/收起，在尾列内右对齐。
 - **收起**：`gridCollapsed` 透传 `NGrid.collapsed`，`collapsedRows` 透传 `NGrid.collapsedRows`；**不裁剪** `fields` 数组。
-- **展开按钮**：`collapsible=true` 且字段总 span 超出 `cols × collapsedRows` 时显示；展开后仍保留「收起」按钮（对齐 Pro Naive）。
+- **展开按钮**：收起态以 `NGi suffix` 的 `overflow`（Naive `NGrid` 按当前列数计算）为准；展开态按当前视口列数估算是否超出 `cols × collapsedRows`（并预留 suffix 占列）。窄屏列数变少时仍会显示展开/收起（对齐 Pro Naive）。
 
 ```
 ┌─────────┬─────────┬─────────┐  宽屏 3 列示例
