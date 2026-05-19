@@ -31,10 +31,10 @@ SearchBar 对齐 [Pro Naive `ProSearchForm`](https://naive.soybeanjs.cn/pro-naiv
 
 需要把**整个**搜索区（含表单与操作按钮）收起以让给表格时，传 `searchSectionCollapsible`。内部使用 Naive `NCollapse` / `NCollapseItem`，标题默认可通过 `searchSectionTitle` 或 i18n `common.searchSection` 覆盖。
 
-| 层级 | Prop | 作用 |
-| ---- | ---- | ---- |
-| 整块 | `searchSectionCollapsible` | 折叠整个检索区，仅留一行标题 |
-| 栅格行 | `searchCollapsible` | 在展开状态下，隐藏超出 `searchCollapsedRows` 的筛选项行 |
+| 层级   | Prop                       | 作用                                                    |
+| ------ | -------------------------- | ------------------------------------------------------- |
+| 整块   | `searchSectionCollapsible` | 折叠整个检索区，仅留一行标题                            |
+| 栅格行 | `searchCollapsible`        | 在展开状态下，隐藏超出 `searchCollapsedRows` 的筛选项行 |
 
 二者可同时开启：先整块展开检索区，再在表单内用「展开/收起」控制多余筛选项行。
 
@@ -54,10 +54,10 @@ SearchBar 对齐 [Pro Naive `ProSearchForm`](https://naive.soybeanjs.cn/pro-naiv
 
 | 属性                                | 默认                 | 说明                                                                   |
 | ----------------------------------- | -------------------- | ---------------------------------------------------------------------- |
-| `searchSectionCollapsible`          | `false`              | 整块检索区折叠（`NCollapse`），收起后仅保留标题栏，表格区获得更多高度 |
+| `searchSectionCollapsible`          | `false`              | 整块检索区折叠（`NCollapse`），收起后仅保留标题栏，表格区获得更多高度  |
 | `searchSectionDefaultExpanded`      | `true`               | 整块检索区初始是否展开                                                 |
 | `searchSectionTitle`                | i18n                 | 整块折叠面板标题，默认 `common.searchSection`                          |
-| `searchCollapsible`                 | `true`               | 栅格内筛选项行展开/收起（超出 `searchCollapsedRows` 行才显示按钮）   |
+| `searchCollapsible`                 | `true`               | 栅格内筛选项行展开/收起（超出 `searchCollapsedRows` 行才显示按钮）     |
 | `searchCols`                        | `1 s:2 m:3 l:6 xl:7` | 栅格列数或响应式字符串（`SEARCH_GRID_COLS`）                           |
 | `searchGridXGap` / `searchGridYGap` | `24` / `16`          | 栅格间距（`yGap` 负责换行后的行间距）                                  |
 | `searchGridResponsive`              | `self`               | `self` 随检索区容器（默认，内部解析为数字列数）；`screen` 随浏览器视口 |

@@ -1,8 +1,8 @@
 import { type PropType, computed, defineComponent, ref, watch } from 'vue';
 import { NCard } from 'naive-ui';
-import SearchSectionCollapse from './SearchSectionCollapse';
 import type { DataTableProps as NaiveDataTableProps, PaginationProps } from 'naive-ui';
 import { SEARCH_GRID_COLS } from '@/components/declarative-form';
+import SearchSectionCollapse from './SearchSectionCollapse';
 import type { ActionBarConfig, SearchFieldConfig, TableColumnConfig } from './types';
 import SearchBar from './SearchBar';
 import ActionBar from './ActionBar';

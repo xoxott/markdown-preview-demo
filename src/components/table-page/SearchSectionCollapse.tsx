@@ -4,10 +4,7 @@ import { $t } from '@/locales';
 
 export const SEARCH_SECTION_COLLAPSE_NAME = 'search';
 
-/**
- * 包裹检索区整块内容，用 Naive `NCollapse` 折叠/展开以节省纵向空间。
- * 与 SearchBar 内栅格「展开/收起」无关。
- */
+/** 包裹检索区整块内容，用 Naive `NCollapse` 折叠/展开以节省纵向空间。 与 SearchBar 内栅格「展开/收起」无关。 */
 export default defineComponent({
   name: 'SearchSectionCollapse',
   props: {
