@@ -41,17 +41,17 @@ SearchBar 对齐 [Pro Naive `ProSearchForm`](https://naive.soybeanjs.cn/pro-naiv
 
 ### TablePage 检索相关 Props
 
-| 属性                                | 默认            | 说明                                                   |
-| ----------------------------------- | --------------- | ------------------------------------------------------ |
-| `searchCollapsible`                 | `false`         | 是否可展开/收起                                        |
+| 属性                                | 默认                 | 说明                                                   |
+| ----------------------------------- | -------------------- | ------------------------------------------------------ |
+| `searchCollapsible`                 | `false`              | 是否可展开/收起                                        |
 | `searchCols`                        | `1 s:2 m:3 l:6 xl:7` | 栅格列数或响应式字符串（`SEARCH_GRID_COLS`）           |
-| `searchGridXGap` / `searchGridYGap` | `24` / `16`     | 栅格间距（`yGap` 负责换行后的行间距）                  |
-| `searchGridResponsive`              | `screen`        | `screen` 随视口；`self` 随检索区容器（嵌套窄卡片时用） |
-| `searchCollapsedRows`               | `2`             | 收起时保留的**行数**（按 span 累计）                   |
-| `searchDefaultCollapsed`            | `false`         | 初始是否收起                                           |
-| `searchShowLabel`                   | `true`          | 是否展示标签（字段需配置 `label`）                     |
-| `searchLabelPlacement`              | `left`          | 标签位置：`left` \| `top`                              |
-| `searchLabelWidth`                  | `80`            | 左标签宽度（`labelPlacement="left"` 时）               |
+| `searchGridXGap` / `searchGridYGap` | `24` / `16`          | 栅格间距（`yGap` 负责换行后的行间距）                  |
+| `searchGridResponsive`              | `screen`             | `screen` 随视口；`self` 随检索区容器（嵌套窄卡片时用） |
+| `searchCollapsedRows`               | `2`                  | 收起时保留的**行数**（按 span 累计）                   |
+| `searchDefaultCollapsed`            | `false`              | 初始是否收起                                           |
+| `searchShowLabel`                   | `true`               | 是否展示标签（字段需配置 `label`）                     |
+| `searchLabelPlacement`              | `left`               | 标签位置：`left` \| `top`                              |
+| `searchLabelWidth`                  | `80`                 | 左标签宽度（`labelPlacement="left"` 时）               |
 
 ### SearchBar 独立使用
 
@@ -73,7 +73,7 @@ import SearchBar, { SEARCH_GRID_COLS } from '@/components/table-page';
 
 | 属性                                          | 默认                   | 说明                             |
 | --------------------------------------------- | ---------------------- | -------------------------------- |
-| `cols`                                        | `1 s:2 m:3 l:6 xl:7`        | 同 TablePage `searchCols`        |
+| `cols`                                        | `1 s:2 m:3 l:6 xl:7`   | 同 TablePage `searchCols`        |
 | `gridXGap` / `gridYGap`                       | `24` / `16`            | 栅格间距                         |
 | `gridResponsive`                              | `screen`               | 响应式断点策略                   |
 | `collapsible`                                 | `false`                | 可折叠                           |

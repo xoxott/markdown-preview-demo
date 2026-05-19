@@ -160,9 +160,7 @@ export default defineComponent({
       onInputEnterPress: props.onInputEnterPress
     }));
 
-    /**
-     * 栅格检索无校验文案，关闭反馈区避免控件下方留白；换行间距改由 `gridYGap`（SearchBar 默认 16）承担。
-     */
+    /** 栅格检索无校验文案，关闭反馈区避免控件下方留白；换行间距改由 `gridYGap`（SearchBar 默认 16）承担。 */
     const formItemProps = computed(() =>
       isGrid.value ? ({ showFeedback: false } as const) : ({} as const)
     );
@@ -227,7 +225,11 @@ export default defineComponent({
     const renderSuffixBelowGrid = () =>
       slots.suffix ? (
         <div class="declarative-form__action-row">
-          <NFormItem showLabel={false} class="declarative-form__suffix !mb-0" {...formItemProps.value}>
+          <NFormItem
+            showLabel={false}
+            class="declarative-form__suffix !mb-0"
+            {...formItemProps.value}
+          >
             {renderSuffixContent()}
           </NFormItem>
         </div>
