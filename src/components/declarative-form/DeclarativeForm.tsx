@@ -107,7 +107,7 @@ export default defineComponent({
     },
     gridCollapsedRows: {
       type: Number,
-      default: 1
+      default: 2
     },
     onInputEnterPress: {
       type: Function as PropType<() => void>,

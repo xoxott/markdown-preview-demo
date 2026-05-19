@@ -168,7 +168,7 @@ export interface DeclarativeFormProps {
    * `SearchBar` 传入，勿与手动裁剪 `fields` 混用。
    */
   gridCollapsed?: boolean;
-  /** 收起时保留的行数，透传 `NGrid.collapsedRows`，默认 `1` */
+  /** 收起时保留的行数，透传 `NGrid.collapsedRows`，默认 `2` */
   gridCollapsedRows?: number;
   /** `type="input"` 时按下 Enter 键的回调（常用于触发搜索） */
   onInputEnterPress?: () => void;

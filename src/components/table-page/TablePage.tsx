@@ -75,7 +75,7 @@ export default defineComponent({
     /** 收起时保留的筛选项行数 */
     searchCollapsedRows: {
       type: Number,
-      default: 1
+      default: 2
     },
     /** 检索区初始是否收起 */
     searchDefaultCollapsed: {

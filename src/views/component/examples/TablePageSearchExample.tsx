@@ -112,7 +112,6 @@ export default defineComponent({
                 model={manyModel}
                 collapsible
                 defaultCollapsed
-                collapsedRows={1}
                 onSearch={manyHandlers.onSearch}
                 onReset={manyHandlers.onReset}
                 onUpdateModel={manyHandlers.onUpdate}
@@ -134,7 +133,6 @@ export default defineComponent({
                   showIndex={false}
                   searchCollapsible
                   searchDefaultCollapsed
-                  searchCollapsedRows={1}
                   searchCardBordered={false}
                   showActionCard={false}
                   padded={false}
@@ -149,7 +147,6 @@ export default defineComponent({
                 model={standaloneModel}
                 collapsible
                 defaultCollapsed
-                collapsedRows={1}
                 onSearch={standaloneHandlers.onSearch}
                 onReset={standaloneHandlers.onReset}
                 onUpdateModel={standaloneHandlers.onUpdate}

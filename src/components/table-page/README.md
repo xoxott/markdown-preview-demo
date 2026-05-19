@@ -47,7 +47,7 @@ SearchBar 对齐 [Pro Naive `ProSearchForm`](https://naive.soybeanjs.cn/pro-naiv
 | `searchCols`                        | `1 s:2 m:3 l:5` | 栅格列数或响应式字符串（`SEARCH_GRID_COLS`）           |
 | `searchGridXGap` / `searchGridYGap` | `24` / `0`      | 栅格间距                                               |
 | `searchGridResponsive`              | `screen`        | `screen` 随视口；`self` 随检索区容器（嵌套窄卡片时用） |
-| `searchCollapsedRows`               | `1`             | 收起时保留的**行数**（按 span 累计）                   |
+| `searchCollapsedRows`               | `2`             | 收起时保留的**行数**（按 span 累计）                   |
 | `searchDefaultCollapsed`            | `false`         | 初始是否收起                                           |
 | `searchShowLabel`                   | `true`          | 是否展示标签（字段需配置 `label`）                     |
 | `searchLabelPlacement`              | `left`          | 标签位置：`left` \| `top`                              |
@@ -66,7 +66,7 @@ import SearchBar, { SEARCH_GRID_COLS } from '@/components/table-page';
   onReset={handleReset}
   cols={SEARCH_GRID_COLS}
   collapsible
-  collapsedRows={1}
+  collapsedRows={2}
   defaultCollapsed
 />;
 ```
@@ -77,7 +77,7 @@ import SearchBar, { SEARCH_GRID_COLS } from '@/components/table-page';
 | `gridXGap` / `gridYGap`                       | `24` / `0`             | 栅格间距                         |
 | `gridResponsive`                              | `screen`               | 响应式断点策略                   |
 | `collapsible`                                 | `false`                | 可折叠                           |
-| `collapsedRows`                               | `1`                    | 收起保留行数                     |
+| `collapsedRows`                               | `2`                    | 收起保留行数                     |
 | `defaultCollapsed`                            | `false`                | 初始收起                         |
 | `showActionButtons`                           | `true`                 | 是否显示搜索/重置                |
 | `labelPlacement` / `labelWidth` / `showLabel` | `left` / `80` / `true` | 表单项标签（字段需配置 `label`） |

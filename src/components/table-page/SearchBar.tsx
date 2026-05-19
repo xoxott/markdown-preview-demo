@@ -69,7 +69,7 @@ export default defineComponent({
     },
     collapsedRows: {
       type: Number,
-      default: 1
+      default: 2
     },
     defaultCollapsed: {
       type: Boolean,
