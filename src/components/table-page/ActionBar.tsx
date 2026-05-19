@@ -1,8 +1,16 @@
 import { type PropType, defineComponent } from 'vue';
-import { NBadge, NButton, NSpace, NText } from 'naive-ui';
+import { NBadge, NButton, NSpace, NText, NTooltip } from 'naive-ui';
 import TableColumnSetting from '@/components/advanced/table-column-setting';
+import SvgIcon from '@/components/custom/svg-icon.vue';
 import { $t } from '@/locales';
 import type { ActionBarColumnSetting, ActionBarProps, PresetButtonType } from './types';
+
+/** Uno `i-carbon-*` 或 Iconify `carbon:*` 统一为 SvgIcon 可用的 Iconify 名 */
+function resolveIconifyIcon(icon: string) {
+  if (icon.includes(':')) return icon;
+  if (icon.startsWith('i-carbon-')) return `carbon:${icon.slice('i-carbon-'.length)}`;
+  return icon;
+}
 
 /**
  * 表格工具条：预设按钮（新增 / 批量删除 / 刷新 / 导出）、自定义按钮与可选列设置。 默认整体靠右；仅在 `config.showStats === true`
@@ -37,41 +45,82 @@ export default defineComponent({
         icon: string;
         type: 'default' | 'primary' | 'error';
         needSelection?: boolean;
+        iconOnly?: boolean;
       }
     > => ({
       add: {
         label: $t('common.add'),
-        icon: 'i-carbon-add',
+        icon: 'carbon:add',
         type: 'primary'
       },
       batchDelete: {
         label: $t('common.batchDelete'),
-        icon: 'i-carbon-trash-can',
+        icon: 'carbon:trash-can',
         type: 'error',
         needSelection: true
       },
       refresh: {
         label: $t('common.refresh'),
-        icon: 'i-carbon-renew',
-        type: 'default'
+        icon: 'carbon:renew',
+        type: 'default',
+        iconOnly: true
       },
       export: {
         label: $t('common.export'),
-        icon: 'i-carbon-download',
-        type: 'default'
+        icon: 'carbon:download',
+        type: 'default',
+        iconOnly: true
       }
     });
+
+    const renderIconOnlyButton = (options: {
+      label: string;
+      icon: string;
+      type: 'default' | 'primary' | 'error';
+      disabled?: boolean;
+      loading?: boolean;
+      onClick?: () => void | Promise<void>;
+    }) => (
+      <NTooltip>
+        {{
+          trigger: () => (
+            <NButton
+              type={options.type}
+              disabled={options.disabled}
+              loading={options.loading}
+              onClick={options.onClick}
+              aria-label={options.label}
+            >
+              <SvgIcon icon={resolveIconifyIcon(options.icon)} class="text-16px" />
+            </NButton>
+          ),
+          default: () => options.label
+        }}
+      </NTooltip>
+    );
 
     const renderPresetButton = (buttonType: PresetButtonType, buttonConfig: any) => {
       const preset = getPresetButtonMap()[buttonType];
       const { label = preset.label, icon = preset.icon, onClick, disabled, loading } = buttonConfig;
 
       const isDisabled = disabled || (preset.needSelection && props.selectedKeys.length === 0);
+      const iconifyIcon = resolveIconifyIcon(icon);
+
+      if (preset.iconOnly) {
+        return renderIconOnlyButton({
+          label,
+          icon: iconifyIcon,
+          type: preset.type,
+          disabled: isDisabled,
+          loading,
+          onClick
+        });
+      }
 
       return (
         <NButton type={preset.type} disabled={isDisabled} loading={loading} onClick={onClick}>
           <div class="flex items-center gap-4px">
-            <div class={`${icon} text-16px`} />
+            <SvgIcon icon={iconifyIcon} class="text-16px" />
             <span>{label}</span>
             {buttonType === 'batchDelete' && props.selectedKeys.length > 0 && (
               <NBadge value={props.selectedKeys.length} type="error" />
@@ -102,7 +151,7 @@ export default defineComponent({
           onClick={onClick}
         >
           <div class="flex items-center gap-4px">
-            {icon && <div class={`${icon} text-16px`} />}
+            {icon ? <SvgIcon icon={resolveIconifyIcon(icon)} class="text-16px" /> : null}
             <span>{label}</span>
           </div>
         </NButton>
