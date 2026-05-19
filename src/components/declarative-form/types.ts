@@ -164,8 +164,8 @@ export interface DeclarativeFormProps {
    */
   gridResponsive?: 'self' | 'screen';
   /**
-   * 是否收起栅格内超出 `gridCollapsedRows` 的字段，透传 `NGrid.collapsed`。
-   * 检索栏由 `useGridFormCollapse` / `SearchBar` 传入，勿与手动裁剪 `fields` 混用。
+   * 是否收起栅格内超出 `gridCollapsedRows` 的字段，透传 `NGrid.collapsed`。 检索栏由 `useGridFormCollapse` /
+   * `SearchBar` 传入，勿与手动裁剪 `fields` 混用。
    */
   gridCollapsed?: boolean;
   /** 收起时保留的行数，透传 `NGrid.collapsedRows`，默认 `1` */

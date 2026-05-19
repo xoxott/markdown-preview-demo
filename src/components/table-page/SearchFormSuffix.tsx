@@ -73,9 +73,7 @@ export default defineComponent({
               default: () =>
                 props.collapsed ? $t('common.searchExpand') : $t('common.searchCollapse'),
               icon: () => (
-                <NIcon size={14}>
-                  {props.collapsed ? <ChevronDown /> : <ChevronUp />}
-                </NIcon>
+                <NIcon size={14}>{props.collapsed ? <ChevronDown /> : <ChevronUp />}</NIcon>
               )
             }}
           </NButton>
