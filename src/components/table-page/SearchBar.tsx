@@ -55,9 +55,10 @@ export default defineComponent({
       type: Number,
       default: 24
     },
+    /** 换行时的行间距；检索项已关闭 feedback，需靠 yGap 撑开多行 */
     gridYGap: {
       type: Number,
-      default: 0
+      default: 16
     },
     gridResponsive: {
       type: String as PropType<'self' | 'screen'>,

@@ -52,7 +52,7 @@ export default defineComponent({
       type: Boolean,
       default: false
     },
-    /** 检索栅格列数，默认 `1 s:2 m:3 l:5`（尾列留给操作按钮） */
+    /** 检索栅格列数，默认 `1 s:2 m:3 l:6 xl:7`（尾列留给操作按钮） */
     searchCols: {
       type: [Number, String] as PropType<number | string>,
       default: SEARCH_GRID_COLS
@@ -62,10 +62,10 @@ export default defineComponent({
       type: Number,
       default: 24
     },
-    /** 检索栅格垂直间距（px） */
+    /** 检索栅格垂直间距（px）；换行时行与行之间的间距 */
     searchGridYGap: {
       type: Number,
-      default: 0
+      default: 16
     },
     /** 检索栅格响应式：`screen` | `self` */
     searchGridResponsive: {

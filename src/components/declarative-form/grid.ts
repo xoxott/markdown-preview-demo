@@ -15,8 +15,8 @@ import type { DeclarativeFieldConfig } from './types';
 /** 栅格默认列数：窄屏 1 列 → 宽屏 4 列（弹窗等多列表单，透传 `NGrid.cols`） */
 export const DEFAULT_GRID_COLS = '1 s:2 m:3 l:4';
 
-/** 检索栏栅格列数：窄屏 1 列 → 大屏 5 列（含尾列操作区） */
-export const SEARCH_GRID_COLS = '1 s:2 m:3 l:5';
+/** 检索栏栅格列数：窄屏 1 列 → 大屏 6 列（最多 5 个单列表单项 + 尾列操作区，避免操作区独占一行贴右） */
+export const SEARCH_GRID_COLS = '1 s:2 m:3 l:6 xl:7';
 
 /**
  * 栅格单元内控件的行内样式。

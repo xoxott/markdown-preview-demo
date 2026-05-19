@@ -160,6 +160,13 @@ export default defineComponent({
       onInputEnterPress: props.onInputEnterPress
     }));
 
+    /**
+     * 栅格检索无校验文案，关闭反馈区避免控件下方留白；换行间距改由 `gridYGap`（SearchBar 默认 16）承担。
+     */
+    const formItemProps = computed(() =>
+      isGrid.value ? ({ showFeedback: false } as const) : ({} as const)
+    );
+
     const renderSuffixContent = (slotProps?: DeclarativeFormSuffixSlotProps) => {
       if (!slots.suffix) return null;
       return (slots.suffix as (props?: DeclarativeFormSuffixSlotProps) => unknown)(slotProps);
@@ -173,7 +180,13 @@ export default defineComponent({
 
       if (!isGrid.value) {
         return (
-          <NFormItem key={field.field || index} path={field.field} label={label} class="!mb-0">
+          <NFormItem
+            key={field.field || index}
+            path={field.field}
+            label={label}
+            class="!mb-0"
+            {...formItemProps.value}
+          >
             {control}
           </NFormItem>
         );
@@ -181,7 +194,12 @@ export default defineComponent({
 
       return (
         <NGi key={field.field || index} span={resolveFieldSpan(field)}>
-          <NFormItem path={field.field} label={label} class="declarative-form__grid-item !mb-0">
+          <NFormItem
+            path={field.field}
+            label={label}
+            class="declarative-form__grid-item !mb-0"
+            {...formItemProps.value}
+          >
             {control}
           </NFormItem>
         </NGi>
@@ -194,7 +212,11 @@ export default defineComponent({
         <NGi suffix class="declarative-form__action-gi">
           {{
             default: ({ overflow }: { overflow: boolean }) => (
-              <NFormItem showLabel={false} class="declarative-form__suffix !mb-0">
+              <NFormItem
+                showLabel={false}
+                class="declarative-form__suffix !mb-0"
+                {...formItemProps.value}
+              >
                 {renderSuffixContent({ overflow })}
               </NFormItem>
             )
@@ -205,7 +227,7 @@ export default defineComponent({
     const renderSuffixBelowGrid = () =>
       slots.suffix ? (
         <div class="declarative-form__action-row">
-          <NFormItem showLabel={false} class="declarative-form__suffix !mb-0">
+          <NFormItem showLabel={false} class="declarative-form__suffix !mb-0" {...formItemProps.value}>
             {renderSuffixContent()}
           </NFormItem>
         </div>
