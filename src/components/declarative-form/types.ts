@@ -17,9 +17,8 @@ export type DeclarativeFormLayout = 'inline' | 'grid';
  */
 export type DeclarativeFormSuffixPlacement = 'inline' | 'grid-cell' | 'below-grid';
 
-/** `#suffix` 插槽参数（`grid-cell` 时由 Naive `NGrid` 提供 `overflow`） */
+/** `#suffix` 插槽参数（`grid-cell` 时由 Naive `NGi` 提供，展开按钮由 {@link gridExceedsCollapsedRows} 计算） */
 export interface DeclarativeFormSuffixSlotProps {
-  /** 筛选项是否超出 `gridCollapsedRows` 行容量 */
   overflow?: boolean;
 }
 

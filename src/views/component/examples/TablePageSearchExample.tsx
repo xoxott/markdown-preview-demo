@@ -94,8 +94,8 @@ export default defineComponent({
 
     return () => (
       <div class="space-y-16px">
-        <div class="flex flex-col gap-16px lg:flex-row">
-          <NTabs v-model:value={activeTab.value} type="line" class="min-w-0 flex-1">
+        <div class="flex flex-col gap-16px">
+          <NTabs v-model:value={activeTab.value} type="line" class="min-w-0 w-full">
             <NTabPane name="few" tab="少量字段（不折叠）">
               <SearchBar
                 config={fewSearchFields}
@@ -131,7 +131,6 @@ export default defineComponent({
                   loading={false}
                   showSelection={false}
                   showIndex={false}
-                  searchCollapsible
                   searchDefaultCollapsed
                   searchCardBordered={false}
                   showActionCard={false}
@@ -167,7 +166,7 @@ export default defineComponent({
 
           <NCard
             title="当前 model / 事件"
-            class="w-full flex-shrink-0 lg:w-320px"
+            class="w-full flex-shrink-0"
             contentClass="flex flex-col gap-12px"
           >
             <div class="text-12px text-gray-500">表单快照</div>

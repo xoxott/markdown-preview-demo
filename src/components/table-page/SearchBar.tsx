@@ -1,11 +1,9 @@
-import { type PropType, computed, defineComponent, ref, toRef } from 'vue';
+import { type PropType, computed, defineComponent, toRef } from 'vue';
 import {
   DeclarativeForm,
   SEARCH_GRID_COLS,
-  useGridFormCollapse,
-  useResponsiveGridColCount
+  useSearchGridLayout
 } from '@/components/declarative-form';
-import type { DeclarativeFormSuffixSlotProps } from '@/components/declarative-form';
 import type { SearchFieldConfig } from './types';
 import SearchFormSuffix from './SearchFormSuffix';
 
@@ -57,14 +55,13 @@ export default defineComponent({
       type: Number,
       default: 24
     },
-    /** 换行时的行间距；检索项已关闭 feedback，需靠 yGap 撑开多行 */
     gridYGap: {
       type: Number,
       default: 16
     },
     gridResponsive: {
       type: String as PropType<'self' | 'screen'>,
-      default: 'screen'
+      default: 'self'
     },
     collapsible: {
       type: Boolean,
@@ -80,81 +77,64 @@ export default defineComponent({
     }
   },
   setup(props, { slots }) {
-    const gridOverflow = ref(false);
-    const responsiveCols = useResponsiveGridColCount(
-      toRef(props, 'cols'),
-      toRef(props, 'gridResponsive')
-    );
-
-    const { showCollapseToggle, collapsed, toggleCollapsed } = useGridFormCollapse({
-      fields: toRef(props, 'config'),
+    const grid = useSearchGridLayout({
       cols: toRef(props, 'cols'),
-      collapsedRows: toRef(props, 'collapsedRows'),
+      gridResponsive: toRef(props, 'gridResponsive'),
+      gridXGap: props.gridXGap,
+      gridYGap: props.gridYGap,
+      fields: toRef(props, 'config'),
       collapsible: toRef(props, 'collapsible'),
-      defaultCollapsed: toRef(props, 'defaultCollapsed'),
-      responsiveCols,
-      gridOverflow
+      collapsedRows: toRef(props, 'collapsedRows'),
+      defaultCollapsed: toRef(props, 'defaultCollapsed')
     });
 
     const showSuffix = computed(
       () => props.showActionButtons || props.collapsible || Boolean(slots.actionsExtra)
     );
 
-    const gridCollapsed = computed(() => (props.collapsible ? collapsed.value : undefined));
-
-    const gridBind = computed(() => ({
-      cols: props.cols,
-      xGap: props.gridXGap,
-      yGap: props.gridYGap,
-      responsive: props.gridResponsive
-    }));
-
     return () => (
-      <DeclarativeForm
-        class="w-full"
-        layout="grid"
-        suffixPlacement="grid-cell"
-        fields={props.config}
-        model={props.model as Record<string, unknown>}
-        onUpdateModel={props.onUpdateModel}
-        labelPlacement={props.labelPlacement}
-        labelWidth={props.labelWidth}
-        showLabel={props.showLabel}
-        gridCols={gridBind.value.cols}
-        gridXGap={gridBind.value.xGap}
-        gridYGap={gridBind.value.yGap}
-        gridResponsive={gridBind.value.responsive}
-        gridCollapsed={gridCollapsed.value}
-        gridCollapsedRows={props.collapsedRows}
-        onInputEnterPress={props.onSearch}
-      >
-        {{
-          toolbarBefore: slots.toolbarBefore,
-          toolbarAfter: slots.toolbarAfter,
-          ...(showSuffix.value
-            ? {
-                suffix: (slotProps?: DeclarativeFormSuffixSlotProps) => {
-                  if (props.collapsible && collapsed.value) {
-                    gridOverflow.value = Boolean(slotProps?.overflow);
-                  }
-                  return (
+      <div ref={grid.rootRef} class="w-full">
+        <DeclarativeForm
+          class="w-full"
+          layout="grid"
+          suffixPlacement="grid-cell"
+          fields={props.config}
+          model={props.model as Record<string, unknown>}
+          onUpdateModel={props.onUpdateModel}
+          labelPlacement={props.labelPlacement}
+          labelWidth={props.labelWidth}
+          showLabel={props.showLabel}
+          gridCols={grid.gridBind.value.cols}
+          gridXGap={grid.gridBind.value.xGap}
+          gridYGap={grid.gridBind.value.yGap}
+          gridResponsive={grid.gridResponsiveProp.value}
+          gridCollapsed={grid.gridCollapsed.value}
+          gridCollapsedRows={props.collapsedRows}
+          onInputEnterPress={props.onSearch}
+        >
+          {{
+            toolbarBefore: slots.toolbarBefore,
+            toolbarAfter: slots.toolbarAfter,
+            ...(showSuffix.value
+              ? {
+                  suffix: () => (
                     <SearchFormSuffix
                       showSearch={props.showActionButtons}
                       showReset={props.showActionButtons}
-                      showCollapse={showCollapseToggle.value}
-                      collapsed={collapsed.value}
+                      showCollapse={grid.showCollapseToggle.value}
+                      collapsed={grid.collapsed.value}
                       onSearch={props.onSearch}
                       onReset={props.onReset}
-                      onToggleCollapse={toggleCollapsed}
+                      onToggleCollapse={grid.toggleCollapsed}
                     >
                       {slots.actionsExtra?.()}
                     </SearchFormSuffix>
-                  );
+                  )
                 }
-              }
-            : {})
-        }}
-      </DeclarativeForm>
+              : {})
+          }}
+        </DeclarativeForm>
+      </div>
     );
   }
 });

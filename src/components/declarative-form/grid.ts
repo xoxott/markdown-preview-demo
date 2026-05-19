@@ -7,16 +7,21 @@ import type { DeclarativeFieldConfig } from './types';
  *
  * - 解析字段占列（`span`）与 `NGrid.cols` 的容量
  * - 为栅格模式提供控件样式（列宽自适应）
- * - 支撑 `useGridFormCollapse` 判断是否展示展开按钮（`exceedsGridCapacity`）
- *
- * 容量计算采用「最大列数 × 行数」的保守估计：对响应式 `cols` 字符串取各断点列数的最大值， 以便在任意视口下收起逻辑都不会展示超出首屏行数的字段。
+ * - 支撑 `useGridFormCollapse` 判断是否展示展开按钮（`gridExceedsCollapsedRows`）
  */
 
 /** 栅格默认列数：窄屏 1 列 → 宽屏 4 列（弹窗等多列表单，透传 `NGrid.cols`） */
 export const DEFAULT_GRID_COLS = '1 s:2 m:3 l:4';
 
-/** 检索栏栅格列数：窄屏 1 列 → 大屏 6 列（最多 5 个单列表单项 + 尾列操作区，避免操作区独占一行贴右） */
+/**
+ * 检索栏栅格列数：窄屏 1 列 → 大屏 7 列。
+ *
+ * 命名断点（`s:` / `l:`）仅适用于 `NGrid.responsive="screen"`；`self` 时由 SearchBar 先解析为数字再传入。
+ */
 export const SEARCH_GRID_COLS = '1 s:2 m:3 l:6 xl:7';
+
+/** 检索栏 `NGi suffix` 占列，与 Naive `NGrid` 收起算法一致 */
+export const SEARCH_GRID_SUFFIX_SPAN = 1;
 
 /** 与 Naive UI `NGrid`（`responsive="screen"`）一致的断点，用于按视口解析 `cols` */
 export const NAIVE_GRID_BREAKPOINTS = {
@@ -29,10 +34,8 @@ export const NAIVE_GRID_BREAKPOINTS = {
 } as const;
 
 /**
- * 栅格单元内控件的行内样式。
- *
- * 使 input / select / date-picker 等随 `NGi` 列宽伸缩，避免固定 `width` 撑破栅格。 由 `renderDeclarativeControl` 在
- * `isGrid === true` 时写入控件 `style`。
+ * 栅格控件默认宽度策略（`width` / `min-width` / `max-width`）见 `declarative-form.scss` 的
+ * `.declarative-form__control`。 此处仅保留需按字段覆盖的 `maxWidth`。
  */
 export const gridControlStyle = {
   width: '100%',
@@ -84,20 +87,15 @@ export function resolveFieldSpan(field: DeclarativeFieldConfig): number {
 /** 检索栏等栅格下 `date-range` 的默认最大宽度，避免单格过宽 */
 const DATE_RANGE_GRID_MAX_WIDTH = 'min(100%, 280px)';
 
-/**
- * 栅格模式下合并到控件 `style` 的宽度策略。
- *
- * 在 {@link gridControlStyle} 基础上：可设 `field.gridMaxWidth`；未设时 `date-range` 使用内置上限。
- */
+/** 栅格下仅注入字段级 `maxWidth` 覆盖；其余宽度由 `.declarative-form__control` 样式承担 */
 export function resolveGridControlStyle(field: DeclarativeFieldConfig) {
-  const base = { ...gridControlStyle };
   if (field.gridMaxWidth) {
-    return { ...base, maxWidth: field.gridMaxWidth };
+    return { maxWidth: field.gridMaxWidth };
   }
   if (field.type === 'date-range') {
-    return { ...base, maxWidth: DATE_RANGE_GRID_MAX_WIDTH };
+    return { maxWidth: DATE_RANGE_GRID_MAX_WIDTH };
   }
-  return base;
+  return undefined;
 }
 
 /**
@@ -109,7 +107,7 @@ export function resolveGridControlStyle(field: DeclarativeFieldConfig) {
  *   - 裸数字如 `1`、`4`
  *   - 断点前缀如 `s:2`、`l:4`（见 Naive UI `NGrid` cols 语法）
  *
- * 用于容量估算的上界；检索栏展开按钮请配合 {@link useResponsiveGridColCount} 或 `NGrid` suffix `overflow`。
+ * 用于未接入 {@link useResponsiveGridColCount} 时的回退上界。
  *
  * @example
  *   resolveGridColCount(4); // 4
@@ -134,76 +132,37 @@ export function resolveGridColCount(cols: number | string): number {
 }
 
 /**
- * 栅格可容纳的字段 span 总上限（用于收起首屏计算）。
+ * 按当前列数判断收起后是否会超过 `collapsedRows` 行（对齐 Naive UI `NGrid` 收起逻辑）。
  *
- * @param cols 栅格列数配置或当前视口列数
- * @param rows 行数（如 `collapsedRows`）
- * @param suffixSpan `NGi suffix` 占列（检索栏默认 1），与 Naive `NGrid` 收起算法对齐
- * @returns `resolveGridColCount(cols) × rows - suffixSpan`（至少为 1）
+ * 用于：宽屏仅 1 行无需按钮，缩窄后列数变少、行数变多时再显示展开/收起。
+ *
+ * @param fields 筛选项（不含 suffix）
+ * @param responsiveCols 当前栅格实际列数
+ * @param collapsedRows 收起保留行数
+ * @param suffixSpan 默认 {@link SEARCH_GRID_SUFFIX_SPAN}
  */
-export function getGridFieldCapacity(
-  cols: number | string,
-  rows: number,
-  suffixSpan = 0
-): number {
-  return Math.max(resolveGridColCount(cols) * rows - suffixSpan, 1);
-}
-
-/**
- * 计算字段列表的 span 总和。
- *
- * @param fields 字段配置列表
- * @returns 各字段 `resolveFieldSpan` 之和
- */
-export function sumFieldSpans(fields: DeclarativeFieldConfig[]): number {
-  return fields.reduce((sum, field) => sum + resolveFieldSpan(field), 0);
-}
-
-/**
- * 收起状态下保留的「从头部连续」字段子集。
- *
- * 按 `fields` 顺序累加 span，直到再加下一个字段会超过 `cols × collapsedRows` 容量为止； 不跨行回填空隙（与 CSS 栅格换行一致，采用顺序截断近似）。
- *
- * @param fields 完整字段列表
- * @param cols 栅格列数配置
- * @param collapsedRows 收起时展示的行数
- * @returns 首屏可见字段（可能为空数组）
- * @see useGridFormCollapse
- */
-export function pickLeadingFields(
+export function gridExceedsCollapsedRows(
   fields: DeclarativeFieldConfig[],
-  cols: number | string,
-  collapsedRows: number
-): DeclarativeFieldConfig[] {
-  const capacity = getGridFieldCapacity(cols, collapsedRows);
-  const result: DeclarativeFieldConfig[] = [];
-  let used = 0;
+  responsiveCols: number,
+  collapsedRows: number,
+  suffixSpan = SEARCH_GRID_SUFFIX_SPAN
+): boolean {
+  const cols = Math.max(responsiveCols, 1);
+  const rows = Math.max(collapsedRows, 1);
+  const rowCapacity = cols * rows;
+  let spanCounter = 0;
 
   for (const field of fields) {
-    const span = resolveFieldSpan(field);
-    if (used + span > capacity) break;
-    result.push(field);
-    used += span;
+    const childSpan = Math.min(resolveFieldSpan(field), cols);
+    const remainder = spanCounter % cols;
+    if (childSpan + remainder > cols) {
+      spanCounter += cols - remainder;
+    }
+    if (childSpan + spanCounter + suffixSpan > rowCapacity) {
+      return true;
+    }
+    spanCounter += childSpan;
   }
 
-  return result;
-}
-
-/**
- * 判断字段总 span 是否超出栅格容量，用于决定是否展示「展开 / 收起」按钮。
- *
- * @param fields 完整字段列表
- * @param cols 栅格列数配置
- * @param rows 收起时对应的行数（与 `collapsedRows` 一致）
- * @param suffixSpan `NGi suffix` 占列，检索栏传 `1`
- * @returns 若 `sumFieldSpans(fields) > getGridFieldCapacity(cols, rows, suffixSpan)` 则为 true
- * @see useGridFormCollapse
- */
-export function exceedsGridCapacity(
-  fields: DeclarativeFieldConfig[],
-  cols: number | string,
-  rows: number,
-  suffixSpan = 0
-): boolean {
-  return sumFieldSpans(fields) > getGridFieldCapacity(cols, rows, suffixSpan);
+  return false;
 }

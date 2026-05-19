@@ -10,26 +10,17 @@
   }
 }
 
-/** 栅格表单 */
+/** 栅格表单：列宽伸缩与 min-width 打通 */
 .declarative-form--grid.n-form {
   width: 100%;
   min-width: 0;
 
-  .n-grid {
-    min-width: 0;
-  }
-
-  .n-grid > * {
-    min-width: 0;
-  }
-
+  .n-grid,
+  .n-grid > *,
+  .n-form-item,
   .declarative-form__grid-item,
   .declarative-form__action-gi,
   .declarative-form__action-row {
-    min-width: 0;
-  }
-
-  .n-form-item {
     min-width: 0;
   }
 
@@ -38,58 +29,47 @@
     min-width: 0;
   }
 
-  .declarative-form__control.n-input,
-  .declarative-form__control.n-base-selection,
-  .declarative-form__control.n-date-picker {
+  .declarative-form__control {
     width: 100%;
     min-width: 0;
     max-width: 100%;
-  }
 
-  .declarative-form__control .n-input-wrapper,
-  .declarative-form__control .n-input__input-el,
-  .declarative-form__control .n-base-selection-label,
-  .declarative-form__control .n-date-picker-trigger {
-    min-width: 0;
+    .n-input-wrapper,
+    .n-input__input-el,
+    .n-base-selection-label,
+    .n-date-picker-trigger {
+      min-width: 0;
+    }
   }
 }
 
+/** 检索栏：操作区 suffix / below-grid */
 .declarative-form--search.declarative-form--grid {
   .declarative-form__action-row {
     width: 100%;
-    min-width: 0;
     margin-top: 0;
   }
 
-  .declarative-form__action-gi,
-  .declarative-form__action-row {
-    min-width: 0;
-  }
-
-  /** NGi suffix：表单项铺满尾列，按钮才能靠右排满一行 */
   .declarative-form__action-gi .declarative-form__suffix.n-form-item {
     width: 100%;
   }
 
-  /** NGi suffix：与 Pro Naive 一致，按钮单行右对齐，不换行 */
-  .declarative-form__action-gi .declarative-form__suffix .n-form-item-blank {
+  .declarative-form__action-gi .declarative-form__suffix .n-form-item-blank,
+  .declarative-form__action-row .declarative-form__suffix .n-form-item-blank {
     display: flex;
-    flex-wrap: nowrap;
     align-items: center;
     gap: 4px 8px;
     justify-content: flex-end;
     min-width: 0;
+  }
+
+  .declarative-form__action-gi .declarative-form__suffix .n-form-item-blank {
+    flex-wrap: nowrap;
     white-space: nowrap;
   }
 
-  /** below-grid 独占一行：极窄视口允许按钮组换行 */
   .declarative-form__action-row .declarative-form__suffix .n-form-item-blank {
-    display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: 4px 8px;
-    justify-content: flex-end;
-    min-width: 0;
   }
 
   .declarative-form__suffix .n-button {

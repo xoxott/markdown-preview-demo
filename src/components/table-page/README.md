@@ -25,7 +25,7 @@ SearchBar 对齐 [Pro Naive `ProSearchForm`](https://naive.soybeanjs.cn/pro-naiv
 - **筛选项**：`NForm` → `NGrid` → `NGi` + `NFormItem`，列数由 `cols` 控制（默认 `1 s:2 m:3 l:6 xl:7`）。
 - **操作区**：`NGi suffix`，占**最后一行剩余列**，重置 → 搜索 → 展开/收起，在尾列内右对齐。
 - **收起**：`gridCollapsed` 透传 `NGrid.collapsed`，`collapsedRows` 透传 `NGrid.collapsedRows`；**不裁剪** `fields` 数组。
-- **展开按钮**：收起态以 `NGi suffix` 的 `overflow`（Naive `NGrid` 按当前列数计算）为准；展开态按当前视口列数估算是否超出 `cols × collapsedRows`（并预留 suffix 占列）。窄屏列数变少时仍会显示展开/收起（对齐 Pro Naive）。
+- **展开按钮**：按当前栅格列数用 `gridExceedsCollapsedRows` 判断收起后是否超过 `collapsedRows` 行（与 `NGrid.collapsed` 算法一致）。宽屏可能仅 1 行不显示按钮，缩窄后列数变少、行数变多时会自动显示并收起。嵌套窄容器请传 `gridResponsive="self"`（或 `searchGridResponsive`）。
 
 ```
 ┌─────────┬─────────┬─────────┐  宽屏 3 列示例
@@ -41,17 +41,17 @@ SearchBar 对齐 [Pro Naive `ProSearchForm`](https://naive.soybeanjs.cn/pro-naiv
 
 ### TablePage 检索相关 Props
 
-| 属性                                | 默认                 | 说明                                                   |
-| ----------------------------------- | -------------------- | ------------------------------------------------------ |
-| `searchCollapsible`                 | `false`              | 是否可展开/收起                                        |
-| `searchCols`                        | `1 s:2 m:3 l:6 xl:7` | 栅格列数或响应式字符串（`SEARCH_GRID_COLS`）           |
-| `searchGridXGap` / `searchGridYGap` | `24` / `16`          | 栅格间距（`yGap` 负责换行后的行间距）                  |
-| `searchGridResponsive`              | `screen`             | `screen` 随视口；`self` 随检索区容器（嵌套窄卡片时用） |
-| `searchCollapsedRows`               | `2`                  | 收起时保留的**行数**（按 span 累计）                   |
-| `searchDefaultCollapsed`            | `false`              | 初始是否收起                                           |
-| `searchShowLabel`                   | `true`               | 是否展示标签（字段需配置 `label`）                     |
-| `searchLabelPlacement`              | `left`               | 标签位置：`left` \| `top`                              |
-| `searchLabelWidth`                  | `80`                 | 左标签宽度（`labelPlacement="left"` 时）               |
+| 属性                                | 默认                 | 说明                                                                   |
+| ----------------------------------- | -------------------- | ---------------------------------------------------------------------- |
+| `searchCollapsible`                 | `true`               | 是否可展开/收起（超出 `searchCollapsedRows` 行才显示按钮）             |
+| `searchCols`                        | `1 s:2 m:3 l:6 xl:7` | 栅格列数或响应式字符串（`SEARCH_GRID_COLS`）                           |
+| `searchGridXGap` / `searchGridYGap` | `24` / `16`          | 栅格间距（`yGap` 负责换行后的行间距）                                  |
+| `searchGridResponsive`              | `self`               | `self` 随检索区容器（默认，内部解析为数字列数）；`screen` 随浏览器视口 |
+| `searchCollapsedRows`               | `2`                  | 收起时保留的**行数**（按 span 累计）                                   |
+| `searchDefaultCollapsed`            | `false`              | 初始是否收起                                                           |
+| `searchShowLabel`                   | `true`               | 是否展示标签（字段需配置 `label`）                                     |
+| `searchLabelPlacement`              | `left`               | 标签位置：`left` \| `top`                                              |
+| `searchLabelWidth`                  | `80`                 | 左标签宽度（`labelPlacement="left"` 时）                               |
 
 ### SearchBar 独立使用
 
@@ -322,7 +322,7 @@ const {
 
 1. 列表页始终 **受控** + 展开 `searchBindings`。
 2. 配置化优先：搜索、工具条、列集中声明。
-3. 多字段检索开启 `searchCollapsible`；字段多时用 `searchDefaultCollapsed`。
+3. 检索默认开启 `searchCollapsible`（超出 `searchCollapsedRows` 才显示按钮）；不需要时传 `searchCollapsible={false}`，初始收起用 `searchDefaultCollapsed`。
 4. 检索区嵌在窄侧栏/抽屉时传 `searchGridResponsive="self"`。
 5. 需要更少列大屏：可传 `searchCols="1 s:2 m:3 l:4"` 等覆盖默认。
 6. 子组件可拆：`SearchBar` + `ActionBar` + `DataTable` 自定义布局。

@@ -59,6 +59,14 @@ export interface BindFieldOptions {
   passClearable?: boolean;
 }
 
+function resolveFieldStyleProps(field: DeclarativeFieldConfig, isGrid: boolean) {
+  if (isGrid) {
+    const style = resolveGridControlStyle(field);
+    return style ? { style } : {};
+  }
+  return field.width ? { style: { width: field.width } } : {};
+}
+
 /**
  * 将字段配置与 `ctx.model` 双向绑定，供内置/扩展渲染器复用。
  *
@@ -78,15 +86,9 @@ export function bindField(
   bindOptions?: BindFieldOptions
 ) {
   const { field: key, placeholder, clearable = true } = field;
-  const style = ctx.isGrid
-    ? resolveGridControlStyle(field)
-    : field.width
-      ? { width: field.width }
-      : undefined;
   const valueProp = bindOptions?.valueProp ?? 'value';
   const updateEvent = bindOptions?.updateEvent ?? 'onUpdate:value';
   const passClearable = bindOptions?.passClearable ?? true;
-
   return mergeControlProps(
     field,
     {
@@ -94,7 +96,7 @@ export function bindField(
       [updateEvent]: (value: unknown) => ctx.onUpdateModel(key, value),
       placeholder,
       ...(passClearable ? { clearable } : {}),
-      style,
+      ...resolveFieldStyleProps(field, ctx.isGrid),
       ...extra
     },
     ctx.isGrid
@@ -121,18 +123,12 @@ export function bindFileListField(
   extra: Record<string, unknown> = {}
 ) {
   const { field: key } = field;
-  const style = ctx.isGrid
-    ? resolveGridControlStyle(field)
-    : field.width
-      ? { width: field.width }
-      : undefined;
-
   return mergeControlProps(
     field,
     {
       'file-list': (ctx.model[key] as unknown) ?? [],
       'onUpdate:file-list': (value: unknown) => ctx.onUpdateModel(key, value),
-      style,
+      ...resolveFieldStyleProps(field, ctx.isGrid),
       ...extra
     },
     ctx.isGrid

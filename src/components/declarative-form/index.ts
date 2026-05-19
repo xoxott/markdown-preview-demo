@@ -35,19 +35,25 @@ export {
   DEFAULT_GRID_COLS,
   NAIVE_GRID_BREAKPOINTS,
   SEARCH_GRID_COLS,
+  SEARCH_GRID_SUFFIX_SPAN,
   GRID_WIDE_FIELD_TYPES,
-  exceedsGridCapacity,
-  getGridFieldCapacity,
+  gridExceedsCollapsedRows,
   gridControlStyle,
-  pickLeadingFields,
   resolveFieldSpan,
   resolveGridColCount,
   resolveGridControlStyle,
-  stripGridFixedWidthProps,
-  sumFieldSpans
+  stripGridFixedWidthProps
 } from './grid';
-export { useGridFormCollapse, SEARCH_GRID_SUFFIX_SPAN } from './useGridFormCollapse';
+export {
+  breakpointKeysForWidth,
+  resolveColCountForBreakpointKeys,
+  resolveResponsiveColCount
+} from './gridResponsive';
+export type { GridResponsiveMode, ResolveResponsiveColCountOptions } from './gridResponsive';
+export { useGridFormCollapse } from './useGridFormCollapse';
 export type { UseGridFormCollapseOptions } from './useGridFormCollapse';
 export { useResponsiveGridColCount } from './useResponsiveGridColCount';
+export { useSearchGridLayout } from './useSearchGridLayout';
+export type { UseSearchGridLayoutOptions } from './useSearchGridLayout';
 export { formatReadonlyValue, isReadonlyValueEmpty } from './formatReadonlyValue';
 export { normalizeControlValue, resolveFieldInitialValue } from './fieldInitialValue';

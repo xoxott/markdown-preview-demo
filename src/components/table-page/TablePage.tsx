@@ -47,10 +47,10 @@ export default defineComponent({
       type: Object as PropType<Record<string, unknown>>,
       default: undefined
     },
-    /** 是否可展开/收起多余筛选项 */
+    /** 是否可展开/收起多余筛选项（超出 `searchCollapsedRows` 行时显示按钮） */
     searchCollapsible: {
       type: Boolean,
-      default: false
+      default: true
     },
     /** 检索栅格列数，默认 `1 s:2 m:3 l:6 xl:7`（尾列留给操作按钮） */
     searchCols: {
@@ -70,7 +70,7 @@ export default defineComponent({
     /** 检索栅格响应式：`screen` | `self` */
     searchGridResponsive: {
       type: String as PropType<'self' | 'screen'>,
-      default: 'screen'
+      default: 'self'
     },
     /** 收起时保留的筛选项行数 */
     searchCollapsedRows: {

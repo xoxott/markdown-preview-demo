@@ -17,7 +17,7 @@ export default defineComponent({
       type: Boolean,
       default: true
     },
-    /** 是否显示展开/收起（由 SearchBar 根据字段数量计算） */
+    /** 是否显示展开/收起（超出 `collapsedRows` 行时由 SearchBar 计算） */
     showCollapse: {
       type: Boolean,
       default: false
