@@ -86,7 +86,11 @@ export default defineComponent({
       if (activeTab.value === 'few' || activeTab.value === 'label-top') {
         return JSON.stringify(fewModel, null, 2);
       }
-      if (activeTab.value === 'many' || activeTab.value === 'table-page') {
+      if (
+        activeTab.value === 'many' ||
+        activeTab.value === 'table-page' ||
+        activeTab.value === 'section-collapse'
+      ) {
         return JSON.stringify(manyModel, null, 2);
       }
       return JSON.stringify(standaloneModel, null, 2);
@@ -132,6 +136,29 @@ export default defineComponent({
                   showSelection={false}
                   showIndex={false}
                   searchDefaultCollapsed
+                  searchCardBordered={false}
+                  showActionCard={false}
+                  padded={false}
+                  class="h-full"
+                />
+              </div>
+            </NTabPane>
+
+            <NTabPane name="section-collapse" tab="整区折叠">
+              <div class="h-360px overflow-hidden border border-gray-200 rounded-8px">
+                <TablePage
+                  searchConfig={manySearchFields}
+                  searchModel={manyModel}
+                  onUpdateSearchField={manyHandlers.onUpdate}
+                  onSearch={manyHandlers.onSearch}
+                  onReset={manyHandlers.onReset}
+                  columns={demoColumns}
+                  data={demoData}
+                  loading={false}
+                  showSelection={false}
+                  showIndex={false}
+                  searchSectionCollapsible
+                  searchSectionDefaultExpanded={false}
                   searchCardBordered={false}
                   showActionCard={false}
                   padded={false}

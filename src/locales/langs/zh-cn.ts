@@ -41,6 +41,7 @@ const local: App.I18n.Schema = {
     refresh: '刷新',
     reset: '重置',
     search: '搜索',
+    searchSection: '筛选条件',
     searchExpand: '展开',
     searchCollapse: '收起',
     switch: '切换',

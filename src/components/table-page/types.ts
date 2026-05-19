@@ -290,6 +290,12 @@ export interface TablePageProps {
   showSearchCard?: boolean;
   /** 搜索区 NCard bordered */
   searchCardBordered?: boolean;
+  /** 为 true 时整块检索区可折叠（NCollapse），与 `searchCollapsible`（栅格行）无关 */
+  searchSectionCollapsible?: boolean;
+  /** 整块检索区初始是否展开 */
+  searchSectionDefaultExpanded?: boolean;
+  /** 整块检索区折叠面板标题 */
+  searchSectionTitle?: string;
   /** 为 true 时搜索区可展开 / 收起 */
   searchCollapsible?: boolean;
   /** 栅格每行列数，默认 `1 s:2 m:3 l:6 xl:7`（含尾列操作区） */

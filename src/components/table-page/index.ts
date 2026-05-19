@@ -7,6 +7,7 @@ export {
 } from '@/components/declarative-form';
 export { default as TablePage } from './TablePage';
 export { default as SearchBar } from './SearchBar';
+export { default as SearchSectionCollapse } from './SearchSectionCollapse';
 export { default as ActionBar } from './ActionBar';
 export { default as DataTable } from './DataTable';
 

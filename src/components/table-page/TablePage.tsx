@@ -1,5 +1,6 @@
 import { type PropType, computed, defineComponent, ref, watch } from 'vue';
 import { NCard } from 'naive-ui';
+import SearchSectionCollapse from './SearchSectionCollapse';
 import type { DataTableProps as NaiveDataTableProps, PaginationProps } from 'naive-ui';
 import { SEARCH_GRID_COLS } from '@/components/declarative-form';
 import type { ActionBarConfig, SearchFieldConfig, TableColumnConfig } from './types';
@@ -91,6 +92,21 @@ export default defineComponent({
     searchCardBordered: {
       type: Boolean,
       default: false
+    },
+    /** 为 true 时整块检索区可折叠（NCollapse），与 `searchCollapsible`（栅格行）无关 */
+    searchSectionCollapsible: {
+      type: Boolean,
+      default: false
+    },
+    /** 整块检索区初始是否展开 */
+    searchSectionDefaultExpanded: {
+      type: Boolean,
+      default: true
+    },
+    /** 整块检索区折叠面板标题；默认 i18n `common.searchSection` */
+    searchSectionTitle: {
+      type: String,
+      default: undefined
     },
     /** 是否展示检索项标签（需在各字段配置 `label`） */
     searchShowLabel: {
@@ -355,15 +371,25 @@ export default defineComponent({
 
       if (!inner) return null;
 
-      if (props.showSearchCard === false) {
-        return <div class="flex-shrink-0">{inner}</div>;
+      const body =
+        props.showSearchCard === false ? (
+          inner
+        ) : (
+          <NCard bordered={props.searchCardBordered}>{inner}</NCard>
+        );
+
+      if (props.searchSectionCollapsible) {
+        return (
+          <SearchSectionCollapse
+            title={props.searchSectionTitle}
+            defaultExpanded={props.searchSectionDefaultExpanded}
+          >
+            {body}
+          </SearchSectionCollapse>
+        );
       }
 
-      return (
-        <NCard class="flex-shrink-0" bordered={props.searchCardBordered}>
-          {inner}
-        </NCard>
-      );
+      return <div class="flex-shrink-0">{body}</div>;
     };
 
     const renderActionArea = () => {
