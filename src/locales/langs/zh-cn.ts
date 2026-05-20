@@ -289,11 +289,12 @@ const local: App.I18n.Schema = {
       colTier: '分层',
       colCategory: '类别',
       colProviders: '依赖 Provider',
-      commandsLead: '数据源自 @suga/ai-commands 的 catalog 快照，与 CLI 注册表一致。',
+      commandsLead:
+        "数据源自 {'@'}suga/ai-commands 的 catalog 快照，与 CLI 注册表一致。",
       markdownLead:
-        '本页 Markdown 由 @suga/markdown-it-render-vnode-vue 栈渲染，与业务编辑器同源。',
+        "本页 Markdown 由 {'@'}suga/markdown-it-render-vnode-vue 栈渲染，与业务编辑器同源。",
       argsLead:
-        'parseCommandArgs（@suga/ai-commands）支持 JSON、key=value 与位置参数，以下为实时解析结果。',
+        "parseCommandArgs（{'@'}suga/ai-commands）支持 JSON、key=value 与位置参数，以下为实时解析结果。",
       argsPlaceholder: '例如：subcommand=save name=demo 或 {"subcommand":"list"}',
       argsRun: '解析',
       argsParsed: '解析结果',
@@ -301,7 +302,7 @@ const local: App.I18n.Schema = {
       groupPipeline: '上下文与压缩',
       groupAgent: 'Agent 与编排',
       groupInfra: '基础设施',
-      colorDemo: '@suga/color 颜色转换',
+      colorDemo: "{'@'}suga/color 颜色转换",
       colorHint: '输入任意 CSS 颜色值'
     },
     userManagement: {

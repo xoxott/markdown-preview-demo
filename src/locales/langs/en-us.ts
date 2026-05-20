@@ -292,8 +292,10 @@ const local: App.I18n.Schema = {
       colTier: 'Tier',
       colCategory: 'Category',
       colProviders: 'Providers',
-      commandsLead: 'Catalog snapshot from @suga/ai-commands (same as CLI registration).',
-      markdownLead: 'Rendered with the @suga/markdown-it-render-vnode-vue stack used elsewhere.',
+      commandsLead:
+        "Catalog snapshot from {'@'}suga/ai-commands (same as CLI registration).",
+      markdownLead:
+        "Rendered with the {'@'}suga/markdown-it-render-vnode-vue stack used elsewhere.",
       argsLead:
         'parseCommandArgs supports JSON, key=value, and positional modes. Result updates live.',
       argsPlaceholder: 'Try: subcommand=save name=demo or {"subcommand":"list"}',
@@ -303,7 +305,7 @@ const local: App.I18n.Schema = {
       groupPipeline: 'Context & compaction',
       groupAgent: 'Agent & loop',
       groupInfra: 'Infrastructure',
-      colorDemo: '@suga/color conversion',
+      colorDemo: "{'@'}suga/color conversion",
       colorHint: 'Enter any CSS color'
     },
     userManagement: {

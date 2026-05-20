@@ -60,7 +60,6 @@ declare module 'vue' {
     EndNode: typeof import('./../components/ai-workflow/nodes/EndNode.tsx')['default']
     EnvironmentInfoCard: typeof import('./../components/monitoring/EnvironmentInfoCard.tsx')['default']
     ErrorMessage: typeof import('./../components/markdown/components/ErrorMessage.tsx')['default']
-    Example: typeof import('./../components/common-interaction/DragPreview/example.tsx')['default']
     ExceptionBase: typeof import('./../components/common/exception-base.vue')['default']
     ExecutionDetailDialog: typeof import('./../components/ai-workflow/dialogs/ExecutionDetailDialog.tsx')['default']
     FileDropZoneWrapper: typeof import('./../components/file-explorer/interaction/FileDropZoneWrapper.tsx')['default']

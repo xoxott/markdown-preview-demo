@@ -21,6 +21,7 @@ import { SetupStoreId } from '@/enum';
 import { $t } from '@/locales';
 import { useRouteStore } from '../route';
 import { useTabStore } from '../tab';
+import { isStaticDemo, seedStaticDemoAuth } from '@/utils/env/static-demo';
 import { clearAuthStorage, getToken } from './shared';
 
 export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
@@ -75,8 +76,8 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
 
     recordUserId();
 
-    // Call logout API if user is logged in
-    if (token.value) {
+    // Call logout API if user is logged in (skip on static demo hosts)
+    if (token.value && !isStaticDemo()) {
       try {
         await fetchLogout();
       } catch (error) {
@@ -393,6 +394,13 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
   let isGettingUserInfo = false;
 
   async function initUserInfo() {
+    if (isStaticDemo()) {
+      if (!userInfo.id || !userInfo.username) {
+        seedStaticDemoAuth();
+      }
+      return;
+    }
+
     const hasToken = getToken();
 
     if (!hasToken) {

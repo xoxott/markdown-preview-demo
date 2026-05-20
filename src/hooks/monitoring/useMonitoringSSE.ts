@@ -5,6 +5,7 @@ import {
   type MonitoringEventListener,
   createMonitoringSSEConfig
 } from '@/service/api/monitoring-stream';
+import { isStaticDemo } from '@/utils/env/static-demo';
 import { sseManager } from '@/utils/sse/SSEManager';
 import { throttle } from '@/utils/debounce';
 import { localStg } from '@/utils/storage';
@@ -115,6 +116,11 @@ export function useMonitoringSSE(options: UseMonitoringSSEOptions = {}): UseMoni
 
   /** Connect to monitoring SSE (all event types) */
   const connect = () => {
+    if (isStaticDemo()) {
+      status.value = 'disconnected';
+      return;
+    }
+
     // Get token
     const token = localStg.get('token') || localStg.get('accessToken');
     if (!token) {
