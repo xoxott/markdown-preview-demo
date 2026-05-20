@@ -56,22 +56,23 @@ export default defineComponent({
       }
     }
 
-    const { data, loading, pagination, getData, searchParams, onSearch, onReset } = useAdminListTable({
-      apiFn: fetchLogListForTable,
-      listFilters: {
-        search: '',
-        userId: undefined,
-        ip: undefined,
-        statusCode: undefined,
-        method: undefined,
-        startDate: undefined,
-        endDate: undefined,
-        sortBy: undefined,
-        sortOrder: undefined
-      },
-      showTotal: true,
-      immediate: true
-    });
+    const { data, loading, pagination, getData, searchParams, onSearch, onReset } =
+      useAdminListTable({
+        apiFn: fetchLogListForTable,
+        listFilters: {
+          search: '',
+          userId: undefined,
+          ip: undefined,
+          statusCode: undefined,
+          method: undefined,
+          startDate: undefined,
+          endDate: undefined,
+          sortBy: undefined,
+          sortOrder: undefined
+        },
+        showTotal: true,
+        immediate: true
+      });
 
     async function handleViewDetail(row: Log) {
       try {

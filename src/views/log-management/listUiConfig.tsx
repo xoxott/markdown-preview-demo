@@ -12,7 +12,9 @@ const METHOD_TAG_TYPE: Record<string, 'success' | 'warning' | 'error' | 'info'> 
   PATCH: 'warning'
 };
 
-export function getLogStatusTagType(status: number | null): 'success' | 'warning' | 'error' | 'info' {
+export function getLogStatusTagType(
+  status: number | null
+): 'success' | 'warning' | 'error' | 'info' {
   if (status === null) return 'info';
   if (status >= 200 && status < 300) return 'success';
   if (status >= 300 && status < 400) return 'info';
@@ -174,8 +176,7 @@ export function createLogTableColumns(h: LogTableColumnHandlers): TableColumnCon
       title: $t('page.logManagement.createdAt'),
       key: 'createdAt',
       width: 180,
-      render: (row: Log) =>
-        row.createdAt ? new Date(row.createdAt).toLocaleString('zh-CN') : '-'
+      render: (row: Log) => (row.createdAt ? new Date(row.createdAt).toLocaleString('zh-CN') : '-')
     },
     {
       title: $t('common.operate'),
