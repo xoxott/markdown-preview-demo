@@ -5,7 +5,9 @@
 
   const noop = () => {};
 
-  const optionsScript = hasDocument ? document.querySelector('script[type=esms-options]') : undefined;
+  const optionsScript = hasDocument
+    ? document.querySelector('script[type=esms-options]')
+    : undefined;
 
   const esmsInitOptions = optionsScript ? JSON.parse(optionsScript.innerHTML) : {};
   Object.assign(esmsInitOptions, self.esmsInitOptions || {});
@@ -31,7 +33,10 @@
   const onpolyfill = esmsInitOptions.onpolyfill
     ? globalHook(esmsInitOptions.onpolyfill)
     : () => {
-        console.log('%c^^ Module TypeError above is polyfilled and can be ignored ^^', 'font-weight:900;color:#391');
+        console.log(
+          '%c^^ Module TypeError above is polyfilled and can be ignored ^^',
+          'font-weight:900;color:#391'
+        );
       };
 
   const { revokeBlobURLs, noLoadEventRetriggers, enforceIntegrity } = esmsInitOptions;
@@ -40,7 +45,9 @@
     return typeof name === 'string' ? self[name] : name;
   }
 
-  const enable = Array.isArray(esmsInitOptions.polyfillEnable) ? esmsInitOptions.polyfillEnable : [];
+  const enable = Array.isArray(esmsInitOptions.polyfillEnable)
+    ? esmsInitOptions.polyfillEnable
+    : [];
   const cssModulesEnabled = enable.includes('css-modules');
   const jsonModulesEnabled = enable.includes('json-modules');
 
@@ -54,7 +61,8 @@
           : location.pathname
       }`;
 
-  const createBlob = (source, type = 'text/javascript') => URL.createObjectURL(new Blob([source], { type }));
+  const createBlob = (source, type = 'text/javascript') =>
+    URL.createObjectURL(new Blob([source], { type }));
 
   const eoop = err =>
     setTimeout(() => {
@@ -62,7 +70,8 @@
     });
 
   const throwError = err => {
-    (self.reportError || (hasWindow && window.safari && console.error) || eoop)(err), void onerror(err);
+    (self.reportError || (hasWindow && window.safari && console.error) || eoop)(err),
+      void onerror(err);
   };
 
   function fromParent(parent) {
@@ -78,13 +87,16 @@
   // shim mode is determined on initialization, no late shim mode
   if (!shimMode) {
     if (
-      document.querySelectorAll('script[type=module-shim],script[type=importmap-shim],link[rel=modulepreload-shim]')
-        .length
+      document.querySelectorAll(
+        'script[type=module-shim],script[type=importmap-shim],link[rel=modulepreload-shim]'
+      ).length
     ) {
       shimMode = true;
     } else {
       let seenScript = false;
-      for (const script of document.querySelectorAll('script[type=module],script[type=importmap]')) {
+      for (const script of document.querySelectorAll(
+        'script[type=module],script[type=importmap]'
+      )) {
         if (!seenScript) {
           if (script.type === 'module' && !script.ep) seenScript = true;
         } else if (script.type === 'importmap' && seenScript) {
@@ -117,7 +129,8 @@
   function resolveIfNotPlainOrUrl(relUrl, parentUrl) {
     const hIdx = parentUrl.indexOf('#');
     const qIdx = parentUrl.indexOf('?');
-    if (hIdx + qIdx > -2) parentUrl = parentUrl.slice(0, hIdx === -1 ? qIdx : qIdx === -1 || qIdx > hIdx ? hIdx : qIdx);
+    if (hIdx + qIdx > -2)
+      parentUrl = parentUrl.slice(0, hIdx === -1 ? qIdx : qIdx === -1 || qIdx > hIdx ? hIdx : qIdx);
     if (relUrl.includes('\\')) relUrl = relUrl.replace(backslashRegEx, '/');
     // protocol-relative
     if (relUrl[0] === '/' && relUrl[1] === '/') {
@@ -148,10 +161,13 @@
         }
       } else {
         // resolving to :/ so pathname is the /... part
-        pathname = parentUrl.slice(parentProtocol.length + (parentUrl[parentProtocol.length] === '/'));
+        pathname = parentUrl.slice(
+          parentProtocol.length + (parentUrl[parentProtocol.length] === '/')
+        );
       }
 
-      if (relUrl[0] === '/') return parentUrl.slice(0, parentUrl.length - pathname.length - 1) + relUrl;
+      if (relUrl[0] === '/')
+        return parentUrl.slice(0, parentUrl.length - pathname.length - 1) + relUrl;
 
       // join together and split for removal of .. and . segments
       // looping the string instead of anything fancy for perf reasons
@@ -172,7 +188,10 @@
         // new segment - check if it is relative
         else if (segmented[i] === '.') {
           // ../ segment
-          if (segmented[i + 1] === '.' && (segmented[i + 2] === '/' || i + 2 === segmented.length)) {
+          if (
+            segmented[i + 1] === '.' &&
+            (segmented[i + 2] === '/' || i + 2 === segmented.length)
+          ) {
             output.pop();
             i += 2;
             continue;
@@ -237,7 +256,10 @@
       if (packageResolution) return packageResolution;
       scopeUrl = getMatch(scopeUrl.slice(0, scopeUrl.lastIndexOf('/')), importMap.scopes);
     }
-    return applyPackages(resolvedOrPlain, importMap.imports) || (resolvedOrPlain.includes(':') && resolvedOrPlain);
+    return (
+      applyPackages(resolvedOrPlain, importMap.imports) ||
+      (resolvedOrPlain.includes(':') && resolvedOrPlain)
+    );
   }
 
   function resolveAndComposePackages(packages, outPackages, baseUrl, parentMap) {
@@ -254,7 +276,11 @@
       }
       const target = packages[p];
       if (typeof target !== 'string') continue;
-      const mapped = resolveImportMap(parentMap, resolveIfNotPlainOrUrl(target, baseUrl) || target, baseUrl);
+      const mapped = resolveImportMap(
+        parentMap,
+        resolveIfNotPlainOrUrl(target, baseUrl) || target,
+        baseUrl
+      );
       if (mapped) {
         outPackages[resolvedLhs] = mapped;
         continue;
@@ -319,7 +345,8 @@
   let supportsJsonAssertions = false;
   let supportsCssAssertions = false;
 
-  let supportsImportMaps = hasDocument && HTMLScriptElement.supports ? HTMLScriptElement.supports('importmap') : false;
+  let supportsImportMaps =
+    hasDocument && HTMLScriptElement.supports ? HTMLScriptElement.supports('importmap') : false;
   let supportsImportMeta = supportsImportMaps;
 
   const importMetaCheck = 'import.meta';
@@ -327,21 +354,22 @@
   const jsonModulesCheck = `import"x"assert{type:"json"}`;
 
   const featureDetectionPromise = Promise.resolve(dynamicImportCheck).then(() => {
-    if (!supportsDynamicImport || (supportsImportMaps && !cssModulesEnabled && !jsonModulesEnabled)) return;
+    if (!supportsDynamicImport || (supportsImportMaps && !cssModulesEnabled && !jsonModulesEnabled))
+      return;
 
     if (!hasDocument)
       return Promise.all([
-        supportsImportMaps || dynamicImport(createBlob(importMetaCheck)).then(() => (supportsImportMeta = true), noop),
+        supportsImportMaps ||
+          dynamicImport(createBlob(importMetaCheck)).then(() => (supportsImportMeta = true), noop),
         cssModulesEnabled &&
           dynamicImport(createBlob(cssModulesCheck.replace('x', createBlob('', 'text/css')))).then(
             () => (supportsCssAssertions = true),
             noop
           ),
         jsonModulesEnabled &&
-          dynamicImport(createBlob(jsonModulescheck.replace('x', createBlob('{}', 'text/json')))).then(
-            () => (supportsJsonAssertions = true),
-            noop
-          )
+          dynamicImport(
+            createBlob(jsonModulescheck.replace('x', createBlob('{}', 'text/json')))
+          ).then(() => (supportsJsonAssertions = true), noop)
       ]);
 
     return new Promise(resolve => {
@@ -396,7 +424,9 @@
     const D = C.sa(I - 1);
     if (((A ? B : Q)(E, new Uint16Array(C.memory.buffer, D, I)), !C.parse()))
       throw Object.assign(
-        new Error(`Parse error ${g}:${E.slice(0, C.e()).split('\n').length}:${C.e() - E.lastIndexOf('\n', C.e() - 1)}`),
+        new Error(
+          `Parse error ${g}:${E.slice(0, C.e()).split('\n').length}:${C.e() - E.lastIndexOf('\n', C.e() - 1)}`
+        ),
         { idx: C.e() }
       );
     const J = [];
@@ -421,7 +451,14 @@
       const o = I[0];
       const D = B < 0 ? void 0 : E.slice(B, g);
       const J = D ? D[0] : '';
-      K.push({ s: A, e: Q, ls: B, le: g, n: o === '"' || o === "'" ? w(I) : I, ln: J === '"' || J === "'" ? w(D) : D });
+      K.push({
+        s: A,
+        e: Q,
+        ls: B,
+        le: g,
+        n: o === '"' || o === "'" ? w(I) : I,
+        ln: J === '"' || J === "'" ? w(D) : D
+      });
     }
     function w(A) {
       try {
@@ -447,7 +484,9 @@
   const init = WebAssembly.compile(
     ((E =
       'AGFzbQEAAAABKghgAX8Bf2AEf39/fwBgAAF/YAAAYAF/AGADf39/AX9gAn9/AX9gAn9/AAMtLAABAQICAgICAgICAgICAgICAgAAAwMDBAQAAAADAAAAAAMDBQYAAAcABgIFBAUBcAEBAQUDAQABBg8CfwFBoPIAC38AQaDyAAsHcBMGbWVtb3J5AgACc2EAAAFlAAMCaXMABAJpZQAFAnNzAAYCc2UABwJhaQAIAmlkAAkCaXAACgJlcwALAmVlAAwDZWxzAA0DZWxlAA4CcmkADwJyZQAQAWYAEQVwYXJzZQASC19faGVhcF9iYXNlAwEKsTcsaAEBf0EAIAA2AugJQQAoAsQJIgEgAEEBdGoiAEEAOwEAQQAgAEECaiIANgLsCUEAIAA2AvAJQQBBADYCyAlBAEEANgLYCUEAQQA2AtAJQQBBADYCzAlBAEEANgLgCUEAQQA2AtQJIAELnwEBA39BACgC2AkhBEEAQQAoAvAJIgU2AtgJQQAgBDYC3AlBACAFQSBqNgLwCSAEQRxqQcgJIAQbIAU2AgBBACgCvAkhBEEAKAK4CSEGIAUgATYCACAFIAA2AgggBSACIAJBAmpBACAGIANGGyAEIANGGzYCDCAFIAM2AhQgBUEANgIQIAUgAjYCBCAFQQA2AhwgBUEAKAK4CSADRjoAGAtWAQF/QQAoAuAJIgRBEGpBzAkgBBtBACgC8AkiBDYCAEEAIAQ2AuAJQQAgBEEUajYC8AkgBEEANgIQIAQgAzYCDCAEIAI2AgggBCABNgIEIAQgADYCAAsIAEEAKAL0CQsVAEEAKALQCSgCAEEAKALECWtBAXULHgEBf0EAKALQCSgCBCIAQQAoAsQJa0EBdUF/IAAbCxUAQQAoAtAJKAIIQQAoAsQJa0EBdQseAQF/QQAoAtAJKAIMIgBBACgCxAlrQQF1QX8gABsLHgEBf0EAKALQCSgCECIAQQAoAsQJa0EBdUF/IAAbCzsBAX8CQEEAKALQCSgCFCIAQQAoArgJRw0AQX8PCwJAIABBACgCvAlHDQBBfg8LIABBACgCxAlrQQF1CwsAQQAoAtAJLQAYCxUAQQAoAtQJKAIAQQAoAsQJa0EBdQsVAEEAKALUCSgCBEEAKALECWtBAXULHgEBf0EAKALUCSgCCCIAQQAoAsQJa0EBdUF/IAAbCx4BAX9BACgC1AkoAgwiAEEAKALECWtBAXVBfyAAGwslAQF/QQBBACgC0AkiAEEcakHICSAAGygCACIANgLQCSAAQQBHCyUBAX9BAEEAKALUCSIAQRBqQcwJIAAbKAIAIgA2AtQJIABBAEcLCABBAC0A+AkL5gwBBn8jAEGA0ABrIgEkAEEAQQE6APgJQQBBACgCwAk2AoAKQQBBACgCxAlBfmoiAjYClApBACACQQAoAugJQQF0aiIDNgKYCkEAQQA7AfoJQQBBADsB/AlBAEEAOgCECkEAQQA2AvQJQQBBADoA5AlBACABQYAQajYCiApBACABNgKMCkEAQQA6AJAKAkACQAJAAkADQEEAIAJBAmoiBDYClAogAiADTw0BAkAgBC8BACIDQXdqQQVJDQACQAJAAkACQAJAIANBm39qDgUBCAgIAgALIANBIEYNBCADQS9GDQMgA0E7Rg0CDAcLQQAvAfwJDQEgBBATRQ0BIAJBBGpBgghBChArDQEQFEEALQD4CQ0BQQBBACgClAoiAjYCgAoMBwsgBBATRQ0AIAJBBGpBjAhBChArDQAQFQtBAEEAKAKUCjYCgAoMAQsCQCACLwEEIgRBKkYNACAEQS9HDQQQFgwBC0EBEBcLQQAoApgKIQNBACgClAohAgwACwtBACEDIAQhAkEALQDkCQ0CDAELQQAgAjYClApBAEEAOgD4CQsDQEEAIAJBAmoiBDYClAoCQAJAAkACQAJAAkACQAJAAkAgAkEAKAKYCk8NACAELwEAIgNBd2pBBUkNCAJAAkACQAJAAkACQAJAAkACQAJAIANBYGoOChIRBhEREREFAQIACwJAAkACQAJAIANBoH9qDgoLFBQDFAEUFBQCAAsgA0GFf2oOAwUTBgkLQQAvAfwJDRIgBBATRQ0SIAJBBGpBgghBChArDRIQFAwSCyAEEBNFDREgAkEEakGMCEEKECsNERAVDBELIAQQE0UNECACKQAEQuyAhIOwjsA5Ug0QIAIvAQwiBEF3aiICQRdLDQ5BASACdEGfgIAEcUUNDgwPC0EAQQAvAfwJIgJBAWo7AfwJQQAoAogKIAJBA3RqIgJBATYCACACQQAoAoAKNgIEDA8LQQAvAfwJIgNFDQtBACADQX9qIgU7AfwJQQAvAfoJIgNFDQ4gA0ECdEEAKAKMCmpBfGooAgAiBigCFEEAKAKICiAFQf//A3FBA3RqKAIERw0OAkAgBigCBA0AIAYgBDYCBAtBACADQX9qOwH6CSAGIAJBBGo2AgwMDgsCQEEAKAKACiICLwEAQSlHDQBBACgC2AkiBEUNACAEKAIEIAJHDQBBAEEAKALcCSIENgLYCQJAIARFDQAgBEEANgIcDAELQQBBADYCyAkLQQBBAC8B/AkiBEEBajsB/AlBACgCiAogBEEDdGoiBEEGQQJBAC0AkAobNgIAIAQgAjYCBEEAQQA6AJAKDA0LQQAvAfwJIgJFDQlBACACQX9qIgI7AfwJQQAoAogKIAJB//8DcUEDdGooAgBBBEYNBAwMC0EnEBgMCwtBIhAYDAoLIANBL0cNCQJAAkAgAi8BBCICQSpGDQAgAkEvRw0BEBYMDAtBARAXDAsLAkACQEEAKAKACiICLwEAIgQQGUUNAAJAAkAgBEFVag4EAAgBAwgLIAJBfmovAQBBK0YNBgwHCyACQX5qLwEAQS1GDQUMBgsCQCAEQf0ARg0AIARBKUcNBUEAKAKICkEALwH8CUEDdGooAgQQGkUNBQwGC0EAKAKICkEALwH8CUEDdGoiAygCBBAbDQUgAygCAEEGRg0FDAQLIAJBfmovAQBBUGpB//8DcUEKSQ0DDAQLQQAoAogKQQAvAfwJIgJBA3QiBGpBACgCgAo2AgRBACACQQFqOwH8CUEAKAKICiAEakEDNgIACxAcDAcLQQAtAOQJQQAvAfoJQQAvAfwJcnJFIQMMCQsgAhAdDQAgBEUNACAEQS9GQQAtAIQKQQBHcQ0AIAJBfmohAkEAKALECSEDAkADQCACQQJqIgUgA00NAUEAIAI2AoAKIAIvAQAhBCACQX5qIgUhAiAEEB5FDQALIAVBAmohBQtBASEGIARB//8DcRAfRQ0BIAVBfmohAgJAA0AgAkECaiIEIANNDQFBACACNgKACiACLwEAIQQgAkF+aiIFIQIgBBAfDQALIAVBAmohBAsgBBAgRQ0BECFBAEEAOgCECgwFCxAhQQAhBgtBACAGOgCECgwDCxAiQQAhAwwFCyAEQaABRw0BC0EAQQE6AJAKC0EAQQAoApQKNgKACgtBACgClAohAgwACwsgAUGA0ABqJAAgAwsdAAJAQQAoAsQJIABHDQBBAQ8LIABBfmovAQAQHgvEBgEFf0EAQQAoApQKIgBBDGoiATYClApBACgC4AkhAkEBECYhAwJAAkACQEEAKAKUCiIEIAFHDQAgAxAlRQ0BCwJAAkACQAJAIANBKkYNACADQfsARw0BQQAgBEECajYClApBARAmIQRBACgClAohAQNAAkACQCAEQf//A3EiA0EiRg0AIANBJ0YNACADECgaQQAoApQKIQMMAQsgAxAYQQBBACgClApBAmoiAzYClAoLQQEQJhoCQCABIAMQKSIEQSxHDQBBAEEAKAKUCkECajYClApBARAmIQQLQQAoApQKIQMgBEH9AEYNAyADIAFGDQYgAyEBIANBACgCmApNDQAMBgsLQQAgBEECajYClApBARAmGkEAKAKUCiIDIAMQKRoMAgtBAEEAOgD4CQJAAkACQAJAAkACQCADQZ9/ag4MAggEAQgDCAgICAgFAAsgA0H2AEYNBAwHCyAEIARBDmpBAEEAEAIPC0EAIARBCmo2ApQKQQEQJhpBACgClAohBAtBACAEQRBqNgKUCgJAQQEQJiIEQSpHDQBBAEEAKAKUCkECajYClApBARAmIQQLQQAoApQKIQMgBBAoGiADQQAoApQKIgQgAyAEEAJBAEEAKAKUCkF+ajYClAoPCwJAIAQpAAJC7ICEg7COwDlSDQAgBC8BChAeRQ0AQQAgBEEKajYClApBARAmIQRBACgClAohAyAEECgaIANBACgClAoiBCADIAQQAkEAQQAoApQKQX5qNgKUCg8LQQAgBEEEaiIENgKUCgtBACAEQQRqIgM2ApQKQQBBADoA+AkCQANAQQAgA0ECajYClApBARAmIQRBACgClAohAyAEEChBIHJB+wBGDQFBACgClAoiBCADRg0EIAMgBCADIAQQAkEBECZBLEcNAUEAKAKUCiEDDAALC0EAQQAoApQKQX5qNgKUCg8LQQAgA0ECajYClAoLQQEQJiEEQQAoApQKIQMCQCAEQeYARw0AIANBAmpBnghBBhArDQBBACADQQhqNgKUCiAAQQEQJhAnIAJBEGpBzAkgAhshAwNAIAMoAgAiA0UNAiADQgA3AgggA0EQaiEDDAALC0EAIANBfmo2ApQKCw8LECILvgYBBH9BAEEAKAKUCiIAQQxqIgE2ApQKAkACQAJAAkACQAJAAkACQAJAAkBBARAmIgJBWWoOCAQCAQQBAQEDAAsgAkEiRg0DIAJB+wBGDQQLQQAo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'),
-    typeof Buffer !== 'undefined' ? Buffer.from(E, 'base64') : Uint8Array.from(atob(E), A => A.charCodeAt(0)))
+    typeof Buffer !== 'undefined'
+      ? Buffer.from(E, 'base64')
+      : Uint8Array.from(atob(E), A => A.charCodeAt(0)))
   )
     .then(WebAssembly.instantiate)
     .then(({ exports: A }) => {
@@ -458,7 +497,8 @@
   async function _resolve(id, parentUrl) {
     const urlResolved = resolveIfNotPlainOrUrl(id, parentUrl);
     return {
-      r: resolveImportMap(importMap, urlResolved || id, parentUrl) || throwUnresolved(id, parentUrl),
+      r:
+        resolveImportMap(importMap, urlResolved || id, parentUrl) || throwUnresolved(id, parentUrl),
       // b = bare specifier
       b: !urlResolved && !isURL(id)
     };
@@ -549,7 +589,8 @@
       !false;
     if (hasDocument) {
       if (!supportsImportMaps) {
-        const supports = HTMLScriptElement.supports || (type => type === 'classic' || type === 'module');
+        const supports =
+          HTMLScriptElement.supports || (type => type === 'classic' || type === 'module');
         HTMLScriptElement.supports = type => type === 'importmap' || supports(type);
       }
       if (shimMode || !baselinePassthrough) {
@@ -559,8 +600,12 @@
             for (const node of mutation.addedNodes) {
               if (node.tagName === 'SCRIPT') {
                 if (node.type === (shimMode ? 'module-shim' : 'module')) processScript(node, true);
-                if (node.type === (shimMode ? 'importmap-shim' : 'importmap')) processImportMap(node, true);
-              } else if (node.tagName === 'LINK' && node.rel === (shimMode ? 'modulepreload-shim' : 'modulepreload')) {
+                if (node.type === (shimMode ? 'importmap-shim' : 'importmap'))
+                  processImportMap(node, true);
+              } else if (
+                node.tagName === 'LINK' &&
+                node.rel === (shimMode ? 'modulepreload-shim' : 'modulepreload')
+              ) {
                 processPreload(node);
               }
             }
@@ -615,7 +660,9 @@
       onpolyfill();
       firstPolyfillLoad = false;
     }
-    const module = await dynamicImport(!shimMode && !load.n && nativelyLoaded ? load.u : load.b, { errUrl: load.u });
+    const module = await dynamicImport(!shimMode && !load.n && nativelyLoaded ? load.u : load.b, {
+      errUrl: load.u
+    });
     // if the top-level load is a shell, run its update function
     if (load.s) (await dynamicImport(load.s)).u$_(module);
     if (revokeBlobURLs) revokeObjectURLs(Object.keys(seen));
@@ -627,7 +674,9 @@
   function revokeObjectURLs(registryKeys) {
     let batch = 0;
     const keysLength = registryKeys.length;
-    const schedule = self.requestIdleCallback ? self.requestIdleCallback : self.requestAnimationFrame;
+    const schedule = self.requestIdleCallback
+      ? self.requestIdleCallback
+      : self.requestAnimationFrame;
     schedule(cleanup);
     function cleanup() {
       const batchStartIndex = batch * 100;
@@ -677,7 +726,12 @@
         resolvedSource += source.slice(lastIndex, originalIndex);
         lastIndex = originalIndex;
       }
-      for (const { s: start, ss: statementStart, se: statementEnd, d: dynamicImportIndex } of imports) {
+      for (const {
+        s: start,
+        ss: statementStart,
+        se: statementEnd,
+        d: dynamicImportIndex
+      } of imports) {
         // dependency source replacements
         if (dynamicImportIndex === -1) {
           const depLoad = load.d[depIndex++];
@@ -693,7 +747,9 @@
                     return `e$_${i}=m${q ? `[` : '.'}${depLoad.S.slice(s, e)}${q ? `]` : ''}`;
                   })
                   .join(',')}}${
-                  depLoad.a[1].length ? `let ${depLoad.a[1].map((_, i) => `e$_${i}`).join(',')};` : ''
+                  depLoad.a[1].length
+                    ? `let ${depLoad.a[1].map((_, i) => `e$_${i}`).join(',')};`
+                    : ''
                 }export {${depLoad.a[1]
                   .map(({ s, e }, i) => `e$_${i} as ${depLoad.S.slice(s, e)}`)
                   .join(',')}}\n//# sourceURL=${depLoad.r}?cycle`
@@ -741,7 +797,9 @@
     let hasSourceURL = false;
     resolvedSource = resolvedSource.replace(
       sourceMapURLRegEx,
-      (match, isMapping, url) => ((hasSourceURL = !isMapping), match.replace(url, () => new URL(url, load.r)))
+      (match, isMapping, url) => (
+        (hasSourceURL = !isMapping), match.replace(url, () => new URL(url, load.r))
+      )
     );
     if (!hasSourceURL) resolvedSource += `\n//# sourceURL=${load.r}`;
 
@@ -771,7 +829,8 @@
   }
 
   async function doFetch(url, fetchOpts, parent) {
-    if (enforceIntegrity && !fetchOpts.integrity) throw new Error(`No integrity for ${url}${fromParent(parent)}.`);
+    if (enforceIntegrity && !fetchOpts.integrity)
+      throw new Error(`No integrity for ${url}${fromParent(parent)}.`);
     const poolQueue = pushFetchPool();
     if (poolQueue) await poolQueue;
     try {
@@ -798,7 +857,8 @@
         s: `var s=new CSSStyleSheet();s.replaceSync(${JSON.stringify(
           (await res.text()).replace(
             cssUrlRegEx,
-            (_match, quotes = '', relUrl1, relUrl2) => `url(${quotes}${resolveUrl(relUrl1 || relUrl2, url)}${quotes})`
+            (_match, quotes = '', relUrl1, relUrl2) =>
+              `url(${quotes}${resolveUrl(relUrl1 || relUrl2, url)}${quotes})`
           )
         )});export default s;`,
         t: 'css'
@@ -850,13 +910,18 @@
       if (!source) {
         // preload fetch options override fetch options (race)
         let t;
-        ({ r: load.r, s: source, t } = await (fetchCache[url] || fetchModule(url, fetchOpts, parent)));
+        ({
+          r: load.r,
+          s: source,
+          t
+        } = await (fetchCache[url] || fetchModule(url, fetchOpts, parent)));
         if (t && !shimMode) {
           if ((t === 'css' && !cssModulesEnabled) || (t === 'json' && !jsonModulesEnabled))
             throw new Error(
               `${t}-modules require <script type="esms-options">{ "polyfillEnable": ["${t}-modules"] }<${''}/script>`
             );
-          if ((t === 'css' && !supportsCssAssertions) || (t === 'json' && !supportsJsonAssertions)) load.n = true;
+          if ((t === 'css' && !supportsCssAssertions) || (t === 'json' && !supportsJsonAssertions))
+            load.n = true;
         }
       }
       try {
@@ -874,12 +939,14 @@
       load.d = (
         await Promise.all(
           load.a[0].map(async ({ n, d }) => {
-            if ((d >= 0 && !supportsDynamicImport) || (d === -2 && !supportsImportMeta)) load.n = true;
+            if ((d >= 0 && !supportsDynamicImport) || (d === -2 && !supportsImportMeta))
+              load.n = true;
             if (d !== -1 || !n) return;
             const { r, b } = await resolve(n, load.r || load.u);
             if (b && (!supportsImportMaps || importMapSrcOrLazy)) load.n = true;
             if (skip && skip.test(r)) return { b: r };
-            if (childFetchOpts.integrity) childFetchOpts = { ...childFetchOpts, integrity: undefined };
+            if (childFetchOpts.integrity)
+              childFetchOpts = { ...childFetchOpts, integrity: undefined };
             return getOrCreateLoad(r, childFetchOpts, load.r).f;
           })
         )
@@ -895,10 +962,14 @@
         shimMode ? 'link[rel=modulepreload-shim]' : 'link[rel=modulepreload]'
       ))
         processPreload(link);
-    for (const script of document.querySelectorAll(shimMode ? 'script[type=importmap-shim]' : 'script[type=importmap]'))
+    for (const script of document.querySelectorAll(
+      shimMode ? 'script[type=importmap-shim]' : 'script[type=importmap]'
+    ))
       processImportMap(script);
     if (!mapsOnly)
-      for (const script of document.querySelectorAll(shimMode ? 'script[type=module-shim]' : 'script[type=module]'))
+      for (const script of document.querySelectorAll(
+        shimMode ? 'script[type=module-shim]' : 'script[type=module]'
+      ))
         processScript(script);
   }
 
@@ -916,7 +987,8 @@
 
   let domContentLoadedCnt = 1;
   function domContentLoadedCheck() {
-    if (--domContentLoadedCnt === 0 && !noLoadEventRetriggers) document.dispatchEvent(new Event('DOMContentLoaded'));
+    if (--domContentLoadedCnt === 0 && !noLoadEventRetriggers)
+      document.dispatchEvent(new Event('DOMContentLoaded'));
   }
   // this should always trigger because we assume es-module-shims is itself a domcontentloaded requirement
   if (hasDocument) {
@@ -928,7 +1000,8 @@
 
   let readyStateCompleteCnt = 1;
   function readyStateCompleteCheck() {
-    if (--readyStateCompleteCnt === 0 && !noLoadEventRetriggers) document.dispatchEvent(new Event('readystatechange'));
+    if (--readyStateCompleteCnt === 0 && !noLoadEventRetriggers)
+      document.dispatchEvent(new Event('readystatechange'));
   }
 
   const hasNext = script => script.nextSibling || (script.parentNode && hasNext(script.parentNode));
@@ -949,7 +1022,9 @@
       importMapPromise = importMapPromise
         .then(async () => {
           importMap = resolveAndComposeImportMap(
-            script.src ? await (await doFetch(script.src, getFetchOpts(script))).json() : JSON.parse(script.innerHTML),
+            script.src
+              ? await (await doFetch(script.src, getFetchOpts(script))).json()
+              : JSON.parse(script.innerHTML),
             script.src || baseUrl,
             importMap
           );
@@ -957,7 +1032,9 @@
         .catch(e => {
           console.log(e);
           if (e instanceof SyntaxError)
-            e = new Error(`Unable to parse import map ${e.message} in: ${script.src || script.innerHTML}`);
+            e = new Error(
+              `Unable to parse import map ${e.message} in: ${script.src || script.innerHTML}`
+            );
           throwError(e);
         });
       if (!shimMode) acceptingImportMaps = false;
@@ -967,7 +1044,8 @@
   function processScript(script, ready = readyStateCompleteCnt > 0) {
     if (epCheck(script, ready)) return;
     // does this load block readystate complete
-    const isBlockingReadyScript = script.getAttribute('async') === null && readyStateCompleteCnt > 0;
+    const isBlockingReadyScript =
+      script.getAttribute('async') === null && readyStateCompleteCnt > 0;
     // does this load block DOMContentLoaded
     const isDomContentLoadedScript = domContentLoadedCnt > 0;
     if (isBlockingReadyScript) readyStateCompleteCnt++;
