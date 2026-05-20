@@ -1,10 +1,11 @@
 import { computed, defineComponent, ref } from 'vue';
-import { NIcon, NScrollbar, useThemeVars } from 'naive-ui';
+import { NIcon, NScrollbar } from 'naive-ui';
 import { ChevronDown, ChevronUp } from '@vicons/tabler';
 import type { FileItem, SortField } from '../types/file-explorer';
 import FileIcon from '../items/FileIcon';
 import { formatDateTime, formatFileSize } from '../utils/fileHelpers';
-import { useFileViewContext } from '../composables/useFileViewContext';
+import { useViewItemState } from '../composables/useFileViewContext';
+import { FileDropZoneWrapper } from '../interaction/FileDropZoneWrapper';
 import { useColumnResize } from '../hooks/useColumnResize';
 import { useColumnDrag } from '../hooks/useColumnDrag';
 import { FILE_LIST_SCROLL_HOST_CLASS } from '../constants/fileListScrollHost';
@@ -20,15 +21,14 @@ interface ColumnConfig {
 export default defineComponent({
   name: 'DetailView',
   setup() {
-    const ctx = useFileViewContext();
+    const { ctx, themeVars, hoveredItemId, dragDrop, selectedItems, getItemBgColor } =
+      useViewItemState();
     const sortField = computed(() => ctx.sortField?.value ?? 'name');
     const sortOrder = computed(() => ctx.sortOrder?.value ?? 'asc');
     const onSort = ctx.onSort ?? (() => {});
-    const themeVars = useThemeVars();
     const headerTableRef = ref<HTMLTableElement | null>(null);
     const bodyScrollLeft = ref(0);
     const hoveredHeader = ref<SortField | null>(null);
-    const hoveredRowId = ref<string | null>(null);
 
     const syncBodyScrollForHeader = (e: Event) => {
       const target = e.target as HTMLElement | null;
@@ -66,16 +66,6 @@ export default defineComponent({
         return themeVars.value.hoverColor;
       }
       return themeVars.value.tableHeaderColor;
-    };
-
-    const getRowBg = (itemId: string, isSelected: boolean) => {
-      if (isSelected) {
-        return `${themeVars.value.primaryColorHover}20`;
-      }
-      if (hoveredRowId.value === itemId) {
-        return themeVars.value.hoverColor;
-      }
-      return themeVars.value.bodyColor;
     };
 
     // 获取排序图标
@@ -343,28 +333,40 @@ export default defineComponent({
               <tbody data-selector="content-viewer">
                 {ctx.items.value.map(item => {
                   const isSelected = ctx.selectedIds.value.has(item.id);
-                  const rowBg = getRowBg(item.id, isSelected);
+                  const rowBg = getItemBgColor(item.id, isSelected);
                   return (
-                    <tr
+                    <FileDropZoneWrapper
                       key={item.id}
-                      data-selectable-id={item.id}
-                      {...(isSelected ? { 'data-prevent-selection': 'true' } : null)}
-                      class="cursor-pointer select-none transition-colors"
-                      style={{
-                        backgroundColor: rowBg,
-                        borderBottom: `1px solid ${themeVars.value.dividerColor}`
-                      }}
-                      onMouseenter={() => (hoveredRowId.value = item.id)}
-                      onMouseleave={() => (hoveredRowId.value = null)}
-                      onClick={(e: MouseEvent) => ctx.onSelect([item.id], e)}
-                      onDblclick={() => ctx.onOpen(item)}
+                      zoneId={item.id}
+                      targetPath={item.path}
+                      item={item}
                     >
-                      {columns.value.map(column => (
-                        <td key={column.id} class="px-4 py-1.5" style={{ backgroundColor: rowBg }}>
-                          {renderCell(item, column, isSelected)}
-                        </td>
-                      ))}
-                    </tr>
+                      <tr
+                        data-selectable-id={item.id}
+                        {...(isSelected ? { 'data-prevent-selection': 'true' } : null)}
+                        class="cursor-pointer select-none transition-colors"
+                        style={{
+                          backgroundColor: rowBg,
+                          borderBottom: `1px solid ${themeVars.value.dividerColor}`
+                        }}
+                        onMouseenter={() => (hoveredItemId.value = item.id)}
+                        onMouseleave={() => (hoveredItemId.value = null)}
+                        onClick={(e: MouseEvent) => ctx.onSelect([item.id], e)}
+                        onDblclick={() => ctx.onOpen(item)}
+                        draggable
+                        onDragstart={e => dragDrop.startDrag(selectedItems.value, e)}
+                      >
+                        {columns.value.map(column => (
+                          <td
+                            key={column.id}
+                            class="px-4 py-1.5"
+                            style={{ backgroundColor: rowBg }}
+                          >
+                            {renderCell(item, column, isSelected)}
+                          </td>
+                        ))}
+                      </tr>
+                    </FileDropZoneWrapper>
                   );
                 })}
               </tbody>
