@@ -111,7 +111,7 @@ export default defineComponent({
           {/* 示例 1: 默认样式 */}
           <div class="demo-section">
             <h4 class="text-md mb-3 text-gray-700 font-semibold">默认样式 - 笔跟随文字</h4>
-            <div class="default text-box" style="position: relative;">
+            <div class="text-box default" style="position: relative;">
               <span class="text-content" ref={textRef1}>
                 {displayText.value}
               </span>

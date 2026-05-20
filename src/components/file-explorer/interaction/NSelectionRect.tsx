@@ -167,10 +167,7 @@ export default defineComponent({
       scrollContainerInfo.value = { element: container, instance };
     };
 
-    /**
-     * 不可圈选区域（如详情表头）在内容坐标系中的下边界。
-     * 跳过带 data-selectable-id 的节点（已选中的数据行也会带 prevent 标记）。
-     */
+    /** 不可圈选区域（如详情表头）在内容坐标系中的下边界。 跳过带 data-selectable-id 的节点（已选中的数据行也会带 prevent 标记）。 */
     const getMinSelectionTop = (): number => {
       if (!containerRef.value) return 0;
       const scroll = getScrollElement();
