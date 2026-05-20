@@ -5,12 +5,14 @@ import {
   nextTick,
   onBeforeUnmount,
   onMounted,
+  onUpdated,
   ref,
   shallowRef
 } from 'vue';
 import { useEventListener, useThrottleFn } from '@vueuse/core';
 import { useThemeVars } from 'naive-ui';
 import type { ScrollbarInst } from 'naive-ui';
+import { fileListScrollHostSelector } from '../constants/fileListScrollHost';
 
 /** 坐标点类型 */
 interface Point {
@@ -53,10 +55,10 @@ const SCROLL_INTERVAL = 16; // ~60fps
 const ANIMATION_DURATION = '1.5s';
 
 /**
- * NSelectionRect 组件
+ * NSelectionRect：文件列表区域拖拽框选。
  *
- * - 专为 NScrollbar 设计的高性能拖拽选择功能
- * - 支持自动滚动、阈值控制、选中元素回调
+ * 滚动根节点通过 `fileListScrollHost` 契约解析（见 `constants/fileListScrollHost`）， 兼容 Naive UI `NScrollbar`
+ * 与详情视图等「自带滚动层」的布局，无需猜测子组件挂载帧数。
  */
 export default defineComponent({
   name: 'NSelectionRect',
@@ -122,6 +124,8 @@ export default defineComponent({
     // 使用 shallowRef 优化响应性能
     const containerRef = shallowRef<HTMLDivElement>();
     const scrollContainerInfo = shallowRef<ScrollContainerInfo>();
+    /** 已绑定 scroll 监听的元素（与 scrollContainerInfo 同步，便于卸载时移除） */
+    const scrollListenerTarget = shallowRef<HTMLElement | null>(null);
 
     // 选区状态
     const selectionState = ref<SelectionState>({
@@ -160,30 +164,23 @@ export default defineComponent({
     const hasHorizontalOverflow = (scroll: HTMLElement): boolean =>
       scroll.scrollWidth - scroll.clientWidth > 1;
 
-    /** 初始化 NScrollbar 实例和滚动容器 */
-    const initScrollbar = async (): Promise<void> => {
-      await nextTick();
+    /** 在 selection 子树内查找实际发生 scroll 的元素（契约类名优先，其次 Naive 默认结构） */
+    const findScrollHostElement = (): HTMLElement | null => {
+      const root = containerRef.value;
+      if (!root) return null;
+      const marked = root.querySelector(fileListScrollHostSelector) as HTMLElement | null;
+      if (marked) return marked;
+      const scrollbarRoot = root.querySelector(SELECTORS.SCROLLBAR) as HTMLElement | null;
+      return (scrollbarRoot?.querySelector(SELECTORS.CONTAINER) as HTMLElement | null) ?? null;
+    };
 
-      if (!containerRef.value) return;
-
-      const scrollbarEl = containerRef.value.querySelector(SELECTORS.SCROLLBAR) as HTMLElement;
-      if (!scrollbarEl) {
-        console.warn('[SelectionRect] NScrollbar 组件未找到');
-        return;
-      }
-
-      const container = scrollbarEl.querySelector(SELECTORS.CONTAINER) as HTMLElement;
-      if (!container) {
-        console.warn('[SelectionRect] 滚动容器未找到');
-        return;
-      }
-
-      // 获取 NScrollbar 实例
-      // @ts-expect-error -- accessing internal Vue component instance for scroll position
-      const vnode = scrollbarEl.__vueParentComponent;
-      const instance = vnode?.exposed as ScrollbarInst | undefined;
-
-      scrollContainerInfo.value = { element: container, instance };
+    /** 当滚动宿主落在 Naive `.n-scrollbar` 内时，尝试取得 `scrollBy` 实例（原生滚动宿主无实例） */
+    const resolveNaiveScrollbarInstance = (scrollEl: HTMLElement): ScrollbarInst | undefined => {
+      const bar = scrollEl.closest(SELECTORS.SCROLLBAR);
+      if (!bar) return undefined;
+      // @ts-expect-error -- Naive 内部实现，用于 scrollBy 与浏览器行为对齐
+      const vnode = bar.__vueParentComponent;
+      return vnode?.exposed as ScrollbarInst | undefined;
     };
 
     /** 不可圈选区域（如详情表头）在内容坐标系中的下边界。 跳过带 data-selectable-id 的节点（已选中的数据行也会带 prevent 标记）。 */
@@ -235,10 +232,7 @@ export default defineComponent({
       };
     });
 
-    /**
-     * 圈选框绘制在 selection-container 上，需映射到 NScrollbar 的可视内容区。 圈选层不得 Teleport 进
-     * .n-scrollbar-container，否则会撑大 scrollWidth。
-     */
+    /** 圈选框绘制在 selection-container 上，坐标需映射到「滚动宿主」可视区； 选区层不得放进滚动容器内部，否则会撑大 scrollWidth。 */
     const displayRect = computed<Rect>(() => {
       // 依赖 scrollTick，在滚动时重算视口坐标（scrollLeft/Top 非响应式）
       const scrollVersion = scrollTick.value;
@@ -333,6 +327,46 @@ export default defineComponent({
       }
     };
 
+    /** 滚动事件处理（须在 updateSelection 之后定义，供 detachScrollListener / tryBindScrollHost 引用） */
+    const handleScroll = (): void => {
+      scrollTick.value += 1;
+      if (selectionState.value.isSelecting) {
+        updateSelection(selectionRect.value);
+      }
+    };
+
+    const detachScrollListener = (): void => {
+      if (scrollListenerTarget.value) {
+        scrollListenerTarget.value.removeEventListener('scroll', handleScroll);
+        scrollListenerTarget.value = null;
+      }
+      scrollContainerInfo.value = undefined;
+    };
+
+    /** 将 scroll 监听绑定到当前滚动宿主；宿主变化或 DOM 置换时安全重绑 */
+    const tryBindScrollHost = (): boolean => {
+      const current = scrollListenerTarget.value;
+      if (current?.isConnected && scrollContainerInfo.value?.element === current) {
+        return true;
+      }
+
+      const host = findScrollHostElement();
+      if (!host) {
+        detachScrollListener();
+        return false;
+      }
+
+      detachScrollListener();
+
+      scrollContainerInfo.value = {
+        element: host,
+        instance: resolveNaiveScrollbarInstance(host)
+      };
+      host.addEventListener('scroll', handleScroll, { passive: true });
+      scrollListenerTarget.value = host;
+      return true;
+    };
+
     /** 计算滚动方向和速度 */
     const calculateScrollDelta = (mouseEvent: MouseEvent): { dx: number; dy: number } => {
       const scroll = getScrollElement();
@@ -368,8 +402,9 @@ export default defineComponent({
       return { dx, dy };
     };
 
-    /** 鼠标在滚动内容坐标系中的位置。 必须用 .n-scrollbar-container 的 rect，不能用外层 selection-container（含纵向滚动条槽位）。 */
+    /** 鼠标在滚动内容坐标系中的位置（坐标相对「滚动宿主」可视区，而非 selection 外层）。 */
     const getContentPoint = (e: MouseEvent): Point | null => {
+      tryBindScrollHost();
       const scroll = getScrollElement();
       if (!scroll) return null;
 
@@ -531,21 +566,10 @@ export default defineComponent({
       }
     };
 
-    /** 滚动事件处理 */
-    const handleScroll = (): void => {
-      scrollTick.value += 1;
-      if (selectionState.value.isSelecting) {
-        updateSelection(selectionRect.value);
-      }
-    };
-
     /** 清理函数 */
     const cleanup = (): void => {
       stopAutoScroll();
-      const scroll = getScrollElement();
-      if (scroll) {
-        scroll.removeEventListener('scroll', handleScroll);
-      }
+      detachScrollListener();
     };
 
     // 事件监听
@@ -558,13 +582,16 @@ export default defineComponent({
       }
     });
 
-    // 生命周期
     onMounted(async () => {
-      await initScrollbar();
-      const scroll = getScrollElement();
-      if (scroll) {
-        scroll.addEventListener('scroll', handleScroll, { passive: true });
-      }
+      await nextTick();
+      tryBindScrollHost();
+    });
+
+    /** 切换视图（如网格 ↔ 详情）后滚动宿主可能被替换，仅在监听目标失效时重绑 */
+    onUpdated(() => {
+      const bound = scrollListenerTarget.value;
+      if (bound?.isConnected) return;
+      tryBindScrollHost();
     });
 
     onBeforeUnmount(cleanup);

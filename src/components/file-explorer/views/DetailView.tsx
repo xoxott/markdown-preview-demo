@@ -1,5 +1,5 @@
 import { computed, defineComponent, ref } from 'vue';
-import { NIcon, useThemeVars } from 'naive-ui';
+import { NIcon, NScrollbar, useThemeVars } from 'naive-ui';
 import { ChevronDown, ChevronUp } from '@vicons/tabler';
 import type { FileItem, SortField } from '../types/file-explorer';
 import FileIcon from '../items/FileIcon';
@@ -7,6 +7,7 @@ import { formatDateTime, formatFileSize } from '../utils/fileHelpers';
 import { useFileViewContext } from '../composables/useFileViewContext';
 import { useColumnResize } from '../hooks/useColumnResize';
 import { useColumnDrag } from '../hooks/useColumnDrag';
+import { FILE_LIST_SCROLL_HOST_CLASS } from '../constants/fileListScrollHost';
 
 interface ColumnConfig {
   id: SortField;
@@ -24,9 +25,17 @@ export default defineComponent({
     const sortOrder = computed(() => ctx.sortOrder?.value ?? 'asc');
     const onSort = ctx.onSort ?? (() => {});
     const themeVars = useThemeVars();
-    const tableRef = ref<HTMLTableElement | null>(null);
+    const headerTableRef = ref<HTMLTableElement | null>(null);
+    const bodyScrollLeft = ref(0);
     const hoveredHeader = ref<SortField | null>(null);
     const hoveredRowId = ref<string | null>(null);
+
+    const syncBodyScrollForHeader = (e: Event) => {
+      const target = e.target as HTMLElement | null;
+      if (target) {
+        bodyScrollLeft.value = target.scrollLeft;
+      }
+    };
 
     // 列配置
     const columns = ref<ColumnConfig[]>([
@@ -37,13 +46,37 @@ export default defineComponent({
       { id: 'size', label: '大小', width: 120 }
     ]);
 
+    const tableMinWidth = computed(() =>
+      columns.value.reduce((sum, column) => sum + column.width, 0)
+    );
+
     // 列宽调整 + 列拖拽排序（从 hooks 获取）
     const { resizing, hoveredResizer, startResize } = useColumnResize(columns);
     const { draggingColumn, startColumnDrag, getIndicatorStyle } = useColumnDrag(
       columns,
-      tableRef,
+      headerTableRef,
       resizing
     );
+
+    const getHeaderBg = (columnId: SortField, isHovered: boolean) => {
+      if (sortField.value === columnId) {
+        return themeVars.value.tableColor ?? themeVars.value.hoverColor;
+      }
+      if (isHovered) {
+        return themeVars.value.hoverColor;
+      }
+      return themeVars.value.tableHeaderColor;
+    };
+
+    const getRowBg = (itemId: string, isSelected: boolean) => {
+      if (isSelected) {
+        return `${themeVars.value.primaryColorHover}20`;
+      }
+      if (hoveredRowId.value === itemId) {
+        return themeVars.value.hoverColor;
+      }
+      return themeVars.value.bodyColor;
+    };
 
     // 获取排序图标
     const getSortIcon = () => (sortOrder.value === 'asc' ? ChevronUp : ChevronDown);
@@ -68,11 +101,7 @@ export default defineComponent({
           class="relative select-none px-4 py-2 text-left text-xs font-medium"
           style={{
             color: themeVars.value.textColor2,
-            backgroundColor: isActive
-              ? `${themeVars.value.primaryColor}08`
-              : isHovered
-                ? `${themeVars.value.primaryColorHover}08`
-                : themeVars.value.tableHeaderColor,
+            backgroundColor: getHeaderBg(column.id, isHovered),
             cursor: isDragging ? 'grabbing' : 'grab',
             opacity: isDragging ? 0.3 : 1,
             zIndex: getColumnZIndex(index),
@@ -209,21 +238,38 @@ export default defineComponent({
       }
     };
 
+    const ColGroup = () => (
+      <colgroup>
+        {columns.value.map(column => (
+          <col key={column.id} style={{ width: `${column.width}px` }} />
+        ))}
+      </colgroup>
+    );
+
+    const tableStyle = {
+      borderCollapse: 'separate' as const,
+      borderSpacing: 0,
+      tableLayout: 'fixed' as const,
+      width: '100%',
+      minWidth: `${tableMinWidth.value}px`,
+      backgroundColor: themeVars.value.bodyColor
+    };
+
     return () => {
       const indicatorStyle = getIndicatorStyle();
 
       return (
         <div
+          class="h-full min-h-0 flex flex-col"
           style={{
             position: 'relative',
-            backgroundColor: themeVars.value.bodyColor,
-            overflowX: 'clip'
+            backgroundColor: themeVars.value.bodyColor
           }}
         >
           {/* 浮动幽灵：跟随鼠标显示被拖拽的列名 */}
           {draggingColumn.value &&
             (() => {
-              const tableRect = tableRef.value?.getBoundingClientRect();
+              const tableRect = headerTableRef.value?.getBoundingClientRect();
               const relativeX = tableRect ? draggingColumn.value!.ghostX - tableRect.left : 0;
               return (
                 <div
@@ -264,57 +310,66 @@ export default defineComponent({
             />
           )}
 
-          <table
-            ref={tableRef}
-            class="min-w-full"
+          {/* 固定表头：不参与纵向滚动，横向与表体同步 */}
+          <div
+            class="shrink-0 overflow-hidden"
+            data-prevent-selection="true"
             style={{
-              borderCollapse: 'separate',
-              borderSpacing: 0,
-              tableLayout: 'fixed',
-              width: '100%',
-              backgroundColor: themeVars.value.bodyColor
+              borderBottom: `1px solid ${themeVars.value.dividerColor}`,
+              backgroundColor: themeVars.value.tableHeaderColor
             }}
           >
-            <colgroup>
-              {columns.value.map(column => (
-                <col key={column.id} style={{ width: `${column.width}px` }} />
-              ))}
-            </colgroup>
-            <thead class="sticky top-0 z-10" data-prevent-selection="true">
-              <tr>{columns.value.map((column, index) => SortHeader(column, index))}</tr>
-            </thead>
-            <tbody data-selector="content-viewer">
-              {ctx.items.value.map(item => {
-                const isSelected = ctx.selectedIds.value.has(item.id);
-                return (
-                  <tr
-                    key={item.id}
-                    data-selectable-id={item.id}
-                    {...(isSelected ? { 'data-prevent-selection': 'true' } : null)}
-                    class="cursor-pointer select-none transition-colors"
-                    style={{
-                      backgroundColor: isSelected
-                        ? `${themeVars.value.primaryColorHover}20`
-                        : hoveredRowId.value === item.id
-                          ? themeVars.value.hoverColor
-                          : 'transparent',
-                      borderBottom: `1px solid ${themeVars.value.dividerColor}`
-                    }}
-                    onMouseenter={() => (hoveredRowId.value = item.id)}
-                    onMouseleave={() => (hoveredRowId.value = null)}
-                    onClick={(e: MouseEvent) => ctx.onSelect([item.id], e)}
-                    onDblclick={() => ctx.onOpen(item)}
-                  >
-                    {columns.value.map(column => (
-                      <td key={column.id} class="px-4 py-1.5">
-                        {renderCell(item, column, isSelected)}
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+            <div style={{ transform: `translateX(-${bodyScrollLeft.value}px)` }}>
+              <table ref={headerTableRef} class="min-w-full" style={tableStyle}>
+                <ColGroup />
+                <thead>
+                  <tr>{columns.value.map((column, index) => SortHeader(column, index))}</tr>
+                </thead>
+              </table>
+            </div>
+          </div>
+
+          <NScrollbar
+            class="min-h-0 flex-1"
+            yPlacement="right"
+            xPlacement="bottom"
+            xScrollable
+            onScroll={syncBodyScrollForHeader}
+            // @ts-expect-error containerClass 由 naive-ui 内部 scrollbar 支持，公共类型未导出
+            containerClass={FILE_LIST_SCROLL_HOST_CLASS}
+          >
+            <table class="min-w-full" style={tableStyle}>
+              <ColGroup />
+              <tbody data-selector="content-viewer">
+                {ctx.items.value.map(item => {
+                  const isSelected = ctx.selectedIds.value.has(item.id);
+                  const rowBg = getRowBg(item.id, isSelected);
+                  return (
+                    <tr
+                      key={item.id}
+                      data-selectable-id={item.id}
+                      {...(isSelected ? { 'data-prevent-selection': 'true' } : null)}
+                      class="cursor-pointer select-none transition-colors"
+                      style={{
+                        backgroundColor: rowBg,
+                        borderBottom: `1px solid ${themeVars.value.dividerColor}`
+                      }}
+                      onMouseenter={() => (hoveredRowId.value = item.id)}
+                      onMouseleave={() => (hoveredRowId.value = null)}
+                      onClick={(e: MouseEvent) => ctx.onSelect([item.id], e)}
+                      onDblclick={() => ctx.onOpen(item)}
+                    >
+                      {columns.value.map(column => (
+                        <td key={column.id} class="px-4 py-1.5" style={{ backgroundColor: rowBg }}>
+                          {renderCell(item, column, isSelected)}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </NScrollbar>
         </div>
       );
     };

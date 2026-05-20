@@ -1,6 +1,5 @@
 import type { PropType, Ref } from 'vue';
 import { computed, defineComponent, inject, toRef } from 'vue';
-import { NScrollbar } from 'naive-ui';
 import { useContextMenuOptions } from '../hooks/useContextMenuOptions';
 import { FILE_DRAG_DROP_KEY } from '../hooks/useFileDragDropEnhanced';
 import ContextMenu from '../interaction/ContextMenu';
@@ -76,6 +75,7 @@ export default defineComponent({
     const handleSelectionChange = (ids: string[]) => {
       props.onSelect(ids);
     };
+
     return () => {
       const hasPagination =
         props.showPagination && props.currentPage !== undefined && props.totalPages !== undefined;
@@ -99,9 +99,7 @@ export default defineComponent({
                 onClearSelection={() => props.onSelect([])}
                 class={'h-full'}
               >
-                <NScrollbar yPlacement="right" xPlacement="bottom" class="h-full">
-                  <FileViewRenderer />
-                </NScrollbar>
+                <FileViewRenderer />
               </NSelectionRect>
             </ContextMenu>
 

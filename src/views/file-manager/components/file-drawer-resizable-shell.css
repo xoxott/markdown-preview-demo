@@ -1,0 +1,11 @@
+/**
+ * Naive UI NDrawer：resizable + placement="right" 时，左侧 resize 条为 position:absolute，
+ * 叠在面板最左侧，不占用文档流宽度。此处由「抽屉外壳」为内容区预留一列轨道，
+ * 与 NDrawerContent 的 bodyContentStyle（正文自己的间距）解耦。
+ *
+ * 轨道宽度可通过 --file-drawer-resize-gutter 覆盖。
+ */
+.file-drawer-shell--resizable-right.n-drawer--right-placement > .n-drawer-content-wrapper {
+  box-sizing: border-box;
+  padding-left: var(--file-drawer-resize-gutter, 10px);
+}
