@@ -167,15 +167,43 @@ export default defineComponent({
       scrollContainerInfo.value = { element: container, instance };
     };
 
+    /**
+     * 不可圈选区域（如详情表头）在内容坐标系中的下边界。
+     * 跳过带 data-selectable-id 的节点（已选中的数据行也会带 prevent 标记）。
+     */
+    const getMinSelectionTop = (): number => {
+      if (!containerRef.value) return 0;
+      const scroll = getScrollElement();
+      if (!scroll) return 0;
+
+      const containerRect = containerRef.value.getBoundingClientRect();
+      let maxBottom = 0;
+
+      const prevented = Array.from(
+        containerRef.value.querySelectorAll<HTMLElement>(`[${props.preventDragSelector}]`)
+      );
+
+      for (const el of prevented) {
+        if (el.dataset.selectableId) continue;
+
+        const bounds = el.getBoundingClientRect();
+        const bottom = bounds.bottom - containerRect.top + scroll.scrollTop;
+        maxBottom = Math.max(maxBottom, bottom);
+      }
+
+      return maxBottom;
+    };
+
     /** 计算内容坐标下的选区矩形（带边界限制） */
     const selectionRect = computed<Rect>(() => {
       const scroll = getScrollElement();
       if (!containerRef.value || !scroll) return DEFAULT_RECT;
 
       const { startPoint, currentPoint } = selectionState.value;
+      const minTop = getMinSelectionTop();
 
       const left = Math.max(0, Math.min(startPoint.x, currentPoint.x));
-      const top = Math.max(0, Math.min(startPoint.y, currentPoint.y));
+      const top = Math.max(minTop, Math.min(startPoint.y, currentPoint.y));
       const right = Math.min(scroll.scrollWidth, Math.max(startPoint.x, currentPoint.x));
       const bottom = Math.min(scroll.scrollHeight, Math.max(startPoint.y, currentPoint.y));
 
@@ -183,7 +211,7 @@ export default defineComponent({
         left,
         top,
         width: right - left,
-        height: bottom - top
+        height: Math.max(0, bottom - top)
       };
     });
 
