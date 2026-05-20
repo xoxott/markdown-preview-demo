@@ -9,8 +9,8 @@ import type { RouteKey, RoutePath } from '@elegant-router/types';
 import { useAuthStore } from '@/store/modules/auth';
 import { useRouteStore } from '@/store/modules/route';
 import { localStg } from '@/utils/storage';
-import { getRouteName } from '@/router/elegant/transform';
 import { isStaticDemo, seedStaticDemoAuth } from '@/utils/env/static-demo';
+import { getRouteName } from '@/router/elegant/transform';
 
 /**
  * create route guard

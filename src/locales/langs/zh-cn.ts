@@ -289,8 +289,7 @@ const local: App.I18n.Schema = {
       colTier: '分层',
       colCategory: '类别',
       colProviders: '依赖 Provider',
-      commandsLead:
-        "数据源自 {'@'}suga/ai-commands 的 catalog 快照，与 CLI 注册表一致。",
+      commandsLead: "数据源自 {'@'}suga/ai-commands 的 catalog 快照，与 CLI 注册表一致。",
       markdownLead:
         "本页 Markdown 由 {'@'}suga/markdown-it-render-vnode-vue 栈渲染，与业务编辑器同源。",
       argsLead:

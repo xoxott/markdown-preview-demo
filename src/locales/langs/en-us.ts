@@ -292,8 +292,7 @@ const local: App.I18n.Schema = {
       colTier: 'Tier',
       colCategory: 'Category',
       colProviders: 'Providers',
-      commandsLead:
-        "Catalog snapshot from {'@'}suga/ai-commands (same as CLI registration).",
+      commandsLead: "Catalog snapshot from {'@'}suga/ai-commands (same as CLI registration).",
       markdownLead:
         "Rendered with the {'@'}suga/markdown-it-render-vnode-vue stack used elsewhere.",
       argsLead:
