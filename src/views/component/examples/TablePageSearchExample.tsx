@@ -135,6 +135,7 @@ export default defineComponent({
                   loading={false}
                   showSelection={false}
                   showIndex={false}
+                  searchSectionCollapsible={false}
                   searchDefaultCollapsed
                   searchCardBordered={false}
                   showActionCard={false}
@@ -157,7 +158,6 @@ export default defineComponent({
                   loading={false}
                   showSelection={false}
                   showIndex={false}
-                  searchSectionCollapsible
                   searchSectionDefaultExpanded={false}
                   searchCardBordered={false}
                   showActionCard={false}

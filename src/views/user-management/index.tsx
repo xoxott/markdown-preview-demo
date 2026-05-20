@@ -213,7 +213,6 @@ export default defineComponent({
         rowKey="id"
         scrollX={USER_LIST_SCROLL_X}
         searchLabelWidth={96}
-        searchSectionCollapsible
         searchCardBordered={false}
         actionCardBordered={false}
       />

@@ -96,7 +96,7 @@ export default defineComponent({
     /** 为 true 时整块检索区可折叠（NCollapse），与 `searchCollapsible`（栅格行）无关 */
     searchSectionCollapsible: {
       type: Boolean,
-      default: false
+      default: true
     },
     /** 整块检索区初始是否展开 */
     searchSectionDefaultExpanded: {

@@ -29,7 +29,7 @@ SearchBar 对齐 [Pro Naive `ProSearchForm`](https://naive.soybeanjs.cn/pro-naiv
 
 ### 整块检索区折叠（与栅格行折叠无关）
 
-需要把**整个**搜索区（含表单与操作按钮）收起以让给表格时，传 `searchSectionCollapsible`。内部使用 Naive `NCollapse` / `NCollapseItem`，标题默认可通过 `searchSectionTitle` 或 i18n `common.searchSection` 覆盖。
+默认开启整块检索区折叠；不需要时可传 `searchSectionCollapsible={false}`。内部使用 Naive `NCollapse` / `NCollapseItem`，标题默认可通过 `searchSectionTitle` 或 i18n `common.searchSection` 覆盖。
 
 | 层级   | Prop                       | 作用                                                    |
 | ------ | -------------------------- | ------------------------------------------------------- |
@@ -54,7 +54,7 @@ SearchBar 对齐 [Pro Naive `ProSearchForm`](https://naive.soybeanjs.cn/pro-naiv
 
 | 属性                                | 默认                 | 说明                                                                   |
 | ----------------------------------- | -------------------- | ---------------------------------------------------------------------- |
-| `searchSectionCollapsible`          | `false`              | 整块检索区折叠（`NCollapse`），收起后仅保留标题栏，表格区获得更多高度  |
+| `searchSectionCollapsible`          | `true`               | 整块检索区折叠（`NCollapse`），收起后仅保留标题栏，表格区获得更多高度  |
 | `searchSectionDefaultExpanded`      | `true`               | 整块检索区初始是否展开                                                 |
 | `searchSectionTitle`                | i18n                 | 整块折叠面板标题，默认 `common.searchSection`                          |
 | `searchCollapsible`                 | `true`               | 栅格内筛选项行展开/收起（超出 `searchCollapsedRows` 行才显示按钮）     |
