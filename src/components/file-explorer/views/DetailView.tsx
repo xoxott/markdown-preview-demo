@@ -1,4 +1,4 @@
-import { computed, defineComponent, ref } from 'vue';
+import { computed, defineComponent, onMounted, onUnmounted, ref } from 'vue';
 import { NIcon, NScrollbar } from 'naive-ui';
 import { ChevronDown, ChevronUp } from '@vicons/tabler';
 import type { FileItem, SortField } from '../types/file-explorer';
@@ -27,6 +27,8 @@ export default defineComponent({
     const sortOrder = computed(() => ctx.sortOrder?.value ?? 'asc');
     const onSort = ctx.onSort ?? (() => {});
     const headerTableRef = ref<HTMLTableElement | null>(null);
+    const layoutRef = ref<HTMLElement | null>(null);
+    const layoutWidth = ref(0);
     const bodyScrollLeft = ref(0);
     const hoveredHeader = ref<SortField | null>(null);
 
@@ -46,12 +48,49 @@ export default defineComponent({
       { id: 'size', label: '大小', width: 120 }
     ]);
 
-    const tableMinWidth = computed(() =>
-      columns.value.reduce((sum, column) => sum + column.width, 0)
+    const tableMinWidth = computed(() => {
+      if (columns.value.length === 0) return 0;
+      return (
+        columns.value.slice(0, -1).reduce((s, c) => s + c.width, 0) +
+        (columns.value.at(-1)?.minWidth ?? 40)
+      );
+    });
+
+    const tableDisplayWidth = computed(() =>
+      Math.max(layoutWidth.value || tableMinWidth.value, tableMinWidth.value)
     );
 
+    const lastColWidth = computed(() => {
+      const lastMin = columns.value.at(-1)?.minWidth ?? 40;
+      const prefix = columns.value.slice(0, -1).reduce((s, c) => s + c.width, 0);
+      return Math.max(lastMin, tableDisplayWidth.value - prefix);
+    });
+
+    let layoutResizeObserver: ResizeObserver | null = null;
+
+    onMounted(() => {
+      const el = layoutRef.value;
+      if (!el) {
+        layoutWidth.value = 0;
+        return;
+      }
+      const measure = () => {
+        layoutWidth.value = Math.round(el.clientWidth);
+      };
+      measure();
+      if (typeof ResizeObserver !== 'undefined') {
+        layoutResizeObserver = new ResizeObserver(measure);
+        layoutResizeObserver.observe(el);
+      }
+    });
+
+    onUnmounted(() => {
+      layoutResizeObserver?.disconnect();
+      layoutResizeObserver = null;
+    });
+
     // 列宽调整 + 列拖拽排序（从 hooks 获取）
-    const { resizing, hoveredResizer, startResize } = useColumnResize(columns);
+    const { resizing, hoveredResizer, startResize } = useColumnResize(columns, layoutWidth);
     const { draggingColumn, startColumnDrag, getIndicatorStyle } = useColumnDrag(
       columns,
       headerTableRef,
@@ -84,15 +123,16 @@ export default defineComponent({
       const isResizerHovered = hoveredResizer.value === column.id;
       const isDragging = draggingColumn.value?.id === column.id;
       const isResizing = resizing.value?.columnId === column.id;
+      const isLastColumn = index === columns.value.length - 1;
 
       return (
         <th
           key={column.id}
-          class="relative select-none px-4 py-2 text-left text-xs font-medium"
+          class="relative min-w-0 select-none overflow-hidden px-4 py-2 text-left text-xs font-medium"
           style={{
             color: themeVars.value.textColor2,
             backgroundColor: getHeaderBg(column.id, isHovered),
-            cursor: isDragging ? 'grabbing' : 'grab',
+            cursor: resizing.value ? 'col-resize' : isDragging ? 'grabbing' : 'grab',
             opacity: isDragging ? 0.3 : 1,
             zIndex: getColumnZIndex(index),
             borderBottom: `1px solid ${themeVars.value.dividerColor}`
@@ -109,9 +149,12 @@ export default defineComponent({
             onSort(column.id);
           }}
         >
-          <div class="pointer-events-none flex items-center gap-1">
-            <span>{column.label}</span>
+          <div class="pointer-events-none min-w-0 flex items-center gap-1 overflow-hidden pr-1">
+            <span class="min-w-0 truncate" title={column.label}>
+              {column.label}
+            </span>
             <NIcon
+              class="shrink-0"
               size={16}
               style={{
                 color: isActive ? themeVars.value.primaryColor : themeVars.value.textColor3,
@@ -123,43 +166,48 @@ export default defineComponent({
             </NIcon>
           </div>
 
-          {/* 调整大小手柄 */}
-          <div
-            class="resize-handle absolute bottom-0 right-0 top-0 z-20 w-3 flex cursor-col-resize items-center justify-center"
-            style={{
-              marginRight: '-6px',
-              pointerEvents: 'auto'
-            }}
-            onMousedown={(e: MouseEvent) => {
-              e.stopPropagation();
-              startResize(e, column.id);
-            }}
-            onMouseenter={() => (hoveredResizer.value = column.id)}
-            onMouseleave={() => (hoveredResizer.value = null)}
-            onClick={(e: MouseEvent) => {
-              e.stopPropagation();
-              e.preventDefault();
-            }}
-          >
-            <div class="absolute inset-0" style={{ cursor: 'col-resize' }} />
+          {/* 列间调整宽度：最后一列右侧无相邻列，不显示手柄 */}
+          {!isLastColumn && (
             <div
-              class="pointer-events-none h-full w-0.5"
+              class="resize-handle absolute bottom-0 top-0 z-20 w-6 flex cursor-col-resize items-center justify-center -translate-x-1/2"
               style={{
-                backgroundColor: isResizing
-                  ? themeVars.value.primaryColor
-                  : isResizerHovered
-                    ? themeVars.value.primaryColor
-                    : themeVars.value.dividerColor,
-                opacity: isResizerHovered || isResizing ? 1 : 0.6,
-                transform: isResizerHovered || isResizing ? 'scaleY(1.2)' : 'scaleY(1)',
-                transition: isResizing ? 'none' : 'all 200ms ease-out',
-                boxShadow:
-                  isResizing || isResizerHovered
-                    ? `0 0 6px ${themeVars.value.primaryColor}80`
-                    : 'none'
+                left: '100%',
+                pointerEvents: 'auto'
               }}
-            />
-          </div>
+              onMousedown={(e: MouseEvent) => {
+                e.stopPropagation();
+                const th = (e.currentTarget as HTMLElement).closest('th');
+                const sep = th?.getBoundingClientRect().right ?? e.clientX;
+                startResize(e, column.id, sep);
+              }}
+              onMouseenter={() => (hoveredResizer.value = column.id)}
+              onMouseleave={() => (hoveredResizer.value = null)}
+              onClick={(e: MouseEvent) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+            >
+              <div class="absolute inset-0" style={{ cursor: 'col-resize' }} />
+              <div
+                class="pointer-events-none h-full rounded-full"
+                style={{
+                  width: '4px',
+                  backgroundColor: isResizing
+                    ? themeVars.value.primaryColor
+                    : isResizerHovered
+                      ? themeVars.value.primaryColor
+                      : themeVars.value.dividerColor,
+                  opacity: isResizerHovered || isResizing ? 1 : 0.6,
+                  transform: isResizerHovered || isResizing ? 'scaleY(1.08)' : 'scaleY(1)',
+                  transition: isResizing ? 'none' : 'all 200ms ease-out',
+                  boxShadow:
+                    isResizing || isResizerHovered
+                      ? `0 0 6px ${themeVars.value.primaryColor}80`
+                      : 'none'
+                }}
+              />
+            </div>
+          )}
         </th>
       );
     };
@@ -230,17 +278,20 @@ export default defineComponent({
 
     const ColGroup = () => (
       <colgroup>
-        {columns.value.map(column => (
-          <col key={column.id} style={{ width: `${column.width}px` }} />
-        ))}
+        {columns.value.map((column, idx) => {
+          const isLast = idx === columns.value.length - 1;
+          const w = isLast ? lastColWidth.value : column.width;
+          return <col key={column.id} style={{ width: `${w}px` }} />;
+        })}
       </colgroup>
     );
 
+    // 表宽 = max(列表视口, 最小列宽和)；最后一列用剩余像素，避免 width:100% 时各列被按比例拉伸导致拖拽漂移
     const tableStyle = {
       borderCollapse: 'separate' as const,
       borderSpacing: 0,
       tableLayout: 'fixed' as const,
-      width: '100%',
+      width: `${tableDisplayWidth.value}px`,
       minWidth: `${tableMinWidth.value}px`,
       backgroundColor: themeVars.value.bodyColor
     };
@@ -250,6 +301,7 @@ export default defineComponent({
 
       return (
         <div
+          ref={layoutRef}
           class="h-full min-h-0 flex flex-col"
           style={{
             position: 'relative',
@@ -310,7 +362,7 @@ export default defineComponent({
             }}
           >
             <div style={{ transform: `translateX(-${bodyScrollLeft.value}px)` }}>
-              <table ref={headerTableRef} class="min-w-full" style={tableStyle}>
+              <table ref={headerTableRef} style={tableStyle}>
                 <ColGroup />
                 <thead>
                   <tr>{columns.value.map((column, index) => SortHeader(column, index))}</tr>
@@ -328,7 +380,7 @@ export default defineComponent({
             // @ts-expect-error containerClass 由 naive-ui 内部 scrollbar 支持，公共类型未导出
             containerClass={FILE_LIST_SCROLL_HOST_CLASS}
           >
-            <table class="min-w-full" style={tableStyle}>
+            <table style={tableStyle}>
               <ColGroup />
               <tbody data-selector="content-viewer">
                 {ctx.items.value.map(item => {

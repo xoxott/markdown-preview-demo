@@ -18,7 +18,7 @@ interface PendingDragState {
 
 interface ResizingState {
   columnId: SortField;
-  startX: number;
+  separatorClientX: number;
   leftColumn: ColumnConfig;
   rightColumn: ColumnConfig | null;
   leftStartWidth: number;

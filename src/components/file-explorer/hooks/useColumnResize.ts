@@ -17,10 +17,20 @@ function clampWidth(width: number, minWidth?: number, maxWidth?: number) {
   return Math.min(maxWidth ?? Infinity, Math.max(minWidth ?? DEFAULT_MIN_WIDTH, width));
 }
 
+/** 前 n-1 列当前宽度 + 最后一列最小宽，用于表最小宽度与拖拽 clamp */
+function sumPrefixWidthsPlusLastMin(cols: ColumnConfig[]) {
+  if (cols.length === 0) return 0;
+  return (
+    cols.slice(0, -1).reduce((s, c) => s + c.width, 0) +
+    (cols.at(-1)?.minWidth ?? DEFAULT_MIN_WIDTH)
+  );
+}
+
 export interface UseColumnResizeReturn {
   resizing: Ref<{
     columnId: SortField;
-    startX: number;
+    /** 列分隔线在视口中的 X，与宽热区/粗线条对齐用 */
+    separatorClientX: number;
     leftColumn: ColumnConfig;
     rightColumn: ColumnConfig | null;
     leftStartWidth: number;
@@ -29,16 +39,19 @@ export interface UseColumnResizeReturn {
     animationFrame: number | null;
   } | null>;
   hoveredResizer: Ref<SortField | null>;
-  startResize: (e: MouseEvent, columnId: SortField) => void;
+  startResize: (e: MouseEvent, columnId: SortField, separatorClientX?: number) => void;
 }
 
 /** 列宽调整 Hook — 处理 DetailView 表头列拖拽调整宽度逻辑 */
-export function useColumnResize(columns: Ref<ColumnConfig[]>): UseColumnResizeReturn {
+export function useColumnResize(
+  columns: Ref<ColumnConfig[]>,
+  layoutWidth: Ref<number>
+): UseColumnResizeReturn {
   const isUnmounted = ref(false);
   const bodyOverride = useBodyStyleOverride();
   const resizing = ref<{
     columnId: SortField;
-    startX: number;
+    separatorClientX: number;
     leftColumn: ColumnConfig;
     rightColumn: ColumnConfig | null;
     leftStartWidth: number;
@@ -48,7 +61,7 @@ export function useColumnResize(columns: Ref<ColumnConfig[]>): UseColumnResizeRe
   } | null>(null);
   const hoveredResizer = ref<SortField | null>(null);
 
-  const startResize = (e: MouseEvent, columnId: SortField) => {
+  const startResize = (e: MouseEvent, columnId: SortField, separatorClientX?: number) => {
     e.stopPropagation();
     e.preventDefault();
 
@@ -61,7 +74,7 @@ export function useColumnResize(columns: Ref<ColumnConfig[]>): UseColumnResizeRe
 
     resizing.value = {
       columnId,
-      startX: e.clientX,
+      separatorClientX: separatorClientX ?? e.clientX,
       leftColumn: leftCol,
       rightColumn: rightCol,
       leftStartWidth: leftCol.width,
@@ -78,28 +91,50 @@ export function useColumnResize(columns: Ref<ColumnConfig[]>): UseColumnResizeRe
       }
 
       resizing.value.animationFrame = requestAnimationFrame(() => {
-        if (!resizing.value) return;
+        const st = resizing.value;
+        if (!st) return;
 
-        const { startX, leftColumn, rightColumn, leftStartWidth, rightStartWidth } = resizing.value;
-        const delta = evt.clientX - startX;
+        const delta = evt.clientX - st.separatorClientX;
 
-        if (rightColumn) {
-          let newLeftWidth = leftStartWidth + delta;
-          newLeftWidth = clampWidth(newLeftWidth, leftColumn.minWidth, leftColumn.maxWidth);
-          const actualDelta = newLeftWidth - leftStartWidth;
-          let newRightWidth = rightStartWidth - actualDelta;
-          newRightWidth = clampWidth(newRightWidth, rightColumn.minWidth, rightColumn.maxWidth);
-          const rightActualDelta = rightStartWidth - newRightWidth;
-          if (Math.abs(rightActualDelta - actualDelta) > 0.5) {
-            newLeftWidth = leftStartWidth + rightActualDelta;
-            newLeftWidth = clampWidth(newLeftWidth, leftColumn.minWidth, leftColumn.maxWidth);
+        if (st.rightColumn) {
+          const rightIsLast = st.rightColumn.id === columns.value.at(-1)?.id;
+
+          if (rightIsLast) {
+            const tw = Math.max(layoutWidth.value, sumPrefixWidthsPlusLastMin(columns.value));
+            const others = columns.value.slice(0, st.columnIndex).reduce((s, c) => s + c.width, 0);
+            const lastMin = st.rightColumn.minWidth ?? DEFAULT_MIN_WIDTH;
+            let newLeftWidth = st.leftStartWidth + delta;
+            newLeftWidth = clampWidth(newLeftWidth, st.leftColumn.minWidth, st.leftColumn.maxWidth);
+            const maxLeft = tw - others - lastMin;
+            newLeftWidth = Math.min(newLeftWidth, maxLeft);
+            newLeftWidth = Math.max(newLeftWidth, st.leftColumn.minWidth ?? DEFAULT_MIN_WIDTH);
+            st.leftColumn.width = Math.round(newLeftWidth);
+          } else {
+            let newLeftWidth = st.leftStartWidth + delta;
+            newLeftWidth = clampWidth(newLeftWidth, st.leftColumn.minWidth, st.leftColumn.maxWidth);
+            const actualDelta = newLeftWidth - st.leftStartWidth;
+            let newRightWidth = st.rightStartWidth - actualDelta;
+            newRightWidth = clampWidth(
+              newRightWidth,
+              st.rightColumn.minWidth,
+              st.rightColumn.maxWidth
+            );
+            const rightActualDelta = st.rightStartWidth - newRightWidth;
+            if (Math.abs(rightActualDelta - actualDelta) > 0.5) {
+              newLeftWidth = st.leftStartWidth + rightActualDelta;
+              newLeftWidth = clampWidth(
+                newLeftWidth,
+                st.leftColumn.minWidth,
+                st.leftColumn.maxWidth
+              );
+            }
+            st.leftColumn.width = Math.round(newLeftWidth);
+            st.rightColumn.width = Math.round(newRightWidth);
           }
-          leftColumn.width = Math.round(newLeftWidth);
-          rightColumn.width = Math.round(newRightWidth);
         } else {
-          let newWidth = leftStartWidth + delta;
-          newWidth = clampWidth(newWidth, leftColumn.minWidth, leftColumn.maxWidth);
-          leftColumn.width = Math.round(newWidth);
+          let newWidth = st.leftStartWidth + delta;
+          newWidth = clampWidth(newWidth, st.leftColumn.minWidth, st.leftColumn.maxWidth);
+          st.leftColumn.width = Math.round(newWidth);
         }
       });
     };
