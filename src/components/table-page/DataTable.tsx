@@ -206,6 +206,10 @@ export default defineComponent({
       })
     );
 
-    return () => <NDataTable {...mergedTableProps.value} />;
+    return () => (
+      <div class="h-full [&_.n-data-table\_\_pagination]:box-border [&_.n-data-table\_\_pagination]:px-16px">
+        <NDataTable {...mergedTableProps.value} />
+      </div>
+    );
   }
 });
