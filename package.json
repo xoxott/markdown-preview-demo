@@ -39,7 +39,7 @@
     "cleanup": "sa cleanup",
     "commit": "sa git-commit",
     "commit:zh": "sa git-commit -l=zh-cn",
-    "deploy": "gh-pages -d dist",
+    "deploy": "pnpm build && gh-pages -d dist --dotfiles",
     "dev": "vite --mode test",
     "dev:prod": "vite --mode prod",
     "format": "prettier --write .",

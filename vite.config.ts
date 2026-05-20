@@ -80,7 +80,16 @@ export default defineConfig(configEnv => {
               if (id.includes('@vueuse')) {
                 return 'vueuse';
               }
-              if (id.includes('vue') || id.includes('pinia') || id.includes('vue-router')) {
+              // 仅匹配 Vue 官方运行时包路径。勿用 id.includes('vue')，否则会误把
+              // @iconify/vue、@suga/markdown-it-render-vnode-vue、vue-pdf-embed 等打进 vue-vendor，
+              // 与 vue 核心同 chunk 易产生循环依赖 / TDZ（生产 Uncaught ReferenceError: Cannot access before initialization）。
+              const posixId = id.split('\\').join('/');
+              if (
+                posixId.includes('/node_modules/vue/') ||
+                posixId.includes('/node_modules/@vue/') ||
+                posixId.includes('/node_modules/pinia/') ||
+                posixId.includes('/node_modules/vue-router/')
+              ) {
                 return 'vue-vendor';
               }
               // 其他第三方库
