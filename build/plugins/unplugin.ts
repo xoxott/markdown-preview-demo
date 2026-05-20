@@ -38,7 +38,7 @@ export function setupUnplugin(viteEnv: Env.ImportMeta) {
         'src/components/base-dialog',
         'src/components/base-drawer',
         'src/components/clockLoading',
-        'src/components/common-interaction',
+        'src/components/file-explorer/interaction',
         'src/components/common',
         'src/components/custom-upload',
         'src/components/custom',

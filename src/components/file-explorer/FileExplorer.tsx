@@ -1,6 +1,5 @@
 import { type PropType, type Ref, defineComponent } from 'vue';
-import { DragPreview } from '@/components/common-interaction';
-import type { DragItem } from '@/components/common-interaction';
+import { DragPreview, type DragItem } from '@/components/file-explorer/interaction';
 import ViewContainer from './container/ViewContainer';
 import FileBreadcrumb from './layout/FileBreadcrumb';
 import FileSidebar from './layout/FileSidebar';
