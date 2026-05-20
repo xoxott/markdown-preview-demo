@@ -213,7 +213,13 @@ export default defineComponent({
       const indicatorStyle = getIndicatorStyle();
 
       return (
-        <div style={{ position: 'relative', backgroundColor: themeVars.value.bodyColor }}>
+        <div
+          style={{
+            position: 'relative',
+            backgroundColor: themeVars.value.bodyColor,
+            overflowX: 'clip'
+          }}
+        >
           {/* 浮动幽灵：跟随鼠标显示被拖拽的列名 */}
           {draggingColumn.value &&
             (() => {

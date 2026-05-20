@@ -1,6 +1,5 @@
 import type { CSSProperties, PropType } from 'vue';
 import {
-  Teleport,
   computed,
   defineComponent,
   nextTick,
@@ -45,8 +44,7 @@ interface ScrollContainerInfo {
 // 常量定义
 const SELECTORS = {
   SCROLLBAR: '.n-scrollbar',
-  CONTAINER: '.n-scrollbar-container',
-  WRAPPER: '.selection-wrapper'
+  CONTAINER: '.n-scrollbar-container'
 } as const;
 
 const DEFAULT_POINT: Point = { x: 0, y: 0 };
@@ -137,9 +135,30 @@ export default defineComponent({
     // 自动滚动相关
     const autoScrollTimer = ref<number>();
     const lastMouseEvent = shallowRef<MouseEvent>();
+    /** 滚动时触发 displayRect 重算（scrollLeft/Top 非响应式） */
+    const scrollTick = ref(0);
 
     /** 获取滚动容器元素 */
     const getScrollElement = () => scrollContainerInfo.value?.element;
+
+    /** 滚动内容区在「内容坐标系」下的边界（原点 = 可滚动内容左上角） */
+    const getScrollContentBounds = () => {
+      const scroll = getScrollElement();
+      if (!scroll) {
+        return { minX: 0, minY: 0, maxX: Infinity, maxY: Infinity };
+      }
+
+      return {
+        minX: 0,
+        minY: 0,
+        maxX: scroll.scrollWidth,
+        maxY: scroll.scrollHeight
+      };
+    };
+
+    /** 是否确实存在横向可滚动空间（容差 1px，避免亚像素误差误触发） */
+    const hasHorizontalOverflow = (scroll: HTMLElement): boolean =>
+      scroll.scrollWidth - scroll.clientWidth > 1;
 
     /** 初始化 NScrollbar 实例和滚动容器 */
     const initScrollbar = async (): Promise<void> => {
@@ -169,11 +188,10 @@ export default defineComponent({
 
     /** 不可圈选区域（如详情表头）在内容坐标系中的下边界。 跳过带 data-selectable-id 的节点（已选中的数据行也会带 prevent 标记）。 */
     const getMinSelectionTop = (): number => {
-      if (!containerRef.value) return 0;
       const scroll = getScrollElement();
-      if (!scroll) return 0;
+      if (!containerRef.value || !scroll) return 0;
 
-      const containerRect = containerRef.value.getBoundingClientRect();
+      const scrollRect = scroll.getBoundingClientRect();
       let maxBottom = 0;
 
       const prevented = Array.from(
@@ -184,7 +202,7 @@ export default defineComponent({
         if (el.dataset.selectableId) continue;
 
         const bounds = el.getBoundingClientRect();
-        const bottom = bounds.bottom - containerRect.top + scroll.scrollTop;
+        const bottom = bounds.bottom - scrollRect.top + scroll.scrollTop;
         maxBottom = Math.max(maxBottom, bottom);
       }
 
@@ -199,10 +217,15 @@ export default defineComponent({
       const { startPoint, currentPoint } = selectionState.value;
       const minTop = getMinSelectionTop();
 
-      const left = Math.max(0, Math.min(startPoint.x, currentPoint.x));
+      const bounds = getScrollContentBounds();
+      const maxXInView = scroll.scrollLeft + scroll.clientWidth;
+
+      const left = Math.max(bounds.minX, Math.min(startPoint.x, currentPoint.x));
       const top = Math.max(minTop, Math.min(startPoint.y, currentPoint.y));
-      const right = Math.min(scroll.scrollWidth, Math.max(startPoint.x, currentPoint.x));
-      const bottom = Math.min(scroll.scrollHeight, Math.max(startPoint.y, currentPoint.y));
+      // 无横向溢出时圈选不得超出当前视口，避免拖到右缘时误触横向滚动
+      const maxRight = hasHorizontalOverflow(scroll) ? bounds.maxX : maxXInView;
+      const right = Math.min(maxRight, Math.max(startPoint.x, currentPoint.x));
+      const bottom = Math.min(bounds.maxY, Math.max(startPoint.y, currentPoint.y));
 
       return {
         left,
@@ -212,17 +235,43 @@ export default defineComponent({
       };
     });
 
-    /** 计算显示矩形（视口坐标） */
+    /**
+     * 圈选框绘制在 selection-container 上，需映射到 NScrollbar 的可视内容区。 圈选层不得 Teleport 进
+     * .n-scrollbar-container，否则会撑大 scrollWidth。
+     */
     const displayRect = computed<Rect>(() => {
+      // 依赖 scrollTick，在滚动时重算视口坐标（scrollLeft/Top 非响应式）
+      const scrollVersion = scrollTick.value;
+      if (scrollVersion < 0) return DEFAULT_RECT;
+
       const scroll = getScrollElement();
-      if (!scroll) return DEFAULT_RECT;
+      const container = containerRef.value;
+      if (!scroll || !container) return DEFAULT_RECT;
 
       const rect = selectionRect.value;
+      const scrollRect = scroll.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+
+      let left = scrollRect.left - containerRect.left + rect.left - scroll.scrollLeft;
+      let top = scrollRect.top - containerRect.top + rect.top - scroll.scrollTop;
+      let right = left + rect.width;
+      let bottom = top + rect.height;
+
+      const viewLeft = scrollRect.left - containerRect.left;
+      const viewTop = scrollRect.top - containerRect.top;
+      const viewRight = viewLeft + scroll.clientWidth;
+      const viewBottom = viewTop + scroll.clientHeight;
+
+      left = Math.max(viewLeft, left);
+      top = Math.max(viewTop, top);
+      right = Math.min(viewRight, right);
+      bottom = Math.min(viewBottom, bottom);
+
       return {
-        left: rect.left - scroll.scrollLeft,
-        top: rect.top - scroll.scrollTop,
-        width: rect.width,
-        height: rect.height
+        left,
+        top,
+        width: Math.max(0, right - left),
+        height: Math.max(0, bottom - top)
       };
     });
 
@@ -238,17 +287,17 @@ export default defineComponent({
     /** 判断元素是否在选区内（优化的碰撞检测） */
     const isElementInSelection = (el: HTMLElement, rect: Rect): boolean => {
       const scroll = getScrollElement();
-      if (!containerRef.value || !scroll) return false;
+      if (!scroll) return false;
 
-      const containerRect = containerRef.value.getBoundingClientRect();
+      const scrollRect = scroll.getBoundingClientRect();
       const elemBounds = el.getBoundingClientRect();
 
-      // 转换为内容坐标系
+      // 转换为滚动内容坐标系（与 getContentPoint 一致）
       const elemRect = {
-        left: elemBounds.left - containerRect.left + scroll.scrollLeft,
-        top: elemBounds.top - containerRect.top + scroll.scrollTop,
-        right: elemBounds.right - containerRect.left + scroll.scrollLeft,
-        bottom: elemBounds.bottom - containerRect.top + scroll.scrollTop
+        left: elemBounds.left - scrollRect.left + scroll.scrollLeft,
+        top: elemBounds.top - scrollRect.top + scroll.scrollTop,
+        right: elemBounds.right - scrollRect.left + scroll.scrollLeft,
+        bottom: elemBounds.bottom - scrollRect.top + scroll.scrollTop
       };
 
       // AABB 碰撞检测
@@ -304,17 +353,38 @@ export default defineComponent({
         dy = props.scrollSpeed;
       }
 
-      // 水平滚动
-      if (clientX - rect.left < props.scrollEdge && scroll.scrollLeft > 0) {
-        dx = -props.scrollSpeed;
-      } else if (
-        rect.right - clientX < props.scrollEdge &&
-        scroll.scrollLeft < scroll.scrollWidth - scroll.clientWidth
-      ) {
-        dx = props.scrollSpeed;
+      // 水平滚动：仅当内容真实溢出时才启用
+      if (hasHorizontalOverflow(scroll)) {
+        if (clientX - rect.left < props.scrollEdge && scroll.scrollLeft > 0) {
+          dx = -props.scrollSpeed;
+        } else if (
+          rect.right - clientX < props.scrollEdge &&
+          scroll.scrollLeft < scroll.scrollWidth - scroll.clientWidth
+        ) {
+          dx = props.scrollSpeed;
+        }
       }
 
       return { dx, dy };
+    };
+
+    /** 鼠标在滚动内容坐标系中的位置。 必须用 .n-scrollbar-container 的 rect，不能用外层 selection-container（含纵向滚动条槽位）。 */
+    const getContentPoint = (e: MouseEvent): Point | null => {
+      const scroll = getScrollElement();
+      if (!scroll) return null;
+
+      const scrollRect = scroll.getBoundingClientRect();
+      const bounds = getScrollContentBounds();
+      const maxXInView = scroll.scrollLeft + scroll.clientWidth;
+      const maxX = hasHorizontalOverflow(scroll) ? bounds.maxX : maxXInView;
+
+      return {
+        x: Math.max(bounds.minX, Math.min(maxX, e.clientX - scrollRect.left + scroll.scrollLeft)),
+        y: Math.max(
+          bounds.minY,
+          Math.min(bounds.maxY, e.clientY - scrollRect.top + scroll.scrollTop)
+        )
+      };
     };
 
     /** 执行自动滚动 */
@@ -335,14 +405,11 @@ export default defineComponent({
         scroll.scrollBy({ left: dx, top: dy, behavior: 'auto' });
       }
 
-      // 更新当前坐标点
-      if (containerRef.value) {
-        const containerRect = containerRef.value.getBoundingClientRect();
-        const { clientX, clientY } = lastMouseEvent.value;
-        selectionState.value.currentPoint = {
-          x: clientX - containerRect.left + scroll.scrollLeft,
-          y: clientY - containerRect.top + scroll.scrollTop
-        };
+      scrollTick.value += 1;
+
+      const point = getContentPoint(lastMouseEvent.value);
+      if (point) {
+        selectionState.value.currentPoint = point;
       }
     };
 
@@ -369,18 +436,6 @@ export default defineComponent({
     /** 判断是否允许拖选 */
     const canStartDragSelection = (target: HTMLElement): boolean =>
       !target.closest(`[${props.preventDragSelector}]`);
-
-    /** 计算鼠标在内容坐标系中的位置 */
-    const getContentPoint = (e: MouseEvent): Point | null => {
-      const scroll = getScrollElement();
-      if (!containerRef.value || !scroll) return null;
-
-      const rect = containerRef.value.getBoundingClientRect();
-      return {
-        x: e.clientX - rect.left + scroll.scrollLeft,
-        y: e.clientY - rect.top + scroll.scrollTop
-      };
-    };
 
     /** 鼠标按下事件 */
     const handleMouseDown = (e: MouseEvent): void => {
@@ -476,8 +531,9 @@ export default defineComponent({
       }
     };
 
-    /** 滚动事件处理（仅在选择时更新） */
+    /** 滚动事件处理 */
     const handleScroll = (): void => {
+      scrollTick.value += 1;
       if (selectionState.value.isSelecting) {
         updateSelection(selectionRect.value);
       }
@@ -522,17 +578,12 @@ export default defineComponent({
         .selection-container {
           position: relative;
           user-select: none;
-        }
-        .selection-wrapper {
-          position: absolute;
-          inset: 0;
           overflow: hidden;
-          pointer-events: none;
-          z-index: 9999;
         }
         .selection-rect {
           position: absolute;
           pointer-events: none;
+          z-index: 9999;
           border: 2px solid ${primary};
           background: ${primaryHover}14;
           border-radius: 4px;
@@ -553,59 +604,10 @@ export default defineComponent({
       `;
     });
 
-    /** 渲染选区矩形 */
-    const renderSelectionRect = () => {
+    return () => {
       const { isSelecting } = selectionState.value;
       const { width, height, left, top } = displayRect.value;
-
-      if (!isSelecting || width <= 0 || height <= 0) return null;
-
-      const primary = themeVars.value.primaryColor;
-      const primaryHover = themeVars.value.primaryColorHover;
-
-      return (
-        <div
-          class="selection-wrapper"
-          style={{
-            position: 'absolute',
-            inset: '0',
-            overflow: 'hidden',
-            pointerEvents: 'none',
-            zIndex: 9999
-          }}
-        >
-          <div
-            class="selection-rect"
-            style={{
-              position: 'absolute',
-              left: `${left}px`,
-              top: `${top}px`,
-              width: `${width}px`,
-              height: `${height}px`,
-              border: `2px solid ${primary}`,
-              background: `${primaryHover}14`,
-              borderRadius: '4px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-              ...props.rectStyle
-            }}
-          >
-            <div
-              class="selection-rect-border"
-              style={{
-                position: 'absolute',
-                inset: '-1px',
-                border: `1px solid ${primaryHover}66`,
-                borderRadius: '4px'
-              }}
-            />
-          </div>
-        </div>
-      );
-    };
-
-    return () => {
-      const wrapper = renderSelectionRect();
-      const scroll = getScrollElement();
+      const showRect = isSelecting && width > 0 && height > 0;
 
       return (
         <div
@@ -615,11 +617,20 @@ export default defineComponent({
           onMousedown={handleMouseDown}
         >
           {slots.default?.()}
-          {scroll && wrapper ? (
-            // 修复右侧区域超出没有隐藏问题
-            <Teleport to={scroll!}>{wrapper}</Teleport>
-          ) : (
-            wrapper
+          {showRect && (
+            <div
+              class="selection-rect"
+              style={{
+                left: `${left}px`,
+                top: `${top}px`,
+                width: `${width}px`,
+                height: `${height}px`,
+                boxSizing: 'border-box',
+                ...props.rectStyle
+              }}
+            >
+              <div class="selection-rect-border" />
+            </div>
           )}
           <style>{dynamicStyles.value}</style>
         </div>
