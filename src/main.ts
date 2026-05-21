@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import './plugins/assets';
+import { isStaticDemo, seedStaticDemoAuthTokens } from '@/utils/env/static-demo';
 import {
   setupAppVersionNotification,
   setupDayjs,
@@ -11,7 +12,6 @@ import { setupStore } from './store';
 import { setupRouter } from './router';
 import { setupI18n } from './locales';
 import App from './App';
-import { isStaticDemo, seedStaticDemoAuthTokens } from '@/utils/env/static-demo';
 
 async function setupApp() {
   setupLoading();
