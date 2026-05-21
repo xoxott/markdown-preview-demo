@@ -172,7 +172,7 @@ declare module 'vue' {
     ToolBar: typeof import('./../components/markdown/components/ToolBar.tsx')['default']
     TransformNode: typeof import('./../components/ai-workflow/nodes/TransformNode.tsx')['default']
     VersionHistoryDialog: typeof import('./../components/ai-workflow/dialogs/VersionHistoryDialog.tsx')['default']
-    WaveBg: typeof import('./../components/custom/wave-bg.vue')['default']
+    WaveBg: typeof import('./../components/custom/wave-bg/index.tsx')['default']
     WorkflowCanvas: typeof import('./../components/ai-workflow/canvas/WorkflowCanvas.tsx')['default']
     WorkflowFormDialog: typeof import('./../components/ai-workflow/dialogs/WorkflowFormDialog.tsx')['default']
   }

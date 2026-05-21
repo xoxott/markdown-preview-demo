@@ -1,12 +1,12 @@
 import { type PropType, Transition, computed, defineComponent } from 'vue';
-import { getPaletteColorByNumber, mixColor } from '@suga/color';
+import { getPaletteColorByNumber } from '@suga/color';
 import { useAppStore } from '@/store/modules/app';
 import { useThemeStore } from '@/store/modules/theme';
 import { $t } from '@/locales';
 import SystemLogo from '@/components/common/system-logo.vue';
 import ThemeSchemaSwitch from '@/components/common/theme-schema-switch.vue';
 import LangSwitch from '@/components/common/lang-switch.vue';
-import WaveBg from '@/components/custom/wave-bg.vue';
+import WaveBg from '@/components/custom/wave-bg';
 import PwdLogin from './modules/pwd-login';
 import CodeLogin from './modules/code-login';
 import Register from './modules/register';
@@ -48,30 +48,27 @@ export default defineComponent({
         : themeStore.themeColor
     );
 
-    const bgColor = computed(() => {
-      const base = themeStore.darkMode ? '#0f172a' : '#ffffff';
-      const ratio = themeStore.darkMode ? 0.8 : 0.15;
-      return mixColor(base, themeStore.themeColor, ratio);
-    });
+    /** 中性底衬，避免与主题色块同色导致毛玻璃「糊成一片」 */
+    const pageBaseColor = computed(() => (themeStore.darkMode ? '#0a0f1a' : '#d8e2f2'));
 
     const cardStyle = computed(() => ({
-      background: themeStore.darkMode ? 'rgba(30, 41, 59, 0.75)' : 'rgba(255, 255, 255, 0.75)',
-      backdropFilter: 'blur(20px) saturate(180%)',
-      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+      background: themeStore.darkMode ? 'rgba(15, 23, 42, 0.38)' : 'rgba(255, 255, 255, 0.38)',
+      backdropFilter: 'blur(32px) saturate(200%)',
+      WebkitBackdropFilter: 'blur(32px) saturate(200%)',
       border: themeStore.darkMode
-        ? '1px solid rgba(148, 163, 184, 0.1)'
-        : '1px solid rgba(255, 255, 255, 0.3)',
+        ? '1px solid rgba(148, 163, 184, 0.22)'
+        : '1px solid rgba(255, 255, 255, 0.55)',
       boxShadow: themeStore.darkMode
-        ? '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
-        : '0 8px 32px 0 rgba(31, 38, 135, 0.15)'
+        ? '0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06)'
+        : '0 8px 32px rgba(31, 38, 135, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.65)'
     }));
 
     return () => (
       <div
         class="relative size-full flex-center overflow-hidden"
-        style={{ backgroundColor: bgColor.value }}
+        style={{ backgroundColor: pageBaseColor.value }}
       >
-        <WaveBg themeColor={bgThemeColor.value} />
+        <WaveBg themeColor={bgThemeColor.value} darkMode={themeStore.darkMode} />
 
         <div
           class="relative z-4 w-auto rd-12px p-24px shadow-2xl lt-sm:p-16px"
