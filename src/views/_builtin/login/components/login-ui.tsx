@@ -40,13 +40,12 @@ export const LoginDivider = defineComponent({
   name: 'LoginDivider',
   setup() {
     return () => (
-      <div class="relative my-12px">
-        <div class="absolute inset-0 flex items-center">
-          <div class="w-full border-t border-gray-200 dark:border-gray-700" />
-        </div>
-        <div class="relative flex justify-center text-11px">
-          <NText class="px-8px text-gray-500">{$t('page.login.pwdLogin.otherLoginMode')}</NText>
-        </div>
+      <div class="my-12px flex items-center gap-12px">
+        <div class="h-0 flex-1 border-t border-gray-200 dark:border-gray-700" />
+        <NText class="shrink-0 text-11px text-gray-500">
+          {$t('page.login.pwdLogin.otherLoginMode')}
+        </NText>
+        <div class="h-0 flex-1 border-t border-gray-200 dark:border-gray-700" />
       </div>
     );
   }
