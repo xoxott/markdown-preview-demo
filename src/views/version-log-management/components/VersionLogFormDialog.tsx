@@ -47,9 +47,9 @@ export default defineComponent({
 
     // 版本类型选项
     const typeOptions = [
-      { label: $t('page.versionLogManagement.typeMajor' as any), value: 'major' },
-      { label: $t('page.versionLogManagement.typeMinor' as any), value: 'minor' },
-      { label: $t('page.versionLogManagement.typePatch' as any), value: 'patch' }
+      { label: $t('page.versionLogManagement.typeMajor'), value: 'major' },
+      { label: $t('page.versionLogManagement.typeMinor'), value: 'minor' },
+      { label: $t('page.versionLogManagement.typePatch'), value: 'patch' }
     ];
 
     // 表单验证规则
@@ -57,33 +57,33 @@ export default defineComponent({
       version: [
         {
           required: true,
-          message: $t('page.versionLogManagement.versionRequired' as any),
+          message: $t('page.versionLogManagement.versionRequired'),
           trigger: 'blur'
         },
         {
           pattern: /^\d+\.\d+\.\d+$/,
-          message: $t('page.versionLogManagement.versionInvalid' as any),
+          message: $t('page.versionLogManagement.versionInvalid'),
           trigger: 'blur'
         }
       ],
       type: [
         {
           required: true,
-          message: $t('page.versionLogManagement.typeRequired' as any),
+          message: $t('page.versionLogManagement.typeRequired'),
           trigger: 'change'
         }
       ],
       releaseDate: [
         {
           required: true,
-          message: $t('page.versionLogManagement.releaseDateRequired' as any),
+          message: $t('page.versionLogManagement.releaseDateRequired'),
           trigger: 'change'
         }
       ],
       content: [
         {
           required: true,
-          message: $t('page.versionLogManagement.contentRequired' as any),
+          message: $t('page.versionLogManagement.contentRequired'),
           trigger: 'blur'
         }
       ]
@@ -151,77 +151,68 @@ export default defineComponent({
               labelPlacement="left"
               labelWidth="100px"
             >
-              <NFormItem label={$t('page.versionLogManagement.version' as any)} path="version">
+              <NFormItem label={$t('page.versionLogManagement.version')} path="version">
                 <NInput
                   v-model:value={formModel.version}
-                  placeholder={$t('page.versionLogManagement.versionPlaceholder' as any)}
+                  placeholder={$t('page.versionLogManagement.versionPlaceholder')}
                   disabled={props.config.isEdit}
                 />
               </NFormItem>
-              <NFormItem label={$t('page.versionLogManagement.type' as any)} path="type">
+              <NFormItem label={$t('page.versionLogManagement.type')} path="type">
                 <NSelect
                   v-model:value={formModel.type}
-                  placeholder={$t('page.versionLogManagement.typePlaceholder' as any)}
+                  placeholder={$t('page.versionLogManagement.typePlaceholder')}
                   options={typeOptions}
                 />
               </NFormItem>
-              <NFormItem
-                label={$t('page.versionLogManagement.releaseDate' as any)}
-                path="releaseDate"
-              >
+              <NFormItem label={$t('page.versionLogManagement.releaseDate')} path="releaseDate">
                 <NDatePicker
                   v-model:value={releaseDateTimestamp.value}
                   type="date"
-                  placeholder={$t('page.versionLogManagement.releaseDatePlaceholder' as any)}
+                  placeholder={$t('page.versionLogManagement.releaseDatePlaceholder')}
                   style={{ width: '100%' }}
                   onUpdateValue={value => {
                     releaseDateTimestamp.value = value;
                   }}
                 />
               </NFormItem>
-              <NFormItem label={$t('page.versionLogManagement.content' as any)} path="content">
+              <NFormItem label={$t('page.versionLogManagement.content')} path="content">
                 <NInput
                   v-model:value={formModel.content}
                   type="textarea"
-                  placeholder={$t('page.versionLogManagement.contentPlaceholder' as any)}
+                  placeholder={$t('page.versionLogManagement.contentPlaceholder')}
                   rows={4}
                 />
               </NFormItem>
-              <NFormItem label={$t('page.versionLogManagement.features' as any)} path="features">
+              <NFormItem label={$t('page.versionLogManagement.features')} path="features">
                 <NInput
                   v-model:value={formModel.features}
                   type="textarea"
-                  placeholder={$t('page.versionLogManagement.featuresPlaceholder' as any)}
+                  placeholder={$t('page.versionLogManagement.featuresPlaceholder')}
                   rows={3}
                 />
               </NFormItem>
-              <NFormItem label={$t('page.versionLogManagement.fixes' as any)} path="fixes">
+              <NFormItem label={$t('page.versionLogManagement.fixes')} path="fixes">
                 <NInput
                   v-model:value={formModel.fixes}
                   type="textarea"
-                  placeholder={$t('page.versionLogManagement.fixesPlaceholder' as any)}
+                  placeholder={$t('page.versionLogManagement.fixesPlaceholder')}
                   rows={3}
                 />
               </NFormItem>
-              <NFormItem
-                label={$t('page.versionLogManagement.improvements' as any)}
-                path="improvements"
-              >
+              <NFormItem label={$t('page.versionLogManagement.improvements')} path="improvements">
                 <NInput
                   v-model:value={formModel.improvements}
                   type="textarea"
-                  placeholder={$t('page.versionLogManagement.improvementsPlaceholder' as any)}
+                  placeholder={$t('page.versionLogManagement.improvementsPlaceholder')}
                   rows={3}
                 />
               </NFormItem>
-              <NFormItem
-                label={$t('page.versionLogManagement.publishedAt' as any)}
-                path="publishedAt"
-              >
+              <NFormItem label={$t('page.versionLogManagement.publishedAt')} path="publishedAt">
                 <NDatePicker
                   v-model:value={publishedAtTimestamp.value}
                   type="datetime"
-                  placeholder={$t('page.versionLogManagement.publishedAtPlaceholder' as any)}
+                  placeholder={$t('page.versionLogManagement.publishedAtPlaceholder')}
                   clearable
                   style={{ width: '100%' }}
                   onUpdateValue={value => {
@@ -229,12 +220,12 @@ export default defineComponent({
                   }}
                 />
               </NFormItem>
-              <NFormItem label={$t('page.versionLogManagement.status' as any)} path="isPublished">
+              <NFormItem label={$t('page.versionLogManagement.status')} path="isPublished">
                 <NSwitch v-model:value={formModel.isPublished} />
                 <span style={{ marginLeft: '8px' }}>
                   {formModel.isPublished
-                    ? $t('page.versionLogManagement.published' as any)
-                    : $t('page.versionLogManagement.unpublished' as any)}
+                    ? $t('page.versionLogManagement.published')
+                    : $t('page.versionLogManagement.unpublished')}
                 </span>
               </NFormItem>
             </NForm>
