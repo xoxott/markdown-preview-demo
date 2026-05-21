@@ -165,10 +165,9 @@ export default defineComponent({
       scroll.scrollWidth - scroll.clientWidth > 1;
 
     /**
-     * 滚动宿主在 selection-container 坐标系下的可视视口。
-     * 须与 Naive `.n-scrollbar` 外框求交：详情视图 flex 分栏时，`.n-scrollbar-container` 的
-     * clientHeight 可能比外层高出 1～2px，底部会被外层 overflow:hidden 裁掉，仅用 clientHeight 画圈选会越界。
-     * 有横向滚动时，底部轨道叠在容器上，也需排除。
+     * 滚动宿主在 selection-container 坐标系下的可视视口。 须与 Naive `.n-scrollbar` 外框求交：详情视图 flex
+     * 分栏时，`.n-scrollbar-container` 的 clientHeight 可能比外层高出 1～2px，底部会被外层 overflow:hidden 裁掉，仅用
+     * clientHeight 画圈选会越界。 有横向滚动时，底部轨道叠在容器上，也需排除。
      */
     const getScrollViewportInContainer = (
       scroll: HTMLElement,
