@@ -14,13 +14,13 @@
 
 | 值          | 含义                                                                                             |
 | ----------- | ------------------------------------------------------------------------------------------------ |
-| `standard`  | 默认：缓存、去重、中止、队列、事件、重试、熔断 + 传输（与历史 `buildDefaultPipelineSteps` 一致） |
+| `standard`  | 默认：缓存、去重、中止、队列、事件、熔断 + 传输（**不含**管道重试，列表等场景失败即结束） |
 | `minimal`   | 仅 `PrepareContext` + `PipelineTransport`，适合调试或极轻场景                                    |
-| `resilient` | 在 `standard` 基础上提高重试次数与队列并发（见 `pipeline/pipelineProfile.ts`）                   |
+| `resilient` | 在 `standard` 基础上启用 5xx 重试并提高队列并发（见 `pipeline/pipelineProfile.ts`）              |
 
 主业务实例可通过环境变量 **`VITE_HTTP_PIPELINE_PROFILE`** 设为 `standard` | `resilient`（非法或未设则 `standard`）。`createPipelineClient({ pipelineProfile: 'minimal' })` 亦可单独指定。
 
-`buildPipelineSteps` 对缓存/去重/队列/重试/熔断步骤传入 **`enabledByDefault: true`**，并共用同一个 `RequestCacheManager`；`CacheWrite` 排在 `Transport` 之前（先 `next()` 发请求再写入）。`AxiosTransport` 向上抛出原始 `AxiosError`（保留 `response.status`），供 5xx 重试与熔断计数；`composeSteps` 为 `RetryStep` 注入可重入的后续链执行。主站 `request` 无需为每次请求塞 `meta`；GET 命中缓存时由 `runPipelineAxiosRequest` 合成 `AxiosResponse`。集成测试见 `src/service/request/__tests__/pipeline-axios.test.ts`。
+`buildPipelineSteps` 对缓存/去重/队列/熔断（及 `resilient` 下的重试）传入 **`enabledByDefault: true`**，并共用同一个 `RequestCacheManager`；`CacheWrite` 排在 `Transport` 之前（先 `next()` 发请求再写入）。`AxiosTransport` 向上抛出原始 `AxiosError`（保留 `response.status`），供 5xx 重试与熔断计数；`composeSteps` 为 `RetryStep` 注入可重入的后续链执行。主站 `request` 无需为每次请求塞 `meta`；GET 命中缓存时由 `runPipelineAxiosRequest` 合成 `AxiosResponse`。集成测试见 `src/service/request/__tests__/pipeline-axios.test.ts`。
 
 ## 页面怎么用
 

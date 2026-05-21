@@ -75,19 +75,34 @@ export function resolvePipelineProfile(profile: PipelineProfile): PipelineProfil
     };
   }
 
-  const maxRetries = profile === 'resilient' ? 5 : 3;
+  if (profile === 'resilient') {
+    return {
+      useCache: true,
+      useDedupe: true,
+      useAbort: true,
+      useQueue: true,
+      useEvents: true,
+      useRetry: true,
+      useCircuitBreaker: true,
+      dedupeWindow: 1000,
+      queueMaxConcurrent: 8,
+      retryStrategy: buildRetryStrategy(5),
+      circuitBreaker
+    };
+  }
 
+  // standard：列表等常规请求默认不重试，避免失败时连打多次
   return {
     useCache: true,
     useDedupe: true,
     useAbort: true,
     useQueue: true,
     useEvents: true,
-    useRetry: true,
+    useRetry: false,
     useCircuitBreaker: true,
     dedupeWindow: 1000,
-    queueMaxConcurrent: profile === 'resilient' ? 8 : 5,
-    retryStrategy: buildRetryStrategy(maxRetries),
+    queueMaxConcurrent: 5,
+    retryStrategy: buildRetryStrategy(0),
     circuitBreaker
   };
 }

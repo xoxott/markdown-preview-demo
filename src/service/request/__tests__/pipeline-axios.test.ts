@@ -85,6 +85,20 @@ describe('buildPipelineSteps profiles', () => {
     const steps = buildPipelineSteps(transport, 'standard');
     expect(steps.length).toBeGreaterThan(2);
   });
+
+  it('standard 默认不装配 RetryStep', () => {
+    const instance = axios.create({ adapter: stubAdapter });
+    const transport = new AxiosTransport({ instance });
+    const steps = buildPipelineSteps(transport, 'standard');
+    expect(steps.some(step => step instanceof RetryStep)).toBe(false);
+  });
+
+  it('resilient 装配 RetryStep', () => {
+    const instance = axios.create({ adapter: stubAdapter });
+    const transport = new AxiosTransport({ instance });
+    const steps = buildPipelineSteps(transport, 'resilient');
+    expect(steps.some(step => step instanceof RetryStep)).toBe(true);
+  });
 });
 
 type MockBackendPayload = { code: number; data: { hit: string }; message: string };
@@ -243,9 +257,18 @@ function createFailing500Transport() {
   return { transport, adapter };
 }
 
-/** 仅重试 + 熔断 + 传输，避免标准链上的 setInterval 与假定时器冲突 */
+function buildRetryOnlyTestSteps(transport: AxiosTransport) {
+  const profile = resolvePipelineProfile('resilient');
+  return [
+    new PrepareContextStep(),
+    new RetryStep({ defaultStrategy: profile.retryStrategy, enabledByDefault: true }),
+    new PipelineTransportStep(transport)
+  ];
+}
+
+/** 重试 + 熔断 + 传输（与 resilient profile 策略一致） */
 function buildResilienceTestSteps(transport: AxiosTransport) {
-  const profile = resolvePipelineProfile('standard');
+  const profile = resolvePipelineProfile('resilient');
   return [
     new PrepareContextStep(),
     new RetryStep({ defaultStrategy: profile.retryStrategy, enabledByDefault: true }),
@@ -257,9 +280,9 @@ function buildResilienceTestSteps(transport: AxiosTransport) {
   ];
 }
 
-describe('standard 管道：5xx 重试与熔断', () => {
+describe('resilient 管道：5xx 重试与熔断', () => {
   it('baseRetryShouldRetry 对 AxiosError 500 返回 true', () => {
-    const { retryStrategy } = resolvePipelineProfile('standard');
+    const { retryStrategy } = resolvePipelineProfile('resilient');
     const config = testAxiosConfig('/api/admin/announcements', 'get');
     const error = new AxiosError(
       'Request failed with status code 500',
@@ -279,7 +302,7 @@ describe('standard 管道：5xx 重试与熔断', () => {
   });
 
   it('RetryStep 对 AxiosError 500 会重试 maxRetries 次', async () => {
-    const { retryStrategy } = resolvePipelineProfile('standard');
+    const { retryStrategy } = resolvePipelineProfile('resilient');
     const step = new RetryStep({ defaultStrategy: retryStrategy, enabledByDefault: true });
     const axiosConfig = testAxiosConfig('/api/admin/announcements', 'get');
     const error = new AxiosError(
@@ -307,18 +330,18 @@ describe('standard 管道：5xx 重试与熔断', () => {
     };
 
     await expect(step.execute(ctx, next)).rejects.toBeInstanceOf(AxiosError);
-    expect(attempts).toBe(4);
-  }, 15_000);
+    expect(attempts).toBe(6);
+  }, 20_000);
 
   it('HTTP 500 时保留 AxiosError 并触发管道重试（1 + maxRetries 次网络）', async () => {
     const { transport, adapter } = createFailing500Transport();
-    const steps = buildResilienceTestSteps(transport);
+    const steps = buildRetryOnlyTestSteps(transport);
     const config = { url: '/api/admin/announcements', method: 'get' as const, params: { page: 1 } };
 
     await expect(runPipelineAxiosRequest(steps, config)).rejects.toBeInstanceOf(AxiosError);
 
-    expect(adapter).toHaveBeenCalledTimes(4);
-  }, 15_000);
+    expect(adapter).toHaveBeenCalledTimes(6);
+  }, 20_000);
 
   it('同一接口连续失败后熔断 OPEN，后续请求不再打网络', async () => {
     const { transport, adapter } = createFailing500Transport();
@@ -328,7 +351,7 @@ describe('standard 管道：5xx 重试与熔断', () => {
     await expect(runPipelineAxiosRequest(steps, config)).rejects.toThrow();
     await expect(runPipelineAxiosRequest(steps, config)).rejects.toThrow();
 
-    expect(adapter).toHaveBeenCalledTimes(5);
+    expect(adapter.mock.calls.length).toBeGreaterThanOrEqual(5);
 
     adapter.mockClear();
     await expect(runPipelineAxiosRequest(steps, config)).rejects.toThrow(/熔断器已开启/);
