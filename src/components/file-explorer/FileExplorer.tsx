@@ -206,7 +206,6 @@ export default defineComponent({
                   pageSize={logic().pagination.pageSize.value}
                   total={logic().pagination.total.value}
                   totalPages={logic().pagination.totalPages.value}
-                  showPagination={logic().pagination.showPagination.value}
                   onPageChange={logic().pagination.goToPage}
                   onPageSizeChange={logic().pagination.setPageSize}
                   dataSourceType={logic().dataSourceType.value}

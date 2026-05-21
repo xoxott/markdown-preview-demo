@@ -25,11 +25,6 @@ export default defineComponent({
       type: Number,
       required: true
     },
-    /** 是否显示分页器 */
-    show: {
-      type: Boolean,
-      default: true
-    },
     /** 页码变化回调 */
     onPageChange: {
       type: Function as PropType<(page: number) => void>,
@@ -69,10 +64,6 @@ export default defineComponent({
         props.onPageSizeChange(size);
       }
     };
-
-    if (!props.show) {
-      return () => null;
-    }
 
     return () => (
       <div

@@ -103,7 +103,7 @@ export default defineComponent({
       if (props.showSelection) {
         cols.push({
           type: 'selection',
-          width: 50,
+          width: 40,
           fixed: 'left'
         });
       }
@@ -114,6 +114,7 @@ export default defineComponent({
           key: 'index',
           width: 70,
           fixed: 'left',
+          align: 'center',
           render: (_row: any, index: number) => {
             const pg = props.pagination;
             const isObj = typeof pg === 'object' && pg !== null;

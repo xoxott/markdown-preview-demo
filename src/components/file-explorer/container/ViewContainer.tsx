@@ -34,7 +34,6 @@ export default defineComponent({
     pageSize: { type: Number, required: false, default: 20 },
     total: { type: Number, required: false, default: 0 },
     totalPages: { type: Number, required: false, default: 1 },
-    showPagination: { type: Boolean, required: false, default: false },
     onPageChange: { type: Function as PropType<(page: number) => void>, required: false },
     onPageSizeChange: { type: Function as PropType<(size: number) => void>, required: false },
     // 上传相关 props
@@ -77,12 +76,11 @@ export default defineComponent({
     };
 
     return () => {
-      const hasPagination =
-        props.showPagination && props.currentPage !== undefined && props.totalPages !== undefined;
+      const hasPagination = Boolean(props.onPageChange);
 
       return (
         <div class="h-full flex flex-col" style={{ position: 'relative' }}>
-          <div class={hasPagination ? 'flex-1 overflow-hidden' : 'h-full'}>
+          <div class={hasPagination ? 'min-h-0 flex-1 overflow-hidden' : 'h-full'}>
             {/* 上传拖拽覆盖层 — 默认不可见，外部文件拖入时激活 */}
             {slots.uploadDropOverlay?.()}
 
@@ -114,8 +112,7 @@ export default defineComponent({
               pageSize={props.pageSize}
               total={props.total}
               totalPages={props.totalPages}
-              show={props.showPagination}
-              onPageChange={props.onPageChange || (() => {})}
+              onPageChange={props.onPageChange!}
               onPageSizeChange={props.onPageSizeChange}
               showPageSizeSelector={Boolean(props.onPageSizeChange)}
             />

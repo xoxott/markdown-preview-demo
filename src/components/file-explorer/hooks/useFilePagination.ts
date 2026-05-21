@@ -59,15 +59,17 @@ export function useFilePagination(options: UseFilePaginationOptions): UseFilePag
     return Math.max(1, Math.ceil(total.value / pageSize.value));
   });
 
-  // 是否显示分页器（总数大于每页数量时显示）
-  const showPagination = computed(() => {
-    return total.value > pageSize.value;
-  });
+  // 各视图统一常驻底部分页栏
+  const showPagination = computed(() => true);
   /** 加载分页数据 */
   const loadPage = async () => {
     if (!dataSource.value) {
       paginatedItems.value = [];
       total.value = 0;
+      return;
+    }
+
+    if (!dataSource.value.hasRootHandle()) {
       return;
     }
 
@@ -108,7 +110,9 @@ export function useFilePagination(options: UseFilePaginationOptions): UseFilePag
       return;
     }
     currentPage.value = page;
-    await loadPage();
+    if (dataSource.value?.hasRootHandle()) {
+      await loadPage();
+    }
   };
 
   /** 上一页 */
@@ -136,7 +140,9 @@ export function useFilePagination(options: UseFilePaginationOptions): UseFilePag
     if (currentPage.value > maxPage) {
       currentPage.value = Math.max(1, maxPage);
     }
-    await loadPage();
+    if (dataSource.value?.hasRootHandle()) {
+      await loadPage();
+    }
   };
 
   /** 重置到第一页 */

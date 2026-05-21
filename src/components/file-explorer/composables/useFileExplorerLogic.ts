@@ -99,6 +99,9 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
   // ==================== 分页系统 ====================
   const pagination = useFilePagination({ dataSource, currentPath, viewMode, gridSize });
 
+  const isServerPagedList = () =>
+    dataSourceType.value === 'server' && Boolean(dataSource.value?.hasRootHandle());
+
   // 刷新文件列表
   const refreshFileList = async () => {
     if (!dataSource.value) {
@@ -115,11 +118,12 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
 
     try {
       setLoading(true, '加载文件列表...');
-      await pagination.loadPage();
       if (dataSource.value.type === 'local') {
         const allFiles = await dataSource.value.listFiles(currentPath.value);
         mockItems.value = allFiles.length > 0 ? allFiles : initialItems;
+        pagination.total.value = mockItems.value.length;
       } else {
+        await pagination.loadPage();
         mockItems.value =
           pagination.paginatedItems.value.length > 0
             ? pagination.paginatedItems.value
@@ -187,6 +191,9 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
   const { setSorting, sortedFiles, sortOrder, sortField } = useFileSort(mockItems);
 
   const paginatedSortedFiles = computed(() => {
+    if (isServerPagedList()) {
+      return sortedFiles.value;
+    }
     const start = (pagination.currentPage.value - 1) * pagination.pageSize.value;
     const end = start + pagination.pageSize.value;
     return sortedFiles.value.slice(start, end);
@@ -194,15 +201,6 @@ export function useFileExplorerLogic(options: UseFileExplorerLogicOptions) {
 
   const { selectedIds, selectFile, selectAll, clearSelection, selectedFiles } =
     useFileSelection(paginatedSortedFiles);
-
-  // 同步分页总数
-  watch(
-    mockItems,
-    items => {
-      pagination.total.value = items.length;
-    },
-    { immediate: true }
-  );
 
   // ==================== 统计 ====================
   const totalSize = computed(() =>
