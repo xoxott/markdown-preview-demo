@@ -164,14 +164,41 @@ export default defineComponent({
     const hasHorizontalOverflow = (scroll: HTMLElement): boolean =>
       scroll.scrollWidth - scroll.clientWidth > 1;
 
+    /** 自动滚动的边缘检测区域（排除叠在内容上的 Naive 滚动条轨道） */
+    const getScrollInteractionBounds = (scroll: HTMLElement) => {
+      const rect = scroll.getBoundingClientRect();
+      let { left, right, top, bottom } = rect;
+      const scrollRoot = scroll.closest(SELECTORS.SCROLLBAR) as HTMLElement | null;
+      if (!scrollRoot) return { left, right, top, bottom };
+
+      const yRail = scrollRoot.querySelector(
+        `${SELECTORS.SCROLLBAR}-rail--vertical[data-scrollbar-rail]`
+      ) as HTMLElement | null;
+      if (yRail) {
+        right = Math.min(right, yRail.getBoundingClientRect().left);
+      }
+
+      if (hasHorizontalOverflow(scroll)) {
+        const xRail = scrollRoot.querySelector(
+          `${SELECTORS.SCROLLBAR}-rail--horizontal[data-scrollbar-rail]`
+        ) as HTMLElement | null;
+        if (xRail) {
+          bottom = Math.min(bottom, xRail.getBoundingClientRect().top);
+        }
+      }
+
+      return { left, right, top, bottom };
+    };
+
     /**
      * 滚动宿主在 selection-container 坐标系下的可视视口。 须与 Naive `.n-scrollbar` 外框求交：详情视图 flex
      * 分栏时，`.n-scrollbar-container` 的 clientHeight 可能比外层高出 1～2px，底部会被外层 overflow:hidden 裁掉，仅用
-     * clientHeight 画圈选会越界。 有横向滚动时，底部轨道叠在容器上，也需排除。
+     * clientHeight 画圈选会越界。 有横向滚动时，底部轨道叠在容器上，也需排除（圈选进行中不裁底，避免框被卡在「上方视口」）。
      */
     const getScrollViewportInContainer = (
       scroll: HTMLElement,
-      container: HTMLElement
+      container: HTMLElement,
+      options?: { clipHorizontalRail?: boolean }
     ): { viewLeft: number; viewTop: number; viewRight: number; viewBottom: number } => {
       const scrollRect = scroll.getBoundingClientRect();
       const containerRect = container.getBoundingClientRect();
@@ -193,7 +220,8 @@ export default defineComponent({
       viewRight = Math.min(viewRight, clipRight);
       viewBottom = Math.min(viewBottom, clipBottom);
 
-      if (hasHorizontalOverflow(scroll) && scrollRoot) {
+      const clipHorizontalRail = options?.clipHorizontalRail ?? true;
+      if (clipHorizontalRail && hasHorizontalOverflow(scroll) && scrollRoot) {
         const xRail = scrollRoot.querySelector(
           `${SELECTORS.SCROLLBAR}-rail--horizontal[data-scrollbar-rail]`
         ) as HTMLElement | null;
@@ -241,6 +269,9 @@ export default defineComponent({
         if (el.dataset.selectableId) continue;
 
         const bounds = el.getBoundingClientRect();
+        // 详情视图等：表头固定在滚动区上方，随 scrollTop 换算会得到错误的 minTop
+        if (bounds.bottom <= scrollRect.top + 1) continue;
+
         const bottom = bounds.bottom - scrollRect.top + scroll.scrollTop;
         maxBottom = Math.max(maxBottom, bottom);
       }
@@ -258,11 +289,12 @@ export default defineComponent({
 
       const bounds = getScrollContentBounds();
       const maxXInView = scroll.scrollLeft + scroll.clientWidth;
+      const allowBeyond = selectionState.value.isSelecting;
 
       const left = Math.max(bounds.minX, Math.min(startPoint.x, currentPoint.x));
       const top = Math.max(minTop, Math.min(startPoint.y, currentPoint.y));
-      // 无横向溢出时圈选不得超出当前视口，避免拖到右缘时误触横向滚动
-      const maxRight = hasHorizontalOverflow(scroll) ? bounds.maxX : maxXInView;
+      const maxRight =
+        allowBeyond || hasHorizontalOverflow(scroll) ? bounds.maxX : maxXInView;
       const right = Math.min(maxRight, Math.max(startPoint.x, currentPoint.x));
       const bottom = Math.min(bounds.maxY, Math.max(startPoint.y, currentPoint.y));
 
@@ -285,11 +317,13 @@ export default defineComponent({
       if (!scroll || !container) return DEFAULT_RECT;
 
       const rect = selectionRect.value;
+      const isSelecting = selectionState.value.isSelecting;
       const scrollRect = scroll.getBoundingClientRect();
       const containerRect = container.getBoundingClientRect();
       const { viewLeft, viewTop, viewRight, viewBottom } = getScrollViewportInContainer(
         scroll,
-        container
+        container,
+        { clipHorizontalRail: !isSelecting }
       );
 
       let left = scrollRect.left - containerRect.left + rect.left - scroll.scrollLeft;
@@ -297,10 +331,13 @@ export default defineComponent({
       let right = left + rect.width;
       let bottom = top + rect.height;
 
-      left = Math.max(viewLeft, left);
       top = Math.max(viewTop, top);
-      right = Math.min(viewRight, right);
-      bottom = Math.min(viewBottom, bottom);
+      // 圈选进行中：左右/底部不裁进视口，跟随表体横向滚动；仍限制 top 避免画进固定表头区
+      if (!isSelecting) {
+        left = Math.max(viewLeft, left);
+        right = Math.min(viewRight, right);
+        bottom = Math.min(viewBottom, bottom);
+      }
 
       return {
         left,
@@ -414,15 +451,15 @@ export default defineComponent({
       if (!scroll) return { dx: 0, dy: 0 };
 
       const { clientX, clientY } = mouseEvent;
-      const rect = scroll.getBoundingClientRect();
+      const { left, right, top, bottom } = getScrollInteractionBounds(scroll);
       let dx = 0;
       let dy = 0;
 
       // 垂直滚动
-      if (clientY - rect.top < props.scrollEdge && scroll.scrollTop > 0) {
+      if (clientY - top < props.scrollEdge && scroll.scrollTop > 0) {
         dy = -props.scrollSpeed;
       } else if (
-        rect.bottom - clientY < props.scrollEdge &&
+        bottom - clientY < props.scrollEdge &&
         scroll.scrollTop < scroll.scrollHeight - scroll.clientHeight
       ) {
         dy = props.scrollSpeed;
@@ -430,11 +467,11 @@ export default defineComponent({
 
       // 水平滚动：仅当内容真实溢出时才启用
       if (hasHorizontalOverflow(scroll)) {
-        if (clientX - rect.left < props.scrollEdge && scroll.scrollLeft > 0) {
+        if (clientX - left < props.scrollEdge && scroll.scrollLeft > 0) {
           dx = -props.scrollSpeed;
         } else if (
-          rect.right - clientX < props.scrollEdge &&
-          scroll.scrollLeft < scroll.scrollWidth - scroll.clientWidth
+          right - clientX < props.scrollEdge &&
+          scroll.scrollLeft < scroll.scrollWidth - scroll.clientWidth - 1
         ) {
           dx = props.scrollSpeed;
         }
@@ -453,13 +490,15 @@ export default defineComponent({
       const bounds = getScrollContentBounds();
       const maxXInView = scroll.scrollLeft + scroll.clientWidth;
       const maxYInView = scroll.scrollTop + scroll.clientHeight;
-      const maxX = hasHorizontalOverflow(scroll) ? bounds.maxX : maxXInView;
+      const allowBeyondViewport = selectionState.value.isSelecting;
+      const maxX = allowBeyondViewport || hasHorizontalOverflow(scroll) ? bounds.maxX : maxXInView;
+      const maxY = allowBeyondViewport ? bounds.maxY : Math.min(bounds.maxY, maxYInView);
 
       return {
         x: Math.max(bounds.minX, Math.min(maxX, e.clientX - scrollRect.left + scroll.scrollLeft)),
         y: Math.max(
           bounds.minY,
-          Math.min(bounds.maxY, maxYInView, e.clientY - scrollRect.top + scroll.scrollTop)
+          Math.min(maxY, e.clientY - scrollRect.top + scroll.scrollTop)
         )
       };
     };

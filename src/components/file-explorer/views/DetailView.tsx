@@ -8,7 +8,10 @@ import { useViewItemState } from '../composables/useFileViewContext';
 import { FileDropZoneWrapper } from '../interaction/FileDropZoneWrapper';
 import { useColumnResize } from '../hooks/useColumnResize';
 import { useColumnDrag } from '../hooks/useColumnDrag';
-import { FILE_LIST_SCROLL_HOST_CLASS } from '../constants/fileListScrollHost';
+import {
+  FILE_LIST_SCROLL_HOST_CLASS,
+  fileListScrollHostSelector
+} from '../constants/fileListScrollHost';
 
 interface ColumnConfig {
   id: SortField;
@@ -28,7 +31,10 @@ export default defineComponent({
     const onSort = ctx.onSort ?? (() => {});
     const headerTableRef = ref<HTMLTableElement | null>(null);
     const layoutRef = ref<HTMLElement | null>(null);
+    /** 详情区外框宽度（含表头） */
     const layoutWidth = ref(0);
+    /** 表体 Naive 滚动容器可视宽度，用于表宽与横向滚动条对齐 */
+    const viewportWidth = ref(0);
     const bodyScrollLeft = ref(0);
     const hoveredHeader = ref<SortField | null>(null);
 
@@ -48,17 +54,20 @@ export default defineComponent({
       { id: 'size', label: '大小', width: 120 }
     ]);
 
-    const tableMinWidth = computed(() => {
-      if (columns.value.length === 0) return 0;
-      return (
-        columns.value.slice(0, -1).reduce((s, c) => s + c.width, 0) +
-        (columns.value.at(-1)?.minWidth ?? 40)
-      );
-    });
+    const tableMinWidth = computed(() =>
+      columns.value.reduce((sum, column) => sum + column.width, 0)
+    );
 
     const tableDisplayWidth = computed(() =>
-      Math.max(layoutWidth.value || tableMinWidth.value, tableMinWidth.value)
+      Math.max(viewportWidth.value || tableMinWidth.value, tableMinWidth.value)
     );
+
+    /** 与表同宽，保证 NScrollbar 用 content.offsetWidth 推算横向滚动时与 scrollWidth 一致 */
+    const scrollContentStyle = computed(() => ({
+      width: `${tableDisplayWidth.value}px`,
+      minWidth: `${tableMinWidth.value}px`,
+      boxSizing: 'border-box' as const
+    }));
 
     const lastColWidth = computed(() => {
       const lastMin = columns.value.at(-1)?.minWidth ?? 40;
@@ -76,11 +85,22 @@ export default defineComponent({
       }
       const measure = () => {
         layoutWidth.value = Math.round(el.clientWidth);
+        const scrollHost = el.querySelector(fileListScrollHostSelector) as HTMLElement | null;
+        viewportWidth.value = scrollHost
+          ? Math.round(scrollHost.clientWidth)
+          : layoutWidth.value;
       };
       measure();
       if (typeof ResizeObserver !== 'undefined') {
         layoutResizeObserver = new ResizeObserver(measure);
         layoutResizeObserver.observe(el);
+        requestAnimationFrame(() => {
+          const scrollHost = el.querySelector(fileListScrollHostSelector) as HTMLElement | null;
+          if (scrollHost) {
+            layoutResizeObserver?.observe(scrollHost);
+          }
+          measure();
+        });
       }
     });
 
@@ -90,7 +110,7 @@ export default defineComponent({
     });
 
     // 列宽调整 + 列拖拽排序（从 hooks 获取）
-    const { resizing, hoveredResizer, startResize } = useColumnResize(columns, layoutWidth);
+    const { resizing, hoveredResizer, startResize } = useColumnResize(columns, viewportWidth);
     const { draggingColumn, startColumnDrag, getIndicatorStyle } = useColumnDrag(
       columns,
       headerTableRef,
@@ -376,13 +396,15 @@ export default defineComponent({
             yPlacement="right"
             xPlacement="bottom"
             xScrollable
+            contentStyle={scrollContentStyle.value}
             onScroll={syncBodyScrollForHeader}
             // @ts-expect-error containerClass 由 naive-ui 内部 scrollbar 支持，公共类型未导出
             containerClass={FILE_LIST_SCROLL_HOST_CLASS}
           >
-            <table style={tableStyle}>
-              <ColGroup />
-              <tbody data-selector="content-viewer">
+            <div style={scrollContentStyle.value}>
+              <table style={tableStyle}>
+                <ColGroup />
+                <tbody data-selector="content-viewer">
                 {ctx.items.value.map(item => {
                   const isSelected = ctx.selectedIds.value.has(item.id);
                   const rowBg = getItemBgColor(item.id, isSelected);
@@ -421,8 +443,9 @@ export default defineComponent({
                     </FileDropZoneWrapper>
                   );
                 })}
-              </tbody>
-            </table>
+                </tbody>
+              </table>
+            </div>
           </NScrollbar>
         </div>
       );

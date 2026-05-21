@@ -17,13 +17,9 @@ function clampWidth(width: number, minWidth?: number, maxWidth?: number) {
   return Math.min(maxWidth ?? Infinity, Math.max(minWidth ?? DEFAULT_MIN_WIDTH, width));
 }
 
-/** 前 n-1 列当前宽度 + 最后一列最小宽，用于表最小宽度与拖拽 clamp */
-function sumPrefixWidthsPlusLastMin(cols: ColumnConfig[]) {
-  if (cols.length === 0) return 0;
-  return (
-    cols.slice(0, -1).reduce((s, c) => s + c.width, 0) +
-    (cols.at(-1)?.minWidth ?? DEFAULT_MIN_WIDTH)
-  );
+/** 各列当前宽度之和，用于表最小宽度与拖拽 clamp */
+function sumAllColumnWidths(cols: ColumnConfig[]) {
+  return cols.reduce((s, c) => s + c.width, 0);
 }
 
 export interface UseColumnResizeReturn {
@@ -100,7 +96,7 @@ export function useColumnResize(
           const rightIsLast = st.rightColumn.id === columns.value.at(-1)?.id;
 
           if (rightIsLast) {
-            const tw = Math.max(layoutWidth.value, sumPrefixWidthsPlusLastMin(columns.value));
+            const tw = Math.max(layoutWidth.value, sumAllColumnWidths(columns.value));
             const others = columns.value.slice(0, st.columnIndex).reduce((s, c) => s + c.width, 0);
             const lastMin = st.rightColumn.minWidth ?? DEFAULT_MIN_WIDTH;
             let newLeftWidth = st.leftStartWidth + delta;
