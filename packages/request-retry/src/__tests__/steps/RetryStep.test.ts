@@ -13,6 +13,32 @@ describe('RetryStep', () => {
     step = new RetryStep();
   });
 
+  it('enabledByDefault 为 true 且 meta 无 retry 时应走重试逻辑', async () => {
+    const enabledStep = new RetryStep({
+      enabledByDefault: true,
+      defaultStrategy: {
+        enabled: true,
+        maxRetries: 0,
+        retryDelay: () => 0,
+        shouldRetry: () => false
+      }
+    });
+    const config: NormalizedRequestConfig = {
+      url: '/api/users',
+      method: 'GET'
+    };
+    const ctx = createRequestContext(config);
+
+    let nextCalled = false;
+    const next = async (): Promise<void> => {
+      nextCalled = true;
+    };
+
+    await enabledStep.execute(ctx, next);
+
+    expect(nextCalled).toBe(true);
+  });
+
   it('应该在 meta 中没有 retry 时跳过', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',

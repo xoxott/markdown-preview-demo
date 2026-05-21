@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
 /** 去重步骤 职责：防止重复请求，相同请求在时间窗口内只发送一次 */
 
-import type { RequestContext, RequestStep } from '@suga/request-core';
+import { type RequestContext, type RequestStep, resolveStepMetaFlag } from '@suga/request-core';
 import type { DedupeMeta, DedupeOptions } from '../types';
 import { DedupeManager } from '../managers/DedupeManager';
 import { generateRequestKey } from '../utils/key-generator';
@@ -12,6 +12,8 @@ export interface DedupeStepOptions {
   dedupeManager?: DedupeManager;
   /** 默认去重配置 */
   defaultOptions?: DedupeOptions;
+  /** meta.dedupe 未设置时是否默认启用 */
+  enabledByDefault?: boolean;
 }
 
 /** 类型守卫：判断 meta 是否包含 DedupeMeta */
@@ -43,10 +45,12 @@ function parseDedupeConfig(
 export class DedupeStep implements RequestStep {
   private dedupeManager: DedupeManager;
   private defaultOptions?: DedupeOptions;
+  private enabledByDefault: boolean;
 
   constructor(options: DedupeStepOptions = {}) {
     this.dedupeManager = options.dedupeManager ?? new DedupeManager();
     this.defaultOptions = options.defaultOptions;
+    this.enabledByDefault = options.enabledByDefault ?? false;
   }
 
   async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
@@ -54,7 +58,7 @@ export class DedupeStep implements RequestStep {
       return next();
     }
 
-    const dedupeConfig = ctx.meta.dedupe;
+    const dedupeConfig = resolveStepMetaFlag(ctx.meta.dedupe, this.enabledByDefault);
     const parsedConfig = parseDedupeConfig(dedupeConfig, this.defaultOptions);
 
     if (!parsedConfig) {

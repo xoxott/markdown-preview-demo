@@ -24,25 +24,31 @@ function hasMessage(error: unknown): error is { message: string } {
   return isObject(error) && 'message' in error && typeof error.message === 'string';
 }
 
-/** 检查对象是否有 response.status 属性 */
-function hasResponseStatus(error: unknown): error is {
-  response: { status: number };
-} {
+/** 解析 HTTP 状态码（兼容 AxiosError 与传输层扁平错误） */
+function resolveHttpStatus(error: unknown): number | undefined {
   if (!isObject(error)) {
-    return false;
+    return undefined;
   }
 
   const response = error.response;
-  return isObject(response) && 'status' in response && typeof response.status === 'number';
+  if (isObject(response) && 'status' in response && typeof response.status === 'number') {
+    return response.status;
+  }
+
+  if ('status' in error && typeof error.status === 'number') {
+    return error.status;
+  }
+
+  return undefined;
 }
 
 /** 检查是否为服务器错误（5xx） */
 function isServerError(error: unknown): boolean {
-  if (!hasResponseStatus(error)) {
+  const status = resolveHttpStatus(error);
+  if (status === undefined) {
     return false;
   }
 
-  const status = error.response.status;
   return status >= SERVER_ERROR_STATUS_MIN && status <= SERVER_ERROR_STATUS_MAX;
 }
 

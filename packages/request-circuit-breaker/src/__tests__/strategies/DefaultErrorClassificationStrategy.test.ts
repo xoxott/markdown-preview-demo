@@ -17,6 +17,16 @@ describe('DefaultErrorClassificationStrategy', () => {
       expect(strategy.shouldCountAsFailure(error599)).toBe(true);
     });
 
+    it('应该识别扁平形态的服务器错误（顶层 status）', () => {
+      const flat500 = {
+        message: 'Request failed with status code 500',
+        status: 500,
+        statusText: 'Internal Server Error'
+      };
+
+      expect(strategy.shouldCountAsFailure(flat500)).toBe(true);
+    });
+
     it('不应该识别客户端错误（4xx）', () => {
       const error400 = { response: { status: 400 } };
       const error404 = { response: { status: 404 } };

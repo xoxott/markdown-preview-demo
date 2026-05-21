@@ -21,17 +21,26 @@ export type PipelineProfileResolved = {
   };
 };
 
-const baseRetryShouldRetry = (error: unknown) => {
-  if (error && typeof error === 'object' && 'response' in error) {
-    const axiosError = error as { response?: { status?: number } };
-    return (
-      !axiosError.response ||
-      (axiosError.response.status !== undefined &&
-        axiosError.response.status >= 500 &&
-        axiosError.response.status < 600)
-    );
+function resolveHttpStatus(error: unknown): number | undefined {
+  if (!error || typeof error !== 'object') {
+    return undefined;
   }
-  return false;
+  const err = error as { response?: { status?: number }; status?: number };
+  if (err.response?.status !== undefined) {
+    return err.response.status;
+  }
+  if (typeof err.status === 'number') {
+    return err.status;
+  }
+  return undefined;
+}
+
+const baseRetryShouldRetry = (error: unknown) => {
+  const status = resolveHttpStatus(error);
+  if (status === undefined) {
+    return error !== null && typeof error === 'object' && 'response' in error;
+  }
+  return status >= 500 && status < 600;
 };
 
 function buildRetryStrategy(maxRetries: number): RetryStrategy {

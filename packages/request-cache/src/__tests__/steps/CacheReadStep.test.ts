@@ -186,4 +186,28 @@ describe('CacheReadStep', () => {
     expect(ctx.result).toEqual(cachedData);
     expect(ctx.state.fromCache).toBe(true);
   });
+
+  it('enabledByDefault 为 true 且 meta 无 cache 时仍应读取 GET 缓存', async () => {
+    const enabledStep = new CacheReadStep({
+      requestCacheManager: cacheManager,
+      enabledByDefault: true
+    });
+    const config: NormalizedRequestConfig = {
+      url: '/api/enabled-default',
+      method: 'GET'
+    };
+    const cachedData = { ok: true };
+    const ctx = createRequestContext<typeof cachedData>(config, undefined, {});
+
+    cacheManager.setByKey(ctx.id, cachedData, 5000);
+
+    let nextCalled = false;
+    await enabledStep.execute(ctx, async () => {
+      nextCalled = true;
+    });
+
+    expect(nextCalled).toBe(false);
+    expect(ctx.result).toEqual(cachedData);
+    expect(ctx.state.fromCache).toBe(true);
+  });
 });

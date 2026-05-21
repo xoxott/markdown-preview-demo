@@ -2,7 +2,7 @@
 /* eslint-disable no-param-reassign */
 /** 熔断步骤 职责：熔断保护，默认关闭，仅适用于高频/高价值请求 */
 
-import type { RequestContext, RequestStep } from '@suga/request-core';
+import { type RequestContext, type RequestStep, resolveStepMetaFlag } from '@suga/request-core';
 import type { CircuitBreakerBaseOptions, CircuitBreakerOptions } from '../types';
 import { CircuitBreakerState, isCircuitBreakerMeta } from '../types';
 import {
@@ -16,6 +16,8 @@ export interface CircuitBreakerStepOptions {
   circuitBreakerManager?: CircuitBreakerManager;
   /** 熔断器管理器选项（仅在未提供 circuitBreakerManager 时有效） */
   managerOptions?: CircuitBreakerManagerOptions;
+  /** meta.circuitBreaker 未设置时是否默认启用 */
+  enabledByDefault?: boolean;
 }
 
 /** 解析熔断器配置 */
@@ -45,10 +47,12 @@ function parseCircuitBreakerConfig<T = unknown>(
 /** 熔断步骤 */
 export class CircuitBreakerStep implements RequestStep {
   private circuitBreakerManager: CircuitBreakerManager;
+  private enabledByDefault: boolean;
 
   constructor(options: CircuitBreakerStepOptions = {}) {
     this.circuitBreakerManager =
       options.circuitBreakerManager ?? new CircuitBreakerManager(options.managerOptions);
+    this.enabledByDefault = options.enabledByDefault ?? false;
   }
 
   async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
@@ -56,7 +60,10 @@ export class CircuitBreakerStep implements RequestStep {
       return next();
     }
 
-    const circuitBreakerConfig = ctx.meta.circuitBreaker;
+    const circuitBreakerConfig = resolveStepMetaFlag(
+      ctx.meta.circuitBreaker,
+      this.enabledByDefault
+    );
     const parsedConfig = parseCircuitBreakerConfig<T>(circuitBreakerConfig);
 
     if (!parsedConfig) {

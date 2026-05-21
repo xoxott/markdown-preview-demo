@@ -227,6 +227,55 @@ describe('composeSteps', () => {
     expect(ctx.meta.asyncCompleted).toBe(true);
   });
 
+  it('RetryStep 重试时应从当前步骤之后重新执行后续链', async () => {
+    const executionOrder: number[] = [];
+
+    class RetryLikeStep implements RequestStep {
+      async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+        const runFromIndex = ctx.meta.__pipelineRunFromIndex as
+          | ((from: number) => Promise<void>)
+          | undefined;
+        const stepIndex = ctx.meta.__pipelineStepIndex as number | undefined;
+
+        if (runFromIndex === undefined || stepIndex === undefined) {
+          await next();
+          return;
+        }
+
+        let attempts = 0;
+        while (attempts < 3) {
+          attempts += 1;
+          try {
+            await runFromIndex(stepIndex + 1);
+            return;
+          } catch {
+            if (attempts >= 3) {
+              throw new Error('fail');
+            }
+          }
+        }
+      }
+    }
+
+    class TailStep implements RequestStep {
+      constructor(private readonly id: number) {}
+
+      async execute<T>(_ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
+        executionOrder.push(this.id);
+        if (this.id === 3) {
+          throw new Error('transport fail');
+        }
+        await next();
+      }
+    }
+
+    const composed = composeSteps([new RetryLikeStep(), new TailStep(2), new TailStep(3)]);
+    const ctx = createRequestContext({ url: '/x', method: 'GET' });
+
+    await expect(composed(ctx)).rejects.toThrow('fail');
+    expect(executionOrder).toEqual([2, 3, 2, 3, 2, 3]);
+  });
+
   it('应该支持多个步骤共享上下文', async () => {
     class Step1 implements RequestStep {
       async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {

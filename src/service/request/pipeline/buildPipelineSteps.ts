@@ -1,5 +1,5 @@
 import { PrepareContextStep, type RequestStep } from '@suga/request-core';
-import { CacheReadStep, CacheWriteStep } from '@suga/request-cache';
+import { CacheReadStep, CacheWriteStep, RequestCacheManager } from '@suga/request-cache';
 import { RetryStep } from '@suga/request-retry';
 import { CircuitBreakerStep } from '@suga/request-circuit-breaker';
 import { DedupeStep } from '@suga/request-dedupe';
@@ -18,14 +18,21 @@ export function buildPipelineSteps(
 ): RequestStep[] {
   const f = resolvePipelineProfile(profile);
   const steps: RequestStep[] = [new PrepareContextStep()];
+  const sharedCacheManager = f.useCache ? new RequestCacheManager() : undefined;
 
-  if (f.useCache) {
-    steps.push(new CacheReadStep());
+  if (f.useCache && sharedCacheManager) {
+    steps.push(
+      new CacheReadStep({
+        requestCacheManager: sharedCacheManager,
+        enabledByDefault: true
+      })
+    );
   }
   if (f.useDedupe) {
     steps.push(
       new DedupeStep({
-        defaultOptions: { dedupeWindow: f.dedupeWindow, strategy: 'exact' }
+        defaultOptions: { dedupeWindow: f.dedupeWindow, strategy: 'exact' },
+        enabledByDefault: true
       })
     );
   }
@@ -42,7 +49,8 @@ export function buildPipelineSteps(
         defaultConfig: {
           maxConcurrent: f.queueMaxConcurrent,
           queueStrategy: 'fifo'
-        }
+        },
+        enabledByDefault: true
       })
     );
   }
@@ -50,17 +58,25 @@ export function buildPipelineSteps(
     steps.push(new EventStep({ eventManager }));
   }
   if (f.useRetry) {
-    steps.push(new RetryStep({ defaultStrategy: f.retryStrategy }));
+    steps.push(new RetryStep({ defaultStrategy: f.retryStrategy, enabledByDefault: true }));
   }
   if (f.useCircuitBreaker) {
-    steps.push(new CircuitBreakerStep({ managerOptions: f.circuitBreaker }));
+    steps.push(
+      new CircuitBreakerStep({ managerOptions: f.circuitBreaker, enabledByDefault: true })
+    );
+  }
+
+  // CacheWrite 须在 Transport 之前：先 next() 发请求，再在 then 中写入（Transport 不调用 next）
+  if (f.useCache && sharedCacheManager) {
+    steps.push(
+      new CacheWriteStep({
+        requestCacheManager: sharedCacheManager,
+        enabledByDefault: true
+      })
+    );
   }
 
   steps.push(new PipelineTransportStep(transport));
-
-  if (f.useCache) {
-    steps.push(new CacheWriteStep());
-  }
 
   return steps;
 }

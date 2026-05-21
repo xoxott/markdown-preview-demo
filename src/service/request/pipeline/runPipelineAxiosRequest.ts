@@ -24,9 +24,20 @@ export async function runPipelineAxiosRequest<ResponseData = unknown>(
     throw ctx.error;
   }
 
-  const axiosResponse = ctx.meta[PIPELINE_AXIOS_RESPONSE_META] as
+  let axiosResponse = ctx.meta[PIPELINE_AXIOS_RESPONSE_META] as
     | AxiosResponse<ResponseData>
     | undefined;
+
+  if (!axiosResponse && ctx.state.fromCache && ctx.result !== undefined) {
+    axiosResponse = {
+      data: ctx.result as ResponseData,
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: axiosConfig as AxiosResponse<ResponseData>['config']
+    } as AxiosResponse<ResponseData>;
+  }
+
   if (!axiosResponse) {
     throw new Error(
       'runPipelineAxiosRequest: missing captured Axios response. Use AxiosTransport with responseCaptureByCorrelationId and PipelineTransportStep.'

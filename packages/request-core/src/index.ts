@@ -13,6 +13,12 @@ export { createRequestContext } from './context/RequestContext';
 
 // Utils
 export { generateRequestKey } from './utils/key-generator';
+export { resolveStepMetaFlag } from './utils/resolveStepMetaFlag';
+export {
+  PIPELINE_RUN_FROM_INDEX_META,
+  PIPELINE_STEP_INDEX_META,
+  type PipelineRunFromIndex
+} from './meta/pipelineComposeMeta';
 
 // Transport
 export type { Transport, TransportResponse } from './transport/Transport';

@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 /** 缓存读取步骤 职责：读缓存、标记 ctx.state.fromCache */
 
-import type { RequestContext, RequestStep } from '@suga/request-core';
+import { type RequestContext, type RequestStep, resolveStepMetaFlag } from '@suga/request-core';
 import type { CacheConfig, CachePolicy } from '../policies';
 import { createCachePolicy } from '../policies';
 import { RequestCacheManager } from '../managers/RequestCacheManager';
@@ -11,26 +11,29 @@ import type { CacheReadStepOptions } from '../types/steps';
 export class CacheReadStep implements RequestStep {
   private requestCacheManager: RequestCacheManager;
   private policyFactory: (cache?: CacheConfig) => CachePolicy;
+  private enabledByDefault: boolean;
 
   constructor(options: CacheReadStepOptions = {}) {
     this.requestCacheManager = options.requestCacheManager ?? new RequestCacheManager();
     this.policyFactory = options.policyFactory ?? createCachePolicy;
+    this.enabledByDefault = options.enabledByDefault ?? false;
   }
 
   execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
-    // 获取缓存配置
-    const cacheConfig = ctx.meta.cache as CacheConfig | undefined;
+    const cacheConfig = resolveStepMetaFlag(
+      ctx.meta.cache as CacheConfig | false | undefined,
+      this.enabledByDefault
+    );
 
-    // 检查缓存配置
-    if (cacheConfig === false || cacheConfig === undefined) {
-      // 无缓存配置，直接执行下一步
+    if (cacheConfig === undefined) {
       return next();
     }
 
     const policy: CachePolicy = this.policyFactory(cacheConfig);
+    const metaForPolicy = { ...ctx.meta, cache: cacheConfig };
 
     // 判断是否应该读取缓存
-    if (!policy.shouldRead(ctx.config, ctx.meta)) {
+    if (!policy.shouldRead(ctx.config, metaForPolicy)) {
       return next();
     }
 

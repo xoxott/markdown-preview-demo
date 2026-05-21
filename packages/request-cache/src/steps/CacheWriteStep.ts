@@ -1,6 +1,6 @@
 /** 缓存写入步骤 */
 
-import type { RequestContext, RequestStep } from '@suga/request-core';
+import { type RequestContext, type RequestStep, resolveStepMetaFlag } from '@suga/request-core';
 import type { CacheConfig, CachePolicy } from '../policies';
 import { createCachePolicy } from '../policies';
 import { RequestCacheManager } from '../managers/RequestCacheManager';
@@ -10,10 +10,12 @@ import type { CacheWriteStepOptions } from '../types/steps';
 export class CacheWriteStep implements RequestStep {
   private requestCacheManager: RequestCacheManager;
   private policyFactory: (cache?: CacheConfig) => CachePolicy;
+  private enabledByDefault: boolean;
 
   constructor(options: CacheWriteStepOptions = {}) {
     this.requestCacheManager = options.requestCacheManager ?? new RequestCacheManager();
     this.policyFactory = options.policyFactory ?? createCachePolicy;
+    this.enabledByDefault = options.enabledByDefault ?? false;
   }
 
   execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
@@ -25,23 +27,25 @@ export class CacheWriteStep implements RequestStep {
         return;
       }
 
-      // 获取缓存配置
-      const cacheConfig = ctx.meta.cache as CacheConfig | undefined;
+      const cacheConfig = resolveStepMetaFlag(
+        ctx.meta.cache as CacheConfig | false | undefined,
+        this.enabledByDefault
+      );
 
-      // 检查缓存配置
-      if (cacheConfig === false || cacheConfig === undefined) {
+      if (cacheConfig === undefined) {
         return;
       }
 
       const policy: CachePolicy = this.policyFactory(cacheConfig);
+      const metaForPolicy = { ...ctx.meta, cache: cacheConfig };
 
       // 判断是否应该写入缓存
-      if (!policy.shouldWrite(ctx.config, ctx.result, ctx.meta)) {
+      if (!policy.shouldWrite(ctx.config, ctx.result, metaForPolicy)) {
         return;
       }
 
       // 写入缓存（直接使用 ctx.id，避免重复计算）
-      const ttl = policy.getTTL(ctx.config, ctx.meta);
+      const ttl = policy.getTTL(ctx.config, metaForPolicy);
       this.requestCacheManager.setByKey(ctx.id, ctx.result, ttl);
     });
   }

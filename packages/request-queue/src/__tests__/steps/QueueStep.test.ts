@@ -19,6 +19,28 @@ describe('QueueStep', () => {
     step = new QueueStep({ queueManager: manager });
   });
 
+  it('enabledByDefault 为 true 且 meta 无 queue 时应入队', async () => {
+    const enabledStep = new QueueStep({
+      defaultConfig: { maxConcurrent: 5, queueStrategy: 'fifo' },
+      enabledByDefault: true
+    });
+    const config: NormalizedRequestConfig = {
+      url: '/api/users',
+      method: 'GET'
+    };
+    const ctx = createRequestContext(config);
+
+    let nextCalled = false;
+    const next = async (): Promise<void> => {
+      nextCalled = true;
+      ctx.result = { ok: true };
+    };
+
+    await enabledStep.execute(ctx, next);
+
+    expect(nextCalled).toBe(true);
+  });
+
   it('应该在 meta 中没有 queue 时跳过', async () => {
     const config: NormalizedRequestConfig = {
       url: '/api/users',

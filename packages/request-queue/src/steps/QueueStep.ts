@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
 /** 队列步骤 职责：控制请求并发数量，支持队列和优先级 */
 
-import type { RequestContext, RequestStep } from '@suga/request-core';
+import { type RequestContext, type RequestStep, resolveStepMetaFlag } from '@suga/request-core';
 import { DEFAULT_QUEUE_CONFIG } from '../constants';
 import { QueueManager } from '../managers/QueueManager';
 import type { QueueConfig, QueueMeta } from '../types';
@@ -12,6 +12,8 @@ export interface QueueStepOptions {
   queueManager?: QueueManager;
   /** 默认队列配置 */
   defaultConfig?: QueueConfig;
+  /** meta.queue 未设置时是否默认启用 */
+  enabledByDefault?: boolean;
 }
 
 /** 类型守卫：判断 meta 是否包含 QueueMeta */
@@ -43,6 +45,7 @@ function parseQueueConfig(
 export class QueueStep implements RequestStep {
   private queueManager: QueueManager;
   private defaultConfig?: QueueConfig;
+  private enabledByDefault: boolean;
 
   constructor(options: QueueStepOptions = {}) {
     if (options.queueManager) {
@@ -57,6 +60,7 @@ export class QueueStep implements RequestStep {
       });
     }
     this.defaultConfig = options.defaultConfig;
+    this.enabledByDefault = options.enabledByDefault ?? false;
   }
 
   async execute<T>(ctx: RequestContext<T>, next: () => Promise<void>): Promise<void> {
@@ -64,7 +68,7 @@ export class QueueStep implements RequestStep {
       return next();
     }
 
-    const queueConfig = ctx.meta.queue;
+    const queueConfig = resolveStepMetaFlag(ctx.meta.queue, this.enabledByDefault);
     const parsedConfig = parseQueueConfig(queueConfig, this.defaultConfig);
 
     if (!parsedConfig) {

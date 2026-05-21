@@ -1,7 +1,6 @@
 /** Axios 传输层：将 Axios 实例适配为 @suga/request-core 的 Transport */
 
 import type { AxiosInstance, AxiosResponse } from 'axios';
-import axios from 'axios';
 import type { NormalizedRequestConfig, Transport, TransportResponse } from '@suga/request-core';
 
 /** 与步骤链配合时，用于把 `pipelineCorrelationId` 关联到完整 Axios 响应 */
@@ -70,36 +69,23 @@ export class AxiosTransport implements Transport {
   }
 
   async request<T = unknown>(config: NormalizedRequestConfig): Promise<TransportResponse<T>> {
-    try {
-      const extended = config as NormalizedRequestConfig & { pipelineCorrelationId?: string };
-      const correlationId = extended.pipelineCorrelationId;
-      const axiosConfig = { ...extended } as unknown as Parameters<AxiosInstance['request']>[0];
-      delete (axiosConfig as { pipelineCorrelationId?: string }).pipelineCorrelationId;
+    const extended = config as NormalizedRequestConfig & { pipelineCorrelationId?: string };
+    const correlationId = extended.pipelineCorrelationId;
+    const axiosConfig = { ...extended } as unknown as Parameters<AxiosInstance['request']>[0];
+    delete (axiosConfig as { pipelineCorrelationId?: string }).pipelineCorrelationId;
 
-      const response = await this.instance.request<T>(axiosConfig);
+    // 直接抛出 AxiosError（含 response.status），供 RetryStep / CircuitBreakerStep 识别 5xx
+    const response = await this.instance.request<T>(axiosConfig);
 
-      if (correlationId && this.responseCaptureByCorrelationId) {
-        this.responseCaptureByCorrelationId.set(correlationId, response);
-      }
-
-      return {
-        data: response.data,
-        status: response.status,
-        headers: normalizeHeaders(response.headers),
-        config
-      };
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error) && error.response) {
-        throw {
-          message: error.message,
-          status: error.response.status,
-          statusText: error.response.statusText,
-          data: error.response.data,
-          headers: normalizeHeaders(error.response.headers),
-          config: error.config
-        };
-      }
-      throw error;
+    if (correlationId && this.responseCaptureByCorrelationId) {
+      this.responseCaptureByCorrelationId.set(correlationId, response);
     }
+
+    return {
+      data: response.data,
+      status: response.status,
+      headers: normalizeHeaders(response.headers),
+      config
+    };
   }
 }
