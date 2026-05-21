@@ -295,6 +295,7 @@ declare namespace App {
     type Schema = {
       system: {
         title: string;
+        subtitle: string;
         updateTitle: string;
         updateContent: string;
         updateConfirm: string;

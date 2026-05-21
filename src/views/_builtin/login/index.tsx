@@ -98,6 +98,9 @@ export default defineComponent({
               <h3 class="text-center text-20px text-primary font-600 lt-sm:text-18px">
                 {$t('system.title')}
               </h3>
+              <p class="mt-4px text-center text-13px text-gray-500 dark:text-gray-400">
+                {$t('system.subtitle')}
+              </p>
             </header>
 
             <main>

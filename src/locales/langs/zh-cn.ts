@@ -1,6 +1,7 @@
 const local: App.I18n.Schema = {
   system: {
-    title: '管理工具',
+    title: '墨流',
+    subtitle: 'Markdown 智能工作台',
     updateTitle: '系统版本更新通知',
     updateContent: '检测到系统有新版本发布，是否立即刷新页面？',
     updateConfirm: '立即刷新',
@@ -276,11 +277,11 @@ const local: App.I18n.Schema = {
       projectNews: {
         title: '项目动态',
         moreNews: '更多动态',
-        desc1: 'Soybean 在2021年5月28日创建了开源项目 soybean-admin!',
-        desc2: 'Yanbowe 向 soybean-admin 提交了一个bug，多标签栏不会自适应。',
-        desc3: 'Soybean 准备为 soybean-admin 的发布做充分的准备工作!',
-        desc4: 'Soybean 正在忙于为soybean-admin写项目说明文档！',
-        desc5: 'Soybean 刚才把工作台页面随便写了一些，凑合能看了！'
+        desc1: '墨流 完成登录页动态背景与毛玻璃卡片视觉升级。',
+        desc2: 'Markdown 预览引擎接入 Mermaid 与代码高亮插件。',
+        desc3: 'AI 工作区能力栈页面已支持包索引与命令目录浏览。',
+        desc4: '文件上传模块新增监控 SSE 与多语言抽屉。',
+        desc5: '主题色与布局配置已支持一键切换与持久化。'
       },
       creativity: '创意'
     },

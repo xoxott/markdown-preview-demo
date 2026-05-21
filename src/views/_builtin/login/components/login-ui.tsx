@@ -14,7 +14,6 @@ import {
   LOGIN_ALT_BTN_CLASS,
   LOGIN_CODE_BTN_CLASS,
   LOGIN_INPUT_CLASS,
-  LOGIN_INPUT_FLEX_CLASS,
   LOGIN_PRIMARY_BTN_CLASS
 } from '../shared/constants';
 
@@ -153,7 +152,6 @@ export const PrefixedInput = defineComponent({
     icon: { type: String, required: true },
     type: { type: String as PropType<'text' | 'password'>, default: 'text' },
     maxlength: Number,
-    flex: Boolean,
     showPasswordOn: { type: String as PropType<'click'>, default: undefined }
   },
   emits: ['update:value'],
@@ -165,7 +163,7 @@ export const PrefixedInput = defineComponent({
         showPasswordOn={props.showPasswordOn}
         maxlength={props.maxlength}
         placeholder={props.placeholder}
-        class={props.flex ? LOGIN_INPUT_FLEX_CLASS : LOGIN_INPUT_CLASS}
+        class={LOGIN_INPUT_CLASS}
         onUpdateValue={v => emit('update:value', v ?? '')}
       >
         {{
@@ -188,15 +186,16 @@ export const VerificationCodeRow = defineComponent({
   emits: ['update:code', 'send'],
   setup(props, { emit }) {
     return () => (
-      <div class="w-full flex-y-center gap-8px">
-        <PrefixedInput
-          value={props.code}
-          flex
-          icon="i-carbon-password"
-          maxlength={6}
-          placeholder={$t('page.login.common.codePlaceholder')}
-          onUpdate:value={v => emit('update:code', v)}
-        />
+      <div class="w-full flex items-center gap-8px">
+        <div class="min-w-0 flex-1">
+          <PrefixedInput
+            value={props.code}
+            icon="i-carbon-password"
+            maxlength={6}
+            placeholder={$t('page.login.common.codePlaceholder')}
+            onUpdate:value={v => emit('update:code', v)}
+          />
+        </div>
         <NButton
           size="large"
           secondary
