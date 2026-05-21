@@ -140,6 +140,12 @@ declare namespace Env {
      * Set to Y in `.env.gh` or rely on github.io hostname detection
      */
     readonly VITE_STATIC_DEMO?: CommonType.YesOrNo;
+    /**
+     * Local dev auth bypass (default on in DEV unless set to N)
+     *
+     * Set to N when testing real login against a local API
+     */
+    readonly VITE_DEV_BYPASS_AUTH?: CommonType.YesOrNo;
     /** The launch editor */
     readonly VITE_DEVTOOLS_LAUNCH_EDITOR?: import('vite-plugin-vue-devtools').VitePluginVueDevToolsOptions['launchEditor'];
   }

@@ -2,6 +2,7 @@
 import type { AxiosError, AxiosResponse } from 'axios';
 import type { FlatRequestInstance, RequestOption } from '@suga/axios';
 import { useAuthStore } from '@/store/modules/auth';
+import { isStaticDemo } from '@/utils/env/static-demo';
 import { $t } from '@/locales';
 import { getAuthorization, handleExpiredRequest, showErrorMsg } from '../shared';
 import type { RequestInstanceState } from '../type';
@@ -80,7 +81,7 @@ export function createMainRequestPolicies(
         !expiredTokenCodes.includes(errorCode) &&
         (authErrorCodeSet.has(errorCode) || logoutCodes.includes(errorCode));
 
-      if (shouldLogout) {
+      if (shouldLogout && !isStaticDemo()) {
         handleLogout();
         return null;
       }

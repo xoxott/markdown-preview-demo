@@ -11,6 +11,7 @@ import { setupStore } from './store';
 import { setupRouter } from './router';
 import { setupI18n } from './locales';
 import App from './App';
+import { isStaticDemo, seedStaticDemoAuthTokens } from '@/utils/env/static-demo';
 
 async function setupApp() {
   setupLoading();
@@ -24,6 +25,10 @@ async function setupApp() {
   const app = createApp(App);
 
   setupStore(app);
+
+  if (isStaticDemo()) {
+    seedStaticDemoAuthTokens();
+  }
 
   await setupRouter(app);
 
