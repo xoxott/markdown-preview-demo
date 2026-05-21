@@ -1,5 +1,5 @@
 import { useSvgIconRender } from '@suga/hooks';
-import SvgIcon from '@/components/custom/svg-icon.vue';
+import SvgIcon from '@/components/custom/svg-icon';
 
 export function useSvgIcon() {
   const { SvgIconVNode } = useSvgIconRender(SvgIcon);

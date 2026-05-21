@@ -1,0 +1,61 @@
+.countdown-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.label {
+  color: #666;
+  font-weight: 400;
+}
+
+.time {
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.time.normal {
+  color: #409eff;
+}
+
+.time.warning {
+  color: #e6a23c;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.time.completed {
+  color: #67c23a;
+}
+
+.trend {
+  font-size: 12px;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.trend-up {
+  color: #f56c6c;
+  transform: translateY(-1px);
+}
+
+.trend-down {
+  color: #67c23a;
+  transform: translateY(1px);
+}
+
+.trend-stable {
+  color: #909399;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}

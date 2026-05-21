@@ -44,7 +44,7 @@ const statisticData = computed<StatisticData[]>(() => [
     <NGrid :x-gap="gap" :y-gap="16" responsive="screen" item-responsive>
       <NGi span="24 s:24 m:18">
         <div class="flex-y-center">
-          <div class="flex-center size-72px shrink-0 overflow-hidden rd-1/2 bg-primary:12">
+          <div class="size-72px flex-center shrink-0 overflow-hidden rd-1/2 bg-primary:12">
             <SystemLogo class="text-40px text-primary" />
           </div>
           <div class="pl-12px">

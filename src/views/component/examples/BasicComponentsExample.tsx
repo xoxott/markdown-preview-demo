@@ -5,7 +5,7 @@ import { NCard, NForm, NFormItem, NH3, NScrollbar, NText } from 'naive-ui';
 import type { FileItem } from '@/components/file-explorer/types/file-explorer';
 import NSelectionRect from '@/components/file-explorer/interaction/NSelectionRect';
 import CustomUpload from '@/components/custom-upload';
-import CountdownTimer from '@/components/custom/countdown-timer.vue';
+import CountdownTimer from '@/components/custom/countdown-timer';
 import EditableText from '@/components/custom/editableText';
 
 export default defineComponent({

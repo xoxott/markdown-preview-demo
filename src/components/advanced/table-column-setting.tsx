@@ -4,7 +4,7 @@ import { Icon } from '@iconify/vue';
 import { GripVertical } from '@vicons/tabler';
 import { VueDraggable } from 'vue-draggable-plus';
 import type { TableColumnCheckFixed } from '@suga/hooks';
-import SvgIcon from '@/components/custom/svg-icon.vue';
+import SvgIcon from '@/components/custom/svg-icon';
 import { $t } from '@/locales';
 
 const ColumnDraggable = VueDraggable as any;

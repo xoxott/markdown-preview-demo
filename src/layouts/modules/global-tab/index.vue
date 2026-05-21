@@ -3,12 +3,13 @@ import { nextTick, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useElementBounding } from '@vueuse/core';
 import { PageTab } from '@suga/materials';
+import type BScroll from '@better-scroll/core';
 import { useAppStore } from '@/store/modules/app';
 import { useThemeStore } from '@/store/modules/theme';
 import { useRouteStore } from '@/store/modules/route';
 import { useTabStore } from '@/store/modules/tab';
 import { isPC } from '@/utils/agent';
-import BetterScroll from '@/components/custom/better-scroll.vue';
+import BetterScroll from '@/components/custom/better-scroll';
 import ContextMenu from './context-menu.vue';
 
 defineOptions({
@@ -23,7 +24,7 @@ const tabStore = useTabStore();
 
 const bsWrapper = ref<HTMLElement>();
 const { width: bsWrapperWidth, left: bsWrapperLeft } = useElementBounding(bsWrapper);
-const bsScroll = ref<InstanceType<typeof BetterScroll>>();
+const bsScroll = ref<{ instance?: BScroll }>();
 const tabRef = ref<HTMLElement>();
 const isPCFlag = isPC();
 

@@ -1,7 +1,7 @@
 import { type PropType, defineComponent } from 'vue';
 import { NBadge, NButton, NSpace, NText, NTooltip } from 'naive-ui';
 import TableColumnSetting from '@/components/advanced/table-column-setting';
-import SvgIcon from '@/components/custom/svg-icon.vue';
+import SvgIcon from '@/components/custom/svg-icon';
 import { $t } from '@/locales';
 import type { ActionBarColumnSetting, ActionBarProps, PresetButtonType } from './types';
 
