@@ -164,6 +164,49 @@ export default defineComponent({
     const hasHorizontalOverflow = (scroll: HTMLElement): boolean =>
       scroll.scrollWidth - scroll.clientWidth > 1;
 
+    /**
+     * 滚动宿主在 selection-container 坐标系下的可视视口。
+     * 须与 Naive `.n-scrollbar` 外框求交：详情视图 flex 分栏时，`.n-scrollbar-container` 的
+     * clientHeight 可能比外层高出 1～2px，底部会被外层 overflow:hidden 裁掉，仅用 clientHeight 画圈选会越界。
+     * 有横向滚动时，底部轨道叠在容器上，也需排除。
+     */
+    const getScrollViewportInContainer = (
+      scroll: HTMLElement,
+      container: HTMLElement
+    ): { viewLeft: number; viewTop: number; viewRight: number; viewBottom: number } => {
+      const scrollRect = scroll.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      const scrollRoot = scroll.closest(SELECTORS.SCROLLBAR) as HTMLElement | null;
+      const clipRect = scrollRoot?.getBoundingClientRect() ?? scrollRect;
+
+      let viewLeft = scrollRect.left - containerRect.left;
+      let viewTop = scrollRect.top - containerRect.top;
+      let viewRight = scrollRect.right - containerRect.left;
+      let viewBottom = scrollRect.bottom - containerRect.top;
+
+      const clipLeft = clipRect.left - containerRect.left;
+      const clipTop = clipRect.top - containerRect.top;
+      const clipRight = clipRect.right - containerRect.left;
+      const clipBottom = clipRect.bottom - containerRect.top;
+
+      viewLeft = Math.max(viewLeft, clipLeft);
+      viewTop = Math.max(viewTop, clipTop);
+      viewRight = Math.min(viewRight, clipRight);
+      viewBottom = Math.min(viewBottom, clipBottom);
+
+      if (hasHorizontalOverflow(scroll) && scrollRoot) {
+        const xRail = scrollRoot.querySelector(
+          `${SELECTORS.SCROLLBAR}-rail--horizontal[data-scrollbar-rail]`
+        ) as HTMLElement | null;
+        if (xRail) {
+          const railTop = xRail.getBoundingClientRect().top - containerRect.top;
+          viewBottom = Math.min(viewBottom, railTop);
+        }
+      }
+
+      return { viewLeft, viewTop, viewRight, viewBottom };
+    };
+
     /** 在 selection 子树内查找实际发生 scroll 的元素（契约类名优先，其次 Naive 默认结构） */
     const findScrollHostElement = (): HTMLElement | null => {
       const root = containerRef.value;
@@ -245,16 +288,15 @@ export default defineComponent({
       const rect = selectionRect.value;
       const scrollRect = scroll.getBoundingClientRect();
       const containerRect = container.getBoundingClientRect();
+      const { viewLeft, viewTop, viewRight, viewBottom } = getScrollViewportInContainer(
+        scroll,
+        container
+      );
 
       let left = scrollRect.left - containerRect.left + rect.left - scroll.scrollLeft;
       let top = scrollRect.top - containerRect.top + rect.top - scroll.scrollTop;
       let right = left + rect.width;
       let bottom = top + rect.height;
-
-      const viewLeft = scrollRect.left - containerRect.left;
-      const viewTop = scrollRect.top - containerRect.top;
-      const viewRight = viewLeft + scroll.clientWidth;
-      const viewBottom = viewTop + scroll.clientHeight;
 
       left = Math.max(viewLeft, left);
       top = Math.max(viewTop, top);
@@ -411,13 +453,14 @@ export default defineComponent({
       const scrollRect = scroll.getBoundingClientRect();
       const bounds = getScrollContentBounds();
       const maxXInView = scroll.scrollLeft + scroll.clientWidth;
+      const maxYInView = scroll.scrollTop + scroll.clientHeight;
       const maxX = hasHorizontalOverflow(scroll) ? bounds.maxX : maxXInView;
 
       return {
         x: Math.max(bounds.minX, Math.min(maxX, e.clientX - scrollRect.left + scroll.scrollLeft)),
         y: Math.max(
           bounds.minY,
-          Math.min(bounds.maxY, e.clientY - scrollRect.top + scroll.scrollTop)
+          Math.min(bounds.maxY, maxYInView, e.clientY - scrollRect.top + scroll.scrollTop)
         )
       };
     };
@@ -648,10 +691,10 @@ export default defineComponent({
             <div
               class="selection-rect"
               style={{
-                left: `${left}px`,
-                top: `${top}px`,
-                width: `${width}px`,
-                height: `${height}px`,
+                left: `${Math.round(left)}px`,
+                top: `${Math.round(top)}px`,
+                width: `${Math.round(width)}px`,
+                height: `${Math.round(height)}px`,
                 boxSizing: 'border-box',
                 ...props.rectStyle
               }}
