@@ -103,22 +103,31 @@ export default function useTable<A extends ApiFn, T, C>(config: TableConfig<A, T
     });
   }
 
+  /** 列表拉数代数：仅最新一次请求可写回 data / 结束 loading，避免翻页或改筛选时的后发先至 */
+  let fetchGeneration = 0;
+
   async function getData() {
+    const generation = ++fetchGeneration;
     startLoading();
 
-    const formattedParams = formatSearchParams(searchParams);
+    try {
+      const formattedParams = formatSearchParams(searchParams);
+      const response = await apiFn(formattedParams);
 
-    const response = await apiFn(formattedParams);
+      if (generation !== fetchGeneration) {
+        return;
+      }
 
-    const transformed = transformer(response as Awaited<ReturnType<A>>);
+      const transformed = transformer(response as Awaited<ReturnType<A>>);
 
-    data.value = transformed.data;
-
-    setEmpty(transformed.data.length === 0);
-
-    await config.onFetched?.(transformed);
-
-    endLoading();
+      data.value = transformed.data;
+      setEmpty(transformed.data.length === 0);
+      await config.onFetched?.(transformed);
+    } finally {
+      if (generation === fetchGeneration) {
+        endLoading();
+      }
+    }
   }
 
   function formatSearchParams(params: Record<string, unknown>) {
