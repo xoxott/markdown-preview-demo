@@ -1,7 +1,8 @@
 import { computed, ref } from 'vue';
 import { useAuthStore } from '@/store/modules/auth';
+import { $t } from '@/locales';
 
-/** Login flow state */
+/** 两步登录流程状态 */
 interface LoginFlowState {
   step: 'step1' | 'step2';
   temporaryToken: string | null;
@@ -10,7 +11,7 @@ interface LoginFlowState {
   expiresIn: number | null;
 }
 
-/** Login flow hook Manages two-step login process */
+/** 两步登录：第一步账号密码，第二步邮箱验证码（风控触发） */
 export function useLoginFlow() {
   const authStore = useAuthStore();
 
@@ -27,10 +28,10 @@ export function useLoginFlow() {
   const requiresVerification = computed(() => state.value.step === 'step2');
 
   /**
-   * Execute login step 1
+   * 执行登录第一步
    *
-   * @param username Username
-   * @param password Password
+   * @param username 用户名
+   * @param password 明文密码（调用方负责加密）
    */
   async function executeStep1(username: string, password: string) {
     const result = await authStore.loginStep1(username, password);
@@ -40,7 +41,7 @@ export function useLoginFlow() {
     }
 
     if (result.requiresVerification && result.data) {
-      // Move to step 2
+      // 进入第二步：邮箱验证码
       state.value = {
         step: 'step2',
         temporaryToken: result.data.temporaryToken,
@@ -59,19 +60,19 @@ export function useLoginFlow() {
       };
     }
 
-    // Login completed without verification
+    // 无需二次验证，登录已完成
     return { success: true, requiresVerification: false };
   }
 
   /**
-   * Execute login step 2
+   * 执行登录第二步（临时 token + 验证码）
    *
-   * @param code Verification code
-   * @param redirect Whether to redirect after login
+   * @param code 邮箱验证码
+   * @param redirect 成功后是否跳转
    */
   async function executeStep2(code: string, redirect = true) {
     if (!state.value.temporaryToken) {
-      window.$message?.error('临时令牌已失效，请重新登录');
+      window.$message?.error($t('page.login.common.tempTokenExpired'));
       reset();
       return false;
     }
@@ -86,7 +87,7 @@ export function useLoginFlow() {
     return false;
   }
 
-  /** Reset login flow state */
+  /** 重置为第一步，清空临时 token 与风控信息 */
   function reset() {
     state.value = {
       step: 'step1',
@@ -97,7 +98,7 @@ export function useLoginFlow() {
     };
   }
 
-  /** Get risk information */
+  /** 当前风控评分与风险因素（第二步展示用） */
   const riskInfo = computed(() => {
     if (!state.value.riskScore && !state.value.riskFactors) {
       return null;

@@ -204,7 +204,14 @@ const local: App.I18n.Schema = {
         back: '返回',
         validateSuccess: '验证成功',
         loginSuccess: '登录成功',
-        welcomeBack: '欢迎回来，{userName} ！'
+        welcomeBack: '欢迎回来，{userName} ！',
+        codeRequired: '请输入验证码',
+        emailInvalid: '请输入有效的邮箱地址',
+        sendCodeFailed: '发送验证码失败，请稍后重试',
+        sendingCode: '发送中...',
+        retryInSeconds: '{time}秒后重试',
+        sendVerificationCode: '发送验证码',
+        tempTokenExpired: '临时令牌已失效，请重新登录'
       },
       pwdLogin: {
         title: '密码登录',
@@ -215,7 +222,15 @@ const local: App.I18n.Schema = {
         otherLoginMode: '其他登录方式',
         superAdmin: '超级管理员',
         admin: '管理员',
-        user: '普通用户'
+        user: '普通用户',
+        verificationRequired: '需要验证码验证',
+        verificationHint:
+          '系统检测到异常登录行为，已向您的邮箱发送验证码，请查收并输入验证码完成登录。',
+        riskScore: '风险评分',
+        riskFactors: '风险因素',
+        riskFactorNewDevice: '新设备或未信任设备',
+        riskFactorNewIp: '新IP地址',
+        backToLogin: '返回重新登录'
       },
       codeLogin: {
         title: '验证码登录',

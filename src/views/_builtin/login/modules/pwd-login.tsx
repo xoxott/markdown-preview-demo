@@ -1,23 +1,19 @@
 import { computed, defineComponent, reactive, ref } from 'vue';
-import { NAlert, NButton, NCheckbox, NForm, NFormItem, NInput, NSpace, NTag } from 'naive-ui';
-import { loginModuleRecord } from '@/constants/app';
+import { NAlert, NButton, NCheckbox, NForm, NFormItem, NSpace, NTag } from 'naive-ui';
 import { useAuthStore } from '@/store/modules/auth';
-import {
-  clearRememberedUsername,
-  getRememberedUsername,
-  saveRememberedUsername
-} from '@/store/modules/auth/shared';
+import { clearRememberedUsername, getRememberedUsername } from '@/store/modules/auth/shared';
 import { useLoginFlow } from '@/hooks/business/login-flow';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { useRouterPush } from '@/hooks/common/router';
-import { calculateStringMD5 } from '@/hooks/upload/utils/hash';
 import { $t } from '@/locales';
-
-interface FormModel {
-  username: string;
-  password: string;
-  verificationCode: string;
-}
+import {
+  LoginAltMethods,
+  LoginFormShell,
+  LoginSubmitButton,
+  PrefixedInput
+} from '../components/login-ui';
+import { RISK_FACTOR_I18N } from '../shared/constants';
+import { encryptLoginPassword, persistRememberedUsername } from '../shared/utils';
 
 export default defineComponent({
   name: 'PwdLogin',
@@ -27,24 +23,17 @@ export default defineComponent({
     const { formRef, validate } = useNaiveForm();
     const loginFlow = useLoginFlow();
 
-    // Remember me state
-    const rememberMe = ref(false);
-
-    // Load saved username on component mount
     const savedUsername = getRememberedUsername();
-    if (savedUsername) {
-      rememberMe.value = true;
-    }
+    const rememberMe = ref(Boolean(savedUsername));
 
-    const model = reactive<FormModel>({
+    const model = reactive({
       username: savedUsername || '',
       password: '',
       verificationCode: ''
     });
 
-    const rules = computed<Record<keyof FormModel, App.Global.FormRule[]>>(() => {
+    const rules = computed(() => {
       const { formRules } = useFormRules();
-
       return {
         username: formRules.userName,
         password: formRules.pwd,
@@ -52,138 +41,91 @@ export default defineComponent({
       };
     });
 
+    const switchModule = (module: UnionKey.LoginModule) => {
+      loginFlow.reset();
+      toggleLoginModule(module);
+    };
+
     const handleSubmit = async () => {
-      const valid = await validate();
-      if (!valid) return;
+      if (!(await validate())) return;
 
       if (loginFlow.isStep1.value) {
-        // Step 1: Submit username and password
-        // 对密码做 MD5 加密后再提交
-        const encryptedPassword = calculateStringMD5(model.password);
-        const result = await loginFlow.executeStep1(model.username, encryptedPassword);
-
-        if (!result.success) {
-          return;
-        }
-
-        if (result.requiresVerification) {
-          // Move to step 2, verification code input will be shown
-          return;
-        }
-
-        // Login completed without verification - handle remember me
-        if (rememberMe.value && model.username) {
-          saveRememberedUsername(model.username);
-        } else {
-          clearRememberedUsername();
-        }
+        const result = await loginFlow.executeStep1(
+          model.username,
+          encryptLoginPassword(model.password)
+        );
+        if (!result.success || result.requiresVerification) return;
+        persistRememberedUsername(rememberMe.value, model.username);
         return;
       }
 
-      // Step 2: Submit verification code
       if (!model.verificationCode) {
-        window.$message?.error('请输入验证码');
+        window.$message?.error($t('page.login.common.codeRequired'));
         return;
       }
 
       const success = await loginFlow.executeStep2(model.verificationCode);
-
-      // Handle remember me after successful login
       if (success) {
-        if (rememberMe.value && model.username) {
-          saveRememberedUsername(model.username);
-        } else {
-          clearRememberedUsername();
-        }
+        persistRememberedUsername(rememberMe.value, model.username);
       }
     };
 
-    const handleBackToStep1 = () => {
-      loginFlow.reset();
-      model.verificationCode = '';
-    };
-
-    const handleSwitchToRegister = () => {
-      loginFlow.reset();
-      toggleLoginModule('register');
-    };
-
-    const handleSwitchToCodeLogin = () => {
-      loginFlow.reset();
-      toggleLoginModule('code-login');
-    };
+    const riskFactorLabel = (factor: string) =>
+      RISK_FACTOR_I18N[factor] ? $t(RISK_FACTOR_I18N[factor]) : factor;
 
     return () => (
-      <div
-        onKeyup={(e: KeyboardEvent) => {
-          if (e.key === 'Enter') {
-            handleSubmit();
-          }
-        }}
-      >
+      <LoginFormShell onEnter={handleSubmit}>
         <NForm ref={formRef} model={model} rules={rules.value} size="large" showLabel={false}>
-          {/* Step 1: Username and Password */}
           {loginFlow.isStep1.value && (
             <>
               <NFormItem path="username" class="mb-10px">
-                <NInput
+                <PrefixedInput
                   value={model.username}
-                  onUpdateValue={value => (model.username = value)}
+                  icon="i-carbon-user"
                   placeholder={$t('page.login.common.userNamePlaceholder')}
-                  class="h-40px"
-                >
-                  {{
-                    prefix: () => <div class="i-carbon-user text-16px text-gray-400" />
-                  }}
-                </NInput>
+                  onUpdate:value={v => (model.username = v)}
+                />
               </NFormItem>
               <NFormItem path="password" class="mb-10px">
-                <NInput
+                <PrefixedInput
                   value={model.password}
-                  onUpdateValue={value => (model.password = value)}
                   type="password"
                   showPasswordOn="click"
+                  icon="i-carbon-password"
                   placeholder={$t('page.login.common.passwordPlaceholder')}
-                  class="h-40px"
-                >
-                  {{
-                    prefix: () => <div class="i-carbon-password text-16px text-gray-400" />
-                  }}
-                </NInput>
+                  onUpdate:value={v => (model.password = v)}
+                />
               </NFormItem>
             </>
           )}
 
-          {/* Step 2: Verification Code */}
           {loginFlow.isStep2.value && (
             <>
               <NAlert type="info" class="mb-12px rd-8px">
                 <div class="space-y-1.5">
                   <div class="flex items-center gap-4px text-13px font-semibold">
                     <div class="i-carbon-security text-15px" />
-                    需要验证码验证
+                    {$t('page.login.pwdLogin.verificationRequired')}
                   </div>
                   <div class="text-11px text-gray-600 leading-relaxed dark:text-gray-400">
-                    系统检测到异常登录行为，已向您的邮箱发送验证码，请查收并输入验证码完成登录。
+                    {$t('page.login.pwdLogin.verificationHint')}
                   </div>
                   {loginFlow.riskInfo.value && (
                     <div class="mt-8px border-t border-gray-200 pt-8px space-y-4px dark:border-gray-700">
                       <div class="flex items-center gap-4px text-11px">
-                        <span class="text-gray-500">风险评分:</span>
+                        <span class="text-gray-500">{$t('page.login.pwdLogin.riskScore')}:</span>
                         <span class="text-primary font-semibold">
                           {loginFlow.riskInfo.value.riskScore}
                         </span>
                       </div>
                       {loginFlow.riskInfo.value.riskFactors.length > 0 && (
                         <div class="flex flex-wrap items-center gap-4px">
-                          <span class="text-11px text-gray-500">风险因素:</span>
+                          <span class="text-11px text-gray-500">
+                            {$t('page.login.pwdLogin.riskFactors')}:
+                          </span>
                           {loginFlow.riskInfo.value.riskFactors.map(factor => (
                             <NTag key={factor} size="small" type="warning" round>
-                              {factor === 'new_or_untrusted_device'
-                                ? '新设备或未信任设备'
-                                : factor === 'new_ip'
-                                  ? '新IP地址'
-                                  : factor}
+                              {riskFactorLabel(factor)}
                             </NTag>
                           ))}
                         </div>
@@ -193,27 +135,26 @@ export default defineComponent({
                 </div>
               </NAlert>
               <NFormItem path="verificationCode" class="mb-10px">
-                <NInput
+                <PrefixedInput
                   value={model.verificationCode}
-                  onUpdateValue={value => (model.verificationCode = value)}
-                  placeholder="请输入验证码"
+                  icon="i-carbon-email"
                   maxlength={6}
-                  class="h-40px"
-                >
-                  {{
-                    prefix: () => <div class="i-carbon-email text-16px text-gray-400" />
-                  }}
-                </NInput>
+                  placeholder={$t('page.login.common.codePlaceholder')}
+                  onUpdate:value={v => (model.verificationCode = v)}
+                />
               </NFormItem>
               <NButton
                 text
                 size="small"
-                onClick={handleBackToStep1}
                 class="hover:text-primary-hover mb-8px text-primary"
+                onClick={() => {
+                  loginFlow.reset();
+                  model.verificationCode = '';
+                }}
               >
                 <div class="flex items-center gap-3px text-12px">
                   <div class="i-carbon-arrow-left text-13px" />
-                  返回重新登录
+                  {$t('page.login.pwdLogin.backToLogin')}
                 </div>
               </NButton>
             </>
@@ -224,13 +165,11 @@ export default defineComponent({
               <div class="flex-y-center justify-between">
                 <NCheckbox
                   checked={rememberMe.value}
+                  class="text-12px"
                   onUpdateChecked={val => {
                     rememberMe.value = val;
-                    if (!val) {
-                      clearRememberedUsername();
-                    }
+                    if (!val) clearRememberedUsername();
                   }}
-                  class="text-12px"
                 >
                   {$t('page.login.pwdLogin.rememberMe')}
                 </NCheckbox>
@@ -238,55 +177,27 @@ export default defineComponent({
                   text
                   size="small"
                   class="hover:text-primary-hover text-12px text-primary"
-                  onClick={() => toggleLoginModule('reset-pwd')}
+                  onClick={() => switchModule('reset-pwd')}
                 >
                   {$t('page.login.pwdLogin.forgetPassword')}
                 </NButton>
               </div>
             )}
 
-            <NButton
-              type="primary"
-              size="large"
-              round
-              block
-              loading={authStore.loginLoading}
-              onClick={handleSubmit}
-              class="h-40px text-14px font-500 shadow-lg transition-all hover:shadow-xl"
-            >
-              {$t('common.confirm')}
-            </NButton>
+            <LoginSubmitButton loading={authStore.loginLoading} onClick={handleSubmit} />
 
             {loginFlow.isStep1.value && (
-              <>
-                <div class="relative my-12px">
-                  <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-gray-200 dark:border-gray-700" />
-                  </div>
-                  <div class="relative flex justify-center text-11px">
-                    <span class="px-[8px] text-gray-500">其他登录方式</span>
-                  </div>
-                </div>
-
-                <div class="flex gap-8px">
-                  <NButton class="h-36px flex-1" round secondary onClick={handleSwitchToCodeLogin}>
-                    <div class="flex items-center justify-center gap-4px text-13px">
-                      <div class="i-carbon-email text-15px" />
-                      <span>{$t(loginModuleRecord['code-login'])}</span>
-                    </div>
-                  </NButton>
-                  <NButton class="h-36px flex-1" round secondary onClick={handleSwitchToRegister}>
-                    <div class="flex items-center justify-center gap-4px text-13px">
-                      <div class="i-carbon-user-follow text-15px" />
-                      <span>{$t(loginModuleRecord.register)}</span>
-                    </div>
-                  </NButton>
-                </div>
-              </>
+              <LoginAltMethods
+                options={[
+                  { module: 'code-login', icon: 'i-carbon-email' },
+                  { module: 'register', icon: 'i-carbon-user-follow' }
+                ]}
+                onSwitch={switchModule}
+              />
             )}
           </NSpace>
         </NForm>
-      </div>
+      </LoginFormShell>
     );
   }
 });

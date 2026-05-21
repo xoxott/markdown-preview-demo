@@ -439,6 +439,13 @@ declare namespace App {
             validateSuccess: string;
             loginSuccess: string;
             welcomeBack: string;
+            codeRequired: string;
+            emailInvalid: string;
+            sendCodeFailed: string;
+            sendingCode: string;
+            retryInSeconds: string;
+            sendVerificationCode: string;
+            tempTokenExpired: string;
           };
           pwdLogin: {
             title: string;
@@ -450,6 +457,13 @@ declare namespace App {
             superAdmin: string;
             admin: string;
             user: string;
+            verificationRequired: string;
+            verificationHint: string;
+            riskScore: string;
+            riskFactors: string;
+            riskFactorNewDevice: string;
+            riskFactorNewIp: string;
+            backToLogin: string;
           };
           codeLogin: {
             title: string;

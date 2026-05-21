@@ -1,19 +1,26 @@
 import { computed, defineComponent, reactive } from 'vue';
-import { NButton, NForm, NFormItem, NInput, NSpace } from 'naive-ui';
+import { NForm, NFormItem, NSpace } from 'naive-ui';
 import { useAuthStore } from '@/store/modules/auth';
-import { useRouterPush } from '@/hooks/common/router';
-import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { useVerificationCode } from '@/hooks/business/verification-code';
-import { calculateStringMD5 } from '@/hooks/upload/utils/hash';
+import { useFormRules, useNaiveForm } from '@/hooks/common/form';
+import { useRouterPush } from '@/hooks/common/router';
 import { $t } from '@/locales';
+import {
+  LoginBackButton,
+  LoginFormShell,
+  LoginSubmitButton,
+  PrefixedInput,
+  VerificationCodeRow
+} from '../components/login-ui';
+import { encryptLoginPassword } from '../shared/utils';
 
-interface FormModel {
-  username: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  verificationCode: string;
-}
+const emptyRegisterModel = () => ({
+  username: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  verificationCode: ''
+});
 
 export default defineComponent({
   name: 'Register',
@@ -21,19 +28,14 @@ export default defineComponent({
     const authStore = useAuthStore();
     const { toggleLoginModule } = useRouterPush();
     const { formRef, validate } = useNaiveForm();
-    const { isCounting, loading, label, sendCode, reset } = useVerificationCode();
-
-    const model = reactive<FormModel>({
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      verificationCode: ''
+    const { isCounting, loading, label, sendCode, reset } = useVerificationCode({
+      purpose: 'register'
     });
 
-    const rules = computed<Record<keyof FormModel, App.Global.FormRule[]>>(() => {
-      const { formRules, createConfirmPwdRule } = useFormRules();
+    const model = reactive(emptyRegisterModel());
 
+    const rules = computed(() => {
+      const { formRules, createConfirmPwdRule } = useFormRules();
       return {
         username: formRules.userName,
         email: formRules.email,
@@ -43,154 +45,78 @@ export default defineComponent({
       };
     });
 
-    const handleSendCode = async () => {
-      if (!model.email) return;
-
-      await sendCode(model.email);
-    };
-
     const handleSubmit = async () => {
-      // 本地校验不通过则直接返回，不发起请求
-      const valid = await validate();
-      if (!valid) return;
-
-      // 对密码做 MD5 加密后再提交
-      const encryptedPassword = calculateStringMD5(model.password);
+      if (!(await validate())) return;
 
       const success = await authStore.register(
         model.username,
         model.email,
-        encryptedPassword,
+        encryptLoginPassword(model.password),
         model.verificationCode
       );
 
       if (success) {
-        // Reset form and switch to login
-        Object.assign(model, {
-          username: '',
-          email: '',
-          password: '',
-          confirmPassword: '',
-          verificationCode: ''
-        });
+        Object.assign(model, emptyRegisterModel());
         reset();
         toggleLoginModule('pwd-login');
       }
     };
 
     return () => (
-      <div
-        onKeyup={(e: KeyboardEvent) => {
-          if (e.key === 'Enter') {
-            handleSubmit();
-          }
-        }}
-      >
+      <LoginFormShell onEnter={handleSubmit}>
         <NForm ref={formRef} model={model} rules={rules.value} size="large" showLabel={false}>
           <NFormItem path="username" class="mb-10px">
-            <NInput
+            <PrefixedInput
               value={model.username}
-              onUpdateValue={value => (model.username = value)}
-              placeholder="请输入用户名"
-              class="h-40px"
-            >
-              {{
-                prefix: () => <div class="i-carbon-user text-16px text-gray-400" />
-              }}
-            </NInput>
+              icon="i-carbon-user"
+              placeholder={$t('page.login.common.userNamePlaceholder')}
+              onUpdate:value={v => (model.username = v)}
+            />
           </NFormItem>
           <NFormItem path="email" class="mb-10px">
-            <NInput
+            <PrefixedInput
               value={model.email}
-              onUpdateValue={value => (model.email = value)}
-              placeholder="请输入邮箱地址"
-              class="h-40px"
-            >
-              {{
-                prefix: () => <div class="i-carbon-email text-16px text-gray-400" />
-              }}
-            </NInput>
+              icon="i-carbon-email"
+              placeholder={$t('page.login.codeLogin.emailPlaceholder')}
+              onUpdate:value={v => (model.email = v)}
+            />
           </NFormItem>
           <NFormItem path="verificationCode" class="mb-10px">
-            <div class="w-full flex-y-center gap-8px">
-              <NInput
-                value={model.verificationCode}
-                onUpdateValue={value => (model.verificationCode = value)}
-                placeholder="请输入验证码"
-                maxlength={6}
-                class="h-40px flex-1"
-              >
-                {{
-                  prefix: () => <div class="i-carbon-password text-16px text-gray-400" />
-                }}
-              </NInput>
-              <NButton
-                size="large"
-                secondary
-                disabled={isCounting.value}
-                loading={loading.value}
-                onClick={handleSendCode}
-                class="h-40px w-110px whitespace-nowrap text-12px"
-              >
-                {label.value}
-              </NButton>
-            </div>
+            <VerificationCodeRow
+              code={model.verificationCode}
+              label={label.value}
+              disabled={isCounting.value}
+              loading={loading.value}
+              onUpdate:code={v => (model.verificationCode = v)}
+              onSend={() => sendCode(model.email)}
+            />
           </NFormItem>
           <NFormItem path="password" class="mb-10px">
-            <NInput
+            <PrefixedInput
               value={model.password}
-              onUpdateValue={value => (model.password = value)}
               type="password"
               showPasswordOn="click"
+              icon="i-carbon-locked"
               placeholder={$t('page.login.common.passwordPlaceholder')}
-              class="h-40px"
-            >
-              {{
-                prefix: () => <div class="i-carbon-locked text-16px text-gray-400" />
-              }}
-            </NInput>
+              onUpdate:value={v => (model.password = v)}
+            />
           </NFormItem>
           <NFormItem path="confirmPassword" class="mb-10px">
-            <NInput
+            <PrefixedInput
               value={model.confirmPassword}
-              onUpdateValue={value => (model.confirmPassword = value)}
               type="password"
               showPasswordOn="click"
+              icon="i-carbon-locked"
               placeholder={$t('page.login.common.confirmPasswordPlaceholder')}
-              class="h-40px"
-            >
-              {{
-                prefix: () => <div class="i-carbon-locked text-16px text-gray-400" />
-              }}
-            </NInput>
+              onUpdate:value={v => (model.confirmPassword = v)}
+            />
           </NFormItem>
           <NSpace vertical size={8} class="w-full">
-            <NButton
-              type="primary"
-              size="large"
-              round
-              block
-              onClick={handleSubmit}
-              class="h-40px text-14px font-500 shadow-lg transition-all hover:shadow-xl"
-            >
-              {$t('common.confirm')}
-            </NButton>
-            <NButton
-              size="large"
-              round
-              block
-              secondary
-              onClick={() => toggleLoginModule('pwd-login')}
-              class="h-36px"
-            >
-              <div class="flex items-center justify-center gap-4px text-13px">
-                <div class="i-carbon-arrow-left text-15px" />
-                <span>{$t('page.login.common.back')}</span>
-              </div>
-            </NButton>
+            <LoginSubmitButton onClick={handleSubmit} />
+            <LoginBackButton onClick={() => toggleLoginModule('pwd-login')} />
           </NSpace>
         </NForm>
-      </div>
+      </LoginFormShell>
     );
   }
 });

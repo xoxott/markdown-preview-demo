@@ -1,19 +1,25 @@
-import { computed, defineComponent, reactive, ref } from 'vue';
-import { NButton, NForm, NFormItem, NInput, NSpace } from 'naive-ui';
+import { computed, defineComponent, reactive } from 'vue';
+import { NForm, NFormItem, NSpace } from 'naive-ui';
 import { useAuthStore } from '@/store/modules/auth';
-import { useRouterPush } from '@/hooks/common/router';
+import { useVerificationCode } from '@/hooks/business/verification-code';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
-import { calculateStringMD5 } from '@/hooks/upload/utils/hash';
+import { useRouterPush } from '@/hooks/common/router';
 import { $t } from '@/locales';
+import {
+  LoginBackButton,
+  LoginFormShell,
+  LoginSubmitButton,
+  PrefixedInput,
+  VerificationCodeRow
+} from '../components/login-ui';
+import { encryptLoginPassword } from '../shared/utils';
 
-interface FormModel {
-  email: string;
-  verificationCode: string;
-  password: string;
-  confirmPassword: string;
-}
-
-const COUNTDOWN_SECONDS = 60;
+const emptyResetModel = () => ({
+  email: '',
+  verificationCode: '',
+  password: '',
+  confirmPassword: ''
+});
 
 export default defineComponent({
   name: 'ResetPwd',
@@ -21,33 +27,14 @@ export default defineComponent({
     const authStore = useAuthStore();
     const { toggleLoginModule } = useRouterPush();
     const { formRef, validate } = useNaiveForm();
-
-    const model = reactive<FormModel>({
-      email: '',
-      verificationCode: '',
-      password: '',
-      confirmPassword: ''
+    const { isCounting, loading, label, sendCode, reset } = useVerificationCode({
+      purpose: 'reset'
     });
 
-    // 验证码相关状态
-    const isCounting = ref(false);
-    const countdown = ref(0);
-    const loading = ref(false);
-    let countdownTimer: number | null = null;
+    const model = reactive(emptyResetModel());
 
-    const label = computed(() => {
-      if (loading.value) {
-        return '发送中...';
-      }
-      if (isCounting.value) {
-        return `${countdown.value}秒后重试`;
-      }
-      return '发送验证码';
-    });
-
-    const rules = computed<Record<keyof FormModel, App.Global.FormRule[]>>(() => {
+    const rules = computed(() => {
       const { formRules, createConfirmPwdRule } = useFormRules();
-
       return {
         email: formRules.email,
         verificationCode: formRules.code,
@@ -56,200 +43,69 @@ export default defineComponent({
       };
     });
 
-    /** Start countdown */
-    function startCountdown() {
-      if (countdownTimer) {
-        clearInterval(countdownTimer);
-      }
-
-      isCounting.value = true;
-      countdown.value = COUNTDOWN_SECONDS;
-
-      countdownTimer = window.setInterval(() => {
-        countdown.value--;
-
-        if (countdown.value <= 0) {
-          isCounting.value = false;
-          if (countdownTimer) {
-            clearInterval(countdownTimer);
-            countdownTimer = null;
-          }
-        }
-      }, 1000);
-    }
-
-    /** Send verification code for reset password */
-    const handleSendCode = async () => {
-      if (isCounting.value || loading.value) {
-        return;
-      }
-
-      if (!model.email) {
-        window.$message?.error('请输入邮箱地址');
-        return;
-      }
-
-      // Email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(model.email)) {
-        window.$message?.error('请输入有效的邮箱地址');
-        return;
-      }
-
-      loading.value = true;
-
-      try {
-        const success = await authStore.sendResetPasswordCode(model.email);
-
-        if (success) {
-          startCountdown();
-        }
-      } catch {
-        window.$message?.error('发送验证码失败，请稍后重试');
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    /** Reset countdown */
-    function resetCountdown() {
-      if (countdownTimer) {
-        clearInterval(countdownTimer);
-        countdownTimer = null;
-      }
-      isCounting.value = false;
-      countdown.value = 0;
-      loading.value = false;
-    }
-
     const handleSubmit = async () => {
-      // 本地校验不通过则直接返回，不发起请求
-      const valid = await validate();
-      if (!valid) return;
-
-      // 对密码做 MD5 加密后再提交
-      const encryptedPassword = calculateStringMD5(model.password);
+      if (!(await validate())) return;
 
       const success = await authStore.resetPassword(
         model.email,
         model.verificationCode,
-        encryptedPassword
+        encryptLoginPassword(model.password)
       );
 
       if (success) {
-        // Reset form and switch to login
-        Object.assign(model, {
-          email: '',
-          verificationCode: '',
-          password: '',
-          confirmPassword: ''
-        });
-        resetCountdown();
+        Object.assign(model, emptyResetModel());
+        reset();
         toggleLoginModule('pwd-login');
       }
     };
 
     return () => (
-      <div
-        onKeyup={(e: KeyboardEvent) => {
-          if (e.key === 'Enter') {
-            handleSubmit();
-          }
-        }}
-      >
+      <LoginFormShell onEnter={handleSubmit}>
         <NForm ref={formRef} model={model} rules={rules.value} size="large" showLabel={false}>
           <NFormItem path="email" class="mb-10px">
-            <NInput
+            <PrefixedInput
               value={model.email}
-              onUpdateValue={value => (model.email = value)}
-              placeholder="请输入邮箱地址"
-              class="h-40px"
-            >
-              {{
-                prefix: () => <div class="i-carbon-email text-16px text-gray-400" />
-              }}
-            </NInput>
+              icon="i-carbon-email"
+              placeholder={$t('page.login.codeLogin.emailPlaceholder')}
+              onUpdate:value={v => (model.email = v)}
+            />
           </NFormItem>
           <NFormItem path="verificationCode" class="mb-10px">
-            <div class="w-full flex-y-center gap-8px">
-              <NInput
-                value={model.verificationCode}
-                onUpdateValue={value => (model.verificationCode = value)}
-                placeholder="请输入验证码"
-                maxlength={6}
-                class="h-40px flex-1"
-              >
-                {{
-                  prefix: () => <div class="i-carbon-password text-16px text-gray-400" />
-                }}
-              </NInput>
-              <NButton
-                size="large"
-                secondary
-                disabled={isCounting.value}
-                loading={loading.value}
-                onClick={handleSendCode}
-                class="h-40px w-110px whitespace-nowrap text-12px"
-              >
-                {label.value}
-              </NButton>
-            </div>
+            <VerificationCodeRow
+              code={model.verificationCode}
+              label={label.value}
+              disabled={isCounting.value}
+              loading={loading.value}
+              onUpdate:code={v => (model.verificationCode = v)}
+              onSend={() => sendCode(model.email)}
+            />
           </NFormItem>
           <NFormItem path="password" class="mb-10px">
-            <NInput
+            <PrefixedInput
               value={model.password}
-              onUpdateValue={value => (model.password = value)}
               type="password"
               showPasswordOn="click"
+              icon="i-carbon-locked"
               placeholder={$t('page.login.common.passwordPlaceholder')}
-              class="h-40px"
-            >
-              {{
-                prefix: () => <div class="i-carbon-locked text-16px text-gray-400" />
-              }}
-            </NInput>
+              onUpdate:value={v => (model.password = v)}
+            />
           </NFormItem>
           <NFormItem path="confirmPassword" class="mb-10px">
-            <NInput
+            <PrefixedInput
               value={model.confirmPassword}
-              onUpdateValue={value => (model.confirmPassword = value)}
               type="password"
               showPasswordOn="click"
+              icon="i-carbon-locked"
               placeholder={$t('page.login.common.confirmPasswordPlaceholder')}
-              class="h-40px"
-            >
-              {{
-                prefix: () => <div class="i-carbon-locked text-16px text-gray-400" />
-              }}
-            </NInput>
+              onUpdate:value={v => (model.confirmPassword = v)}
+            />
           </NFormItem>
           <NSpace vertical size={8} class="w-full">
-            <NButton
-              type="primary"
-              size="large"
-              round
-              block
-              onClick={handleSubmit}
-              class="h-40px text-14px font-500 shadow-lg transition-all hover:shadow-xl"
-            >
-              {$t('common.confirm')}
-            </NButton>
-            <NButton
-              size="large"
-              round
-              block
-              secondary
-              onClick={() => toggleLoginModule('pwd-login')}
-              class="h-36px"
-            >
-              <div class="flex items-center justify-center gap-4px text-13px">
-                <div class="i-carbon-arrow-left text-15px" />
-                <span>{$t('page.login.common.back')}</span>
-              </div>
-            </NButton>
+            <LoginSubmitButton onClick={handleSubmit} />
+            <LoginBackButton onClick={() => toggleLoginModule('pwd-login')} />
           </NSpace>
         </NForm>
-      </div>
+      </LoginFormShell>
     );
   }
 });

@@ -206,7 +206,14 @@ const local: App.I18n.Schema = {
         back: 'Back',
         validateSuccess: 'Verification passed',
         loginSuccess: 'Login successfully',
-        welcomeBack: 'Welcome back, {userName} !'
+        welcomeBack: 'Welcome back, {userName} !',
+        codeRequired: 'Please enter verification code',
+        emailInvalid: 'Please enter a valid email address',
+        sendCodeFailed: 'Failed to send verification code. Please try again later.',
+        sendingCode: 'Sending...',
+        retryInSeconds: 'Retry in {time}s',
+        sendVerificationCode: 'Send code',
+        tempTokenExpired: 'Temporary token expired. Please sign in again.'
       },
       pwdLogin: {
         title: 'Password Login',
@@ -214,10 +221,18 @@ const local: App.I18n.Schema = {
         forgetPassword: 'Forget password?',
         register: 'Register',
         otherAccountLogin: 'Other Account Login',
-        otherLoginMode: 'Other Login Mode',
+        otherLoginMode: 'Other sign-in options',
         superAdmin: 'Super Admin',
         admin: 'Admin',
-        user: 'User'
+        user: 'User',
+        verificationRequired: 'Verification required',
+        verificationHint:
+          'Unusual sign-in activity was detected. A verification code has been sent to your email. Enter it below to continue.',
+        riskScore: 'Risk score',
+        riskFactors: 'Risk factors',
+        riskFactorNewDevice: 'New or untrusted device',
+        riskFactorNewIp: 'New IP address',
+        backToLogin: 'Back to sign in'
       },
       codeLogin: {
         title: 'Verification Code Login',

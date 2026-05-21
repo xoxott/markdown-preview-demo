@@ -1,15 +1,17 @@
-import { computed, defineComponent, reactive, ref } from 'vue';
-import { NButton, NForm, NFormItem, NInput, NSpace, NText } from 'naive-ui';
-import { loginModuleRecord } from '@/constants/app';
+import { computed, defineComponent, reactive } from 'vue';
+import { NForm, NFormItem, NSpace } from 'naive-ui';
 import { useAuthStore } from '@/store/modules/auth';
+import { useVerificationCode } from '@/hooks/business/verification-code';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { useRouterPush } from '@/hooks/common/router';
 import { $t } from '@/locales';
-
-interface FormModel {
-  email: string;
-  verificationCode: string;
-}
+import {
+  LoginAltMethods,
+  LoginFormShell,
+  LoginSubmitButton,
+  PrefixedInput,
+  VerificationCodeRow
+} from '../components/login-ui';
 
 export default defineComponent({
   name: 'CodeLogin',
@@ -17,172 +19,58 @@ export default defineComponent({
     const authStore = useAuthStore();
     const { toggleLoginModule } = useRouterPush();
     const { formRef, validate } = useNaiveForm();
+    const { isCounting, loading, label, sendCode } = useVerificationCode({ purpose: 'login' });
 
-    const model = reactive<FormModel>({
-      email: '',
-      verificationCode: ''
-    });
+    const model = reactive({ email: '', verificationCode: '' });
 
-    const rules = computed<Record<keyof FormModel, App.Global.FormRule[]>>(() => {
+    const rules = computed(() => {
       const { formRules } = useFormRules();
-
       return {
         email: formRules.email,
         verificationCode: formRules.code
       };
     });
 
-    // 验证码倒计时
-    const isCounting = ref(false);
-    const countdown = ref(60);
-    let timer: NodeJS.Timeout | null = null;
-
-    const startCountdown = () => {
-      isCounting.value = true;
-      countdown.value = 60;
-
-      timer = setInterval(() => {
-        countdown.value--;
-        if (countdown.value <= 0) {
-          stopCountdown();
-        }
-      }, 1000);
-    };
-
-    function stopCountdown() {
-      isCounting.value = false;
-      countdown.value = 60;
-      if (timer) {
-        clearInterval(timer);
-        timer = null;
-      }
-    }
-
-    // 发送验证码
-    const handleSendCode = async () => {
-      if (!model.email) {
-        window.$message?.error($t('page.login.codeLogin.emailRequired'));
-        return;
-      }
-
-      // 验证邮箱格式
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailPattern.test(model.email)) {
-        window.$message?.error($t('page.login.codeLogin.emailFormatError'));
-        return;
-      }
-
-      const { error } = await authStore.sendLoginCode(model.email);
-      if (!error) {
-        window.$message?.success($t('page.login.codeLogin.sendCodeSuccess'));
-        startCountdown();
-      }
-    };
-
-    // 提交登录
     const handleSubmit = async () => {
-      const valid = await validate();
-      if (!valid) return;
-
+      if (!(await validate())) return;
       await authStore.codeLogin(model.email, model.verificationCode);
     };
 
-    const handleSwitchToRegister = () => {
-      toggleLoginModule('register');
-    };
-
-    const handleSwitchToPwdLogin = () => {
-      toggleLoginModule('pwd-login');
-    };
-
     return () => (
-      <div
-        onKeyup={(e: KeyboardEvent) => {
-          if (e.key === 'Enter') {
-            handleSubmit();
-          }
-        }}
-      >
+      <LoginFormShell onEnter={handleSubmit}>
         <NForm ref={formRef} model={model} rules={rules.value} size="large" showLabel={false}>
           <NFormItem path="email" class="mb-10px">
-            <NInput
+            <PrefixedInput
               value={model.email}
-              onUpdateValue={value => (model.email = value)}
+              icon="i-carbon-email"
               placeholder={$t('page.login.codeLogin.emailPlaceholder')}
-              class="h-40px"
-            >
-              {{
-                prefix: () => <div class="i-carbon-email text-16px text-gray-400" />
-              }}
-            </NInput>
+              onUpdate:value={v => (model.email = v)}
+            />
           </NFormItem>
 
           <NFormItem path="verificationCode" class="mb-10px">
-            <div class="w-full flex-y-center gap-8px">
-              <NInput
-                value={model.verificationCode}
-                onUpdateValue={value => (model.verificationCode = value)}
-                placeholder={$t('page.login.common.codePlaceholder')}
-                maxlength={6}
-                class="h-40px flex-1"
-              >
-                {{
-                  prefix: () => <div class="i-carbon-password text-16px text-gray-400" />
-                }}
-              </NInput>
-              <NButton
-                size="large"
-                secondary
-                disabled={isCounting.value}
-                onClick={handleSendCode}
-                class="h-40px w-110px whitespace-nowrap text-12px"
-              >
-                {isCounting.value
-                  ? $t('page.login.codeLogin.reGetCode', { time: countdown.value })
-                  : $t('page.login.codeLogin.getCode')}
-              </NButton>
-            </div>
+            <VerificationCodeRow
+              code={model.verificationCode}
+              label={label.value}
+              disabled={isCounting.value}
+              loading={loading.value}
+              onUpdate:code={v => (model.verificationCode = v)}
+              onSend={() => sendCode(model.email)}
+            />
           </NFormItem>
 
           <NSpace vertical size={10}>
-            <NButton
-              type="primary"
-              size="large"
-              round
-              block
-              loading={authStore.loginLoading}
-              onClick={handleSubmit}
-              class="h-40px text-14px font-500 shadow-lg transition-all hover:shadow-xl"
-            >
-              {$t('common.confirm')}
-            </NButton>
-
-            <div class="relative my-12px">
-              <div class="absolute inset-0 flex items-center">
-                <div class="w-full border-t border-gray-200 dark:border-gray-700" />
-              </div>
-              <div class="relative flex justify-center text-11px">
-                <NText class="px-8px">其他登录方式</NText>
-              </div>
-            </div>
-
-            <div class="flex gap-8px">
-              <NButton class="h-36px flex-1" round secondary onClick={handleSwitchToPwdLogin}>
-                <div class="flex items-center justify-center gap-4px text-13px">
-                  <div class="i-carbon-password text-15px" />
-                  <span>{$t(loginModuleRecord['pwd-login'])}</span>
-                </div>
-              </NButton>
-              <NButton class="h-36px flex-1" round secondary onClick={handleSwitchToRegister}>
-                <div class="flex items-center justify-center gap-4px text-13px">
-                  <div class="i-carbon-user-follow text-15px" />
-                  <span>{$t(loginModuleRecord.register)}</span>
-                </div>
-              </NButton>
-            </div>
+            <LoginSubmitButton loading={authStore.loginLoading} onClick={handleSubmit} />
+            <LoginAltMethods
+              options={[
+                { module: 'pwd-login', icon: 'i-carbon-password' },
+                { module: 'register', icon: 'i-carbon-user-follow' }
+              ]}
+              onSwitch={toggleLoginModule}
+            />
           </NSpace>
         </NForm>
-      </div>
+      </LoginFormShell>
     );
   }
 });
