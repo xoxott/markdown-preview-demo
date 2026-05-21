@@ -293,8 +293,7 @@ export default defineComponent({
 
       const left = Math.max(bounds.minX, Math.min(startPoint.x, currentPoint.x));
       const top = Math.max(minTop, Math.min(startPoint.y, currentPoint.y));
-      const maxRight =
-        allowBeyond || hasHorizontalOverflow(scroll) ? bounds.maxX : maxXInView;
+      const maxRight = allowBeyond || hasHorizontalOverflow(scroll) ? bounds.maxX : maxXInView;
       const right = Math.min(maxRight, Math.max(startPoint.x, currentPoint.x));
       const bottom = Math.min(bounds.maxY, Math.max(startPoint.y, currentPoint.y));
 
@@ -496,10 +495,7 @@ export default defineComponent({
 
       return {
         x: Math.max(bounds.minX, Math.min(maxX, e.clientX - scrollRect.left + scroll.scrollLeft)),
-        y: Math.max(
-          bounds.minY,
-          Math.min(maxY, e.clientY - scrollRect.top + scroll.scrollTop)
-        )
+        y: Math.max(bounds.minY, Math.min(maxY, e.clientY - scrollRect.top + scroll.scrollTop))
       };
     };
 

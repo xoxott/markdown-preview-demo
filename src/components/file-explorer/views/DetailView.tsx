@@ -86,9 +86,7 @@ export default defineComponent({
       const measure = () => {
         layoutWidth.value = Math.round(el.clientWidth);
         const scrollHost = el.querySelector(fileListScrollHostSelector) as HTMLElement | null;
-        viewportWidth.value = scrollHost
-          ? Math.round(scrollHost.clientWidth)
-          : layoutWidth.value;
+        viewportWidth.value = scrollHost ? Math.round(scrollHost.clientWidth) : layoutWidth.value;
       };
       measure();
       if (typeof ResizeObserver !== 'undefined') {
@@ -405,44 +403,44 @@ export default defineComponent({
               <table style={tableStyle}>
                 <ColGroup />
                 <tbody data-selector="content-viewer">
-                {ctx.items.value.map(item => {
-                  const isSelected = ctx.selectedIds.value.has(item.id);
-                  const rowBg = getItemBgColor(item.id, isSelected);
-                  return (
-                    <FileDropZoneWrapper
-                      key={item.id}
-                      zoneId={item.id}
-                      targetPath={item.path}
-                      item={item}
-                    >
-                      <tr
-                        data-selectable-id={item.id}
-                        {...(isSelected ? { 'data-prevent-selection': 'true' } : null)}
-                        class="cursor-pointer select-none transition-colors"
-                        style={{
-                          backgroundColor: rowBg,
-                          borderBottom: `1px solid ${themeVars.value.dividerColor}`
-                        }}
-                        onMouseenter={() => (hoveredItemId.value = item.id)}
-                        onMouseleave={() => (hoveredItemId.value = null)}
-                        onClick={(e: MouseEvent) => ctx.onSelect([item.id], e)}
-                        onDblclick={() => ctx.onOpen(item)}
-                        draggable
-                        onDragstart={e => dragDrop.startDrag(selectedItems.value, e)}
+                  {ctx.items.value.map(item => {
+                    const isSelected = ctx.selectedIds.value.has(item.id);
+                    const rowBg = getItemBgColor(item.id, isSelected);
+                    return (
+                      <FileDropZoneWrapper
+                        key={item.id}
+                        zoneId={item.id}
+                        targetPath={item.path}
+                        item={item}
                       >
-                        {columns.value.map(column => (
-                          <td
-                            key={column.id}
-                            class="px-4 py-1.5"
-                            style={{ backgroundColor: rowBg }}
-                          >
-                            {renderCell(item, column, isSelected)}
-                          </td>
-                        ))}
-                      </tr>
-                    </FileDropZoneWrapper>
-                  );
-                })}
+                        <tr
+                          data-selectable-id={item.id}
+                          {...(isSelected ? { 'data-prevent-selection': 'true' } : null)}
+                          class="cursor-pointer select-none transition-colors"
+                          style={{
+                            backgroundColor: rowBg,
+                            borderBottom: `1px solid ${themeVars.value.dividerColor}`
+                          }}
+                          onMouseenter={() => (hoveredItemId.value = item.id)}
+                          onMouseleave={() => (hoveredItemId.value = null)}
+                          onClick={(e: MouseEvent) => ctx.onSelect([item.id], e)}
+                          onDblclick={() => ctx.onOpen(item)}
+                          draggable
+                          onDragstart={e => dragDrop.startDrag(selectedItems.value, e)}
+                        >
+                          {columns.value.map(column => (
+                            <td
+                              key={column.id}
+                              class="px-4 py-1.5"
+                              style={{ backgroundColor: rowBg }}
+                            >
+                              {renderCell(item, column, isSelected)}
+                            </td>
+                          ))}
+                        </tr>
+                      </FileDropZoneWrapper>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
